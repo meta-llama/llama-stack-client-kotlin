@@ -3834,7 +3834,7 @@ constructor(
                         @ExcludeMissing
                         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
-                        fun validate(): Type = apply {
+                        fun validate(): QueryGeneratorConfig.Type = apply {
                             if (!validated) {
                                 type()
                                 validated = true
@@ -3849,8 +3849,8 @@ constructor(
                             }
 
                             return other is Type &&
-                                this.type == other.type &&
-                                this.additionalProperties == other.additionalProperties
+                                this.type == other &&
+                                this.additionalProperties == this.additionalProperties
                         }
 
                         override fun hashCode(): Int {
@@ -3874,7 +3874,7 @@ constructor(
                             private var additionalProperties: MutableMap<String, JsonValue> =
                                 mutableMapOf()
 
-                            internal fun from(type: Type) = apply {
+                            internal fun from(type: QueryGeneratorConfig.Type) = apply {
                                 this.type = type.type
                                 additionalProperties(type.additionalProperties)
                             }
@@ -3900,7 +3900,8 @@ constructor(
                                 additionalProperties: Map<String, JsonValue>
                             ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
-                            fun build(): Type = Type(type, additionalProperties.toUnmodifiable())
+                            fun build(): QueryGeneratorConfig.Type =
+                                Type(type, additionalProperties.toUnmodifiable())
                         }
 
                         class Type
