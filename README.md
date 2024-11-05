@@ -14,23 +14,19 @@ The REST API documentation can be found on [llama-stack](https://docs.llama-sta
 
 ## Getting started
 
-### Install dependencies
+### Build the jar packages
 
-#### Gradle
+In your terminal, under the `llama-stack-client-kotlin` directory, run the following command:
 
-```kotlin
-implementation("com.llama_stack_client.api:llama-stack-client-kotlin:0.0.1-alpha.0")
+```
+export SKIP_MOCK_TESTS=true
+./gradlew build 
 ```
 
-#### Maven
+Output: .jar files located in the build/libs directory of the respective client folders (llama-stack-client-kotlin, llama-stack-client-kotlin-client-okhttp, llama-stack-client-kotlin-core) 
 
-```xml
-<dependency>
-    <groupId>com.llama_stack_client.api</groupId>
-    <artifactId>llama-stack-client-kotlin</artifactId>
-    <version>0.0.1-alpha.0</version>
-</dependency>
-```
+
+Note: Maven dependencies are not available at the moment. We will made it available in the near future once the SDK stabilizes. For now, build the Kotlin SDK jars manually and include them in your projects.
 
 ### Configure the client
 
