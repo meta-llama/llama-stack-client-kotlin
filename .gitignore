@@ -33,3 +33,9 @@ google-services.json
 *.hprof
 
 .DS_Store
+
+/build-jars
+
+# ET dependencies
+*/jni/*
+*/libs/*.jar
