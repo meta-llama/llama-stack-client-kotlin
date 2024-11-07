@@ -11,7 +11,6 @@ class LlamaStackClientLocalClient private constructor() {
     class Builder {
 
         private var clientOptions: LocalClientOptions.Builder = LocalClientOptions.builder()
-
         private var modelPath: String? = null
         private var tokenizerPath: String? = null
 
