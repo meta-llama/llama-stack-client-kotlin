@@ -19,11 +19,10 @@ The REST API documentation can be found on [llama-stack](https://docs.llama-sta
 In your terminal, under the `llama-stack-client-kotlin` directory, run the following command:
 
 ```
-export SKIP_MOCK_TESTS=true
-./gradlew build 
+sh build-libs.sh
 ```
 
-Output: .jar files located in the build/libs directory of the respective client folders (llama-stack-client-kotlin, llama-stack-client-kotlin-client-okhttp, llama-stack-client-kotlin-core) 
+Output: .jar files located in the build-jars directory
 
 
 Note: Maven dependencies are not available at the moment. We will made it available in the near future once the SDK stabilizes. For now, build the Kotlin SDK jars manually and include them in your projects.
