@@ -25,8 +25,8 @@ class LlamaStackClientLocalClient private constructor() {
 
             return LlamaStackClientClientLocalImpl(
                 clientOptions
-                    .modelPath("MODEL_PATH")
-                    .tokenizerPath("TOKENIZER_PATH")
+                    .modelPath(modelPath!!)
+                    .tokenizerPath(tokenizerPath!!)
                     .temperature(0.0F)
                     .build()
             )

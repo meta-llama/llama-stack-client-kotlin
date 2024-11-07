@@ -16,11 +16,11 @@ constructor(
     private val clientOptions: LocalClientOptions,
 ) : InferenceService, LlamaCallback {
     override fun onResult(p0: String?) {
-        print("onResult" + p0)
+        println("onResult" + p0)
     }
 
     override fun onStats(p0: Float) {
-        print("onStats" + p0)
+        println("onStats" + p0)
     }
 
     override fun embeddings(): EmbeddingService {
