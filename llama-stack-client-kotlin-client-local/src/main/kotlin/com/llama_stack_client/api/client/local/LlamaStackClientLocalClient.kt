@@ -1,8 +1,6 @@
 package com.llama_stack_client.api.client.local
 
 import com.llama_stack_client.api.client.LlamaStackClientClient
-import com.llama_stack_client.api.client.local.LlamaStackClientClientLocalImpl
-import com.llama_stack_client.api.client.local.LocalClientOptions
 
 class LlamaStackClientLocalClient private constructor() {
 
@@ -17,18 +15,13 @@ class LlamaStackClientLocalClient private constructor() {
         private var modelPath: String? = null
         private var tokenizerPath: String? = null
 
-        fun modelPath(modelPath: String) =  apply {
-            this.modelPath = modelPath
-        }
+        fun modelPath(modelPath: String) = apply { this.modelPath = modelPath }
 
-        fun tokenizerPath(tokenizerPath: String) = apply {
-            this.tokenizerPath = tokenizerPath
-        }
+        fun tokenizerPath(tokenizerPath: String) = apply { this.tokenizerPath = tokenizerPath }
 
         fun fromEnv() = apply { clientOptions.fromEnv() }
 
         fun build(): LlamaStackClientClient {
-
 
             return LlamaStackClientClientLocalImpl(
                 clientOptions
@@ -37,7 +30,6 @@ class LlamaStackClientLocalClient private constructor() {
                     .temperature(0.0F)
                     .build()
             )
-
         }
     }
 }
