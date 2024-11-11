@@ -42,12 +42,19 @@ constructor(
         requestOptions: RequestOptions
     ): InferenceChatCompletionResponse {
         val mModule = clientOptions.llamaModule
-        val promptExample =
+        /*val promptExample =
             "<|begin_of_text|><|start_header_id|>system<|end_header_id|><|eot_id|><|start_header_id|>user<|end_header_id|>what is France's capital?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+        */
+        val promptExample =
+            "<|begin_of_text|><|start_header_id|>system<|end_header_id|><|eot_id|><|start_header_id|>user<|end_header_id|>what is the capital of France?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+
         /*val promptExample =
             "<|begin_of_text|><|start_header_id|>user<|end_header_id|>What is France's capital?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
         */
-        println("Prompt is: $promptExample")
+        // val message = params.messages().last().userMessage()
+        // println("cmodi Params is: $params")
+        // println("cmodi message is $message")
+        println("cmodi Prompt is: $promptExample")
         mModule.generate(promptExample, ((promptExample.length * 0.75) + 64).toInt(), this, false)
 
         while (!onResultComplete) {
