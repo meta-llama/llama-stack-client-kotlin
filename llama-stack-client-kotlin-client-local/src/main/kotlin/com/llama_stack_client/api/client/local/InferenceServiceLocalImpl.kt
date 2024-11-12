@@ -50,7 +50,8 @@ constructor(
     ): InferenceChatCompletionResponse {
         val mModule = clientOptions.llamaModule
         val message = params.messages().last().userMessage()?.content()?.string().toString()
-        println("cmodi Prompt is: $message")
+        println("Chat Completion Prompt is: $message")
+        onResultComplete = false
         mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, false)
 
         while (!onResultComplete) {
@@ -74,26 +75,25 @@ constructor(
         params: InferenceCompletionParams,
         requestOptions: RequestOptions
     ): InferenceCompletionResponse {
-        TODO("IMPLEMENT ET LOGIC HERE")
-        //        val request =
-        //            HttpRequest.builder()
-        //                .method(HttpMethod.POST)
-        //                .addPathSegments("inference", "completion")
-        //                .putAllQueryParams(clientOptions.queryParams)
-        //                .putAllQueryParams(params.getQueryParams())
-        //                .putAllHeaders(clientOptions.headers)
-        //                .putAllHeaders(params.getHeaders())
-        //                .body(json(clientOptions.jsonMapper, params.getBody()))
-        //                .build()
-        //        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-        //            response
-        //                .use { completionHandler.handle(it) }
-        //                .apply {
-        //                    if (requestOptions.responseValidation ?:
-        // clientOptions.responseValidation) {
-        //                        validate()
-        //                    }
-        //                }
-        //        }
+        val mModule = clientOptions.llamaModule
+        val message = params.content()?.string().toString()
+        println("Completion Prompt is: $message")
+        onResultComplete = false
+        mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, true)
+
+        while (!onResultComplete) {
+            Thread.sleep(2)
+        }
+        onResultComplete = false
+        println("Response is: $resultMessage")
+
+        return InferenceCompletionResponse.ofCompletionResponse(
+            InferenceCompletionResponse.CompletionResponse.builder()
+                .completionMessage(
+                    CompletionMessage.builder()
+                        .content(CompletionMessage.Content.ofString(resultMessage))
+                        .build()
+                ).build()
+        )
     }
 }
