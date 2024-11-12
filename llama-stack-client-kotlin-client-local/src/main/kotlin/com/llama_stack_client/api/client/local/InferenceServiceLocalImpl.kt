@@ -21,15 +21,22 @@ constructor(
     private var onResultComplete: Boolean = false
 
     override fun onResult(p0: String?) {
-        println("onResult is: $p0")
-        resultMessage += p0
-
         if (p0.equals("<|eot_id|>")) {
             onResultComplete = true
+            return
+        }
+
+        if (p0.equals("\n\n") || p0.equals("\n")) {
+            if (resultMessage.isNotEmpty()) {
+                resultMessage += p0
+            }
+        } else {
+            resultMessage += p0
         }
     }
 
     override fun onStats(p0: Float) {
+        onResultComplete = true
         println("I'm in onStats but not doing anything on purpose for now")
     }
 
@@ -42,20 +49,9 @@ constructor(
         requestOptions: RequestOptions
     ): InferenceChatCompletionResponse {
         val mModule = clientOptions.llamaModule
-        /*val promptExample =
-            "<|begin_of_text|><|start_header_id|>system<|end_header_id|><|eot_id|><|start_header_id|>user<|end_header_id|>what is France's capital?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
-        */
-        val promptExample =
-            "<|begin_of_text|><|start_header_id|>system<|end_header_id|><|eot_id|><|start_header_id|>user<|end_header_id|>what is the capital of France?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
-
-        /*val promptExample =
-            "<|begin_of_text|><|start_header_id|>user<|end_header_id|>What is France's capital?<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
-        */
-        // val message = params.messages().last().userMessage()
-        // println("cmodi Params is: $params")
-        // println("cmodi message is $message")
-        println("cmodi Prompt is: $promptExample")
-        mModule.generate(promptExample, ((promptExample.length * 0.75) + 64).toInt(), this, false)
+        val message = params.messages().last().userMessage()?.content()?.string().toString()
+        println("cmodi Prompt is: $message")
+        mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, false)
 
         while (!onResultComplete) {
             Thread.sleep(2)
@@ -63,13 +59,13 @@ constructor(
         onResultComplete = false
         println("Response is: $resultMessage")
 
-        // mModule.generate("What is the capital of France?", 64, this, false)
-        val content = CompletionMessage.Content.ofString(resultMessage)
-        val completionMessage = CompletionMessage.builder().content(content).build()
-
         return InferenceChatCompletionResponse.ofChatCompletionResponse(
             InferenceChatCompletionResponse.ChatCompletionResponse.builder()
-                .completionMessage(completionMessage)
+                .completionMessage(
+                    CompletionMessage.builder()
+                        .content(CompletionMessage.Content.ofString(resultMessage))
+                        .build()
+                )
                 .build()
         )
     }
