@@ -34,4 +34,8 @@ google-services.json
 
 .DS_Store
 
-build-jars/
+/build-jars
+
+# ET dependencies
+*/jni/*
+*/libs/*.jar
