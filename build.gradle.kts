@@ -3,7 +3,7 @@ plugins {
 }
 
 allprojects {
-    group = "com.llama_stack_client.api"
+    group = "com.llama.llamastack"
     version = "0.0.1-alpha.0" 
 }
 
