@@ -16,8 +16,8 @@ configure<PublishingExtension> {
 
             pom {
                 name.set("[DRAFT] Llama Stack Specification")
-                description.set("This is the specification of the llama stack that provides a set of endpoints\nand their corresponding interfaces that are tailored to best leverage Llama\nModels. The specification is still in draft and subject to change. Generated at\n2024-09-23 10:56:42.866760")
-                url.set("https://docs.llama-stack-client.todo")
+                description.set("This is the specification of the llama stack that provides a set of endpoints\nand their corresponding interfaces that are tailored to best leverage Llama\nModels. The specification is still in draft and subject to change. Generated at\n2024-11-12 11:16:58.657871")
+                url.set("https://llama-stack.readthedocs.io/en/latest/")
 
                 licenses {
                     license {
@@ -28,7 +28,7 @@ configure<PublishingExtension> {
                 developers {
                     developer {
                         name.set("Llama Stack Client")
-                        email.set("dev-feedback@llama-stack-client.com")
+                        email.set("llamastack@meta.com")
                     }
                 }
 
