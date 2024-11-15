@@ -2,15 +2,16 @@
 
 package com.llama_stack_client.api.client.local
 
-import com.llama_stack_client.api.core.JsonValue
-import com.llama_stack_client.api.core.RequestOptions
-import com.llama_stack_client.api.models.CompletionMessage
-import com.llama_stack_client.api.models.InferenceChatCompletionParams
-import com.llama_stack_client.api.models.InferenceChatCompletionResponse
-import com.llama_stack_client.api.models.InferenceCompletionParams
-import com.llama_stack_client.api.models.InferenceCompletionResponse
-import com.llama_stack_client.api.services.blocking.InferenceService
-import com.llama_stack_client.api.services.blocking.inference.EmbeddingService
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.models.CompletionMessage
+import com.llama.llamastack.models.EmbeddingsResponse
+import com.llama.llamastack.models.InferenceChatCompletionParams
+import com.llama.llamastack.models.InferenceChatCompletionResponse
+import com.llama.llamastack.models.InferenceCompletionParams
+import com.llama.llamastack.models.InferenceCompletionResponse
+import com.llama.llamastack.models.InferenceEmbeddingsParams
+import com.llama.llamastack.services.blocking.InferenceService
 import org.pytorch.executorch.LlamaCallback
 
 class InferenceServiceLocalImpl
@@ -44,10 +45,6 @@ constructor(
         // logic
         statsMetric = p0
         onStatsComplete = true
-    }
-
-    override fun embeddings(): EmbeddingService {
-        TODO("Not yet implemented")
     }
 
     override fun chatCompletion(
@@ -85,30 +82,51 @@ constructor(
         params: InferenceCompletionParams,
         requestOptions: RequestOptions
     ): InferenceCompletionResponse {
-        resultMessage = ""
-        val mModule = clientOptions.llamaModule
-        val message = params.content().string().toString()
-        println("Completion Prompt is: $message")
-        onResultComplete = false
-        mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, true)
+        TODO("Not yet implemented")
+    }
 
-        while (!onResultComplete) {
-            Thread.sleep(2)
-        }
-        onResultComplete = false
-        onStatsComplete = false
-        println("Response is: $resultMessage")
-        println("Stats is $statsMetric")
+    /*    override fun completion(
+        params: InferenceCompletionParams,
+        requestOptions: RequestOptions
+    ): InferenceCompletionResponse {
+        */
+    /*resultMessage = ""
+    val mModule = clientOptions.llamaModule
+    val message = params.content().string().toString()
+    println("Completion Prompt is: $message")
+    onResultComplete = false
+    mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, true)
 
-        return InferenceCompletionResponse.ofCompletionResponse(
-            InferenceCompletionResponse.CompletionResponse.builder()
-                .completionMessage(
-                    CompletionMessage.builder()
-                        .content(CompletionMessage.Content.ofString(resultMessage))
-                        .build()
-                )
-                .putAdditionalProperty("tps", JsonValue.from(statsMetric))
-                .build()
-        )
+    while (!onResultComplete) {
+        Thread.sleep(2)
+    }
+    onResultComplete = false
+    onStatsComplete = false
+    println("Response is: $resultMessage")
+    println("Stats is $statsMetric")*/
+    /*
+
+    return InferenceCompletionResponse.ofCompletionResponse(
+        InferenceChatCompletionResponse.CompletionResponse.builder().build()
+
+    */
+    /*return InferenceCompletionResponse.ofCompletionResponse(
+        InferenceCompletionResponse.CompletionResponse.builder()
+            .completionMessage(
+                CompletionMessage.builder()
+                    .content(CompletionMessage.Content.ofString(resultMessage))
+                    .build()
+            )
+            .putAdditionalProperty("tps", JsonValue.from(statsMetric))
+            .build()
+    )*/
+    /*
+    }*/
+
+    override fun embeddings(
+        params: InferenceEmbeddingsParams,
+        requestOptions: RequestOptions
+    ): EmbeddingsResponse {
+        TODO("Not yet implemented")
     }
 }

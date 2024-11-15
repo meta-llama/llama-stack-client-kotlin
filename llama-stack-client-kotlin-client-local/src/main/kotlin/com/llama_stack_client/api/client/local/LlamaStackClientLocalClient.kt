@@ -1,6 +1,6 @@
 package com.llama_stack_client.api.client.local
 
-import com.llama_stack_client.api.client.LlamaStackClientClient
+import com.llama.llamastack.client.LlamaStackClientClient
 
 class LlamaStackClientLocalClient private constructor() {
 

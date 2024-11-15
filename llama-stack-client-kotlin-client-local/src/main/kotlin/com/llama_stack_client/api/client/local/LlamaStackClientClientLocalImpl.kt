@@ -2,10 +2,10 @@
 
 package com.llama_stack_client.api.client.local
 
-import com.llama_stack_client.api.client.LlamaStackClientClient
-import com.llama_stack_client.api.client.LlamaStackClientClientAsync
-import com.llama_stack_client.api.models.*
-import com.llama_stack_client.api.services.blocking.*
+import com.llama.llamastack.client.LlamaStackClientClient
+import com.llama.llamastack.client.LlamaStackClientClientAsync
+import com.llama.llamastack.models.*
+import com.llama.llamastack.services.blocking.*
 
 class LlamaStackClientClientLocalImpl
 constructor(
@@ -24,7 +24,27 @@ constructor(
         TODO("Not yet implemented")
     }
 
+    override fun datasetio(): DatasetioService {
+        TODO("Not yet implemented")
+    }
+
+    override fun scoring(): ScoringService {
+        TODO("Not yet implemented")
+    }
+
+    override fun scoringFunctions(): ScoringFunctionService {
+        TODO("Not yet implemented")
+    }
+
+    override fun evalTasks(): EvalTaskService {
+        TODO("Not yet implemented")
+    }
+
     override fun agents(): AgentService {
+        TODO("Not yet implemented")
+    }
+
+    override fun batchInferences(): BatchInferenceService {
         TODO("Not yet implemented")
     }
 
@@ -32,11 +52,11 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    override fun evaluate(): EvaluateService {
+    override fun eval(): EvalService {
         TODO("Not yet implemented")
     }
 
-    override fun evaluations(): EvaluationService {
+    override fun inspect(): InspectService {
         TODO("Not yet implemented")
     }
 
@@ -52,15 +72,15 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    override fun rewardScoring(): RewardScoringService {
+    override fun providers(): ProviderService {
+        TODO("Not yet implemented")
+    }
+
+    override fun routes(): RouteService {
         TODO("Not yet implemented")
     }
 
     override fun syntheticDataGeneration(): SyntheticDataGenerationService {
-        TODO("Not yet implemented")
-    }
-
-    override fun batchInference(): BatchInferenceService {
         TODO("Not yet implemented")
     }
 
