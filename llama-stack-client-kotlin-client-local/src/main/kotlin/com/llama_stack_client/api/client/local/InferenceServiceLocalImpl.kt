@@ -2,6 +2,7 @@
 
 package com.llama_stack_client.api.client.local
 
+import com.llama_stack_client.api.core.JsonValue
 import com.llama_stack_client.api.core.RequestOptions
 import com.llama_stack_client.api.models.CompletionMessage
 import com.llama_stack_client.api.models.InferenceChatCompletionParams
@@ -19,6 +20,8 @@ constructor(
 
     private var resultMessage: String = ""
     private var onResultComplete: Boolean = false
+    private var statsMetric: Float = 0.0f
+    private var onStatsComplete: Boolean = false
 
     override fun onResult(p0: String?) {
         if (p0.equals("<|eot_id|>")) {
@@ -36,8 +39,11 @@ constructor(
     }
 
     override fun onStats(p0: Float) {
-        onResultComplete = true
-        println("I'm in onStats but not doing anything on purpose for now")
+        onResultComplete =
+            true // required since in some cases where seq_len is met then EOT is not appended by ET
+        // logic
+        statsMetric = p0
+        onStatsComplete = true
     }
 
     override fun embeddings(): EmbeddingService {
@@ -48,17 +54,20 @@ constructor(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
     ): InferenceChatCompletionResponse {
+        resultMessage = ""
         val mModule = clientOptions.llamaModule
         val message = params.messages().last().userMessage()?.content()?.string().toString()
         println("Chat Completion Prompt is: $message")
         onResultComplete = false
         mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, false)
 
-        while (!onResultComplete) {
+        while (!onResultComplete && !onStatsComplete) {
             Thread.sleep(2)
         }
         onResultComplete = false
+        onStatsComplete = false
         println("Response is: $resultMessage")
+        println("Stats is $statsMetric")
 
         return InferenceChatCompletionResponse.ofChatCompletionResponse(
             InferenceChatCompletionResponse.ChatCompletionResponse.builder()
@@ -67,6 +76,7 @@ constructor(
                         .content(CompletionMessage.Content.ofString(resultMessage))
                         .build()
                 )
+                .putAdditionalProperty("tps", JsonValue.from(statsMetric))
                 .build()
         )
     }
@@ -75,8 +85,9 @@ constructor(
         params: InferenceCompletionParams,
         requestOptions: RequestOptions
     ): InferenceCompletionResponse {
+        resultMessage = ""
         val mModule = clientOptions.llamaModule
-        val message = params.content()?.string().toString()
+        val message = params.content().string().toString()
         println("Completion Prompt is: $message")
         onResultComplete = false
         mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, true)
@@ -85,7 +96,9 @@ constructor(
             Thread.sleep(2)
         }
         onResultComplete = false
+        onStatsComplete = false
         println("Response is: $resultMessage")
+        println("Stats is $statsMetric")
 
         return InferenceCompletionResponse.ofCompletionResponse(
             InferenceCompletionResponse.CompletionResponse.builder()
@@ -93,7 +106,9 @@ constructor(
                     CompletionMessage.builder()
                         .content(CompletionMessage.Content.ofString(resultMessage))
                         .build()
-                ).build()
+                )
+                .putAdditionalProperty("tps", JsonValue.from(statsMetric))
+                .build()
         )
     }
 }
