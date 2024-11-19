@@ -24,6 +24,8 @@ constructor(
     private var statsMetric: Float = 0.0f
     private var onStatsComplete: Boolean = false
 
+    private var sequenceLengthKey: String = "seq_len"
+
     override fun onResult(p0: String?) {
         if (p0.equals("<|eot_id|>")) {
             onResultComplete = true
@@ -53,10 +55,11 @@ constructor(
     ): InferenceChatCompletionResponse {
         resultMessage = ""
         val mModule = clientOptions.llamaModule
+        val seqLength = params._additionalQueryParams().values(sequenceLengthKey).last().toInt()
         val message = params.messages().last().userMessage()?.content()?.string().toString()
-        println("Chat Completion Prompt is: $message")
+        println("Chat Completion Prompt is: $message with seqLength of $seqLength")
         onResultComplete = false
-        mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, false)
+        mModule.generate(message, seqLength, this, false)
 
         while (!onResultComplete && !onStatsComplete) {
             Thread.sleep(2)
