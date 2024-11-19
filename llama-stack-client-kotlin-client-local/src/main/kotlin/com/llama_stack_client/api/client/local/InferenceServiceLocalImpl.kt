@@ -55,8 +55,10 @@ constructor(
     ): InferenceChatCompletionResponse {
         resultMessage = ""
         val mModule = clientOptions.llamaModule
-        val seqLength = params._additionalQueryParams().values(sequenceLengthKey).last().toInt()
         val message = params.messages().last().userMessage()?.content()?.string().toString()
+        val seqLength = params._additionalQueryParams().values(sequenceLengthKey)?.last()?.toInt()
+            ?: ((message.length * 0.75) + 64).toInt()
+
         println("Chat Completion Prompt is: $message with seqLength of $seqLength")
         onResultComplete = false
         mModule.generate(message, seqLength, this, false)
