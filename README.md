@@ -8,13 +8,19 @@ It is generated with [Stainless](https://www.stainlessapi.com/).
 
 ## Documentation
 
-The REST API documentation can be found on [llama-stack](https://docs.llama-stack-client.todo) repo.
+The REST API documentation can be found on [llama-stack.readthedocs.io](https://llama-stack.readthedocs.io/en/latest/).
 
 ---
 
 ## Getting started
 
-### Build the jar packages
+#### Gradle (Recommended) [![Maven version](https://img.shields.io/maven-central/v/com.llama.llamastack/llama-stack-client-kotlin)](https://central.sonatype.com/artifact/com.llama.llamastack/llama-stack-client-kotlin)
+
+```kotlin
+implementation("com.llama.llamastack:llama-stack-client-kotlin:0.0.1-alpha.1")
+```
+
+### Manually build the jar packages
 
 In your terminal, under the `llama-stack-client-kotlin` directory, run the following command:
 
@@ -24,8 +30,6 @@ sh build-libs.sh
 
 Output: .jar files located in the build-jars directory
 
-
-Note: Maven dependencies are not available at the moment. We will made it available in the near future once the SDK stabilizes. For now, build the Kotlin SDK jars manually and include them in your projects.
 
 ### Configure the client
 

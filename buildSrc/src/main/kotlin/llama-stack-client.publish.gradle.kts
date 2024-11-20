@@ -3,65 +3,52 @@ import org.gradle.api.publish.maven.MavenPublication
 import org.gradle.kotlin.dsl.configure
 import org.gradle.kotlin.dsl.register
 import org.gradle.kotlin.dsl.get
+import com.vanniktech.maven.publish.JavaLibrary
+import com.vanniktech.maven.publish.JavadocJar
+import com.vanniktech.maven.publish.MavenPublishBaseExtension
+import com.vanniktech.maven.publish.SonatypeHost
 
 plugins {
-    `maven-publish`
-    `signing`
+    id("com.vanniktech.maven.publish")
 }
 
-configure<PublishingExtension> {
-    publications {
-        register<MavenPublication>("maven") {
-            from(components["java"])
+repositories {
+    gradlePluginPortal()
+    mavenCentral()
+}
 
-            pom {
-                name.set("[DRAFT] Llama Stack Specification")
-                description.set("This is the specification of the llama stack that provides a set of endpoints\nand their corresponding interfaces that are tailored to best leverage Llama\nModels. The specification is still in draft and subject to change. Generated at\n2024-11-12 11:16:58.657871")
-                url.set("https://llama-stack.readthedocs.io/en/latest/")
+extra["signingInMemoryKey"] = System.getenv("GPG_SIGNING_KEY")
+extra["signingInMemoryKeyId"] = System.getenv("GPG_SIGNING_KEY_ID")
+extra["signingInMemoryKeyPassword"] = System.getenv("GPG_SIGNING_PASSWORD")
 
-                licenses {
-                    license {
-                        name.set("Apache-2.0")
-                    }
-                }
+configure<MavenPublishBaseExtension> {
+    signAllPublications()
+    publishToMavenCentral(SonatypeHost.CENTRAL_PORTAL)
 
-                developers {
-                    developer {
-                        name.set("Llama Stack Client")
-                        email.set("llamastack@meta.com")
-                    }
-                }
+    this.coordinates(project.group.toString(), project.name, project.version.toString())
 
-                scm {
-                    connection.set("scm:git:git://github.com/stainless-sdks/llama-stack-kotlin.git")
-                    developerConnection.set("scm:git:git://github.com/stainless-sdks/llama-stack-kotlin.git")
-                    url.set("https://github.com/stainless-sdks/llama-stack-kotlin")
-                }
+    pom {
+        name.set("Llama Stack Specification")
+        description.set("This is the specification of the llama stack that provides a set of endpoints\nand their corresponding interfaces that are tailored to best leverage Llama\nModels. The specification is still in draft and subject to change.")
+        url.set("https://llama-stack.readthedocs.io/en/latest/")
 
-                versionMapping {
-                    allVariants {
-                        fromResolutionResult()
-                    }
-                }
+        licenses {
+            license {
+                name.set("MIT")
             }
         }
-    }
-}
 
-signing {
-    val signingKeyId = System.getenv("GPG_SIGNING_KEY_ID")?.ifBlank { null }
-    val signingKey = System.getenv("GPG_SIGNING_KEY")?.ifBlank { null }
-    val signingPassword = System.getenv("GPG_SIGNING_PASSWORD")?.ifBlank { null }
-    if (signingKey != null && signingPassword != null) {
-        useInMemoryPgpKeys(
-            signingKeyId,
-            signingKey,
-            signingPassword,
-        )
-        sign(publishing.publications["maven"])
-    }
-}
+        developers {
+            developer {
+                name.set("Llama Stack Client")
+                email.set("llamastack@meta.com")
+            }
+        }
 
-tasks.named("publish") {
-    dependsOn(":closeAndReleaseSonatypeStagingRepository")
+        scm {
+            connection.set("scm:git:git://github.com/stainless-sdks/llama-stack-kotlin.git")
+            developerConnection.set("scm:git:git://github.com/stainless-sdks/llama-stack-kotlin.git")
+            url.set("https://github.com/stainless-sdks/llama-stack-kotlin")
+        }
+    }
 }
