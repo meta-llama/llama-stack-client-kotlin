@@ -12,6 +12,7 @@ import com.llama.llamastack.models.InferenceCompletionParams
 import com.llama.llamastack.models.InferenceCompletionResponse
 import com.llama.llamastack.models.InferenceEmbeddingsParams
 import com.llama.llamastack.services.blocking.InferenceService
+import com.llama_stack_client.api.client.local.util.PromptFormatLocal
 import org.pytorch.executorch.LlamaCallback
 
 class InferenceServiceLocalImpl
@@ -23,11 +24,12 @@ constructor(
     private var onResultComplete: Boolean = false
     private var statsMetric: Float = 0.0f
     private var onStatsComplete: Boolean = false
+    private var modelName: String = ""
 
     private var sequenceLengthKey: String = "seq_len"
 
     override fun onResult(p0: String?) {
-        if (p0.equals("<|eot_id|>")) {
+        if (p0.equals(PromptFormatLocal.getStopToken(modelName))) {
             onResultComplete = true
             return
         }
@@ -55,13 +57,16 @@ constructor(
     ): InferenceChatCompletionResponse {
         resultMessage = ""
         val mModule = clientOptions.llamaModule
-        val message = params.messages().last().userMessage()?.content()?.string().toString()
-        val seqLength = params._additionalQueryParams().values(sequenceLengthKey)?.last()?.toInt()
-            ?: ((message.length * 0.75) + 64).toInt()
+        modelName = params.model()
+        val formattedPrompt =
+            PromptFormatLocal.getTotalFormattedPrompt(params.messages(), modelName)
+        val seqLength =
+            params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
+                ?: ((formattedPrompt.length * 0.75) + 64).toInt()
 
-        println("Chat Completion Prompt is: $message with seqLength of $seqLength")
+        println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
         onResultComplete = false
-        mModule.generate(message, seqLength, this, false)
+        mModule.generate(formattedPrompt, seqLength, this, false)
 
         while (!onResultComplete && !onStatsComplete) {
             Thread.sleep(2)
@@ -89,44 +94,6 @@ constructor(
     ): InferenceCompletionResponse {
         TODO("Not yet implemented")
     }
-
-    /*    override fun completion(
-        params: InferenceCompletionParams,
-        requestOptions: RequestOptions
-    ): InferenceCompletionResponse {
-        */
-    /*resultMessage = ""
-    val mModule = clientOptions.llamaModule
-    val message = params.content().string().toString()
-    println("Completion Prompt is: $message")
-    onResultComplete = false
-    mModule.generate(message, ((message.length * 0.75) + 64).toInt(), this, true)
-
-    while (!onResultComplete) {
-        Thread.sleep(2)
-    }
-    onResultComplete = false
-    onStatsComplete = false
-    println("Response is: $resultMessage")
-    println("Stats is $statsMetric")*/
-    /*
-
-    return InferenceCompletionResponse.ofCompletionResponse(
-        InferenceChatCompletionResponse.CompletionResponse.builder().build()
-
-    */
-    /*return InferenceCompletionResponse.ofCompletionResponse(
-        InferenceCompletionResponse.CompletionResponse.builder()
-            .completionMessage(
-                CompletionMessage.builder()
-                    .content(CompletionMessage.Content.ofString(resultMessage))
-                    .build()
-            )
-            .putAdditionalProperty("tps", JsonValue.from(statsMetric))
-            .build()
-    )*/
-    /*
-    }*/
 
     override fun embeddings(
         params: InferenceEmbeddingsParams,
