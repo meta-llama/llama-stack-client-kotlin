@@ -1,4 +1,4 @@
-package com.llama_stack_client.api.client.local.util
+package com.llama.llamastack.client.local.util
 
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.SystemMessage

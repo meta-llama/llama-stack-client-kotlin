@@ -1,7 +1,8 @@
 // File generated from our OpenAPI spec by Stainless.
 
-package com.llama_stack_client.api.client.local
+package com.llama.llamastack.client.local
 
+import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.CompletionMessage
@@ -12,7 +13,6 @@ import com.llama.llamastack.models.InferenceCompletionParams
 import com.llama.llamastack.models.InferenceCompletionResponse
 import com.llama.llamastack.models.InferenceEmbeddingsParams
 import com.llama.llamastack.services.blocking.InferenceService
-import com.llama_stack_client.api.client.local.util.PromptFormatLocal
 import org.pytorch.executorch.LlamaCallback
 
 class InferenceServiceLocalImpl

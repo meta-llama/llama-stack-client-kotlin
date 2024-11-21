@@ -1,4 +1,4 @@
-package com.llama_stack_client.api.client.local
+package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.LlamaStackClientClient
 
