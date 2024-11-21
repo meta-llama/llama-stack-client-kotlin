@@ -36,15 +36,13 @@ private constructor(
 
             this.llamaModule = LlamaModule(1, modelPath, tokenizerPath, temperature)
             checkNotNull(llamaModule) { "`temperature` is required but not set" }
-            this.llamaModule =
-                LlamaModule(
-                    1,
-                    modelPath,
-                    tokenizerPath,
-                    temperature
-                )
+            this.llamaModule = LlamaModule(1, modelPath, tokenizerPath, temperature)
             checkNotNull(llamaModule) { "`temperature` is required but not set" }
             llamaModule!!.load()
+            println(
+                "llamaModule loading with modelPath: $modelPath | " +
+                    "tokenizerPath: $tokenizerPath | temperature: $temperature"
+            )
 
             return LocalClientOptions(modelPath!!, tokenizerPath!!, temperature, llamaModule!!)
         }

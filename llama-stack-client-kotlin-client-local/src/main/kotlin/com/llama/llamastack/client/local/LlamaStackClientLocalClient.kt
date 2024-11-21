@@ -13,10 +13,13 @@ class LlamaStackClientLocalClient private constructor() {
         private var clientOptions: LocalClientOptions.Builder = LocalClientOptions.builder()
         private var modelPath: String? = null
         private var tokenizerPath: String? = null
+        private var temperature: Float = 0.0F
 
         fun modelPath(modelPath: String) = apply { this.modelPath = modelPath }
 
         fun tokenizerPath(tokenizerPath: String) = apply { this.tokenizerPath = tokenizerPath }
+
+        fun temperature(temperature: Float) = apply { this.temperature = temperature }
 
         fun fromEnv() = apply { clientOptions.fromEnv() }
 
@@ -26,7 +29,7 @@ class LlamaStackClientLocalClient private constructor() {
                 clientOptions
                     .modelPath(modelPath!!)
                     .tokenizerPath(tokenizerPath!!)
-                    .temperature(0.0F)
+                    .temperature(temperature)
                     .build()
             )
         }
