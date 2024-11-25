@@ -9,12 +9,17 @@ object PromptFormatLocal {
     private const val USER_PLACEHOLDER: String = "{{ user_prompt }}"
     private const val ASSISTANT_PLACEHOLDER: String = "{{ assistant_response }}"
 
+    private const val ROLE_KEY: String = "header_id"
+    private const val ROLE_USER: String = "user"
+    private const val ROLE_ASSISTANT: String = "assistant"
+
     private fun getSystemPromptTemplate(modelName: String?): String {
         return when (modelName) {
             "LLAMA_3",
             "LLAMA_3_1",
             "LLAMA_3_2" ->
                 "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n$SYSTEM_PLACEHOLDER<|eot_id|>"
+
             else -> SYSTEM_PLACEHOLDER
         }
     }
@@ -26,17 +31,18 @@ object PromptFormatLocal {
             "LLAMA_3_2",
             "LLAMA_GUARD_3" ->
                 "<|start_header_id|>user<|end_header_id|>$USER_PLACEHOLDER<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
+
             else -> USER_PLACEHOLDER
         }
     }
 
-    private fun getConversationFormat(modelName: String?): String {
+    private fun getAssistantPromptTemplate(modelName: String?): String {
         return when (modelName) {
             "LLAMA_3",
             "LLAMA_3_1",
-            "LLAMA_3_2" ->
-                getUserPromptTemplate(modelName) + "\n" + ASSISTANT_PLACEHOLDER + "<|eot_id|>"
-            else -> USER_PLACEHOLDER
+            "LLAMA_3_2" -> "\n$ASSISTANT_PLACEHOLDER<|eot_id|>"
+
+            else -> ASSISTANT_PLACEHOLDER
         }
     }
 
@@ -46,6 +52,7 @@ object PromptFormatLocal {
             "LLAMA_3_1",
             "LLAMA_3_2",
             "LLAMA_GUARD_3" -> "<|eot_id|>"
+
             else -> ""
         }
     }
@@ -67,14 +74,22 @@ object PromptFormatLocal {
                 if (content != null) {
                     formattedPrompt =
                         getSystemPromptTemplate(modelName).replace(SYSTEM_PLACEHOLDER, content) +
-                            formattedPrompt
+                                formattedPrompt
                 }
             } else if (message.isUserMessage()) {
                 // user or assistant
                 val userMessage: UserMessage? = message.userMessage()
+                val role = userMessage?._additionalProperties()?.get(ROLE_KEY)?.toString()
                 val content: String? = userMessage?.content()?.string()
                 if (content != null) {
-                    format = getUserPromptTemplate(modelName).replace(USER_PLACEHOLDER, content)
+                    // order needs to be UserPrompt A, AssistantResponse A, UserPrompt B, AssistantResponse B, ...
+                    if (role == ROLE_USER) {
+                        format = getUserPromptTemplate(modelName).replace(USER_PLACEHOLDER, content)
+                    } else if (role == ROLE_ASSISTANT) {
+                        format =
+                            getAssistantPromptTemplate(modelName)
+                                .replace(ASSISTANT_PLACEHOLDER, content)
+                    }
                 }
                 formattedPrompt += format
             }
