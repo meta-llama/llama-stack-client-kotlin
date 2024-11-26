@@ -99,15 +99,13 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryBankListResponse && this.vectorMemoryBank == other.vectorMemoryBank && this.keyValueMemoryBank == other.keyValueMemoryBank && this.keywordMemoryBank == other.keywordMemoryBank && this.graphMemoryBank == other.graphMemoryBank /* spotless:on */
+        return /* spotless:off */ other is MemoryBankListResponse && vectorMemoryBank == other.vectorMemoryBank && keyValueMemoryBank == other.keyValueMemoryBank && keywordMemoryBank == other.keywordMemoryBank && graphMemoryBank == other.graphMemoryBank /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(vectorMemoryBank, keyValueMemoryBank, keywordMemoryBank, graphMemoryBank) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(vectorMemoryBank, keyValueMemoryBank, keywordMemoryBank, graphMemoryBank) /* spotless:on */
 
-    override fun toString(): String {
-        return when {
+    override fun toString(): String =
+        when {
             vectorMemoryBank != null -> "MemoryBankListResponse{vectorMemoryBank=$vectorMemoryBank}"
             keyValueMemoryBank != null ->
                 "MemoryBankListResponse{keyValueMemoryBank=$keyValueMemoryBank}"
@@ -117,7 +115,6 @@ private constructor(
             _json != null -> "MemoryBankListResponse{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid MemoryBankListResponse")
         }
-    }
 
     companion object {
 
@@ -401,7 +398,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -453,7 +450,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is Type && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -496,17 +493,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is VectorMemoryBank && this.chunkSizeInTokens == other.chunkSizeInTokens && this.embeddingModel == other.embeddingModel && this.identifier == other.identifier && this.memoryBankType == other.memoryBankType && this.overlapSizeInTokens == other.overlapSizeInTokens && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is VectorMemoryBank && chunkSizeInTokens == other.chunkSizeInTokens && embeddingModel == other.embeddingModel && identifier == other.identifier && memoryBankType == other.memoryBankType && overlapSizeInTokens == other.overlapSizeInTokens && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(chunkSizeInTokens, embeddingModel, identifier, memoryBankType, overlapSizeInTokens, providerId, providerResourceId, type, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(chunkSizeInTokens, embeddingModel, identifier, memoryBankType, overlapSizeInTokens, providerId, providerResourceId, type, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "VectorMemoryBank{chunkSizeInTokens=$chunkSizeInTokens, embeddingModel=$embeddingModel, identifier=$identifier, memoryBankType=$memoryBankType, overlapSizeInTokens=$overlapSizeInTokens, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
@@ -662,7 +656,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -714,7 +708,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is Type && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -757,17 +751,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is KeyValueMemoryBank && this.identifier == other.identifier && this.memoryBankType == other.memoryBankType && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is KeyValueMemoryBank && identifier == other.identifier && memoryBankType == other.memoryBankType && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(identifier, memoryBankType, providerId, providerResourceId, type, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(identifier, memoryBankType, providerId, providerResourceId, type, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "KeyValueMemoryBank{identifier=$identifier, memoryBankType=$memoryBankType, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
@@ -923,7 +914,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -975,7 +966,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is Type && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -1018,17 +1009,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is KeywordMemoryBank && this.identifier == other.identifier && this.memoryBankType == other.memoryBankType && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is KeywordMemoryBank && identifier == other.identifier && memoryBankType == other.memoryBankType && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(identifier, memoryBankType, providerId, providerResourceId, type, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(identifier, memoryBankType, providerId, providerResourceId, type, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "KeywordMemoryBank{identifier=$identifier, memoryBankType=$memoryBankType, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
@@ -1184,7 +1172,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -1236,7 +1224,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is Type && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -1279,17 +1267,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is GraphMemoryBank && this.identifier == other.identifier && this.memoryBankType == other.memoryBankType && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is GraphMemoryBank && identifier == other.identifier && memoryBankType == other.memoryBankType && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(identifier, memoryBankType, providerId, providerResourceId, type, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(identifier, memoryBankType, providerId, providerResourceId, type, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "GraphMemoryBank{identifier=$identifier, memoryBankType=$memoryBankType, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"

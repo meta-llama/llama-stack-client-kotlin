@@ -36,7 +36,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("batch_inference", "chat_completion")
+                .addPathSegments("alpha", "batch-inference", "chat-completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -64,7 +64,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("batch_inference", "completion")
+                .addPathSegments("alpha", "batch-inference", "completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

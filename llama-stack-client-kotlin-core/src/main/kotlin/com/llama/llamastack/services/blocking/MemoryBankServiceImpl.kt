@@ -18,6 +18,7 @@ import com.llama.llamastack.models.MemoryBankListResponse
 import com.llama.llamastack.models.MemoryBankRegisterParams
 import com.llama.llamastack.models.MemoryBankRetrieveParams
 import com.llama.llamastack.models.MemoryBankRetrieveResponse
+import com.llama.llamastack.models.MemoryBankUnregisterParams
 
 class MemoryBankServiceImpl
 constructor(
@@ -38,7 +39,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("memory_banks", "get")
+                .addPathSegments("alpha", "memory-banks", "get")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -65,7 +66,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("memory_banks", "list")
+                .addPathSegments("alpha", "memory-banks", "list")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -88,7 +89,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("memory_banks", "register")
+                .addPathSegments("alpha", "memory-banks", "register")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -97,6 +98,24 @@ constructor(
                 .build()
         clientOptions.httpClient.execute(request, requestOptions).let { response ->
             response.use { registerHandler.handle(it) }
+        }
+    }
+
+    private val unregisterHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+
+    override fun unregister(params: MemoryBankUnregisterParams, requestOptions: RequestOptions) {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "memory-banks", "unregister")
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .build()
+        clientOptions.httpClient.execute(request, requestOptions).let { response ->
+            response.use { unregisterHandler.handle(it) }
         }
     }
 }

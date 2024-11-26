@@ -10,12 +10,19 @@ class PostTrainingJobCancelParamsTest {
 
     @Test
     fun createPostTrainingJobCancelParams() {
-        PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
+        PostTrainingJobCancelParams.builder()
+            .jobUuid("job_uuid")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .build()
     }
 
     @Test
     fun getBody() {
-        val params = PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
+        val params =
+            PostTrainingJobCancelParams.builder()
+                .jobUuid("job_uuid")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.jobUuid()).isEqualTo("job_uuid")

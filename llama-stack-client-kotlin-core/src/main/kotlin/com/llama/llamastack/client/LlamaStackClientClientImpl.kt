@@ -27,7 +27,7 @@ constructor(
 
     private val agents: AgentService by lazy { AgentServiceImpl(clientOptionsWithUserAgent) }
 
-    private val batchInferences: BatchInferenceService by lazy {
+    private val batchInference: BatchInferenceService by lazy {
         BatchInferenceServiceImpl(clientOptionsWithUserAgent)
     }
 
@@ -89,7 +89,7 @@ constructor(
 
     override fun agents(): AgentService = agents
 
-    override fun batchInferences(): BatchInferenceService = batchInferences
+    override fun batchInference(): BatchInferenceService = batchInference
 
     override fun datasets(): DatasetService = datasets
 

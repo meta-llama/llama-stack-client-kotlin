@@ -11,13 +11,23 @@ import java.util.Objects
 class DatasetRetrieveParams
 constructor(
     private val datasetId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun datasetId(): String = datasetId
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -35,15 +45,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetRetrieveParams && this.datasetId == other.datasetId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && datasetId == other.datasetId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(datasetId, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, datasetId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetRetrieveParams{datasetId=$datasetId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, datasetId=$datasetId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -56,16 +64,22 @@ constructor(
     class Builder {
 
         private var datasetId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(datasetRetrieveParams: DatasetRetrieveParams) = apply {
             this.datasetId = datasetRetrieveParams.datasetId
+            this.xLlamaStackProviderData = datasetRetrieveParams.xLlamaStackProviderData
             additionalHeaders(datasetRetrieveParams.additionalHeaders)
             additionalQueryParams(datasetRetrieveParams.additionalQueryParams)
         }
 
         fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -168,6 +182,7 @@ constructor(
         fun build(): DatasetRetrieveParams =
             DatasetRetrieveParams(
                 checkNotNull(datasetId) { "`datasetId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

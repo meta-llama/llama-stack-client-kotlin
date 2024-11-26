@@ -14,6 +14,7 @@ class MemoryQueryParamsTest {
             .bankId("bank_id")
             .query(MemoryQueryParams.Query.ofString("string"))
             .params(MemoryQueryParams.Params.builder().build())
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -24,6 +25,7 @@ class MemoryQueryParamsTest {
                 .bankId("bank_id")
                 .query(MemoryQueryParams.Query.ofString("string"))
                 .params(MemoryQueryParams.Params.builder().build())
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

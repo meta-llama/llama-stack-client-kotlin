@@ -215,15 +215,13 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Default && this.boolean == other.boolean && this.double == other.double && this.string == other.string && this.jsonValues == other.jsonValues && this.jsonValue == other.jsonValue /* spotless:on */
+            return /* spotless:off */ other is Default && boolean == other.boolean && double == other.double && string == other.string && jsonValues == other.jsonValues && jsonValue == other.jsonValue /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(boolean, double, string, jsonValues, jsonValue) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(boolean, double, string, jsonValues, jsonValue) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 boolean != null -> "Default{boolean=$boolean}"
                 double != null -> "Default{double=$double}"
                 string != null -> "Default{string=$string}"
@@ -232,7 +230,6 @@ private constructor(
                 _json != null -> "Default{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Default")
             }
-        }
 
         companion object {
 
@@ -314,17 +311,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolParamDefinition && this.default == other.default && this.description == other.description && this.paramType == other.paramType && this.required == other.required && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ToolParamDefinition && default == other.default && description == other.description && paramType == other.paramType && required == other.required && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(default, description, paramType, required, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(default, description, paramType, required, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "ToolParamDefinition{default=$default, description=$description, paramType=$paramType, required=$required, additionalProperties=$additionalProperties}"

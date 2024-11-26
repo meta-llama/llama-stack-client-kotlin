@@ -27,6 +27,7 @@ class MemoryBankRegisterParamsTest {
             )
             .providerId("provider_id")
             .providerMemoryBankId("provider_memory_bank_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -51,6 +52,7 @@ class MemoryBankRegisterParamsTest {
                 )
                 .providerId("provider_id")
                 .providerMemoryBankId("provider_memory_bank_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

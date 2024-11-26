@@ -172,17 +172,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Arguments && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Arguments && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Arguments{additionalProperties=$additionalProperties}"
     }
@@ -200,7 +197,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolName && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -261,17 +258,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolCall && this.arguments == other.arguments && this.callId == other.callId && this.toolName == other.toolName && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ToolCall && arguments == other.arguments && callId == other.callId && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(arguments, callId, toolName, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(arguments, callId, toolName, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "ToolCall{arguments=$arguments, callId=$callId, toolName=$toolName, additionalProperties=$additionalProperties}"

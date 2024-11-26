@@ -90,17 +90,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EmbeddingsResponse && this.embeddings == other.embeddings && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is EmbeddingsResponse && embeddings == other.embeddings && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(embeddings, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(embeddings, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "EmbeddingsResponse{embeddings=$embeddings, additionalProperties=$additionalProperties}"

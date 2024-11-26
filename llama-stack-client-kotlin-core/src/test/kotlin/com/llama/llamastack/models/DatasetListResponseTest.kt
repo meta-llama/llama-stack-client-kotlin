@@ -11,22 +11,22 @@ class DatasetListResponseTest {
     fun createDatasetListResponse() {
         val datasetListResponse =
             DatasetListResponse.builder()
+                .datasetSchema(DatasetListResponse.DatasetSchema.builder().build())
                 .identifier("identifier")
                 .metadata(DatasetListResponse.Metadata.builder().build())
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .schema(DatasetListResponse.Schema.builder().build())
                 .type(DatasetListResponse.Type.DATASET)
                 .url("https://example.com")
                 .build()
         assertThat(datasetListResponse).isNotNull
+        assertThat(datasetListResponse.datasetSchema())
+            .isEqualTo(DatasetListResponse.DatasetSchema.builder().build())
         assertThat(datasetListResponse.identifier()).isEqualTo("identifier")
         assertThat(datasetListResponse.metadata())
             .isEqualTo(DatasetListResponse.Metadata.builder().build())
         assertThat(datasetListResponse.providerId()).isEqualTo("provider_id")
         assertThat(datasetListResponse.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(datasetListResponse.schema())
-            .isEqualTo(DatasetListResponse.Schema.builder().build())
         assertThat(datasetListResponse.type()).isEqualTo(DatasetListResponse.Type.DATASET)
         assertThat(datasetListResponse.url()).isEqualTo("https://example.com")
     }

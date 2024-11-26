@@ -8,6 +8,7 @@ import com.llama.llamastack.models.MemoryBankListResponse
 import com.llama.llamastack.models.MemoryBankRegisterParams
 import com.llama.llamastack.models.MemoryBankRetrieveParams
 import com.llama.llamastack.models.MemoryBankRetrieveResponse
+import com.llama.llamastack.models.MemoryBankUnregisterParams
 
 interface MemoryBankService {
 
@@ -23,6 +24,11 @@ interface MemoryBankService {
 
     fun register(
         params: MemoryBankRegisterParams,
+        requestOptions: RequestOptions = RequestOptions.none()
+    )
+
+    fun unregister(
+        params: MemoryBankUnregisterParams,
         requestOptions: RequestOptions = RequestOptions.none()
     )
 }

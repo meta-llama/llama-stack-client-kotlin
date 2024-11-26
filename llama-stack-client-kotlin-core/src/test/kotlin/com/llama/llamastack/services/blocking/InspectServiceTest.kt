@@ -16,7 +16,12 @@ class InspectServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inspectService = client.inspect()
-        val healthInfo = inspectService.health(InspectHealthParams.builder().build())
+        val healthInfo =
+            inspectService.health(
+                InspectHealthParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
         println(healthInfo)
         healthInfo.validate()
     }

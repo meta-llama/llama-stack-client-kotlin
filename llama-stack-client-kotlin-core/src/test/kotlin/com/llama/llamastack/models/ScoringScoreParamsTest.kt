@@ -13,6 +13,7 @@ class ScoringScoreParamsTest {
         ScoringScoreParams.builder()
             .inputRows(listOf(ScoringScoreParams.InputRow.builder().build()))
             .scoringFunctions(ScoringScoreParams.ScoringFunctions.builder().build())
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -22,6 +23,7 @@ class ScoringScoreParamsTest {
             ScoringScoreParams.builder()
                 .inputRows(listOf(ScoringScoreParams.InputRow.builder().build()))
                 .scoringFunctions(ScoringScoreParams.ScoringFunctions.builder().build())
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

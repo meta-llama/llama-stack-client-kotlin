@@ -32,7 +32,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("datasetio", "get_rows_paginated")
+                .addPathSegments("alpha", "datasetio", "get-rows-paginated")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

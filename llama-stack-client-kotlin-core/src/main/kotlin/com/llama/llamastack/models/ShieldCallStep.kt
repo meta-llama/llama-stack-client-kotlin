@@ -177,7 +177,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is StepType && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -220,17 +220,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ShieldCallStep && this.completedAt == other.completedAt && this.startedAt == other.startedAt && this.stepId == other.stepId && this.stepType == other.stepType && this.turnId == other.turnId && this.violation == other.violation && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ShieldCallStep && completedAt == other.completedAt && startedAt == other.startedAt && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && violation == other.violation && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(completedAt, startedAt, stepId, stepType, turnId, violation, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(completedAt, startedAt, stepId, stepType, turnId, violation, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "ShieldCallStep{completedAt=$completedAt, startedAt=$startedAt, stepId=$stepId, stepType=$stepType, turnId=$turnId, violation=$violation, additionalProperties=$additionalProperties}"

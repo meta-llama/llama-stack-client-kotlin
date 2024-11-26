@@ -9,6 +9,6 @@ class MemoryBankListParamsTest {
 
     @Test
     fun createMemoryBankListParams() {
-        MemoryBankListParams.builder().build()
+        MemoryBankListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
     }
 }

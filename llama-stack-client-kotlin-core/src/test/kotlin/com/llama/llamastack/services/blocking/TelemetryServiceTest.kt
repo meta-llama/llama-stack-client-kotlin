@@ -18,7 +18,12 @@ class TelemetryServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
         val trace =
-            telemetryService.getTrace(TelemetryGetTraceParams.builder().traceId("trace_id").build())
+            telemetryService.getTrace(
+                TelemetryGetTraceParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .traceId("trace_id")
+                    .build()
+            )
         println(trace)
         trace.validate()
     }
@@ -52,6 +57,7 @@ class TelemetryServiceTest {
                             .build()
                     )
                 )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )
     }

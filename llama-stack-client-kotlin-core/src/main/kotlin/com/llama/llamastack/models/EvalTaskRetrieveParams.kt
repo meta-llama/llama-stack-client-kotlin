@@ -11,13 +11,23 @@ import java.util.Objects
 class EvalTaskRetrieveParams
 constructor(
     private val name: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun name(): String = name
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -35,15 +45,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTaskRetrieveParams && this.name == other.name && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalTaskRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && name == other.name && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(name, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, name, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalTaskRetrieveParams{name=$name, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalTaskRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, name=$name, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -56,16 +64,22 @@ constructor(
     class Builder {
 
         private var name: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalTaskRetrieveParams: EvalTaskRetrieveParams) = apply {
             this.name = evalTaskRetrieveParams.name
+            this.xLlamaStackProviderData = evalTaskRetrieveParams.xLlamaStackProviderData
             additionalHeaders(evalTaskRetrieveParams.additionalHeaders)
             additionalQueryParams(evalTaskRetrieveParams.additionalQueryParams)
         }
 
         fun name(name: String) = apply { this.name = name }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -168,6 +182,7 @@ constructor(
         fun build(): EvalTaskRetrieveParams =
             EvalTaskRetrieveParams(
                 checkNotNull(name) { "`name` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

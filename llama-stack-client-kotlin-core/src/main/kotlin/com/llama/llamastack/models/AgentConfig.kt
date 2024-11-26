@@ -307,7 +307,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolChoice && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -364,7 +364,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolPromptFormat && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -520,15 +520,13 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Tool && this.searchToolDefinition == other.searchToolDefinition && this.wolframAlphaToolDefinition == other.wolframAlphaToolDefinition && this.photogenToolDefinition == other.photogenToolDefinition && this.codeInterpreterToolDefinition == other.codeInterpreterToolDefinition && this.functionCallToolDefinition == other.functionCallToolDefinition && this.memoryToolDefinition == other.memoryToolDefinition /* spotless:on */
+            return /* spotless:off */ other is Tool && searchToolDefinition == other.searchToolDefinition && wolframAlphaToolDefinition == other.wolframAlphaToolDefinition && photogenToolDefinition == other.photogenToolDefinition && codeInterpreterToolDefinition == other.codeInterpreterToolDefinition && functionCallToolDefinition == other.functionCallToolDefinition && memoryToolDefinition == other.memoryToolDefinition /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(searchToolDefinition, wolframAlphaToolDefinition, photogenToolDefinition, codeInterpreterToolDefinition, functionCallToolDefinition, memoryToolDefinition) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(searchToolDefinition, wolframAlphaToolDefinition, photogenToolDefinition, codeInterpreterToolDefinition, functionCallToolDefinition, memoryToolDefinition) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 searchToolDefinition != null -> "Tool{searchToolDefinition=$searchToolDefinition}"
                 wolframAlphaToolDefinition != null ->
                     "Tool{wolframAlphaToolDefinition=$wolframAlphaToolDefinition}"
@@ -542,7 +540,6 @@ private constructor(
                 _json != null -> "Tool{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Tool")
             }
-        }
 
         companion object {
 
@@ -661,17 +658,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentConfig && this.enableSessionPersistence == other.enableSessionPersistence && this.inputShields == other.inputShields && this.instructions == other.instructions && this.maxInferIters == other.maxInferIters && this.model == other.model && this.outputShields == other.outputShields && this.samplingParams == other.samplingParams && this.toolChoice == other.toolChoice && this.toolPromptFormat == other.toolPromptFormat && this.tools == other.tools && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentConfig && enableSessionPersistence == other.enableSessionPersistence && inputShields == other.inputShields && instructions == other.instructions && maxInferIters == other.maxInferIters && model == other.model && outputShields == other.outputShields && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(enableSessionPersistence, inputShields, instructions, maxInferIters, model, outputShields, samplingParams, toolChoice, toolPromptFormat, tools, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(enableSessionPersistence, inputShields, instructions, maxInferIters, model, outputShields, samplingParams, toolChoice, toolPromptFormat, tools, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "AgentConfig{enableSessionPersistence=$enableSessionPersistence, inputShields=$inputShields, instructions=$instructions, maxInferIters=$maxInferIters, model=$model, outputShields=$outputShields, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"

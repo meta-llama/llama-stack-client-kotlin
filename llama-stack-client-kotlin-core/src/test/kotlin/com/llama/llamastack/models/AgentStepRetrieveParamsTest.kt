@@ -12,6 +12,7 @@ class AgentStepRetrieveParamsTest {
     @Test
     fun createAgentStepRetrieveParams() {
         AgentStepRetrieveParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
             .stepId("step_id")
@@ -23,6 +24,7 @@ class AgentStepRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             AgentStepRetrieveParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .stepId("step_id")

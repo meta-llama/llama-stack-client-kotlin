@@ -32,6 +32,7 @@ class SyntheticDataGenerationServiceTest {
                     )
                     .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                     .model("model")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(syntheticDataGenerationResponse)

@@ -169,17 +169,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Row && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Row && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Row{additionalProperties=$additionalProperties}"
     }
@@ -189,17 +186,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is PaginatedRowsResult && this.nextPageToken == other.nextPageToken && this.rows == other.rows && this.totalCount == other.totalCount && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is PaginatedRowsResult && nextPageToken == other.nextPageToken && rows == other.rows && totalCount == other.totalCount && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(nextPageToken, rows, totalCount, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(nextPageToken, rows, totalCount, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "PaginatedRowsResult{nextPageToken=$nextPageToken, rows=$rows, totalCount=$totalCount, additionalProperties=$additionalProperties}"

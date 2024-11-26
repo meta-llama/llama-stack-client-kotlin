@@ -12,6 +12,7 @@ class DatasetioGetRowsPaginatedParamsTest {
     @Test
     fun createDatasetioGetRowsPaginatedParams() {
         DatasetioGetRowsPaginatedParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .datasetId("dataset_id")
             .rowsInPage(123L)
             .filterCondition("filter_condition")
@@ -23,6 +24,7 @@ class DatasetioGetRowsPaginatedParamsTest {
     fun getQueryParams() {
         val params =
             DatasetioGetRowsPaginatedParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .datasetId("dataset_id")
                 .rowsInPage(123L)
                 .filterCondition("filter_condition")

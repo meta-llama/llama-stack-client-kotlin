@@ -11,12 +11,21 @@ class EvalJobRetrieveParamsTest {
 
     @Test
     fun createEvalJobRetrieveParams() {
-        EvalJobRetrieveParams.builder().jobId("job_id").taskId("task_id").build()
+        EvalJobRetrieveParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .jobId("job_id")
+            .taskId("task_id")
+            .build()
     }
 
     @Test
     fun getQueryParams() {
-        val params = EvalJobRetrieveParams.builder().jobId("job_id").taskId("task_id").build()
+        val params =
+            EvalJobRetrieveParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .jobId("job_id")
+                .taskId("task_id")
+                .build()
         val expected = QueryParams.builder()
         expected.put("job_id", "job_id")
         expected.put("task_id", "task_id")

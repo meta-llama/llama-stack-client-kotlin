@@ -10,7 +10,11 @@ class AgentSessionCreateParamsTest {
 
     @Test
     fun createAgentSessionCreateParams() {
-        AgentSessionCreateParams.builder().agentId("agent_id").sessionName("session_name").build()
+        AgentSessionCreateParams.builder()
+            .agentId("agent_id")
+            .sessionName("session_name")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .build()
     }
 
     @Test
@@ -19,6 +23,7 @@ class AgentSessionCreateParamsTest {
             AgentSessionCreateParams.builder()
                 .agentId("agent_id")
                 .sessionName("session_name")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

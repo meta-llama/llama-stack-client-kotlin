@@ -82,15 +82,13 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceChatCompletionResponse && this.chatCompletionResponse == other.chatCompletionResponse && this.chatCompletionResponseStreamChunk == other.chatCompletionResponseStreamChunk /* spotless:on */
+        return /* spotless:off */ other is InferenceChatCompletionResponse && chatCompletionResponse == other.chatCompletionResponse && chatCompletionResponseStreamChunk == other.chatCompletionResponseStreamChunk /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(chatCompletionResponse, chatCompletionResponseStreamChunk) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(chatCompletionResponse, chatCompletionResponseStreamChunk) /* spotless:on */
 
-    override fun toString(): String {
-        return when {
+    override fun toString(): String =
+        when {
             chatCompletionResponse != null ->
                 "InferenceChatCompletionResponse{chatCompletionResponse=$chatCompletionResponse}"
             chatCompletionResponseStreamChunk != null ->
@@ -98,7 +96,6 @@ private constructor(
             _json != null -> "InferenceChatCompletionResponse{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid InferenceChatCompletionResponse")
         }
-    }
 
     companion object {
 
@@ -271,17 +268,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ChatCompletionResponse && this.completionMessage == other.completionMessage && this.logprobs == other.logprobs && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ChatCompletionResponse && completionMessage == other.completionMessage && logprobs == other.logprobs && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(completionMessage, logprobs, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(completionMessage, logprobs, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "ChatCompletionResponse{completionMessage=$completionMessage, logprobs=$logprobs, additionalProperties=$additionalProperties}"
@@ -524,21 +518,18 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Delta && this.string == other.string && this.toolCallDelta == other.toolCallDelta /* spotless:on */
+                    return /* spotless:off */ other is Delta && string == other.string && toolCallDelta == other.toolCallDelta /* spotless:on */
                 }
 
-                override fun hashCode(): Int {
-                    return /* spotless:off */ Objects.hash(string, toolCallDelta) /* spotless:on */
-                }
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCallDelta) /* spotless:on */
 
-                override fun toString(): String {
-                    return when {
+                override fun toString(): String =
+                    when {
                         string != null -> "Delta{string=$string}"
                         toolCallDelta != null -> "Delta{toolCallDelta=$toolCallDelta}"
                         _json != null -> "Delta{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid Delta")
                     }
-                }
 
                 companion object {
 
@@ -732,21 +723,18 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Content && this.string == other.string && this.toolCall == other.toolCall /* spotless:on */
+                            return /* spotless:off */ other is Content && string == other.string && toolCall == other.toolCall /* spotless:on */
                         }
 
-                        override fun hashCode(): Int {
-                            return /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
-                        }
+                        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
 
-                        override fun toString(): String {
-                            return when {
+                        override fun toString(): String =
+                            when {
                                 string != null -> "Content{string=$string}"
                                 toolCall != null -> "Content{toolCall=$toolCall}"
                                 _json != null -> "Content{_unknown=$_json}"
                                 else -> throw IllegalStateException("Invalid Content")
                             }
-                        }
 
                         companion object {
 
@@ -814,7 +802,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is ParseStatus && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -878,17 +866,14 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ToolCallDelta && this.content == other.content && this.parseStatus == other.parseStatus && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is ToolCallDelta && content == other.content && parseStatus == other.parseStatus && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(content, parseStatus, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(content, parseStatus, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "ToolCallDelta{content=$content, parseStatus=$parseStatus, additionalProperties=$additionalProperties}"
@@ -908,7 +893,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is EventType && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -972,7 +957,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is StopReason && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1028,17 +1013,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Event && this.delta == other.delta && this.eventType == other.eventType && this.logprobs == other.logprobs && this.stopReason == other.stopReason && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Event && delta == other.delta && eventType == other.eventType && logprobs == other.logprobs && stopReason == other.stopReason && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(delta, eventType, logprobs, stopReason, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(delta, eventType, logprobs, stopReason, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Event{delta=$delta, eventType=$eventType, logprobs=$logprobs, stopReason=$stopReason, additionalProperties=$additionalProperties}"
@@ -1049,17 +1031,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ChatCompletionResponseStreamChunk && this.event == other.event && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ChatCompletionResponseStreamChunk && event == other.event && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(event, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(event, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "ChatCompletionResponseStreamChunk{event=$event, additionalProperties=$additionalProperties}"

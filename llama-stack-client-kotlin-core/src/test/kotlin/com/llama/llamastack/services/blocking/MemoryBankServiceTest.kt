@@ -19,7 +19,10 @@ class MemoryBankServiceTest {
         val memoryBankService = client.memoryBanks()
         val memoryBankRetrieveResponse =
             memoryBankService.retrieve(
-                MemoryBankRetrieveParams.builder().memoryBankId("memory_bank_id").build()
+                MemoryBankRetrieveParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .memoryBankId("memory_bank_id")
+                    .build()
             )
         println(memoryBankRetrieveResponse)
     }
@@ -32,7 +35,12 @@ class MemoryBankServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val memoryBankService = client.memoryBanks()
-        val memoryBankListResponse = memoryBankService.list(MemoryBankListParams.builder().build())
+        val memoryBankListResponse =
+            memoryBankService.list(
+                MemoryBankListParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
         println(memoryBankListResponse)
     }
 
@@ -60,6 +68,20 @@ class MemoryBankServiceTest {
                 )
                 .providerId("provider_id")
                 .providerMemoryBankId("provider_memory_bank_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
+        )
+    }
+
+    @Test
+    fun callUnregister() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val memoryBankService = client.memoryBanks()
+        memoryBankService.unregister(
+            MemoryBankUnregisterParams.builder()
+                .memoryBankId("memory_bank_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )
     }

@@ -11,7 +11,7 @@ interface LlamaStackClientClient {
 
     fun agents(): AgentService
 
-    fun batchInferences(): BatchInferenceService
+    fun batchInference(): BatchInferenceService
 
     fun datasets(): DatasetService
 

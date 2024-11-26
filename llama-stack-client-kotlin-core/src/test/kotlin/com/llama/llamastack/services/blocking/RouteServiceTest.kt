@@ -16,7 +16,12 @@ class RouteServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val routeService = client.routes()
-        val routeListResponse = routeService.list(RouteListParams.builder().build())
+        val routeListResponse =
+            routeService.list(
+                RouteListParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
         println(routeListResponse)
         routeListResponse.validate()
     }

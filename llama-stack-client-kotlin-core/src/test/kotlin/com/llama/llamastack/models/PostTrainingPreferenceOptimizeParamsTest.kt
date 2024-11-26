@@ -49,6 +49,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .build()
             )
             .validationDatasetId("validation_dataset_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -94,6 +95,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         .build()
                 )
                 .validationDatasetId("validation_dataset_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

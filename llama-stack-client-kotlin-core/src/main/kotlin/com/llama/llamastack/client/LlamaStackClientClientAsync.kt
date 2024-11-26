@@ -11,7 +11,7 @@ interface LlamaStackClientClientAsync {
 
     fun agents(): AgentServiceAsync
 
-    fun batchInferences(): BatchInferenceServiceAsync
+    fun batchInference(): BatchInferenceServiceAsync
 
     fun datasets(): DatasetServiceAsync
 

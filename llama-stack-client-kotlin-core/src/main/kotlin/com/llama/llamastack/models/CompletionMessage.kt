@@ -197,22 +197,19 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Content && this.string == other.string && this.imageMedia == other.imageMedia && this.imageMediaArray == other.imageMediaArray /* spotless:on */
+            return /* spotless:off */ other is Content && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 string != null -> "Content{string=$string}"
                 imageMedia != null -> "Content{imageMedia=$imageMedia}"
                 imageMediaArray != null -> "Content{imageMediaArray=$imageMediaArray}"
                 _json != null -> "Content{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Content")
             }
-        }
 
         companion object {
 
@@ -324,21 +321,18 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StringOrImageMediaUnion && this.string == other.string && this.imageMedia == other.imageMedia /* spotless:on */
+                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
             }
 
-            override fun hashCode(): Int {
-                return /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-            }
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
 
-            override fun toString(): String {
-                return when {
+            override fun toString(): String =
+                when {
                     string != null -> "StringOrImageMediaUnion{string=$string}"
                     imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
                     _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
                 }
-            }
 
             companion object {
 
@@ -411,7 +405,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Role && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Role && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -462,7 +456,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is StopReason && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -517,17 +511,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is CompletionMessage && this.content == other.content && this.role == other.role && this.stopReason == other.stopReason && this.toolCalls == other.toolCalls && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is CompletionMessage && content == other.content && role == other.role && stopReason == other.stopReason && toolCalls == other.toolCalls && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(content, role, stopReason, toolCalls, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(content, role, stopReason, toolCalls, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "CompletionMessage{content=$content, role=$role, stopReason=$stopReason, toolCalls=$toolCalls, additionalProperties=$additionalProperties}"

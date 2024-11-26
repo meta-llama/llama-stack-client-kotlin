@@ -33,6 +33,7 @@ import java.util.Objects
 class TelemetryLogEventParams
 constructor(
     private val event: Event,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -40,11 +41,20 @@ constructor(
 
     fun event(): Event = event
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): TelemetryLogEventBody {
         return TelemetryLogEventBody(event, additionalBodyProperties)
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -107,17 +117,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TelemetryLogEventBody && this.event == other.event && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TelemetryLogEventBody && event == other.event && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(event, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(event, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "TelemetryLogEventBody{event=$event, additionalProperties=$additionalProperties}"
@@ -134,15 +141,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryLogEventParams && this.event == other.event && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is TelemetryLogEventParams && event == other.event && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(event, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(event, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "TelemetryLogEventParams{event=$event, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "TelemetryLogEventParams{event=$event, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -155,12 +160,14 @@ constructor(
     class Builder {
 
         private var event: Event? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(telemetryLogEventParams: TelemetryLogEventParams) = apply {
             this.event = telemetryLogEventParams.event
+            this.xLlamaStackProviderData = telemetryLogEventParams.xLlamaStackProviderData
             additionalHeaders(telemetryLogEventParams.additionalHeaders)
             additionalQueryParams(telemetryLogEventParams.additionalQueryParams)
             additionalBodyProperties(telemetryLogEventParams.additionalBodyProperties)
@@ -178,6 +185,10 @@ constructor(
 
         fun event(structuredLogEvent: Event.StructuredLogEvent) = apply {
             this.event = Event.ofStructuredLogEvent(structuredLogEvent)
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -303,6 +314,7 @@ constructor(
         fun build(): TelemetryLogEventParams =
             TelemetryLogEventParams(
                 checkNotNull(event) { "`event` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -374,22 +386,19 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Event && this.unstructuredLogEvent == other.unstructuredLogEvent && this.metricEvent == other.metricEvent && this.structuredLogEvent == other.structuredLogEvent /* spotless:on */
+            return /* spotless:off */ other is Event && unstructuredLogEvent == other.unstructuredLogEvent && metricEvent == other.metricEvent && structuredLogEvent == other.structuredLogEvent /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(unstructuredLogEvent, metricEvent, structuredLogEvent) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(unstructuredLogEvent, metricEvent, structuredLogEvent) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 unstructuredLogEvent != null -> "Event{unstructuredLogEvent=$unstructuredLogEvent}"
                 metricEvent != null -> "Event{metricEvent=$metricEvent}"
                 structuredLogEvent != null -> "Event{structuredLogEvent=$structuredLogEvent}"
                 _json != null -> "Event{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Event")
             }
-        }
 
         companion object {
 
@@ -633,7 +642,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Severity && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Severity && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -715,7 +724,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -810,17 +819,14 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Attributes && this.additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is Attributes && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
-                private var hashCode: Int = 0
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                /* spotless:on */
 
-                override fun hashCode(): Int {
-                    if (hashCode == 0) {
-                        hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                    }
-                    return hashCode
-                }
+                override fun hashCode(): Int = hashCode
 
                 override fun toString() = "Attributes{additionalProperties=$additionalProperties}"
             }
@@ -830,17 +836,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UnstructuredLogEvent && this.attributes == other.attributes && this.message == other.message && this.severity == other.severity && this.spanId == other.spanId && this.timestamp == other.timestamp && this.traceId == other.traceId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is UnstructuredLogEvent && attributes == other.attributes && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(attributes, message, severity, spanId, timestamp, traceId, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(attributes, message, severity, spanId, timestamp, traceId, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "UnstructuredLogEvent{attributes=$attributes, message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, additionalProperties=$additionalProperties}"
@@ -1038,7 +1041,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1133,17 +1136,14 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Attributes && this.additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is Attributes && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
-                private var hashCode: Int = 0
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                /* spotless:on */
 
-                override fun hashCode(): Int {
-                    if (hashCode == 0) {
-                        hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                    }
-                    return hashCode
-                }
+                override fun hashCode(): Int = hashCode
 
                 override fun toString() = "Attributes{additionalProperties=$additionalProperties}"
             }
@@ -1153,17 +1153,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MetricEvent && this.attributes == other.attributes && this.metric == other.metric && this.spanId == other.spanId && this.timestamp == other.timestamp && this.traceId == other.traceId && this.type == other.type && this.unit == other.unit && this.value == other.value && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is MetricEvent && attributes == other.attributes && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(attributes, metric, spanId, timestamp, traceId, type, unit, value, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(attributes, metric, spanId, timestamp, traceId, type, unit, value, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "MetricEvent{attributes=$attributes, metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, additionalProperties=$additionalProperties}"
@@ -1368,21 +1365,18 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Payload && this.spanStartPayload == other.spanStartPayload && this.spanEndPayload == other.spanEndPayload /* spotless:on */
+                    return /* spotless:off */ other is Payload && spanStartPayload == other.spanStartPayload && spanEndPayload == other.spanEndPayload /* spotless:on */
                 }
 
-                override fun hashCode(): Int {
-                    return /* spotless:off */ Objects.hash(spanStartPayload, spanEndPayload) /* spotless:on */
-                }
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(spanStartPayload, spanEndPayload) /* spotless:on */
 
-                override fun toString(): String {
-                    return when {
+                override fun toString(): String =
+                    when {
                         spanStartPayload != null -> "Payload{spanStartPayload=$spanStartPayload}"
                         spanEndPayload != null -> "Payload{spanEndPayload=$spanEndPayload}"
                         _json != null -> "Payload{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid Payload")
                     }
-                }
 
                 companion object {
 
@@ -1560,7 +1554,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1606,17 +1600,14 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is SpanStartPayload && this.name == other.name && this.parentSpanId == other.parentSpanId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is SpanStartPayload && name == other.name && parentSpanId == other.parentSpanId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(name, parentSpanId, type, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(name, parentSpanId, type, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "SpanStartPayload{name=$name, parentSpanId=$parentSpanId, type=$type, additionalProperties=$additionalProperties}"
@@ -1722,7 +1713,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Status && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Status && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1783,7 +1774,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1829,17 +1820,14 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is SpanEndPayload && this.status == other.status && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is SpanEndPayload && status == other.status && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(status, type, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(status, type, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "SpanEndPayload{status=$status, type=$type, additionalProperties=$additionalProperties}"
@@ -1859,7 +1847,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1954,17 +1942,14 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Attributes && this.additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is Attributes && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
-                private var hashCode: Int = 0
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                /* spotless:on */
 
-                override fun hashCode(): Int {
-                    if (hashCode == 0) {
-                        hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                    }
-                    return hashCode
-                }
+                override fun hashCode(): Int = hashCode
 
                 override fun toString() = "Attributes{additionalProperties=$additionalProperties}"
             }
@@ -1974,17 +1959,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StructuredLogEvent && this.attributes == other.attributes && this.payload == other.payload && this.spanId == other.spanId && this.timestamp == other.timestamp && this.traceId == other.traceId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is StructuredLogEvent && attributes == other.attributes && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(attributes, payload, spanId, timestamp, traceId, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(attributes, payload, spanId, timestamp, traceId, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "StructuredLogEvent{attributes=$attributes, payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, additionalProperties=$additionalProperties}"

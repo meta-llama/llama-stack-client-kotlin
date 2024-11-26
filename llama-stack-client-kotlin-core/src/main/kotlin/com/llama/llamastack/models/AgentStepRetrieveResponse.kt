@@ -164,15 +164,13 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Step && this.inferenceStep == other.inferenceStep && this.toolExecutionStep == other.toolExecutionStep && this.shieldCallStep == other.shieldCallStep && this.memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+            return /* spotless:off */ other is Step && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 inferenceStep != null -> "Step{inferenceStep=$inferenceStep}"
                 toolExecutionStep != null -> "Step{toolExecutionStep=$toolExecutionStep}"
                 shieldCallStep != null -> "Step{shieldCallStep=$shieldCallStep}"
@@ -180,7 +178,6 @@ private constructor(
                 _json != null -> "Step{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Step")
             }
-        }
 
         companion object {
 
@@ -263,17 +260,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentStepRetrieveResponse && this.step == other.step && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentStepRetrieveResponse && step == other.step && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(step, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(step, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "AgentStepRetrieveResponse{step=$step, additionalProperties=$additionalProperties}"

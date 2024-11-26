@@ -25,7 +25,6 @@ private constructor(
     private val params: JsonField<Params>,
     private val providerId: JsonField<String>,
     private val providerResourceId: JsonField<String>,
-    private val shieldType: JsonField<ShieldType>,
     private val type: JsonField<Type>,
     private val additionalProperties: Map<String, JsonValue>,
 ) {
@@ -40,8 +39,6 @@ private constructor(
 
     fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
-    fun shieldType(): ShieldType = shieldType.getRequired("shield_type")
-
     fun type(): Type = type.getRequired("type")
 
     @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
@@ -53,8 +50,6 @@ private constructor(
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
     fun _providerResourceId() = providerResourceId
-
-    @JsonProperty("shield_type") @ExcludeMissing fun _shieldType() = shieldType
 
     @JsonProperty("type") @ExcludeMissing fun _type() = type
 
@@ -68,7 +63,6 @@ private constructor(
             params()?.validate()
             providerId()
             providerResourceId()
-            shieldType()
             type()
             validated = true
         }
@@ -87,7 +81,6 @@ private constructor(
         private var params: JsonField<Params> = JsonMissing.of()
         private var providerId: JsonField<String> = JsonMissing.of()
         private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var shieldType: JsonField<ShieldType> = JsonMissing.of()
         private var type: JsonField<Type> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -96,7 +89,6 @@ private constructor(
             this.params = shield.params
             this.providerId = shield.providerId
             this.providerResourceId = shield.providerResourceId
-            this.shieldType = shield.shieldType
             this.type = shield.type
             additionalProperties(shield.additionalProperties)
         }
@@ -128,12 +120,6 @@ private constructor(
             this.providerResourceId = providerResourceId
         }
 
-        fun shieldType(shieldType: ShieldType) = shieldType(JsonField.of(shieldType))
-
-        @JsonProperty("shield_type")
-        @ExcludeMissing
-        fun shieldType(shieldType: JsonField<ShieldType>) = apply { this.shieldType = shieldType }
-
         fun type(type: Type) = type(JsonField.of(type))
 
         @JsonProperty("type")
@@ -160,79 +146,9 @@ private constructor(
                 params,
                 providerId,
                 providerResourceId,
-                shieldType,
                 type,
                 additionalProperties.toImmutable(),
             )
-    }
-
-    class ShieldType
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ShieldType && this.value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
-        companion object {
-
-            val GENERIC_CONTENT_SHIELD = ShieldType(JsonField.of("generic_content_shield"))
-
-            val LLAMA_GUARD = ShieldType(JsonField.of("llama_guard"))
-
-            val CODE_SCANNER = ShieldType(JsonField.of("code_scanner"))
-
-            val PROMPT_GUARD = ShieldType(JsonField.of("prompt_guard"))
-
-            fun of(value: String) = ShieldType(JsonField.of(value))
-        }
-
-        enum class Known {
-            GENERIC_CONTENT_SHIELD,
-            LLAMA_GUARD,
-            CODE_SCANNER,
-            PROMPT_GUARD,
-        }
-
-        enum class Value {
-            GENERIC_CONTENT_SHIELD,
-            LLAMA_GUARD,
-            CODE_SCANNER,
-            PROMPT_GUARD,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                GENERIC_CONTENT_SHIELD -> Value.GENERIC_CONTENT_SHIELD
-                LLAMA_GUARD -> Value.LLAMA_GUARD
-                CODE_SCANNER -> Value.CODE_SCANNER
-                PROMPT_GUARD -> Value.PROMPT_GUARD
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                GENERIC_CONTENT_SHIELD -> Known.GENERIC_CONTENT_SHIELD
-                LLAMA_GUARD -> Known.LLAMA_GUARD
-                CODE_SCANNER -> Known.CODE_SCANNER
-                PROMPT_GUARD -> Known.PROMPT_GUARD
-                else -> throw LlamaStackClientInvalidDataException("Unknown ShieldType: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
     }
 
     class Type
@@ -248,7 +164,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -342,17 +258,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Params && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }
@@ -362,18 +275,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Shield && this.identifier == other.identifier && this.params == other.params && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.shieldType == other.shieldType && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Shield && identifier == other.identifier && params == other.params && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(identifier, params, providerId, providerResourceId, type, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(identifier, params, providerId, providerResourceId, shieldType, type, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Shield{identifier=$identifier, params=$params, providerId=$providerId, providerResourceId=$providerResourceId, shieldType=$shieldType, type=$type, additionalProperties=$additionalProperties}"
+        "Shield{identifier=$identifier, params=$params, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
 }

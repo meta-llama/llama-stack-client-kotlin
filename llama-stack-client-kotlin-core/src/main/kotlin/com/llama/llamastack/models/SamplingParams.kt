@@ -177,7 +177,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Strategy && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Strategy && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -232,17 +232,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SamplingParams && this.maxTokens == other.maxTokens && this.repetitionPenalty == other.repetitionPenalty && this.strategy == other.strategy && this.temperature == other.temperature && this.topK == other.topK && this.topP == other.topP && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SamplingParams && maxTokens == other.maxTokens && repetitionPenalty == other.repetitionPenalty && strategy == other.strategy && temperature == other.temperature && topK == other.topK && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(maxTokens, repetitionPenalty, strategy, temperature, topK, topP, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(maxTokens, repetitionPenalty, strategy, temperature, topK, topP, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "SamplingParams{maxTokens=$maxTokens, repetitionPenalty=$repetitionPenalty, strategy=$strategy, temperature=$temperature, topK=$topK, topP=$topP, additionalProperties=$additionalProperties}"

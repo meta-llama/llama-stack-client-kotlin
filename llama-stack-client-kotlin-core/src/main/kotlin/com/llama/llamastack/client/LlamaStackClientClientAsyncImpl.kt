@@ -27,7 +27,7 @@ constructor(
         AgentServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val batchInferences: BatchInferenceServiceAsync by lazy {
+    private val batchInference: BatchInferenceServiceAsync by lazy {
         BatchInferenceServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
@@ -105,7 +105,7 @@ constructor(
 
     override fun agents(): AgentServiceAsync = agents
 
-    override fun batchInferences(): BatchInferenceServiceAsync = batchInferences
+    override fun batchInference(): BatchInferenceServiceAsync = batchInference
 
     override fun datasets(): DatasetServiceAsync = datasets
 

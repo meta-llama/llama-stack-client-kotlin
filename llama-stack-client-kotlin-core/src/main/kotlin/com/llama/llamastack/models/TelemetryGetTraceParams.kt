@@ -11,13 +11,23 @@ import java.util.Objects
 class TelemetryGetTraceParams
 constructor(
     private val traceId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun traceId(): String = traceId
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -35,15 +45,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryGetTraceParams && this.traceId == other.traceId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryGetTraceParams && xLlamaStackProviderData == other.xLlamaStackProviderData && traceId == other.traceId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(traceId, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, traceId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryGetTraceParams{traceId=$traceId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryGetTraceParams{xLlamaStackProviderData=$xLlamaStackProviderData, traceId=$traceId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -56,16 +64,22 @@ constructor(
     class Builder {
 
         private var traceId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(telemetryGetTraceParams: TelemetryGetTraceParams) = apply {
             this.traceId = telemetryGetTraceParams.traceId
+            this.xLlamaStackProviderData = telemetryGetTraceParams.xLlamaStackProviderData
             additionalHeaders(telemetryGetTraceParams.additionalHeaders)
             additionalQueryParams(telemetryGetTraceParams.additionalQueryParams)
         }
 
         fun traceId(traceId: String) = apply { this.traceId = traceId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -168,6 +182,7 @@ constructor(
         fun build(): TelemetryGetTraceParams =
             TelemetryGetTraceParams(
                 checkNotNull(traceId) { "`traceId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

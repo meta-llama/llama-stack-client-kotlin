@@ -21,6 +21,7 @@ constructor(
     private val metadata: Metadata?,
     private val providerId: String?,
     private val providerModelId: String?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -34,6 +35,8 @@ constructor(
 
     fun providerModelId(): String? = providerModelId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): ModelRegisterBody {
         return ModelRegisterBody(
             modelId,
@@ -44,7 +47,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -137,17 +147,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ModelRegisterBody && this.modelId == other.modelId && this.metadata == other.metadata && this.providerId == other.providerId && this.providerModelId == other.providerModelId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ModelRegisterBody && modelId == other.modelId && metadata == other.metadata && providerId == other.providerId && providerModelId == other.providerModelId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(modelId, metadata, providerId, providerModelId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(modelId, metadata, providerId, providerModelId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "ModelRegisterBody{modelId=$modelId, metadata=$metadata, providerId=$providerId, providerModelId=$providerModelId, additionalProperties=$additionalProperties}"
@@ -164,15 +171,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ModelRegisterParams && this.modelId == other.modelId && this.metadata == other.metadata && this.providerId == other.providerId && this.providerModelId == other.providerModelId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is ModelRegisterParams && modelId == other.modelId && metadata == other.metadata && providerId == other.providerId && providerModelId == other.providerModelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(modelId, metadata, providerId, providerModelId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelId, metadata, providerId, providerModelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "ModelRegisterParams{modelId=$modelId, metadata=$metadata, providerId=$providerId, providerModelId=$providerModelId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ModelRegisterParams{modelId=$modelId, metadata=$metadata, providerId=$providerId, providerModelId=$providerModelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -188,6 +193,7 @@ constructor(
         private var metadata: Metadata? = null
         private var providerId: String? = null
         private var providerModelId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -197,6 +203,7 @@ constructor(
             this.metadata = modelRegisterParams.metadata
             this.providerId = modelRegisterParams.providerId
             this.providerModelId = modelRegisterParams.providerModelId
+            this.xLlamaStackProviderData = modelRegisterParams.xLlamaStackProviderData
             additionalHeaders(modelRegisterParams.additionalHeaders)
             additionalQueryParams(modelRegisterParams.additionalQueryParams)
             additionalBodyProperties(modelRegisterParams.additionalBodyProperties)
@@ -210,6 +217,10 @@ constructor(
 
         fun providerModelId(providerModelId: String) = apply {
             this.providerModelId = providerModelId
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -338,6 +349,7 @@ constructor(
                 metadata,
                 providerId,
                 providerModelId,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -392,17 +404,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Metadata && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Metadata && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }

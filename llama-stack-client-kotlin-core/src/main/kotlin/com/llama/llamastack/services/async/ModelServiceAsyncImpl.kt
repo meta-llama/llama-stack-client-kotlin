@@ -4,6 +4,7 @@ package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -16,6 +17,7 @@ import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
+import com.llama.llamastack.models.ModelUnregisterParams
 
 class ModelServiceAsyncImpl
 constructor(
@@ -35,7 +37,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("models", "get")
+                .addPathSegments("alpha", "models", "get")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -59,7 +61,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("models", "list")
+                .addPathSegments("alpha", "models", "list")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -86,7 +88,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("models", "register")
+                .addPathSegments("alpha", "models", "register")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -101,6 +103,24 @@ constructor(
                         validate()
                     }
                 }
+        }
+    }
+
+    private val unregisterHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+
+    override suspend fun unregister(params: ModelUnregisterParams, requestOptions: RequestOptions) {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "models", "unregister")
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .build()
+        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
+            response.use { unregisterHandler.handle(it) }
         }
     }
 }

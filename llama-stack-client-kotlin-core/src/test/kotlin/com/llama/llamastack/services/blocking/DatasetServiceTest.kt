@@ -18,7 +18,12 @@ class DatasetServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
         val datasetRetrieveResponse =
-            datasetService.retrieve(DatasetRetrieveParams.builder().datasetId("dataset_id").build())
+            datasetService.retrieve(
+                DatasetRetrieveParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .datasetId("dataset_id")
+                    .build()
+            )
         println(datasetRetrieveResponse)
         datasetRetrieveResponse?.validate()
     }
@@ -31,7 +36,12 @@ class DatasetServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
-        val datasetListResponse = datasetService.list(DatasetListParams.builder().build())
+        val datasetListResponse =
+            datasetService.list(
+                DatasetListParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
         println(datasetListResponse)
         datasetListResponse.validate()
     }
@@ -44,11 +54,12 @@ class DatasetServiceTest {
         datasetService.register(
             DatasetRegisterParams.builder()
                 .datasetId("dataset_id")
-                .schema(DatasetRegisterParams.Schema.builder().build())
+                .datasetSchema(DatasetRegisterParams.DatasetSchema.builder().build())
                 .url("https://example.com")
                 .metadata(DatasetRegisterParams.Metadata.builder().build())
                 .providerDatasetId("provider_dataset_id")
                 .providerId("provider_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )
     }

@@ -35,6 +35,7 @@ constructor(
     private val params: Params,
     private val providerId: String?,
     private val providerMemoryBankId: String?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -48,6 +49,8 @@ constructor(
 
     fun providerMemoryBankId(): String? = providerMemoryBankId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): MemoryBankRegisterBody {
         return MemoryBankRegisterBody(
             memoryBankId,
@@ -58,7 +61,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -151,17 +161,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is MemoryBankRegisterBody && this.memoryBankId == other.memoryBankId && this.params == other.params && this.providerId == other.providerId && this.providerMemoryBankId == other.providerMemoryBankId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is MemoryBankRegisterBody && memoryBankId == other.memoryBankId && params == other.params && providerId == other.providerId && providerMemoryBankId == other.providerMemoryBankId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "MemoryBankRegisterBody{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, additionalProperties=$additionalProperties}"
@@ -178,15 +185,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryBankRegisterParams && this.memoryBankId == other.memoryBankId && this.params == other.params && this.providerId == other.providerId && this.providerMemoryBankId == other.providerMemoryBankId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryBankRegisterParams && memoryBankId == other.memoryBankId && params == other.params && providerId == other.providerId && providerMemoryBankId == other.providerMemoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "MemoryBankRegisterParams{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "MemoryBankRegisterParams{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -202,6 +207,7 @@ constructor(
         private var params: Params? = null
         private var providerId: String? = null
         private var providerMemoryBankId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -211,6 +217,7 @@ constructor(
             this.params = memoryBankRegisterParams.params
             this.providerId = memoryBankRegisterParams.providerId
             this.providerMemoryBankId = memoryBankRegisterParams.providerMemoryBankId
+            this.xLlamaStackProviderData = memoryBankRegisterParams.xLlamaStackProviderData
             additionalHeaders(memoryBankRegisterParams.additionalHeaders)
             additionalQueryParams(memoryBankRegisterParams.additionalQueryParams)
             additionalBodyProperties(memoryBankRegisterParams.additionalBodyProperties)
@@ -240,6 +247,10 @@ constructor(
 
         fun providerMemoryBankId(providerMemoryBankId: String) = apply {
             this.providerMemoryBankId = providerMemoryBankId
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -368,6 +379,7 @@ constructor(
                 checkNotNull(params) { "`params` is required but was not set" },
                 providerId,
                 providerMemoryBankId,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -454,15 +466,13 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && this.vectorMemoryBankParams == other.vectorMemoryBankParams && this.keyValueMemoryBankParams == other.keyValueMemoryBankParams && this.keywordMemoryBankParams == other.keywordMemoryBankParams && this.graphMemoryBankParams == other.graphMemoryBankParams /* spotless:on */
+            return /* spotless:off */ other is Params && vectorMemoryBankParams == other.vectorMemoryBankParams && keyValueMemoryBankParams == other.keyValueMemoryBankParams && keywordMemoryBankParams == other.keywordMemoryBankParams && graphMemoryBankParams == other.graphMemoryBankParams /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(vectorMemoryBankParams, keyValueMemoryBankParams, keywordMemoryBankParams, graphMemoryBankParams) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(vectorMemoryBankParams, keyValueMemoryBankParams, keywordMemoryBankParams, graphMemoryBankParams) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 vectorMemoryBankParams != null ->
                     "Params{vectorMemoryBankParams=$vectorMemoryBankParams}"
                 keyValueMemoryBankParams != null ->
@@ -474,7 +484,6 @@ constructor(
                 _json != null -> "Params{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Params")
             }
-        }
 
         companion object {
 
@@ -699,7 +708,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -745,17 +754,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is VectorMemoryBankParams && this.chunkSizeInTokens == other.chunkSizeInTokens && this.embeddingModel == other.embeddingModel && this.memoryBankType == other.memoryBankType && this.overlapSizeInTokens == other.overlapSizeInTokens && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is VectorMemoryBankParams && chunkSizeInTokens == other.chunkSizeInTokens && embeddingModel == other.embeddingModel && memoryBankType == other.memoryBankType && overlapSizeInTokens == other.overlapSizeInTokens && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(chunkSizeInTokens, embeddingModel, memoryBankType, overlapSizeInTokens, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(chunkSizeInTokens, embeddingModel, memoryBankType, overlapSizeInTokens, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "VectorMemoryBankParams{chunkSizeInTokens=$chunkSizeInTokens, embeddingModel=$embeddingModel, memoryBankType=$memoryBankType, overlapSizeInTokens=$overlapSizeInTokens, additionalProperties=$additionalProperties}"
@@ -844,7 +850,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -890,17 +896,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is KeyValueMemoryBankParams && this.memoryBankType == other.memoryBankType && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is KeyValueMemoryBankParams && memoryBankType == other.memoryBankType && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(memoryBankType, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(memoryBankType, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "KeyValueMemoryBankParams{memoryBankType=$memoryBankType, additionalProperties=$additionalProperties}"
@@ -989,7 +992,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1035,17 +1038,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is KeywordMemoryBankParams && this.memoryBankType == other.memoryBankType && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is KeywordMemoryBankParams && memoryBankType == other.memoryBankType && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(memoryBankType, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(memoryBankType, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "KeywordMemoryBankParams{memoryBankType=$memoryBankType, additionalProperties=$additionalProperties}"
@@ -1134,7 +1134,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is MemoryBankType && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1180,17 +1180,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is GraphMemoryBankParams && this.memoryBankType == other.memoryBankType && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is GraphMemoryBankParams && memoryBankType == other.memoryBankType && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(memoryBankType, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(memoryBankType, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "GraphMemoryBankParams{memoryBankType=$memoryBankType, additionalProperties=$additionalProperties}"

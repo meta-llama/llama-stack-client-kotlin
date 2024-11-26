@@ -32,6 +32,7 @@ class SafetyServiceTest {
                     )
                     .params(SafetyRunShieldParams.Params.builder().build())
                     .shieldId("shield_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(runShieldResponse)

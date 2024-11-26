@@ -28,7 +28,8 @@ import java.util.Objects
 class InferenceEmbeddingsParams
 constructor(
     private val contents: List<Content>,
-    private val model: String,
+    private val modelId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -36,17 +37,26 @@ constructor(
 
     fun contents(): List<Content> = contents
 
-    fun model(): String = model
+    fun modelId(): String = modelId
+
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     internal fun getBody(): InferenceEmbeddingsBody {
         return InferenceEmbeddingsBody(
             contents,
-            model,
+            modelId,
             additionalBodyProperties,
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -55,13 +65,13 @@ constructor(
     class InferenceEmbeddingsBody
     internal constructor(
         private val contents: List<Content>?,
-        private val model: String?,
+        private val modelId: String?,
         private val additionalProperties: Map<String, JsonValue>,
     ) {
 
         @JsonProperty("contents") fun contents(): List<Content>? = contents
 
-        @JsonProperty("model") fun model(): String? = model
+        @JsonProperty("model_id") fun modelId(): String? = modelId
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -77,19 +87,20 @@ constructor(
         class Builder {
 
             private var contents: List<Content>? = null
-            private var model: String? = null
+            private var modelId: String? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(inferenceEmbeddingsBody: InferenceEmbeddingsBody) = apply {
                 this.contents = inferenceEmbeddingsBody.contents
-                this.model = inferenceEmbeddingsBody.model
+                this.modelId = inferenceEmbeddingsBody.modelId
                 additionalProperties(inferenceEmbeddingsBody.additionalProperties)
             }
 
             @JsonProperty("contents")
             fun contents(contents: List<Content>) = apply { this.contents = contents }
 
-            @JsonProperty("model") fun model(model: String) = apply { this.model = model }
+            @JsonProperty("model_id")
+            fun modelId(modelId: String) = apply { this.modelId = modelId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -109,7 +120,7 @@ constructor(
                 InferenceEmbeddingsBody(
                     checkNotNull(contents) { "`contents` is required but was not set" }
                         .toImmutable(),
-                    checkNotNull(model) { "`model` is required but was not set" },
+                    checkNotNull(modelId) { "`modelId` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -119,20 +130,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InferenceEmbeddingsBody && this.contents == other.contents && this.model == other.model && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is InferenceEmbeddingsBody && contents == other.contents && modelId == other.modelId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(contents, modelId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(contents, model, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "InferenceEmbeddingsBody{contents=$contents, model=$model, additionalProperties=$additionalProperties}"
+            "InferenceEmbeddingsBody{contents=$contents, modelId=$modelId, additionalProperties=$additionalProperties}"
     }
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -146,15 +154,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceEmbeddingsParams && this.contents == other.contents && this.model == other.model && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is InferenceEmbeddingsParams && contents == other.contents && modelId == other.modelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(contents, model, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(contents, modelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "InferenceEmbeddingsParams{contents=$contents, model=$model, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "InferenceEmbeddingsParams{contents=$contents, modelId=$modelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -167,14 +173,16 @@ constructor(
     class Builder {
 
         private var contents: MutableList<Content> = mutableListOf()
-        private var model: String? = null
+        private var modelId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(inferenceEmbeddingsParams: InferenceEmbeddingsParams) = apply {
             this.contents(inferenceEmbeddingsParams.contents)
-            this.model = inferenceEmbeddingsParams.model
+            this.modelId = inferenceEmbeddingsParams.modelId
+            this.xLlamaStackProviderData = inferenceEmbeddingsParams.xLlamaStackProviderData
             additionalHeaders(inferenceEmbeddingsParams.additionalHeaders)
             additionalQueryParams(inferenceEmbeddingsParams.additionalQueryParams)
             additionalBodyProperties(inferenceEmbeddingsParams.additionalBodyProperties)
@@ -187,7 +195,11 @@ constructor(
 
         fun addContent(content: Content) = apply { this.contents.add(content) }
 
-        fun model(model: String) = apply { this.model = model }
+        fun modelId(modelId: String) = apply { this.modelId = modelId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -312,7 +324,8 @@ constructor(
         fun build(): InferenceEmbeddingsParams =
             InferenceEmbeddingsParams(
                 checkNotNull(contents) { "`contents` is required but was not set" }.toImmutable(),
-                checkNotNull(model) { "`model` is required but was not set" },
+                checkNotNull(modelId) { "`modelId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -376,22 +389,19 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Content && this.string == other.string && this.imageMedia == other.imageMedia && this.imageMediaArray == other.imageMediaArray /* spotless:on */
+            return /* spotless:off */ other is Content && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 string != null -> "Content{string=$string}"
                 imageMedia != null -> "Content{imageMedia=$imageMedia}"
                 imageMediaArray != null -> "Content{imageMediaArray=$imageMediaArray}"
                 _json != null -> "Content{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Content")
             }
-        }
 
         companion object {
 
@@ -503,21 +513,18 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StringOrImageMediaUnion && this.string == other.string && this.imageMedia == other.imageMedia /* spotless:on */
+                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
             }
 
-            override fun hashCode(): Int {
-                return /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-            }
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
 
-            override fun toString(): String {
-                return when {
+            override fun toString(): String =
+                when {
                     string != null -> "StringOrImageMediaUnion{string=$string}"
                     imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
                     _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
                 }
-            }
 
             companion object {
 

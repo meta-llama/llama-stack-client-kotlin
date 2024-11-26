@@ -79,22 +79,19 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnCreateResponse && this.turn == other.turn && this.agentTurnResponseStreamChunk == other.agentTurnResponseStreamChunk /* spotless:on */
+        return /* spotless:off */ other is AgentTurnCreateResponse && turn == other.turn && agentTurnResponseStreamChunk == other.agentTurnResponseStreamChunk /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(turn, agentTurnResponseStreamChunk) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(turn, agentTurnResponseStreamChunk) /* spotless:on */
 
-    override fun toString(): String {
-        return when {
+    override fun toString(): String =
+        when {
             turn != null -> "AgentTurnCreateResponse{turn=$turn}"
             agentTurnResponseStreamChunk != null ->
                 "AgentTurnCreateResponse{agentTurnResponseStreamChunk=$agentTurnResponseStreamChunk}"
             _json != null -> "AgentTurnCreateResponse{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid AgentTurnCreateResponse")
         }
-    }
 
     companion object {
 
@@ -415,15 +412,13 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Payload && this.agentTurnResponseStepStartPayload == other.agentTurnResponseStepStartPayload && this.agentTurnResponseStepProgressPayload == other.agentTurnResponseStepProgressPayload && this.agentTurnResponseStepCompletePayload == other.agentTurnResponseStepCompletePayload && this.agentTurnResponseTurnStartPayload == other.agentTurnResponseTurnStartPayload && this.agentTurnResponseTurnCompletePayload == other.agentTurnResponseTurnCompletePayload /* spotless:on */
+                    return /* spotless:off */ other is Payload && agentTurnResponseStepStartPayload == other.agentTurnResponseStepStartPayload && agentTurnResponseStepProgressPayload == other.agentTurnResponseStepProgressPayload && agentTurnResponseStepCompletePayload == other.agentTurnResponseStepCompletePayload && agentTurnResponseTurnStartPayload == other.agentTurnResponseTurnStartPayload && agentTurnResponseTurnCompletePayload == other.agentTurnResponseTurnCompletePayload /* spotless:on */
                 }
 
-                override fun hashCode(): Int {
-                    return /* spotless:off */ Objects.hash(agentTurnResponseStepStartPayload, agentTurnResponseStepProgressPayload, agentTurnResponseStepCompletePayload, agentTurnResponseTurnStartPayload, agentTurnResponseTurnCompletePayload) /* spotless:on */
-                }
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentTurnResponseStepStartPayload, agentTurnResponseStepProgressPayload, agentTurnResponseStepCompletePayload, agentTurnResponseTurnStartPayload, agentTurnResponseTurnCompletePayload) /* spotless:on */
 
-                override fun toString(): String {
-                    return when {
+                override fun toString(): String =
+                    when {
                         agentTurnResponseStepStartPayload != null ->
                             "Payload{agentTurnResponseStepStartPayload=$agentTurnResponseStepStartPayload}"
                         agentTurnResponseStepProgressPayload != null ->
@@ -437,7 +432,6 @@ private constructor(
                         _json != null -> "Payload{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid Payload")
                     }
-                }
 
                 companion object {
 
@@ -729,7 +723,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is EventType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -784,7 +778,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is StepType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -901,17 +895,14 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Metadata && this.additionalProperties == other.additionalProperties /* spotless:on */
+                            return /* spotless:off */ other is Metadata && additionalProperties == other.additionalProperties /* spotless:on */
                         }
 
-                        private var hashCode: Int = 0
+                        /* spotless:off */
+                        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                        /* spotless:on */
 
-                        override fun hashCode(): Int {
-                            if (hashCode == 0) {
-                                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                            }
-                            return hashCode
-                        }
+                        override fun hashCode(): Int = hashCode
 
                         override fun toString() =
                             "Metadata{additionalProperties=$additionalProperties}"
@@ -922,17 +913,14 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepStartPayload && this.eventType == other.eventType && this.metadata == other.metadata && this.stepId == other.stepId && this.stepType == other.stepType && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepStartPayload && eventType == other.eventType && metadata == other.metadata && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(eventType, metadata, stepId, stepType, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(eventType, metadata, stepId, stepType, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentTurnResponseStepStartPayload{eventType=$eventType, metadata=$metadata, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
@@ -1129,7 +1117,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is EventType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1184,7 +1172,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is StepType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1386,21 +1374,18 @@ private constructor(
                                     return true
                                 }
 
-                                return /* spotless:off */ other is Content && this.string == other.string && this.toolCall == other.toolCall /* spotless:on */
+                                return /* spotless:off */ other is Content && string == other.string && toolCall == other.toolCall /* spotless:on */
                             }
 
-                            override fun hashCode(): Int {
-                                return /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
-                            }
+                            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
 
-                            override fun toString(): String {
-                                return when {
+                            override fun toString(): String =
+                                when {
                                     string != null -> "Content{string=$string}"
                                     toolCall != null -> "Content{toolCall=$toolCall}"
                                     _json != null -> "Content{_unknown=$_json}"
                                     else -> throw IllegalStateException("Invalid Content")
                                 }
-                            }
 
                             companion object {
 
@@ -1473,7 +1458,7 @@ private constructor(
                                     return true
                                 }
 
-                                return /* spotless:off */ other is ParseStatus && this.value == other.value /* spotless:on */
+                                return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
                             }
 
                             override fun hashCode() = value.hashCode()
@@ -1537,17 +1522,14 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is ToolCallDelta && this.content == other.content && this.parseStatus == other.parseStatus && this.additionalProperties == other.additionalProperties /* spotless:on */
+                            return /* spotless:off */ other is ToolCallDelta && content == other.content && parseStatus == other.parseStatus && additionalProperties == other.additionalProperties /* spotless:on */
                         }
 
-                        private var hashCode: Int = 0
+                        /* spotless:off */
+                        private val hashCode: Int by lazy { Objects.hash(content, parseStatus, additionalProperties) }
+                        /* spotless:on */
 
-                        override fun hashCode(): Int {
-                            if (hashCode == 0) {
-                                hashCode = /* spotless:off */ Objects.hash(content, parseStatus, additionalProperties) /* spotless:on */
-                            }
-                            return hashCode
-                        }
+                        override fun hashCode(): Int = hashCode
 
                         override fun toString() =
                             "ToolCallDelta{content=$content, parseStatus=$parseStatus, additionalProperties=$additionalProperties}"
@@ -1558,17 +1540,14 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && this.eventType == other.eventType && this.modelResponseTextDelta == other.modelResponseTextDelta && this.stepId == other.stepId && this.stepType == other.stepType && this.toolCallDelta == other.toolCallDelta && this.toolResponseTextDelta == other.toolResponseTextDelta && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && eventType == other.eventType && modelResponseTextDelta == other.modelResponseTextDelta && stepId == other.stepId && stepType == other.stepType && toolCallDelta == other.toolCallDelta && toolResponseTextDelta == other.toolResponseTextDelta && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(eventType, modelResponseTextDelta, stepId, stepType, toolCallDelta, toolResponseTextDelta, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(eventType, modelResponseTextDelta, stepId, stepType, toolCallDelta, toolResponseTextDelta, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentTurnResponseStepProgressPayload{eventType=$eventType, modelResponseTextDelta=$modelResponseTextDelta, stepId=$stepId, stepType=$stepType, toolCallDelta=$toolCallDelta, toolResponseTextDelta=$toolResponseTextDelta, additionalProperties=$additionalProperties}"
@@ -1701,7 +1680,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is EventType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1823,15 +1802,13 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is StepDetails && this.inferenceStep == other.inferenceStep && this.toolExecutionStep == other.toolExecutionStep && this.shieldCallStep == other.shieldCallStep && this.memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+                            return /* spotless:off */ other is StepDetails && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
                         }
 
-                        override fun hashCode(): Int {
-                            return /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
-                        }
+                        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
 
-                        override fun toString(): String {
-                            return when {
+                        override fun toString(): String =
+                            when {
                                 inferenceStep != null -> "StepDetails{inferenceStep=$inferenceStep}"
                                 toolExecutionStep != null ->
                                     "StepDetails{toolExecutionStep=$toolExecutionStep}"
@@ -1842,7 +1819,6 @@ private constructor(
                                 _json != null -> "StepDetails{_unknown=$_json}"
                                 else -> throw IllegalStateException("Invalid StepDetails")
                             }
-                        }
 
                         companion object {
 
@@ -1949,7 +1925,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is StepType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -2013,17 +1989,14 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepCompletePayload && this.eventType == other.eventType && this.stepDetails == other.stepDetails && this.stepType == other.stepType && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepCompletePayload && eventType == other.eventType && stepDetails == other.stepDetails && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(eventType, stepDetails, stepType, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(eventType, stepDetails, stepType, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentTurnResponseStepCompletePayload{eventType=$eventType, stepDetails=$stepDetails, stepType=$stepType, additionalProperties=$additionalProperties}"
@@ -2135,7 +2108,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is EventType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -2181,17 +2154,14 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseTurnStartPayload && this.eventType == other.eventType && this.turnId == other.turnId && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseTurnStartPayload && eventType == other.eventType && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(eventType, turnId, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(eventType, turnId, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentTurnResponseTurnStartPayload{eventType=$eventType, turnId=$turnId, additionalProperties=$additionalProperties}"
@@ -2304,7 +2274,7 @@ private constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is EventType && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -2350,17 +2320,14 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseTurnCompletePayload && this.eventType == other.eventType && this.turn == other.turn && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseTurnCompletePayload && eventType == other.eventType && turn == other.turn && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(eventType, turn, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(eventType, turn, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentTurnResponseTurnCompletePayload{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
@@ -2372,17 +2339,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Event && this.payload == other.payload && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Event && payload == other.payload && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(payload, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(payload, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Event{payload=$payload, additionalProperties=$additionalProperties}"
@@ -2393,17 +2357,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseStreamChunk && this.event == other.event && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentTurnResponseStreamChunk && event == other.event && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(event, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(event, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "AgentTurnResponseStreamChunk{event=$event, additionalProperties=$additionalProperties}"

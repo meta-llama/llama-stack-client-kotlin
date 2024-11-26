@@ -10,11 +10,21 @@ import java.util.Objects
 
 class ModelListParams
 constructor(
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -27,15 +37,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ModelListParams && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ModelListParams && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ModelListParams{additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ModelListParams{xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -47,12 +55,18 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(modelListParams: ModelListParams) = apply {
+            this.xLlamaStackProviderData = modelListParams.xLlamaStackProviderData
             additionalHeaders(modelListParams.additionalHeaders)
             additionalQueryParams(modelListParams.additionalQueryParams)
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -154,6 +168,10 @@ constructor(
         }
 
         fun build(): ModelListParams =
-            ModelListParams(additionalHeaders.build(), additionalQueryParams.build())
+            ModelListParams(
+                xLlamaStackProviderData,
+                additionalHeaders.build(),
+                additionalQueryParams.build(),
+            )
     }
 }

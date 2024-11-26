@@ -9,6 +9,6 @@ class EvalTaskListParamsTest {
 
     @Test
     fun createEvalTaskListParams() {
-        EvalTaskListParams.builder().build()
+        EvalTaskListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
     }
 }

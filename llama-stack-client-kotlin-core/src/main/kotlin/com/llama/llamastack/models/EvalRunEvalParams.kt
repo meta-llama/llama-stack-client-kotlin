@@ -33,6 +33,7 @@ class EvalRunEvalParams
 constructor(
     private val taskConfig: TaskConfig,
     private val taskId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -42,6 +43,8 @@ constructor(
 
     fun taskId(): String = taskId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): EvalRunEvalBody {
         return EvalRunEvalBody(
             taskConfig,
@@ -50,7 +53,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -122,17 +132,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is EvalRunEvalBody && this.taskConfig == other.taskConfig && this.taskId == other.taskId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is EvalRunEvalBody && taskConfig == other.taskConfig && taskId == other.taskId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(taskConfig, taskId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(taskConfig, taskId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "EvalRunEvalBody{taskConfig=$taskConfig, taskId=$taskId, additionalProperties=$additionalProperties}"
@@ -149,15 +156,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalRunEvalParams && this.taskConfig == other.taskConfig && this.taskId == other.taskId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is EvalRunEvalParams && taskConfig == other.taskConfig && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(taskConfig, taskId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskConfig, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "EvalRunEvalParams{taskConfig=$taskConfig, taskId=$taskId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "EvalRunEvalParams{taskConfig=$taskConfig, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -171,6 +176,7 @@ constructor(
 
         private var taskConfig: TaskConfig? = null
         private var taskId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -178,6 +184,7 @@ constructor(
         internal fun from(evalRunEvalParams: EvalRunEvalParams) = apply {
             this.taskConfig = evalRunEvalParams.taskConfig
             this.taskId = evalRunEvalParams.taskId
+            this.xLlamaStackProviderData = evalRunEvalParams.xLlamaStackProviderData
             additionalHeaders(evalRunEvalParams.additionalHeaders)
             additionalQueryParams(evalRunEvalParams.additionalQueryParams)
             additionalBodyProperties(evalRunEvalParams.additionalBodyProperties)
@@ -194,6 +201,10 @@ constructor(
         }
 
         fun taskId(taskId: String) = apply { this.taskId = taskId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -319,6 +330,7 @@ constructor(
             EvalRunEvalParams(
                 checkNotNull(taskConfig) { "`taskConfig` is required but was not set" },
                 checkNotNull(taskId) { "`taskId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -377,22 +389,19 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TaskConfig && this.benchmarkEvalTaskConfig == other.benchmarkEvalTaskConfig && this.appEvalTaskConfig == other.appEvalTaskConfig /* spotless:on */
+            return /* spotless:off */ other is TaskConfig && benchmarkEvalTaskConfig == other.benchmarkEvalTaskConfig && appEvalTaskConfig == other.appEvalTaskConfig /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(benchmarkEvalTaskConfig, appEvalTaskConfig) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmarkEvalTaskConfig, appEvalTaskConfig) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 benchmarkEvalTaskConfig != null ->
                     "TaskConfig{benchmarkEvalTaskConfig=$benchmarkEvalTaskConfig}"
                 appEvalTaskConfig != null -> "TaskConfig{appEvalTaskConfig=$appEvalTaskConfig}"
                 _json != null -> "TaskConfig{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid TaskConfig")
             }
-        }
 
         companion object {
 
@@ -606,21 +615,18 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is EvalCandidate && this.modelCandidate == other.modelCandidate && this.agentCandidate == other.agentCandidate /* spotless:on */
+                    return /* spotless:off */ other is EvalCandidate && modelCandidate == other.modelCandidate && agentCandidate == other.agentCandidate /* spotless:on */
                 }
 
-                override fun hashCode(): Int {
-                    return /* spotless:off */ Objects.hash(modelCandidate, agentCandidate) /* spotless:on */
-                }
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelCandidate, agentCandidate) /* spotless:on */
 
-                override fun toString(): String {
-                    return when {
+                override fun toString(): String =
+                    when {
                         modelCandidate != null -> "EvalCandidate{modelCandidate=$modelCandidate}"
                         agentCandidate != null -> "EvalCandidate{agentCandidate=$agentCandidate}"
                         _json != null -> "EvalCandidate{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid EvalCandidate")
                     }
-                }
 
                 companion object {
 
@@ -820,7 +826,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -866,17 +872,14 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ModelCandidate && this.model == other.model && this.samplingParams == other.samplingParams && this.systemMessage == other.systemMessage && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && systemMessage == other.systemMessage && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(model, samplingParams, systemMessage, type, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(model, samplingParams, systemMessage, type, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "ModelCandidate{model=$model, samplingParams=$samplingParams, systemMessage=$systemMessage, type=$type, additionalProperties=$additionalProperties}"
@@ -982,7 +985,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1028,17 +1031,14 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentCandidate && this.config == other.config && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentCandidate && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(config, type, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(config, type, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentCandidate{config=$config, type=$type, additionalProperties=$additionalProperties}"
@@ -1058,7 +1058,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1101,17 +1101,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is BenchmarkEvalTaskConfig && this.evalCandidate == other.evalCandidate && this.numExamples == other.numExamples && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is BenchmarkEvalTaskConfig && evalCandidate == other.evalCandidate && numExamples == other.numExamples && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(evalCandidate, numExamples, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(evalCandidate, numExamples, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "BenchmarkEvalTaskConfig{evalCandidate=$evalCandidate, numExamples=$numExamples, type=$type, additionalProperties=$additionalProperties}"
@@ -1291,21 +1288,18 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is EvalCandidate && this.modelCandidate == other.modelCandidate && this.agentCandidate == other.agentCandidate /* spotless:on */
+                    return /* spotless:off */ other is EvalCandidate && modelCandidate == other.modelCandidate && agentCandidate == other.agentCandidate /* spotless:on */
                 }
 
-                override fun hashCode(): Int {
-                    return /* spotless:off */ Objects.hash(modelCandidate, agentCandidate) /* spotless:on */
-                }
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelCandidate, agentCandidate) /* spotless:on */
 
-                override fun toString(): String {
-                    return when {
+                override fun toString(): String =
+                    when {
                         modelCandidate != null -> "EvalCandidate{modelCandidate=$modelCandidate}"
                         agentCandidate != null -> "EvalCandidate{agentCandidate=$agentCandidate}"
                         _json != null -> "EvalCandidate{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid EvalCandidate")
                     }
-                }
 
                 companion object {
 
@@ -1505,7 +1499,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1551,17 +1545,14 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ModelCandidate && this.model == other.model && this.samplingParams == other.samplingParams && this.systemMessage == other.systemMessage && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && systemMessage == other.systemMessage && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(model, samplingParams, systemMessage, type, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(model, samplingParams, systemMessage, type, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "ModelCandidate{model=$model, samplingParams=$samplingParams, systemMessage=$systemMessage, type=$type, additionalProperties=$additionalProperties}"
@@ -1667,7 +1658,7 @@ constructor(
                                 return true
                             }
 
-                            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                         }
 
                         override fun hashCode() = value.hashCode()
@@ -1713,17 +1704,14 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentCandidate && this.config == other.config && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentCandidate && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
-                    private var hashCode: Int = 0
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(config, type, additionalProperties) }
+                    /* spotless:on */
 
-                    override fun hashCode(): Int {
-                        if (hashCode == 0) {
-                            hashCode = /* spotless:off */ Objects.hash(config, type, additionalProperties) /* spotless:on */
-                        }
-                        return hashCode
-                    }
+                    override fun hashCode(): Int = hashCode
 
                     override fun toString() =
                         "AgentCandidate{config=$config, type=$type, additionalProperties=$additionalProperties}"
@@ -1787,17 +1775,14 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is ScoringParams && this.additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is ScoringParams && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
-                private var hashCode: Int = 0
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                /* spotless:on */
 
-                override fun hashCode(): Int {
-                    if (hashCode == 0) {
-                        hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                    }
-                    return hashCode
-                }
+                override fun hashCode(): Int = hashCode
 
                 override fun toString() =
                     "ScoringParams{additionalProperties=$additionalProperties}"
@@ -1816,7 +1801,7 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1859,17 +1844,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is AppEvalTaskConfig && this.evalCandidate == other.evalCandidate && this.numExamples == other.numExamples && this.scoringParams == other.scoringParams && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is AppEvalTaskConfig && evalCandidate == other.evalCandidate && numExamples == other.numExamples && scoringParams == other.scoringParams && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(evalCandidate, numExamples, scoringParams, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(evalCandidate, numExamples, scoringParams, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "AppEvalTaskConfig{evalCandidate=$evalCandidate, numExamples=$numExamples, scoringParams=$scoringParams, type=$type, additionalProperties=$additionalProperties}"

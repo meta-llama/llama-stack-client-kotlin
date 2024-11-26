@@ -105,17 +105,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ProviderInfo && this.providerId == other.providerId && this.providerType == other.providerType && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ProviderInfo && providerId == other.providerId && providerType == other.providerType && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(providerId, providerType, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(providerId, providerType, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "ProviderInfo{providerId=$providerId, providerType=$providerType, additionalProperties=$additionalProperties}"

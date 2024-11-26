@@ -11,13 +11,23 @@ import java.util.Objects
 class ModelRetrieveParams
 constructor(
     private val identifier: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun identifier(): String = identifier
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -35,15 +45,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ModelRetrieveParams && this.identifier == other.identifier && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ModelRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && identifier == other.identifier && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(identifier, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, identifier, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ModelRetrieveParams{identifier=$identifier, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ModelRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, identifier=$identifier, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -56,16 +64,22 @@ constructor(
     class Builder {
 
         private var identifier: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(modelRetrieveParams: ModelRetrieveParams) = apply {
             this.identifier = modelRetrieveParams.identifier
+            this.xLlamaStackProviderData = modelRetrieveParams.xLlamaStackProviderData
             additionalHeaders(modelRetrieveParams.additionalHeaders)
             additionalQueryParams(modelRetrieveParams.additionalQueryParams)
         }
 
         fun identifier(identifier: String) = apply { this.identifier = identifier }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -168,6 +182,7 @@ constructor(
         fun build(): ModelRetrieveParams =
             ModelRetrieveParams(
                 checkNotNull(identifier) { "`identifier` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

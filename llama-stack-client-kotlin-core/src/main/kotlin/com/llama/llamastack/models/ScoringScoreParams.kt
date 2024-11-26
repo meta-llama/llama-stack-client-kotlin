@@ -19,6 +19,7 @@ class ScoringScoreParams
 constructor(
     private val inputRows: List<InputRow>,
     private val scoringFunctions: ScoringFunctions,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -28,6 +29,8 @@ constructor(
 
     fun scoringFunctions(): ScoringFunctions = scoringFunctions
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): ScoringScoreBody {
         return ScoringScoreBody(
             inputRows,
@@ -36,7 +39,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -115,17 +125,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ScoringScoreBody && this.inputRows == other.inputRows && this.scoringFunctions == other.scoringFunctions && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ScoringScoreBody && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(inputRows, scoringFunctions, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(inputRows, scoringFunctions, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "ScoringScoreBody{inputRows=$inputRows, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
@@ -142,15 +149,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringScoreParams && this.inputRows == other.inputRows && this.scoringFunctions == other.scoringFunctions && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is ScoringScoreParams && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(inputRows, scoringFunctions, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(inputRows, scoringFunctions, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "ScoringScoreParams{inputRows=$inputRows, scoringFunctions=$scoringFunctions, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ScoringScoreParams{inputRows=$inputRows, scoringFunctions=$scoringFunctions, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -164,6 +169,7 @@ constructor(
 
         private var inputRows: MutableList<InputRow> = mutableListOf()
         private var scoringFunctions: ScoringFunctions? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -171,6 +177,7 @@ constructor(
         internal fun from(scoringScoreParams: ScoringScoreParams) = apply {
             this.inputRows(scoringScoreParams.inputRows)
             this.scoringFunctions = scoringScoreParams.scoringFunctions
+            this.xLlamaStackProviderData = scoringScoreParams.xLlamaStackProviderData
             additionalHeaders(scoringScoreParams.additionalHeaders)
             additionalQueryParams(scoringScoreParams.additionalQueryParams)
             additionalBodyProperties(scoringScoreParams.additionalBodyProperties)
@@ -185,6 +192,10 @@ constructor(
 
         fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
             this.scoringFunctions = scoringFunctions
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -311,6 +322,7 @@ constructor(
             ScoringScoreParams(
                 checkNotNull(inputRows) { "`inputRows` is required but was not set" }.toImmutable(),
                 checkNotNull(scoringFunctions) { "`scoringFunctions` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -365,17 +377,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InputRow && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is InputRow && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "InputRow{additionalProperties=$additionalProperties}"
     }
@@ -428,17 +437,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ScoringFunctions && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ScoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "ScoringFunctions{additionalProperties=$additionalProperties}"
     }
