@@ -44,7 +44,7 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    override fun batchInferences(): BatchInferenceService {
+    override fun batchInference(): BatchInferenceService {
         TODO("Not yet implemented")
     }
 

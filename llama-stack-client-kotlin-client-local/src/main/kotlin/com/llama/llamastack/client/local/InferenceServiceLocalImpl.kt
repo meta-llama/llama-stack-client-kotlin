@@ -57,7 +57,7 @@ constructor(
     ): InferenceChatCompletionResponse {
         resultMessage = ""
         val mModule = clientOptions.llamaModule
-        modelName = params.model()
+        modelName = params.modelId()
         val formattedPrompt =
             PromptFormatLocal.getTotalFormattedPrompt(params.messages(), modelName)
         val seqLength =

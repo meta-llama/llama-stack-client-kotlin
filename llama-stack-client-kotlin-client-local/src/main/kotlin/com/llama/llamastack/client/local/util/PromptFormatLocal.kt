@@ -19,7 +19,6 @@ object PromptFormatLocal {
             "LLAMA_3_1",
             "LLAMA_3_2" ->
                 "<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n$SYSTEM_PLACEHOLDER<|eot_id|>"
-
             else -> SYSTEM_PLACEHOLDER
         }
     }
@@ -31,7 +30,6 @@ object PromptFormatLocal {
             "LLAMA_3_2",
             "LLAMA_GUARD_3" ->
                 "<|start_header_id|>user<|end_header_id|>$USER_PLACEHOLDER<|eot_id|><|start_header_id|>assistant<|end_header_id|>"
-
             else -> USER_PLACEHOLDER
         }
     }
@@ -41,7 +39,6 @@ object PromptFormatLocal {
             "LLAMA_3",
             "LLAMA_3_1",
             "LLAMA_3_2" -> "\n$ASSISTANT_PLACEHOLDER<|eot_id|>"
-
             else -> ASSISTANT_PLACEHOLDER
         }
     }
@@ -52,7 +49,6 @@ object PromptFormatLocal {
             "LLAMA_3_1",
             "LLAMA_3_2",
             "LLAMA_GUARD_3" -> "<|eot_id|>"
-
             else -> ""
         }
     }
@@ -74,7 +70,7 @@ object PromptFormatLocal {
                 if (content != null) {
                     formattedPrompt =
                         getSystemPromptTemplate(modelName).replace(SYSTEM_PLACEHOLDER, content) +
-                                formattedPrompt
+                            formattedPrompt
                 }
             } else if (message.isUserMessage()) {
                 // user or assistant
@@ -82,7 +78,8 @@ object PromptFormatLocal {
                 val role = userMessage?._additionalProperties()?.get(ROLE_KEY)?.toString()
                 val content: String? = userMessage?.content()?.string()
                 if (content != null) {
-                    // order needs to be UserPrompt A, AssistantResponse A, UserPrompt B, AssistantResponse B, ...
+                    // order needs to be UserPrompt A, AssistantResponse A, UserPrompt B,
+                    // AssistantResponse B, ...
                     if (role == ROLE_USER) {
                         format = getUserPromptTemplate(modelName).replace(USER_PLACEHOLDER, content)
                     } else if (role == ROLE_ASSISTANT) {
