@@ -84,17 +84,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Job && this.jobId == other.jobId && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Job && jobId == other.jobId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(jobId, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(jobId, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() = "Job{jobId=$jobId, additionalProperties=$additionalProperties}"
 }

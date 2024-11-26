@@ -33,6 +33,7 @@ class AgentTurnCreateParamsTest {
                 )
             )
             .stream(true)
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -62,6 +63,7 @@ class AgentTurnCreateParamsTest {
                     )
                 )
                 .stream(true)
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

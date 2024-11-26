@@ -31,6 +31,7 @@ constructor(
     private val model: String,
     private val logprobs: Logprobs?,
     private val samplingParams: SamplingParams?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -44,6 +45,8 @@ constructor(
 
     fun samplingParams(): SamplingParams? = samplingParams
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): BatchInferenceCompletionBody {
         return BatchInferenceCompletionBody(
             contentBatch,
@@ -54,7 +57,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -149,17 +159,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is BatchInferenceCompletionBody && this.contentBatch == other.contentBatch && this.model == other.model && this.logprobs == other.logprobs && this.samplingParams == other.samplingParams && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is BatchInferenceCompletionBody && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(contentBatch, model, logprobs, samplingParams, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(contentBatch, model, logprobs, samplingParams, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "BatchInferenceCompletionBody{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
@@ -176,15 +183,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is BatchInferenceCompletionParams && this.contentBatch == other.contentBatch && this.model == other.model && this.logprobs == other.logprobs && this.samplingParams == other.samplingParams && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is BatchInferenceCompletionParams && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(contentBatch, model, logprobs, samplingParams, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(contentBatch, model, logprobs, samplingParams, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "BatchInferenceCompletionParams{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "BatchInferenceCompletionParams{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -200,6 +205,7 @@ constructor(
         private var model: String? = null
         private var logprobs: Logprobs? = null
         private var samplingParams: SamplingParams? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -209,6 +215,7 @@ constructor(
             this.model = batchInferenceCompletionParams.model
             this.logprobs = batchInferenceCompletionParams.logprobs
             this.samplingParams = batchInferenceCompletionParams.samplingParams
+            this.xLlamaStackProviderData = batchInferenceCompletionParams.xLlamaStackProviderData
             additionalHeaders(batchInferenceCompletionParams.additionalHeaders)
             additionalQueryParams(batchInferenceCompletionParams.additionalQueryParams)
             additionalBodyProperties(batchInferenceCompletionParams.additionalBodyProperties)
@@ -229,6 +236,10 @@ constructor(
 
         fun samplingParams(samplingParams: SamplingParams) = apply {
             this.samplingParams = samplingParams
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -358,6 +369,7 @@ constructor(
                 checkNotNull(model) { "`model` is required but was not set" },
                 logprobs,
                 samplingParams,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -421,22 +433,19 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ContentBatch && this.string == other.string && this.imageMedia == other.imageMedia && this.imageMediaArray == other.imageMediaArray /* spotless:on */
+            return /* spotless:off */ other is ContentBatch && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 string != null -> "ContentBatch{string=$string}"
                 imageMedia != null -> "ContentBatch{imageMedia=$imageMedia}"
                 imageMediaArray != null -> "ContentBatch{imageMediaArray=$imageMediaArray}"
                 _json != null -> "ContentBatch{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid ContentBatch")
             }
-        }
 
         companion object {
 
@@ -548,21 +557,18 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StringOrImageMediaUnion && this.string == other.string && this.imageMedia == other.imageMedia /* spotless:on */
+                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
             }
 
-            override fun hashCode(): Int {
-                return /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-            }
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
 
-            override fun toString(): String {
-                return when {
+            override fun toString(): String =
+                when {
                     string != null -> "StringOrImageMediaUnion{string=$string}"
                     imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
                     _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
                 }
-            }
 
             companion object {
 
@@ -677,17 +683,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Logprobs && this.topK == other.topK && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Logprobs && topK == other.topK && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(topK, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(topK, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Logprobs{topK=$topK, additionalProperties=$additionalProperties}"
     }

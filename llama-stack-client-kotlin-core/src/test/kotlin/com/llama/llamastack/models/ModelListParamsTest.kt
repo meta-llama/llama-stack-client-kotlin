@@ -9,6 +9,6 @@ class ModelListParamsTest {
 
     @Test
     fun createModelListParams() {
-        ModelListParams.builder().build()
+        ModelListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
     }
 }

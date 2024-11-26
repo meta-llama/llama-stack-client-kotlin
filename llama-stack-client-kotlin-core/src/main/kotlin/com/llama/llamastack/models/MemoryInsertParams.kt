@@ -30,6 +30,7 @@ constructor(
     private val bankId: String,
     private val documents: List<Document>,
     private val ttlSeconds: Long?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -41,6 +42,8 @@ constructor(
 
     fun ttlSeconds(): Long? = ttlSeconds
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): MemoryInsertBody {
         return MemoryInsertBody(
             bankId,
@@ -50,7 +53,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -132,17 +142,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is MemoryInsertBody && this.bankId == other.bankId && this.documents == other.documents && this.ttlSeconds == other.ttlSeconds && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is MemoryInsertBody && bankId == other.bankId && documents == other.documents && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(bankId, documents, ttlSeconds, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(bankId, documents, ttlSeconds, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "MemoryInsertBody{bankId=$bankId, documents=$documents, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
@@ -159,15 +166,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryInsertParams && this.bankId == other.bankId && this.documents == other.documents && this.ttlSeconds == other.ttlSeconds && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryInsertParams && bankId == other.bankId && documents == other.documents && ttlSeconds == other.ttlSeconds && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(bankId, documents, ttlSeconds, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, documents, ttlSeconds, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "MemoryInsertParams{bankId=$bankId, documents=$documents, ttlSeconds=$ttlSeconds, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "MemoryInsertParams{bankId=$bankId, documents=$documents, ttlSeconds=$ttlSeconds, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -182,6 +187,7 @@ constructor(
         private var bankId: String? = null
         private var documents: MutableList<Document> = mutableListOf()
         private var ttlSeconds: Long? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -190,6 +196,7 @@ constructor(
             this.bankId = memoryInsertParams.bankId
             this.documents(memoryInsertParams.documents)
             this.ttlSeconds = memoryInsertParams.ttlSeconds
+            this.xLlamaStackProviderData = memoryInsertParams.xLlamaStackProviderData
             additionalHeaders(memoryInsertParams.additionalHeaders)
             additionalQueryParams(memoryInsertParams.additionalQueryParams)
             additionalBodyProperties(memoryInsertParams.additionalBodyProperties)
@@ -205,6 +212,10 @@ constructor(
         fun addDocument(document: Document) = apply { this.documents.add(document) }
 
         fun ttlSeconds(ttlSeconds: Long) = apply { this.ttlSeconds = ttlSeconds }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -331,6 +342,7 @@ constructor(
                 checkNotNull(bankId) { "`bankId` is required but was not set" },
                 checkNotNull(documents) { "`documents` is required but was not set" }.toImmutable(),
                 ttlSeconds,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -476,22 +488,19 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Content && this.string == other.string && this.imageMedia == other.imageMedia && this.contentArray == other.contentArray /* spotless:on */
+                return /* spotless:off */ other is Content && string == other.string && imageMedia == other.imageMedia && contentArray == other.contentArray /* spotless:on */
             }
 
-            override fun hashCode(): Int {
-                return /* spotless:off */ Objects.hash(string, imageMedia, contentArray) /* spotless:on */
-            }
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, contentArray) /* spotless:on */
 
-            override fun toString(): String {
-                return when {
+            override fun toString(): String =
+                when {
                     string != null -> "Content{string=$string}"
                     imageMedia != null -> "Content{imageMedia=$imageMedia}"
                     contentArray != null -> "Content{contentArray=$contentArray}"
                     _json != null -> "Content{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid Content")
                 }
-            }
 
             companion object {
 
@@ -603,21 +612,18 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is StringOrImageMediaUnion && this.string == other.string && this.imageMedia == other.imageMedia /* spotless:on */
+                    return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
                 }
 
-                override fun hashCode(): Int {
-                    return /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-                }
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
 
-                override fun toString(): String {
-                    return when {
+                override fun toString(): String =
+                    when {
                         string != null -> "StringOrImageMediaUnion{string=$string}"
                         imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
                         _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
                     }
-                }
 
                 companion object {
 
@@ -726,17 +732,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Metadata && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Metadata && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
         }
@@ -746,17 +749,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Document && this.content == other.content && this.documentId == other.documentId && this.metadata == other.metadata && this.mimeType == other.mimeType && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Document && content == other.content && documentId == other.documentId && metadata == other.metadata && mimeType == other.mimeType && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(content, documentId, metadata, mimeType, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(content, documentId, metadata, mimeType, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "Document{content=$content, documentId=$documentId, metadata=$metadata, mimeType=$mimeType, additionalProperties=$additionalProperties}"

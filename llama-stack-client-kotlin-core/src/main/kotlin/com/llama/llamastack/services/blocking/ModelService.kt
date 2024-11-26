@@ -7,6 +7,7 @@ import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
+import com.llama.llamastack.models.ModelUnregisterParams
 
 interface ModelService {
 
@@ -21,4 +22,9 @@ interface ModelService {
         params: ModelRegisterParams,
         requestOptions: RequestOptions = RequestOptions.none()
     ): Model
+
+    fun unregister(
+        params: ModelUnregisterParams,
+        requestOptions: RequestOptions = RequestOptions.none()
+    )
 }

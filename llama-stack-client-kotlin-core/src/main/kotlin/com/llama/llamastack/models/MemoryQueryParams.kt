@@ -30,6 +30,7 @@ constructor(
     private val bankId: String,
     private val query: Query,
     private val params: Params?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -41,6 +42,8 @@ constructor(
 
     fun params(): Params? = params
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): MemoryQueryBody {
         return MemoryQueryBody(
             bankId,
@@ -50,7 +53,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -129,17 +139,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is MemoryQueryBody && this.bankId == other.bankId && this.query == other.query && this.params == other.params && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is MemoryQueryBody && bankId == other.bankId && query == other.query && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(bankId, query, params, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(bankId, query, params, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "MemoryQueryBody{bankId=$bankId, query=$query, params=$params, additionalProperties=$additionalProperties}"
@@ -156,15 +163,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryQueryParams && this.bankId == other.bankId && this.query == other.query && this.params == other.params && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryQueryParams && bankId == other.bankId && query == other.query && params == other.params && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(bankId, query, params, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, query, params, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "MemoryQueryParams{bankId=$bankId, query=$query, params=$params, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "MemoryQueryParams{bankId=$bankId, query=$query, params=$params, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -179,6 +184,7 @@ constructor(
         private var bankId: String? = null
         private var query: Query? = null
         private var params: Params? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -187,6 +193,7 @@ constructor(
             this.bankId = memoryQueryParams.bankId
             this.query = memoryQueryParams.query
             this.params = memoryQueryParams.params
+            this.xLlamaStackProviderData = memoryQueryParams.xLlamaStackProviderData
             additionalHeaders(memoryQueryParams.additionalHeaders)
             additionalQueryParams(memoryQueryParams.additionalQueryParams)
             additionalBodyProperties(memoryQueryParams.additionalBodyProperties)
@@ -205,6 +212,10 @@ constructor(
         }
 
         fun params(params: Params) = apply { this.params = params }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -331,6 +342,7 @@ constructor(
                 checkNotNull(bankId) { "`bankId` is required but was not set" },
                 checkNotNull(query) { "`query` is required but was not set" },
                 params,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -394,22 +406,19 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Query && this.string == other.string && this.imageMedia == other.imageMedia && this.imageMediaArray == other.imageMediaArray /* spotless:on */
+            return /* spotless:off */ other is Query && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 string != null -> "Query{string=$string}"
                 imageMedia != null -> "Query{imageMedia=$imageMedia}"
                 imageMediaArray != null -> "Query{imageMediaArray=$imageMediaArray}"
                 _json != null -> "Query{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Query")
             }
-        }
 
         companion object {
 
@@ -521,21 +530,18 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StringOrImageMediaUnion && this.string == other.string && this.imageMedia == other.imageMedia /* spotless:on */
+                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
             }
 
-            override fun hashCode(): Int {
-                return /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-            }
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
 
-            override fun toString(): String {
-                return when {
+            override fun toString(): String =
+                when {
                     string != null -> "StringOrImageMediaUnion{string=$string}"
                     imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
                     _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
                 }
-            }
 
             companion object {
 
@@ -643,17 +649,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Params && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }

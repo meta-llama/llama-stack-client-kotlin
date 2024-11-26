@@ -81,15 +81,13 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceCompletionResponse && this.completionResponse == other.completionResponse && this.completionResponseStreamChunk == other.completionResponseStreamChunk /* spotless:on */
+        return /* spotless:off */ other is InferenceCompletionResponse && completionResponse == other.completionResponse && completionResponseStreamChunk == other.completionResponseStreamChunk /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(completionResponse, completionResponseStreamChunk) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(completionResponse, completionResponseStreamChunk) /* spotless:on */
 
-    override fun toString(): String {
-        return when {
+    override fun toString(): String =
+        when {
             completionResponse != null ->
                 "InferenceCompletionResponse{completionResponse=$completionResponse}"
             completionResponseStreamChunk != null ->
@@ -97,7 +95,6 @@ private constructor(
             _json != null -> "InferenceCompletionResponse{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid InferenceCompletionResponse")
         }
-    }
 
     companion object {
 
@@ -282,7 +279,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StopReason && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -337,17 +334,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is CompletionResponseStreamChunk && this.delta == other.delta && this.logprobs == other.logprobs && this.stopReason == other.stopReason && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is CompletionResponseStreamChunk && delta == other.delta && logprobs == other.logprobs && stopReason == other.stopReason && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(delta, logprobs, stopReason, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(delta, logprobs, stopReason, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "CompletionResponseStreamChunk{delta=$delta, logprobs=$logprobs, stopReason=$stopReason, additionalProperties=$additionalProperties}"

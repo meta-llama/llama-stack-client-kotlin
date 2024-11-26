@@ -159,7 +159,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Method && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Method && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -271,17 +271,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Body && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Body{additionalProperties=$additionalProperties}"
     }
@@ -342,17 +339,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Headers && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Headers && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Headers{additionalProperties=$additionalProperties}"
     }
@@ -413,17 +407,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Params && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }
@@ -433,17 +424,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is RestApiExecutionConfig && this.body == other.body && this.headers == other.headers && this.method == other.method && this.params == other.params && this.url == other.url && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is RestApiExecutionConfig && body == other.body && headers == other.headers && method == other.method && params == other.params && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(body, headers, method, params, url, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(body, headers, method, params, url, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "RestApiExecutionConfig{body=$body, headers=$headers, method=$method, params=$params, url=$url, additionalProperties=$additionalProperties}"

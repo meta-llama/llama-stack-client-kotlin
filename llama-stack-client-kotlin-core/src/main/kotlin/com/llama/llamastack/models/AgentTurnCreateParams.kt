@@ -32,6 +32,7 @@ constructor(
     private val sessionId: String,
     private val attachments: List<Attachment>?,
     private val stream: Boolean?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -47,6 +48,8 @@ constructor(
 
     fun stream(): Boolean? = stream
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): AgentTurnCreateBody {
         return AgentTurnCreateBody(
             agentId,
@@ -58,7 +61,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -160,17 +170,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnCreateBody && this.agentId == other.agentId && this.messages == other.messages && this.sessionId == other.sessionId && this.attachments == other.attachments && this.stream == other.stream && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentTurnCreateBody && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && stream == other.stream && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(agentId, messages, sessionId, attachments, stream, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(agentId, messages, sessionId, attachments, stream, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "AgentTurnCreateBody{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, stream=$stream, additionalProperties=$additionalProperties}"
@@ -187,15 +194,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnCreateParams && this.agentId == other.agentId && this.messages == other.messages && this.sessionId == other.sessionId && this.attachments == other.attachments && this.stream == other.stream && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && stream == other.stream && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(agentId, messages, sessionId, attachments, stream, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, messages, sessionId, attachments, stream, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "AgentTurnCreateParams{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, stream=$stream, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "AgentTurnCreateParams{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, stream=$stream, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -212,6 +217,7 @@ constructor(
         private var sessionId: String? = null
         private var attachments: MutableList<Attachment> = mutableListOf()
         private var stream: Boolean? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -222,6 +228,7 @@ constructor(
             this.sessionId = agentTurnCreateParams.sessionId
             this.attachments(agentTurnCreateParams.attachments ?: listOf())
             this.stream = agentTurnCreateParams.stream
+            this.xLlamaStackProviderData = agentTurnCreateParams.xLlamaStackProviderData
             additionalHeaders(agentTurnCreateParams.additionalHeaders)
             additionalQueryParams(agentTurnCreateParams.additionalQueryParams)
             additionalBodyProperties(agentTurnCreateParams.additionalBodyProperties)
@@ -246,6 +253,10 @@ constructor(
         fun addAttachment(attachment: Attachment) = apply { this.attachments.add(attachment) }
 
         fun stream(stream: Boolean) = apply { this.stream = stream }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -374,6 +385,7 @@ constructor(
                 checkNotNull(sessionId) { "`sessionId` is required but was not set" },
                 if (attachments.size == 0) null else attachments.toImmutable(),
                 stream,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -430,21 +442,18 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Message && this.userMessage == other.userMessage && this.toolResponseMessage == other.toolResponseMessage /* spotless:on */
+            return /* spotless:off */ other is Message && userMessage == other.userMessage && toolResponseMessage == other.toolResponseMessage /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(userMessage, toolResponseMessage) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, toolResponseMessage) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 userMessage != null -> "Message{userMessage=$userMessage}"
                 toolResponseMessage != null -> "Message{toolResponseMessage=$toolResponseMessage}"
                 _json != null -> "Message{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Message")
             }
-        }
 
         companion object {
 

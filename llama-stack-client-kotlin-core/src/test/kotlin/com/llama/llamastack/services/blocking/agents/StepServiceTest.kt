@@ -19,6 +19,7 @@ class StepServiceTest {
         val agentStepRetrieveResponse =
             stepService.retrieve(
                 AgentStepRetrieveParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .stepId("step_id")

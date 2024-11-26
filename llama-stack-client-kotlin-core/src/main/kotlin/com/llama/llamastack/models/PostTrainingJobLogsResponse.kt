@@ -103,17 +103,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingJobLogsResponse && this.jobUuid == other.jobUuid && this.logLines == other.logLines && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is PostTrainingJobLogsResponse && jobUuid == other.jobUuid && logLines == other.logLines && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(jobUuid, logLines, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(jobUuid, logLines, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "PostTrainingJobLogsResponse{jobUuid=$jobUuid, logLines=$logLines, additionalProperties=$additionalProperties}"

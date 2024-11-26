@@ -54,6 +54,7 @@ class EvalRunEvalParamsTest {
                 )
             )
             .taskId("task_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -108,6 +109,7 @@ class EvalRunEvalParamsTest {
                     )
                 )
                 .taskId("task_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

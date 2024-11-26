@@ -11,12 +11,19 @@ class TelemetryGetTraceParamsTest {
 
     @Test
     fun createTelemetryGetTraceParams() {
-        TelemetryGetTraceParams.builder().traceId("trace_id").build()
+        TelemetryGetTraceParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .traceId("trace_id")
+            .build()
     }
 
     @Test
     fun getQueryParams() {
-        val params = TelemetryGetTraceParams.builder().traceId("trace_id").build()
+        val params =
+            TelemetryGetTraceParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .traceId("trace_id")
+                .build()
         val expected = QueryParams.builder()
         expected.put("trace_id", "trace_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())

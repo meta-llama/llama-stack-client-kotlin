@@ -51,37 +51,157 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister200() {
+    fun inferencesChatCompletion200() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         val expected =
-            Model.builder()
-                .identifier("identifier")
-                .metadata(Model.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
-                .type(Model.Type.MODEL)
-                .build()
+            InferenceChatCompletionResponse.ofChatCompletionResponse(
+                InferenceChatCompletionResponse.ChatCompletionResponse.builder()
+                    .completionMessage(
+                        CompletionMessage.builder()
+                            .content(CompletionMessage.Content.ofString("string"))
+                            .role(CompletionMessage.Role.ASSISTANT)
+                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .toolCalls(
+                                listOf(
+                                    ToolCall.builder()
+                                        .arguments(ToolCall.Arguments.builder().build())
+                                        .callId("call_id")
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .build()
+                                )
+                            )
+                            .build()
+                    )
+                    .logprobs(
+                        listOf(
+                            TokenLogProbs.builder()
+                                .logprobsByToken(TokenLogProbs.LogprobsByToken.builder().build())
+                                .build()
+                        )
+                    )
+                    .build()
+            )
 
         stubFor(post(anyUrl()).willReturn(ok().withBody(toJson(expected))))
 
-        assertThat(client.models().register(params)).isEqualTo(expected)
+        assertThat(client.inference().chatCompletion(params)).isEqualTo(expected)
     }
 
     @Test
-    fun modelsRegister400() {
+    fun inferencesChatCompletion400() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -91,7 +211,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertBadRequest(
                     e,
@@ -102,13 +222,63 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister401() {
+    fun inferencesChatCompletion401() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -118,7 +288,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertUnauthorized(
                     e,
@@ -129,13 +299,63 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister403() {
+    fun inferencesChatCompletion403() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -145,7 +365,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertPermissionDenied(
                     e,
@@ -156,13 +376,63 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister404() {
+    fun inferencesChatCompletion404() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -172,7 +442,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertNotFound(
                     e,
@@ -183,13 +453,63 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister422() {
+    fun inferencesChatCompletion422() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -199,7 +519,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertUnprocessableEntity(
                     e,
@@ -210,13 +530,63 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister429() {
+    fun inferencesChatCompletion429() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -226,7 +596,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertRateLimit(
                     e,
@@ -237,13 +607,63 @@ class ErrorHandlingTest {
     }
 
     @Test
-    fun modelsRegister500() {
+    fun inferencesChatCompletion500() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -253,7 +673,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertInternalServer(
                     e,
@@ -266,11 +686,61 @@ class ErrorHandlingTest {
     @Test
     fun unexpectedStatusCode() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(
@@ -280,7 +750,7 @@ class ErrorHandlingTest {
                 )
         )
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertUnexpectedStatusCodeException(
                     e,
@@ -294,16 +764,66 @@ class ErrorHandlingTest {
     @Test
     fun invalidBody() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(post(anyUrl()).willReturn(status(200).withBody("Not JSON")))
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertThat(e)
                     .isInstanceOf(LlamaStackClientException::class.java)
@@ -314,16 +834,66 @@ class ErrorHandlingTest {
     @Test
     fun invalidErrorBody() {
         val params =
-            ModelRegisterParams.builder()
+            InferenceChatCompletionParams.builder()
+                .messages(
+                    listOf(
+                        InferenceChatCompletionParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(UserMessage.Content.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .context(UserMessage.Context.ofString("string"))
+                                .build()
+                        )
+                    )
+                )
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
-                .providerId("provider_id")
-                .providerModelId("provider_model_id")
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .responseFormat(
+                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    .JsonSchema
+                                    .builder()
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
+                    )
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .maxTokens(123L)
+                        .repetitionPenalty(42.23)
+                        .temperature(42.23)
+                        .topK(123L)
+                        .topP(42.23)
+                        .build()
+                )
+                .stream(true)
+                .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                .tools(
+                    listOf(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            )
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
 
         stubFor(post(anyUrl()).willReturn(status(400).withBody("Not JSON")))
 
-        assertThatThrownBy({ client.models().register(params) })
+        assertThatThrownBy({ client.inference().chatCompletion(params) })
             .satisfies({ e ->
                 assertBadRequest(
                     e,

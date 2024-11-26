@@ -9,6 +9,6 @@ class DatasetListParamsTest {
 
     @Test
     fun createDatasetListParams() {
-        DatasetListParams.builder().build()
+        DatasetListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
     }
 }

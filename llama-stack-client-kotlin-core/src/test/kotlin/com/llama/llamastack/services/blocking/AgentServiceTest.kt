@@ -72,6 +72,7 @@ class AgentServiceTest {
                             )
                             .build()
                     )
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(agentCreateResponse)
@@ -83,6 +84,11 @@ class AgentServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val agentService = client.agents()
-        agentService.delete(AgentDeleteParams.builder().agentId("agent_id").build())
+        agentService.delete(
+            AgentDeleteParams.builder()
+                .agentId("agent_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
+        )
     }
 }

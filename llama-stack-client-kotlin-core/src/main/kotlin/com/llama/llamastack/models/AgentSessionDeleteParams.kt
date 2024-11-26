@@ -19,6 +19,7 @@ class AgentSessionDeleteParams
 constructor(
     private val agentId: String,
     private val sessionId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -28,6 +29,8 @@ constructor(
 
     fun sessionId(): String = sessionId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): AgentSessionDeleteBody {
         return AgentSessionDeleteBody(
             agentId,
@@ -36,7 +39,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -109,17 +119,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentSessionDeleteBody && this.agentId == other.agentId && this.sessionId == other.sessionId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentSessionDeleteBody && agentId == other.agentId && sessionId == other.sessionId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(agentId, sessionId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(agentId, sessionId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "AgentSessionDeleteBody{agentId=$agentId, sessionId=$sessionId, additionalProperties=$additionalProperties}"
@@ -136,15 +143,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentSessionDeleteParams && this.agentId == other.agentId && this.sessionId == other.sessionId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is AgentSessionDeleteParams && agentId == other.agentId && sessionId == other.sessionId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(agentId, sessionId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "AgentSessionDeleteParams{agentId=$agentId, sessionId=$sessionId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "AgentSessionDeleteParams{agentId=$agentId, sessionId=$sessionId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -158,6 +163,7 @@ constructor(
 
         private var agentId: String? = null
         private var sessionId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -165,6 +171,7 @@ constructor(
         internal fun from(agentSessionDeleteParams: AgentSessionDeleteParams) = apply {
             this.agentId = agentSessionDeleteParams.agentId
             this.sessionId = agentSessionDeleteParams.sessionId
+            this.xLlamaStackProviderData = agentSessionDeleteParams.xLlamaStackProviderData
             additionalHeaders(agentSessionDeleteParams.additionalHeaders)
             additionalQueryParams(agentSessionDeleteParams.additionalQueryParams)
             additionalBodyProperties(agentSessionDeleteParams.additionalBodyProperties)
@@ -173,6 +180,10 @@ constructor(
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -298,6 +309,7 @@ constructor(
             AgentSessionDeleteParams(
                 checkNotNull(agentId) { "`agentId` is required but was not set" },
                 checkNotNull(sessionId) { "`sessionId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),

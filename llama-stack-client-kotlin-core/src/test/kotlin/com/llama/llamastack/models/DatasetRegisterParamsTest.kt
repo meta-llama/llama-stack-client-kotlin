@@ -12,11 +12,12 @@ class DatasetRegisterParamsTest {
     fun createDatasetRegisterParams() {
         DatasetRegisterParams.builder()
             .datasetId("dataset_id")
-            .schema(DatasetRegisterParams.Schema.builder().build())
+            .datasetSchema(DatasetRegisterParams.DatasetSchema.builder().build())
             .url("https://example.com")
             .metadata(DatasetRegisterParams.Metadata.builder().build())
             .providerDatasetId("provider_dataset_id")
             .providerId("provider_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -25,16 +26,18 @@ class DatasetRegisterParamsTest {
         val params =
             DatasetRegisterParams.builder()
                 .datasetId("dataset_id")
-                .schema(DatasetRegisterParams.Schema.builder().build())
+                .datasetSchema(DatasetRegisterParams.DatasetSchema.builder().build())
                 .url("https://example.com")
                 .metadata(DatasetRegisterParams.Metadata.builder().build())
                 .providerDatasetId("provider_dataset_id")
                 .providerId("provider_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.schema()).isEqualTo(DatasetRegisterParams.Schema.builder().build())
+        assertThat(body.datasetSchema())
+            .isEqualTo(DatasetRegisterParams.DatasetSchema.builder().build())
         assertThat(body.url()).isEqualTo("https://example.com")
         assertThat(body.metadata()).isEqualTo(DatasetRegisterParams.Metadata.builder().build())
         assertThat(body.providerDatasetId()).isEqualTo("provider_dataset_id")
@@ -46,13 +49,14 @@ class DatasetRegisterParamsTest {
         val params =
             DatasetRegisterParams.builder()
                 .datasetId("dataset_id")
-                .schema(DatasetRegisterParams.Schema.builder().build())
+                .datasetSchema(DatasetRegisterParams.DatasetSchema.builder().build())
                 .url("https://example.com")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.schema()).isEqualTo(DatasetRegisterParams.Schema.builder().build())
+        assertThat(body.datasetSchema())
+            .isEqualTo(DatasetRegisterParams.DatasetSchema.builder().build())
         assertThat(body.url()).isEqualTo("https://example.com")
     }
 }

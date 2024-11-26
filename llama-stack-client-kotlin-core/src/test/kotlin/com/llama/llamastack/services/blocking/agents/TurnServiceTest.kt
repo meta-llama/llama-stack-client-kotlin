@@ -45,6 +45,7 @@ class TurnServiceTest {
                         )
                     )
                     .stream(true)
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(agentTurnCreateResponse)
@@ -58,6 +59,7 @@ class TurnServiceTest {
         val turn =
             turnService.retrieve(
                 AgentTurnRetrieveParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .turnId("turn_id")

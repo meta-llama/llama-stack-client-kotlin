@@ -30,6 +30,7 @@ constructor(
     private val messages: List<Message>,
     private val params: Params,
     private val shieldId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -41,6 +42,8 @@ constructor(
 
     fun shieldId(): String = shieldId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): SafetyRunShieldBody {
         return SafetyRunShieldBody(
             messages,
@@ -50,7 +53,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -132,17 +142,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is SafetyRunShieldBody && this.messages == other.messages && this.params == other.params && this.shieldId == other.shieldId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is SafetyRunShieldBody && messages == other.messages && params == other.params && shieldId == other.shieldId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(messages, params, shieldId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(messages, params, shieldId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "SafetyRunShieldBody{messages=$messages, params=$params, shieldId=$shieldId, additionalProperties=$additionalProperties}"
@@ -159,15 +166,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is SafetyRunShieldParams && this.messages == other.messages && this.params == other.params && this.shieldId == other.shieldId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is SafetyRunShieldParams && messages == other.messages && params == other.params && shieldId == other.shieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(messages, params, shieldId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messages, params, shieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "SafetyRunShieldParams{messages=$messages, params=$params, shieldId=$shieldId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "SafetyRunShieldParams{messages=$messages, params=$params, shieldId=$shieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -182,6 +187,7 @@ constructor(
         private var messages: MutableList<Message> = mutableListOf()
         private var params: Params? = null
         private var shieldId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -190,6 +196,7 @@ constructor(
             this.messages(safetyRunShieldParams.messages)
             this.params = safetyRunShieldParams.params
             this.shieldId = safetyRunShieldParams.shieldId
+            this.xLlamaStackProviderData = safetyRunShieldParams.xLlamaStackProviderData
             additionalHeaders(safetyRunShieldParams.additionalHeaders)
             additionalQueryParams(safetyRunShieldParams.additionalQueryParams)
             additionalBodyProperties(safetyRunShieldParams.additionalBodyProperties)
@@ -205,6 +212,10 @@ constructor(
         fun params(params: Params) = apply { this.params = params }
 
         fun shieldId(shieldId: String) = apply { this.shieldId = shieldId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -331,6 +342,7 @@ constructor(
                 checkNotNull(messages) { "`messages` is required but was not set" }.toImmutable(),
                 checkNotNull(params) { "`params` is required but was not set" },
                 checkNotNull(shieldId) { "`shieldId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -411,15 +423,13 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Message && this.userMessage == other.userMessage && this.systemMessage == other.systemMessage && this.toolResponseMessage == other.toolResponseMessage && this.completionMessage == other.completionMessage /* spotless:on */
+            return /* spotless:off */ other is Message && userMessage == other.userMessage && systemMessage == other.systemMessage && toolResponseMessage == other.toolResponseMessage && completionMessage == other.completionMessage /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 userMessage != null -> "Message{userMessage=$userMessage}"
                 systemMessage != null -> "Message{systemMessage=$systemMessage}"
                 toolResponseMessage != null -> "Message{toolResponseMessage=$toolResponseMessage}"
@@ -427,7 +437,6 @@ constructor(
                 _json != null -> "Message{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Message")
             }
-        }
 
         companion object {
 
@@ -553,17 +562,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Params && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }

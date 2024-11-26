@@ -21,7 +21,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobStatusResponse && this.value == other.value /* spotless:on */
+        return /* spotless:off */ other is EvalJobStatusResponse && value == other.value /* spotless:on */
     }
 
     fun validate(): Boolean {

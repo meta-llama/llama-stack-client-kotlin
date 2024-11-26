@@ -129,7 +129,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is StopReason && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -184,17 +184,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is CompletionResponse && this.content == other.content && this.logprobs == other.logprobs && this.stopReason == other.stopReason && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is CompletionResponse && content == other.content && logprobs == other.logprobs && stopReason == other.stopReason && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(content, logprobs, stopReason, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(content, logprobs, stopReason, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "CompletionResponse{content=$content, logprobs=$logprobs, stopReason=$stopReason, additionalProperties=$additionalProperties}"

@@ -11,12 +11,19 @@ class ScoringFunctionRetrieveParamsTest {
 
     @Test
     fun createScoringFunctionRetrieveParams() {
-        ScoringFunctionRetrieveParams.builder().scoringFnId("scoring_fn_id").build()
+        ScoringFunctionRetrieveParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .scoringFnId("scoring_fn_id")
+            .build()
     }
 
     @Test
     fun getQueryParams() {
-        val params = ScoringFunctionRetrieveParams.builder().scoringFnId("scoring_fn_id").build()
+        val params =
+            ScoringFunctionRetrieveParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .scoringFnId("scoring_fn_id")
+                .build()
         val expected = QueryParams.builder()
         expected.put("scoring_fn_id", "scoring_fn_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())

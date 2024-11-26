@@ -37,6 +37,7 @@ constructor(
     private val toolChoice: ToolChoice?,
     private val toolPromptFormat: ToolPromptFormat?,
     private val tools: List<Tool>?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -56,6 +57,8 @@ constructor(
 
     fun tools(): List<Tool>? = tools
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): BatchInferenceChatCompletionBody {
         return BatchInferenceChatCompletionBody(
             messagesBatch,
@@ -69,7 +72,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -217,17 +227,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is BatchInferenceChatCompletionBody && this.messagesBatch == other.messagesBatch && this.model == other.model && this.logprobs == other.logprobs && this.samplingParams == other.samplingParams && this.toolChoice == other.toolChoice && this.toolPromptFormat == other.toolPromptFormat && this.tools == other.tools && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is BatchInferenceChatCompletionBody && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "BatchInferenceChatCompletionBody{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
@@ -244,15 +251,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is BatchInferenceChatCompletionParams && this.messagesBatch == other.messagesBatch && this.model == other.model && this.logprobs == other.logprobs && this.samplingParams == other.samplingParams && this.toolChoice == other.toolChoice && this.toolPromptFormat == other.toolPromptFormat && this.tools == other.tools && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is BatchInferenceChatCompletionParams && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "BatchInferenceChatCompletionParams{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "BatchInferenceChatCompletionParams{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -271,6 +276,7 @@ constructor(
         private var toolChoice: ToolChoice? = null
         private var toolPromptFormat: ToolPromptFormat? = null
         private var tools: MutableList<Tool> = mutableListOf()
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -284,6 +290,8 @@ constructor(
                 this.toolChoice = batchInferenceChatCompletionParams.toolChoice
                 this.toolPromptFormat = batchInferenceChatCompletionParams.toolPromptFormat
                 this.tools(batchInferenceChatCompletionParams.tools ?: listOf())
+                this.xLlamaStackProviderData =
+                    batchInferenceChatCompletionParams.xLlamaStackProviderData
                 additionalHeaders(batchInferenceChatCompletionParams.additionalHeaders)
                 additionalQueryParams(batchInferenceChatCompletionParams.additionalQueryParams)
                 additionalBodyProperties(
@@ -331,6 +339,10 @@ constructor(
         }
 
         fun addTool(tool: Tool) = apply { this.tools.add(tool) }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -462,6 +474,7 @@ constructor(
                 toolChoice,
                 toolPromptFormat,
                 if (tools.size == 0) null else tools.toImmutable(),
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -542,15 +555,13 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is MessagesBatch && this.userMessage == other.userMessage && this.systemMessage == other.systemMessage && this.toolResponseMessage == other.toolResponseMessage && this.completionMessage == other.completionMessage /* spotless:on */
+            return /* spotless:off */ other is MessagesBatch && userMessage == other.userMessage && systemMessage == other.systemMessage && toolResponseMessage == other.toolResponseMessage && completionMessage == other.completionMessage /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 userMessage != null -> "MessagesBatch{userMessage=$userMessage}"
                 systemMessage != null -> "MessagesBatch{systemMessage=$systemMessage}"
                 toolResponseMessage != null ->
@@ -559,7 +570,6 @@ constructor(
                 _json != null -> "MessagesBatch{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid MessagesBatch")
             }
-        }
 
         companion object {
 
@@ -692,17 +702,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Logprobs && this.topK == other.topK && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Logprobs && topK == other.topK && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(topK, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(topK, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Logprobs{topK=$topK, additionalProperties=$additionalProperties}"
     }
@@ -720,7 +727,7 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolChoice && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -777,7 +784,7 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolPromptFormat && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -914,7 +921,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is ToolName && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -1019,17 +1026,14 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Parameters && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Parameters && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() = "Parameters{additionalProperties=$additionalProperties}"
         }
@@ -1039,17 +1043,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Tool && this.description == other.description && this.parameters == other.parameters && this.toolName == other.toolName && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Tool && description == other.description && parameters == other.parameters && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(description, parameters, toolName, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(description, parameters, toolName, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "Tool{description=$description, parameters=$parameters, toolName=$toolName, additionalProperties=$additionalProperties}"

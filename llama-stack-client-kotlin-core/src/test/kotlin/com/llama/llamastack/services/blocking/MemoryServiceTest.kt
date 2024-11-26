@@ -30,6 +30,7 @@ class MemoryServiceTest {
                     )
                 )
                 .ttlSeconds(123L)
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )
     }
@@ -45,6 +46,7 @@ class MemoryServiceTest {
                     .bankId("bank_id")
                     .query(MemoryQueryParams.Query.ofString("string"))
                     .params(MemoryQueryParams.Params.builder().build())
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(queryDocumentsResponse)

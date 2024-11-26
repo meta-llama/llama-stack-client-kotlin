@@ -34,7 +34,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("synthetic_data_generation", "generate")
+                .addPathSegments("alpha", "synthetic-data-generation", "generate")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

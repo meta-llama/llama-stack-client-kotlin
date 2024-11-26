@@ -18,7 +18,12 @@ class EvalTaskServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
         val evalTask =
-            evalTaskService.retrieve(EvalTaskRetrieveParams.builder().name("name").build())
+            evalTaskService.retrieve(
+                EvalTaskRetrieveParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .name("name")
+                    .build()
+            )
         println(evalTask)
         evalTask?.validate()
     }
@@ -31,7 +36,12 @@ class EvalTaskServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
-        val evalTask = evalTaskService.list(EvalTaskListParams.builder().build())
+        val evalTask =
+            evalTaskService.list(
+                EvalTaskListParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
         println(evalTask)
         evalTask.validate()
     }
@@ -49,6 +59,7 @@ class EvalTaskServiceTest {
                 .metadata(EvalTaskRegisterParams.Metadata.builder().build())
                 .providerEvalTaskId("provider_eval_task_id")
                 .providerId("provider_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )
     }

@@ -250,22 +250,19 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InsertedContext && this.string == other.string && this.imageMedia == other.imageMedia && this.imageMediaArray == other.imageMediaArray /* spotless:on */
+            return /* spotless:off */ other is InsertedContext && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 string != null -> "InsertedContext{string=$string}"
                 imageMedia != null -> "InsertedContext{imageMedia=$imageMedia}"
                 imageMediaArray != null -> "InsertedContext{imageMediaArray=$imageMediaArray}"
                 _json != null -> "InsertedContext{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid InsertedContext")
             }
-        }
 
         companion object {
 
@@ -377,21 +374,18 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StringOrImageMediaUnion && this.string == other.string && this.imageMedia == other.imageMedia /* spotless:on */
+                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
             }
 
-            override fun hashCode(): Int {
-                return /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-            }
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
 
-            override fun toString(): String {
-                return when {
+            override fun toString(): String =
+                when {
                     string != null -> "StringOrImageMediaUnion{string=$string}"
                     imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
                     _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
                 }
-            }
 
             companion object {
 
@@ -464,7 +458,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is StepType && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -507,17 +501,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryRetrievalStep && this.completedAt == other.completedAt && this.insertedContext == other.insertedContext && this.memoryBankIds == other.memoryBankIds && this.startedAt == other.startedAt && this.stepId == other.stepId && this.stepType == other.stepType && this.turnId == other.turnId && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryRetrievalStep && completedAt == other.completedAt && insertedContext == other.insertedContext && memoryBankIds == other.memoryBankIds && startedAt == other.startedAt && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(completedAt, insertedContext, memoryBankIds, startedAt, stepId, stepType, turnId, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(completedAt, insertedContext, memoryBankIds, startedAt, stepId, stepType, turnId, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "MemoryRetrievalStep{completedAt=$completedAt, insertedContext=$insertedContext, memoryBankIds=$memoryBankIds, startedAt=$startedAt, stepId=$stepId, stepType=$stepType, turnId=$turnId, additionalProperties=$additionalProperties}"

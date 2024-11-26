@@ -22,7 +22,7 @@ class InferenceChatCompletionParamsTest {
                     )
                 )
             )
-            .model("model")
+            .modelId("model_id")
             .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
             .responseFormat(
                 InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -61,6 +61,7 @@ class InferenceChatCompletionParamsTest {
                         .build()
                 )
             )
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -79,7 +80,7 @@ class InferenceChatCompletionParamsTest {
                         )
                     )
                 )
-                .model("model")
+                .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
                 .responseFormat(
                     InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -121,6 +122,7 @@ class InferenceChatCompletionParamsTest {
                             .build()
                     )
                 )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -136,7 +138,7 @@ class InferenceChatCompletionParamsTest {
                     )
                 )
             )
-        assertThat(body.model()).isEqualTo("model")
+        assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
             .isEqualTo(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
         assertThat(body.responseFormat())
@@ -196,7 +198,7 @@ class InferenceChatCompletionParamsTest {
                         )
                     )
                 )
-                .model("model")
+                .modelId("model_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -211,6 +213,6 @@ class InferenceChatCompletionParamsTest {
                     )
                 )
             )
-        assertThat(body.model()).isEqualTo("model")
+        assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

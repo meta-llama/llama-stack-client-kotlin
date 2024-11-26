@@ -15,6 +15,7 @@ class ModelRegisterParamsTest {
             .metadata(ModelRegisterParams.Metadata.builder().build())
             .providerId("provider_id")
             .providerModelId("provider_model_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -26,6 +27,7 @@ class ModelRegisterParamsTest {
                 .metadata(ModelRegisterParams.Metadata.builder().build())
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

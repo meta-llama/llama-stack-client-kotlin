@@ -13,6 +13,7 @@ class AgentSessionRetrieveParamsTest {
     fun createAgentSessionRetrieveParams() {
         AgentSessionRetrieveParams.builder()
             .turnIds(listOf("string"))
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
             .build()
@@ -23,6 +24,7 @@ class AgentSessionRetrieveParamsTest {
         val params =
             AgentSessionRetrieveParams.builder()
                 .turnIds(listOf("string"))
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .build()
@@ -47,6 +49,7 @@ class AgentSessionRetrieveParamsTest {
         val params =
             AgentSessionRetrieveParams.builder()
                 .turnIds(listOf("string"))
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .build()

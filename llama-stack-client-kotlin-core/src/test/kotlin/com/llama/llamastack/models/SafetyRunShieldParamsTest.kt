@@ -24,6 +24,7 @@ class SafetyRunShieldParamsTest {
             )
             .params(SafetyRunShieldParams.Params.builder().build())
             .shieldId("shield_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -44,6 +45,7 @@ class SafetyRunShieldParamsTest {
                 )
                 .params(SafetyRunShieldParams.Params.builder().build())
                 .shieldId("shield_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

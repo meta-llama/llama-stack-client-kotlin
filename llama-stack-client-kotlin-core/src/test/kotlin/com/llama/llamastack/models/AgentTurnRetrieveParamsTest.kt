@@ -12,6 +12,7 @@ class AgentTurnRetrieveParamsTest {
     @Test
     fun createAgentTurnRetrieveParams() {
         AgentTurnRetrieveParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
             .turnId("turn_id")
@@ -22,6 +23,7 @@ class AgentTurnRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             AgentTurnRetrieveParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .turnId("turn_id")

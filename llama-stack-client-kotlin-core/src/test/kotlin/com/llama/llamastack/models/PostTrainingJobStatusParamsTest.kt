@@ -11,12 +11,19 @@ class PostTrainingJobStatusParamsTest {
 
     @Test
     fun createPostTrainingJobStatusParams() {
-        PostTrainingJobStatusParams.builder().jobUuid("job_uuid").build()
+        PostTrainingJobStatusParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .jobUuid("job_uuid")
+            .build()
     }
 
     @Test
     fun getQueryParams() {
-        val params = PostTrainingJobStatusParams.builder().jobUuid("job_uuid").build()
+        val params =
+            PostTrainingJobStatusParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .jobUuid("job_uuid")
+                .build()
         val expected = QueryParams.builder()
         expected.put("job_uuid", "job_uuid")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())

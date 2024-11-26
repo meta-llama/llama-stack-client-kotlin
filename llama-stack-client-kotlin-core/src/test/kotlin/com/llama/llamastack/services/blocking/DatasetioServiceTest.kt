@@ -19,6 +19,7 @@ class DatasetioServiceTest {
         val paginatedRowsResult =
             datasetioService.getRowsPaginated(
                 DatasetioGetRowsPaginatedParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .datasetId("dataset_id")
                     .rowsInPage(123L)
                     .filterCondition("filter_condition")

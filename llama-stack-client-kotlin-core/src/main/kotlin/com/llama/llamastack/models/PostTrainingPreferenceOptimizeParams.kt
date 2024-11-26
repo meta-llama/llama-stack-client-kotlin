@@ -31,6 +31,7 @@ constructor(
     private val optimizerConfig: OptimizerConfig,
     private val trainingConfig: TrainingConfig,
     private val validationDatasetId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -56,6 +57,8 @@ constructor(
 
     fun validationDatasetId(): String = validationDatasetId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): PostTrainingPreferenceOptimizeBody {
         return PostTrainingPreferenceOptimizeBody(
             algorithm,
@@ -72,7 +75,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -244,17 +254,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is PostTrainingPreferenceOptimizeBody && this.algorithm == other.algorithm && this.algorithmConfig == other.algorithmConfig && this.datasetId == other.datasetId && this.finetunedModel == other.finetunedModel && this.hyperparamSearchConfig == other.hyperparamSearchConfig && this.jobUuid == other.jobUuid && this.loggerConfig == other.loggerConfig && this.optimizerConfig == other.optimizerConfig && this.trainingConfig == other.trainingConfig && this.validationDatasetId == other.validationDatasetId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is PostTrainingPreferenceOptimizeBody && algorithm == other.algorithm && algorithmConfig == other.algorithmConfig && datasetId == other.datasetId && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && optimizerConfig == other.optimizerConfig && trainingConfig == other.trainingConfig && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(algorithm, algorithmConfig, datasetId, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, optimizerConfig, trainingConfig, validationDatasetId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(algorithm, algorithmConfig, datasetId, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, optimizerConfig, trainingConfig, validationDatasetId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "PostTrainingPreferenceOptimizeBody{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
@@ -271,15 +278,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && this.algorithm == other.algorithm && this.algorithmConfig == other.algorithmConfig && this.datasetId == other.datasetId && this.finetunedModel == other.finetunedModel && this.hyperparamSearchConfig == other.hyperparamSearchConfig && this.jobUuid == other.jobUuid && this.loggerConfig == other.loggerConfig && this.optimizerConfig == other.optimizerConfig && this.trainingConfig == other.trainingConfig && this.validationDatasetId == other.validationDatasetId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && algorithm == other.algorithm && algorithmConfig == other.algorithmConfig && datasetId == other.datasetId && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && optimizerConfig == other.optimizerConfig && trainingConfig == other.trainingConfig && validationDatasetId == other.validationDatasetId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(algorithm, algorithmConfig, datasetId, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, optimizerConfig, trainingConfig, validationDatasetId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(algorithm, algorithmConfig, datasetId, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, optimizerConfig, trainingConfig, validationDatasetId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "PostTrainingPreferenceOptimizeParams{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "PostTrainingPreferenceOptimizeParams{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -301,6 +306,7 @@ constructor(
         private var optimizerConfig: OptimizerConfig? = null
         private var trainingConfig: TrainingConfig? = null
         private var validationDatasetId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -319,6 +325,8 @@ constructor(
             this.optimizerConfig = postTrainingPreferenceOptimizeParams.optimizerConfig
             this.trainingConfig = postTrainingPreferenceOptimizeParams.trainingConfig
             this.validationDatasetId = postTrainingPreferenceOptimizeParams.validationDatasetId
+            this.xLlamaStackProviderData =
+                postTrainingPreferenceOptimizeParams.xLlamaStackProviderData
             additionalHeaders(postTrainingPreferenceOptimizeParams.additionalHeaders)
             additionalQueryParams(postTrainingPreferenceOptimizeParams.additionalQueryParams)
             additionalBodyProperties(postTrainingPreferenceOptimizeParams.additionalBodyProperties)
@@ -352,6 +360,10 @@ constructor(
 
         fun validationDatasetId(validationDatasetId: String) = apply {
             this.validationDatasetId = validationDatasetId
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -490,6 +502,7 @@ constructor(
                 checkNotNull(validationDatasetId) {
                     "`validationDatasetId` is required but was not set"
                 },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -509,7 +522,7 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Algorithm && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Algorithm && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -632,17 +645,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AlgorithmConfig && this.epsilon == other.epsilon && this.gamma == other.gamma && this.rewardClip == other.rewardClip && this.rewardScale == other.rewardScale && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AlgorithmConfig && epsilon == other.epsilon && gamma == other.gamma && rewardClip == other.rewardClip && rewardScale == other.rewardScale && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(epsilon, gamma, rewardClip, rewardScale, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(epsilon, gamma, rewardClip, rewardScale, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "AlgorithmConfig{epsilon=$epsilon, gamma=$gamma, rewardClip=$rewardClip, rewardScale=$rewardScale, additionalProperties=$additionalProperties}"
@@ -697,17 +707,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is HyperparamSearchConfig && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is HyperparamSearchConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "HyperparamSearchConfig{additionalProperties=$additionalProperties}"
@@ -761,17 +768,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is LoggerConfig && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is LoggerConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "LoggerConfig{additionalProperties=$additionalProperties}"
     }
@@ -871,7 +875,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is OptimizerType && this.value == other.value /* spotless:on */
+                return /* spotless:off */ other is OptimizerType && value == other.value /* spotless:on */
             }
 
             override fun hashCode() = value.hashCode()
@@ -927,17 +931,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is OptimizerConfig && this.lr == other.lr && this.lrMin == other.lrMin && this.optimizerType == other.optimizerType && this.weightDecay == other.weightDecay && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is OptimizerConfig && lr == other.lr && lrMin == other.lrMin && optimizerType == other.optimizerType && weightDecay == other.weightDecay && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(lr, lrMin, optimizerType, weightDecay, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(lr, lrMin, optimizerType, weightDecay, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "OptimizerConfig{lr=$lr, lrMin=$lrMin, optimizerType=$optimizerType, weightDecay=$weightDecay, additionalProperties=$additionalProperties}"
@@ -1067,17 +1068,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TrainingConfig && this.batchSize == other.batchSize && this.enableActivationCheckpointing == other.enableActivationCheckpointing && this.fsdpCpuOffload == other.fsdpCpuOffload && this.memoryEfficientFsdpWrap == other.memoryEfficientFsdpWrap && this.nEpochs == other.nEpochs && this.nIters == other.nIters && this.shuffle == other.shuffle && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TrainingConfig && batchSize == other.batchSize && enableActivationCheckpointing == other.enableActivationCheckpointing && fsdpCpuOffload == other.fsdpCpuOffload && memoryEfficientFsdpWrap == other.memoryEfficientFsdpWrap && nEpochs == other.nEpochs && nIters == other.nIters && shuffle == other.shuffle && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(batchSize, enableActivationCheckpointing, fsdpCpuOffload, memoryEfficientFsdpWrap, nEpochs, nIters, shuffle, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(batchSize, enableActivationCheckpointing, fsdpCpuOffload, memoryEfficientFsdpWrap, nEpochs, nIters, shuffle, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "TrainingConfig{batchSize=$batchSize, enableActivationCheckpointing=$enableActivationCheckpointing, fsdpCpuOffload=$fsdpCpuOffload, memoryEfficientFsdpWrap=$memoryEfficientFsdpWrap, nEpochs=$nEpochs, nIters=$nIters, shuffle=$shuffle, additionalProperties=$additionalProperties}"

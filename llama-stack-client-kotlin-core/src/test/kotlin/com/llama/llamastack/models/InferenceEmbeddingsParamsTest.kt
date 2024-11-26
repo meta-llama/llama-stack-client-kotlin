@@ -12,7 +12,8 @@ class InferenceEmbeddingsParamsTest {
     fun createInferenceEmbeddingsParams() {
         InferenceEmbeddingsParams.builder()
             .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-            .model("model")
+            .modelId("model_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -21,13 +22,14 @@ class InferenceEmbeddingsParamsTest {
         val params =
             InferenceEmbeddingsParams.builder()
                 .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-                .model("model")
+                .modelId("model_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.contents())
             .isEqualTo(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-        assertThat(body.model()).isEqualTo("model")
+        assertThat(body.modelId()).isEqualTo("model_id")
     }
 
     @Test
@@ -35,12 +37,12 @@ class InferenceEmbeddingsParamsTest {
         val params =
             InferenceEmbeddingsParams.builder()
                 .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-                .model("model")
+                .modelId("model_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.contents())
             .isEqualTo(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-        assertThat(body.model()).isEqualTo("model")
+        assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

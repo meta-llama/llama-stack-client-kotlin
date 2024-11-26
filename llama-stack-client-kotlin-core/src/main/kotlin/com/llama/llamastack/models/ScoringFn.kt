@@ -261,17 +261,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Metadata && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Metadata && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }
@@ -286,9 +283,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun getType(): Type? = type
-
-        fun isType(): Boolean = type != null
+        fun type(): Type? = type
 
         fun asType(): Type = type.getOrThrow("type")
 
@@ -316,26 +311,25 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ReturnType && this.type == other.type /* spotless:on */
+            return /* spotless:off */ other is ReturnType && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(type) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(type, type, type, type, type, type, type, type, type, type) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 type != null -> "ReturnType{type=$type}"
                 _json != null -> "ReturnType{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid ReturnType")
             }
-        }
 
         companion object {
+
             fun ofType(type: Type) = ReturnType(type = type)
         }
 
         interface Visitor<out T> {
+
             fun visitType(type: Type): T
 
             fun unknown(json: JsonValue?): T {
@@ -352,6 +346,43 @@ private constructor(
                     ?.let {
                         return ReturnType(type = it, _json = json)
                     }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<Type>()) { it.validate() }
+                    ?.let {
+                        return ReturnType(type = it, _json = json)
+                    }
+
                 return ReturnType(_json = json)
             }
         }
@@ -450,7 +481,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -459,29 +490,29 @@ private constructor(
 
                 companion object {
 
-                    val AGENT_TURN_INPUT = Type(JsonField.of("agent_turn_input"))
+                    val STRING = Type(JsonField.of("string"))
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
 
                 enum class Known {
-                    AGENT_TURN_INPUT,
+                    STRING,
                 }
 
                 enum class Value {
-                    AGENT_TURN_INPUT,
+                    STRING,
                     _UNKNOWN,
                 }
 
                 fun value(): Value =
                     when (this) {
-                        AGENT_TURN_INPUT -> Value.AGENT_TURN_INPUT
+                        STRING -> Value.STRING
                         else -> Value._UNKNOWN
                     }
 
                 fun known(): Known =
                     when (this) {
-                        AGENT_TURN_INPUT -> Known.AGENT_TURN_INPUT
+                        STRING -> Known.STRING
                         else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
                     }
 
@@ -493,17 +524,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Type && this.type == other && this.additionalProperties ==  additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Type && type == other && this.additionalProperties == additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() = "Type{type=$type, additionalProperties=$additionalProperties}"
         }
@@ -522,7 +550,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -613,15 +641,13 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && this.llmAsJudgeScoringFnParams == other.llmAsJudgeScoringFnParams && this.regexParserScoringFnParams == other.regexParserScoringFnParams /* spotless:on */
+            return /* spotless:off */ other is Params && llmAsJudgeScoringFnParams == other.llmAsJudgeScoringFnParams && regexParserScoringFnParams == other.regexParserScoringFnParams /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(llmAsJudgeScoringFnParams, regexParserScoringFnParams) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(llmAsJudgeScoringFnParams, regexParserScoringFnParams) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 llmAsJudgeScoringFnParams != null ->
                     "Params{llmAsJudgeScoringFnParams=$llmAsJudgeScoringFnParams}"
                 regexParserScoringFnParams != null ->
@@ -629,7 +655,6 @@ private constructor(
                 _json != null -> "Params{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Params")
             }
-        }
 
         companion object {
 
@@ -831,7 +856,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -874,17 +899,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is LlmAsJudgeScoringFnParams && this.judgeModel == other.judgeModel && this.judgeScoreRegexes == other.judgeScoreRegexes && this.promptTemplate == other.promptTemplate && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is LlmAsJudgeScoringFnParams && judgeModel == other.judgeModel && judgeScoreRegexes == other.judgeScoreRegexes && promptTemplate == other.promptTemplate && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(judgeModel, judgeScoreRegexes, promptTemplate, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(judgeModel, judgeScoreRegexes, promptTemplate, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "LlmAsJudgeScoringFnParams{judgeModel=$judgeModel, judgeScoreRegexes=$judgeScoreRegexes, promptTemplate=$promptTemplate, type=$type, additionalProperties=$additionalProperties}"
@@ -991,7 +1013,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1034,17 +1056,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is RegexParserScoringFnParams && this.parsingRegexes == other.parsingRegexes && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is RegexParserScoringFnParams && parsingRegexes == other.parsingRegexes && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(parsingRegexes, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(parsingRegexes, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "RegexParserScoringFnParams{parsingRegexes=$parsingRegexes, type=$type, additionalProperties=$additionalProperties}"
@@ -1056,17 +1075,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringFn && this.description == other.description && this.identifier == other.identifier && this.metadata == other.metadata && this.params == other.params && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.returnType == other.returnType && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ScoringFn && description == other.description && identifier == other.identifier && metadata == other.metadata && params == other.params && providerId == other.providerId && providerResourceId == other.providerResourceId && returnType == other.returnType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(description, identifier, metadata, params, providerId, providerResourceId, returnType, type, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(description, identifier, metadata, params, providerId, providerResourceId, returnType, type, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "ScoringFn{description=$description, identifier=$identifier, metadata=$metadata, params=$params, providerId=$providerId, providerResourceId=$providerResourceId, returnType=$returnType, type=$type, additionalProperties=$additionalProperties}"

@@ -9,6 +9,8 @@ class PostTrainingJobListParamsTest {
 
     @Test
     fun createPostTrainingJobListParams() {
-        PostTrainingJobListParams.builder().build()
+        PostTrainingJobListParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .build()
     }
 }

@@ -17,6 +17,7 @@ class EvalTaskRegisterParamsTest {
             .metadata(EvalTaskRegisterParams.Metadata.builder().build())
             .providerEvalTaskId("provider_eval_task_id")
             .providerId("provider_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -30,6 +31,7 @@ class EvalTaskRegisterParamsTest {
                 .metadata(EvalTaskRegisterParams.Metadata.builder().build())
                 .providerEvalTaskId("provider_eval_task_id")
                 .providerId("provider_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

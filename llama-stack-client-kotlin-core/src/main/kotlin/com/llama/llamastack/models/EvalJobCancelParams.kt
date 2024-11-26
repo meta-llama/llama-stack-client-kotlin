@@ -19,6 +19,7 @@ class EvalJobCancelParams
 constructor(
     private val jobId: String,
     private val taskId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -28,6 +29,8 @@ constructor(
 
     fun taskId(): String = taskId
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): EvalJobCancelBody {
         return EvalJobCancelBody(
             jobId,
@@ -36,7 +39,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -107,17 +117,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is EvalJobCancelBody && this.jobId == other.jobId && this.taskId == other.taskId && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is EvalJobCancelBody && jobId == other.jobId && taskId == other.taskId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(jobId, taskId, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(jobId, taskId, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "EvalJobCancelBody{jobId=$jobId, taskId=$taskId, additionalProperties=$additionalProperties}"
@@ -134,15 +141,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobCancelParams && this.jobId == other.jobId && this.taskId == other.taskId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is EvalJobCancelParams && jobId == other.jobId && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(jobId, taskId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobId, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "EvalJobCancelParams{jobId=$jobId, taskId=$taskId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "EvalJobCancelParams{jobId=$jobId, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -156,6 +161,7 @@ constructor(
 
         private var jobId: String? = null
         private var taskId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -163,6 +169,7 @@ constructor(
         internal fun from(evalJobCancelParams: EvalJobCancelParams) = apply {
             this.jobId = evalJobCancelParams.jobId
             this.taskId = evalJobCancelParams.taskId
+            this.xLlamaStackProviderData = evalJobCancelParams.xLlamaStackProviderData
             additionalHeaders(evalJobCancelParams.additionalHeaders)
             additionalQueryParams(evalJobCancelParams.additionalQueryParams)
             additionalBodyProperties(evalJobCancelParams.additionalBodyProperties)
@@ -171,6 +178,10 @@ constructor(
         fun jobId(jobId: String) = apply { this.jobId = jobId }
 
         fun taskId(taskId: String) = apply { this.taskId = taskId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -296,6 +307,7 @@ constructor(
             EvalJobCancelParams(
                 checkNotNull(jobId) { "`jobId` is required but was not set" },
                 checkNotNull(taskId) { "`taskId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),

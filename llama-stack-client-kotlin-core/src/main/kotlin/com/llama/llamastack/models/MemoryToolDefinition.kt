@@ -273,15 +273,13 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is MemoryBankConfig && this.vector == other.vector && this.keyValue == other.keyValue && this.keyword == other.keyword && this.graph == other.graph /* spotless:on */
+            return /* spotless:off */ other is MemoryBankConfig && vector == other.vector && keyValue == other.keyValue && keyword == other.keyword && graph == other.graph /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(vector, keyValue, keyword, graph) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(vector, keyValue, keyword, graph) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 vector != null -> "MemoryBankConfig{vector=$vector}"
                 keyValue != null -> "MemoryBankConfig{keyValue=$keyValue}"
                 keyword != null -> "MemoryBankConfig{keyword=$keyword}"
@@ -289,7 +287,6 @@ private constructor(
                 _json != null -> "MemoryBankConfig{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid MemoryBankConfig")
             }
-        }
 
         companion object {
 
@@ -459,7 +456,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -502,17 +499,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Vector && this.bankId == other.bankId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Vector && bankId == other.bankId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(bankId, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(bankId, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Vector{bankId=$bankId, type=$type, additionalProperties=$additionalProperties}"
@@ -631,7 +625,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -674,17 +668,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is KeyValue && this.bankId == other.bankId && this.keys == other.keys && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is KeyValue && bankId == other.bankId && keys == other.keys && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(bankId, keys, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(bankId, keys, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "KeyValue{bankId=$bankId, keys=$keys, type=$type, additionalProperties=$additionalProperties}"
@@ -788,7 +779,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -831,17 +822,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Keyword && this.bankId == other.bankId && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Keyword && bankId == other.bankId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(bankId, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(bankId, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Keyword{bankId=$bankId, type=$type, additionalProperties=$additionalProperties}"
@@ -960,7 +948,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1003,17 +991,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Graph && this.bankId == other.bankId && this.entities == other.entities && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Graph && bankId == other.bankId && entities == other.entities && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(bankId, entities, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(bankId, entities, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Graph{bankId=$bankId, entities=$entities, type=$type, additionalProperties=$additionalProperties}"
@@ -1080,22 +1065,19 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is QueryGeneratorConfig && this.default == other.default && this.llm == other.llm && this.custom == other.custom /* spotless:on */
+            return /* spotless:off */ other is QueryGeneratorConfig && default == other.default && llm == other.llm && custom == other.custom /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(default, llm, custom) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(default, llm, custom) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 default != null -> "QueryGeneratorConfig{default=$default}"
                 llm != null -> "QueryGeneratorConfig{llm=$llm}"
                 custom != null -> "QueryGeneratorConfig{custom=$custom}"
                 _json != null -> "QueryGeneratorConfig{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid QueryGeneratorConfig")
             }
-        }
 
         companion object {
 
@@ -1256,7 +1238,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1299,17 +1281,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Default && this.sep == other.sep && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Default && sep == other.sep && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(sep, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(sep, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Default{sep=$sep, type=$type, additionalProperties=$additionalProperties}"
@@ -1428,7 +1407,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1471,17 +1450,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Llm && this.model == other.model && this.template == other.template && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Llm && model == other.model && template == other.template && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(model, template, type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(model, template, type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Llm{model=$model, template=$template, type=$type, additionalProperties=$additionalProperties}"
@@ -1566,7 +1542,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
 
                 override fun hashCode() = value.hashCode()
@@ -1609,17 +1585,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Custom && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Custom && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(type, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(type, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "Custom{type=$type, additionalProperties=$additionalProperties}"
@@ -1639,7 +1612,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -1682,17 +1655,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryToolDefinition && this.inputShields == other.inputShields && this.maxChunks == other.maxChunks && this.maxTokensInContext == other.maxTokensInContext && this.memoryBankConfigs == other.memoryBankConfigs && this.outputShields == other.outputShields && this.queryGeneratorConfig == other.queryGeneratorConfig && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryToolDefinition && inputShields == other.inputShields && maxChunks == other.maxChunks && maxTokensInContext == other.maxTokensInContext && memoryBankConfigs == other.memoryBankConfigs && outputShields == other.outputShields && queryGeneratorConfig == other.queryGeneratorConfig && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(inputShields, maxChunks, maxTokensInContext, memoryBankConfigs, outputShields, queryGeneratorConfig, type, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(inputShields, maxChunks, maxTokensInContext, memoryBankConfigs, outputShields, queryGeneratorConfig, type, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "MemoryToolDefinition{inputShields=$inputShields, maxChunks=$maxChunks, maxTokensInContext=$maxTokensInContext, memoryBankConfigs=$memoryBankConfigs, outputShields=$outputShields, queryGeneratorConfig=$queryGeneratorConfig, type=$type, additionalProperties=$additionalProperties}"

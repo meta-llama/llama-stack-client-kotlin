@@ -15,7 +15,7 @@ class BatchInferenceServiceTest {
     fun callChatCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
-        val batchInferenceService = client.batchInferences()
+        val batchInferenceService = client.batchInference()
         val batchInferenceChatCompletionResponse =
             batchInferenceService.chatCompletion(
                 BatchInferenceChatCompletionParams.builder()
@@ -62,6 +62,7 @@ class BatchInferenceServiceTest {
                                 .build()
                         )
                     )
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(batchInferenceChatCompletionResponse)
@@ -72,7 +73,7 @@ class BatchInferenceServiceTest {
     fun callCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
-        val batchInferenceService = client.batchInferences()
+        val batchInferenceService = client.batchInference()
         val batchCompletion =
             batchInferenceService.completion(
                 BatchInferenceCompletionParams.builder()
@@ -91,6 +92,7 @@ class BatchInferenceServiceTest {
                             .topP(42.23)
                             .build()
                     )
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(batchCompletion)

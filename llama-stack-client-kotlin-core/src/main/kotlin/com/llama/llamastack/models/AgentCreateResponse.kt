@@ -85,17 +85,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentCreateResponse && this.agentId == other.agentId && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentCreateResponse && agentId == other.agentId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(agentId, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(agentId, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "AgentCreateResponse{agentId=$agentId, additionalProperties=$additionalProperties}"

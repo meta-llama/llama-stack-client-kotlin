@@ -24,6 +24,7 @@ class SyntheticDataGenerationGenerateParamsTest {
             )
             .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
             .model("model")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -44,6 +45,7 @@ class SyntheticDataGenerationGenerateParamsTest {
                 )
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .model("model")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

@@ -10,13 +10,21 @@ class AgentSessionDeleteParamsTest {
 
     @Test
     fun createAgentSessionDeleteParams() {
-        AgentSessionDeleteParams.builder().agentId("agent_id").sessionId("session_id").build()
+        AgentSessionDeleteParams.builder()
+            .agentId("agent_id")
+            .sessionId("session_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .build()
     }
 
     @Test
     fun getBody() {
         val params =
-            AgentSessionDeleteParams.builder().agentId("agent_id").sessionId("session_id").build()
+            AgentSessionDeleteParams.builder()
+                .agentId("agent_id")
+                .sessionId("session_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.agentId()).isEqualTo("agent_id")

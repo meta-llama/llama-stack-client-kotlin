@@ -14,6 +14,7 @@ constructor(
     private val sessionId: String,
     private val stepId: String,
     private val turnId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
@@ -26,7 +27,16 @@ constructor(
 
     fun turnId(): String = turnId
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -47,15 +57,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentStepRetrieveParams && this.agentId == other.agentId && this.sessionId == other.sessionId && this.stepId == other.stepId && this.turnId == other.turnId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentStepRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && agentId == other.agentId && sessionId == other.sessionId && stepId == other.stepId && turnId == other.turnId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(agentId, sessionId, stepId, turnId, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, agentId, sessionId, stepId, turnId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentStepRetrieveParams{agentId=$agentId, sessionId=$sessionId, stepId=$stepId, turnId=$turnId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentStepRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, agentId=$agentId, sessionId=$sessionId, stepId=$stepId, turnId=$turnId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -71,6 +79,7 @@ constructor(
         private var sessionId: String? = null
         private var stepId: String? = null
         private var turnId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -79,6 +88,7 @@ constructor(
             this.sessionId = agentStepRetrieveParams.sessionId
             this.stepId = agentStepRetrieveParams.stepId
             this.turnId = agentStepRetrieveParams.turnId
+            this.xLlamaStackProviderData = agentStepRetrieveParams.xLlamaStackProviderData
             additionalHeaders(agentStepRetrieveParams.additionalHeaders)
             additionalQueryParams(agentStepRetrieveParams.additionalQueryParams)
         }
@@ -90,6 +100,10 @@ constructor(
         fun stepId(stepId: String) = apply { this.stepId = stepId }
 
         fun turnId(turnId: String) = apply { this.turnId = turnId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -195,6 +209,7 @@ constructor(
                 checkNotNull(sessionId) { "`sessionId` is required but was not set" },
                 checkNotNull(stepId) { "`stepId` is required but was not set" },
                 checkNotNull(turnId) { "`turnId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

@@ -241,17 +241,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Parameters && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Parameters && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Parameters{additionalProperties=$additionalProperties}"
     }
@@ -269,7 +266,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -312,17 +309,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is FunctionCallToolDefinition && this.description == other.description && this.functionName == other.functionName && this.inputShields == other.inputShields && this.outputShields == other.outputShields && this.parameters == other.parameters && this.remoteExecution == other.remoteExecution && this.type == other.type && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is FunctionCallToolDefinition && description == other.description && functionName == other.functionName && inputShields == other.inputShields && outputShields == other.outputShields && parameters == other.parameters && remoteExecution == other.remoteExecution && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(description, functionName, inputShields, outputShields, parameters, remoteExecution, type, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(description, functionName, inputShields, outputShields, parameters, remoteExecution, type, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "FunctionCallToolDefinition{description=$description, functionName=$functionName, inputShields=$inputShields, outputShields=$outputShields, parameters=$parameters, remoteExecution=$remoteExecution, type=$type, additionalProperties=$additionalProperties}"

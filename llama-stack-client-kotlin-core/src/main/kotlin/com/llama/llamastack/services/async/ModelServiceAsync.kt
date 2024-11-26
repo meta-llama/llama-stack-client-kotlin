@@ -7,6 +7,7 @@ import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
+import com.llama.llamastack.models.ModelUnregisterParams
 
 interface ModelServiceAsync {
 
@@ -24,4 +25,9 @@ interface ModelServiceAsync {
         params: ModelRegisterParams,
         requestOptions: RequestOptions = RequestOptions.none()
     ): Model
+
+    suspend fun unregister(
+        params: ModelUnregisterParams,
+        requestOptions: RequestOptions = RequestOptions.none()
+    )
 }

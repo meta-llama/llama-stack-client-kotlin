@@ -11,12 +11,19 @@ class ShieldRetrieveParamsTest {
 
     @Test
     fun createShieldRetrieveParams() {
-        ShieldRetrieveParams.builder().identifier("identifier").build()
+        ShieldRetrieveParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .identifier("identifier")
+            .build()
     }
 
     @Test
     fun getQueryParams() {
-        val params = ShieldRetrieveParams.builder().identifier("identifier").build()
+        val params =
+            ShieldRetrieveParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .identifier("identifier")
+                .build()
         val expected = QueryParams.builder()
         expected.put("identifier", "identifier")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())

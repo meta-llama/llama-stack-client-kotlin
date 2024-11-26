@@ -14,6 +14,7 @@ constructor(
     private val rowsInPage: Long,
     private val filterCondition: String?,
     private val pageToken: String?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
@@ -26,7 +27,16 @@ constructor(
 
     fun pageToken(): String? = pageToken
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -47,15 +57,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && this.datasetId == other.datasetId && this.rowsInPage == other.rowsInPage && this.filterCondition == other.filterCondition && this.pageToken == other.pageToken && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && xLlamaStackProviderData == other.xLlamaStackProviderData && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, datasetId, rowsInPage, filterCondition, pageToken, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetioGetRowsPaginatedParams{xLlamaStackProviderData=$xLlamaStackProviderData, datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -71,6 +79,7 @@ constructor(
         private var rowsInPage: Long? = null
         private var filterCondition: String? = null
         private var pageToken: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -80,6 +89,8 @@ constructor(
                 this.rowsInPage = datasetioGetRowsPaginatedParams.rowsInPage
                 this.filterCondition = datasetioGetRowsPaginatedParams.filterCondition
                 this.pageToken = datasetioGetRowsPaginatedParams.pageToken
+                this.xLlamaStackProviderData =
+                    datasetioGetRowsPaginatedParams.xLlamaStackProviderData
                 additionalHeaders(datasetioGetRowsPaginatedParams.additionalHeaders)
                 additionalQueryParams(datasetioGetRowsPaginatedParams.additionalQueryParams)
             }
@@ -93,6 +104,10 @@ constructor(
         }
 
         fun pageToken(pageToken: String) = apply { this.pageToken = pageToken }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -198,6 +213,7 @@ constructor(
                 checkNotNull(rowsInPage) { "`rowsInPage` is required but was not set" },
                 filterCondition,
                 pageToken,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

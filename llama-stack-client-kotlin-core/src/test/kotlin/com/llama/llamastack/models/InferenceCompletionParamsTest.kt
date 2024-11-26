@@ -12,7 +12,7 @@ class InferenceCompletionParamsTest {
     fun createInferenceCompletionParams() {
         InferenceCompletionParams.builder()
             .content(InferenceCompletionParams.Content.ofString("string"))
-            .model("model")
+            .modelId("model_id")
             .logprobs(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
             .responseFormat(
                 InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -40,6 +40,7 @@ class InferenceCompletionParamsTest {
                     .build()
             )
             .stream(true)
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -48,7 +49,7 @@ class InferenceCompletionParamsTest {
         val params =
             InferenceCompletionParams.builder()
                 .content(InferenceCompletionParams.Content.ofString("string"))
-                .model("model")
+                .modelId("model_id")
                 .logprobs(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
                 .responseFormat(
                     InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -76,11 +77,12 @@ class InferenceCompletionParamsTest {
                         .build()
                 )
                 .stream(true)
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
-        assertThat(body.model()).isEqualTo("model")
+        assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
             .isEqualTo(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
         assertThat(body.responseFormat())
@@ -118,11 +120,11 @@ class InferenceCompletionParamsTest {
         val params =
             InferenceCompletionParams.builder()
                 .content(InferenceCompletionParams.Content.ofString("string"))
-                .model("model")
+                .modelId("model_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
-        assertThat(body.model()).isEqualTo("model")
+        assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

@@ -260,22 +260,19 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InputMessage && this.userMessage == other.userMessage && this.toolResponseMessage == other.toolResponseMessage /* spotless:on */
+            return /* spotless:off */ other is InputMessage && userMessage == other.userMessage && toolResponseMessage == other.toolResponseMessage /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(userMessage, toolResponseMessage) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, toolResponseMessage) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 userMessage != null -> "InputMessage{userMessage=$userMessage}"
                 toolResponseMessage != null ->
                     "InputMessage{toolResponseMessage=$toolResponseMessage}"
                 _json != null -> "InputMessage{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid InputMessage")
             }
-        }
 
         companion object {
 
@@ -406,15 +403,13 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Step && this.inferenceStep == other.inferenceStep && this.toolExecutionStep == other.toolExecutionStep && this.shieldCallStep == other.shieldCallStep && this.memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+            return /* spotless:off */ other is Step && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 inferenceStep != null -> "Step{inferenceStep=$inferenceStep}"
                 toolExecutionStep != null -> "Step{toolExecutionStep=$toolExecutionStep}"
                 shieldCallStep != null -> "Step{shieldCallStep=$shieldCallStep}"
@@ -422,7 +417,6 @@ private constructor(
                 _json != null -> "Step{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Step")
             }
-        }
 
         companion object {
 
@@ -505,17 +499,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Turn && this.completedAt == other.completedAt && this.inputMessages == other.inputMessages && this.outputAttachments == other.outputAttachments && this.outputMessage == other.outputMessage && this.sessionId == other.sessionId && this.startedAt == other.startedAt && this.steps == other.steps && this.turnId == other.turnId && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Turn && completedAt == other.completedAt && inputMessages == other.inputMessages && outputAttachments == other.outputAttachments && outputMessage == other.outputMessage && sessionId == other.sessionId && startedAt == other.startedAt && steps == other.steps && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(completedAt, inputMessages, outputAttachments, outputMessage, sessionId, startedAt, steps, turnId, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(completedAt, inputMessages, outputAttachments, outputMessage, sessionId, startedAt, steps, turnId, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "Turn{completedAt=$completedAt, inputMessages=$inputMessages, outputAttachments=$outputAttachments, outputMessage=$outputMessage, sessionId=$sessionId, startedAt=$startedAt, steps=$steps, turnId=$turnId, additionalProperties=$additionalProperties}"

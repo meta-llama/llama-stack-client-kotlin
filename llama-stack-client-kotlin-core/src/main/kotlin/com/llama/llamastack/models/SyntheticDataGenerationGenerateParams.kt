@@ -33,6 +33,7 @@ constructor(
     private val dialogs: List<Dialog>,
     private val filteringFunction: FilteringFunction,
     private val model: String?,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -44,6 +45,8 @@ constructor(
 
     fun model(): String? = model
 
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
     internal fun getBody(): SyntheticDataGenerationGenerateBody {
         return SyntheticDataGenerationGenerateBody(
             dialogs,
@@ -53,7 +56,14 @@ constructor(
         )
     }
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
@@ -141,17 +151,14 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is SyntheticDataGenerationGenerateBody && this.dialogs == other.dialogs && this.filteringFunction == other.filteringFunction && this.model == other.model && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is SyntheticDataGenerationGenerateBody && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(dialogs, filteringFunction, model, additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(dialogs, filteringFunction, model, additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() =
             "SyntheticDataGenerationGenerateBody{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalProperties=$additionalProperties}"
@@ -168,15 +175,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && this.dialogs == other.dialogs && this.filteringFunction == other.filteringFunction && this.model == other.model && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams && this.additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(dialogs, filteringFunction, model, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(dialogs, filteringFunction, model, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "SyntheticDataGenerationGenerateParams{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "SyntheticDataGenerationGenerateParams{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -191,6 +196,7 @@ constructor(
         private var dialogs: MutableList<Dialog> = mutableListOf()
         private var filteringFunction: FilteringFunction? = null
         private var model: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -201,6 +207,8 @@ constructor(
             this.dialogs(syntheticDataGenerationGenerateParams.dialogs)
             this.filteringFunction = syntheticDataGenerationGenerateParams.filteringFunction
             this.model = syntheticDataGenerationGenerateParams.model
+            this.xLlamaStackProviderData =
+                syntheticDataGenerationGenerateParams.xLlamaStackProviderData
             additionalHeaders(syntheticDataGenerationGenerateParams.additionalHeaders)
             additionalQueryParams(syntheticDataGenerationGenerateParams.additionalQueryParams)
             additionalBodyProperties(syntheticDataGenerationGenerateParams.additionalBodyProperties)
@@ -218,6 +226,10 @@ constructor(
         }
 
         fun model(model: String) = apply { this.model = model }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -346,6 +358,7 @@ constructor(
                     "`filteringFunction` is required but was not set"
                 },
                 model,
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -426,15 +439,13 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Dialog && this.userMessage == other.userMessage && this.systemMessage == other.systemMessage && this.toolResponseMessage == other.toolResponseMessage && this.completionMessage == other.completionMessage /* spotless:on */
+            return /* spotless:off */ other is Dialog && userMessage == other.userMessage && systemMessage == other.systemMessage && toolResponseMessage == other.toolResponseMessage && completionMessage == other.completionMessage /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 userMessage != null -> "Dialog{userMessage=$userMessage}"
                 systemMessage != null -> "Dialog{systemMessage=$systemMessage}"
                 toolResponseMessage != null -> "Dialog{toolResponseMessage=$toolResponseMessage}"
@@ -442,7 +453,6 @@ constructor(
                 _json != null -> "Dialog{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Dialog")
             }
-        }
 
         companion object {
 
@@ -533,7 +543,7 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is FilteringFunction && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is FilteringFunction && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()

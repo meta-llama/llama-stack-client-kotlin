@@ -11,12 +11,19 @@ class EvalTaskRetrieveParamsTest {
 
     @Test
     fun createEvalTaskRetrieveParams() {
-        EvalTaskRetrieveParams.builder().name("name").build()
+        EvalTaskRetrieveParams.builder()
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .name("name")
+            .build()
     }
 
     @Test
     fun getQueryParams() {
-        val params = EvalTaskRetrieveParams.builder().name("name").build()
+        val params =
+            EvalTaskRetrieveParams.builder()
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .name("name")
+                .build()
         val expected = QueryParams.builder()
         expected.put("name", "name")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())

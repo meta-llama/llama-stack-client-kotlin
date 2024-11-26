@@ -147,22 +147,19 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Image && this.thisClassRepresentsAnImageObjectToCreate == other.thisClassRepresentsAnImageObjectToCreate && this.url == other.url /* spotless:on */
+            return /* spotless:off */ other is Image && thisClassRepresentsAnImageObjectToCreate == other.thisClassRepresentsAnImageObjectToCreate && url == other.url /* spotless:on */
         }
 
-        override fun hashCode(): Int {
-            return /* spotless:off */ Objects.hash(thisClassRepresentsAnImageObjectToCreate, url) /* spotless:on */
-        }
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(thisClassRepresentsAnImageObjectToCreate, url) /* spotless:on */
 
-        override fun toString(): String {
-            return when {
+        override fun toString(): String =
+            when {
                 thisClassRepresentsAnImageObjectToCreate != null ->
                     "Image{thisClassRepresentsAnImageObjectToCreate=$thisClassRepresentsAnImageObjectToCreate}"
                 url != null -> "Image{url=$url}"
                 _json != null -> "Image{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Image")
             }
-        }
 
         companion object {
 
@@ -327,17 +324,14 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is ThisClassRepresentsAnImageObjectToCreate && this.format == other.format && this.formatDescription == other.formatDescription && this.additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is ThisClassRepresentsAnImageObjectToCreate && format == other.format && formatDescription == other.formatDescription && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            private var hashCode: Int = 0
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(format, formatDescription, additionalProperties) }
+            /* spotless:on */
 
-            override fun hashCode(): Int {
-                if (hashCode == 0) {
-                    hashCode = /* spotless:off */ Objects.hash(format, formatDescription, additionalProperties) /* spotless:on */
-                }
-                return hashCode
-            }
+            override fun hashCode(): Int = hashCode
 
             override fun toString() =
                 "ThisClassRepresentsAnImageObjectToCreate{format=$format, formatDescription=$formatDescription, additionalProperties=$additionalProperties}"
@@ -349,17 +343,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ImageMedia && this.image == other.image && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ImageMedia && image == other.image && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(image, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(image, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() = "ImageMedia{image=$image, additionalProperties=$additionalProperties}"
 }

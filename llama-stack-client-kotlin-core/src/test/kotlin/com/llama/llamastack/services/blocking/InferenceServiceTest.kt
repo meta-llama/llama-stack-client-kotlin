@@ -34,7 +34,7 @@ class InferenceServiceTest {
                             )
                         )
                     )
-                    .model("model")
+                    .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
                     .responseFormat(
                         InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -77,11 +77,15 @@ class InferenceServiceTest {
                                 .build()
                         )
                     )
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(inferenceChatCompletionResponse)
     }
 
+    @Disabled(
+        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
+    )
     @Test
     fun callCompletion() {
         val client =
@@ -91,7 +95,7 @@ class InferenceServiceTest {
             inferenceService.completion(
                 InferenceCompletionParams.builder()
                     .content(InferenceCompletionParams.Content.ofString("string"))
-                    .model("model")
+                    .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
                     .responseFormat(
                         InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -120,6 +124,7 @@ class InferenceServiceTest {
                             .build()
                     )
                     .stream(true)
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(inferenceCompletionResponse)
@@ -134,7 +139,8 @@ class InferenceServiceTest {
             inferenceService.embeddings(
                 InferenceEmbeddingsParams.builder()
                     .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-                    .model("model")
+                    .modelId("model_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(embeddingsResponse)

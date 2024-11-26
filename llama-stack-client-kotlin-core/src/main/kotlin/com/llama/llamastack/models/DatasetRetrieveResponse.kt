@@ -21,17 +21,19 @@ import java.util.Objects
 @NoAutoDetect
 class DatasetRetrieveResponse
 private constructor(
+    private val datasetSchema: JsonField<DatasetSchema>,
     private val identifier: JsonField<String>,
     private val metadata: JsonField<Metadata>,
     private val providerId: JsonField<String>,
     private val providerResourceId: JsonField<String>,
-    private val schema: JsonField<Schema>,
     private val type: JsonField<Type>,
     private val url: JsonField<String>,
     private val additionalProperties: Map<String, JsonValue>,
 ) {
 
     private var validated: Boolean = false
+
+    fun datasetSchema(): DatasetSchema = datasetSchema.getRequired("dataset_schema")
 
     fun identifier(): String = identifier.getRequired("identifier")
 
@@ -41,11 +43,11 @@ private constructor(
 
     fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
-    fun schema(): Schema = schema.getRequired("schema")
-
     fun type(): Type = type.getRequired("type")
 
     fun url(): String = url.getRequired("url")
+
+    @JsonProperty("dataset_schema") @ExcludeMissing fun _datasetSchema() = datasetSchema
 
     @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
 
@@ -57,8 +59,6 @@ private constructor(
     @ExcludeMissing
     fun _providerResourceId() = providerResourceId
 
-    @JsonProperty("schema") @ExcludeMissing fun _schema() = schema
-
     @JsonProperty("type") @ExcludeMissing fun _type() = type
 
     @JsonProperty("url") @ExcludeMissing fun _url() = url
@@ -69,11 +69,11 @@ private constructor(
 
     fun validate(): DatasetRetrieveResponse = apply {
         if (!validated) {
+            datasetSchema().validate()
             identifier()
             metadata().validate()
             providerId()
             providerResourceId()
-            schema().validate()
             type()
             url()
             validated = true
@@ -89,24 +89,32 @@ private constructor(
 
     class Builder {
 
+        private var datasetSchema: JsonField<DatasetSchema> = JsonMissing.of()
         private var identifier: JsonField<String> = JsonMissing.of()
         private var metadata: JsonField<Metadata> = JsonMissing.of()
         private var providerId: JsonField<String> = JsonMissing.of()
         private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var schema: JsonField<Schema> = JsonMissing.of()
         private var type: JsonField<Type> = JsonMissing.of()
         private var url: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(datasetRetrieveResponse: DatasetRetrieveResponse) = apply {
+            this.datasetSchema = datasetRetrieveResponse.datasetSchema
             this.identifier = datasetRetrieveResponse.identifier
             this.metadata = datasetRetrieveResponse.metadata
             this.providerId = datasetRetrieveResponse.providerId
             this.providerResourceId = datasetRetrieveResponse.providerResourceId
-            this.schema = datasetRetrieveResponse.schema
             this.type = datasetRetrieveResponse.type
             this.url = datasetRetrieveResponse.url
             additionalProperties(datasetRetrieveResponse.additionalProperties)
+        }
+
+        fun datasetSchema(datasetSchema: DatasetSchema) = datasetSchema(JsonField.of(datasetSchema))
+
+        @JsonProperty("dataset_schema")
+        @ExcludeMissing
+        fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
+            this.datasetSchema = datasetSchema
         }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
@@ -136,12 +144,6 @@ private constructor(
             this.providerResourceId = providerResourceId
         }
 
-        fun schema(schema: Schema) = schema(JsonField.of(schema))
-
-        @JsonProperty("schema")
-        @ExcludeMissing
-        fun schema(schema: JsonField<Schema>) = apply { this.schema = schema }
-
         fun type(type: Type) = type(JsonField.of(type))
 
         @JsonProperty("type")
@@ -170,15 +172,83 @@ private constructor(
 
         fun build(): DatasetRetrieveResponse =
             DatasetRetrieveResponse(
+                datasetSchema,
                 identifier,
                 metadata,
                 providerId,
                 providerResourceId,
-                schema,
                 type,
                 url,
                 additionalProperties.toImmutable(),
             )
+    }
+
+    @JsonDeserialize(builder = DatasetSchema.Builder::class)
+    @NoAutoDetect
+    class DatasetSchema
+    private constructor(
+        private val additionalProperties: Map<String, JsonValue>,
+    ) {
+
+        private var validated: Boolean = false
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        fun validate(): DatasetSchema = apply {
+            if (!validated) {
+                validated = true
+            }
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        class Builder {
+
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(datasetSchema: DatasetSchema) = apply {
+                additionalProperties(datasetSchema.additionalProperties)
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            @JsonAnySetter
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                this.additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun build(): DatasetSchema = DatasetSchema(additionalProperties.toImmutable())
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is DatasetSchema && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() = "DatasetSchema{additionalProperties=$additionalProperties}"
     }
 
     @JsonDeserialize(builder = Metadata.Builder::class)
@@ -237,90 +307,16 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Metadata && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Metadata && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
-    }
-
-    @JsonDeserialize(builder = Schema.Builder::class)
-    @NoAutoDetect
-    class Schema
-    private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
-    ) {
-
-        private var validated: Boolean = false
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        fun validate(): Schema = apply {
-            if (!validated) {
-                validated = true
-            }
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(schema: Schema) = apply {
-                additionalProperties(schema.additionalProperties)
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            @JsonAnySetter
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun build(): Schema = Schema(additionalProperties.toImmutable())
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Schema && this.additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        private var hashCode: Int = 0
-
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
-
-        override fun toString() = "Schema{additionalProperties=$additionalProperties}"
     }
 
     class Type
@@ -336,7 +332,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Type && this.value == other.value /* spotless:on */
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()
@@ -379,18 +375,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetRetrieveResponse && this.identifier == other.identifier && this.metadata == other.metadata && this.providerId == other.providerId && this.providerResourceId == other.providerResourceId && this.schema == other.schema && this.type == other.type && this.url == other.url && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is DatasetRetrieveResponse && datasetSchema == other.datasetSchema && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(datasetSchema, identifier, metadata, providerId, providerResourceId, type, url, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(identifier, metadata, providerId, providerResourceId, schema, type, url, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "DatasetRetrieveResponse{identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, schema=$schema, type=$type, url=$url, additionalProperties=$additionalProperties}"
+        "DatasetRetrieveResponse{datasetSchema=$datasetSchema, identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, url=$url, additionalProperties=$additionalProperties}"
 }

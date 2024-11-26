@@ -156,17 +156,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Generation && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Generation && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Generation{additionalProperties=$additionalProperties}"
     }
@@ -227,17 +224,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Scores && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Scores && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Scores{additionalProperties=$additionalProperties}"
     }
@@ -247,17 +241,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvaluateResponse && this.generations == other.generations && this.scores == other.scores && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is EvaluateResponse && generations == other.generations && scores == other.scores && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(generations, scores, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(generations, scores, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "EvaluateResponse{generations=$generations, scores=$scores, additionalProperties=$additionalProperties}"

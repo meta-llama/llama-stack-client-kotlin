@@ -158,17 +158,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is SyntheticData && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is SyntheticData && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "SyntheticData{additionalProperties=$additionalProperties}"
     }
@@ -229,17 +226,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Statistics && this.additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Statistics && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
-        private var hashCode: Int = 0
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
 
-        override fun hashCode(): Int {
-            if (hashCode == 0) {
-                hashCode = /* spotless:off */ Objects.hash(additionalProperties) /* spotless:on */
-            }
-            return hashCode
-        }
+        override fun hashCode(): Int = hashCode
 
         override fun toString() = "Statistics{additionalProperties=$additionalProperties}"
     }
@@ -249,17 +243,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SyntheticDataGenerationResponse && this.statistics == other.statistics && this.syntheticData == other.syntheticData && this.additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SyntheticDataGenerationResponse && statistics == other.statistics && syntheticData == other.syntheticData && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    private var hashCode: Int = 0
+    /* spotless:off */
+    private val hashCode: Int by lazy { Objects.hash(statistics, syntheticData, additionalProperties) }
+    /* spotless:on */
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode = /* spotless:off */ Objects.hash(statistics, syntheticData, additionalProperties) /* spotless:on */
-        }
-        return hashCode
-    }
+    override fun hashCode(): Int = hashCode
 
     override fun toString() =
         "SyntheticDataGenerationResponse{statistics=$statistics, syntheticData=$syntheticData, additionalProperties=$additionalProperties}"

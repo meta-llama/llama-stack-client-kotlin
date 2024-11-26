@@ -24,6 +24,7 @@ class BatchInferenceCompletionParamsTest {
                     .topP(42.23)
                     .build()
             )
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -46,6 +47,7 @@ class BatchInferenceCompletionParamsTest {
                         .topP(42.23)
                         .build()
                 )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

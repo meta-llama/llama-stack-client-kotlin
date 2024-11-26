@@ -13,6 +13,7 @@ constructor(
     private val agentId: String,
     private val sessionId: String,
     private val turnId: String,
+    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
@@ -23,7 +24,16 @@ constructor(
 
     fun turnId(): String = turnId
 
-    internal fun getHeaders(): Headers = additionalHeaders
+    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    internal fun getHeaders(): Headers {
+        val headers = Headers.builder()
+        this.xLlamaStackProviderData?.let {
+            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+        }
+        headers.putAll(additionalHeaders)
+        return headers.build()
+    }
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
@@ -43,15 +53,13 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnRetrieveParams && this.agentId == other.agentId && this.sessionId == other.sessionId && this.turnId == other.turnId && this.additionalHeaders == other.additionalHeaders && this.additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentTurnRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int {
-        return /* spotless:off */ Objects.hash(agentId, sessionId, turnId, additionalHeaders, additionalQueryParams) /* spotless:on */
-    }
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, agentId, sessionId, turnId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentTurnRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnId=$turnId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentTurnRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, agentId=$agentId, sessionId=$sessionId, turnId=$turnId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -66,6 +74,7 @@ constructor(
         private var agentId: String? = null
         private var sessionId: String? = null
         private var turnId: String? = null
+        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -73,6 +82,7 @@ constructor(
             this.agentId = agentTurnRetrieveParams.agentId
             this.sessionId = agentTurnRetrieveParams.sessionId
             this.turnId = agentTurnRetrieveParams.turnId
+            this.xLlamaStackProviderData = agentTurnRetrieveParams.xLlamaStackProviderData
             additionalHeaders(agentTurnRetrieveParams.additionalHeaders)
             additionalQueryParams(agentTurnRetrieveParams.additionalQueryParams)
         }
@@ -82,6 +92,10 @@ constructor(
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
         fun turnId(turnId: String) = apply { this.turnId = turnId }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -186,6 +200,7 @@ constructor(
                 checkNotNull(agentId) { "`agentId` is required but was not set" },
                 checkNotNull(sessionId) { "`sessionId` is required but was not set" },
                 checkNotNull(turnId) { "`turnId` is required but was not set" },
+                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )

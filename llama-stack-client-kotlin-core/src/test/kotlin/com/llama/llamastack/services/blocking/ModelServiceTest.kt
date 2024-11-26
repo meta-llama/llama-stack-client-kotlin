@@ -18,7 +18,12 @@ class ModelServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
         val model =
-            modelService.retrieve(ModelRetrieveParams.builder().identifier("identifier").build())
+            modelService.retrieve(
+                ModelRetrieveParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .identifier("identifier")
+                    .build()
+            )
         println(model)
         model?.validate()
     }
@@ -31,7 +36,12 @@ class ModelServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        val model = modelService.list(ModelListParams.builder().build())
+        val model =
+            modelService.list(
+                ModelListParams.builder()
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
         println(model)
         model.validate()
     }
@@ -48,9 +58,23 @@ class ModelServiceTest {
                     .metadata(ModelRegisterParams.Metadata.builder().build())
                     .providerId("provider_id")
                     .providerModelId("provider_model_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(model)
         model.validate()
+    }
+
+    @Test
+    fun callUnregister() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val modelService = client.models()
+        modelService.unregister(
+            ModelUnregisterParams.builder()
+                .modelId("model_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
+        )
     }
 }
