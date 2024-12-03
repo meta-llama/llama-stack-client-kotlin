@@ -76,7 +76,6 @@ object PromptFormatLocal {
                     // user message
                     val userMessage: UserMessage? = message.userMessage()
                     val content: String? = userMessage?.content()?.string()
-                    println("content is $content")
                     if (content != null) {
                         format = getUserPromptTemplate(modelName).replace(USER_PLACEHOLDER, content)
                     }
