@@ -4,6 +4,7 @@ We are excited to share a guide for a Kotlin Library that brings front the benef
 
 Features:
 - Local Inferencing: Run Llama models purely on-device with real-time processing. We currently utilize ExecuTorch as the local inference distributor and may support others in the future.
+    - [ExecuTorch](https://github.com/pytorch/executorch/tree/main) is a complete end-to-end solution within the PyTorch framework for inferencing capabilities on-device with high portability and seamless performance.
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
