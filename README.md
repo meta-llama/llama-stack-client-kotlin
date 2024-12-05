@@ -19,6 +19,7 @@ The key files in the app are `LlamaStackLocalInference.kt`, `LlamaStackRemoteInf
 ## Quick Start
 
 ### Add Dependencies
+#### Kotlin Library
 Add the following dependency in your `build.gradle.kts` file:
 ```
 dependencies {
@@ -29,15 +30,20 @@ This will download jar files in your gradle cache in a directory like `~/.gradle
 
 If you plan on doing remote inferencing this is sufficient to get started.
 
-**This is an important step for local inferencing**
+#### Dependency for Local
 
-For local inferencing, it is required to include the ExecuTorch library into your app. You can download the ExecuTorch library by:
-1. Download the `download-prebuilt-et-lib.sh` script from the github directory (link)
+> [!IMPORTANT]
+> For local inferencing, it is required to include the ExecuTorch library into your app.
+
+Include the ExecuTorch library by:
+1. Download the `download-prebuilt-et-lib.sh` script file from [Github](https://github.com/meta-llama/llama-stack-client-kotlin/blob/release/0.0.54/llama-stack-client-kotlin-client-local/download-prebuilt-et-lib.sh) to your local machine.
 2. Move the script to the top level of your Android app where the app directory resides:
-- TODO: Add image of directory
-3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate.
+<p align="center">
+<img src="doc/img/example_android_app_directory.png" style="width:300px">
+</p>
 
-Last step is to make sure to add the `executorch.aar` dependency in your `build.gradle.kts` file:
+3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate.
+4. Add the `executorch.aar` dependency in your `build.gradle.kts` file:
 ```
 dependencies {
   ...
@@ -47,7 +53,6 @@ dependencies {
 ```
 
 ## Llama Stack APIs in Your Android App
-
 Breaking down the demo app, this section will show the core pieces that are used to initialize and run inference with Llama Stack using the Kotlin library.
 
 ### Setup Remote Inferencing
@@ -61,29 +66,41 @@ export FIREWORKS_API_KEY=<SOME_KEY>
 llama stack run /Users/<your_username>/.llama/distributions/llamastack-fireworks/fireworks-run.yaml --port=5050
 ```
 
-Other inference providers: https://llama-stack.readthedocs.io/en/latest/index.html#supported-llama-stack-implementations
+Other inference providers: [Table](https://llama-stack.readthedocs.io/en/latest/index.html#supported-llama-stack-implementations)
 
 TODO: Link to Demo App on how to set this remote localhost in the Settings.
 
-### Initialize
-Initialize Llama Stack for local inference using the following:
-```
+### Initialize the Client
+A client serves as the primary interface for interacting with a specific inference type and its associated parameters. Only after client is initialized then you can configure and start inferences. 
+
+<table>
+<tr>
+<th>Local Inference</th>
+<th>Remote Inference</th>
+</tr>
+<tr>
+<td>
+<pre>   
 client = LlamaStackClientLocalClient
                     .builder()
                     .modelPath(modelPath)
                     .tokenizerPath(tokenizerPath)
                     .temperature(temperature)
                     .build()
-```
+</pre>
+</td>
+<td>
 
-Similarly, remote inference is initialized like so:
-```
-// remoteURL is a string like "http://localhost:5050"
+```// remoteURL is a string like "http://localhost:5050"
 client = LlamaStackClientOkHttpClient
                 .builder()
                 .baseUrl(remoteURL) 
                 .build()
 ```
+</td>
+</tr>
+</table>
+
 
 ### Run Inference
 With the Kotlin Library managing all the major operational logic, there are minimal to no changes when running simple chat inference for local or remote:
@@ -120,7 +137,7 @@ cd llama-stack-client-kotlin-client-local
 sh download-prebuilt-et-lib.sh --unzip
 ```
 
-Now you will notice that the jni/ , libs/, and AndroidManifest.xml files from the executorch.aar file are present in the local module. This way the local client module will be able to realize the ExecuTorch SDK.
+Now you will notice that the `jni/` , `libs/`, and `AndroidManifest.xml` files from the `executorch.aar` file are present in the local module. This way the local client module will be able to realize the ExecuTorch SDK.
 
 ### Building for Development/Debugging
 If you’d like to contribute to the Kotlin library via development, debug, or add play around with the library with various print statements, run the following command in your terminal under the llama-stack-client-kotlin directory.
