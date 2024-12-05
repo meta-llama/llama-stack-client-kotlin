@@ -42,7 +42,7 @@ Include the ExecuTorch library by:
 <img src="doc/img/example_android_app_directory.png" style="width:300px">
 </p>
 
-3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate.
+3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate with commit: [0a12e33](https://github.com/pytorch/executorch/commit/0a12e33d22a3d44d1aa2af5f0d0673d45b962553).
 4. Add the `executorch.aar` dependency in your `build.gradle.kts` file:
 ```
 dependencies {
