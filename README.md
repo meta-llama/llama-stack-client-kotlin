@@ -1,28 +1,128 @@
 # Llama Stack Client Kotlin API Library
 
-The Llama Stack Client Kotlin SDK provides convenient access to the Llama Stack Client REST API from applications written in Kotlin. It includes helper classes with helpful types and documentation for every request and response property.
+We are excited to share a guide for a Kotlin Library that brings front the benefits of Llama Stack to your Android device. This library is a set of SDKs that provide a simple and effective way to integrate AI capabilities into your Android app whether it is local (on-device) or remote inference. 
 
-The Llama Stack Client Kotlin SDK is similar to the Llama Stack Client Java SDK but with minor differences that make it more ergonomic for use in Kotlin, such as nullable values instead of `Optional`, `Sequence` instead of `Stream`, and suspend functions instead of `CompletableFuture`.
+Features:
+- Local Inferencing: Run Llama models purely on-device with real-time processing. We currently utilize ExecuTorch as the local inference distributor and may support others in the future.
+- Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
+- Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-It is generated with [Stainless](https://www.stainlessapi.com/).
+Latest release notes: TODO Add Release Notes
 
-## Documentation
+## Android Demo App
+Check out our demo app to see how to integrate Llama Stack into your Android app:
+ - TODO: Link to Demo App
 
-The REST API documentation can be found on [llama-stack.readthedocs.io](https://llama-stack.readthedocs.io/en/latest/).
+The key files in the app are `LlamaStackLocalInference.kt`, `LlamaStackRemoteInference.kts`, and `MainActivity.java`. With encompassed business logic, the app shows how to use Llama Stack for both the environments.
 
----
+## Quick Start
 
-## Getting started
+### Add Dependencies
+Add the following dependency in your `build.gradle.kts` file:
+```
+dependencies {
+ implementation("com.llama.llamastack:llama-stack-client-kotlin:0.0.54")
+}
+```
+This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/` 
 
-#### Gradle (Recommended) [![Maven version](https://img.shields.io/maven-central/v/com.llama.llamastack/llama-stack-client-kotlin)](https://central.sonatype.com/artifact/com.llama.llamastack/llama-stack-client-kotlin)
+If you plan on doing remote inferencing this is sufficient to get started.
 
-```kotlin
-implementation("com.llama.llamastack:llama-stack-client-kotlin:0.0.1-alpha.1")
+**This is an important step for local inferencing**
+
+For local inferencing, it is required to include the ExecuTorch library into your app. You can download the ExecuTorch library by:
+1. Download the `download-prebuilt-et-lib.sh` script from the github directory (link)
+2. Move the script to the top level of your Android app where the app directory resides:
+- TODO: Add image of directory
+3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate.
+
+Last step is to make sure to add the `executorch.aar` dependency in your `build.gradle.kts` file:
+```
+dependencies {
+  ...
+  implementation(files("libs/executorch.aar"))
+  ...
+}
 ```
 
-### Manually build the jar packages
+## Llama Stack APIs in Your Android App
 
-In your terminal, under the `llama-stack-client-kotlin` directory, run the following command:
+Breaking down the demo app, this section will show the core pieces that are used to initialize and run inference with Llama Stack using the Kotlin library.
+
+### Setup Remote Inferencing
+Start a Llama Stack server on localhost. Here is an example of how you can do this using the firework.ai distribution:
+```
+conda create -n stack-fireworks python=3.10 
+conda activate stack-fireworks
+pip install llama-stack=0.0.54
+llama stack build --template fireworks --image-type conda
+export FIREWORKS_API_KEY=<SOME_KEY>
+llama stack run /Users/<your_username>/.llama/distributions/llamastack-fireworks/fireworks-run.yaml --port=5050
+```
+
+Other inference providers: https://llama-stack.readthedocs.io/en/latest/index.html#supported-llama-stack-implementations
+
+TODO: Link to Demo App on how to set this remote localhost in the Settings.
+
+### Initialize
+Initialize Llama Stack for local inference using the following:
+```
+client = LlamaStackClientLocalClient
+                    .builder()
+                    .modelPath(modelPath)
+                    .tokenizerPath(tokenizerPath)
+                    .temperature(temperature)
+                    .build()
+```
+
+Similarly, remote inference is initialized like so:
+```
+// remoteURL is a string like "http://localhost:5050"
+client = LlamaStackClientOkHttpClient
+                .builder()
+                .baseUrl(remoteURL) 
+                .build()
+```
+
+### Run Inference
+With the Kotlin Library managing all the major operational logic, there are minimal to no changes when running simple chat inference for local or remote:
+
+```
+val result = client!!.inference().chatCompletion(
+            InferenceChatCompletionParams.builder()
+                .modelId(modelName)
+                .putAdditionalQueryParam("seq_len", sequenceLength.toString())
+                .messages(listOfMessages)
+                .build()
+        )
+
+// response contains string with response from model
+var response = result.asChatCompletionResponse().completionMessage().content().string();
+```
+
+### Setup Tool Calling
+
+TODO: Link to Android demo app readme for more details
+
+
+## Advanced Users
+
+The purpose of this section is to share more details with users that would like to dive deeper into the Llama Stack Kotlin Library. Whether you’re interested in contributing to the open source library, debugging or just want to learn more, this section is for you!
+
+### Prerequisite
+
+You must complete the following steps:
+1. Clone the repo
+2. Port the appropriate ExecuTorch libraries over into your Llama Stack Kotlin library environment.
+```
+cd llama-stack-client-kotlin-client-local
+sh download-prebuilt-et-lib.sh --unzip
+```
+
+Now you will notice that the jni/ , libs/, and AndroidManifest.xml files from the executorch.aar file are present in the local module. This way the local client module will be able to realize the ExecuTorch SDK.
+
+### Building for Development/Debugging
+If you’d like to contribute to the Kotlin library via development, debug, or add play around with the library with various print statements, run the following command in your terminal under the llama-stack-client-kotlin directory.
 
 ```
 sh build-libs.sh
@@ -30,100 +130,68 @@ sh build-libs.sh
 
 Output: .jar files located in the build-jars directory
 
+Copy the .jar files over to the lib directory in your Android app. At the same time make sure to remove the llama-stack-client-kotlin dependency within your build.gradle.kts file in your app (or if you are using the demo app) to avoid having multiple llama stack client dependencies.
 
-### Configure the client
-
-Use `LlamaStackClientOkHttpClient.builder()` to configure the client.
-
-```kotlin
-val client = LlamaStackClientOkHttpClient.fromEnv()
+### Additional Options for Local Inferencing
+Currently we provide additional properties support with local inferencing. In order to get the tokens/sec metric for each inference call, add the following code in your Android app after you run your chatCompletion inference function. The Reference app has this implementation as well:
 ```
-
-Read the documentation for more configuration options.
-
----
-
-### Example: creating a resource
-
-To create a new agent session, first use the `AgentSessionCreateParams` builder to specify attributes,
-then pass that to the `create` method of the `sessions` service.
-
-```kotlin
-import com.llama_stack_client.api.models.AgentSessionCreateParams
-import com.llama_stack_client.api.models.AgentSessionCreateResponse
-
-val params = AgentSessionCreateParams.builder().build()
-val session = client.agents().sessions().create(params)
+var tps = (result.asChatCompletionResponse()._additionalProperties()["tps"] as JsonNumber).value as Float
 ```
+We will be adding more properties in the future.
 
----
+### Additional Options for Remote Inferencing
 
-## Requests
+#### Network options
 
-### Parameters and bodies
+##### Retries
 
-To make a request to the Llama Stack Client API, you generally build an instance of the appropriate `Params` class.
-
-In [Example: creating a resource](#example-creating-a-resource) above, we used the `AgentSessionCreateParams.builder()` to pass to
-the `create` method of the `sessions` service.
-
-Sometimes, the API may support other properties that are not yet supported in the Kotlin SDK types. In that case,
-you can attach them using the `putAdditionalProperty` method.
+Requests that experience certain errors are automatically retried 2 times by default, with a short exponential backoff. Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict, 429 Rate Limit, and >=500 Internal errors will all be retried by default.
+You can provide a `maxRetries` on the client builder to configure this:
 
 ```kotlin
-import com.llama_stack_client.api.models.core.JsonValue
-val params = AgentSessionCreateParams.builder()
-    // ... normal properties
-    .putAdditionalProperty("secret_param", JsonValue.from("4242"))
+val client = LlamaStackClientOkHttpClient.builder()
+    .fromEnv()
+    .maxRetries(4)
     .build()
 ```
 
-## Responses
+##### Timeouts
 
-### Response validation
-
-When receiving a response, the Llama Stack Client Kotlin SDK will deserialize it into instances of the typed model classes. In rare cases, the API may return a response property that doesn't match the expected Kotlin type. If you directly access the mistaken property, the SDK will throw an unchecked `LlamaStackClientInvalidDataException` at runtime. If you would prefer to check in advance that that response is completely well-typed, call `.validate()` on the returned model.
+Requests time out after 1 minute by default. You can configure this on the client builder:
 
 ```kotlin
-val session = client.agents().sessions().create().validate()
+val client = LlamaStackClientOkHttpClient.builder()
+    .fromEnv()
+    .timeout(Duration.ofSeconds(30))
+    .build()
 ```
 
-### Response properties as JSON
+##### Proxies
 
-In rare cases, you may want to access the underlying JSON value for a response property rather than using the typed version provided by
-this SDK. Each model property has a corresponding JSON version, with an underscore before the method name, which returns a `JsonField` value.
+Requests can be routed through a proxy. You can configure this on the client builder:
 
 ```kotlin
-val field = responseObj._field
-
-if (field.isMissing()) {
-  // Value was not specified in the JSON response
-} else if (field.isNull()) {
-  // Value was provided as a literal null
-} else {
-  // See if value was provided as a string
-  val jsonString: String? = field.asString();
-
-  // If the value given by the API did not match the shape that the SDK expects
-  // you can deserialise into a custom type
-  val myObj = responseObj._field.asUnknown()?.convert(MyClass.class)
-}
+val client = LlamaStackClientOkHttpClient.builder()
+    .fromEnv()
+    .proxy(new Proxy(
+        Type.HTTP,
+        new InetSocketAddress("proxy.com", 8080)
+    ))
+    .build()
 ```
 
-### Additional model properties
+##### Environments
 
-Sometimes, the server response may include additional properties that are not yet available in this library's types. You can access them using the model's `_additionalProperties` method:
+Requests are made to the production environment by default. You can connect to other environments, like `sandbox`, via the client builder:
 
 ```kotlin
-val secret = attachment._additionalProperties().get("secret_field")
+val client = LlamaStackClientOkHttpClient.builder()
+    .fromEnv()
+    .sandbox()
+    .build()
 ```
 
----
-
----
-
-## Error handling
-
+### Error Handling
 This library throws exceptions in a single hierarchy for easy handling:
 
 - **`LlamaStackClientException`** - Base exception for all exceptions
@@ -145,67 +213,16 @@ This library throws exceptions in a single hierarchy for easy handling:
     - We failed to serialize the request body
     - We failed to parse the response body (has access to response code and body)
 
-## Network options
 
-### Retries
 
-Requests that experience certain errors are automatically retried 2 times by default, with a short exponential backoff. Connection errors (for example, due to a network connectivity problem), 408 Request Timeout, 409 Conflict, 429 Rate Limit, and >=500 Internal errors will all be retried by default.
-You can provide a `maxRetries` on the client builder to configure this:
+## Known Issues
+1. Streaming response is a work-in-progress for local and remote inference
+2. Due to #1, agents are not supported at the time. LS agents only work in streaming mode
+3. Changing to another model is a work in progress for local and remote platforms
 
-```kotlin
-val client = LlamaStackClientOkHttpClient.builder()
-    .fromEnv()
-    .maxRetries(4)
-    .build()
-```
+## Thanks
+- We'd like to extend our thanks to the ExecuTorch team for providing their support as we integrated ExecuTorch as one of the local inference distributors for Llama Stack. Checkout [ExecuTorch Github repo](https://github.com/pytorch/executorch/tree/main) for more information about Executorch.
 
-### Timeouts
+---
 
-Requests time out after 1 minute by default. You can configure this on the client builder:
-
-```kotlin
-val client = LlamaStackClientOkHttpClient.builder()
-    .fromEnv()
-    .timeout(Duration.ofSeconds(30))
-    .build()
-```
-
-### Proxies
-
-Requests can be routed through a proxy. You can configure this on the client builder:
-
-```kotlin
-val client = LlamaStackClientOkHttpClient.builder()
-    .fromEnv()
-    .proxy(new Proxy(
-        Type.HTTP,
-        new InetSocketAddress("proxy.com", 8080)
-    ))
-    .build()
-```
-
-### Environments
-
-Requests are made to the production environment by default. You can connect to other environments, like `sandbox`, via the client builder:
-
-```kotlin
-val client = LlamaStackClientOkHttpClient.builder()
-    .fromEnv()
-    .sandbox()
-    .build()
-```
-
-## Semantic versioning
-
-This package generally follows [SemVer](https://semver.org/spec/v2.0.0.html) conventions, though certain backwards-incompatible changes may be released as minor versions:
-
-1. Changes to library internals which are technically public but not intended or documented for external use. _(Please open a GitHub issue to let us know if you are relying on such internals)_.
-2. Changes that we do not expect to impact the vast majority of users in practice.
-
-We take backwards-compatibility seriously and work hard to ensure you can rely on a smooth upgrade experience.
-
-We are keen for your feedback; please open an [issue](https://www.github.com/stainless-sdks/llama-stack-kotlin/issues) with questions, bugs, or suggestions.
-
-## Requirements
-
-This library requires Java 8 or later.
+The API interface is generated using the OpenAPI standard with [Stainless](https://www.stainlessapi.com/).
