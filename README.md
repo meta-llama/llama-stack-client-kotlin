@@ -31,14 +31,13 @@ If you plan on doing remote inferencing this is sufficient to get started.
 
 #### Dependency for Local
 
-> [!IMPORTANT]
-> For local inferencing, it is required to include the ExecuTorch library into your app.
+For local inferencing, it is required to include the ExecuTorch library into your app.
 
 Include the ExecuTorch library by:
 1. Download the `download-prebuilt-et-lib.sh` script file from the [llama-stack-client-kotlin-client-local](https://github.com/meta-llama/llama-stack-client-kotlin/blob/release/0.0.54/llama-stack-client-kotlin-client-local/download-prebuilt-et-lib.sh) directory to your local machine.
 2. Move the script to the top level of your Android app where the app directory resides:
 <p align="center">
-<img src="doc/img/example_android_app_directory.png" style="width:300px">
+<img src="https://raw.githubusercontent.com/meta-llama/llama-stack-client-kotlin/refs/heads/release/0.0.54/doc/img/example_android_app_directory.png" style="width:300px">
 </p>
 
 3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate with commit: [0a12e33](https://github.com/pytorch/executorch/commit/0a12e33d22a3d44d1aa2af5f0d0673d45b962553).
