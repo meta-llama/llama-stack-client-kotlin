@@ -6,6 +6,7 @@ export SKIP_MOCK_TESTS=true
 ./gradlew :llama-stack-client-kotlin-core:spotlessApply
 ./gradlew :llama-stack-client-kotlin-client-okhttp:spotlessApply
 ./gradlew :llama-stack-client-kotlin:spotlessApply
+./gradlew :llama-stack-client-kotlin-client-local:spotlessApply
 
 ./gradlew build 
 
@@ -17,3 +18,4 @@ echo $BUILD_JARS_DIR
 cp -a llama-stack-client-kotlin/build/libs/. $BUILD_JARS_DIR
 cp -a llama-stack-client-kotlin-client-okhttp/build/libs/. $BUILD_JARS_DIR
 cp -a llama-stack-client-kotlin-core/build/libs/. $BUILD_JARS_DIR
+cp -a llama-stack-client-kotlin-client-local/build/libs/. $BUILD_JARS_DIR
