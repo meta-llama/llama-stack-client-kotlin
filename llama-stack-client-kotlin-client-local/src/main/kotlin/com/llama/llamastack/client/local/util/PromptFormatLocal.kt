@@ -60,7 +60,6 @@ object PromptFormatLocal {
         var format: String = ""
 
         for (message in messages) {
-            println("Message is: $message")
             when {
                 message.isSystemMessage() -> {
                     // system message. Expecting this will only called once
@@ -91,7 +90,6 @@ object PromptFormatLocal {
                     }
                 }
             }
-            println("format is $format")
             formattedPrompt += format
         }
 
