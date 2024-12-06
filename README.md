@@ -8,11 +8,8 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest release notes: TODO Add Release Notes
-
 ## Android Demo App
-Check out our demo app to see how to integrate Llama Stack into your Android app:
- - TODO: Link to Demo App
+Check out our demo app to see how to integrate Llama Stack into your Android app: TODO: Link to Demo App
 
 The key files in the app are `LlamaStackLocalInference.kt`, `LlamaStackRemoteInference.kts`, and `MainActivity.java`. With encompassed business logic, the app shows how to use Llama Stack for both the environments.
 
@@ -68,7 +65,7 @@ llama stack run /Users/<your_username>/.llama/distributions/llamastack-fireworks
 
 Other inference providers: [Table](https://llama-stack.readthedocs.io/en/latest/index.html#supported-llama-stack-implementations)
 
-TODO: Link to Demo App on how to set this remote localhost in the Settings.
+How to set remote localhost in Demo App: TODO
 
 ### Initialize the Client
 A client serves as the primary interface for interacting with a specific inference type and its associated parameters. Only after client is initialized then you can configure and start inferences. 
@@ -120,8 +117,7 @@ var response = result.asChatCompletionResponse().completionMessage().content().s
 
 ### Setup Tool Calling
 
-TODO: Link to Android demo app readme for more details
-
+Android demo app for more details: TODO
 
 ## Advanced Users
 
