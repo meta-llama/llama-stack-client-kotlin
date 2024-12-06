@@ -60,6 +60,10 @@ constructor(
         modelName = params.modelId()
         val formattedPrompt =
             PromptFormatLocal.getTotalFormattedPrompt(params.messages(), modelName)
+
+        // Developer can pass in their sequence length but if not then it will default to a
+        // particular dynamic value. This is to ensure enough value is provided to give a reasonably complete response.
+        // 0.75 is the approximate words per token. And 64 is buffer for tokens for generate response.
         val seqLength =
             params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
                 ?: ((formattedPrompt.length * 0.75) + 64).toInt()
