@@ -40,13 +40,13 @@ object PromptFormatLocal {
         }
     }
 
-    fun getStopToken(modelName: String?): String {
+    fun getStopTokens(modelName: String?): List<String> {
         return when (modelName) {
             "LLAMA_3",
             "LLAMA_3_1",
             "LLAMA_3_2",
-            "LLAMA_GUARD_3" -> "<|eot_id|>"
-            else -> ""
+            "LLAMA_GUARD_3" -> listOf("<|eot_id|>", "<|eom_id|>")
+            else -> listOf("")
         }
     }
 
