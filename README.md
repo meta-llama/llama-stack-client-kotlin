@@ -8,8 +8,10 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
+Latest Release Notes: [v0.0.54](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.0.54)
+
 ## Android Demo App
-Check out our demo app to see how to integrate Llama Stack into your Android app: TODO: Link to Demo App
+Check out our demo app to see how to integrate Llama Stack into your Android app: [Android Demo App](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app)
 
 The key files in the app are `LlamaStackLocalInference.kt`, `LlamaStackRemoteInference.kts`, and `MainActivity.java`. With encompassed business logic, the app shows how to use Llama Stack for both the environments.
 
@@ -65,7 +67,7 @@ llama stack run /Users/<your_username>/.llama/distributions/llamastack-fireworks
 
 Other inference providers: [Table](https://llama-stack.readthedocs.io/en/latest/index.html#supported-llama-stack-implementations)
 
-How to set remote localhost in Demo App: TODO
+How to set remote localhost in Demo App: [Settings](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app#settings)
 
 ### Initialize the Client
 A client serves as the primary interface for interacting with a specific inference type and its associated parameters. Only after client is initialized then you can configure and start inferences. 
@@ -77,18 +79,20 @@ A client serves as the primary interface for interacting with a specific inferen
 </tr>
 <tr>
 <td>
-<pre>   
+
+```
 client = LlamaStackClientLocalClient
                     .builder()
                     .modelPath(modelPath)
                     .tokenizerPath(tokenizerPath)
                     .temperature(temperature)
                     .build()
-</pre>
+```
 </td>
 <td>
 
-```// remoteURL is a string like "http://localhost:5050"
+```
+// remoteURL is a string like "http://localhost:5050"
 client = LlamaStackClientOkHttpClient
                 .builder()
                 .baseUrl(remoteURL) 
@@ -117,7 +121,7 @@ var response = result.asChatCompletionResponse().completionMessage().content().s
 
 ### Setup Tool Calling
 
-Android demo app for more details: TODO
+Android demo app for more details: [Tool Calling](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app#tool-calling)
 
 ## Advanced Users
 
