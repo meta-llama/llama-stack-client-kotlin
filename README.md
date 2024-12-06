@@ -227,15 +227,17 @@ This library throws exceptions in a single hierarchy for easy handling:
     - We failed to serialize the request body
     - We failed to parse the response body (has access to response code and body)
 
-
+## Reporting Issues
+If you encountered any bugs or issues following this guide please file a bug/issue on our [Github issue tracker](https://github.com/meta-llama/llama-stack-client-kotlin/issues).
 
 ## Known Issues
+We're aware of the following issues and are working to resolve them:
 1. Streaming response is a work-in-progress for local and remote inference
 2. Due to #1, agents are not supported at the time. LS agents only work in streaming mode
 3. Changing to another model is a work in progress for local and remote platforms
 
 ## Thanks
-- We'd like to extend our thanks to the ExecuTorch team for providing their support as we integrated ExecuTorch as one of the local inference distributors for Llama Stack. Checkout [ExecuTorch Github repo](https://github.com/pytorch/executorch/tree/main) for more information about Executorch.
+We'd like to extend our thanks to the ExecuTorch team for providing their support as we integrated ExecuTorch as one of the local inference distributors for Llama Stack. Checkout [ExecuTorch Github repo](https://github.com/pytorch/executorch/tree/main) for more information.
 
 ---
 
