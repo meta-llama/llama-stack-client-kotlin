@@ -69,12 +69,10 @@ constructor(
         mModule.generate(formattedPrompt, seqLength, this, false)
 
         while (!onResultComplete && !onStatsComplete) {
-            Thread.sleep(2)
+            Thread.sleep(100)
         }
         onResultComplete = false
         onStatsComplete = false
-        println("Response is: $resultMessage")
-        println("Stats is $statsMetric")
 
         return InferenceChatCompletionResponse.ofChatCompletionResponse(
             InferenceChatCompletionResponse.ChatCompletionResponse.builder()
