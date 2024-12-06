@@ -130,7 +130,7 @@ The purpose of this section is to share more details with users that would like 
 ### Prerequisite
 
 You must complete the following steps:
-1. Clone the repo
+1. Clone the repo (`git clone https://github.com/meta-llama/llama-stack-client-kotlin.git -b release/0.0.54`)
 2. Port the appropriate ExecuTorch libraries over into your Llama Stack Kotlin library environment.
 ```
 cd llama-stack-client-kotlin-client-local
