@@ -36,7 +36,6 @@ constructor(
     private val logprobs: Logprobs?,
     private val responseFormat: ResponseFormat?,
     private val samplingParams: SamplingParams?,
-    private val stream: Boolean?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -53,9 +52,13 @@ constructor(
 
     fun samplingParams(): SamplingParams? = samplingParams
 
-    fun stream(): Boolean? = stream
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
     internal fun getBody(): InferenceCompletionBody {
         return InferenceCompletionBody(
@@ -64,7 +67,6 @@ constructor(
             logprobs,
             responseFormat,
             samplingParams,
-            stream,
             additionalBodyProperties,
         )
     }
@@ -89,7 +91,6 @@ constructor(
         private val logprobs: Logprobs?,
         private val responseFormat: ResponseFormat?,
         private val samplingParams: SamplingParams?,
-        private val stream: Boolean?,
         private val additionalProperties: Map<String, JsonValue>,
     ) {
 
@@ -102,8 +103,6 @@ constructor(
         @JsonProperty("response_format") fun responseFormat(): ResponseFormat? = responseFormat
 
         @JsonProperty("sampling_params") fun samplingParams(): SamplingParams? = samplingParams
-
-        @JsonProperty("stream") fun stream(): Boolean? = stream
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -123,7 +122,6 @@ constructor(
             private var logprobs: Logprobs? = null
             private var responseFormat: ResponseFormat? = null
             private var samplingParams: SamplingParams? = null
-            private var stream: Boolean? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(inferenceCompletionBody: InferenceCompletionBody) = apply {
@@ -132,7 +130,6 @@ constructor(
                 this.logprobs = inferenceCompletionBody.logprobs
                 this.responseFormat = inferenceCompletionBody.responseFormat
                 this.samplingParams = inferenceCompletionBody.samplingParams
-                this.stream = inferenceCompletionBody.stream
                 additionalProperties(inferenceCompletionBody.additionalProperties)
             }
 
@@ -155,8 +152,6 @@ constructor(
                 this.samplingParams = samplingParams
             }
 
-            @JsonProperty("stream") fun stream(stream: Boolean) = apply { this.stream = stream }
-
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
                 this.additionalProperties.putAll(additionalProperties)
@@ -178,7 +173,6 @@ constructor(
                     logprobs,
                     responseFormat,
                     samplingParams,
-                    stream,
                     additionalProperties.toImmutable(),
                 )
         }
@@ -188,37 +182,18 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InferenceCompletionBody && content == other.content && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && stream == other.stream && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is InferenceCompletionBody && content == other.content && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(content, modelId, logprobs, responseFormat, samplingParams, stream, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(content, modelId, logprobs, responseFormat, samplingParams, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "InferenceCompletionBody{content=$content, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, stream=$stream, additionalProperties=$additionalProperties}"
+            "InferenceCompletionBody{content=$content, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is InferenceCompletionParams && content == other.content && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && stream == other.stream && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(content, modelId, logprobs, responseFormat, samplingParams, stream, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "InferenceCompletionParams{content=$content, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, stream=$stream, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -235,23 +210,22 @@ constructor(
         private var logprobs: Logprobs? = null
         private var responseFormat: ResponseFormat? = null
         private var samplingParams: SamplingParams? = null
-        private var stream: Boolean? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(inferenceCompletionParams: InferenceCompletionParams) = apply {
-            this.content = inferenceCompletionParams.content
-            this.modelId = inferenceCompletionParams.modelId
-            this.logprobs = inferenceCompletionParams.logprobs
-            this.responseFormat = inferenceCompletionParams.responseFormat
-            this.samplingParams = inferenceCompletionParams.samplingParams
-            this.stream = inferenceCompletionParams.stream
-            this.xLlamaStackProviderData = inferenceCompletionParams.xLlamaStackProviderData
-            additionalHeaders(inferenceCompletionParams.additionalHeaders)
-            additionalQueryParams(inferenceCompletionParams.additionalQueryParams)
-            additionalBodyProperties(inferenceCompletionParams.additionalBodyProperties)
+            content = inferenceCompletionParams.content
+            modelId = inferenceCompletionParams.modelId
+            logprobs = inferenceCompletionParams.logprobs
+            responseFormat = inferenceCompletionParams.responseFormat
+            samplingParams = inferenceCompletionParams.samplingParams
+            xLlamaStackProviderData = inferenceCompletionParams.xLlamaStackProviderData
+            additionalHeaders = inferenceCompletionParams.additionalHeaders.toBuilder()
+            additionalQueryParams = inferenceCompletionParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                inferenceCompletionParams.additionalBodyProperties.toMutableMap()
         }
 
         fun content(content: Content) = apply { this.content = content }
@@ -262,10 +236,18 @@ constructor(
             this.content = Content.ofImageMedia(imageMedia)
         }
 
-        fun contentOfImageMediaArray(imageMediaArray: List<Content.StringOrImageMediaUnion>) =
-            apply {
-                this.content = Content.ofImageMediaArray(imageMediaArray)
-            }
+        // <<<<<<< HEAD
+        //        fun contentOfImageMediaArray(imageMediaArray:
+        // List<Content.StringOrImageMediaUnion>) =
+        //            apply {
+        //                this.content = Content.ofImageMediaArray(imageMediaArray)
+        //            }
+        // =======
+        //        fun contentOfImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>) =
+        // apply {
+        //            this.content = Content.ofImageMediaArray(imageMediaArray)
+        //        }
+        // >>>>>>> origin/generated--merge-conflict
 
         fun modelId(modelId: String) = apply { this.modelId = modelId }
 
@@ -286,8 +268,6 @@ constructor(
         fun samplingParams(samplingParams: SamplingParams) = apply {
             this.samplingParams = samplingParams
         }
-
-        fun stream(stream: Boolean) = apply { this.stream = stream }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
@@ -420,7 +400,6 @@ constructor(
                 logprobs,
                 responseFormat,
                 samplingParams,
-                stream,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -1311,4 +1290,17 @@ constructor(
                 "GrammarFormat{bnf=$bnf, type=$type, additionalProperties=$additionalProperties}"
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is InferenceCompletionParams && content == other.content && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(content, modelId, logprobs, responseFormat, samplingParams, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "InferenceCompletionParams{content=$content, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

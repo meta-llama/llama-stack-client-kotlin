@@ -31,6 +31,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): AgentSessionCreateBody {
         return AgentSessionCreateBody(
             agentId,
@@ -132,25 +138,6 @@ constructor(
             "AgentSessionCreateBody{agentId=$agentId, sessionName=$sessionName, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is AgentSessionCreateParams && agentId == other.agentId && sessionName == other.sessionName && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionName, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "AgentSessionCreateParams{agentId=$agentId, sessionName=$sessionName, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -169,12 +156,13 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentSessionCreateParams: AgentSessionCreateParams) = apply {
-            this.agentId = agentSessionCreateParams.agentId
-            this.sessionName = agentSessionCreateParams.sessionName
-            this.xLlamaStackProviderData = agentSessionCreateParams.xLlamaStackProviderData
-            additionalHeaders(agentSessionCreateParams.additionalHeaders)
-            additionalQueryParams(agentSessionCreateParams.additionalQueryParams)
-            additionalBodyProperties(agentSessionCreateParams.additionalBodyProperties)
+            agentId = agentSessionCreateParams.agentId
+            sessionName = agentSessionCreateParams.sessionName
+            xLlamaStackProviderData = agentSessionCreateParams.xLlamaStackProviderData
+            additionalHeaders = agentSessionCreateParams.additionalHeaders.toBuilder()
+            additionalQueryParams = agentSessionCreateParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                agentSessionCreateParams.additionalBodyProperties.toMutableMap()
         }
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
@@ -315,4 +303,17 @@ constructor(
                 additionalBodyProperties.toImmutable(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is AgentSessionCreateParams && agentId == other.agentId && sessionName == other.sessionName && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionName, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "AgentSessionCreateParams{agentId=$agentId, sessionName=$sessionName, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

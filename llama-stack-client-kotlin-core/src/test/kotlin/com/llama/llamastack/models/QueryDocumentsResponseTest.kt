@@ -16,11 +16,11 @@ class QueryDocumentsResponseTest {
                         QueryDocumentsResponse.Chunk.builder()
                             .content(QueryDocumentsResponse.Chunk.Content.ofString("string"))
                             .documentId("document_id")
-                            .tokenCount(123L)
+                            .tokenCount(0L)
                             .build()
                     )
                 )
-                .scores(listOf(42.23))
+                .scores(listOf(0.0))
                 .build()
         assertThat(queryDocumentsResponse).isNotNull
         assertThat(queryDocumentsResponse.chunks())
@@ -28,9 +28,9 @@ class QueryDocumentsResponseTest {
                 QueryDocumentsResponse.Chunk.builder()
                     .content(QueryDocumentsResponse.Chunk.Content.ofString("string"))
                     .documentId("document_id")
-                    .tokenCount(123L)
+                    .tokenCount(0L)
                     .build()
             )
-        assertThat(queryDocumentsResponse.scores()).containsExactly(42.23)
+        assertThat(queryDocumentsResponse.scores()).containsExactly(0.0)
     }
 }

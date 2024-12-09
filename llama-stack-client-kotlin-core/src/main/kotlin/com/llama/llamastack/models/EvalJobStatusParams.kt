@@ -23,6 +23,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -39,23 +43,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is EvalJobStatusParams && xLlamaStackProviderData == other.xLlamaStackProviderData && jobId == other.jobId && taskId == other.taskId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, jobId, taskId, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "EvalJobStatusParams{xLlamaStackProviderData=$xLlamaStackProviderData, jobId=$jobId, taskId=$taskId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -74,11 +61,11 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalJobStatusParams: EvalJobStatusParams) = apply {
-            this.jobId = evalJobStatusParams.jobId
-            this.taskId = evalJobStatusParams.taskId
-            this.xLlamaStackProviderData = evalJobStatusParams.xLlamaStackProviderData
-            additionalHeaders(evalJobStatusParams.additionalHeaders)
-            additionalQueryParams(evalJobStatusParams.additionalQueryParams)
+            jobId = evalJobStatusParams.jobId
+            taskId = evalJobStatusParams.taskId
+            xLlamaStackProviderData = evalJobStatusParams.xLlamaStackProviderData
+            additionalHeaders = evalJobStatusParams.additionalHeaders.toBuilder()
+            additionalQueryParams = evalJobStatusParams.additionalQueryParams.toBuilder()
         }
 
         fun jobId(jobId: String) = apply { this.jobId = jobId }
@@ -196,4 +183,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is EvalJobStatusParams && jobId == other.jobId && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobId, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "EvalJobStatusParams{jobId=$jobId, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

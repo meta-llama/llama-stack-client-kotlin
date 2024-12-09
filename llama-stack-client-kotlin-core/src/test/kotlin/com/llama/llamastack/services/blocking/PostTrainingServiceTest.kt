@@ -22,10 +22,10 @@ class PostTrainingServiceTest {
                     .algorithm(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
                     .algorithmConfig(
                         PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
-                            .epsilon(42.23)
-                            .gamma(42.23)
-                            .rewardClip(42.23)
-                            .rewardScale(42.23)
+                            .epsilon(0.0)
+                            .gamma(0.0)
+                            .rewardClip(0.0)
+                            .rewardScale(0.0)
                             .build()
                     )
                     .datasetId("dataset_id")
@@ -40,23 +40,23 @@ class PostTrainingServiceTest {
                     )
                     .optimizerConfig(
                         PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                            .lr(42.23)
-                            .lrMin(42.23)
+                            .lr(0.0)
+                            .lrMin(0.0)
                             .optimizerType(
                                 PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType
                                     .ADAM
                             )
-                            .weightDecay(42.23)
+                            .weightDecay(0.0)
                             .build()
                     )
                     .trainingConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                            .batchSize(123L)
+                            .batchSize(0L)
                             .enableActivationCheckpointing(true)
                             .fsdpCpuOffload(true)
                             .memoryEfficientFsdpWrap(true)
-                            .nEpochs(123L)
-                            .nIters(123L)
+                            .nEpochs(0L)
+                            .nIters(0L)
                             .shuffle(true)
                             .build()
                     )
@@ -82,11 +82,11 @@ class PostTrainingServiceTest {
                             PostTrainingSupervisedFineTuneParams.AlgorithmConfig
                                 .LoraFinetuningConfig
                                 .builder()
-                                .alpha(123L)
+                                .alpha(0L)
                                 .applyLoraToMlp(true)
                                 .applyLoraToOutput(true)
                                 .loraAttnModules(listOf("string"))
-                                .rank(123L)
+                                .rank(0L)
                                 .build()
                         )
                     )
@@ -102,23 +102,23 @@ class PostTrainingServiceTest {
                     .model("model")
                     .optimizerConfig(
                         PostTrainingSupervisedFineTuneParams.OptimizerConfig.builder()
-                            .lr(42.23)
-                            .lrMin(42.23)
+                            .lr(0.0)
+                            .lrMin(0.0)
                             .optimizerType(
                                 PostTrainingSupervisedFineTuneParams.OptimizerConfig.OptimizerType
                                     .ADAM
                             )
-                            .weightDecay(42.23)
+                            .weightDecay(0.0)
                             .build()
                     )
                     .trainingConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
-                            .batchSize(123L)
+                            .batchSize(0L)
                             .enableActivationCheckpointing(true)
                             .fsdpCpuOffload(true)
                             .memoryEfficientFsdpWrap(true)
-                            .nEpochs(123L)
-                            .nIters(123L)
+                            .nEpochs(0L)
+                            .nIters(0L)
                             .shuffle(true)
                             .build()
                     )

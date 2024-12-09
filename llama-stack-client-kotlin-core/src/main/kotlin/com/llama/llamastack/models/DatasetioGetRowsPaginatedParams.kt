@@ -29,6 +29,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -47,23 +51,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && xLlamaStackProviderData == other.xLlamaStackProviderData && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, datasetId, rowsInPage, filterCondition, pageToken, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "DatasetioGetRowsPaginatedParams{xLlamaStackProviderData=$xLlamaStackProviderData, datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -85,14 +72,14 @@ constructor(
 
         internal fun from(datasetioGetRowsPaginatedParams: DatasetioGetRowsPaginatedParams) =
             apply {
-                this.datasetId = datasetioGetRowsPaginatedParams.datasetId
-                this.rowsInPage = datasetioGetRowsPaginatedParams.rowsInPage
-                this.filterCondition = datasetioGetRowsPaginatedParams.filterCondition
-                this.pageToken = datasetioGetRowsPaginatedParams.pageToken
-                this.xLlamaStackProviderData =
-                    datasetioGetRowsPaginatedParams.xLlamaStackProviderData
-                additionalHeaders(datasetioGetRowsPaginatedParams.additionalHeaders)
-                additionalQueryParams(datasetioGetRowsPaginatedParams.additionalQueryParams)
+                datasetId = datasetioGetRowsPaginatedParams.datasetId
+                rowsInPage = datasetioGetRowsPaginatedParams.rowsInPage
+                filterCondition = datasetioGetRowsPaginatedParams.filterCondition
+                pageToken = datasetioGetRowsPaginatedParams.pageToken
+                xLlamaStackProviderData = datasetioGetRowsPaginatedParams.xLlamaStackProviderData
+                additionalHeaders = datasetioGetRowsPaginatedParams.additionalHeaders.toBuilder()
+                additionalQueryParams =
+                    datasetioGetRowsPaginatedParams.additionalQueryParams.toBuilder()
             }
 
         fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
@@ -218,4 +205,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

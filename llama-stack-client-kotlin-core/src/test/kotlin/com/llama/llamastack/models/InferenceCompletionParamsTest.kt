@@ -13,7 +13,7 @@ class InferenceCompletionParamsTest {
         InferenceCompletionParams.builder()
             .content(InferenceCompletionParams.Content.ofString("string"))
             .modelId("model_id")
-            .logprobs(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
+            .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
                 InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                     InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -32,14 +32,13 @@ class InferenceCompletionParamsTest {
             .samplingParams(
                 SamplingParams.builder()
                     .strategy(SamplingParams.Strategy.GREEDY)
-                    .maxTokens(123L)
-                    .repetitionPenalty(42.23)
-                    .temperature(42.23)
-                    .topK(123L)
-                    .topP(42.23)
+                    .maxTokens(0L)
+                    .repetitionPenalty(0.0)
+                    .temperature(0.0)
+                    .topK(0L)
+                    .topP(0.0)
                     .build()
             )
-            .stream(true)
             .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
@@ -50,7 +49,7 @@ class InferenceCompletionParamsTest {
             InferenceCompletionParams.builder()
                 .content(InferenceCompletionParams.Content.ofString("string"))
                 .modelId("model_id")
-                .logprobs(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
+                .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
                     InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                         InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -69,14 +68,13 @@ class InferenceCompletionParamsTest {
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(SamplingParams.Strategy.GREEDY)
-                        .maxTokens(123L)
-                        .repetitionPenalty(42.23)
-                        .temperature(42.23)
-                        .topK(123L)
-                        .topP(42.23)
+                        .maxTokens(0L)
+                        .repetitionPenalty(0.0)
+                        .temperature(0.0)
+                        .topK(0L)
+                        .topP(0.0)
                         .build()
                 )
-                .stream(true)
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
@@ -84,7 +82,7 @@ class InferenceCompletionParamsTest {
         assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
-            .isEqualTo(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
+            .isEqualTo(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
         assertThat(body.responseFormat())
             .isEqualTo(
                 InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -105,14 +103,13 @@ class InferenceCompletionParamsTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(SamplingParams.Strategy.GREEDY)
-                    .maxTokens(123L)
-                    .repetitionPenalty(42.23)
-                    .temperature(42.23)
-                    .topK(123L)
-                    .topP(42.23)
+                    .maxTokens(0L)
+                    .repetitionPenalty(0.0)
+                    .temperature(0.0)
+                    .topK(0L)
+                    .topP(0.0)
                     .build()
             )
-        assertThat(body.stream()).isEqualTo(true)
     }
 
     @Test

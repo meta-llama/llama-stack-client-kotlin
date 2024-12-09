@@ -47,6 +47,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): BatchInferenceCompletionBody {
         return BatchInferenceCompletionBody(
             contentBatch,
@@ -172,25 +178,6 @@ constructor(
             "BatchInferenceCompletionBody{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is BatchInferenceCompletionParams && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(contentBatch, model, logprobs, samplingParams, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "BatchInferenceCompletionParams{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -211,14 +198,15 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(batchInferenceCompletionParams: BatchInferenceCompletionParams) = apply {
-            this.contentBatch(batchInferenceCompletionParams.contentBatch)
-            this.model = batchInferenceCompletionParams.model
-            this.logprobs = batchInferenceCompletionParams.logprobs
-            this.samplingParams = batchInferenceCompletionParams.samplingParams
-            this.xLlamaStackProviderData = batchInferenceCompletionParams.xLlamaStackProviderData
-            additionalHeaders(batchInferenceCompletionParams.additionalHeaders)
-            additionalQueryParams(batchInferenceCompletionParams.additionalQueryParams)
-            additionalBodyProperties(batchInferenceCompletionParams.additionalBodyProperties)
+            contentBatch = batchInferenceCompletionParams.contentBatch.toMutableList()
+            model = batchInferenceCompletionParams.model
+            logprobs = batchInferenceCompletionParams.logprobs
+            samplingParams = batchInferenceCompletionParams.samplingParams
+            xLlamaStackProviderData = batchInferenceCompletionParams.xLlamaStackProviderData
+            additionalHeaders = batchInferenceCompletionParams.additionalHeaders.toBuilder()
+            additionalQueryParams = batchInferenceCompletionParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                batchInferenceCompletionParams.additionalBodyProperties.toMutableMap()
         }
 
         fun contentBatch(contentBatch: List<ContentBatch>) = apply {
@@ -364,8 +352,7 @@ constructor(
 
         fun build(): BatchInferenceCompletionParams =
             BatchInferenceCompletionParams(
-                checkNotNull(contentBatch) { "`contentBatch` is required but was not set" }
-                    .toImmutable(),
+                contentBatch.toImmutable(),
                 checkNotNull(model) { "`model` is required but was not set" },
                 logprobs,
                 samplingParams,
@@ -694,4 +681,17 @@ constructor(
 
         override fun toString() = "Logprobs{topK=$topK, additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is BatchInferenceCompletionParams && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(contentBatch, model, logprobs, samplingParams, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "BatchInferenceCompletionParams{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

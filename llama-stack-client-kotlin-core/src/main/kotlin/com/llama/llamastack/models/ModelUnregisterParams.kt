@@ -28,6 +28,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): ModelUnregisterBody {
         return ModelUnregisterBody(modelId, additionalBodyProperties)
     }
@@ -116,25 +122,6 @@ constructor(
             "ModelUnregisterBody{modelId=$modelId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is ModelUnregisterParams && modelId == other.modelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "ModelUnregisterParams{modelId=$modelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -152,11 +139,11 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(modelUnregisterParams: ModelUnregisterParams) = apply {
-            this.modelId = modelUnregisterParams.modelId
-            this.xLlamaStackProviderData = modelUnregisterParams.xLlamaStackProviderData
-            additionalHeaders(modelUnregisterParams.additionalHeaders)
-            additionalQueryParams(modelUnregisterParams.additionalQueryParams)
-            additionalBodyProperties(modelUnregisterParams.additionalBodyProperties)
+            modelId = modelUnregisterParams.modelId
+            xLlamaStackProviderData = modelUnregisterParams.xLlamaStackProviderData
+            additionalHeaders = modelUnregisterParams.additionalHeaders.toBuilder()
+            additionalQueryParams = modelUnregisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = modelUnregisterParams.additionalBodyProperties.toMutableMap()
         }
 
         fun modelId(modelId: String) = apply { this.modelId = modelId }
@@ -294,4 +281,17 @@ constructor(
                 additionalBodyProperties.toImmutable(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is ModelUnregisterParams && modelId == other.modelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "ModelUnregisterParams{modelId=$modelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

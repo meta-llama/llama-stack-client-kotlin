@@ -47,6 +47,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): SyntheticDataGenerationGenerateBody {
         return SyntheticDataGenerationGenerateBody(
             dialogs,
@@ -164,25 +170,6 @@ constructor(
             "SyntheticDataGenerationGenerateBody{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(dialogs, filteringFunction, model, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "SyntheticDataGenerationGenerateParams{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -204,14 +191,15 @@ constructor(
         internal fun from(
             syntheticDataGenerationGenerateParams: SyntheticDataGenerationGenerateParams
         ) = apply {
-            this.dialogs(syntheticDataGenerationGenerateParams.dialogs)
-            this.filteringFunction = syntheticDataGenerationGenerateParams.filteringFunction
-            this.model = syntheticDataGenerationGenerateParams.model
-            this.xLlamaStackProviderData =
-                syntheticDataGenerationGenerateParams.xLlamaStackProviderData
-            additionalHeaders(syntheticDataGenerationGenerateParams.additionalHeaders)
-            additionalQueryParams(syntheticDataGenerationGenerateParams.additionalQueryParams)
-            additionalBodyProperties(syntheticDataGenerationGenerateParams.additionalBodyProperties)
+            dialogs = syntheticDataGenerationGenerateParams.dialogs.toMutableList()
+            filteringFunction = syntheticDataGenerationGenerateParams.filteringFunction
+            model = syntheticDataGenerationGenerateParams.model
+            xLlamaStackProviderData = syntheticDataGenerationGenerateParams.xLlamaStackProviderData
+            additionalHeaders = syntheticDataGenerationGenerateParams.additionalHeaders.toBuilder()
+            additionalQueryParams =
+                syntheticDataGenerationGenerateParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                syntheticDataGenerationGenerateParams.additionalBodyProperties.toMutableMap()
         }
 
         fun dialogs(dialogs: List<Dialog>) = apply {
@@ -353,7 +341,7 @@ constructor(
 
         fun build(): SyntheticDataGenerationGenerateParams =
             SyntheticDataGenerationGenerateParams(
-                checkNotNull(dialogs) { "`dialogs` is required but was not set" }.toImmutable(),
+                dialogs.toImmutable(),
                 checkNotNull(filteringFunction) {
                     "`filteringFunction` is required but was not set"
                 },
@@ -611,4 +599,17 @@ constructor(
 
         fun asString(): String = _value().asStringOrThrow()
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(dialogs, filteringFunction, model, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "SyntheticDataGenerationGenerateParams{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

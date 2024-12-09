@@ -35,7 +35,7 @@ class InferenceServiceTest {
                         )
                     )
                     .modelId("model_id")
-                    .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                    .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
                         InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                             InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -56,14 +56,13 @@ class InferenceServiceTest {
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(SamplingParams.Strategy.GREEDY)
-                            .maxTokens(123L)
-                            .repetitionPenalty(42.23)
-                            .temperature(42.23)
-                            .topK(123L)
-                            .topP(42.23)
+                            .maxTokens(0L)
+                            .repetitionPenalty(0.0)
+                            .temperature(0.0)
+                            .topK(0L)
+                            .topP(0.0)
                             .build()
                     )
-                    .stream(true)
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                     .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                     .tools(
@@ -87,6 +86,80 @@ class InferenceServiceTest {
         "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
     )
     @Test
+    fun callChatCompletionStreaming() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val inferenceService = client.inference()
+
+        val inferenceChatCompletionResponseStream =
+            inferenceService.chatCompletionStreaming(
+                InferenceChatCompletionParams.builder()
+                    .messages(
+                        listOf(
+                            InferenceChatCompletionParams.Message.ofUserMessage(
+                                UserMessage.builder()
+                                    .content(UserMessage.Content.ofString("string"))
+                                    .role(UserMessage.Role.USER)
+                                    .context(UserMessage.Context.ofString("string"))
+                                    .build()
+                            )
+                        )
+                    )
+                    .modelId("model_id")
+                    .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
+                    .responseFormat(
+                        InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                                .jsonSchema(
+                                    InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                        .JsonSchema
+                                        .builder()
+                                        .build()
+                                )
+                                .type(
+                                    InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                        .Type
+                                        .JSON_SCHEMA
+                                )
+                                .build()
+                        )
+                    )
+                    .samplingParams(
+                        SamplingParams.builder()
+                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .maxTokens(0L)
+                            .repetitionPenalty(0.0)
+                            .temperature(0.0)
+                            .topK(0L)
+                            .topP(0.0)
+                            .build()
+                    )
+                    .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                    .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
+                    .tools(
+                        listOf(
+                            InferenceChatCompletionParams.Tool.builder()
+                                .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                                .description("description")
+                                .parameters(
+                                    InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                )
+                                .build()
+                        )
+                    )
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
+
+        inferenceChatCompletionResponseStream.use {
+            inferenceChatCompletionResponseStream.asSequence().forEach { println(it) }
+        }
+    }
+
+    @Disabled(
+        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
+    )
+    @Test
     fun callCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
@@ -96,7 +169,7 @@ class InferenceServiceTest {
                 InferenceCompletionParams.builder()
                     .content(InferenceCompletionParams.Content.ofString("string"))
                     .modelId("model_id")
-                    .logprobs(InferenceCompletionParams.Logprobs.builder().topK(123L).build())
+                    .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
                         InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                             InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -116,18 +189,67 @@ class InferenceServiceTest {
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(SamplingParams.Strategy.GREEDY)
-                            .maxTokens(123L)
-                            .repetitionPenalty(42.23)
-                            .temperature(42.23)
-                            .topK(123L)
-                            .topP(42.23)
+                            .maxTokens(0L)
+                            .repetitionPenalty(0.0)
+                            .temperature(0.0)
+                            .topK(0L)
+                            .topP(0.0)
                             .build()
                     )
-                    .stream(true)
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(inferenceCompletionResponse)
+    }
+
+    @Disabled(
+        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
+    )
+    @Test
+    fun callCompletionStreaming() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val inferenceService = client.inference()
+
+        val inferenceCompletionResponseStream =
+            inferenceService.completionStreaming(
+                InferenceCompletionParams.builder()
+                    .content(InferenceCompletionParams.Content.ofString("string"))
+                    .modelId("model_id")
+                    .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
+                    .responseFormat(
+                        InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
+                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                                .jsonSchema(
+                                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat
+                                        .JsonSchema
+                                        .builder()
+                                        .build()
+                                )
+                                .type(
+                                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                        .JSON_SCHEMA
+                                )
+                                .build()
+                        )
+                    )
+                    .samplingParams(
+                        SamplingParams.builder()
+                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .maxTokens(0L)
+                            .repetitionPenalty(0.0)
+                            .temperature(0.0)
+                            .topK(0L)
+                            .topP(0.0)
+                            .build()
+                    )
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
+
+        inferenceCompletionResponseStream.use {
+            inferenceCompletionResponseStream.asSequence().forEach { println(it) }
+        }
     }
 
     @Test

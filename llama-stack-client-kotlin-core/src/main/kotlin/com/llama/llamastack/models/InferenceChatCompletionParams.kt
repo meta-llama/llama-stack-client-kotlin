@@ -36,7 +36,6 @@ constructor(
     private val logprobs: Logprobs?,
     private val responseFormat: ResponseFormat?,
     private val samplingParams: SamplingParams?,
-    private val stream: Boolean?,
     private val toolChoice: ToolChoice?,
     private val toolPromptFormat: ToolPromptFormat?,
     private val tools: List<Tool>?,
@@ -56,8 +55,6 @@ constructor(
 
     fun samplingParams(): SamplingParams? = samplingParams
 
-    fun stream(): Boolean? = stream
-
     fun toolChoice(): ToolChoice? = toolChoice
 
     fun toolPromptFormat(): ToolPromptFormat? = toolPromptFormat
@@ -66,6 +63,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): InferenceChatCompletionBody {
         return InferenceChatCompletionBody(
             messages,
@@ -73,7 +76,6 @@ constructor(
             logprobs,
             responseFormat,
             samplingParams,
-            stream,
             toolChoice,
             toolPromptFormat,
             tools,
@@ -101,7 +103,6 @@ constructor(
         private val logprobs: Logprobs?,
         private val responseFormat: ResponseFormat?,
         private val samplingParams: SamplingParams?,
-        private val stream: Boolean?,
         private val toolChoice: ToolChoice?,
         private val toolPromptFormat: ToolPromptFormat?,
         private val tools: List<Tool>?,
@@ -117,8 +118,6 @@ constructor(
         @JsonProperty("response_format") fun responseFormat(): ResponseFormat? = responseFormat
 
         @JsonProperty("sampling_params") fun samplingParams(): SamplingParams? = samplingParams
-
-        @JsonProperty("stream") fun stream(): Boolean? = stream
 
         @JsonProperty("tool_choice") fun toolChoice(): ToolChoice? = toolChoice
 
@@ -156,7 +155,6 @@ constructor(
             private var logprobs: Logprobs? = null
             private var responseFormat: ResponseFormat? = null
             private var samplingParams: SamplingParams? = null
-            private var stream: Boolean? = null
             private var toolChoice: ToolChoice? = null
             private var toolPromptFormat: ToolPromptFormat? = null
             private var tools: List<Tool>? = null
@@ -168,7 +166,6 @@ constructor(
                 this.logprobs = inferenceChatCompletionBody.logprobs
                 this.responseFormat = inferenceChatCompletionBody.responseFormat
                 this.samplingParams = inferenceChatCompletionBody.samplingParams
-                this.stream = inferenceChatCompletionBody.stream
                 this.toolChoice = inferenceChatCompletionBody.toolChoice
                 this.toolPromptFormat = inferenceChatCompletionBody.toolPromptFormat
                 this.tools = inferenceChatCompletionBody.tools
@@ -193,8 +190,6 @@ constructor(
             fun samplingParams(samplingParams: SamplingParams) = apply {
                 this.samplingParams = samplingParams
             }
-
-            @JsonProperty("stream") fun stream(stream: Boolean) = apply { this.stream = stream }
 
             @JsonProperty("tool_choice")
             fun toolChoice(toolChoice: ToolChoice) = apply { this.toolChoice = toolChoice }
@@ -239,7 +234,6 @@ constructor(
                     logprobs,
                     responseFormat,
                     samplingParams,
-                    stream,
                     toolChoice,
                     toolPromptFormat,
                     tools?.toImmutable(),
@@ -252,37 +246,18 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InferenceChatCompletionBody && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && stream == other.stream && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is InferenceChatCompletionBody && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, modelId, logprobs, responseFormat, samplingParams, stream, toolChoice, toolPromptFormat, tools, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(messages, modelId, logprobs, responseFormat, samplingParams, toolChoice, toolPromptFormat, tools, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "InferenceChatCompletionBody{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, stream=$stream, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
+            "InferenceChatCompletionBody{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is InferenceChatCompletionParams && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && stream == other.stream && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messages, modelId, logprobs, responseFormat, samplingParams, stream, toolChoice, toolPromptFormat, tools, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "InferenceChatCompletionParams{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, stream=$stream, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -299,7 +274,6 @@ constructor(
         private var logprobs: Logprobs? = null
         private var responseFormat: ResponseFormat? = null
         private var samplingParams: SamplingParams? = null
-        private var stream: Boolean? = null
         private var toolChoice: ToolChoice? = null
         private var toolPromptFormat: ToolPromptFormat? = null
         private var tools: MutableList<Tool> = mutableListOf()
@@ -309,19 +283,19 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(inferenceChatCompletionParams: InferenceChatCompletionParams) = apply {
-            this.messages(inferenceChatCompletionParams.messages)
-            this.modelId = inferenceChatCompletionParams.modelId
-            this.logprobs = inferenceChatCompletionParams.logprobs
-            this.responseFormat = inferenceChatCompletionParams.responseFormat
-            this.samplingParams = inferenceChatCompletionParams.samplingParams
-            this.stream = inferenceChatCompletionParams.stream
-            this.toolChoice = inferenceChatCompletionParams.toolChoice
-            this.toolPromptFormat = inferenceChatCompletionParams.toolPromptFormat
-            this.tools(inferenceChatCompletionParams.tools ?: listOf())
-            this.xLlamaStackProviderData = inferenceChatCompletionParams.xLlamaStackProviderData
-            additionalHeaders(inferenceChatCompletionParams.additionalHeaders)
-            additionalQueryParams(inferenceChatCompletionParams.additionalQueryParams)
-            additionalBodyProperties(inferenceChatCompletionParams.additionalBodyProperties)
+            messages = inferenceChatCompletionParams.messages.toMutableList()
+            modelId = inferenceChatCompletionParams.modelId
+            logprobs = inferenceChatCompletionParams.logprobs
+            responseFormat = inferenceChatCompletionParams.responseFormat
+            samplingParams = inferenceChatCompletionParams.samplingParams
+            toolChoice = inferenceChatCompletionParams.toolChoice
+            toolPromptFormat = inferenceChatCompletionParams.toolPromptFormat
+            tools = inferenceChatCompletionParams.tools?.toMutableList() ?: mutableListOf()
+            xLlamaStackProviderData = inferenceChatCompletionParams.xLlamaStackProviderData
+            additionalHeaders = inferenceChatCompletionParams.additionalHeaders.toBuilder()
+            additionalQueryParams = inferenceChatCompletionParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                inferenceChatCompletionParams.additionalBodyProperties.toMutableMap()
         }
 
         fun messages(messages: List<Message>) = apply {
@@ -350,8 +324,6 @@ constructor(
         fun samplingParams(samplingParams: SamplingParams) = apply {
             this.samplingParams = samplingParams
         }
-
-        fun stream(stream: Boolean) = apply { this.stream = stream }
 
         fun toolChoice(toolChoice: ToolChoice) = apply { this.toolChoice = toolChoice }
 
@@ -503,15 +475,14 @@ constructor(
 
         fun build(): InferenceChatCompletionParams =
             InferenceChatCompletionParams(
-                checkNotNull(messages) { "`messages` is required but was not set" }.toImmutable(),
+                messages.toImmutable(),
                 checkNotNull(modelId) { "`modelId` is required but was not set" },
                 logprobs,
                 responseFormat,
                 samplingParams,
-                stream,
                 toolChoice,
                 toolPromptFormat,
-                if (tools.size == 0) null else tools.toImmutable(),
+                tools.toImmutable().ifEmpty { null },
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -1657,4 +1628,17 @@ constructor(
         override fun toString() =
             "Tool{description=$description, parameters=$parameters, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is InferenceChatCompletionParams && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messages, modelId, logprobs, responseFormat, samplingParams, toolChoice, toolPromptFormat, tools, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "InferenceChatCompletionParams{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

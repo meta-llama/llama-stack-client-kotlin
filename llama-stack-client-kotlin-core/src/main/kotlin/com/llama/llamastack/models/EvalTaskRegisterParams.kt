@@ -43,6 +43,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): EvalTaskRegisterBody {
         return EvalTaskRegisterBody(
             datasetId,
@@ -192,25 +198,6 @@ constructor(
             "EvalTaskRegisterBody{datasetId=$datasetId, evalTaskId=$evalTaskId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerEvalTaskId=$providerEvalTaskId, providerId=$providerId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is EvalTaskRegisterParams && datasetId == other.datasetId && evalTaskId == other.evalTaskId && scoringFunctions == other.scoringFunctions && metadata == other.metadata && providerEvalTaskId == other.providerEvalTaskId && providerId == other.providerId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, evalTaskId, scoringFunctions, metadata, providerEvalTaskId, providerId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "EvalTaskRegisterParams{datasetId=$datasetId, evalTaskId=$evalTaskId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerEvalTaskId=$providerEvalTaskId, providerId=$providerId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -233,16 +220,17 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalTaskRegisterParams: EvalTaskRegisterParams) = apply {
-            this.datasetId = evalTaskRegisterParams.datasetId
-            this.evalTaskId = evalTaskRegisterParams.evalTaskId
-            this.scoringFunctions(evalTaskRegisterParams.scoringFunctions)
-            this.metadata = evalTaskRegisterParams.metadata
-            this.providerEvalTaskId = evalTaskRegisterParams.providerEvalTaskId
-            this.providerId = evalTaskRegisterParams.providerId
-            this.xLlamaStackProviderData = evalTaskRegisterParams.xLlamaStackProviderData
-            additionalHeaders(evalTaskRegisterParams.additionalHeaders)
-            additionalQueryParams(evalTaskRegisterParams.additionalQueryParams)
-            additionalBodyProperties(evalTaskRegisterParams.additionalBodyProperties)
+            datasetId = evalTaskRegisterParams.datasetId
+            evalTaskId = evalTaskRegisterParams.evalTaskId
+            scoringFunctions = evalTaskRegisterParams.scoringFunctions.toMutableList()
+            metadata = evalTaskRegisterParams.metadata
+            providerEvalTaskId = evalTaskRegisterParams.providerEvalTaskId
+            providerId = evalTaskRegisterParams.providerId
+            xLlamaStackProviderData = evalTaskRegisterParams.xLlamaStackProviderData
+            additionalHeaders = evalTaskRegisterParams.additionalHeaders.toBuilder()
+            additionalQueryParams = evalTaskRegisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                evalTaskRegisterParams.additionalBodyProperties.toMutableMap()
         }
 
         fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
@@ -394,8 +382,7 @@ constructor(
             EvalTaskRegisterParams(
                 checkNotNull(datasetId) { "`datasetId` is required but was not set" },
                 checkNotNull(evalTaskId) { "`evalTaskId` is required but was not set" },
-                checkNotNull(scoringFunctions) { "`scoringFunctions` is required but was not set" }
-                    .toImmutable(),
+                scoringFunctions.toImmutable(),
                 metadata,
                 providerEvalTaskId,
                 providerId,
@@ -465,4 +452,17 @@ constructor(
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is EvalTaskRegisterParams && datasetId == other.datasetId && evalTaskId == other.evalTaskId && scoringFunctions == other.scoringFunctions && metadata == other.metadata && providerEvalTaskId == other.providerEvalTaskId && providerId == other.providerId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, evalTaskId, scoringFunctions, metadata, providerEvalTaskId, providerId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "EvalTaskRegisterParams{datasetId=$datasetId, evalTaskId=$evalTaskId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerEvalTaskId=$providerEvalTaskId, providerId=$providerId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

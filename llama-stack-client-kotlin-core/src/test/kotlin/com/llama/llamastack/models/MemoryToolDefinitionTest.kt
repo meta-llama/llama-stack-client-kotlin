@@ -11,8 +11,8 @@ class MemoryToolDefinitionTest {
     fun createMemoryToolDefinition() {
         val memoryToolDefinition =
             MemoryToolDefinition.builder()
-                .maxChunks(123L)
-                .maxTokensInContext(123L)
+                .maxChunks(0L)
+                .maxTokensInContext(0L)
                 .memoryBankConfigs(
                     listOf(
                         MemoryToolDefinition.MemoryBankConfig.ofVector(
@@ -36,8 +36,8 @@ class MemoryToolDefinitionTest {
                 .outputShields(listOf("string"))
                 .build()
         assertThat(memoryToolDefinition).isNotNull
-        assertThat(memoryToolDefinition.maxChunks()).isEqualTo(123L)
-        assertThat(memoryToolDefinition.maxTokensInContext()).isEqualTo(123L)
+        assertThat(memoryToolDefinition.maxChunks()).isEqualTo(0L)
+        assertThat(memoryToolDefinition.maxTokensInContext()).isEqualTo(0L)
         assertThat(memoryToolDefinition.memoryBankConfigs())
             .containsExactly(
                 MemoryToolDefinition.MemoryBankConfig.ofVector(

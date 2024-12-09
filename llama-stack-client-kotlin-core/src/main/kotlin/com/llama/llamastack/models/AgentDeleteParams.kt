@@ -28,6 +28,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): AgentDeleteBody {
         return AgentDeleteBody(agentId, additionalBodyProperties)
     }
@@ -116,25 +122,6 @@ constructor(
             "AgentDeleteBody{agentId=$agentId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is AgentDeleteParams && agentId == other.agentId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "AgentDeleteParams{agentId=$agentId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -152,11 +139,11 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentDeleteParams: AgentDeleteParams) = apply {
-            this.agentId = agentDeleteParams.agentId
-            this.xLlamaStackProviderData = agentDeleteParams.xLlamaStackProviderData
-            additionalHeaders(agentDeleteParams.additionalHeaders)
-            additionalQueryParams(agentDeleteParams.additionalQueryParams)
-            additionalBodyProperties(agentDeleteParams.additionalBodyProperties)
+            agentId = agentDeleteParams.agentId
+            xLlamaStackProviderData = agentDeleteParams.xLlamaStackProviderData
+            additionalHeaders = agentDeleteParams.additionalHeaders.toBuilder()
+            additionalQueryParams = agentDeleteParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = agentDeleteParams.additionalBodyProperties.toMutableMap()
         }
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
@@ -294,4 +281,17 @@ constructor(
                 additionalBodyProperties.toImmutable(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is AgentDeleteParams && agentId == other.agentId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "AgentDeleteParams{agentId=$agentId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

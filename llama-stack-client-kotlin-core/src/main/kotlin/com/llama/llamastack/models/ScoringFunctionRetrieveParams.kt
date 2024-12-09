@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is ScoringFunctionRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && scoringFnId == other.scoringFnId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, scoringFnId, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "ScoringFunctionRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, scoringFnId=$scoringFnId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(scoringFunctionRetrieveParams: ScoringFunctionRetrieveParams) = apply {
-            this.scoringFnId = scoringFunctionRetrieveParams.scoringFnId
-            this.xLlamaStackProviderData = scoringFunctionRetrieveParams.xLlamaStackProviderData
-            additionalHeaders(scoringFunctionRetrieveParams.additionalHeaders)
-            additionalQueryParams(scoringFunctionRetrieveParams.additionalQueryParams)
+            scoringFnId = scoringFunctionRetrieveParams.scoringFnId
+            xLlamaStackProviderData = scoringFunctionRetrieveParams.xLlamaStackProviderData
+            additionalHeaders = scoringFunctionRetrieveParams.additionalHeaders.toBuilder()
+            additionalQueryParams = scoringFunctionRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun scoringFnId(scoringFnId: String) = apply { this.scoringFnId = scoringFnId }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is ScoringFunctionRetrieveParams && scoringFnId == other.scoringFnId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(scoringFnId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "ScoringFunctionRetrieveParams{scoringFnId=$scoringFnId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

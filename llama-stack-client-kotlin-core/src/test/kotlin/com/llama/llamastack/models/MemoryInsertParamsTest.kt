@@ -22,7 +22,7 @@ class MemoryInsertParamsTest {
                         .build()
                 )
             )
-            .ttlSeconds(123L)
+            .ttlSeconds(0L)
             .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
@@ -42,7 +42,7 @@ class MemoryInsertParamsTest {
                             .build()
                     )
                 )
-                .ttlSeconds(123L)
+                .ttlSeconds(0L)
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
@@ -59,7 +59,7 @@ class MemoryInsertParamsTest {
                         .build()
                 )
             )
-        assertThat(body.ttlSeconds()).isEqualTo(123L)
+        assertThat(body.ttlSeconds()).isEqualTo(0L)
     }
 
     @Test

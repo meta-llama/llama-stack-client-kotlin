@@ -65,7 +65,7 @@ class ServiceParamsTest {
                     )
                 )
                 .modelId("model_id")
-                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
                     InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                         InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -85,14 +85,13 @@ class ServiceParamsTest {
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(SamplingParams.Strategy.GREEDY)
-                        .maxTokens(123L)
-                        .repetitionPenalty(42.23)
-                        .temperature(42.23)
-                        .topK(123L)
-                        .topP(42.23)
+                        .maxTokens(0L)
+                        .repetitionPenalty(0.0)
+                        .temperature(0.0)
+                        .topK(0L)
+                        .topP(0.0)
                         .build()
                 )
-                .stream(true)
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                 .tools(

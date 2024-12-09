@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is DatasetRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && datasetId == other.datasetId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, datasetId, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "DatasetRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, datasetId=$datasetId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(datasetRetrieveParams: DatasetRetrieveParams) = apply {
-            this.datasetId = datasetRetrieveParams.datasetId
-            this.xLlamaStackProviderData = datasetRetrieveParams.xLlamaStackProviderData
-            additionalHeaders(datasetRetrieveParams.additionalHeaders)
-            additionalQueryParams(datasetRetrieveParams.additionalQueryParams)
+            datasetId = datasetRetrieveParams.datasetId
+            xLlamaStackProviderData = datasetRetrieveParams.xLlamaStackProviderData
+            additionalHeaders = datasetRetrieveParams.additionalHeaders.toBuilder()
+            additionalQueryParams = datasetRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is DatasetRetrieveParams && datasetId == other.datasetId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "DatasetRetrieveParams{datasetId=$datasetId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }
