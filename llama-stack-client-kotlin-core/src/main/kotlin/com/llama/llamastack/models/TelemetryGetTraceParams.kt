@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is TelemetryGetTraceParams && xLlamaStackProviderData == other.xLlamaStackProviderData && traceId == other.traceId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, traceId, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "TelemetryGetTraceParams{xLlamaStackProviderData=$xLlamaStackProviderData, traceId=$traceId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(telemetryGetTraceParams: TelemetryGetTraceParams) = apply {
-            this.traceId = telemetryGetTraceParams.traceId
-            this.xLlamaStackProviderData = telemetryGetTraceParams.xLlamaStackProviderData
-            additionalHeaders(telemetryGetTraceParams.additionalHeaders)
-            additionalQueryParams(telemetryGetTraceParams.additionalQueryParams)
+            traceId = telemetryGetTraceParams.traceId
+            xLlamaStackProviderData = telemetryGetTraceParams.xLlamaStackProviderData
+            additionalHeaders = telemetryGetTraceParams.additionalHeaders.toBuilder()
+            additionalQueryParams = telemetryGetTraceParams.additionalQueryParams.toBuilder()
         }
 
         fun traceId(traceId: String) = apply { this.traceId = traceId }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is TelemetryGetTraceParams && traceId == other.traceId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(traceId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "TelemetryGetTraceParams{traceId=$traceId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

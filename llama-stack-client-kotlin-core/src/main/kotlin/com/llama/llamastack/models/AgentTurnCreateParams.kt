@@ -31,7 +31,6 @@ constructor(
     private val messages: List<Message>,
     private val sessionId: String,
     private val attachments: List<Attachment>?,
-    private val stream: Boolean?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -46,9 +45,13 @@ constructor(
 
     fun attachments(): List<Attachment>? = attachments
 
-    fun stream(): Boolean? = stream
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
     internal fun getBody(): AgentTurnCreateBody {
         return AgentTurnCreateBody(
@@ -56,7 +59,6 @@ constructor(
             messages,
             sessionId,
             attachments,
-            stream,
             additionalBodyProperties,
         )
     }
@@ -80,7 +82,6 @@ constructor(
         private val messages: List<Message>?,
         private val sessionId: String?,
         private val attachments: List<Attachment>?,
-        private val stream: Boolean?,
         private val additionalProperties: Map<String, JsonValue>,
     ) {
 
@@ -91,8 +92,6 @@ constructor(
         @JsonProperty("session_id") fun sessionId(): String? = sessionId
 
         @JsonProperty("attachments") fun attachments(): List<Attachment>? = attachments
-
-        @JsonProperty("stream") fun stream(): Boolean? = stream
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -111,7 +110,6 @@ constructor(
             private var messages: List<Message>? = null
             private var sessionId: String? = null
             private var attachments: List<Attachment>? = null
-            private var stream: Boolean? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentTurnCreateBody: AgentTurnCreateBody) = apply {
@@ -119,7 +117,6 @@ constructor(
                 this.messages = agentTurnCreateBody.messages
                 this.sessionId = agentTurnCreateBody.sessionId
                 this.attachments = agentTurnCreateBody.attachments
-                this.stream = agentTurnCreateBody.stream
                 additionalProperties(agentTurnCreateBody.additionalProperties)
             }
 
@@ -136,8 +133,6 @@ constructor(
             fun attachments(attachments: List<Attachment>) = apply {
                 this.attachments = attachments
             }
-
-            @JsonProperty("stream") fun stream(stream: Boolean) = apply { this.stream = stream }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -160,7 +155,6 @@ constructor(
                         .toImmutable(),
                     checkNotNull(sessionId) { "`sessionId` is required but was not set" },
                     attachments?.toImmutable(),
-                    stream,
                     additionalProperties.toImmutable(),
                 )
         }
@@ -170,37 +164,18 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnCreateBody && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && stream == other.stream && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentTurnCreateBody && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(agentId, messages, sessionId, attachments, stream, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(agentId, messages, sessionId, attachments, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnCreateBody{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, stream=$stream, additionalProperties=$additionalProperties}"
+            "AgentTurnCreateBody{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, additionalProperties=$additionalProperties}"
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && stream == other.stream && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, messages, sessionId, attachments, stream, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "AgentTurnCreateParams{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, stream=$stream, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -216,22 +191,20 @@ constructor(
         private var messages: MutableList<Message> = mutableListOf()
         private var sessionId: String? = null
         private var attachments: MutableList<Attachment> = mutableListOf()
-        private var stream: Boolean? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentTurnCreateParams: AgentTurnCreateParams) = apply {
-            this.agentId = agentTurnCreateParams.agentId
-            this.messages(agentTurnCreateParams.messages)
-            this.sessionId = agentTurnCreateParams.sessionId
-            this.attachments(agentTurnCreateParams.attachments ?: listOf())
-            this.stream = agentTurnCreateParams.stream
-            this.xLlamaStackProviderData = agentTurnCreateParams.xLlamaStackProviderData
-            additionalHeaders(agentTurnCreateParams.additionalHeaders)
-            additionalQueryParams(agentTurnCreateParams.additionalQueryParams)
-            additionalBodyProperties(agentTurnCreateParams.additionalBodyProperties)
+            agentId = agentTurnCreateParams.agentId
+            messages = agentTurnCreateParams.messages.toMutableList()
+            sessionId = agentTurnCreateParams.sessionId
+            attachments = agentTurnCreateParams.attachments?.toMutableList() ?: mutableListOf()
+            xLlamaStackProviderData = agentTurnCreateParams.xLlamaStackProviderData
+            additionalHeaders = agentTurnCreateParams.additionalHeaders.toBuilder()
+            additionalQueryParams = agentTurnCreateParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = agentTurnCreateParams.additionalBodyProperties.toMutableMap()
         }
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
@@ -251,8 +224,6 @@ constructor(
         }
 
         fun addAttachment(attachment: Attachment) = apply { this.attachments.add(attachment) }
-
-        fun stream(stream: Boolean) = apply { this.stream = stream }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
@@ -381,10 +352,9 @@ constructor(
         fun build(): AgentTurnCreateParams =
             AgentTurnCreateParams(
                 checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(messages) { "`messages` is required but was not set" }.toImmutable(),
+                messages.toImmutable(),
                 checkNotNull(sessionId) { "`sessionId` is required but was not set" },
-                if (attachments.size == 0) null else attachments.toImmutable(),
-                stream,
+                attachments.toImmutable().ifEmpty { null },
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -509,4 +479,17 @@ constructor(
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, messages, sessionId, attachments, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "AgentTurnCreateParams{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

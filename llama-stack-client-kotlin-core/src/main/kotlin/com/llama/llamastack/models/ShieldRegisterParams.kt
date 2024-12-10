@@ -37,6 +37,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): ShieldRegisterBody {
         return ShieldRegisterBody(
             shieldId,
@@ -159,25 +165,6 @@ constructor(
             "ShieldRegisterBody{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is ShieldRegisterParams && shieldId == other.shieldId && params == other.params && providerId == other.providerId && providerShieldId == other.providerShieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(shieldId, params, providerId, providerShieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "ShieldRegisterParams{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -198,14 +185,14 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(shieldRegisterParams: ShieldRegisterParams) = apply {
-            this.shieldId = shieldRegisterParams.shieldId
-            this.params = shieldRegisterParams.params
-            this.providerId = shieldRegisterParams.providerId
-            this.providerShieldId = shieldRegisterParams.providerShieldId
-            this.xLlamaStackProviderData = shieldRegisterParams.xLlamaStackProviderData
-            additionalHeaders(shieldRegisterParams.additionalHeaders)
-            additionalQueryParams(shieldRegisterParams.additionalQueryParams)
-            additionalBodyProperties(shieldRegisterParams.additionalBodyProperties)
+            shieldId = shieldRegisterParams.shieldId
+            params = shieldRegisterParams.params
+            providerId = shieldRegisterParams.providerId
+            providerShieldId = shieldRegisterParams.providerShieldId
+            xLlamaStackProviderData = shieldRegisterParams.xLlamaStackProviderData
+            additionalHeaders = shieldRegisterParams.additionalHeaders.toBuilder()
+            additionalQueryParams = shieldRegisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = shieldRegisterParams.additionalBodyProperties.toMutableMap()
         }
 
         fun shieldId(shieldId: String) = apply { this.shieldId = shieldId }
@@ -414,4 +401,17 @@ constructor(
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is ShieldRegisterParams && shieldId == other.shieldId && params == other.params && providerId == other.providerId && providerShieldId == other.providerShieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(shieldId, params, providerId, providerShieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "ShieldRegisterParams{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

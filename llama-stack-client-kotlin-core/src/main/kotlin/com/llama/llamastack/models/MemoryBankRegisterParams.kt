@@ -51,6 +51,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): MemoryBankRegisterBody {
         return MemoryBankRegisterBody(
             memoryBankId,
@@ -174,25 +180,6 @@ constructor(
             "MemoryBankRegisterBody{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is MemoryBankRegisterParams && memoryBankId == other.memoryBankId && params == other.params && providerId == other.providerId && providerMemoryBankId == other.providerMemoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "MemoryBankRegisterParams{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -213,14 +200,15 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryBankRegisterParams: MemoryBankRegisterParams) = apply {
-            this.memoryBankId = memoryBankRegisterParams.memoryBankId
-            this.params = memoryBankRegisterParams.params
-            this.providerId = memoryBankRegisterParams.providerId
-            this.providerMemoryBankId = memoryBankRegisterParams.providerMemoryBankId
-            this.xLlamaStackProviderData = memoryBankRegisterParams.xLlamaStackProviderData
-            additionalHeaders(memoryBankRegisterParams.additionalHeaders)
-            additionalQueryParams(memoryBankRegisterParams.additionalQueryParams)
-            additionalBodyProperties(memoryBankRegisterParams.additionalBodyProperties)
+            memoryBankId = memoryBankRegisterParams.memoryBankId
+            params = memoryBankRegisterParams.params
+            providerId = memoryBankRegisterParams.providerId
+            providerMemoryBankId = memoryBankRegisterParams.providerMemoryBankId
+            xLlamaStackProviderData = memoryBankRegisterParams.xLlamaStackProviderData
+            additionalHeaders = memoryBankRegisterParams.additionalHeaders.toBuilder()
+            additionalQueryParams = memoryBankRegisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                memoryBankRegisterParams.additionalBodyProperties.toMutableMap()
         }
 
         fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
@@ -1193,4 +1181,17 @@ constructor(
                 "GraphMemoryBankParams{memoryBankType=$memoryBankType, additionalProperties=$additionalProperties}"
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is MemoryBankRegisterParams && memoryBankId == other.memoryBankId && params == other.params && providerId == other.providerId && providerMemoryBankId == other.providerMemoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "MemoryBankRegisterParams{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

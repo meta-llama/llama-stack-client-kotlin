@@ -21,7 +21,7 @@ class DatasetioServiceTest {
                 DatasetioGetRowsPaginatedParams.builder()
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .datasetId("dataset_id")
-                    .rowsInPage(123L)
+                    .rowsInPage(0L)
                     .filterCondition("filter_condition")
                     .pageToken("page_token")
                     .build()

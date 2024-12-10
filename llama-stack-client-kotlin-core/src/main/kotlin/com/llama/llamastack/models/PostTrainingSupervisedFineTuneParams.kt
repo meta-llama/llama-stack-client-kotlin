@@ -69,6 +69,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): PostTrainingSupervisedFineTuneBody {
         return PostTrainingSupervisedFineTuneBody(
             algorithm,
@@ -274,25 +280,6 @@ constructor(
             "PostTrainingSupervisedFineTuneBody{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, model=$model, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is PostTrainingSupervisedFineTuneParams && algorithm == other.algorithm && algorithmConfig == other.algorithmConfig && datasetId == other.datasetId && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && model == other.model && optimizerConfig == other.optimizerConfig && trainingConfig == other.trainingConfig && validationDatasetId == other.validationDatasetId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(algorithm, algorithmConfig, datasetId, hyperparamSearchConfig, jobUuid, loggerConfig, model, optimizerConfig, trainingConfig, validationDatasetId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "PostTrainingSupervisedFineTuneParams{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, model=$model, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -321,22 +308,22 @@ constructor(
         internal fun from(
             postTrainingSupervisedFineTuneParams: PostTrainingSupervisedFineTuneParams
         ) = apply {
-            this.algorithm = postTrainingSupervisedFineTuneParams.algorithm
-            this.algorithmConfig = postTrainingSupervisedFineTuneParams.algorithmConfig
-            this.datasetId = postTrainingSupervisedFineTuneParams.datasetId
-            this.hyperparamSearchConfig =
-                postTrainingSupervisedFineTuneParams.hyperparamSearchConfig
-            this.jobUuid = postTrainingSupervisedFineTuneParams.jobUuid
-            this.loggerConfig = postTrainingSupervisedFineTuneParams.loggerConfig
-            this.model = postTrainingSupervisedFineTuneParams.model
-            this.optimizerConfig = postTrainingSupervisedFineTuneParams.optimizerConfig
-            this.trainingConfig = postTrainingSupervisedFineTuneParams.trainingConfig
-            this.validationDatasetId = postTrainingSupervisedFineTuneParams.validationDatasetId
-            this.xLlamaStackProviderData =
-                postTrainingSupervisedFineTuneParams.xLlamaStackProviderData
-            additionalHeaders(postTrainingSupervisedFineTuneParams.additionalHeaders)
-            additionalQueryParams(postTrainingSupervisedFineTuneParams.additionalQueryParams)
-            additionalBodyProperties(postTrainingSupervisedFineTuneParams.additionalBodyProperties)
+            algorithm = postTrainingSupervisedFineTuneParams.algorithm
+            algorithmConfig = postTrainingSupervisedFineTuneParams.algorithmConfig
+            datasetId = postTrainingSupervisedFineTuneParams.datasetId
+            hyperparamSearchConfig = postTrainingSupervisedFineTuneParams.hyperparamSearchConfig
+            jobUuid = postTrainingSupervisedFineTuneParams.jobUuid
+            loggerConfig = postTrainingSupervisedFineTuneParams.loggerConfig
+            model = postTrainingSupervisedFineTuneParams.model
+            optimizerConfig = postTrainingSupervisedFineTuneParams.optimizerConfig
+            trainingConfig = postTrainingSupervisedFineTuneParams.trainingConfig
+            validationDatasetId = postTrainingSupervisedFineTuneParams.validationDatasetId
+            xLlamaStackProviderData = postTrainingSupervisedFineTuneParams.xLlamaStackProviderData
+            additionalHeaders = postTrainingSupervisedFineTuneParams.additionalHeaders.toBuilder()
+            additionalQueryParams =
+                postTrainingSupervisedFineTuneParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                postTrainingSupervisedFineTuneParams.additionalBodyProperties.toMutableMap()
         }
 
         fun algorithm(algorithm: Algorithm) = apply { this.algorithm = algorithm }
@@ -1661,4 +1648,17 @@ constructor(
         override fun toString() =
             "TrainingConfig{batchSize=$batchSize, enableActivationCheckpointing=$enableActivationCheckpointing, fsdpCpuOffload=$fsdpCpuOffload, memoryEfficientFsdpWrap=$memoryEfficientFsdpWrap, nEpochs=$nEpochs, nIters=$nIters, shuffle=$shuffle, additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is PostTrainingSupervisedFineTuneParams && algorithm == other.algorithm && algorithmConfig == other.algorithmConfig && datasetId == other.datasetId && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && model == other.model && optimizerConfig == other.optimizerConfig && trainingConfig == other.trainingConfig && validationDatasetId == other.validationDatasetId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(algorithm, algorithmConfig, datasetId, hyperparamSearchConfig, jobUuid, loggerConfig, model, optimizerConfig, trainingConfig, validationDatasetId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "PostTrainingSupervisedFineTuneParams{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, model=$model, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

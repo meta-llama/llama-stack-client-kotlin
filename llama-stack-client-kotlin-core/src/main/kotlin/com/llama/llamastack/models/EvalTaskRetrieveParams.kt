@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is EvalTaskRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && name == other.name && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, name, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "EvalTaskRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, name=$name, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalTaskRetrieveParams: EvalTaskRetrieveParams) = apply {
-            this.name = evalTaskRetrieveParams.name
-            this.xLlamaStackProviderData = evalTaskRetrieveParams.xLlamaStackProviderData
-            additionalHeaders(evalTaskRetrieveParams.additionalHeaders)
-            additionalQueryParams(evalTaskRetrieveParams.additionalQueryParams)
+            name = evalTaskRetrieveParams.name
+            xLlamaStackProviderData = evalTaskRetrieveParams.xLlamaStackProviderData
+            additionalHeaders = evalTaskRetrieveParams.additionalHeaders.toBuilder()
+            additionalQueryParams = evalTaskRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun name(name: String) = apply { this.name = name }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is EvalTaskRetrieveParams && name == other.name && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(name, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "EvalTaskRetrieveParams{name=$name, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

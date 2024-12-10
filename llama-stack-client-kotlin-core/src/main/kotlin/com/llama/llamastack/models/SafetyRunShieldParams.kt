@@ -44,6 +44,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): SafetyRunShieldBody {
         return SafetyRunShieldBody(
             messages,
@@ -155,25 +161,6 @@ constructor(
             "SafetyRunShieldBody{messages=$messages, params=$params, shieldId=$shieldId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is SafetyRunShieldParams && messages == other.messages && params == other.params && shieldId == other.shieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messages, params, shieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "SafetyRunShieldParams{messages=$messages, params=$params, shieldId=$shieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -193,13 +180,13 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(safetyRunShieldParams: SafetyRunShieldParams) = apply {
-            this.messages(safetyRunShieldParams.messages)
-            this.params = safetyRunShieldParams.params
-            this.shieldId = safetyRunShieldParams.shieldId
-            this.xLlamaStackProviderData = safetyRunShieldParams.xLlamaStackProviderData
-            additionalHeaders(safetyRunShieldParams.additionalHeaders)
-            additionalQueryParams(safetyRunShieldParams.additionalQueryParams)
-            additionalBodyProperties(safetyRunShieldParams.additionalBodyProperties)
+            messages = safetyRunShieldParams.messages.toMutableList()
+            params = safetyRunShieldParams.params
+            shieldId = safetyRunShieldParams.shieldId
+            xLlamaStackProviderData = safetyRunShieldParams.xLlamaStackProviderData
+            additionalHeaders = safetyRunShieldParams.additionalHeaders.toBuilder()
+            additionalQueryParams = safetyRunShieldParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = safetyRunShieldParams.additionalBodyProperties.toMutableMap()
         }
 
         fun messages(messages: List<Message>) = apply {
@@ -339,7 +326,7 @@ constructor(
 
         fun build(): SafetyRunShieldParams =
             SafetyRunShieldParams(
-                checkNotNull(messages) { "`messages` is required but was not set" }.toImmutable(),
+                messages.toImmutable(),
                 checkNotNull(params) { "`params` is required but was not set" },
                 checkNotNull(shieldId) { "`shieldId` is required but was not set" },
                 xLlamaStackProviderData,
@@ -573,4 +560,17 @@ constructor(
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is SafetyRunShieldParams && messages == other.messages && params == other.params && shieldId == other.shieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messages, params, shieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "SafetyRunShieldParams{messages=$messages, params=$params, shieldId=$shieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

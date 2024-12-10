@@ -12,18 +12,18 @@ class SamplingParamsTest {
         val samplingParams =
             SamplingParams.builder()
                 .strategy(SamplingParams.Strategy.GREEDY)
-                .maxTokens(123L)
-                .repetitionPenalty(42.23)
-                .temperature(42.23)
-                .topK(123L)
-                .topP(42.23)
+                .maxTokens(0L)
+                .repetitionPenalty(0.0)
+                .temperature(0.0)
+                .topK(0L)
+                .topP(0.0)
                 .build()
         assertThat(samplingParams).isNotNull
         assertThat(samplingParams.strategy()).isEqualTo(SamplingParams.Strategy.GREEDY)
-        assertThat(samplingParams.maxTokens()).isEqualTo(123L)
-        assertThat(samplingParams.repetitionPenalty()).isEqualTo(42.23)
-        assertThat(samplingParams.temperature()).isEqualTo(42.23)
-        assertThat(samplingParams.topK()).isEqualTo(123L)
-        assertThat(samplingParams.topP()).isEqualTo(42.23)
+        assertThat(samplingParams.maxTokens()).isEqualTo(0L)
+        assertThat(samplingParams.repetitionPenalty()).isEqualTo(0.0)
+        assertThat(samplingParams.temperature()).isEqualTo(0.0)
+        assertThat(samplingParams.topK()).isEqualTo(0L)
+        assertThat(samplingParams.topP()).isEqualTo(0.0)
     }
 }

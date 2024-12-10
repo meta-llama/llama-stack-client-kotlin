@@ -26,6 +26,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -43,23 +47,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is AgentTurnRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, agentId, sessionId, turnId, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "AgentTurnRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, agentId=$agentId, sessionId=$sessionId, turnId=$turnId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -79,12 +66,12 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(agentTurnRetrieveParams: AgentTurnRetrieveParams) = apply {
-            this.agentId = agentTurnRetrieveParams.agentId
-            this.sessionId = agentTurnRetrieveParams.sessionId
-            this.turnId = agentTurnRetrieveParams.turnId
-            this.xLlamaStackProviderData = agentTurnRetrieveParams.xLlamaStackProviderData
-            additionalHeaders(agentTurnRetrieveParams.additionalHeaders)
-            additionalQueryParams(agentTurnRetrieveParams.additionalQueryParams)
+            agentId = agentTurnRetrieveParams.agentId
+            sessionId = agentTurnRetrieveParams.sessionId
+            turnId = agentTurnRetrieveParams.turnId
+            xLlamaStackProviderData = agentTurnRetrieveParams.xLlamaStackProviderData
+            additionalHeaders = agentTurnRetrieveParams.additionalHeaders.toBuilder()
+            additionalQueryParams = agentTurnRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
@@ -205,4 +192,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is AgentTurnRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "AgentTurnRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnId=$turnId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

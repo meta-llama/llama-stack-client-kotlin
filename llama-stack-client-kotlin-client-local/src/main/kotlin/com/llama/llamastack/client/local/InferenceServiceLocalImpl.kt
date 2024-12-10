@@ -5,6 +5,7 @@ package com.llama.llamastack.client.local
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.EmbeddingsResponse
 import com.llama.llamastack.models.InferenceChatCompletionParams
@@ -91,10 +92,24 @@ constructor(
         )
     }
 
+    override fun chatCompletionStreaming(
+        params: InferenceChatCompletionParams,
+        requestOptions: RequestOptions
+    ): StreamResponse<InferenceChatCompletionResponse> {
+        TODO("Not yet implemented")
+    }
+
     override fun completion(
         params: InferenceCompletionParams,
         requestOptions: RequestOptions
     ): InferenceCompletionResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun completionStreaming(
+        params: InferenceCompletionParams,
+        requestOptions: RequestOptions
+    ): StreamResponse<InferenceCompletionResponse> {
         TODO("Not yet implemented")
     }
 

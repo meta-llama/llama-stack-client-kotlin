@@ -32,7 +32,6 @@ class AgentTurnCreateParamsTest {
                         .build()
                 )
             )
-            .stream(true)
             .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
@@ -62,7 +61,6 @@ class AgentTurnCreateParamsTest {
                             .build()
                     )
                 )
-                .stream(true)
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
@@ -90,7 +88,6 @@ class AgentTurnCreateParamsTest {
                         .build()
                 )
             )
-        assertThat(body.stream()).isEqualTo(true)
     }
 
     @Test

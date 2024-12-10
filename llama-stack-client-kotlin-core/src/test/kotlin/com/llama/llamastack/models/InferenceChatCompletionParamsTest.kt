@@ -23,7 +23,7 @@ class InferenceChatCompletionParamsTest {
                 )
             )
             .modelId("model_id")
-            .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+            .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
                 InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                     InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -42,14 +42,13 @@ class InferenceChatCompletionParamsTest {
             .samplingParams(
                 SamplingParams.builder()
                     .strategy(SamplingParams.Strategy.GREEDY)
-                    .maxTokens(123L)
-                    .repetitionPenalty(42.23)
-                    .temperature(42.23)
-                    .topK(123L)
-                    .topP(42.23)
+                    .maxTokens(0L)
+                    .repetitionPenalty(0.0)
+                    .temperature(0.0)
+                    .topK(0L)
+                    .topP(0.0)
                     .build()
             )
-            .stream(true)
             .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
             .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
             .tools(
@@ -81,7 +80,7 @@ class InferenceChatCompletionParamsTest {
                     )
                 )
                 .modelId("model_id")
-                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+                .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
                     InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
                         InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
@@ -101,14 +100,13 @@ class InferenceChatCompletionParamsTest {
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(SamplingParams.Strategy.GREEDY)
-                        .maxTokens(123L)
-                        .repetitionPenalty(42.23)
-                        .temperature(42.23)
-                        .topK(123L)
-                        .topP(42.23)
+                        .maxTokens(0L)
+                        .repetitionPenalty(0.0)
+                        .temperature(0.0)
+                        .topK(0L)
+                        .topP(0.0)
                         .build()
                 )
-                .stream(true)
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                 .tools(
@@ -140,7 +138,7 @@ class InferenceChatCompletionParamsTest {
             )
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
-            .isEqualTo(InferenceChatCompletionParams.Logprobs.builder().topK(123L).build())
+            .isEqualTo(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
         assertThat(body.responseFormat())
             .isEqualTo(
                 InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
@@ -161,14 +159,13 @@ class InferenceChatCompletionParamsTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(SamplingParams.Strategy.GREEDY)
-                    .maxTokens(123L)
-                    .repetitionPenalty(42.23)
-                    .temperature(42.23)
-                    .topK(123L)
-                    .topP(42.23)
+                    .maxTokens(0L)
+                    .repetitionPenalty(0.0)
+                    .temperature(0.0)
+                    .topK(0L)
+                    .topP(0.0)
                     .build()
             )
-        assertThat(body.stream()).isEqualTo(true)
         assertThat(body.toolChoice()).isEqualTo(InferenceChatCompletionParams.ToolChoice.AUTO)
         assertThat(body.toolPromptFormat())
             .isEqualTo(InferenceChatCompletionParams.ToolPromptFormat.JSON)

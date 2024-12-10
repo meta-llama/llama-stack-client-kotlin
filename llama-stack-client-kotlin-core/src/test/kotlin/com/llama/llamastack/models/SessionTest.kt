@@ -105,7 +105,7 @@ class SessionTest {
                 .memoryBank(
                     Session.MemoryBank.ofVectorMemoryBank(
                         Session.MemoryBank.VectorMemoryBank.builder()
-                            .chunkSizeInTokens(123L)
+                            .chunkSizeInTokens(0L)
                             .embeddingModel("embedding_model")
                             .identifier("identifier")
                             .memoryBankType(
@@ -114,7 +114,7 @@ class SessionTest {
                             .providerId("provider_id")
                             .providerResourceId("provider_resource_id")
                             .type(Session.MemoryBank.VectorMemoryBank.Type.MEMORY_BANK)
-                            .overlapSizeInTokens(123L)
+                            .overlapSizeInTokens(0L)
                             .build()
                     )
                 )
@@ -202,14 +202,14 @@ class SessionTest {
             .isEqualTo(
                 Session.MemoryBank.ofVectorMemoryBank(
                     Session.MemoryBank.VectorMemoryBank.builder()
-                        .chunkSizeInTokens(123L)
+                        .chunkSizeInTokens(0L)
                         .embeddingModel("embedding_model")
                         .identifier("identifier")
                         .memoryBankType(Session.MemoryBank.VectorMemoryBank.MemoryBankType.VECTOR)
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
                         .type(Session.MemoryBank.VectorMemoryBank.Type.MEMORY_BANK)
-                        .overlapSizeInTokens(123L)
+                        .overlapSizeInTokens(0L)
                         .build()
                 )
             )

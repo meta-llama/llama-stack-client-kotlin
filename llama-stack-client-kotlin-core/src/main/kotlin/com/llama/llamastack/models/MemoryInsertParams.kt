@@ -44,6 +44,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): MemoryInsertBody {
         return MemoryInsertBody(
             bankId,
@@ -155,25 +161,6 @@ constructor(
             "MemoryInsertBody{bankId=$bankId, documents=$documents, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is MemoryInsertParams && bankId == other.bankId && documents == other.documents && ttlSeconds == other.ttlSeconds && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, documents, ttlSeconds, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "MemoryInsertParams{bankId=$bankId, documents=$documents, ttlSeconds=$ttlSeconds, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -193,13 +180,13 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryInsertParams: MemoryInsertParams) = apply {
-            this.bankId = memoryInsertParams.bankId
-            this.documents(memoryInsertParams.documents)
-            this.ttlSeconds = memoryInsertParams.ttlSeconds
-            this.xLlamaStackProviderData = memoryInsertParams.xLlamaStackProviderData
-            additionalHeaders(memoryInsertParams.additionalHeaders)
-            additionalQueryParams(memoryInsertParams.additionalQueryParams)
-            additionalBodyProperties(memoryInsertParams.additionalBodyProperties)
+            bankId = memoryInsertParams.bankId
+            documents = memoryInsertParams.documents.toMutableList()
+            ttlSeconds = memoryInsertParams.ttlSeconds
+            xLlamaStackProviderData = memoryInsertParams.xLlamaStackProviderData
+            additionalHeaders = memoryInsertParams.additionalHeaders.toBuilder()
+            additionalQueryParams = memoryInsertParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = memoryInsertParams.additionalBodyProperties.toMutableMap()
         }
 
         fun bankId(bankId: String) = apply { this.bankId = bankId }
@@ -340,7 +327,7 @@ constructor(
         fun build(): MemoryInsertParams =
             MemoryInsertParams(
                 checkNotNull(bankId) { "`bankId` is required but was not set" },
-                checkNotNull(documents) { "`documents` is required but was not set" }.toImmutable(),
+                documents.toImmutable(),
                 ttlSeconds,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
@@ -761,4 +748,17 @@ constructor(
         override fun toString() =
             "Document{content=$content, documentId=$documentId, metadata=$metadata, mimeType=$mimeType, additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is MemoryInsertParams && bankId == other.bankId && documents == other.documents && ttlSeconds == other.ttlSeconds && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, documents, ttlSeconds, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "MemoryInsertParams{bankId=$bankId, documents=$documents, ttlSeconds=$ttlSeconds, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

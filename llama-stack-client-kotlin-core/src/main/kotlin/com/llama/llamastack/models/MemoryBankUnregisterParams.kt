@@ -28,6 +28,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): MemoryBankUnregisterBody {
         return MemoryBankUnregisterBody(memoryBankId, additionalBodyProperties)
     }
@@ -116,25 +122,6 @@ constructor(
             "MemoryBankUnregisterBody{memoryBankId=$memoryBankId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is MemoryBankUnregisterParams && memoryBankId == other.memoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "MemoryBankUnregisterParams{memoryBankId=$memoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -152,11 +139,12 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryBankUnregisterParams: MemoryBankUnregisterParams) = apply {
-            this.memoryBankId = memoryBankUnregisterParams.memoryBankId
-            this.xLlamaStackProviderData = memoryBankUnregisterParams.xLlamaStackProviderData
-            additionalHeaders(memoryBankUnregisterParams.additionalHeaders)
-            additionalQueryParams(memoryBankUnregisterParams.additionalQueryParams)
-            additionalBodyProperties(memoryBankUnregisterParams.additionalBodyProperties)
+            memoryBankId = memoryBankUnregisterParams.memoryBankId
+            xLlamaStackProviderData = memoryBankUnregisterParams.xLlamaStackProviderData
+            additionalHeaders = memoryBankUnregisterParams.additionalHeaders.toBuilder()
+            additionalQueryParams = memoryBankUnregisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                memoryBankUnregisterParams.additionalBodyProperties.toMutableMap()
         }
 
         fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
@@ -294,4 +282,17 @@ constructor(
                 additionalBodyProperties.toImmutable(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is MemoryBankUnregisterParams && memoryBankId == other.memoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "MemoryBankUnregisterParams{memoryBankId=$memoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

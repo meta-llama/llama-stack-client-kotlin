@@ -59,6 +59,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): BatchInferenceChatCompletionBody {
         return BatchInferenceChatCompletionBody(
             messagesBatch,
@@ -240,25 +246,6 @@ constructor(
             "BatchInferenceChatCompletionBody{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is BatchInferenceChatCompletionParams && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "BatchInferenceChatCompletionParams{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -283,20 +270,19 @@ constructor(
 
         internal fun from(batchInferenceChatCompletionParams: BatchInferenceChatCompletionParams) =
             apply {
-                this.messagesBatch(batchInferenceChatCompletionParams.messagesBatch)
-                this.model = batchInferenceChatCompletionParams.model
-                this.logprobs = batchInferenceChatCompletionParams.logprobs
-                this.samplingParams = batchInferenceChatCompletionParams.samplingParams
-                this.toolChoice = batchInferenceChatCompletionParams.toolChoice
-                this.toolPromptFormat = batchInferenceChatCompletionParams.toolPromptFormat
-                this.tools(batchInferenceChatCompletionParams.tools ?: listOf())
-                this.xLlamaStackProviderData =
-                    batchInferenceChatCompletionParams.xLlamaStackProviderData
-                additionalHeaders(batchInferenceChatCompletionParams.additionalHeaders)
-                additionalQueryParams(batchInferenceChatCompletionParams.additionalQueryParams)
-                additionalBodyProperties(
-                    batchInferenceChatCompletionParams.additionalBodyProperties
-                )
+                messagesBatch = batchInferenceChatCompletionParams.messagesBatch.toMutableList()
+                model = batchInferenceChatCompletionParams.model
+                logprobs = batchInferenceChatCompletionParams.logprobs
+                samplingParams = batchInferenceChatCompletionParams.samplingParams
+                toolChoice = batchInferenceChatCompletionParams.toolChoice
+                toolPromptFormat = batchInferenceChatCompletionParams.toolPromptFormat
+                tools = batchInferenceChatCompletionParams.tools?.toMutableList() ?: mutableListOf()
+                xLlamaStackProviderData = batchInferenceChatCompletionParams.xLlamaStackProviderData
+                additionalHeaders = batchInferenceChatCompletionParams.additionalHeaders.toBuilder()
+                additionalQueryParams =
+                    batchInferenceChatCompletionParams.additionalQueryParams.toBuilder()
+                additionalBodyProperties =
+                    batchInferenceChatCompletionParams.additionalBodyProperties.toMutableMap()
             }
 
         fun messagesBatch(messagesBatch: List<List<MessagesBatch>>) = apply {
@@ -466,14 +452,13 @@ constructor(
 
         fun build(): BatchInferenceChatCompletionParams =
             BatchInferenceChatCompletionParams(
-                checkNotNull(messagesBatch) { "`messagesBatch` is required but was not set" }
-                    .toImmutable(),
+                messagesBatch.toImmutable(),
                 checkNotNull(model) { "`model` is required but was not set" },
                 logprobs,
                 samplingParams,
                 toolChoice,
                 toolPromptFormat,
-                if (tools.size == 0) null else tools.toImmutable(),
+                tools.toImmutable().ifEmpty { null },
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -1055,4 +1040,17 @@ constructor(
         override fun toString() =
             "Tool{description=$description, parameters=$parameters, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is BatchInferenceChatCompletionParams && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "BatchInferenceChatCompletionParams{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

@@ -15,13 +15,13 @@ class MemoryBankRegisterParamsTest {
             .params(
                 MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
                     MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                        .chunkSizeInTokens(123L)
+                        .chunkSizeInTokens(0L)
                         .embeddingModel("embedding_model")
                         .memoryBankType(
                             MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType
                                 .VECTOR
                         )
-                        .overlapSizeInTokens(123L)
+                        .overlapSizeInTokens(0L)
                         .build()
                 )
             )
@@ -39,14 +39,14 @@ class MemoryBankRegisterParamsTest {
                 .params(
                     MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
                         MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                            .chunkSizeInTokens(123L)
+                            .chunkSizeInTokens(0L)
                             .embeddingModel("embedding_model")
                             .memoryBankType(
                                 MemoryBankRegisterParams.Params.VectorMemoryBankParams
                                     .MemoryBankType
                                     .VECTOR
                             )
-                            .overlapSizeInTokens(123L)
+                            .overlapSizeInTokens(0L)
                             .build()
                     )
                 )
@@ -61,13 +61,13 @@ class MemoryBankRegisterParamsTest {
             .isEqualTo(
                 MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
                     MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                        .chunkSizeInTokens(123L)
+                        .chunkSizeInTokens(0L)
                         .embeddingModel("embedding_model")
                         .memoryBankType(
                             MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType
                                 .VECTOR
                         )
-                        .overlapSizeInTokens(123L)
+                        .overlapSizeInTokens(0L)
                         .build()
                 )
             )
@@ -83,7 +83,7 @@ class MemoryBankRegisterParamsTest {
                 .params(
                     MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
                         MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                            .chunkSizeInTokens(123L)
+                            .chunkSizeInTokens(0L)
                             .embeddingModel("embedding_model")
                             .memoryBankType(
                                 MemoryBankRegisterParams.Params.VectorMemoryBankParams
@@ -101,7 +101,7 @@ class MemoryBankRegisterParamsTest {
             .isEqualTo(
                 MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
                     MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                        .chunkSizeInTokens(123L)
+                        .chunkSizeInTokens(0L)
                         .embeddingModel("embedding_model")
                         .memoryBankType(
                             MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType

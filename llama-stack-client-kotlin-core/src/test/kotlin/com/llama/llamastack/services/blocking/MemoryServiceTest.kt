@@ -29,7 +29,7 @@ class MemoryServiceTest {
                             .build()
                     )
                 )
-                .ttlSeconds(123L)
+                .ttlSeconds(0L)
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )

@@ -41,6 +41,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): InferenceEmbeddingsBody {
         return InferenceEmbeddingsBody(
             contents,
@@ -143,25 +149,6 @@ constructor(
             "InferenceEmbeddingsBody{contents=$contents, modelId=$modelId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is InferenceEmbeddingsParams && contents == other.contents && modelId == other.modelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(contents, modelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "InferenceEmbeddingsParams{contents=$contents, modelId=$modelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -180,12 +167,13 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(inferenceEmbeddingsParams: InferenceEmbeddingsParams) = apply {
-            this.contents(inferenceEmbeddingsParams.contents)
-            this.modelId = inferenceEmbeddingsParams.modelId
-            this.xLlamaStackProviderData = inferenceEmbeddingsParams.xLlamaStackProviderData
-            additionalHeaders(inferenceEmbeddingsParams.additionalHeaders)
-            additionalQueryParams(inferenceEmbeddingsParams.additionalQueryParams)
-            additionalBodyProperties(inferenceEmbeddingsParams.additionalBodyProperties)
+            contents = inferenceEmbeddingsParams.contents.toMutableList()
+            modelId = inferenceEmbeddingsParams.modelId
+            xLlamaStackProviderData = inferenceEmbeddingsParams.xLlamaStackProviderData
+            additionalHeaders = inferenceEmbeddingsParams.additionalHeaders.toBuilder()
+            additionalQueryParams = inferenceEmbeddingsParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                inferenceEmbeddingsParams.additionalBodyProperties.toMutableMap()
         }
 
         fun contents(contents: List<Content>) = apply {
@@ -323,7 +311,7 @@ constructor(
 
         fun build(): InferenceEmbeddingsParams =
             InferenceEmbeddingsParams(
-                checkNotNull(contents) { "`contents` is required but was not set" }.toImmutable(),
+                contents.toImmutable(),
                 checkNotNull(modelId) { "`modelId` is required but was not set" },
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
@@ -583,4 +571,17 @@ constructor(
             }
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is InferenceEmbeddingsParams && contents == other.contents && modelId == other.modelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(contents, modelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "InferenceEmbeddingsParams{contents=$contents, modelId=$modelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

@@ -8,7 +8,13 @@ export SKIP_MOCK_TESTS=true
 ./gradlew :llama-stack-client-kotlin:spotlessApply
 ./gradlew :llama-stack-client-kotlin-client-local:spotlessApply
 
-./gradlew build 
+# Remove old jars
+rm -rf llama-stack-client-kotlin/build/libs
+rm -rf llama-stack-client-kotlin-client-okhttp/build/libs
+rm -rf llama-stack-client-kotlin-core/build/libs
+rm -rf llama-stack-client-kotlin-client-local/build/libs
+
+./gradlew build
 
 # Copy jars
 mkdir -p build-jars

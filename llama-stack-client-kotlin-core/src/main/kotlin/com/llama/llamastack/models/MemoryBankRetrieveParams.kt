@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is MemoryBankRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && memoryBankId == other.memoryBankId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, memoryBankId, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "MemoryBankRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, memoryBankId=$memoryBankId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(memoryBankRetrieveParams: MemoryBankRetrieveParams) = apply {
-            this.memoryBankId = memoryBankRetrieveParams.memoryBankId
-            this.xLlamaStackProviderData = memoryBankRetrieveParams.xLlamaStackProviderData
-            additionalHeaders(memoryBankRetrieveParams.additionalHeaders)
-            additionalQueryParams(memoryBankRetrieveParams.additionalQueryParams)
+            memoryBankId = memoryBankRetrieveParams.memoryBankId
+            xLlamaStackProviderData = memoryBankRetrieveParams.xLlamaStackProviderData
+            additionalHeaders = memoryBankRetrieveParams.additionalHeaders.toBuilder()
+            additionalQueryParams = memoryBankRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is MemoryBankRetrieveParams && memoryBankId == other.memoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "MemoryBankRetrieveParams{memoryBankId=$memoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is PostTrainingJobLogsParams && xLlamaStackProviderData == other.xLlamaStackProviderData && jobUuid == other.jobUuid && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, jobUuid, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "PostTrainingJobLogsParams{xLlamaStackProviderData=$xLlamaStackProviderData, jobUuid=$jobUuid, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(postTrainingJobLogsParams: PostTrainingJobLogsParams) = apply {
-            this.jobUuid = postTrainingJobLogsParams.jobUuid
-            this.xLlamaStackProviderData = postTrainingJobLogsParams.xLlamaStackProviderData
-            additionalHeaders(postTrainingJobLogsParams.additionalHeaders)
-            additionalQueryParams(postTrainingJobLogsParams.additionalQueryParams)
+            jobUuid = postTrainingJobLogsParams.jobUuid
+            xLlamaStackProviderData = postTrainingJobLogsParams.xLlamaStackProviderData
+            additionalHeaders = postTrainingJobLogsParams.additionalHeaders.toBuilder()
+            additionalQueryParams = postTrainingJobLogsParams.additionalQueryParams.toBuilder()
         }
 
         fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is PostTrainingJobLogsParams && jobUuid == other.jobUuid && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobUuid, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "PostTrainingJobLogsParams{jobUuid=$jobUuid, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

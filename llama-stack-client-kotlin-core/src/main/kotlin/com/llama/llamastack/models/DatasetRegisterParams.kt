@@ -43,6 +43,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): DatasetRegisterBody {
         return DatasetRegisterBody(
             datasetId,
@@ -187,25 +193,6 @@ constructor(
             "DatasetRegisterBody{datasetId=$datasetId, datasetSchema=$datasetSchema, url=$url, metadata=$metadata, providerDatasetId=$providerDatasetId, providerId=$providerId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is DatasetRegisterParams && datasetId == other.datasetId && datasetSchema == other.datasetSchema && url == other.url && metadata == other.metadata && providerDatasetId == other.providerDatasetId && providerId == other.providerId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, datasetSchema, url, metadata, providerDatasetId, providerId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "DatasetRegisterParams{datasetId=$datasetId, datasetSchema=$datasetSchema, url=$url, metadata=$metadata, providerDatasetId=$providerDatasetId, providerId=$providerId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -228,16 +215,16 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(datasetRegisterParams: DatasetRegisterParams) = apply {
-            this.datasetId = datasetRegisterParams.datasetId
-            this.datasetSchema = datasetRegisterParams.datasetSchema
-            this.url = datasetRegisterParams.url
-            this.metadata = datasetRegisterParams.metadata
-            this.providerDatasetId = datasetRegisterParams.providerDatasetId
-            this.providerId = datasetRegisterParams.providerId
-            this.xLlamaStackProviderData = datasetRegisterParams.xLlamaStackProviderData
-            additionalHeaders(datasetRegisterParams.additionalHeaders)
-            additionalQueryParams(datasetRegisterParams.additionalQueryParams)
-            additionalBodyProperties(datasetRegisterParams.additionalBodyProperties)
+            datasetId = datasetRegisterParams.datasetId
+            datasetSchema = datasetRegisterParams.datasetSchema
+            url = datasetRegisterParams.url
+            metadata = datasetRegisterParams.metadata
+            providerDatasetId = datasetRegisterParams.providerDatasetId
+            providerId = datasetRegisterParams.providerId
+            xLlamaStackProviderData = datasetRegisterParams.xLlamaStackProviderData
+            additionalHeaders = datasetRegisterParams.additionalHeaders.toBuilder()
+            additionalQueryParams = datasetRegisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = datasetRegisterParams.additionalBodyProperties.toMutableMap()
         }
 
         fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
@@ -514,4 +501,17 @@ constructor(
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is DatasetRegisterParams && datasetId == other.datasetId && datasetSchema == other.datasetSchema && url == other.url && metadata == other.metadata && providerDatasetId == other.providerDatasetId && providerId == other.providerId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, datasetSchema, url, metadata, providerDatasetId, providerId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "DatasetRegisterParams{datasetId=$datasetId, datasetSchema=$datasetSchema, url=$url, metadata=$metadata, providerDatasetId=$providerDatasetId, providerId=$providerId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

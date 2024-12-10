@@ -37,11 +37,11 @@ class EvalServiceTest {
                                                 .samplingParams(
                                                     SamplingParams.builder()
                                                         .strategy(SamplingParams.Strategy.GREEDY)
-                                                        .maxTokens(123L)
-                                                        .repetitionPenalty(42.23)
-                                                        .temperature(42.23)
-                                                        .topK(123L)
-                                                        .topP(42.23)
+                                                        .maxTokens(0L)
+                                                        .repetitionPenalty(0.0)
+                                                        .temperature(0.0)
+                                                        .topK(0L)
+                                                        .topP(0.0)
                                                         .build()
                                                 )
                                                 .type(
@@ -67,7 +67,7 @@ class EvalServiceTest {
                                     EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
                                         .BENCHMARK
                                 )
-                                .numExamples(123L)
+                                .numExamples(0L)
                                 .build()
                         )
                     )
@@ -102,11 +102,11 @@ class EvalServiceTest {
                                                 .samplingParams(
                                                     SamplingParams.builder()
                                                         .strategy(SamplingParams.Strategy.GREEDY)
-                                                        .maxTokens(123L)
-                                                        .repetitionPenalty(42.23)
-                                                        .temperature(42.23)
-                                                        .topK(123L)
-                                                        .topP(42.23)
+                                                        .maxTokens(0L)
+                                                        .repetitionPenalty(0.0)
+                                                        .temperature(0.0)
+                                                        .topK(0L)
+                                                        .topP(0.0)
                                                         .build()
                                                 )
                                                 .type(
@@ -132,7 +132,7 @@ class EvalServiceTest {
                                     EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type
                                         .BENCHMARK
                                 )
-                                .numExamples(123L)
+                                .numExamples(0L)
                                 .build()
                         )
                     )

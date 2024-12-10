@@ -20,6 +20,10 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
         this.xLlamaStackProviderData?.let {
@@ -35,23 +39,6 @@ constructor(
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
-
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is ShieldRetrieveParams && xLlamaStackProviderData == other.xLlamaStackProviderData && identifier == other.identifier && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, identifier, additionalHeaders, additionalQueryParams) /* spotless:on */
-
-    override fun toString() =
-        "ShieldRetrieveParams{xLlamaStackProviderData=$xLlamaStackProviderData, identifier=$identifier, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 
     fun toBuilder() = Builder().from(this)
 
@@ -69,10 +56,10 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(shieldRetrieveParams: ShieldRetrieveParams) = apply {
-            this.identifier = shieldRetrieveParams.identifier
-            this.xLlamaStackProviderData = shieldRetrieveParams.xLlamaStackProviderData
-            additionalHeaders(shieldRetrieveParams.additionalHeaders)
-            additionalQueryParams(shieldRetrieveParams.additionalQueryParams)
+            identifier = shieldRetrieveParams.identifier
+            xLlamaStackProviderData = shieldRetrieveParams.xLlamaStackProviderData
+            additionalHeaders = shieldRetrieveParams.additionalHeaders.toBuilder()
+            additionalQueryParams = shieldRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun identifier(identifier: String) = apply { this.identifier = identifier }
@@ -187,4 +174,17 @@ constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is ShieldRetrieveParams && identifier == other.identifier && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(identifier, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+
+    override fun toString() =
+        "ShieldRetrieveParams{identifier=$identifier, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

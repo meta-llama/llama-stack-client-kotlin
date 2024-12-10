@@ -45,6 +45,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): EvalRunEvalBody {
         return EvalRunEvalBody(
             taskConfig,
@@ -145,25 +151,6 @@ constructor(
             "EvalRunEvalBody{taskConfig=$taskConfig, taskId=$taskId, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is EvalRunEvalParams && taskConfig == other.taskConfig && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskConfig, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "EvalRunEvalParams{taskConfig=$taskConfig, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -182,12 +169,12 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalRunEvalParams: EvalRunEvalParams) = apply {
-            this.taskConfig = evalRunEvalParams.taskConfig
-            this.taskId = evalRunEvalParams.taskId
-            this.xLlamaStackProviderData = evalRunEvalParams.xLlamaStackProviderData
-            additionalHeaders(evalRunEvalParams.additionalHeaders)
-            additionalQueryParams(evalRunEvalParams.additionalQueryParams)
-            additionalBodyProperties(evalRunEvalParams.additionalBodyProperties)
+            taskConfig = evalRunEvalParams.taskConfig
+            taskId = evalRunEvalParams.taskId
+            xLlamaStackProviderData = evalRunEvalParams.xLlamaStackProviderData
+            additionalHeaders = evalRunEvalParams.additionalHeaders.toBuilder()
+            additionalQueryParams = evalRunEvalParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = evalRunEvalParams.additionalBodyProperties.toMutableMap()
         }
 
         fun taskConfig(taskConfig: TaskConfig) = apply { this.taskConfig = taskConfig }
@@ -1857,4 +1844,17 @@ constructor(
                 "AppEvalTaskConfig{evalCandidate=$evalCandidate, numExamples=$numExamples, scoringParams=$scoringParams, type=$type, additionalProperties=$additionalProperties}"
         }
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is EvalRunEvalParams && taskConfig == other.taskConfig && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskConfig, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "EvalRunEvalParams{taskConfig=$taskConfig, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

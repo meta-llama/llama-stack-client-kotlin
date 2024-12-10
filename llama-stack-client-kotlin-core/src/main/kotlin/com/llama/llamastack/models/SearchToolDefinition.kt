@@ -194,17 +194,21 @@ private constructor(
 
             val BRAVE = Engine(JsonField.of("brave"))
 
+            val TAVILY = Engine(JsonField.of("tavily"))
+
             fun of(value: String) = Engine(JsonField.of(value))
         }
 
         enum class Known {
             BING,
             BRAVE,
+            TAVILY,
         }
 
         enum class Value {
             BING,
             BRAVE,
+            TAVILY,
             _UNKNOWN,
         }
 
@@ -212,6 +216,7 @@ private constructor(
             when (this) {
                 BING -> Value.BING
                 BRAVE -> Value.BRAVE
+                TAVILY -> Value.TAVILY
                 else -> Value._UNKNOWN
             }
 
@@ -219,6 +224,7 @@ private constructor(
             when (this) {
                 BING -> Known.BING
                 BRAVE -> Known.BRAVE
+                TAVILY -> Known.TAVILY
                 else -> throw LlamaStackClientInvalidDataException("Unknown Engine: $value")
             }
 

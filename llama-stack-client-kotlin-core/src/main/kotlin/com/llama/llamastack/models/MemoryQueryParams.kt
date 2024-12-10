@@ -44,6 +44,12 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
+    fun _additionalHeaders(): Headers = additionalHeaders
+
+    fun _additionalQueryParams(): QueryParams = additionalQueryParams
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     internal fun getBody(): MemoryQueryBody {
         return MemoryQueryBody(
             bankId,
@@ -152,25 +158,6 @@ constructor(
             "MemoryQueryBody{bankId=$bankId, query=$query, params=$params, additionalProperties=$additionalProperties}"
     }
 
-    fun _additionalHeaders(): Headers = additionalHeaders
-
-    fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    override fun equals(other: Any?): Boolean {
-        if (this === other) {
-            return true
-        }
-
-        return /* spotless:off */ other is MemoryQueryParams && bankId == other.bankId && query == other.query && params == other.params && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
-    }
-
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, query, params, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
-
-    override fun toString() =
-        "MemoryQueryParams{bankId=$bankId, query=$query, params=$params, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -190,13 +177,13 @@ constructor(
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryQueryParams: MemoryQueryParams) = apply {
-            this.bankId = memoryQueryParams.bankId
-            this.query = memoryQueryParams.query
-            this.params = memoryQueryParams.params
-            this.xLlamaStackProviderData = memoryQueryParams.xLlamaStackProviderData
-            additionalHeaders(memoryQueryParams.additionalHeaders)
-            additionalQueryParams(memoryQueryParams.additionalQueryParams)
-            additionalBodyProperties(memoryQueryParams.additionalBodyProperties)
+            bankId = memoryQueryParams.bankId
+            query = memoryQueryParams.query
+            params = memoryQueryParams.params
+            xLlamaStackProviderData = memoryQueryParams.xLlamaStackProviderData
+            additionalHeaders = memoryQueryParams.additionalHeaders.toBuilder()
+            additionalQueryParams = memoryQueryParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = memoryQueryParams.additionalBodyProperties.toMutableMap()
         }
 
         fun bankId(bankId: String) = apply { this.bankId = bankId }
@@ -207,9 +194,15 @@ constructor(
 
         fun query(imageMedia: ImageMedia) = apply { this.query = Query.ofImageMedia(imageMedia) }
 
-        fun queryOfImageMediaArray(imageMediaArray: List<Query.StringOrImageMediaUnion>) = apply {
-            this.query = Query.ofImageMediaArray(imageMediaArray)
-        }
+        // <<<<<<< HEAD
+        //        fun queryOfImageMediaArray(imageMediaArray: List<Query.StringOrImageMediaUnion>) =
+        // apply {
+        // =======
+        //        fun queryOfImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>) = apply
+        // {
+        // >>>>>>> origin/generated--merge-conflict
+        //            this.query = Query.ofImageMediaArray(imageMediaArray)
+        //        }
 
         fun params(params: Params) = apply { this.params = params }
 
@@ -660,4 +653,17 @@ constructor(
 
         override fun toString() = "Params{additionalProperties=$additionalProperties}"
     }
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return /* spotless:off */ other is MemoryQueryParams && bankId == other.bankId && query == other.query && params == other.params && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+    }
+
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, query, params, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+
+    override fun toString() =
+        "MemoryQueryParams{bankId=$bankId, query=$query, params=$params, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }
