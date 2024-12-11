@@ -17,7 +17,7 @@ fun buildInferenceChatCompletionResponse(
         if (response.startsWith("[") && response.endsWith("]")) {
             // custom tool call
             CompletionMessage.builder()
-                .toolCalls(listOf(createCustomToolCall(response)))
+                .toolCalls(createCustomToolCalls(response))
                 .content(CompletionMessage.Content.ofString(""))
                 .build()
         } else {
@@ -36,26 +36,35 @@ fun buildInferenceChatCompletionResponse(
     return inferenceChatCompletionResponse
 }
 
-fun createCustomToolCall(response: String): ToolCall {
-    val startIndex = response.indexOf('(')
-    val endIndex = response.indexOf(')')
-    val toolName = response.substring(1, startIndex)
-    val paramsString = response.substring(startIndex + 1, endIndex)
+fun createCustomToolCalls(response: String): List<ToolCall> {
+    val toolCalls: MutableList<ToolCall> = mutableListOf()
 
-    val paramsJson = mutableMapOf<String, JsonValue>()
-    val paramsList = paramsString.split(", ")
-    for (param in paramsList) {
-        val keyValue = param.split("=")
-        if (keyValue.size == 2) {
-            val key = keyValue[0].trim()
-            val value = keyValue[1].trim().replace("'", "").replace("\"", "")
-            paramsJson[key] = JsonValue.from(value)
+    val splitsResponse = response.split("),")
+    for (split in splitsResponse) {
+        val formattedSplit = if (split.endsWith(')')) split else "$split)"
+        val startIndex = formattedSplit.indexOf('(')
+        val endIndex = formattedSplit.indexOf(')')
+        val toolName = formattedSplit.substring(1, startIndex)
+        val paramsString = formattedSplit.substring(startIndex + 1, endIndex)
+
+        val paramsJson = mutableMapOf<String, JsonValue>()
+        val paramsList = paramsString.split(", ")
+        for (param in paramsList) {
+            val keyValue = param.split("=")
+            if (keyValue.size == 2) {
+                val key = keyValue[0].trim()
+                val value = keyValue[1].trim().replace("'", "").replace("\"", "")
+                paramsJson[key] = JsonValue.from(value)
+            }
         }
+        toolCalls.add(
+            ToolCall.builder()
+                .toolName(ToolCall.ToolName.of(toolName))
+                .arguments(ToolCall.Arguments.builder().additionalProperties(paramsJson).build())
+                .callId(UUID.randomUUID().toString())
+                .build()
+        )
     }
 
-    return ToolCall.builder()
-        .toolName(ToolCall.ToolName.of(toolName))
-        .arguments(ToolCall.Arguments.builder().additionalProperties(paramsJson).build())
-        .callId(UUID.randomUUID().toString())
-        .build()
+    return toolCalls.toList()
 }
