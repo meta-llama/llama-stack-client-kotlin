@@ -9,11 +9,12 @@ Features:
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
 Latest Release Notes: [v0.0.54.1](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.0.54.1)
+- Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.
 
 ## Android Demo App
-Check out our demo app to see how to integrate Llama Stack into your Android app: [Android Demo App](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app)
+Check out our demo app to see how to integrate Llama Stack into your Android app: [Android Demo App](https://github.com/meta-llama/llama-stack-apps/tree/android-0.0.54.1/examples/android_app)
 
-The key files in the app are `LlamaStackLocalInference.kt`, `LlamaStackRemoteInference.kts`, and `MainActivity.java`. With encompassed business logic, the app shows how to use Llama Stack for both the environments.
+The key files in the app are `ExampleLlamaStackLocalInference.kt`, `ExampleLlamaStackRemoteInference.kts`, and `MainActivity.java`. With encompassed business logic, the app shows how to use Llama Stack for both the environments.
 
 ## Quick Start
 
@@ -109,7 +110,6 @@ With the Kotlin Library managing all the major operational logic, there are mini
 val result = client!!.inference().chatCompletion(
             InferenceChatCompletionParams.builder()
                 .modelId(modelName)
-                .putAdditionalQueryParam("seq_len", sequenceLength.toString())
                 .messages(listOfMessages)
                 .build()
         )
@@ -118,9 +118,23 @@ val result = client!!.inference().chatCompletion(
 var response = result.asChatCompletionResponse().completionMessage().content().string();
 ```
 
-### Setup Tool Calling
+[Remote only] For inference with a streaming response:
 
-Android demo app for more details: [Tool Calling](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app#tool-calling)
+```
+val result = client!!.inference().chatCompletionStreaming(
+            InferenceChatCompletionParams.builder()
+                .modelId(modelName)
+                .messages(listOfMessages)
+                .build()
+        )
+
+// Response can be received as a asChatCompletionResponseStreamChunk as part of a callback.
+// See Android demo app for a detailed implementation example.
+```
+
+### Setup Custom Tool Calling
+
+Android demo app for more details: [Custom Tool Calling](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app#tool-calling)
 
 ## Advanced Users
 
