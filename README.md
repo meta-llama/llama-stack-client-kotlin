@@ -8,8 +8,9 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest Release Notes: [v0.0.54.1](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.0.54.1)
-- Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.
+Latest Release Notes: [v0.0.54.1](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.0.54.1) 
+
+*Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.*
 
 ## Android Demo App
 Check out our demo app to see how to integrate Llama Stack into your Android app: [Android Demo App](https://github.com/meta-llama/llama-stack-apps/tree/android-0.0.54.1/examples/android_app)
