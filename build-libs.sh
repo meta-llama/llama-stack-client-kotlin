@@ -2,17 +2,14 @@
 # You can follow the error instructions on how to setup and run a server prism
 export SKIP_MOCK_TESTS=true
 
+# Clean build to remove previous jar and any artifacts
+./gradlew clean
+
 # Code linting
 ./gradlew :llama-stack-client-kotlin-core:spotlessApply
 ./gradlew :llama-stack-client-kotlin-client-okhttp:spotlessApply
 ./gradlew :llama-stack-client-kotlin:spotlessApply
 ./gradlew :llama-stack-client-kotlin-client-local:spotlessApply
-
-# Remove old jars
-rm -rf llama-stack-client-kotlin/build/libs
-rm -rf llama-stack-client-kotlin-client-okhttp/build/libs
-rm -rf llama-stack-client-kotlin-core/build/libs
-rm -rf llama-stack-client-kotlin-client-local/build/libs
 
 ./gradlew build
 

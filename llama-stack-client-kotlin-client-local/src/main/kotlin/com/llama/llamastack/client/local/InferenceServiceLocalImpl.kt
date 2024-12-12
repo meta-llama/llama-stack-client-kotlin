@@ -3,10 +3,9 @@
 package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.local.util.PromptFormatLocal
-import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
-import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.EmbeddingsResponse
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionResponse
@@ -80,16 +79,7 @@ constructor(
         onResultComplete = false
         onStatsComplete = false
 
-        return InferenceChatCompletionResponse.ofChatCompletionResponse(
-            InferenceChatCompletionResponse.ChatCompletionResponse.builder()
-                .completionMessage(
-                    CompletionMessage.builder()
-                        .content(CompletionMessage.Content.ofString(resultMessage))
-                        .build()
-                )
-                .putAdditionalProperty("tps", JsonValue.from(statsMetric))
-                .build()
-        )
+        return buildInferenceChatCompletionResponse(resultMessage, statsMetric)
     }
 
     override fun chatCompletionStreaming(
