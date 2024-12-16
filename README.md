@@ -1,6 +1,6 @@
 # Llama Stack Client Kotlin API Library
 
-We are excited to share a guide for a Kotlin Library that brings front the benefits of Llama Stack to your Android device. This library is a set of SDKs that provide a simple and effective way to integrate AI capabilities into your Android app whether it is local (on-device) or remote inference. 
+We are excited to share a guide for a Kotlin Library that brings front the benefits of [Llama Stack](https://github.com/meta-llama/llama-stack) to your Android device. This library is a set of SDKs that provide a simple and effective way to integrate AI capabilities into your Android app whether it is local (on-device) or remote inference. 
 
 Features:
 - Local Inferencing: Run Llama models purely on-device with real-time processing. We currently utilize ExecuTorch as the local inference distributor and may support others in the future.
