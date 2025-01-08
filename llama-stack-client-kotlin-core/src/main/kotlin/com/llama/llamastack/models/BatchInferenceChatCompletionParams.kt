@@ -23,60 +23,53 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class BatchInferenceChatCompletionParams
 constructor(
-    private val messagesBatch: List<List<MessagesBatch>>,
-    private val model: String,
-    private val logprobs: Logprobs?,
-    private val samplingParams: SamplingParams?,
-    private val toolChoice: ToolChoice?,
-    private val toolPromptFormat: ToolPromptFormat?,
-    private val tools: List<Tool>?,
     private val xLlamaStackProviderData: String?,
+    private val body: BatchInferenceChatCompletionBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun messagesBatch(): List<List<MessagesBatch>> = messagesBatch
-
-    fun model(): String = model
-
-    fun logprobs(): Logprobs? = logprobs
-
-    fun samplingParams(): SamplingParams? = samplingParams
-
-    fun toolChoice(): ToolChoice? = toolChoice
-
-    fun toolPromptFormat(): ToolPromptFormat? = toolPromptFormat
-
-    fun tools(): List<Tool>? = tools
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun messagesBatch(): List<List<MessagesBatch>> = body.messagesBatch()
+
+    fun model(): String = body.model()
+
+    fun logprobs(): Logprobs? = body.logprobs()
+
+    fun samplingParams(): SamplingParams? = body.samplingParams()
+
+    fun toolChoice(): ToolChoice? = body.toolChoice()
+
+    /**
+     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
+     * "type": "function", "function" : { "name": "function_name", "description":
+     * "function_description", "parameters": {...} } }
+     *
+     * `function_tag` -- This is an example of how you could define your own user defined format for
+     * making tool calls. The function_tag format looks like this,
+     * <function=function_name>(parameters)</function>
+     *
+     * The detailed prompts for each of these formats are added to llama cli
+     */
+    fun toolPromptFormat(): ToolPromptFormat? = body.toolPromptFormat()
+
+    fun tools(): List<Tool>? = body.tools()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): BatchInferenceChatCompletionBody {
-        return BatchInferenceChatCompletionBody(
-            messagesBatch,
-            model,
-            logprobs,
-            samplingParams,
-            toolChoice,
-            toolPromptFormat,
-            tools,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): BatchInferenceChatCompletionBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -89,24 +82,25 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = BatchInferenceChatCompletionBody.Builder::class)
     @NoAutoDetect
     class BatchInferenceChatCompletionBody
+    @JsonCreator
     internal constructor(
-        private val messagesBatch: List<List<MessagesBatch>>?,
-        private val model: String?,
-        private val logprobs: Logprobs?,
-        private val samplingParams: SamplingParams?,
-        private val toolChoice: ToolChoice?,
-        private val toolPromptFormat: ToolPromptFormat?,
-        private val tools: List<Tool>?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("messages_batch") private val messagesBatch: List<List<MessagesBatch>>,
+        @JsonProperty("model") private val model: String,
+        @JsonProperty("logprobs") private val logprobs: Logprobs?,
+        @JsonProperty("sampling_params") private val samplingParams: SamplingParams?,
+        @JsonProperty("tool_choice") private val toolChoice: ToolChoice?,
+        @JsonProperty("tool_prompt_format") private val toolPromptFormat: ToolPromptFormat?,
+        @JsonProperty("tools") private val tools: List<Tool>?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonProperty("messages_batch")
-        fun messagesBatch(): List<List<MessagesBatch>>? = messagesBatch
+        fun messagesBatch(): List<List<MessagesBatch>> = messagesBatch
 
-        @JsonProperty("model") fun model(): String? = model
+        @JsonProperty("model") fun model(): String = model
 
         @JsonProperty("logprobs") fun logprobs(): Logprobs? = logprobs
 
@@ -143,43 +137,45 @@ constructor(
 
         class Builder {
 
-            private var messagesBatch: List<List<MessagesBatch>>? = null
+            private var messagesBatch: MutableList<List<MessagesBatch>>? = null
             private var model: String? = null
             private var logprobs: Logprobs? = null
             private var samplingParams: SamplingParams? = null
             private var toolChoice: ToolChoice? = null
             private var toolPromptFormat: ToolPromptFormat? = null
-            private var tools: List<Tool>? = null
+            private var tools: MutableList<Tool>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(batchInferenceChatCompletionBody: BatchInferenceChatCompletionBody) =
                 apply {
-                    this.messagesBatch = batchInferenceChatCompletionBody.messagesBatch
-                    this.model = batchInferenceChatCompletionBody.model
-                    this.logprobs = batchInferenceChatCompletionBody.logprobs
-                    this.samplingParams = batchInferenceChatCompletionBody.samplingParams
-                    this.toolChoice = batchInferenceChatCompletionBody.toolChoice
-                    this.toolPromptFormat = batchInferenceChatCompletionBody.toolPromptFormat
-                    this.tools = batchInferenceChatCompletionBody.tools
-                    additionalProperties(batchInferenceChatCompletionBody.additionalProperties)
+                    messagesBatch = batchInferenceChatCompletionBody.messagesBatch.toMutableList()
+                    model = batchInferenceChatCompletionBody.model
+                    logprobs = batchInferenceChatCompletionBody.logprobs
+                    samplingParams = batchInferenceChatCompletionBody.samplingParams
+                    toolChoice = batchInferenceChatCompletionBody.toolChoice
+                    toolPromptFormat = batchInferenceChatCompletionBody.toolPromptFormat
+                    tools = batchInferenceChatCompletionBody.tools?.toMutableList()
+                    additionalProperties =
+                        batchInferenceChatCompletionBody.additionalProperties.toMutableMap()
                 }
 
-            @JsonProperty("messages_batch")
             fun messagesBatch(messagesBatch: List<List<MessagesBatch>>) = apply {
-                this.messagesBatch = messagesBatch
+                this.messagesBatch = messagesBatch.toMutableList()
             }
 
-            @JsonProperty("model") fun model(model: String) = apply { this.model = model }
+            fun addMessagesBatch(messagesBatch: List<MessagesBatch>) = apply {
+                this.messagesBatch =
+                    (this.messagesBatch ?: mutableListOf()).apply { add(messagesBatch) }
+            }
 
-            @JsonProperty("logprobs")
+            fun model(model: String) = apply { this.model = model }
+
             fun logprobs(logprobs: Logprobs) = apply { this.logprobs = logprobs }
 
-            @JsonProperty("sampling_params")
             fun samplingParams(samplingParams: SamplingParams) = apply {
                 this.samplingParams = samplingParams
             }
 
-            @JsonProperty("tool_choice")
             fun toolChoice(toolChoice: ToolChoice) = apply { this.toolChoice = toolChoice }
 
             /**
@@ -193,25 +189,33 @@ constructor(
              *
              * The detailed prompts for each of these formats are added to llama cli
              */
-            @JsonProperty("tool_prompt_format")
             fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) = apply {
                 this.toolPromptFormat = toolPromptFormat
             }
 
-            @JsonProperty("tools") fun tools(tools: List<Tool>) = apply { this.tools = tools }
+            fun tools(tools: List<Tool>) = apply { this.tools = tools.toMutableList() }
+
+            fun addTool(tool: Tool) = apply {
+                tools = (tools ?: mutableListOf()).apply { add(tool) }
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): BatchInferenceChatCompletionBody =
@@ -256,53 +260,42 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var messagesBatch: MutableList<List<MessagesBatch>> = mutableListOf()
-        private var model: String? = null
-        private var logprobs: Logprobs? = null
-        private var samplingParams: SamplingParams? = null
-        private var toolChoice: ToolChoice? = null
-        private var toolPromptFormat: ToolPromptFormat? = null
-        private var tools: MutableList<Tool> = mutableListOf()
         private var xLlamaStackProviderData: String? = null
+        private var body: BatchInferenceChatCompletionBody.Builder =
+            BatchInferenceChatCompletionBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(batchInferenceChatCompletionParams: BatchInferenceChatCompletionParams) =
             apply {
-                messagesBatch = batchInferenceChatCompletionParams.messagesBatch.toMutableList()
-                model = batchInferenceChatCompletionParams.model
-                logprobs = batchInferenceChatCompletionParams.logprobs
-                samplingParams = batchInferenceChatCompletionParams.samplingParams
-                toolChoice = batchInferenceChatCompletionParams.toolChoice
-                toolPromptFormat = batchInferenceChatCompletionParams.toolPromptFormat
-                tools = batchInferenceChatCompletionParams.tools?.toMutableList() ?: mutableListOf()
                 xLlamaStackProviderData = batchInferenceChatCompletionParams.xLlamaStackProviderData
+                body = batchInferenceChatCompletionParams.body.toBuilder()
                 additionalHeaders = batchInferenceChatCompletionParams.additionalHeaders.toBuilder()
                 additionalQueryParams =
                     batchInferenceChatCompletionParams.additionalQueryParams.toBuilder()
-                additionalBodyProperties =
-                    batchInferenceChatCompletionParams.additionalBodyProperties.toMutableMap()
             }
 
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
+
         fun messagesBatch(messagesBatch: List<List<MessagesBatch>>) = apply {
-            this.messagesBatch.clear()
-            this.messagesBatch.addAll(messagesBatch)
+            body.messagesBatch(messagesBatch)
         }
 
         fun addMessagesBatch(messagesBatch: List<MessagesBatch>) = apply {
-            this.messagesBatch.add(messagesBatch)
+            body.addMessagesBatch(messagesBatch)
         }
 
-        fun model(model: String) = apply { this.model = model }
+        fun model(model: String) = apply { body.model(model) }
 
-        fun logprobs(logprobs: Logprobs) = apply { this.logprobs = logprobs }
+        fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
         fun samplingParams(samplingParams: SamplingParams) = apply {
-            this.samplingParams = samplingParams
+            body.samplingParams(samplingParams)
         }
 
-        fun toolChoice(toolChoice: ToolChoice) = apply { this.toolChoice = toolChoice }
+        fun toolChoice(toolChoice: ToolChoice) = apply { body.toolChoice(toolChoice) }
 
         /**
          * `json` -- Refers to the json format for calling tools. The json format takes the form
@@ -316,19 +309,12 @@ constructor(
          * The detailed prompts for each of these formats are added to llama cli
          */
         fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) = apply {
-            this.toolPromptFormat = toolPromptFormat
+            body.toolPromptFormat(toolPromptFormat)
         }
 
-        fun tools(tools: List<Tool>) = apply {
-            this.tools.clear()
-            this.tools.addAll(tools)
-        }
+        fun tools(tools: List<Tool>) = apply { body.tools(tools) }
 
-        fun addTool(tool: Tool) = apply { this.tools.add(tool) }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
+        fun addTool(tool: Tool) = apply { body.addTool(tool) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -429,40 +415,30 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): BatchInferenceChatCompletionParams =
             BatchInferenceChatCompletionParams(
-                messagesBatch.toImmutable(),
-                checkNotNull(model) { "`model` is required but was not set" },
-                logprobs,
-                samplingParams,
-                toolChoice,
-                toolPromptFormat,
-                tools.toImmutable().ifEmpty { null },
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -476,8 +452,6 @@ constructor(
         private val completionMessage: CompletionMessage? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun userMessage(): UserMessage? = userMessage
 
@@ -514,24 +488,6 @@ constructor(
                 toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
                 completionMessage != null -> visitor.visitCompletionMessage(completionMessage)
                 else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): MessagesBatch = apply {
-            if (!validated) {
-                if (
-                    userMessage == null &&
-                        systemMessage == null &&
-                        toolResponseMessage == null &&
-                        completionMessage == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown MessagesBatch: $_json")
-                }
-                userMessage?.validate()
-                systemMessage?.validate()
-                toolResponseMessage?.validate()
-                completionMessage?.validate()
-                validated = true
             }
         }
 
@@ -590,22 +546,18 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): MessagesBatch {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return MessagesBatch(userMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
-                    ?.let {
-                        return MessagesBatch(systemMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return MessagesBatch(toolResponseMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
-                    ?.let {
-                        return MessagesBatch(completionMessage = it, _json = json)
-                    }
+                tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                    return MessagesBatch(userMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<SystemMessage>())?.let {
+                    return MessagesBatch(systemMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                    return MessagesBatch(toolResponseMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<CompletionMessage>())?.let {
+                    return MessagesBatch(completionMessage = it, _json = json)
+                }
 
                 return MessagesBatch(_json = json)
             }
@@ -632,12 +584,13 @@ constructor(
         }
     }
 
-    @JsonDeserialize(builder = Logprobs.Builder::class)
     @NoAutoDetect
     class Logprobs
+    @JsonCreator
     private constructor(
-        private val topK: Long?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("top_k") private val topK: Long?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonProperty("top_k") fun topK(): Long? = topK
@@ -659,24 +612,29 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(logprobs: Logprobs) = apply {
-                this.topK = logprobs.topK
-                additionalProperties(logprobs.additionalProperties)
+                topK = logprobs.topK
+                additionalProperties = logprobs.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("top_k") fun topK(topK: Long) = apply { this.topK = topK }
+            fun topK(topK: Long) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Logprobs = Logprobs(topK, additionalProperties.toImmutable())
@@ -707,23 +665,11 @@ constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val AUTO = ToolChoice(JsonField.of("auto"))
+            val AUTO = of("auto")
 
-            val REQUIRED = ToolChoice(JsonField.of("required"))
+            val REQUIRED = of("required")
 
             fun of(value: String) = ToolChoice(JsonField.of(value))
         }
@@ -754,6 +700,18 @@ constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     class ToolPromptFormat
@@ -764,25 +722,13 @@ constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val JSON = ToolPromptFormat(JsonField.of("json"))
+            val JSON = of("json")
 
-            val FUNCTION_TAG = ToolPromptFormat(JsonField.of("function_tag"))
+            val FUNCTION_TAG = of("function_tag")
 
-            val PYTHON_LIST = ToolPromptFormat(JsonField.of("python_list"))
+            val PYTHON_LIST = of("python_list")
 
             fun of(value: String) = ToolPromptFormat(JsonField.of(value))
         }
@@ -818,23 +764,36 @@ constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
-    @JsonDeserialize(builder = Tool.Builder::class)
     @NoAutoDetect
     class Tool
+    @JsonCreator
     private constructor(
-        private val description: String?,
-        private val parameters: Parameters?,
-        private val toolName: ToolName?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("description") private val description: String?,
+        @JsonProperty("parameters") private val parameters: Parameters?,
+        @JsonProperty("tool_name") private val toolName: ToolName,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonProperty("description") fun description(): String? = description
 
         @JsonProperty("parameters") fun parameters(): Parameters? = parameters
 
-        @JsonProperty("tool_name") fun toolName(): ToolName? = toolName
+        @JsonProperty("tool_name") fun toolName(): ToolName = toolName
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -855,33 +814,37 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(tool: Tool) = apply {
-                this.description = tool.description
-                this.parameters = tool.parameters
-                this.toolName = tool.toolName
-                additionalProperties(tool.additionalProperties)
+                description = tool.description
+                parameters = tool.parameters
+                toolName = tool.toolName
+                additionalProperties = tool.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("description")
             fun description(description: String) = apply { this.description = description }
 
-            @JsonProperty("parameters")
             fun parameters(parameters: Parameters) = apply { this.parameters = parameters }
 
-            @JsonProperty("tool_name")
             fun toolName(toolName: ToolName) = apply { this.toolName = toolName }
+
+            fun toolName(value: String) = apply { toolName = ToolName.of(value) }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Tool =
@@ -901,27 +864,15 @@ constructor(
 
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-
             companion object {
 
-                val BRAVE_SEARCH = ToolName(JsonField.of("brave_search"))
+                val BRAVE_SEARCH = of("brave_search")
 
-                val WOLFRAM_ALPHA = ToolName(JsonField.of("wolfram_alpha"))
+                val WOLFRAM_ALPHA = of("wolfram_alpha")
 
-                val PHOTOGEN = ToolName(JsonField.of("photogen"))
+                val PHOTOGEN = of("photogen")
 
-                val CODE_INTERPRETER = ToolName(JsonField.of("code_interpreter"))
+                val CODE_INTERPRETER = of("code_interpreter")
 
                 fun of(value: String) = ToolName(JsonField.of(value))
             }
@@ -960,13 +911,26 @@ constructor(
                 }
 
             fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
         }
 
-        @JsonDeserialize(builder = Parameters.Builder::class)
         @NoAutoDetect
         class Parameters
+        @JsonCreator
         private constructor(
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
             @JsonAnyGetter
@@ -985,23 +949,30 @@ constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(parameters: Parameters) = apply {
-                    additionalProperties(parameters.additionalProperties)
+                    additionalProperties = parameters.additionalProperties.toMutableMap()
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Parameters = Parameters(additionalProperties.toImmutable())
             }
@@ -1046,11 +1017,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is BatchInferenceChatCompletionParams && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is BatchInferenceChatCompletionParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messagesBatch, model, logprobs, samplingParams, toolChoice, toolPromptFormat, tools, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "BatchInferenceChatCompletionParams{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "BatchInferenceChatCompletionParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

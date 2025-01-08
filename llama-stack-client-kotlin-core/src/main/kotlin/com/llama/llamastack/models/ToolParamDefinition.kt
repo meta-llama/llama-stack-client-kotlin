@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -20,22 +21,29 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = ToolParamDefinition.Builder::class)
 @NoAutoDetect
 class ToolParamDefinition
+@JsonCreator
 private constructor(
-    private val default: JsonField<Default>,
-    private val description: JsonField<String>,
-    private val paramType: JsonField<String>,
-    private val required: JsonField<Boolean>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("default")
+    @ExcludeMissing
+    private val default: JsonField<Default> = JsonMissing.of(),
+    @JsonProperty("description")
+    @ExcludeMissing
+    private val description: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("param_type")
+    @ExcludeMissing
+    private val paramType: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("required")
+    @ExcludeMissing
+    private val required: JsonField<Boolean> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun default(): Default? = default.getNullable("default")
 
@@ -56,6 +64,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): ToolParamDefinition = apply {
         if (!validated) {
@@ -83,49 +93,46 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolParamDefinition: ToolParamDefinition) = apply {
-            this.default = toolParamDefinition.default
-            this.description = toolParamDefinition.description
-            this.paramType = toolParamDefinition.paramType
-            this.required = toolParamDefinition.required
-            additionalProperties(toolParamDefinition.additionalProperties)
+            default = toolParamDefinition.default
+            description = toolParamDefinition.description
+            paramType = toolParamDefinition.paramType
+            required = toolParamDefinition.required
+            additionalProperties = toolParamDefinition.additionalProperties.toMutableMap()
         }
 
         fun default(default: Default) = default(JsonField.of(default))
 
-        @JsonProperty("default")
-        @ExcludeMissing
         fun default(default: JsonField<Default>) = apply { this.default = default }
 
         fun description(description: String) = description(JsonField.of(description))
 
-        @JsonProperty("description")
-        @ExcludeMissing
         fun description(description: JsonField<String>) = apply { this.description = description }
 
         fun paramType(paramType: String) = paramType(JsonField.of(paramType))
 
-        @JsonProperty("param_type")
-        @ExcludeMissing
         fun paramType(paramType: JsonField<String>) = apply { this.paramType = paramType }
 
         fun required(required: Boolean) = required(JsonField.of(required))
 
-        @JsonProperty("required")
-        @ExcludeMissing
         fun required(required: JsonField<Boolean>) = apply { this.required = required }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): ToolParamDefinition =

@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -19,10 +20,22 @@ class SearchToolDefinitionTest {
                 .remoteExecution(
                     RestApiExecutionConfig.builder()
                         .method(RestApiExecutionConfig.Method.GET)
-                        .url("https://example.com")
-                        .body(RestApiExecutionConfig.Body.builder().build())
-                        .headers(RestApiExecutionConfig.Headers.builder().build())
-                        .params(RestApiExecutionConfig.Params.builder().build())
+                        .url(Url.builder().uri("uri").build())
+                        .body(
+                            RestApiExecutionConfig.Body.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .headers(
+                            RestApiExecutionConfig.Headers.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .params(
+                            RestApiExecutionConfig.Params.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .build()
                 )
                 .build()
@@ -36,10 +49,22 @@ class SearchToolDefinitionTest {
             .isEqualTo(
                 RestApiExecutionConfig.builder()
                     .method(RestApiExecutionConfig.Method.GET)
-                    .url("https://example.com")
-                    .body(RestApiExecutionConfig.Body.builder().build())
-                    .headers(RestApiExecutionConfig.Headers.builder().build())
-                    .params(RestApiExecutionConfig.Params.builder().build())
+                    .url(Url.builder().uri("uri").build())
+                    .body(
+                        RestApiExecutionConfig.Body.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .headers(
+                        RestApiExecutionConfig.Headers.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .params(
+                        RestApiExecutionConfig.Params.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .build()
             )
     }

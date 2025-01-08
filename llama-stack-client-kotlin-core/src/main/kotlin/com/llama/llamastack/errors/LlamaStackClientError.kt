@@ -4,17 +4,22 @@ package com.llama.llamastack.errors
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = LlamaStackClientError.Builder::class)
 @NoAutoDetect
 class LlamaStackClientError
+@JsonCreator
 private constructor(
-    @JsonAnyGetter val additionalProperties: Map<String, JsonValue>,
+    @JsonAnyGetter
+    @ExcludeMissing
+    @JsonAnySetter
+    val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun toBuilder() = Builder().from(this)
@@ -37,7 +42,6 @@ private constructor(
             putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
             additionalProperties.put(key, value)
         }

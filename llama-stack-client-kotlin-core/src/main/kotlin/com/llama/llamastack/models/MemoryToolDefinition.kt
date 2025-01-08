@@ -22,25 +22,36 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = MemoryToolDefinition.Builder::class)
 @NoAutoDetect
 class MemoryToolDefinition
+@JsonCreator
 private constructor(
-    private val inputShields: JsonField<List<String>>,
-    private val maxChunks: JsonField<Long>,
-    private val maxTokensInContext: JsonField<Long>,
-    private val memoryBankConfigs: JsonField<List<MemoryBankConfig>>,
-    private val outputShields: JsonField<List<String>>,
-    private val queryGeneratorConfig: JsonField<QueryGeneratorConfig>,
-    private val type: JsonField<Type>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("max_chunks")
+    @ExcludeMissing
+    private val maxChunks: JsonField<Long> = JsonMissing.of(),
+    @JsonProperty("max_tokens_in_context")
+    @ExcludeMissing
+    private val maxTokensInContext: JsonField<Long> = JsonMissing.of(),
+    @JsonProperty("memory_bank_configs")
+    @ExcludeMissing
+    private val memoryBankConfigs: JsonField<List<MemoryBankConfig>> = JsonMissing.of(),
+    @JsonProperty("output_shields")
+    @ExcludeMissing
+    private val outputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("query_generator_config")
+    @ExcludeMissing
+    private val queryGeneratorConfig: JsonField<QueryGeneratorConfig> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun inputShields(): List<String>? = inputShields.getNullable("input_shields")
 
@@ -82,6 +93,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): MemoryToolDefinition = apply {
         if (!validated) {
             inputShields()
@@ -114,35 +127,29 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryToolDefinition: MemoryToolDefinition) = apply {
-            this.inputShields = memoryToolDefinition.inputShields
-            this.maxChunks = memoryToolDefinition.maxChunks
-            this.maxTokensInContext = memoryToolDefinition.maxTokensInContext
-            this.memoryBankConfigs = memoryToolDefinition.memoryBankConfigs
-            this.outputShields = memoryToolDefinition.outputShields
-            this.queryGeneratorConfig = memoryToolDefinition.queryGeneratorConfig
-            this.type = memoryToolDefinition.type
-            additionalProperties(memoryToolDefinition.additionalProperties)
+            inputShields = memoryToolDefinition.inputShields
+            maxChunks = memoryToolDefinition.maxChunks
+            maxTokensInContext = memoryToolDefinition.maxTokensInContext
+            memoryBankConfigs = memoryToolDefinition.memoryBankConfigs
+            outputShields = memoryToolDefinition.outputShields
+            queryGeneratorConfig = memoryToolDefinition.queryGeneratorConfig
+            type = memoryToolDefinition.type
+            additionalProperties = memoryToolDefinition.additionalProperties.toMutableMap()
         }
 
         fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
 
-        @JsonProperty("input_shields")
-        @ExcludeMissing
         fun inputShields(inputShields: JsonField<List<String>>) = apply {
             this.inputShields = inputShields
         }
 
         fun maxChunks(maxChunks: Long) = maxChunks(JsonField.of(maxChunks))
 
-        @JsonProperty("max_chunks")
-        @ExcludeMissing
         fun maxChunks(maxChunks: JsonField<Long>) = apply { this.maxChunks = maxChunks }
 
         fun maxTokensInContext(maxTokensInContext: Long) =
             maxTokensInContext(JsonField.of(maxTokensInContext))
 
-        @JsonProperty("max_tokens_in_context")
-        @ExcludeMissing
         fun maxTokensInContext(maxTokensInContext: JsonField<Long>) = apply {
             this.maxTokensInContext = maxTokensInContext
         }
@@ -150,16 +157,12 @@ private constructor(
         fun memoryBankConfigs(memoryBankConfigs: List<MemoryBankConfig>) =
             memoryBankConfigs(JsonField.of(memoryBankConfigs))
 
-        @JsonProperty("memory_bank_configs")
-        @ExcludeMissing
         fun memoryBankConfigs(memoryBankConfigs: JsonField<List<MemoryBankConfig>>) = apply {
             this.memoryBankConfigs = memoryBankConfigs
         }
 
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
-        @JsonProperty("output_shields")
-        @ExcludeMissing
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
             this.outputShields = outputShields
         }
@@ -167,30 +170,31 @@ private constructor(
         fun queryGeneratorConfig(queryGeneratorConfig: QueryGeneratorConfig) =
             queryGeneratorConfig(JsonField.of(queryGeneratorConfig))
 
-        @JsonProperty("query_generator_config")
-        @ExcludeMissing
         fun queryGeneratorConfig(queryGeneratorConfig: JsonField<QueryGeneratorConfig>) = apply {
             this.queryGeneratorConfig = queryGeneratorConfig
         }
 
         fun type(type: Type) = type(JsonField.of(type))
 
-        @JsonProperty("type")
-        @ExcludeMissing
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): MemoryToolDefinition =
@@ -358,16 +362,19 @@ private constructor(
             }
         }
 
-        @JsonDeserialize(builder = Vector.Builder::class)
         @NoAutoDetect
         class Vector
+        @JsonCreator
         private constructor(
-            private val bankId: JsonField<String>,
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("bank_id")
+            @ExcludeMissing
+            private val bankId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun bankId(): String = bankId.getRequired("bank_id")
 
@@ -380,6 +387,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Vector = apply {
                 if (!validated) {
@@ -403,37 +412,40 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(vector: Vector) = apply {
-                    this.bankId = vector.bankId
-                    this.type = vector.type
-                    additionalProperties(vector.additionalProperties)
+                    bankId = vector.bankId
+                    type = vector.type
+                    additionalProperties = vector.additionalProperties.toMutableMap()
                 }
 
                 fun bankId(bankId: String) = bankId(JsonField.of(bankId))
 
-                @JsonProperty("bank_id")
-                @ExcludeMissing
                 fun bankId(bankId: JsonField<String>) = apply { this.bankId = bankId }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Vector =
                     Vector(
@@ -451,21 +463,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val VECTOR = Type(JsonField.of("vector"))
+                    val VECTOR = of("vector")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -492,6 +492,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -512,17 +524,22 @@ private constructor(
                 "Vector{bankId=$bankId, type=$type, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = KeyValue.Builder::class)
         @NoAutoDetect
         class KeyValue
+        @JsonCreator
         private constructor(
-            private val bankId: JsonField<String>,
-            private val keys: JsonField<List<String>>,
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("bank_id")
+            @ExcludeMissing
+            private val bankId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("keys")
+            @ExcludeMissing
+            private val keys: JsonField<List<String>> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun bankId(): String = bankId.getRequired("bank_id")
 
@@ -539,6 +556,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): KeyValue = apply {
                 if (!validated) {
@@ -564,44 +583,45 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(keyValue: KeyValue) = apply {
-                    this.bankId = keyValue.bankId
-                    this.keys = keyValue.keys
-                    this.type = keyValue.type
-                    additionalProperties(keyValue.additionalProperties)
+                    bankId = keyValue.bankId
+                    keys = keyValue.keys
+                    type = keyValue.type
+                    additionalProperties = keyValue.additionalProperties.toMutableMap()
                 }
 
                 fun bankId(bankId: String) = bankId(JsonField.of(bankId))
 
-                @JsonProperty("bank_id")
-                @ExcludeMissing
                 fun bankId(bankId: JsonField<String>) = apply { this.bankId = bankId }
 
                 fun keys(keys: List<String>) = keys(JsonField.of(keys))
 
-                @JsonProperty("keys")
-                @ExcludeMissing
                 fun keys(keys: JsonField<List<String>>) = apply { this.keys = keys }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): KeyValue =
                     KeyValue(
@@ -620,21 +640,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val KEYVALUE = Type(JsonField.of("keyvalue"))
+                    val KEYVALUE = of("keyvalue")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -661,6 +669,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -681,16 +701,19 @@ private constructor(
                 "KeyValue{bankId=$bankId, keys=$keys, type=$type, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = Keyword.Builder::class)
         @NoAutoDetect
         class Keyword
+        @JsonCreator
         private constructor(
-            private val bankId: JsonField<String>,
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("bank_id")
+            @ExcludeMissing
+            private val bankId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun bankId(): String = bankId.getRequired("bank_id")
 
@@ -703,6 +726,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Keyword = apply {
                 if (!validated) {
@@ -726,37 +751,40 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(keyword: Keyword) = apply {
-                    this.bankId = keyword.bankId
-                    this.type = keyword.type
-                    additionalProperties(keyword.additionalProperties)
+                    bankId = keyword.bankId
+                    type = keyword.type
+                    additionalProperties = keyword.additionalProperties.toMutableMap()
                 }
 
                 fun bankId(bankId: String) = bankId(JsonField.of(bankId))
 
-                @JsonProperty("bank_id")
-                @ExcludeMissing
                 fun bankId(bankId: JsonField<String>) = apply { this.bankId = bankId }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Keyword =
                     Keyword(
@@ -774,21 +802,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val KEYWORD = Type(JsonField.of("keyword"))
+                    val KEYWORD = of("keyword")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -815,6 +831,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -835,17 +863,22 @@ private constructor(
                 "Keyword{bankId=$bankId, type=$type, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = Graph.Builder::class)
         @NoAutoDetect
         class Graph
+        @JsonCreator
         private constructor(
-            private val bankId: JsonField<String>,
-            private val entities: JsonField<List<String>>,
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("bank_id")
+            @ExcludeMissing
+            private val bankId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("entities")
+            @ExcludeMissing
+            private val entities: JsonField<List<String>> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun bankId(): String = bankId.getRequired("bank_id")
 
@@ -862,6 +895,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Graph = apply {
                 if (!validated) {
@@ -887,44 +922,45 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(graph: Graph) = apply {
-                    this.bankId = graph.bankId
-                    this.entities = graph.entities
-                    this.type = graph.type
-                    additionalProperties(graph.additionalProperties)
+                    bankId = graph.bankId
+                    entities = graph.entities
+                    type = graph.type
+                    additionalProperties = graph.additionalProperties.toMutableMap()
                 }
 
                 fun bankId(bankId: String) = bankId(JsonField.of(bankId))
 
-                @JsonProperty("bank_id")
-                @ExcludeMissing
                 fun bankId(bankId: JsonField<String>) = apply { this.bankId = bankId }
 
                 fun entities(entities: List<String>) = entities(JsonField.of(entities))
 
-                @JsonProperty("entities")
-                @ExcludeMissing
                 fun entities(entities: JsonField<List<String>>) = apply { this.entities = entities }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Graph =
                     Graph(
@@ -943,21 +979,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val GRAPH = Type(JsonField.of("graph"))
+                    val GRAPH = of("graph")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -984,6 +1008,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -1140,16 +1176,19 @@ private constructor(
             }
         }
 
-        @JsonDeserialize(builder = Default.Builder::class)
         @NoAutoDetect
         class Default
+        @JsonCreator
         private constructor(
-            private val sep: JsonField<String>,
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("sep")
+            @ExcludeMissing
+            private val sep: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun sep(): String = sep.getRequired("sep")
 
@@ -1162,6 +1201,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Default = apply {
                 if (!validated) {
@@ -1185,37 +1226,40 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(default: Default) = apply {
-                    this.sep = default.sep
-                    this.type = default.type
-                    additionalProperties(default.additionalProperties)
+                    sep = default.sep
+                    type = default.type
+                    additionalProperties = default.additionalProperties.toMutableMap()
                 }
 
                 fun sep(sep: String) = sep(JsonField.of(sep))
 
-                @JsonProperty("sep")
-                @ExcludeMissing
                 fun sep(sep: JsonField<String>) = apply { this.sep = sep }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Default =
                     Default(
@@ -1233,21 +1277,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val DEFAULT = Type(JsonField.of("default"))
+                    val DEFAULT = of("default")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -1274,6 +1306,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -1294,17 +1338,22 @@ private constructor(
                 "Default{sep=$sep, type=$type, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = Llm.Builder::class)
         @NoAutoDetect
         class Llm
+        @JsonCreator
         private constructor(
-            private val model: JsonField<String>,
-            private val template: JsonField<String>,
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("model")
+            @ExcludeMissing
+            private val model: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("template")
+            @ExcludeMissing
+            private val template: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun model(): String = model.getRequired("model")
 
@@ -1321,6 +1370,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Llm = apply {
                 if (!validated) {
@@ -1346,44 +1397,45 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(llm: Llm) = apply {
-                    this.model = llm.model
-                    this.template = llm.template
-                    this.type = llm.type
-                    additionalProperties(llm.additionalProperties)
+                    model = llm.model
+                    template = llm.template
+                    type = llm.type
+                    additionalProperties = llm.additionalProperties.toMutableMap()
                 }
 
                 fun model(model: String) = model(JsonField.of(model))
 
-                @JsonProperty("model")
-                @ExcludeMissing
                 fun model(model: JsonField<String>) = apply { this.model = model }
 
                 fun template(template: String) = template(JsonField.of(template))
 
-                @JsonProperty("template")
-                @ExcludeMissing
                 fun template(template: JsonField<String>) = apply { this.template = template }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Llm =
                     Llm(
@@ -1402,21 +1454,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val LLM = Type(JsonField.of("llm"))
+                    val LLM = of("llm")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -1443,6 +1483,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -1463,15 +1515,16 @@ private constructor(
                 "Llm{model=$model, template=$template, type=$type, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = Custom.Builder::class)
         @NoAutoDetect
         class Custom
+        @JsonCreator
         private constructor(
-            private val type: JsonField<Type>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun type(): Type = type.getRequired("type")
 
@@ -1480,6 +1533,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Custom = apply {
                 if (!validated) {
@@ -1501,30 +1556,35 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(custom: Custom) = apply {
-                    this.type = custom.type
-                    additionalProperties(custom.additionalProperties)
+                    type = custom.type
+                    additionalProperties = custom.additionalProperties.toMutableMap()
                 }
 
                 fun type(type: Type) = type(JsonField.of(type))
 
-                @JsonProperty("type")
-                @ExcludeMissing
                 fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Custom = Custom(type, additionalProperties.toImmutable())
             }
@@ -1537,21 +1597,9 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val CUSTOM = Type(JsonField.of("custom"))
+                    val CUSTOM = of("custom")
 
                     fun of(value: String) = Type(JsonField.of(value))
                 }
@@ -1578,6 +1626,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -1607,21 +1667,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val MEMORY = Type(JsonField.of("memory"))
+            val MEMORY = of("memory")
 
             fun of(value: String) = Type(JsonField.of(value))
         }
@@ -1648,6 +1696,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -20,44 +21,34 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class SafetyRunShieldParams
 constructor(
-    private val messages: List<Message>,
-    private val params: Params,
-    private val shieldId: String,
     private val xLlamaStackProviderData: String?,
+    private val body: SafetyRunShieldBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun messages(): List<Message> = messages
-
-    fun params(): Params = params
-
-    fun shieldId(): String = shieldId
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun messages(): List<Message> = body.messages()
+
+    fun params(): Params = body.params()
+
+    fun shieldId(): String = body.shieldId()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): SafetyRunShieldBody {
-        return SafetyRunShieldBody(
-            messages,
-            params,
-            shieldId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): SafetyRunShieldBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -70,21 +61,22 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = SafetyRunShieldBody.Builder::class)
     @NoAutoDetect
     class SafetyRunShieldBody
+    @JsonCreator
     internal constructor(
-        private val messages: List<Message>?,
-        private val params: Params?,
-        private val shieldId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("messages") private val messages: List<Message>,
+        @JsonProperty("params") private val params: Params,
+        @JsonProperty("shield_id") private val shieldId: String,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("messages") fun messages(): List<Message>? = messages
+        @JsonProperty("messages") fun messages(): List<Message> = messages
 
-        @JsonProperty("params") fun params(): Params? = params
+        @JsonProperty("params") fun params(): Params = params
 
-        @JsonProperty("shield_id") fun shieldId(): String? = shieldId
+        @JsonProperty("shield_id") fun shieldId(): String = shieldId
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -99,38 +91,47 @@ constructor(
 
         class Builder {
 
-            private var messages: List<Message>? = null
+            private var messages: MutableList<Message>? = null
             private var params: Params? = null
             private var shieldId: String? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(safetyRunShieldBody: SafetyRunShieldBody) = apply {
-                this.messages = safetyRunShieldBody.messages
-                this.params = safetyRunShieldBody.params
-                this.shieldId = safetyRunShieldBody.shieldId
-                additionalProperties(safetyRunShieldBody.additionalProperties)
+                messages = safetyRunShieldBody.messages.toMutableList()
+                params = safetyRunShieldBody.params
+                shieldId = safetyRunShieldBody.shieldId
+                additionalProperties = safetyRunShieldBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("messages")
-            fun messages(messages: List<Message>) = apply { this.messages = messages }
+            fun messages(messages: List<Message>) = apply {
+                this.messages = messages.toMutableList()
+            }
 
-            @JsonProperty("params") fun params(params: Params) = apply { this.params = params }
+            fun addMessage(message: Message) = apply {
+                messages = (messages ?: mutableListOf()).apply { add(message) }
+            }
 
-            @JsonProperty("shield_id")
+            fun params(params: Params) = apply { this.params = params }
+
             fun shieldId(shieldId: String) = apply { this.shieldId = shieldId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): SafetyRunShieldBody =
@@ -171,38 +172,29 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var messages: MutableList<Message> = mutableListOf()
-        private var params: Params? = null
-        private var shieldId: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: SafetyRunShieldBody.Builder = SafetyRunShieldBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(safetyRunShieldParams: SafetyRunShieldParams) = apply {
-            messages = safetyRunShieldParams.messages.toMutableList()
-            params = safetyRunShieldParams.params
-            shieldId = safetyRunShieldParams.shieldId
             xLlamaStackProviderData = safetyRunShieldParams.xLlamaStackProviderData
+            body = safetyRunShieldParams.body.toBuilder()
             additionalHeaders = safetyRunShieldParams.additionalHeaders.toBuilder()
             additionalQueryParams = safetyRunShieldParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties = safetyRunShieldParams.additionalBodyProperties.toMutableMap()
         }
-
-        fun messages(messages: List<Message>) = apply {
-            this.messages.clear()
-            this.messages.addAll(messages)
-        }
-
-        fun addMessage(message: Message) = apply { this.messages.add(message) }
-
-        fun params(params: Params) = apply { this.params = params }
-
-        fun shieldId(shieldId: String) = apply { this.shieldId = shieldId }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
+
+        fun messages(messages: List<Message>) = apply { body.messages(messages) }
+
+        fun addMessage(message: Message) = apply { body.addMessage(message) }
+
+        fun params(params: Params) = apply { body.params(params) }
+
+        fun shieldId(shieldId: String) = apply { body.shieldId(shieldId) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -303,36 +295,30 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): SafetyRunShieldParams =
             SafetyRunShieldParams(
-                messages.toImmutable(),
-                checkNotNull(params) { "`params` is required but was not set" },
-                checkNotNull(shieldId) { "`shieldId` is required but was not set" },
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -346,8 +332,6 @@ constructor(
         private val completionMessage: CompletionMessage? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun userMessage(): UserMessage? = userMessage
 
@@ -384,24 +368,6 @@ constructor(
                 toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
                 completionMessage != null -> visitor.visitCompletionMessage(completionMessage)
                 else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): Message = apply {
-            if (!validated) {
-                if (
-                    userMessage == null &&
-                        systemMessage == null &&
-                        toolResponseMessage == null &&
-                        completionMessage == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Message: $_json")
-                }
-                userMessage?.validate()
-                systemMessage?.validate()
-                toolResponseMessage?.validate()
-                completionMessage?.validate()
-                validated = true
             }
         }
 
@@ -459,22 +425,18 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Message {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(userMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(systemMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(toolResponseMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(completionMessage = it, _json = json)
-                    }
+                tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                    return Message(userMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<SystemMessage>())?.let {
+                    return Message(systemMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                    return Message(toolResponseMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<CompletionMessage>())?.let {
+                    return Message(completionMessage = it, _json = json)
+                }
 
                 return Message(_json = json)
             }
@@ -501,11 +463,12 @@ constructor(
         }
     }
 
-    @JsonDeserialize(builder = Params.Builder::class)
     @NoAutoDetect
     class Params
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -524,21 +487,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(params: Params) = apply {
-                additionalProperties(params.additionalProperties)
+                additionalProperties = params.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Params = Params(additionalProperties.toImmutable())
@@ -566,11 +534,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is SafetyRunShieldParams && messages == other.messages && params == other.params && shieldId == other.shieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is SafetyRunShieldParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(messages, params, shieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "SafetyRunShieldParams{messages=$messages, params=$params, shieldId=$shieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "SafetyRunShieldParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

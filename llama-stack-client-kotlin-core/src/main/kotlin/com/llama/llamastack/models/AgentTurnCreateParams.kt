@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -20,48 +21,36 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class AgentTurnCreateParams
 constructor(
-    private val agentId: String,
-    private val messages: List<Message>,
-    private val sessionId: String,
-    private val attachments: List<Attachment>?,
     private val xLlamaStackProviderData: String?,
+    private val body: AgentTurnCreateBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun agentId(): String = agentId
-
-    fun messages(): List<Message> = messages
-
-    fun sessionId(): String = sessionId
-
-    fun attachments(): List<Attachment>? = attachments
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun agentId(): String = body.agentId()
+
+    fun messages(): List<Message> = body.messages()
+
+    fun sessionId(): String = body.sessionId()
+
+    fun attachments(): List<Attachment>? = body.attachments()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): AgentTurnCreateBody {
-        return AgentTurnCreateBody(
-            agentId,
-            messages,
-            sessionId,
-            attachments,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): AgentTurnCreateBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -74,22 +63,23 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = AgentTurnCreateBody.Builder::class)
     @NoAutoDetect
     class AgentTurnCreateBody
+    @JsonCreator
     internal constructor(
-        private val agentId: String?,
-        private val messages: List<Message>?,
-        private val sessionId: String?,
-        private val attachments: List<Attachment>?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("agent_id") private val agentId: String,
+        @JsonProperty("messages") private val messages: List<Message>,
+        @JsonProperty("session_id") private val sessionId: String,
+        @JsonProperty("attachments") private val attachments: List<Attachment>?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("agent_id") fun agentId(): String? = agentId
+        @JsonProperty("agent_id") fun agentId(): String = agentId
 
-        @JsonProperty("messages") fun messages(): List<Message>? = messages
+        @JsonProperty("messages") fun messages(): List<Message> = messages
 
-        @JsonProperty("session_id") fun sessionId(): String? = sessionId
+        @JsonProperty("session_id") fun sessionId(): String = sessionId
 
         @JsonProperty("attachments") fun attachments(): List<Attachment>? = attachments
 
@@ -107,45 +97,56 @@ constructor(
         class Builder {
 
             private var agentId: String? = null
-            private var messages: List<Message>? = null
+            private var messages: MutableList<Message>? = null
             private var sessionId: String? = null
-            private var attachments: List<Attachment>? = null
+            private var attachments: MutableList<Attachment>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentTurnCreateBody: AgentTurnCreateBody) = apply {
-                this.agentId = agentTurnCreateBody.agentId
-                this.messages = agentTurnCreateBody.messages
-                this.sessionId = agentTurnCreateBody.sessionId
-                this.attachments = agentTurnCreateBody.attachments
-                additionalProperties(agentTurnCreateBody.additionalProperties)
+                agentId = agentTurnCreateBody.agentId
+                messages = agentTurnCreateBody.messages.toMutableList()
+                sessionId = agentTurnCreateBody.sessionId
+                attachments = agentTurnCreateBody.attachments?.toMutableList()
+                additionalProperties = agentTurnCreateBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("agent_id")
             fun agentId(agentId: String) = apply { this.agentId = agentId }
 
-            @JsonProperty("messages")
-            fun messages(messages: List<Message>) = apply { this.messages = messages }
+            fun messages(messages: List<Message>) = apply {
+                this.messages = messages.toMutableList()
+            }
 
-            @JsonProperty("session_id")
+            fun addMessage(message: Message) = apply {
+                messages = (messages ?: mutableListOf()).apply { add(message) }
+            }
+
             fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
-            @JsonProperty("attachments")
             fun attachments(attachments: List<Attachment>) = apply {
-                this.attachments = attachments
+                this.attachments = attachments.toMutableList()
+            }
+
+            fun addAttachment(attachment: Attachment) = apply {
+                attachments = (attachments ?: mutableListOf()).apply { add(attachment) }
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): AgentTurnCreateBody =
@@ -187,47 +188,33 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var agentId: String? = null
-        private var messages: MutableList<Message> = mutableListOf()
-        private var sessionId: String? = null
-        private var attachments: MutableList<Attachment> = mutableListOf()
         private var xLlamaStackProviderData: String? = null
+        private var body: AgentTurnCreateBody.Builder = AgentTurnCreateBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentTurnCreateParams: AgentTurnCreateParams) = apply {
-            agentId = agentTurnCreateParams.agentId
-            messages = agentTurnCreateParams.messages.toMutableList()
-            sessionId = agentTurnCreateParams.sessionId
-            attachments = agentTurnCreateParams.attachments?.toMutableList() ?: mutableListOf()
             xLlamaStackProviderData = agentTurnCreateParams.xLlamaStackProviderData
+            body = agentTurnCreateParams.body.toBuilder()
             additionalHeaders = agentTurnCreateParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentTurnCreateParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties = agentTurnCreateParams.additionalBodyProperties.toMutableMap()
         }
-
-        fun agentId(agentId: String) = apply { this.agentId = agentId }
-
-        fun messages(messages: List<Message>) = apply {
-            this.messages.clear()
-            this.messages.addAll(messages)
-        }
-
-        fun addMessage(message: Message) = apply { this.messages.add(message) }
-
-        fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
-
-        fun attachments(attachments: List<Attachment>) = apply {
-            this.attachments.clear()
-            this.attachments.addAll(attachments)
-        }
-
-        fun addAttachment(attachment: Attachment) = apply { this.attachments.add(attachment) }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
+
+        fun agentId(agentId: String) = apply { body.agentId(agentId) }
+
+        fun messages(messages: List<Message>) = apply { body.messages(messages) }
+
+        fun addMessage(message: Message) = apply { body.addMessage(message) }
+
+        fun sessionId(sessionId: String) = apply { body.sessionId(sessionId) }
+
+        fun attachments(attachments: List<Attachment>) = apply { body.attachments(attachments) }
+
+        fun addAttachment(attachment: Attachment) = apply { body.addAttachment(attachment) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -328,37 +315,30 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): AgentTurnCreateParams =
             AgentTurnCreateParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                messages.toImmutable(),
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
-                attachments.toImmutable().ifEmpty { null },
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -370,8 +350,6 @@ constructor(
         private val toolResponseMessage: ToolResponseMessage? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun userMessage(): UserMessage? = userMessage
 
@@ -393,17 +371,6 @@ constructor(
                 userMessage != null -> visitor.visitUserMessage(userMessage)
                 toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
                 else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): Message = apply {
-            if (!validated) {
-                if (userMessage == null && toolResponseMessage == null) {
-                    throw LlamaStackClientInvalidDataException("Unknown Message: $_json")
-                }
-                userMessage?.validate()
-                toolResponseMessage?.validate()
-                validated = true
             }
         }
 
@@ -449,14 +416,12 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Message {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(userMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(toolResponseMessage = it, _json = json)
-                    }
+                tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                    return Message(userMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                    return Message(toolResponseMessage = it, _json = json)
+                }
 
                 return Message(_json = json)
             }
@@ -485,11 +450,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && attachments == other.attachments && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is AgentTurnCreateParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, messages, sessionId, attachments, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentTurnCreateParams{agentId=$agentId, messages=$messages, sessionId=$sessionId, attachments=$attachments, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "AgentTurnCreateParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

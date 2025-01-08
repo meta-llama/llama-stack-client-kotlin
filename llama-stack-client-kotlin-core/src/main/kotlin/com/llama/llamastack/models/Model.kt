@@ -6,34 +6,45 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = Model.Builder::class)
 @NoAutoDetect
 class Model
+@JsonCreator
 private constructor(
-    private val identifier: JsonField<String>,
-    private val metadata: JsonField<Metadata>,
-    private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
-    private val type: JsonField<Type>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("identifier")
+    @ExcludeMissing
+    private val identifier: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("metadata")
+    @ExcludeMissing
+    private val metadata: JsonField<Metadata> = JsonMissing.of(),
+    @JsonProperty("model_type")
+    @ExcludeMissing
+    private val modelType: JsonField<ModelType> = JsonMissing.of(),
+    @JsonProperty("provider_id")
+    @ExcludeMissing
+    private val providerId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    private val providerResourceId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun identifier(): String = identifier.getRequired("identifier")
 
     fun metadata(): Metadata = metadata.getRequired("metadata")
+
+    fun modelType(): ModelType = modelType.getRequired("model_type")
 
     fun providerId(): String = providerId.getRequired("provider_id")
 
@@ -44,6 +55,8 @@ private constructor(
     @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
 
     @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+
+    @JsonProperty("model_type") @ExcludeMissing fun _modelType() = modelType
 
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
 
@@ -57,10 +70,13 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): Model = apply {
         if (!validated) {
             identifier()
             metadata().validate()
+            modelType()
             providerId()
             providerResourceId()
             type()
@@ -79,71 +95,73 @@ private constructor(
 
         private var identifier: JsonField<String> = JsonMissing.of()
         private var metadata: JsonField<Metadata> = JsonMissing.of()
+        private var modelType: JsonField<ModelType> = JsonMissing.of()
         private var providerId: JsonField<String> = JsonMissing.of()
         private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var type: JsonField<Type> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(model: Model) = apply {
-            this.identifier = model.identifier
-            this.metadata = model.metadata
-            this.providerId = model.providerId
-            this.providerResourceId = model.providerResourceId
-            this.type = model.type
-            additionalProperties(model.additionalProperties)
+            identifier = model.identifier
+            metadata = model.metadata
+            modelType = model.modelType
+            providerId = model.providerId
+            providerResourceId = model.providerResourceId
+            type = model.type
+            additionalProperties = model.additionalProperties.toMutableMap()
         }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
-        @JsonProperty("identifier")
-        @ExcludeMissing
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
-        @JsonProperty("metadata")
-        @ExcludeMissing
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
+
+        fun modelType(modelType: ModelType) = modelType(JsonField.of(modelType))
+
+        fun modelType(modelType: JsonField<ModelType>) = apply { this.modelType = modelType }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
-        @JsonProperty("provider_id")
-        @ExcludeMissing
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerResourceId(providerResourceId: String) =
             providerResourceId(JsonField.of(providerResourceId))
 
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
         fun providerResourceId(providerResourceId: JsonField<String>) = apply {
             this.providerResourceId = providerResourceId
         }
 
         fun type(type: Type) = type(JsonField.of(type))
 
-        @JsonProperty("type")
-        @ExcludeMissing
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): Model =
             Model(
                 identifier,
                 metadata,
+                modelType,
                 providerId,
                 providerResourceId,
                 type,
@@ -151,18 +169,19 @@ private constructor(
             )
     }
 
-    @JsonDeserialize(builder = Metadata.Builder::class)
     @NoAutoDetect
     class Metadata
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Metadata = apply {
             if (!validated) {
@@ -182,21 +201,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metadata: Metadata) = apply {
-                additionalProperties(metadata.additionalProperties)
+                additionalProperties = metadata.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
@@ -219,6 +243,63 @@ private constructor(
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }
 
+    class ModelType
+    @JsonCreator
+    private constructor(
+        private val value: JsonField<String>,
+    ) : Enum {
+
+        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+        companion object {
+
+            val LLM = of("llm")
+
+            val EMBEDDING = of("embedding")
+
+            fun of(value: String) = ModelType(JsonField.of(value))
+        }
+
+        enum class Known {
+            LLM,
+            EMBEDDING,
+        }
+
+        enum class Value {
+            LLM,
+            EMBEDDING,
+            _UNKNOWN,
+        }
+
+        fun value(): Value =
+            when (this) {
+                LLM -> Value.LLM
+                EMBEDDING -> Value.EMBEDDING
+                else -> Value._UNKNOWN
+            }
+
+        fun known(): Known =
+            when (this) {
+                LLM -> Known.LLM
+                EMBEDDING -> Known.EMBEDDING
+                else -> throw LlamaStackClientInvalidDataException("Unknown ModelType: $value")
+            }
+
+        fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ModelType && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
+    }
+
     class Type
     @JsonCreator
     private constructor(
@@ -227,21 +308,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val MODEL = Type(JsonField.of("model"))
+            val MODEL = of("model")
 
             fun of(value: String) = Type(JsonField.of(value))
         }
@@ -268,6 +337,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -275,15 +356,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Model && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Model && identifier == other.identifier && metadata == other.metadata && modelType == other.modelType && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, providerId, providerResourceId, type, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, modelType, providerId, providerResourceId, type, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Model{identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
+        "Model{identifier=$identifier, metadata=$metadata, modelType=$modelType, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
 }

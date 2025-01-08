@@ -4,26 +4,29 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = ScoringScoreBatchResponse.Builder::class)
 @NoAutoDetect
 class ScoringScoreBatchResponse
+@JsonCreator
 private constructor(
-    private val datasetId: JsonField<String>,
-    private val results: JsonField<Results>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("dataset_id")
+    @ExcludeMissing
+    private val datasetId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("results")
+    @ExcludeMissing
+    private val results: JsonField<Results> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun datasetId(): String? = datasetId.getNullable("dataset_id")
 
@@ -36,6 +39,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): ScoringScoreBatchResponse = apply {
         if (!validated) {
@@ -59,35 +64,36 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringScoreBatchResponse: ScoringScoreBatchResponse) = apply {
-            this.datasetId = scoringScoreBatchResponse.datasetId
-            this.results = scoringScoreBatchResponse.results
-            additionalProperties(scoringScoreBatchResponse.additionalProperties)
+            datasetId = scoringScoreBatchResponse.datasetId
+            results = scoringScoreBatchResponse.results
+            additionalProperties = scoringScoreBatchResponse.additionalProperties.toMutableMap()
         }
 
         fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
-        @JsonProperty("dataset_id")
-        @ExcludeMissing
         fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
         fun results(results: Results) = results(JsonField.of(results))
 
-        @JsonProperty("results")
-        @ExcludeMissing
         fun results(results: JsonField<Results>) = apply { this.results = results }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): ScoringScoreBatchResponse =
@@ -98,18 +104,19 @@ private constructor(
             )
     }
 
-    @JsonDeserialize(builder = Results.Builder::class)
     @NoAutoDetect
     class Results
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Results = apply {
             if (!validated) {
@@ -129,21 +136,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(results: Results) = apply {
-                additionalProperties(results.additionalProperties)
+                additionalProperties = results.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Results = Results(additionalProperties.toImmutable())

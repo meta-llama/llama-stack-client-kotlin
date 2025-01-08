@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,7 +11,13 @@ class EvalEvaluateRowsParamsTest {
     @Test
     fun createEvalEvaluateRowsParams() {
         EvalEvaluateRowsParams.builder()
-            .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+            .inputRows(
+                listOf(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
             .scoringFunctions(listOf("string"))
             .taskConfig(
                 EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
@@ -44,7 +50,7 @@ class EvalEvaluateRowsParamsTest {
                                         )
                                         .systemMessage(
                                             SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
+                                                .content(InterleavedContent.ofString("string"))
                                                 .role(SystemMessage.Role.SYSTEM)
                                                 .build()
                                         )
@@ -67,7 +73,13 @@ class EvalEvaluateRowsParamsTest {
     fun getBody() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+                .inputRows(
+                    listOf(
+                        EvalEvaluateRowsParams.InputRow.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                )
                 .scoringFunctions(listOf("string"))
                 .taskConfig(
                     EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
@@ -101,9 +113,7 @@ class EvalEvaluateRowsParamsTest {
                                             )
                                             .systemMessage(
                                                 SystemMessage.builder()
-                                                    .content(
-                                                        SystemMessage.Content.ofString("string")
-                                                    )
+                                                    .content(InterleavedContent.ofString("string"))
                                                     .role(SystemMessage.Role.SYSTEM)
                                                     .build()
                                             )
@@ -124,7 +134,13 @@ class EvalEvaluateRowsParamsTest {
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
-            .isEqualTo(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+            .isEqualTo(
+                listOf(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.taskConfig())
             .isEqualTo(
@@ -158,7 +174,7 @@ class EvalEvaluateRowsParamsTest {
                                         )
                                         .systemMessage(
                                             SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
+                                                .content(InterleavedContent.ofString("string"))
                                                 .role(SystemMessage.Role.SYSTEM)
                                                 .build()
                                         )
@@ -179,7 +195,13 @@ class EvalEvaluateRowsParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+                .inputRows(
+                    listOf(
+                        EvalEvaluateRowsParams.InputRow.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                )
                 .scoringFunctions(listOf("string"))
                 .taskConfig(
                     EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
@@ -221,7 +243,13 @@ class EvalEvaluateRowsParamsTest {
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
-            .isEqualTo(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+            .isEqualTo(
+                listOf(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.taskConfig())
             .isEqualTo(

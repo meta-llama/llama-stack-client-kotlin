@@ -4,46 +4,38 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class ScoringScoreParams
 constructor(
-    private val inputRows: List<InputRow>,
-    private val scoringFunctions: ScoringFunctions,
     private val xLlamaStackProviderData: String?,
+    private val body: ScoringScoreBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun inputRows(): List<InputRow> = inputRows
-
-    fun scoringFunctions(): ScoringFunctions = scoringFunctions
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun inputRows(): List<InputRow> = body.inputRows()
+
+    fun scoringFunctions(): ScoringFunctions = body.scoringFunctions()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): ScoringScoreBody {
-        return ScoringScoreBody(
-            inputRows,
-            scoringFunctions,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): ScoringScoreBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -56,19 +48,20 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = ScoringScoreBody.Builder::class)
     @NoAutoDetect
     class ScoringScoreBody
+    @JsonCreator
     internal constructor(
-        private val inputRows: List<InputRow>?,
-        private val scoringFunctions: ScoringFunctions?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("input_rows") private val inputRows: List<InputRow>,
+        @JsonProperty("scoring_functions") private val scoringFunctions: ScoringFunctions,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("input_rows") fun inputRows(): List<InputRow>? = inputRows
+        @JsonProperty("input_rows") fun inputRows(): List<InputRow> = inputRows
 
         @JsonProperty("scoring_functions")
-        fun scoringFunctions(): ScoringFunctions? = scoringFunctions
+        fun scoringFunctions(): ScoringFunctions = scoringFunctions
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -83,36 +76,45 @@ constructor(
 
         class Builder {
 
-            private var inputRows: List<InputRow>? = null
+            private var inputRows: MutableList<InputRow>? = null
             private var scoringFunctions: ScoringFunctions? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(scoringScoreBody: ScoringScoreBody) = apply {
-                this.inputRows = scoringScoreBody.inputRows
-                this.scoringFunctions = scoringScoreBody.scoringFunctions
-                additionalProperties(scoringScoreBody.additionalProperties)
+                inputRows = scoringScoreBody.inputRows.toMutableList()
+                scoringFunctions = scoringScoreBody.scoringFunctions
+                additionalProperties = scoringScoreBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("input_rows")
-            fun inputRows(inputRows: List<InputRow>) = apply { this.inputRows = inputRows }
+            fun inputRows(inputRows: List<InputRow>) = apply {
+                this.inputRows = inputRows.toMutableList()
+            }
 
-            @JsonProperty("scoring_functions")
+            fun addInputRow(inputRow: InputRow) = apply {
+                inputRows = (inputRows ?: mutableListOf()).apply { add(inputRow) }
+            }
+
             fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
                 this.scoringFunctions = scoringFunctions
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): ScoringScoreBody =
@@ -154,35 +156,28 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var inputRows: MutableList<InputRow> = mutableListOf()
-        private var scoringFunctions: ScoringFunctions? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: ScoringScoreBody.Builder = ScoringScoreBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringScoreParams: ScoringScoreParams) = apply {
-            inputRows = scoringScoreParams.inputRows.toMutableList()
-            scoringFunctions = scoringScoreParams.scoringFunctions
             xLlamaStackProviderData = scoringScoreParams.xLlamaStackProviderData
+            body = scoringScoreParams.body.toBuilder()
             additionalHeaders = scoringScoreParams.additionalHeaders.toBuilder()
             additionalQueryParams = scoringScoreParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties = scoringScoreParams.additionalBodyProperties.toMutableMap()
-        }
-
-        fun inputRows(inputRows: List<InputRow>) = apply {
-            this.inputRows.clear()
-            this.inputRows.addAll(inputRows)
-        }
-
-        fun addInputRow(inputRow: InputRow) = apply { this.inputRows.add(inputRow) }
-
-        fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
-            this.scoringFunctions = scoringFunctions
         }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
+
+        fun inputRows(inputRows: List<InputRow>) = apply { body.inputRows(inputRows) }
+
+        fun addInputRow(inputRow: InputRow) = apply { body.addInputRow(inputRow) }
+
+        fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
+            body.scoringFunctions(scoringFunctions)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -284,43 +279,39 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): ScoringScoreParams =
             ScoringScoreParams(
-                inputRows.toImmutable(),
-                checkNotNull(scoringFunctions) { "`scoringFunctions` is required but was not set" },
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = InputRow.Builder::class)
     @NoAutoDetect
     class InputRow
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -339,21 +330,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(inputRow: InputRow) = apply {
-                additionalProperties(inputRow.additionalProperties)
+                additionalProperties = inputRow.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): InputRow = InputRow(additionalProperties.toImmutable())
@@ -376,11 +372,12 @@ constructor(
         override fun toString() = "InputRow{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = ScoringFunctions.Builder::class)
     @NoAutoDetect
     class ScoringFunctions
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -399,21 +396,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(scoringFunctions: ScoringFunctions) = apply {
-                additionalProperties(scoringFunctions.additionalProperties)
+                additionalProperties = scoringFunctions.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): ScoringFunctions = ScoringFunctions(additionalProperties.toImmutable())
@@ -441,11 +443,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringScoreParams && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is ScoringScoreParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(inputRows, scoringFunctions, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ScoringScoreParams{inputRows=$inputRows, scoringFunctions=$scoringFunctions, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ScoringScoreParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

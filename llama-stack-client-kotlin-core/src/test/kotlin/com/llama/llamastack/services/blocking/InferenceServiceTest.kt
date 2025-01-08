@@ -4,7 +4,13 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.InferenceChatCompletionParams
+import com.llama.llamastack.models.InferenceCompletionParams
+import com.llama.llamastack.models.InferenceEmbeddingsParams
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SamplingParams
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -27,9 +33,9 @@ class InferenceServiceTest {
                         listOf(
                             InferenceChatCompletionParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
@@ -37,17 +43,17 @@ class InferenceServiceTest {
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                        InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                                 .jsonSchema(
-                                    InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0
                                         .JsonSchema
                                         .builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(true))
                                         .build()
                                 )
                                 .type(
-                                    InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                        .Type
+                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                         .JSON_SCHEMA
                                 )
                                 .build()
@@ -71,7 +77,19 @@ class InferenceServiceTest {
                                 .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                                 .description("description")
                                 .parameters(
-                                    InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                    InferenceChatCompletionParams.Tool.Parameters.builder()
+                                        .putAdditionalProperty(
+                                            "foo",
+                                            JsonValue.from(
+                                                mapOf(
+                                                    "param_type" to "param_type",
+                                                    "default" to true,
+                                                    "description" to "description",
+                                                    "required" to true,
+                                                )
+                                            )
+                                        )
+                                        .build()
                                 )
                                 .build()
                         )
@@ -98,9 +116,9 @@ class InferenceServiceTest {
                         listOf(
                             InferenceChatCompletionParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
@@ -108,17 +126,17 @@ class InferenceServiceTest {
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                        InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                                 .jsonSchema(
-                                    InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
+                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0
                                         .JsonSchema
                                         .builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(true))
                                         .build()
                                 )
                                 .type(
-                                    InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                        .Type
+                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                         .JSON_SCHEMA
                                 )
                                 .build()
@@ -142,7 +160,19 @@ class InferenceServiceTest {
                                 .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                                 .description("description")
                                 .parameters(
-                                    InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                    InferenceChatCompletionParams.Tool.Parameters.builder()
+                                        .putAdditionalProperty(
+                                            "foo",
+                                            JsonValue.from(
+                                                mapOf(
+                                                    "param_type" to "param_type",
+                                                    "default" to true,
+                                                    "description" to "description",
+                                                    "required" to true,
+                                                )
+                                            )
+                                        )
+                                        .build()
                                 )
                                 .build()
                         )
@@ -167,20 +197,20 @@ class InferenceServiceTest {
         val inferenceCompletionResponse =
             inferenceService.completion(
                 InferenceCompletionParams.builder()
-                    .content(InferenceCompletionParams.Content.ofString("string"))
+                    .content(InterleavedContent.ofString("string"))
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                        InferenceCompletionParams.ResponseFormat.ofUnionMember0(
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
                                 .jsonSchema(
-                                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat
-                                        .JsonSchema
+                                    InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                         .builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(true))
                                         .build()
                                 )
                                 .type(
-                                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    InferenceCompletionParams.ResponseFormat.UnionMember0.Type
                                         .JSON_SCHEMA
                                 )
                                 .build()
@@ -214,20 +244,20 @@ class InferenceServiceTest {
         val inferenceCompletionResponseStream =
             inferenceService.completionStreaming(
                 InferenceCompletionParams.builder()
-                    .content(InferenceCompletionParams.Content.ofString("string"))
+                    .content(InterleavedContent.ofString("string"))
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                        InferenceCompletionParams.ResponseFormat.ofUnionMember0(
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
                                 .jsonSchema(
-                                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat
-                                        .JsonSchema
+                                    InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                         .builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(true))
                                         .build()
                                 )
                                 .type(
-                                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                    InferenceCompletionParams.ResponseFormat.UnionMember0.Type
                                         .JSON_SCHEMA
                                 )
                                 .build()
@@ -260,7 +290,7 @@ class InferenceServiceTest {
         val embeddingsResponse =
             inferenceService.embeddings(
                 InferenceEmbeddingsParams.builder()
-                    .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
+                    .contents(listOf(InterleavedContent.ofString("string")))
                     .modelId("model_id")
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()

@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,8 +11,8 @@ class EvalTaskRetrieveParamsTest {
     @Test
     fun createEvalTaskRetrieveParams() {
         EvalTaskRetrieveParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .name("name")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -21,8 +20,8 @@ class EvalTaskRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             EvalTaskRetrieveParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .name("name")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val expected = QueryParams.builder()
         expected.put("name", "name")

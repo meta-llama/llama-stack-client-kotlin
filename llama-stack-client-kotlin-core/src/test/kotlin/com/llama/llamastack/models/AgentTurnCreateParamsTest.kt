@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -16,9 +15,9 @@ class AgentTurnCreateParamsTest {
                 listOf(
                     AgentTurnCreateParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
+                            .context(InterleavedContent.ofString("string"))
                             .build()
                     )
                 )
@@ -45,9 +44,9 @@ class AgentTurnCreateParamsTest {
                     listOf(
                         AgentTurnCreateParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -71,9 +70,9 @@ class AgentTurnCreateParamsTest {
                 listOf(
                     AgentTurnCreateParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
+                            .context(InterleavedContent.ofString("string"))
                             .build()
                     )
                 )
@@ -99,7 +98,7 @@ class AgentTurnCreateParamsTest {
                     listOf(
                         AgentTurnCreateParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
                                 .build()
                         )
@@ -115,7 +114,7 @@ class AgentTurnCreateParamsTest {
                 listOf(
                     AgentTurnCreateParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
                             .build()
                     )

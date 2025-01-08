@@ -4,25 +4,26 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = EmbeddingsResponse.Builder::class)
 @NoAutoDetect
 class EmbeddingsResponse
+@JsonCreator
 private constructor(
-    private val embeddings: JsonField<List<List<Double>>>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("embeddings")
+    @ExcludeMissing
+    private val embeddings: JsonField<List<List<Double>>> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun embeddings(): List<List<Double>> = embeddings.getRequired("embeddings")
 
@@ -31,6 +32,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): EmbeddingsResponse = apply {
         if (!validated) {
@@ -52,30 +55,33 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(embeddingsResponse: EmbeddingsResponse) = apply {
-            this.embeddings = embeddingsResponse.embeddings
-            additionalProperties(embeddingsResponse.additionalProperties)
+            embeddings = embeddingsResponse.embeddings
+            additionalProperties = embeddingsResponse.additionalProperties.toMutableMap()
         }
 
         fun embeddings(embeddings: List<List<Double>>) = embeddings(JsonField.of(embeddings))
 
-        @JsonProperty("embeddings")
-        @ExcludeMissing
         fun embeddings(embeddings: JsonField<List<List<Double>>>) = apply {
             this.embeddings = embeddings
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): EmbeddingsResponse =

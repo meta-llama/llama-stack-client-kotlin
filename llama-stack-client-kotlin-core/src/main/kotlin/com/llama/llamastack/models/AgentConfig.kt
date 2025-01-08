@@ -22,28 +22,45 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = AgentConfig.Builder::class)
 @NoAutoDetect
 class AgentConfig
+@JsonCreator
 private constructor(
-    private val enableSessionPersistence: JsonField<Boolean>,
-    private val inputShields: JsonField<List<String>>,
-    private val instructions: JsonField<String>,
-    private val maxInferIters: JsonField<Long>,
-    private val model: JsonField<String>,
-    private val outputShields: JsonField<List<String>>,
-    private val samplingParams: JsonField<SamplingParams>,
-    private val toolChoice: JsonField<ToolChoice>,
-    private val toolPromptFormat: JsonField<ToolPromptFormat>,
-    private val tools: JsonField<List<Tool>>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("enable_session_persistence")
+    @ExcludeMissing
+    private val enableSessionPersistence: JsonField<Boolean> = JsonMissing.of(),
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("instructions")
+    @ExcludeMissing
+    private val instructions: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("max_infer_iters")
+    @ExcludeMissing
+    private val maxInferIters: JsonField<Long> = JsonMissing.of(),
+    @JsonProperty("model") @ExcludeMissing private val model: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("output_shields")
+    @ExcludeMissing
+    private val outputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("sampling_params")
+    @ExcludeMissing
+    private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+    @JsonProperty("tool_choice")
+    @ExcludeMissing
+    private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+    @JsonProperty("tool_prompt_format")
+    @ExcludeMissing
+    private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+    @JsonProperty("tools")
+    @ExcludeMissing
+    private val tools: JsonField<List<Tool>> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun enableSessionPersistence(): Boolean =
         enableSessionPersistence.getRequired("enable_session_persistence")
@@ -114,6 +131,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): AgentConfig = apply {
         if (!validated) {
             enableSessionPersistence()
@@ -152,62 +171,50 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentConfig: AgentConfig) = apply {
-            this.enableSessionPersistence = agentConfig.enableSessionPersistence
-            this.inputShields = agentConfig.inputShields
-            this.instructions = agentConfig.instructions
-            this.maxInferIters = agentConfig.maxInferIters
-            this.model = agentConfig.model
-            this.outputShields = agentConfig.outputShields
-            this.samplingParams = agentConfig.samplingParams
-            this.toolChoice = agentConfig.toolChoice
-            this.toolPromptFormat = agentConfig.toolPromptFormat
-            this.tools = agentConfig.tools
-            additionalProperties(agentConfig.additionalProperties)
+            enableSessionPersistence = agentConfig.enableSessionPersistence
+            inputShields = agentConfig.inputShields
+            instructions = agentConfig.instructions
+            maxInferIters = agentConfig.maxInferIters
+            model = agentConfig.model
+            outputShields = agentConfig.outputShields
+            samplingParams = agentConfig.samplingParams
+            toolChoice = agentConfig.toolChoice
+            toolPromptFormat = agentConfig.toolPromptFormat
+            tools = agentConfig.tools
+            additionalProperties = agentConfig.additionalProperties.toMutableMap()
         }
 
         fun enableSessionPersistence(enableSessionPersistence: Boolean) =
             enableSessionPersistence(JsonField.of(enableSessionPersistence))
 
-        @JsonProperty("enable_session_persistence")
-        @ExcludeMissing
         fun enableSessionPersistence(enableSessionPersistence: JsonField<Boolean>) = apply {
             this.enableSessionPersistence = enableSessionPersistence
         }
 
         fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
 
-        @JsonProperty("input_shields")
-        @ExcludeMissing
         fun inputShields(inputShields: JsonField<List<String>>) = apply {
             this.inputShields = inputShields
         }
 
         fun instructions(instructions: String) = instructions(JsonField.of(instructions))
 
-        @JsonProperty("instructions")
-        @ExcludeMissing
         fun instructions(instructions: JsonField<String>) = apply {
             this.instructions = instructions
         }
 
         fun maxInferIters(maxInferIters: Long) = maxInferIters(JsonField.of(maxInferIters))
 
-        @JsonProperty("max_infer_iters")
-        @ExcludeMissing
         fun maxInferIters(maxInferIters: JsonField<Long>) = apply {
             this.maxInferIters = maxInferIters
         }
 
         fun model(model: String) = model(JsonField.of(model))
 
-        @JsonProperty("model")
-        @ExcludeMissing
         fun model(model: JsonField<String>) = apply { this.model = model }
 
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
-        @JsonProperty("output_shields")
-        @ExcludeMissing
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
             this.outputShields = outputShields
         }
@@ -215,16 +222,12 @@ private constructor(
         fun samplingParams(samplingParams: SamplingParams) =
             samplingParams(JsonField.of(samplingParams))
 
-        @JsonProperty("sampling_params")
-        @ExcludeMissing
         fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
             this.samplingParams = samplingParams
         }
 
         fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
 
-        @JsonProperty("tool_choice")
-        @ExcludeMissing
         fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply { this.toolChoice = toolChoice }
 
         /**
@@ -252,30 +255,31 @@ private constructor(
          *
          * The detailed prompts for each of these formats are added to llama cli
          */
-        @JsonProperty("tool_prompt_format")
-        @ExcludeMissing
         fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
             this.toolPromptFormat = toolPromptFormat
         }
 
         fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
 
-        @JsonProperty("tools")
-        @ExcludeMissing
         fun tools(tools: JsonField<List<Tool>>) = apply { this.tools = tools }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): AgentConfig =
@@ -302,23 +306,11 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val AUTO = ToolChoice(JsonField.of("auto"))
+            val AUTO = of("auto")
 
-            val REQUIRED = ToolChoice(JsonField.of("required"))
+            val REQUIRED = of("required")
 
             fun of(value: String) = ToolChoice(JsonField.of(value))
         }
@@ -349,6 +341,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     class ToolPromptFormat
@@ -359,25 +363,13 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val JSON = ToolPromptFormat(JsonField.of("json"))
+            val JSON = of("json")
 
-            val FUNCTION_TAG = ToolPromptFormat(JsonField.of("function_tag"))
+            val FUNCTION_TAG = of("function_tag")
 
-            val PYTHON_LIST = ToolPromptFormat(JsonField.of("python_list"))
+            val PYTHON_LIST = of("python_list")
 
             fun of(value: String) = ToolPromptFormat(JsonField.of(value))
         }
@@ -413,6 +405,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     @JsonDeserialize(using = Tool.Deserializer::class)

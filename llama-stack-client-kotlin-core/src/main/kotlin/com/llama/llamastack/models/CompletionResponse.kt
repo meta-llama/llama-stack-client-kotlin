@@ -6,28 +6,32 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = CompletionResponse.Builder::class)
 @NoAutoDetect
 class CompletionResponse
+@JsonCreator
 private constructor(
-    private val content: JsonField<String>,
-    private val logprobs: JsonField<List<TokenLogProbs>>,
-    private val stopReason: JsonField<StopReason>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("content")
+    @ExcludeMissing
+    private val content: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("logprobs")
+    @ExcludeMissing
+    private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
+    @JsonProperty("stop_reason")
+    @ExcludeMissing
+    private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun content(): String = content.getRequired("content")
 
@@ -44,6 +48,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): CompletionResponse = apply {
         if (!validated) {
@@ -69,42 +75,41 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(completionResponse: CompletionResponse) = apply {
-            this.content = completionResponse.content
-            this.logprobs = completionResponse.logprobs
-            this.stopReason = completionResponse.stopReason
-            additionalProperties(completionResponse.additionalProperties)
+            content = completionResponse.content
+            logprobs = completionResponse.logprobs
+            stopReason = completionResponse.stopReason
+            additionalProperties = completionResponse.additionalProperties.toMutableMap()
         }
 
         fun content(content: String) = content(JsonField.of(content))
 
-        @JsonProperty("content")
-        @ExcludeMissing
         fun content(content: JsonField<String>) = apply { this.content = content }
 
         fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
-        @JsonProperty("logprobs")
-        @ExcludeMissing
         fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply { this.logprobs = logprobs }
 
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
-        @JsonProperty("stop_reason")
-        @ExcludeMissing
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): CompletionResponse =
@@ -124,25 +129,13 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val END_OF_TURN = StopReason(JsonField.of("end_of_turn"))
+            val END_OF_TURN = of("end_of_turn")
 
-            val END_OF_MESSAGE = StopReason(JsonField.of("end_of_message"))
+            val END_OF_MESSAGE = of("end_of_message")
 
-            val OUT_OF_TOKENS = StopReason(JsonField.of("out_of_tokens"))
+            val OUT_OF_TOKENS = of("out_of_tokens")
 
             fun of(value: String) = StopReason(JsonField.of(value))
         }
@@ -177,6 +170,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

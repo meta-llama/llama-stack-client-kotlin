@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SafetyRunShieldParams
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -23,14 +26,18 @@ class SafetyServiceTest {
                         listOf(
                             SafetyRunShieldParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
                     )
-                    .params(SafetyRunShieldParams.Params.builder().build())
+                    .params(
+                        SafetyRunShieldParams.Params.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .shieldId("shield_id")
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()

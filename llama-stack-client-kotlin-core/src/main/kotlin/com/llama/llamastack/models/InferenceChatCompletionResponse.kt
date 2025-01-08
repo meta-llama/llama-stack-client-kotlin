@@ -22,6 +22,7 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
@@ -171,16 +172,19 @@ private constructor(
         }
     }
 
-    @JsonDeserialize(builder = ChatCompletionResponse.Builder::class)
     @NoAutoDetect
     class ChatCompletionResponse
+    @JsonCreator
     private constructor(
-        private val completionMessage: JsonField<CompletionMessage>,
-        private val logprobs: JsonField<List<TokenLogProbs>>,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("completion_message")
+        @ExcludeMissing
+        private val completionMessage: JsonField<CompletionMessage> = JsonMissing.of(),
+        @JsonProperty("logprobs")
+        @ExcludeMissing
+        private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         fun completionMessage(): CompletionMessage =
             completionMessage.getRequired("completion_message")
@@ -196,6 +200,8 @@ private constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): ChatCompletionResponse = apply {
             if (!validated) {
@@ -219,40 +225,41 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(chatCompletionResponse: ChatCompletionResponse) = apply {
-                this.completionMessage = chatCompletionResponse.completionMessage
-                this.logprobs = chatCompletionResponse.logprobs
-                additionalProperties(chatCompletionResponse.additionalProperties)
+                completionMessage = chatCompletionResponse.completionMessage
+                logprobs = chatCompletionResponse.logprobs
+                additionalProperties = chatCompletionResponse.additionalProperties.toMutableMap()
             }
 
             fun completionMessage(completionMessage: CompletionMessage) =
                 completionMessage(JsonField.of(completionMessage))
 
-            @JsonProperty("completion_message")
-            @ExcludeMissing
             fun completionMessage(completionMessage: JsonField<CompletionMessage>) = apply {
                 this.completionMessage = completionMessage
             }
 
             fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
-            @JsonProperty("logprobs")
-            @ExcludeMissing
             fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
                 this.logprobs = logprobs
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): ChatCompletionResponse =
@@ -281,15 +288,16 @@ private constructor(
             "ChatCompletionResponse{completionMessage=$completionMessage, logprobs=$logprobs, additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = ChatCompletionResponseStreamChunk.Builder::class)
     @NoAutoDetect
     class ChatCompletionResponseStreamChunk
+    @JsonCreator
     private constructor(
-        private val event: JsonField<Event>,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("event")
+        @ExcludeMissing
+        private val event: JsonField<Event> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         fun event(): Event = event.getRequired("event")
 
@@ -298,6 +306,8 @@ private constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): ChatCompletionResponseStreamChunk = apply {
             if (!validated) {
@@ -321,46 +331,57 @@ private constructor(
             internal fun from(
                 chatCompletionResponseStreamChunk: ChatCompletionResponseStreamChunk
             ) = apply {
-                this.event = chatCompletionResponseStreamChunk.event
-                additionalProperties(chatCompletionResponseStreamChunk.additionalProperties)
+                event = chatCompletionResponseStreamChunk.event
+                additionalProperties =
+                    chatCompletionResponseStreamChunk.additionalProperties.toMutableMap()
             }
 
             fun event(event: Event) = event(JsonField.of(event))
 
-            @JsonProperty("event")
-            @ExcludeMissing
             fun event(event: JsonField<Event>) = apply { this.event = event }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
             fun build(): ChatCompletionResponseStreamChunk =
                 ChatCompletionResponseStreamChunk(event, additionalProperties.toImmutable())
         }
 
-        @JsonDeserialize(builder = Event.Builder::class)
         @NoAutoDetect
         class Event
+        @JsonCreator
         private constructor(
-            private val delta: JsonField<Delta>,
-            private val eventType: JsonField<EventType>,
-            private val logprobs: JsonField<List<TokenLogProbs>>,
-            private val stopReason: JsonField<StopReason>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("delta")
+            @ExcludeMissing
+            private val delta: JsonField<Delta> = JsonMissing.of(),
+            @JsonProperty("event_type")
+            @ExcludeMissing
+            private val eventType: JsonField<EventType> = JsonMissing.of(),
+            @JsonProperty("logprobs")
+            @ExcludeMissing
+            private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun delta(): Delta = delta.getRequired("delta")
 
@@ -381,6 +402,8 @@ private constructor(
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
 
             fun validate(): Event = apply {
                 if (!validated) {
@@ -408,57 +431,56 @@ private constructor(
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(event: Event) = apply {
-                    this.delta = event.delta
-                    this.eventType = event.eventType
-                    this.logprobs = event.logprobs
-                    this.stopReason = event.stopReason
-                    additionalProperties(event.additionalProperties)
+                    delta = event.delta
+                    eventType = event.eventType
+                    logprobs = event.logprobs
+                    stopReason = event.stopReason
+                    additionalProperties = event.additionalProperties.toMutableMap()
                 }
 
                 fun delta(delta: Delta) = delta(JsonField.of(delta))
 
-                @JsonProperty("delta")
-                @ExcludeMissing
                 fun delta(delta: JsonField<Delta>) = apply { this.delta = delta }
 
                 fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-                @JsonProperty("event_type")
-                @ExcludeMissing
                 fun eventType(eventType: JsonField<EventType>) = apply {
                     this.eventType = eventType
                 }
 
                 fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
-                @JsonProperty("logprobs")
-                @ExcludeMissing
                 fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
                     this.logprobs = logprobs
                 }
 
                 fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
-                @JsonProperty("stop_reason")
-                @ExcludeMissing
                 fun stopReason(stopReason: JsonField<StopReason>) = apply {
                     this.stopReason = stopReason
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
                     apply {
                         this.additionalProperties.putAll(additionalProperties)
                     }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
 
                 fun build(): Event =
                     Event(
@@ -584,16 +606,19 @@ private constructor(
                     }
                 }
 
-                @JsonDeserialize(builder = ToolCallDelta.Builder::class)
                 @NoAutoDetect
                 class ToolCallDelta
+                @JsonCreator
                 private constructor(
-                    private val content: JsonField<Content>,
-                    private val parseStatus: JsonField<ParseStatus>,
-                    private val additionalProperties: Map<String, JsonValue>,
+                    @JsonProperty("content")
+                    @ExcludeMissing
+                    private val content: JsonField<Content> = JsonMissing.of(),
+                    @JsonProperty("parse_status")
+                    @ExcludeMissing
+                    private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
-
-                    private var validated: Boolean = false
 
                     fun content(): Content = content.getRequired("content")
 
@@ -606,6 +631,8 @@ private constructor(
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
 
                     fun validate(): ToolCallDelta = apply {
                         if (!validated) {
@@ -630,22 +657,18 @@ private constructor(
                             mutableMapOf()
 
                         internal fun from(toolCallDelta: ToolCallDelta) = apply {
-                            this.content = toolCallDelta.content
-                            this.parseStatus = toolCallDelta.parseStatus
-                            additionalProperties(toolCallDelta.additionalProperties)
+                            content = toolCallDelta.content
+                            parseStatus = toolCallDelta.parseStatus
+                            additionalProperties = toolCallDelta.additionalProperties.toMutableMap()
                         }
 
                         fun content(content: Content) = content(JsonField.of(content))
 
-                        @JsonProperty("content")
-                        @ExcludeMissing
                         fun content(content: JsonField<Content>) = apply { this.content = content }
 
                         fun parseStatus(parseStatus: ParseStatus) =
                             parseStatus(JsonField.of(parseStatus))
 
-                        @JsonProperty("parse_status")
-                        @ExcludeMissing
                         fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
                             this.parseStatus = parseStatus
                         }
@@ -653,17 +676,24 @@ private constructor(
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
                                 this.additionalProperties.clear()
-                                this.additionalProperties.putAll(additionalProperties)
+                                putAllAdditionalProperties(additionalProperties)
                             }
 
-                        @JsonAnySetter
                         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            this.additionalProperties.put(key, value)
+                            additionalProperties.put(key, value)
                         }
 
                         fun putAllAdditionalProperties(
                             additionalProperties: Map<String, JsonValue>
                         ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
 
                         fun build(): ToolCallDelta =
                             ToolCallDelta(
@@ -797,27 +827,15 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val STARTED = ParseStatus(JsonField.of("started"))
+                            val STARTED = of("started")
 
-                            val IN_PROGRESS = ParseStatus(JsonField.of("in_progress"))
+                            val IN_PROGRESS = of("in_progress")
 
-                            val FAILURE = ParseStatus(JsonField.of("failure"))
+                            val FAILURE = of("failure")
 
-                            val SUCCESS = ParseStatus(JsonField.of("success"))
+                            val SUCCESS = of("success")
 
                             fun of(value: String) = ParseStatus(JsonField.of(value))
                         }
@@ -859,6 +877,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     override fun equals(other: Any?): Boolean {
@@ -888,25 +918,13 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val START = EventType(JsonField.of("start"))
+                    val START = of("start")
 
-                    val COMPLETE = EventType(JsonField.of("complete"))
+                    val COMPLETE = of("complete")
 
-                    val PROGRESS = EventType(JsonField.of("progress"))
+                    val PROGRESS = of("progress")
 
                     fun of(value: String) = EventType(JsonField.of(value))
                 }
@@ -942,6 +960,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             class StopReason
@@ -952,25 +982,13 @@ private constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val END_OF_TURN = StopReason(JsonField.of("end_of_turn"))
+                    val END_OF_TURN = of("end_of_turn")
 
-                    val END_OF_MESSAGE = StopReason(JsonField.of("end_of_message"))
+                    val END_OF_MESSAGE = of("end_of_message")
 
-                    val OUT_OF_TOKENS = StopReason(JsonField.of("out_of_tokens"))
+                    val OUT_OF_TOKENS = of("out_of_tokens")
 
                     fun of(value: String) = StopReason(JsonField.of(value))
                 }
@@ -1006,6 +1024,18 @@ private constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {

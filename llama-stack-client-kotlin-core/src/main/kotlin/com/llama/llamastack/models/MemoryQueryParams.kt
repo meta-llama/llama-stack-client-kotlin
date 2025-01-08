@@ -4,60 +4,40 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.ObjectCodec
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.llama.llamastack.core.BaseDeserializer
-import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
-import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class MemoryQueryParams
 constructor(
-    private val bankId: String,
-    private val query: Query,
-    private val params: Params?,
     private val xLlamaStackProviderData: String?,
+    private val body: MemoryQueryBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun bankId(): String = bankId
-
-    fun query(): Query = query
-
-    fun params(): Params? = params
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun bankId(): String = body.bankId()
+
+    fun query(): InterleavedContent = body.query()
+
+    fun params(): Params? = body.params()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): MemoryQueryBody {
-        return MemoryQueryBody(
-            bankId,
-            query,
-            params,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): MemoryQueryBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -70,19 +50,20 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = MemoryQueryBody.Builder::class)
     @NoAutoDetect
     class MemoryQueryBody
+    @JsonCreator
     internal constructor(
-        private val bankId: String?,
-        private val query: Query?,
-        private val params: Params?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("bank_id") private val bankId: String,
+        @JsonProperty("query") private val query: InterleavedContent,
+        @JsonProperty("params") private val params: Params?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("bank_id") fun bankId(): String? = bankId
+        @JsonProperty("bank_id") fun bankId(): String = bankId
 
-        @JsonProperty("query") fun query(): Query? = query
+        @JsonProperty("query") fun query(): InterleavedContent = query
 
         @JsonProperty("params") fun params(): Params? = params
 
@@ -100,35 +81,56 @@ constructor(
         class Builder {
 
             private var bankId: String? = null
-            private var query: Query? = null
+            private var query: InterleavedContent? = null
             private var params: Params? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(memoryQueryBody: MemoryQueryBody) = apply {
-                this.bankId = memoryQueryBody.bankId
-                this.query = memoryQueryBody.query
-                this.params = memoryQueryBody.params
-                additionalProperties(memoryQueryBody.additionalProperties)
+                bankId = memoryQueryBody.bankId
+                query = memoryQueryBody.query
+                params = memoryQueryBody.params
+                additionalProperties = memoryQueryBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("bank_id") fun bankId(bankId: String) = apply { this.bankId = bankId }
+            fun bankId(bankId: String) = apply { this.bankId = bankId }
 
-            @JsonProperty("query") fun query(query: Query) = apply { this.query = query }
+            fun query(query: InterleavedContent) = apply { this.query = query }
 
-            @JsonProperty("params") fun params(params: Params) = apply { this.params = params }
+            fun query(string: String) = apply { this.query = InterleavedContent.ofString(string) }
+
+            fun query(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+                this.query = InterleavedContent.ofImageContentItem(imageContentItem)
+            }
+
+            fun query(textContentItem: InterleavedContent.TextContentItem) = apply {
+                this.query = InterleavedContent.ofTextContentItem(textContentItem)
+            }
+
+            fun queryOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = apply {
+                this.query = InterleavedContent.ofInterleavedContentItems(interleavedContentItems)
+            }
+
+            fun params(params: Params) = apply { this.params = params }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): MemoryQueryBody =
@@ -168,47 +170,42 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var bankId: String? = null
-        private var query: Query? = null
-        private var params: Params? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: MemoryQueryBody.Builder = MemoryQueryBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryQueryParams: MemoryQueryParams) = apply {
-            bankId = memoryQueryParams.bankId
-            query = memoryQueryParams.query
-            params = memoryQueryParams.params
             xLlamaStackProviderData = memoryQueryParams.xLlamaStackProviderData
+            body = memoryQueryParams.body.toBuilder()
             additionalHeaders = memoryQueryParams.additionalHeaders.toBuilder()
             additionalQueryParams = memoryQueryParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties = memoryQueryParams.additionalBodyProperties.toMutableMap()
         }
-
-        fun bankId(bankId: String) = apply { this.bankId = bankId }
-
-        fun query(query: Query) = apply { this.query = query }
-
-        fun query(string: String) = apply { this.query = Query.ofString(string) }
-
-        fun query(imageMedia: ImageMedia) = apply { this.query = Query.ofImageMedia(imageMedia) }
-
-        // <<<<<<< HEAD
-        //        fun queryOfImageMediaArray(imageMediaArray: List<Query.StringOrImageMediaUnion>) =
-        // apply {
-        // =======
-        //        fun queryOfImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>) = apply
-        // {
-        // >>>>>>> origin/generated--merge-conflict
-        //            this.query = Query.ofImageMediaArray(imageMediaArray)
-        //        }
-
-        fun params(params: Params) = apply { this.params = params }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
+
+        fun bankId(bankId: String) = apply { body.bankId(bankId) }
+
+        fun query(query: InterleavedContent) = apply { body.query(query) }
+
+        fun query(string: String) = apply { body.query(string) }
+
+        fun query(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.query(imageContentItem)
+        }
+
+        fun query(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.query(textContentItem)
+        }
+
+        fun queryOfInterleavedContentItems(interleavedContentItems: List<InterleavedContentItem>) =
+            apply {
+                body.queryOfInterleavedContentItems(interleavedContentItems)
+            }
+
+        fun params(params: Params) = apply { body.params(params) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -309,296 +306,39 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): MemoryQueryParams =
             MemoryQueryParams(
-                checkNotNull(bankId) { "`bankId` is required but was not set" },
-                checkNotNull(query) { "`query` is required but was not set" },
-                params,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(using = Query.Deserializer::class)
-    @JsonSerialize(using = Query.Serializer::class)
-    class Query
-    private constructor(
-        private val string: String? = null,
-        private val imageMedia: ImageMedia? = null,
-        private val imageMediaArray: List<StringOrImageMediaUnion>? = null,
-        private val _json: JsonValue? = null,
-    ) {
-
-        private var validated: Boolean = false
-
-        fun string(): String? = string
-
-        fun imageMedia(): ImageMedia? = imageMedia
-
-        fun imageMediaArray(): List<StringOrImageMediaUnion>? = imageMediaArray
-
-        fun isString(): Boolean = string != null
-
-        fun isImageMedia(): Boolean = imageMedia != null
-
-        fun isImageMediaArray(): Boolean = imageMediaArray != null
-
-        fun asString(): String = string.getOrThrow("string")
-
-        fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-        fun asImageMediaArray(): List<StringOrImageMediaUnion> =
-            imageMediaArray.getOrThrow("imageMediaArray")
-
-        fun _json(): JsonValue? = _json
-
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
-                string != null -> visitor.visitString(string)
-                imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                imageMediaArray != null -> visitor.visitImageMediaArray(imageMediaArray)
-                else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): Query = apply {
-            if (!validated) {
-                if (string == null && imageMedia == null && imageMediaArray == null) {
-                    throw LlamaStackClientInvalidDataException("Unknown Query: $_json")
-                }
-                imageMedia?.validate()
-                validated = true
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Query && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
-        }
-
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-
-        override fun toString(): String =
-            when {
-                string != null -> "Query{string=$string}"
-                imageMedia != null -> "Query{imageMedia=$imageMedia}"
-                imageMediaArray != null -> "Query{imageMediaArray=$imageMediaArray}"
-                _json != null -> "Query{_unknown=$_json}"
-                else -> throw IllegalStateException("Invalid Query")
-            }
-
-        companion object {
-
-            fun ofString(string: String) = Query(string = string)
-
-            fun ofImageMedia(imageMedia: ImageMedia) = Query(imageMedia = imageMedia)
-
-            fun ofImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>) =
-                Query(imageMediaArray = imageMediaArray)
-        }
-
-        interface Visitor<out T> {
-
-            fun visitString(string: String): T
-
-            fun visitImageMedia(imageMedia: ImageMedia): T
-
-            fun visitImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>): T
-
-            fun unknown(json: JsonValue?): T {
-                throw LlamaStackClientInvalidDataException("Unknown Query: $json")
-            }
-        }
-
-        class Deserializer : BaseDeserializer<Query>(Query::class) {
-
-            override fun ObjectCodec.deserialize(node: JsonNode): Query {
-                val json = JsonValue.fromJsonNode(node)
-
-                tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                    return Query(string = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                    ?.let {
-                        return Query(imageMedia = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<List<StringOrImageMediaUnion>>())?.let {
-                    return Query(imageMediaArray = it, _json = json)
-                }
-
-                return Query(_json = json)
-            }
-        }
-
-        class Serializer : BaseSerializer<Query>(Query::class) {
-
-            override fun serialize(
-                value: Query,
-                generator: JsonGenerator,
-                provider: SerializerProvider
-            ) {
-                when {
-                    value.string != null -> generator.writeObject(value.string)
-                    value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                    value.imageMediaArray != null -> generator.writeObject(value.imageMediaArray)
-                    value._json != null -> generator.writeObject(value._json)
-                    else -> throw IllegalStateException("Invalid Query")
-                }
-            }
-        }
-
-        @JsonDeserialize(using = StringOrImageMediaUnion.Deserializer::class)
-        @JsonSerialize(using = StringOrImageMediaUnion.Serializer::class)
-        class StringOrImageMediaUnion
-        private constructor(
-            private val string: String? = null,
-            private val imageMedia: ImageMedia? = null,
-            private val _json: JsonValue? = null,
-        ) {
-
-            private var validated: Boolean = false
-
-            fun string(): String? = string
-
-            fun imageMedia(): ImageMedia? = imageMedia
-
-            fun isString(): Boolean = string != null
-
-            fun isImageMedia(): Boolean = imageMedia != null
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    string != null -> visitor.visitString(string)
-                    imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                    else -> visitor.unknown(_json)
-                }
-            }
-
-            fun validate(): StringOrImageMediaUnion = apply {
-                if (!validated) {
-                    if (string == null && imageMedia == null) {
-                        throw LlamaStackClientInvalidDataException(
-                            "Unknown StringOrImageMediaUnion: $_json"
-                        )
-                    }
-                    imageMedia?.validate()
-                    validated = true
-                }
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
-            }
-
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-
-            override fun toString(): String =
-                when {
-                    string != null -> "StringOrImageMediaUnion{string=$string}"
-                    imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
-                    _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
-                }
-
-            companion object {
-
-                fun ofString(string: String) = StringOrImageMediaUnion(string = string)
-
-                fun ofImageMedia(imageMedia: ImageMedia) =
-                    StringOrImageMediaUnion(imageMedia = imageMedia)
-            }
-
-            interface Visitor<out T> {
-
-                fun visitString(string: String): T
-
-                fun visitImageMedia(imageMedia: ImageMedia): T
-
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException(
-                        "Unknown StringOrImageMediaUnion: $json"
-                    )
-                }
-            }
-
-            class Deserializer :
-                BaseDeserializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                override fun ObjectCodec.deserialize(node: JsonNode): StringOrImageMediaUnion {
-                    val json = JsonValue.fromJsonNode(node)
-
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return StringOrImageMediaUnion(string = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                        ?.let {
-                            return StringOrImageMediaUnion(imageMedia = it, _json = json)
-                        }
-
-                    return StringOrImageMediaUnion(_json = json)
-                }
-            }
-
-            class Serializer :
-                BaseSerializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                override fun serialize(
-                    value: StringOrImageMediaUnion,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.string != null -> generator.writeObject(value.string)
-                        value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
-                    }
-                }
-            }
-        }
-    }
-
-    @JsonDeserialize(builder = Params.Builder::class)
     @NoAutoDetect
     class Params
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -617,21 +357,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(params: Params) = apply {
-                additionalProperties(params.additionalProperties)
+                additionalProperties = params.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Params = Params(additionalProperties.toImmutable())
@@ -659,11 +404,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryQueryParams && bankId == other.bankId && query == other.query && params == other.params && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryQueryParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(bankId, query, params, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "MemoryQueryParams{bankId=$bankId, query=$query, params=$params, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "MemoryQueryParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

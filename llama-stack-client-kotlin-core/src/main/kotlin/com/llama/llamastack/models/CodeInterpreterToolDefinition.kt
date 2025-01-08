@@ -6,30 +6,36 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = CodeInterpreterToolDefinition.Builder::class)
 @NoAutoDetect
 class CodeInterpreterToolDefinition
+@JsonCreator
 private constructor(
-    private val enableInlineCodeExecution: JsonField<Boolean>,
-    private val inputShields: JsonField<List<String>>,
-    private val outputShields: JsonField<List<String>>,
-    private val remoteExecution: JsonField<RestApiExecutionConfig>,
-    private val type: JsonField<Type>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("enable_inline_code_execution")
+    @ExcludeMissing
+    private val enableInlineCodeExecution: JsonField<Boolean> = JsonMissing.of(),
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("output_shields")
+    @ExcludeMissing
+    private val outputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("remote_execution")
+    @ExcludeMissing
+    private val remoteExecution: JsonField<RestApiExecutionConfig> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun enableInlineCodeExecution(): Boolean =
         enableInlineCodeExecution.getRequired("enable_inline_code_execution")
@@ -57,6 +63,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): CodeInterpreterToolDefinition = apply {
         if (!validated) {
@@ -86,35 +94,29 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(codeInterpreterToolDefinition: CodeInterpreterToolDefinition) = apply {
-            this.enableInlineCodeExecution = codeInterpreterToolDefinition.enableInlineCodeExecution
-            this.inputShields = codeInterpreterToolDefinition.inputShields
-            this.outputShields = codeInterpreterToolDefinition.outputShields
-            this.remoteExecution = codeInterpreterToolDefinition.remoteExecution
-            this.type = codeInterpreterToolDefinition.type
-            additionalProperties(codeInterpreterToolDefinition.additionalProperties)
+            enableInlineCodeExecution = codeInterpreterToolDefinition.enableInlineCodeExecution
+            inputShields = codeInterpreterToolDefinition.inputShields
+            outputShields = codeInterpreterToolDefinition.outputShields
+            remoteExecution = codeInterpreterToolDefinition.remoteExecution
+            type = codeInterpreterToolDefinition.type
+            additionalProperties = codeInterpreterToolDefinition.additionalProperties.toMutableMap()
         }
 
         fun enableInlineCodeExecution(enableInlineCodeExecution: Boolean) =
             enableInlineCodeExecution(JsonField.of(enableInlineCodeExecution))
 
-        @JsonProperty("enable_inline_code_execution")
-        @ExcludeMissing
         fun enableInlineCodeExecution(enableInlineCodeExecution: JsonField<Boolean>) = apply {
             this.enableInlineCodeExecution = enableInlineCodeExecution
         }
 
         fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
 
-        @JsonProperty("input_shields")
-        @ExcludeMissing
         fun inputShields(inputShields: JsonField<List<String>>) = apply {
             this.inputShields = inputShields
         }
 
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
-        @JsonProperty("output_shields")
-        @ExcludeMissing
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
             this.outputShields = outputShields
         }
@@ -122,30 +124,31 @@ private constructor(
         fun remoteExecution(remoteExecution: RestApiExecutionConfig) =
             remoteExecution(JsonField.of(remoteExecution))
 
-        @JsonProperty("remote_execution")
-        @ExcludeMissing
         fun remoteExecution(remoteExecution: JsonField<RestApiExecutionConfig>) = apply {
             this.remoteExecution = remoteExecution
         }
 
         fun type(type: Type) = type(JsonField.of(type))
 
-        @JsonProperty("type")
-        @ExcludeMissing
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): CodeInterpreterToolDefinition =
@@ -167,21 +170,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val CODE_INTERPRETER = Type(JsonField.of("code_interpreter"))
+            val CODE_INTERPRETER = of("code_interpreter")
 
             fun of(value: String) = Type(JsonField.of(value))
         }
@@ -208,6 +199,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

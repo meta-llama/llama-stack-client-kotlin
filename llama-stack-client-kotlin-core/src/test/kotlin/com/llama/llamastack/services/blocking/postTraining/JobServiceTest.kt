@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking.postTraining
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.PostTrainingJobArtifactsParams
+import com.llama.llamastack.models.PostTrainingJobCancelParams
+import com.llama.llamastack.models.PostTrainingJobListParams
+import com.llama.llamastack.models.PostTrainingJobStatusParams
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -38,12 +41,12 @@ class JobServiceTest {
         val postTrainingJobArtifactsResponse =
             jobService.artifacts(
                 PostTrainingJobArtifactsParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .jobUuid("job_uuid")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(postTrainingJobArtifactsResponse)
-        postTrainingJobArtifactsResponse.validate()
+        postTrainingJobArtifactsResponse?.validate()
     }
 
     @Test
@@ -60,22 +63,6 @@ class JobServiceTest {
     }
 
     @Test
-    fun callLogs() {
-        val client =
-            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
-        val jobService = client.postTraining().job()
-        val postTrainingJobLogsResponse =
-            jobService.logs(
-                PostTrainingJobLogsParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
-                    .jobUuid("job_uuid")
-                    .build()
-            )
-        println(postTrainingJobLogsResponse)
-        postTrainingJobLogsResponse.validate()
-    }
-
-    @Test
     fun callStatus() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
@@ -83,11 +70,11 @@ class JobServiceTest {
         val postTrainingJobStatusResponse =
             jobService.status(
                 PostTrainingJobStatusParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .jobUuid("job_uuid")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(postTrainingJobStatusResponse)
-        postTrainingJobStatusResponse.validate()
+        postTrainingJobStatusResponse?.validate()
     }
 }

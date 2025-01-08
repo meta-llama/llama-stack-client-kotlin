@@ -3,6 +3,7 @@ package com.llama.llamastack.client.local.util
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionResponse
+import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.ToolCall
 import java.util.UUID
 
@@ -18,12 +19,10 @@ fun buildInferenceChatCompletionResponse(
             // custom tool call
             CompletionMessage.builder()
                 .toolCalls(createCustomToolCalls(response))
-                .content(CompletionMessage.Content.ofString(""))
+                .content(InterleavedContent.ofString(""))
                 .build()
         } else {
-            CompletionMessage.builder()
-                .content(CompletionMessage.Content.ofString(response))
-                .build()
+            CompletionMessage.builder().content(InterleavedContent.ofString(response)).build()
         }
 
     var inferenceChatCompletionResponse =

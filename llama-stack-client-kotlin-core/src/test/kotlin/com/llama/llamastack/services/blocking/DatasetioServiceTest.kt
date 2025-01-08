@@ -4,12 +4,34 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.DatasetioAppendRowsParams
+import com.llama.llamastack.models.DatasetioGetRowsPaginatedParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 class DatasetioServiceTest {
+
+    @Test
+    fun callAppendRows() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val datasetioService = client.datasetio()
+        datasetioService.appendRows(
+            DatasetioAppendRowsParams.builder()
+                .datasetId("dataset_id")
+                .rows(
+                    listOf(
+                        DatasetioAppendRowsParams.Row.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                )
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
+        )
+    }
 
     @Test
     fun callGetRowsPaginated() {
@@ -19,11 +41,11 @@ class DatasetioServiceTest {
         val paginatedRowsResult =
             datasetioService.getRowsPaginated(
                 DatasetioGetRowsPaginatedParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .datasetId("dataset_id")
                     .rowsInPage(0L)
                     .filterCondition("filter_condition")
                     .pageToken("page_token")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(paginatedRowsResult)

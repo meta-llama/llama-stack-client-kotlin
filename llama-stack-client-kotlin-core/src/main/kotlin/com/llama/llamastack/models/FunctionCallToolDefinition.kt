@@ -6,32 +6,42 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = FunctionCallToolDefinition.Builder::class)
 @NoAutoDetect
 class FunctionCallToolDefinition
+@JsonCreator
 private constructor(
-    private val description: JsonField<String>,
-    private val functionName: JsonField<String>,
-    private val inputShields: JsonField<List<String>>,
-    private val outputShields: JsonField<List<String>>,
-    private val parameters: JsonField<Parameters>,
-    private val remoteExecution: JsonField<RestApiExecutionConfig>,
-    private val type: JsonField<Type>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("description")
+    @ExcludeMissing
+    private val description: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("function_name")
+    @ExcludeMissing
+    private val functionName: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("output_shields")
+    @ExcludeMissing
+    private val outputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("parameters")
+    @ExcludeMissing
+    private val parameters: JsonField<Parameters> = JsonMissing.of(),
+    @JsonProperty("remote_execution")
+    @ExcludeMissing
+    private val remoteExecution: JsonField<RestApiExecutionConfig> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun description(): String = description.getRequired("description")
 
@@ -65,6 +75,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): FunctionCallToolDefinition = apply {
         if (!validated) {
             description()
@@ -97,79 +109,70 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(functionCallToolDefinition: FunctionCallToolDefinition) = apply {
-            this.description = functionCallToolDefinition.description
-            this.functionName = functionCallToolDefinition.functionName
-            this.inputShields = functionCallToolDefinition.inputShields
-            this.outputShields = functionCallToolDefinition.outputShields
-            this.parameters = functionCallToolDefinition.parameters
-            this.remoteExecution = functionCallToolDefinition.remoteExecution
-            this.type = functionCallToolDefinition.type
-            additionalProperties(functionCallToolDefinition.additionalProperties)
+            description = functionCallToolDefinition.description
+            functionName = functionCallToolDefinition.functionName
+            inputShields = functionCallToolDefinition.inputShields
+            outputShields = functionCallToolDefinition.outputShields
+            parameters = functionCallToolDefinition.parameters
+            remoteExecution = functionCallToolDefinition.remoteExecution
+            type = functionCallToolDefinition.type
+            additionalProperties = functionCallToolDefinition.additionalProperties.toMutableMap()
         }
 
         fun description(description: String) = description(JsonField.of(description))
 
-        @JsonProperty("description")
-        @ExcludeMissing
         fun description(description: JsonField<String>) = apply { this.description = description }
 
         fun functionName(functionName: String) = functionName(JsonField.of(functionName))
 
-        @JsonProperty("function_name")
-        @ExcludeMissing
         fun functionName(functionName: JsonField<String>) = apply {
             this.functionName = functionName
         }
 
         fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
 
-        @JsonProperty("input_shields")
-        @ExcludeMissing
         fun inputShields(inputShields: JsonField<List<String>>) = apply {
             this.inputShields = inputShields
         }
 
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
-        @JsonProperty("output_shields")
-        @ExcludeMissing
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
             this.outputShields = outputShields
         }
 
         fun parameters(parameters: Parameters) = parameters(JsonField.of(parameters))
 
-        @JsonProperty("parameters")
-        @ExcludeMissing
         fun parameters(parameters: JsonField<Parameters>) = apply { this.parameters = parameters }
 
         fun remoteExecution(remoteExecution: RestApiExecutionConfig) =
             remoteExecution(JsonField.of(remoteExecution))
 
-        @JsonProperty("remote_execution")
-        @ExcludeMissing
         fun remoteExecution(remoteExecution: JsonField<RestApiExecutionConfig>) = apply {
             this.remoteExecution = remoteExecution
         }
 
         fun type(type: Type) = type(JsonField.of(type))
 
-        @JsonProperty("type")
-        @ExcludeMissing
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): FunctionCallToolDefinition =
@@ -185,18 +188,19 @@ private constructor(
             )
     }
 
-    @JsonDeserialize(builder = Parameters.Builder::class)
     @NoAutoDetect
     class Parameters
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Parameters = apply {
             if (!validated) {
@@ -216,21 +220,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(parameters: Parameters) = apply {
-                additionalProperties(parameters.additionalProperties)
+                additionalProperties = parameters.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Parameters = Parameters(additionalProperties.toImmutable())
@@ -261,21 +270,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val FUNCTION_CALL = Type(JsonField.of("function_call"))
+            val FUNCTION_CALL = of("function_call")
 
             fun of(value: String) = Type(JsonField.of(value))
         }
@@ -302,6 +299,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

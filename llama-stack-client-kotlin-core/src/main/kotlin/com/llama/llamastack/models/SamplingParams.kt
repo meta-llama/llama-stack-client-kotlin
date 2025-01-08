@@ -6,31 +6,37 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = SamplingParams.Builder::class)
 @NoAutoDetect
 class SamplingParams
+@JsonCreator
 private constructor(
-    private val maxTokens: JsonField<Long>,
-    private val repetitionPenalty: JsonField<Double>,
-    private val strategy: JsonField<Strategy>,
-    private val temperature: JsonField<Double>,
-    private val topK: JsonField<Long>,
-    private val topP: JsonField<Double>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("max_tokens")
+    @ExcludeMissing
+    private val maxTokens: JsonField<Long> = JsonMissing.of(),
+    @JsonProperty("repetition_penalty")
+    @ExcludeMissing
+    private val repetitionPenalty: JsonField<Double> = JsonMissing.of(),
+    @JsonProperty("strategy")
+    @ExcludeMissing
+    private val strategy: JsonField<Strategy> = JsonMissing.of(),
+    @JsonProperty("temperature")
+    @ExcludeMissing
+    private val temperature: JsonField<Double> = JsonMissing.of(),
+    @JsonProperty("top_k") @ExcludeMissing private val topK: JsonField<Long> = JsonMissing.of(),
+    @JsonProperty("top_p") @ExcludeMissing private val topP: JsonField<Double> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun maxTokens(): Long? = maxTokens.getNullable("max_tokens")
 
@@ -59,6 +65,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): SamplingParams = apply {
         if (!validated) {
@@ -90,66 +98,59 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(samplingParams: SamplingParams) = apply {
-            this.maxTokens = samplingParams.maxTokens
-            this.repetitionPenalty = samplingParams.repetitionPenalty
-            this.strategy = samplingParams.strategy
-            this.temperature = samplingParams.temperature
-            this.topK = samplingParams.topK
-            this.topP = samplingParams.topP
-            additionalProperties(samplingParams.additionalProperties)
+            maxTokens = samplingParams.maxTokens
+            repetitionPenalty = samplingParams.repetitionPenalty
+            strategy = samplingParams.strategy
+            temperature = samplingParams.temperature
+            topK = samplingParams.topK
+            topP = samplingParams.topP
+            additionalProperties = samplingParams.additionalProperties.toMutableMap()
         }
 
         fun maxTokens(maxTokens: Long) = maxTokens(JsonField.of(maxTokens))
 
-        @JsonProperty("max_tokens")
-        @ExcludeMissing
         fun maxTokens(maxTokens: JsonField<Long>) = apply { this.maxTokens = maxTokens }
 
         fun repetitionPenalty(repetitionPenalty: Double) =
             repetitionPenalty(JsonField.of(repetitionPenalty))
 
-        @JsonProperty("repetition_penalty")
-        @ExcludeMissing
         fun repetitionPenalty(repetitionPenalty: JsonField<Double>) = apply {
             this.repetitionPenalty = repetitionPenalty
         }
 
         fun strategy(strategy: Strategy) = strategy(JsonField.of(strategy))
 
-        @JsonProperty("strategy")
-        @ExcludeMissing
         fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
         fun temperature(temperature: Double) = temperature(JsonField.of(temperature))
 
-        @JsonProperty("temperature")
-        @ExcludeMissing
         fun temperature(temperature: JsonField<Double>) = apply { this.temperature = temperature }
 
         fun topK(topK: Long) = topK(JsonField.of(topK))
 
-        @JsonProperty("top_k")
-        @ExcludeMissing
         fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
         fun topP(topP: Double) = topP(JsonField.of(topP))
 
-        @JsonProperty("top_p")
-        @ExcludeMissing
         fun topP(topP: JsonField<Double>) = apply { this.topP = topP }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): SamplingParams =
@@ -172,25 +173,13 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Strategy && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val GREEDY = Strategy(JsonField.of("greedy"))
+            val GREEDY = of("greedy")
 
-            val TOP_P = Strategy(JsonField.of("top_p"))
+            val TOP_P = of("top_p")
 
-            val TOP_K = Strategy(JsonField.of("top_k"))
+            val TOP_K = of("top_k")
 
             fun of(value: String) = Strategy(JsonField.of(value))
         }
@@ -225,6 +214,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Strategy && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

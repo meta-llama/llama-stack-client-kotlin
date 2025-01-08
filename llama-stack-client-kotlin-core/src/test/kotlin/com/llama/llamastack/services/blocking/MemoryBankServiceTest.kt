@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.MemoryBankListParams
+import com.llama.llamastack.models.MemoryBankRegisterParams
+import com.llama.llamastack.models.MemoryBankRetrieveParams
+import com.llama.llamastack.models.MemoryBankUnregisterParams
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,8 +23,8 @@ class MemoryBankServiceTest {
         val memoryBankRetrieveResponse =
             memoryBankService.retrieve(
                 MemoryBankRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .memoryBankId("memory_bank_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(memoryBankRetrieveResponse)

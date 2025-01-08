@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -22,9 +23,9 @@ class SessionTest {
                                 listOf(
                                     Turn.InputMessage.ofUserMessage(
                                         UserMessage.builder()
-                                            .content(UserMessage.Content.ofString("string"))
+                                            .content(InterleavedContent.ofString("string"))
                                             .role(UserMessage.Role.USER)
-                                            .context(UserMessage.Context.ofString("string"))
+                                            .context(InterleavedContent.ofString("string"))
                                             .build()
                                     )
                                 )
@@ -39,13 +40,20 @@ class SessionTest {
                             )
                             .outputMessage(
                                 CompletionMessage.builder()
-                                    .content(CompletionMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(CompletionMessage.Role.ASSISTANT)
                                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                     .toolCalls(
                                         listOf(
                                             ToolCall.builder()
-                                                .arguments(ToolCall.Arguments.builder().build())
+                                                .arguments(
+                                                    ToolCall.Arguments.builder()
+                                                        .putAdditionalProperty(
+                                                            "foo",
+                                                            JsonValue.from("string")
+                                                        )
+                                                        .build()
+                                                )
                                                 .callId("call_id")
                                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                                 .build()
@@ -61,9 +69,7 @@ class SessionTest {
                                         InferenceStep.builder()
                                             .modelResponse(
                                                 CompletionMessage.builder()
-                                                    .content(
-                                                        CompletionMessage.Content.ofString("string")
-                                                    )
+                                                    .content(InterleavedContent.ofString("string"))
                                                     .role(CompletionMessage.Role.ASSISTANT)
                                                     .stopReason(
                                                         CompletionMessage.StopReason.END_OF_TURN
@@ -73,6 +79,10 @@ class SessionTest {
                                                             ToolCall.builder()
                                                                 .arguments(
                                                                     ToolCall.Arguments.builder()
+                                                                        .putAdditionalProperty(
+                                                                            "foo",
+                                                                            JsonValue.from("string")
+                                                                        )
                                                                         .build()
                                                                 )
                                                                 .callId("call_id")
@@ -114,6 +124,7 @@ class SessionTest {
                             .providerId("provider_id")
                             .providerResourceId("provider_resource_id")
                             .type(Session.MemoryBank.VectorMemoryBank.Type.MEMORY_BANK)
+                            .embeddingDimension(0L)
                             .overlapSizeInTokens(0L)
                             .build()
                     )
@@ -130,9 +141,9 @@ class SessionTest {
                         listOf(
                             Turn.InputMessage.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
@@ -147,13 +158,20 @@ class SessionTest {
                     )
                     .outputMessage(
                         CompletionMessage.builder()
-                            .content(CompletionMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(CompletionMessage.Role.ASSISTANT)
                             .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
-                                        .arguments(ToolCall.Arguments.builder().build())
+                                        .arguments(
+                                            ToolCall.Arguments.builder()
+                                                .putAdditionalProperty(
+                                                    "foo",
+                                                    JsonValue.from("string")
+                                                )
+                                                .build()
+                                        )
                                         .callId("call_id")
                                         .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
@@ -169,14 +187,19 @@ class SessionTest {
                                 InferenceStep.builder()
                                     .modelResponse(
                                         CompletionMessage.builder()
-                                            .content(CompletionMessage.Content.ofString("string"))
+                                            .content(InterleavedContent.ofString("string"))
                                             .role(CompletionMessage.Role.ASSISTANT)
                                             .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                             .toolCalls(
                                                 listOf(
                                                     ToolCall.builder()
                                                         .arguments(
-                                                            ToolCall.Arguments.builder().build()
+                                                            ToolCall.Arguments.builder()
+                                                                .putAdditionalProperty(
+                                                                    "foo",
+                                                                    JsonValue.from("string")
+                                                                )
+                                                                .build()
                                                         )
                                                         .callId("call_id")
                                                         .toolName(ToolCall.ToolName.BRAVE_SEARCH)
@@ -209,6 +232,7 @@ class SessionTest {
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
                         .type(Session.MemoryBank.VectorMemoryBank.Type.MEMORY_BANK)
+                        .embeddingDimension(0L)
                         .overlapSizeInTokens(0L)
                         .build()
                 )

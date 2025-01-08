@@ -4,25 +4,26 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = BatchInferenceChatCompletionResponse.Builder::class)
 @NoAutoDetect
 class BatchInferenceChatCompletionResponse
+@JsonCreator
 private constructor(
-    private val completionMessageBatch: JsonField<List<CompletionMessage>>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("completion_message_batch")
+    @ExcludeMissing
+    private val completionMessageBatch: JsonField<List<CompletionMessage>> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun completionMessageBatch(): List<CompletionMessage> =
         completionMessageBatch.getRequired("completion_message_batch")
@@ -34,6 +35,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): BatchInferenceChatCompletionResponse = apply {
         if (!validated) {
@@ -57,16 +60,14 @@ private constructor(
         internal fun from(
             batchInferenceChatCompletionResponse: BatchInferenceChatCompletionResponse
         ) = apply {
-            this.completionMessageBatch =
-                batchInferenceChatCompletionResponse.completionMessageBatch
-            additionalProperties(batchInferenceChatCompletionResponse.additionalProperties)
+            completionMessageBatch = batchInferenceChatCompletionResponse.completionMessageBatch
+            additionalProperties =
+                batchInferenceChatCompletionResponse.additionalProperties.toMutableMap()
         }
 
         fun completionMessageBatch(completionMessageBatch: List<CompletionMessage>) =
             completionMessageBatch(JsonField.of(completionMessageBatch))
 
-        @JsonProperty("completion_message_batch")
-        @ExcludeMissing
         fun completionMessageBatch(completionMessageBatch: JsonField<List<CompletionMessage>>) =
             apply {
                 this.completionMessageBatch = completionMessageBatch
@@ -74,16 +75,21 @@ private constructor(
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): BatchInferenceChatCompletionResponse =

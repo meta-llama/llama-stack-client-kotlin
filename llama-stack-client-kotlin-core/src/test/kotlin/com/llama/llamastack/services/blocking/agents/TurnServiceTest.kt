@@ -4,7 +4,11 @@ package com.llama.llamastack.services.blocking.agents
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.AgentTurnCreateParams
+import com.llama.llamastack.models.AgentTurnRetrieveParams
+import com.llama.llamastack.models.Attachment
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,9 +32,9 @@ class TurnServiceTest {
                         listOf(
                             AgentTurnCreateParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
@@ -67,9 +71,9 @@ class TurnServiceTest {
                         listOf(
                             AgentTurnCreateParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
@@ -100,10 +104,10 @@ class TurnServiceTest {
         val turn =
             turnService.retrieve(
                 AgentTurnRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .turnId("turn_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(turn)

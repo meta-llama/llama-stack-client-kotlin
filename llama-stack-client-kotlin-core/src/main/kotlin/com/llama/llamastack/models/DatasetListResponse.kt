@@ -6,32 +6,40 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = DatasetListResponse.Builder::class)
 @NoAutoDetect
 class DatasetListResponse
+@JsonCreator
 private constructor(
-    private val datasetSchema: JsonField<DatasetSchema>,
-    private val identifier: JsonField<String>,
-    private val metadata: JsonField<Metadata>,
-    private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
-    private val type: JsonField<Type>,
-    private val url: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("dataset_schema")
+    @ExcludeMissing
+    private val datasetSchema: JsonField<DatasetSchema> = JsonMissing.of(),
+    @JsonProperty("identifier")
+    @ExcludeMissing
+    private val identifier: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("metadata")
+    @ExcludeMissing
+    private val metadata: JsonField<Metadata> = JsonMissing.of(),
+    @JsonProperty("provider_id")
+    @ExcludeMissing
+    private val providerId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    private val providerResourceId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun datasetSchema(): DatasetSchema = datasetSchema.getRequired("dataset_schema")
 
@@ -45,7 +53,7 @@ private constructor(
 
     fun type(): Type = type.getRequired("type")
 
-    fun url(): String = url.getRequired("url")
+    fun url(): Url = url.getRequired("url")
 
     @JsonProperty("dataset_schema") @ExcludeMissing fun _datasetSchema() = datasetSchema
 
@@ -67,6 +75,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): DatasetListResponse = apply {
         if (!validated) {
             datasetSchema().validate()
@@ -75,7 +85,7 @@ private constructor(
             providerId()
             providerResourceId()
             type()
-            url()
+            url().validate()
             validated = true
         }
     }
@@ -95,79 +105,70 @@ private constructor(
         private var providerId: JsonField<String> = JsonMissing.of()
         private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var type: JsonField<Type> = JsonMissing.of()
-        private var url: JsonField<String> = JsonMissing.of()
+        private var url: JsonField<Url> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(datasetListResponse: DatasetListResponse) = apply {
-            this.datasetSchema = datasetListResponse.datasetSchema
-            this.identifier = datasetListResponse.identifier
-            this.metadata = datasetListResponse.metadata
-            this.providerId = datasetListResponse.providerId
-            this.providerResourceId = datasetListResponse.providerResourceId
-            this.type = datasetListResponse.type
-            this.url = datasetListResponse.url
-            additionalProperties(datasetListResponse.additionalProperties)
+            datasetSchema = datasetListResponse.datasetSchema
+            identifier = datasetListResponse.identifier
+            metadata = datasetListResponse.metadata
+            providerId = datasetListResponse.providerId
+            providerResourceId = datasetListResponse.providerResourceId
+            type = datasetListResponse.type
+            url = datasetListResponse.url
+            additionalProperties = datasetListResponse.additionalProperties.toMutableMap()
         }
 
         fun datasetSchema(datasetSchema: DatasetSchema) = datasetSchema(JsonField.of(datasetSchema))
 
-        @JsonProperty("dataset_schema")
-        @ExcludeMissing
         fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
             this.datasetSchema = datasetSchema
         }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
-        @JsonProperty("identifier")
-        @ExcludeMissing
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
-        @JsonProperty("metadata")
-        @ExcludeMissing
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
-        @JsonProperty("provider_id")
-        @ExcludeMissing
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerResourceId(providerResourceId: String) =
             providerResourceId(JsonField.of(providerResourceId))
 
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
         fun providerResourceId(providerResourceId: JsonField<String>) = apply {
             this.providerResourceId = providerResourceId
         }
 
         fun type(type: Type) = type(JsonField.of(type))
 
-        @JsonProperty("type")
-        @ExcludeMissing
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
-        fun url(url: String) = url(JsonField.of(url))
+        fun url(url: Url) = url(JsonField.of(url))
 
-        @JsonProperty("url")
-        @ExcludeMissing
-        fun url(url: JsonField<String>) = apply { this.url = url }
+        fun url(url: JsonField<Url>) = apply { this.url = url }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): DatasetListResponse =
@@ -183,18 +184,19 @@ private constructor(
             )
     }
 
-    @JsonDeserialize(builder = DatasetSchema.Builder::class)
     @NoAutoDetect
     class DatasetSchema
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): DatasetSchema = apply {
             if (!validated) {
@@ -214,21 +216,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(datasetSchema: DatasetSchema) = apply {
-                additionalProperties(datasetSchema.additionalProperties)
+                additionalProperties = datasetSchema.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): DatasetSchema = DatasetSchema(additionalProperties.toImmutable())
@@ -251,18 +258,19 @@ private constructor(
         override fun toString() = "DatasetSchema{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = Metadata.Builder::class)
     @NoAutoDetect
     class Metadata
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Metadata = apply {
             if (!validated) {
@@ -282,21 +290,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metadata: Metadata) = apply {
-                additionalProperties(metadata.additionalProperties)
+                additionalProperties = metadata.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
@@ -327,21 +340,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val DATASET = Type(JsonField.of("dataset"))
+            val DATASET = of("dataset")
 
             fun of(value: String) = Type(JsonField.of(value))
         }
@@ -368,6 +369,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

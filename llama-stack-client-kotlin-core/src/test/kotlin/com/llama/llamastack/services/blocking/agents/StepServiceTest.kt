@@ -4,7 +4,7 @@ package com.llama.llamastack.services.blocking.agents
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.AgentStepRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,11 +19,11 @@ class StepServiceTest {
         val agentStepRetrieveResponse =
             stepService.retrieve(
                 AgentStepRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .stepId("step_id")
                     .turnId("turn_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(agentStepRetrieveResponse)

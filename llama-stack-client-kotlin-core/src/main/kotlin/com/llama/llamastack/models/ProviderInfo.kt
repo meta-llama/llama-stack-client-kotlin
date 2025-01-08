@@ -4,26 +4,29 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = ProviderInfo.Builder::class)
 @NoAutoDetect
 class ProviderInfo
+@JsonCreator
 private constructor(
-    private val providerId: JsonField<String>,
-    private val providerType: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("provider_id")
+    @ExcludeMissing
+    private val providerId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("provider_type")
+    @ExcludeMissing
+    private val providerType: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun providerId(): String = providerId.getRequired("provider_id")
 
@@ -36,6 +39,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): ProviderInfo = apply {
         if (!validated) {
@@ -59,37 +64,38 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(providerInfo: ProviderInfo) = apply {
-            this.providerId = providerInfo.providerId
-            this.providerType = providerInfo.providerType
-            additionalProperties(providerInfo.additionalProperties)
+            providerId = providerInfo.providerId
+            providerType = providerInfo.providerType
+            additionalProperties = providerInfo.additionalProperties.toMutableMap()
         }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
-        @JsonProperty("provider_id")
-        @ExcludeMissing
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerType(providerType: String) = providerType(JsonField.of(providerType))
 
-        @JsonProperty("provider_type")
-        @ExcludeMissing
         fun providerType(providerType: JsonField<String>) = apply {
             this.providerType = providerType
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): ProviderInfo =

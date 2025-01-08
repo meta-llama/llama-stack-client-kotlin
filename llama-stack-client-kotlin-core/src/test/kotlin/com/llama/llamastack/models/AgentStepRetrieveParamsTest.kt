@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,11 +11,11 @@ class AgentStepRetrieveParamsTest {
     @Test
     fun createAgentStepRetrieveParams() {
         AgentStepRetrieveParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
             .stepId("step_id")
             .turnId("turn_id")
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -24,11 +23,11 @@ class AgentStepRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             AgentStepRetrieveParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .stepId("step_id")
                 .turnId("turn_id")
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val expected = QueryParams.builder()
         expected.put("agent_id", "agent_id")

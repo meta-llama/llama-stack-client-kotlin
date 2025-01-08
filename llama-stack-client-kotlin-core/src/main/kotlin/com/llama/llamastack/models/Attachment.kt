@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -14,26 +15,30 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.BaseDeserializer
 import com.llama.llamastack.core.BaseSerializer
+import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = Attachment.Builder::class)
 @NoAutoDetect
 class Attachment
+@JsonCreator
 private constructor(
-    private val content: JsonField<Content>,
-    private val mimeType: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("content")
+    @ExcludeMissing
+    private val content: JsonField<Content> = JsonMissing.of(),
+    @JsonProperty("mime_type")
+    @ExcludeMissing
+    private val mimeType: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun content(): Content = content.getRequired("content")
 
@@ -46,6 +51,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): Attachment = apply {
         if (!validated) {
@@ -69,35 +76,36 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(attachment: Attachment) = apply {
-            this.content = attachment.content
-            this.mimeType = attachment.mimeType
-            additionalProperties(attachment.additionalProperties)
+            content = attachment.content
+            mimeType = attachment.mimeType
+            additionalProperties = attachment.additionalProperties.toMutableMap()
         }
 
         fun content(content: Content) = content(JsonField.of(content))
 
-        @JsonProperty("content")
-        @ExcludeMissing
         fun content(content: JsonField<Content>) = apply { this.content = content }
 
         fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
 
-        @JsonProperty("mime_type")
-        @ExcludeMissing
         fun mimeType(mimeType: JsonField<String>) = apply { this.mimeType = mimeType }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): Attachment =
@@ -113,8 +121,10 @@ private constructor(
     class Content
     private constructor(
         private val string: String? = null,
-        private val imageMedia: ImageMedia? = null,
-        private val contentArray: List<StringOrImageMediaUnion>? = null,
+        private val imageContentItem: ImageContentItem? = null,
+        private val textContentItem: TextContentItem? = null,
+        private val contentArray: List<InterleavedContentItem>? = null,
+        private val url: Url? = null,
         private val _json: JsonValue? = null,
     ) {
 
@@ -122,40 +132,61 @@ private constructor(
 
         fun string(): String? = string
 
-        fun imageMedia(): ImageMedia? = imageMedia
+        fun imageContentItem(): ImageContentItem? = imageContentItem
 
-        fun contentArray(): List<StringOrImageMediaUnion>? = contentArray
+        fun textContentItem(): TextContentItem? = textContentItem
+
+        fun contentArray(): List<InterleavedContentItem>? = contentArray
+
+        fun url(): Url? = url
 
         fun isString(): Boolean = string != null
 
-        fun isImageMedia(): Boolean = imageMedia != null
+        fun isImageContentItem(): Boolean = imageContentItem != null
+
+        fun isTextContentItem(): Boolean = textContentItem != null
 
         fun isContentArray(): Boolean = contentArray != null
 
+        fun isUrl(): Boolean = url != null
+
         fun asString(): String = string.getOrThrow("string")
 
-        fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
+        fun asImageContentItem(): ImageContentItem = imageContentItem.getOrThrow("imageContentItem")
 
-        fun asContentArray(): List<StringOrImageMediaUnion> =
-            contentArray.getOrThrow("contentArray")
+        fun asTextContentItem(): TextContentItem = textContentItem.getOrThrow("textContentItem")
+
+        fun asContentArray(): List<InterleavedContentItem> = contentArray.getOrThrow("contentArray")
+
+        fun asUrl(): Url = url.getOrThrow("url")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
                 string != null -> visitor.visitString(string)
-                imageMedia != null -> visitor.visitImageMedia(imageMedia)
+                imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
+                textContentItem != null -> visitor.visitTextContentItem(textContentItem)
                 contentArray != null -> visitor.visitContentArray(contentArray)
+                url != null -> visitor.visitUrl(url)
                 else -> visitor.unknown(_json)
             }
         }
 
         fun validate(): Content = apply {
             if (!validated) {
-                if (string == null && imageMedia == null && contentArray == null) {
+                if (
+                    string == null &&
+                        imageContentItem == null &&
+                        textContentItem == null &&
+                        contentArray == null &&
+                        url == null
+                ) {
                     throw LlamaStackClientInvalidDataException("Unknown Content: $_json")
                 }
-                imageMedia?.validate()
+                imageContentItem?.validate()
+                textContentItem?.validate()
+                url?.validate()
                 validated = true
             }
         }
@@ -165,16 +196,18 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Content && string == other.string && imageMedia == other.imageMedia && contentArray == other.contentArray /* spotless:on */
+            return /* spotless:off */ other is Content && string == other.string && imageContentItem == other.imageContentItem && textContentItem == other.textContentItem && contentArray == other.contentArray && url == other.url /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, contentArray) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageContentItem, textContentItem, contentArray, url) /* spotless:on */
 
         override fun toString(): String =
             when {
                 string != null -> "Content{string=$string}"
-                imageMedia != null -> "Content{imageMedia=$imageMedia}"
+                imageContentItem != null -> "Content{imageContentItem=$imageContentItem}"
+                textContentItem != null -> "Content{textContentItem=$textContentItem}"
                 contentArray != null -> "Content{contentArray=$contentArray}"
+                url != null -> "Content{url=$url}"
                 _json != null -> "Content{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Content")
             }
@@ -183,19 +216,29 @@ private constructor(
 
             fun ofString(string: String) = Content(string = string)
 
-            fun ofImageMedia(imageMedia: ImageMedia) = Content(imageMedia = imageMedia)
+            fun ofImageContentItem(imageContentItem: ImageContentItem) =
+                Content(imageContentItem = imageContentItem)
 
-            fun ofContentArray(contentArray: List<StringOrImageMediaUnion>) =
+            fun ofTextContentItem(textContentItem: TextContentItem) =
+                Content(textContentItem = textContentItem)
+
+            fun ofContentArray(contentArray: List<InterleavedContentItem>) =
                 Content(contentArray = contentArray)
+
+            fun ofUrl(url: Url) = Content(url = url)
         }
 
         interface Visitor<out T> {
 
             fun visitString(string: String): T
 
-            fun visitImageMedia(imageMedia: ImageMedia): T
+            fun visitImageContentItem(imageContentItem: ImageContentItem): T
 
-            fun visitContentArray(contentArray: List<StringOrImageMediaUnion>): T
+            fun visitTextContentItem(textContentItem: TextContentItem): T
+
+            fun visitContentArray(contentArray: List<InterleavedContentItem>): T
+
+            fun visitUrl(url: Url): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Content: $json")
@@ -210,13 +253,21 @@ private constructor(
                 tryDeserialize(node, jacksonTypeRef<String>())?.let {
                     return Content(string = it, _json = json)
                 }
-                tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
+                tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
                     ?.let {
-                        return Content(imageMedia = it, _json = json)
+                        return Content(imageContentItem = it, _json = json)
                     }
-                tryDeserialize(node, jacksonTypeRef<List<StringOrImageMediaUnion>>())?.let {
+                tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
+                    ?.let {
+                        return Content(textContentItem = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>())?.let {
                     return Content(contentArray = it, _json = json)
                 }
+                tryDeserialize(node, jacksonTypeRef<Url>()) { it.validate() }
+                    ?.let {
+                        return Content(url = it, _json = json)
+                    }
 
                 return Content(_json = json)
             }
@@ -231,57 +282,171 @@ private constructor(
             ) {
                 when {
                     value.string != null -> generator.writeObject(value.string)
-                    value.imageMedia != null -> generator.writeObject(value.imageMedia)
+                    value.imageContentItem != null -> generator.writeObject(value.imageContentItem)
+                    value.textContentItem != null -> generator.writeObject(value.textContentItem)
                     value.contentArray != null -> generator.writeObject(value.contentArray)
+                    value.url != null -> generator.writeObject(value.url)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Content")
                 }
             }
         }
 
-        @JsonDeserialize(using = StringOrImageMediaUnion.Deserializer::class)
-        @JsonSerialize(using = StringOrImageMediaUnion.Serializer::class)
-        class StringOrImageMediaUnion
+        @NoAutoDetect
+        class ImageContentItem
+        @JsonCreator
         private constructor(
-            private val string: String? = null,
-            private val imageMedia: ImageMedia? = null,
-            private val _json: JsonValue? = null,
+            @JsonProperty("data")
+            @ExcludeMissing
+            private val data: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
+
+            fun data(): String? = data.getNullable("data")
+
+            fun type(): Type = type.getRequired("type")
+
+            fun url(): Url? = url.getNullable("url")
+
+            @JsonProperty("data") @ExcludeMissing fun _data() = data
+
+            @JsonProperty("type") @ExcludeMissing fun _type() = type
+
+            @JsonProperty("url") @ExcludeMissing fun _url() = url
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
             private var validated: Boolean = false
 
-            fun string(): String? = string
-
-            fun imageMedia(): ImageMedia? = imageMedia
-
-            fun isString(): Boolean = string != null
-
-            fun isImageMedia(): Boolean = imageMedia != null
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    string != null -> visitor.visitString(string)
-                    imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                    else -> visitor.unknown(_json)
+            fun validate(): ImageContentItem = apply {
+                if (!validated) {
+                    data()
+                    type()
+                    url()?.validate()
+                    validated = true
                 }
             }
 
-            fun validate(): StringOrImageMediaUnion = apply {
-                if (!validated) {
-                    if (string == null && imageMedia == null) {
-                        throw LlamaStackClientInvalidDataException(
-                            "Unknown StringOrImageMediaUnion: $_json"
-                        )
-                    }
-                    imageMedia?.validate()
-                    validated = true
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var data: JsonField<String> = JsonMissing.of()
+                private var type: JsonField<Type> = JsonMissing.of()
+                private var url: JsonField<Url> = JsonMissing.of()
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(imageContentItem: ImageContentItem) = apply {
+                    data = imageContentItem.data
+                    type = imageContentItem.type
+                    url = imageContentItem.url
+                    additionalProperties = imageContentItem.additionalProperties.toMutableMap()
                 }
+
+                fun data(data: String) = data(JsonField.of(data))
+
+                fun data(data: JsonField<String>) = apply { this.data = data }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun url(url: Url) = url(JsonField.of(url))
+
+                fun url(url: JsonField<Url>) = apply { this.url = url }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): ImageContentItem =
+                    ImageContentItem(
+                        data,
+                        type,
+                        url,
+                        additionalProperties.toImmutable(),
+                    )
+            }
+
+            class Type
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
+
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+                companion object {
+
+                    val IMAGE = of("image")
+
+                    fun of(value: String) = Type(JsonField.of(value))
+                }
+
+                enum class Known {
+                    IMAGE,
+                }
+
+                enum class Value {
+                    IMAGE,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        IMAGE -> Value.IMAGE
+                        else -> Value._UNKNOWN
+                    }
+
+                fun known(): Known =
+                    when (this) {
+                        IMAGE -> Known.IMAGE
+                        else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
+                    }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -289,74 +454,179 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
+                return /* spotless:off */ other is ImageContentItem && data == other.data && type == other.type && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(data, type, url, additionalProperties) }
+            /* spotless:on */
 
-            override fun toString(): String =
-                when {
-                    string != null -> "StringOrImageMediaUnion{string=$string}"
-                    imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
-                    _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "ImageContentItem{data=$data, type=$type, url=$url, additionalProperties=$additionalProperties}"
+        }
+
+        @NoAutoDetect
+        class TextContentItem
+        @JsonCreator
+        private constructor(
+            @JsonProperty("text")
+            @ExcludeMissing
+            private val text: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            fun text(): String = text.getRequired("text")
+
+            fun type(): Type = type.getRequired("type")
+
+            @JsonProperty("text") @ExcludeMissing fun _text() = text
+
+            @JsonProperty("type") @ExcludeMissing fun _type() = type
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): TextContentItem = apply {
+                if (!validated) {
+                    text()
+                    type()
+                    validated = true
                 }
+            }
+
+            fun toBuilder() = Builder().from(this)
 
             companion object {
 
-                fun ofString(string: String) = StringOrImageMediaUnion(string = string)
-
-                fun ofImageMedia(imageMedia: ImageMedia) =
-                    StringOrImageMediaUnion(imageMedia = imageMedia)
+                fun builder() = Builder()
             }
 
-            interface Visitor<out T> {
+            class Builder {
 
-                fun visitString(string: String): T
+                private var text: JsonField<String> = JsonMissing.of()
+                private var type: JsonField<Type> = JsonMissing.of()
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                fun visitImageMedia(imageMedia: ImageMedia): T
+                internal fun from(textContentItem: TextContentItem) = apply {
+                    text = textContentItem.text
+                    type = textContentItem.type
+                    additionalProperties = textContentItem.additionalProperties.toMutableMap()
+                }
 
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException(
-                        "Unknown StringOrImageMediaUnion: $json"
+                fun text(text: String) = text(JsonField.of(text))
+
+                fun text(text: JsonField<String>) = apply { this.text = text }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): TextContentItem =
+                    TextContentItem(
+                        text,
+                        type,
+                        additionalProperties.toImmutable(),
                     )
-                }
             }
 
-            class Deserializer :
-                BaseDeserializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
+            class Type
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
 
-                override fun ObjectCodec.deserialize(node: JsonNode): StringOrImageMediaUnion {
-                    val json = JsonValue.fromJsonNode(node)
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return StringOrImageMediaUnion(string = it, _json = json)
+                companion object {
+
+                    val TEXT = of("text")
+
+                    fun of(value: String) = Type(JsonField.of(value))
+                }
+
+                enum class Known {
+                    TEXT,
+                }
+
+                enum class Value {
+                    TEXT,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        TEXT -> Value.TEXT
+                        else -> Value._UNKNOWN
                     }
-                    tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                        ?.let {
-                            return StringOrImageMediaUnion(imageMedia = it, _json = json)
-                        }
 
-                    return StringOrImageMediaUnion(_json = json)
-                }
-            }
-
-            class Serializer :
-                BaseSerializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                override fun serialize(
-                    value: StringOrImageMediaUnion,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.string != null -> generator.writeObject(value.string)
-                        value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
+                fun known(): Known =
+                    when (this) {
+                        TEXT -> Known.TEXT
+                        else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
                     }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Type && value == other.value /* spotless:on */
                 }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is TextContentItem && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(text, type, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 

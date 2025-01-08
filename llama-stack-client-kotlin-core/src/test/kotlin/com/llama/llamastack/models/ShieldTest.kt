@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,13 +16,20 @@ class ShieldTest {
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
                 .type(Shield.Type.SHIELD)
-                .params(Shield.Params.builder().build())
+                .params(
+                    Shield.Params.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .build()
         assertThat(shield).isNotNull
         assertThat(shield.identifier()).isEqualTo("identifier")
         assertThat(shield.providerId()).isEqualTo("provider_id")
         assertThat(shield.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(shield.type()).isEqualTo(Shield.Type.SHIELD)
-        assertThat(shield.params()).isEqualTo(Shield.Params.builder().build())
+        assertThat(shield.params())
+            .isEqualTo(
+                Shield.Params.builder().putAdditionalProperty("foo", JsonValue.from(true)).build()
+            )
     }
 }

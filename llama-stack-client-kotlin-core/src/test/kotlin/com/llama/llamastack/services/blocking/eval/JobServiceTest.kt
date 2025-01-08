@@ -4,7 +4,9 @@ package com.llama.llamastack.services.blocking.eval
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.EvalJobCancelParams
+import com.llama.llamastack.models.EvalJobRetrieveParams
+import com.llama.llamastack.models.EvalJobStatusParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,9 +21,9 @@ class JobServiceTest {
         val evaluateResponse =
             jobService.retrieve(
                 EvalJobRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .jobId("job_id")
                     .taskId("task_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(evaluateResponse)
@@ -50,9 +52,9 @@ class JobServiceTest {
         val evalJobStatusResponse =
             jobService.status(
                 EvalJobStatusParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .jobId("job_id")
                     .taskId("task_id")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(evalJobStatusResponse)

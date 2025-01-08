@@ -2,8 +2,26 @@
 
 package com.llama.llamastack.client
 
-import com.llama.llamastack.models.*
-import com.llama.llamastack.services.async.*
+import com.llama.llamastack.services.async.AgentServiceAsync
+import com.llama.llamastack.services.async.BatchInferenceServiceAsync
+import com.llama.llamastack.services.async.DatasetServiceAsync
+import com.llama.llamastack.services.async.DatasetioServiceAsync
+import com.llama.llamastack.services.async.EvalServiceAsync
+import com.llama.llamastack.services.async.EvalTaskServiceAsync
+import com.llama.llamastack.services.async.InferenceServiceAsync
+import com.llama.llamastack.services.async.InspectServiceAsync
+import com.llama.llamastack.services.async.MemoryBankServiceAsync
+import com.llama.llamastack.services.async.MemoryServiceAsync
+import com.llama.llamastack.services.async.ModelServiceAsync
+import com.llama.llamastack.services.async.PostTrainingServiceAsync
+import com.llama.llamastack.services.async.ProviderServiceAsync
+import com.llama.llamastack.services.async.RouteServiceAsync
+import com.llama.llamastack.services.async.SafetyServiceAsync
+import com.llama.llamastack.services.async.ScoringFunctionServiceAsync
+import com.llama.llamastack.services.async.ScoringServiceAsync
+import com.llama.llamastack.services.async.ShieldServiceAsync
+import com.llama.llamastack.services.async.SyntheticDataGenerationServiceAsync
+import com.llama.llamastack.services.async.TelemetryServiceAsync
 
 interface LlamaStackClientClientAsync {
 

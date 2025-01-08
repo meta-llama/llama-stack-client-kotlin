@@ -4,54 +4,47 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class ModelRegisterParams
 constructor(
-    private val modelId: String,
-    private val metadata: Metadata?,
-    private val providerId: String?,
-    private val providerModelId: String?,
     private val xLlamaStackProviderData: String?,
+    private val body: ModelRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun modelId(): String = modelId
-
-    fun metadata(): Metadata? = metadata
-
-    fun providerId(): String? = providerId
-
-    fun providerModelId(): String? = providerModelId
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun modelId(): String = body.modelId()
+
+    fun metadata(): Metadata? = body.metadata()
+
+    fun modelType(): ModelType? = body.modelType()
+
+    fun providerId(): String? = body.providerId()
+
+    fun providerModelId(): String? = body.providerModelId()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): ModelRegisterBody {
-        return ModelRegisterBody(
-            modelId,
-            metadata,
-            providerId,
-            providerModelId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): ModelRegisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -64,20 +57,24 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = ModelRegisterBody.Builder::class)
     @NoAutoDetect
     class ModelRegisterBody
+    @JsonCreator
     internal constructor(
-        private val modelId: String?,
-        private val metadata: Metadata?,
-        private val providerId: String?,
-        private val providerModelId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("model_id") private val modelId: String,
+        @JsonProperty("metadata") private val metadata: Metadata?,
+        @JsonProperty("model_type") private val modelType: ModelType?,
+        @JsonProperty("provider_id") private val providerId: String?,
+        @JsonProperty("provider_model_id") private val providerModelId: String?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("model_id") fun modelId(): String? = modelId
+        @JsonProperty("model_id") fun modelId(): String = modelId
 
         @JsonProperty("metadata") fun metadata(): Metadata? = metadata
+
+        @JsonProperty("model_type") fun modelType(): ModelType? = modelType
 
         @JsonProperty("provider_id") fun providerId(): String? = providerId
 
@@ -98,50 +95,56 @@ constructor(
 
             private var modelId: String? = null
             private var metadata: Metadata? = null
+            private var modelType: ModelType? = null
             private var providerId: String? = null
             private var providerModelId: String? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(modelRegisterBody: ModelRegisterBody) = apply {
-                this.modelId = modelRegisterBody.modelId
-                this.metadata = modelRegisterBody.metadata
-                this.providerId = modelRegisterBody.providerId
-                this.providerModelId = modelRegisterBody.providerModelId
-                additionalProperties(modelRegisterBody.additionalProperties)
+                modelId = modelRegisterBody.modelId
+                metadata = modelRegisterBody.metadata
+                modelType = modelRegisterBody.modelType
+                providerId = modelRegisterBody.providerId
+                providerModelId = modelRegisterBody.providerModelId
+                additionalProperties = modelRegisterBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("model_id")
             fun modelId(modelId: String) = apply { this.modelId = modelId }
 
-            @JsonProperty("metadata")
             fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
 
-            @JsonProperty("provider_id")
+            fun modelType(modelType: ModelType) = apply { this.modelType = modelType }
+
             fun providerId(providerId: String) = apply { this.providerId = providerId }
 
-            @JsonProperty("provider_model_id")
             fun providerModelId(providerModelId: String) = apply {
                 this.providerModelId = providerModelId
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
             fun build(): ModelRegisterBody =
                 ModelRegisterBody(
                     checkNotNull(modelId) { "`modelId` is required but was not set" },
                     metadata,
+                    modelType,
                     providerId,
                     providerModelId,
                     additionalProperties.toImmutable(),
@@ -153,17 +156,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ModelRegisterBody && modelId == other.modelId && metadata == other.metadata && providerId == other.providerId && providerModelId == other.providerModelId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ModelRegisterBody && modelId == other.modelId && metadata == other.metadata && modelType == other.modelType && providerId == other.providerId && providerModelId == other.providerModelId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(modelId, metadata, providerId, providerModelId, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(modelId, metadata, modelType, providerId, providerModelId, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ModelRegisterBody{modelId=$modelId, metadata=$metadata, providerId=$providerId, providerModelId=$providerModelId, additionalProperties=$additionalProperties}"
+            "ModelRegisterBody{modelId=$modelId, metadata=$metadata, modelType=$modelType, providerId=$providerId, providerModelId=$providerModelId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -176,38 +179,32 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var modelId: String? = null
-        private var metadata: Metadata? = null
-        private var providerId: String? = null
-        private var providerModelId: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: ModelRegisterBody.Builder = ModelRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(modelRegisterParams: ModelRegisterParams) = apply {
-            modelId = modelRegisterParams.modelId
-            metadata = modelRegisterParams.metadata
-            providerId = modelRegisterParams.providerId
-            providerModelId = modelRegisterParams.providerModelId
             xLlamaStackProviderData = modelRegisterParams.xLlamaStackProviderData
+            body = modelRegisterParams.body.toBuilder()
             additionalHeaders = modelRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = modelRegisterParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties = modelRegisterParams.additionalBodyProperties.toMutableMap()
-        }
-
-        fun modelId(modelId: String) = apply { this.modelId = modelId }
-
-        fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
-
-        fun providerId(providerId: String) = apply { this.providerId = providerId }
-
-        fun providerModelId(providerModelId: String) = apply {
-            this.providerModelId = providerModelId
         }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
+
+        fun modelId(modelId: String) = apply { body.modelId(modelId) }
+
+        fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
+
+        fun modelType(modelType: ModelType) = apply { body.modelType(modelType) }
+
+        fun providerId(providerId: String) = apply { body.providerId(providerId) }
+
+        fun providerModelId(providerModelId: String) = apply {
+            body.providerModelId(providerModelId)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -309,45 +306,39 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): ModelRegisterParams =
             ModelRegisterParams(
-                checkNotNull(modelId) { "`modelId` is required but was not set" },
-                metadata,
-                providerId,
-                providerModelId,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = Metadata.Builder::class)
     @NoAutoDetect
     class Metadata
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -366,21 +357,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metadata: Metadata) = apply {
-                additionalProperties(metadata.additionalProperties)
+                additionalProperties = metadata.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
@@ -403,16 +399,73 @@ constructor(
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }
 
+    class ModelType
+    @JsonCreator
+    private constructor(
+        private val value: JsonField<String>,
+    ) : Enum {
+
+        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+        companion object {
+
+            val LLM = of("llm")
+
+            val EMBEDDING = of("embedding")
+
+            fun of(value: String) = ModelType(JsonField.of(value))
+        }
+
+        enum class Known {
+            LLM,
+            EMBEDDING,
+        }
+
+        enum class Value {
+            LLM,
+            EMBEDDING,
+            _UNKNOWN,
+        }
+
+        fun value(): Value =
+            when (this) {
+                LLM -> Value.LLM
+                EMBEDDING -> Value.EMBEDDING
+                else -> Value._UNKNOWN
+            }
+
+        fun known(): Known =
+            when (this) {
+                LLM -> Known.LLM
+                EMBEDDING -> Known.EMBEDDING
+                else -> throw LlamaStackClientInvalidDataException("Unknown ModelType: $value")
+            }
+
+        fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ModelType && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is ModelRegisterParams && modelId == other.modelId && metadata == other.metadata && providerId == other.providerId && providerModelId == other.providerModelId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is ModelRegisterParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelId, metadata, providerId, providerModelId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ModelRegisterParams{modelId=$modelId, metadata=$metadata, providerId=$providerId, providerModelId=$providerModelId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ModelRegisterParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

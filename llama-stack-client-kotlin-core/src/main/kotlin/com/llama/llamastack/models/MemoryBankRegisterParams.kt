@@ -18,54 +18,41 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
-import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class MemoryBankRegisterParams
 constructor(
-    private val memoryBankId: String,
-    private val params: Params,
-    private val providerId: String?,
-    private val providerMemoryBankId: String?,
     private val xLlamaStackProviderData: String?,
+    private val body: MemoryBankRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun memoryBankId(): String = memoryBankId
-
-    fun params(): Params = params
-
-    fun providerId(): String? = providerId
-
-    fun providerMemoryBankId(): String? = providerMemoryBankId
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun memoryBankId(): String = body.memoryBankId()
+
+    fun params(): Params = body.params()
+
+    fun providerId(): String? = body.providerId()
+
+    fun providerMemoryBankId(): String? = body.providerMemoryBankId()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): MemoryBankRegisterBody {
-        return MemoryBankRegisterBody(
-            memoryBankId,
-            params,
-            providerId,
-            providerMemoryBankId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): MemoryBankRegisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -78,20 +65,21 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = MemoryBankRegisterBody.Builder::class)
     @NoAutoDetect
     class MemoryBankRegisterBody
+    @JsonCreator
     internal constructor(
-        private val memoryBankId: String?,
-        private val params: Params?,
-        private val providerId: String?,
-        private val providerMemoryBankId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("memory_bank_id") private val memoryBankId: String,
+        @JsonProperty("params") private val params: Params,
+        @JsonProperty("provider_id") private val providerId: String?,
+        @JsonProperty("provider_memory_bank_id") private val providerMemoryBankId: String?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("memory_bank_id") fun memoryBankId(): String? = memoryBankId
+        @JsonProperty("memory_bank_id") fun memoryBankId(): String = memoryBankId
 
-        @JsonProperty("params") fun params(): Params? = params
+        @JsonProperty("params") fun params(): Params = params
 
         @JsonProperty("provider_id") fun providerId(): String? = providerId
 
@@ -118,38 +106,56 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(memoryBankRegisterBody: MemoryBankRegisterBody) = apply {
-                this.memoryBankId = memoryBankRegisterBody.memoryBankId
-                this.params = memoryBankRegisterBody.params
-                this.providerId = memoryBankRegisterBody.providerId
-                this.providerMemoryBankId = memoryBankRegisterBody.providerMemoryBankId
-                additionalProperties(memoryBankRegisterBody.additionalProperties)
+                memoryBankId = memoryBankRegisterBody.memoryBankId
+                params = memoryBankRegisterBody.params
+                providerId = memoryBankRegisterBody.providerId
+                providerMemoryBankId = memoryBankRegisterBody.providerMemoryBankId
+                additionalProperties = memoryBankRegisterBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("memory_bank_id")
             fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
 
-            @JsonProperty("params") fun params(params: Params) = apply { this.params = params }
+            fun params(params: Params) = apply { this.params = params }
 
-            @JsonProperty("provider_id")
+            fun params(vectorMemoryBankParams: Params.VectorMemoryBankParams) = apply {
+                this.params = Params.ofVectorMemoryBankParams(vectorMemoryBankParams)
+            }
+
+            fun params(keyValueMemoryBankParams: Params.KeyValueMemoryBankParams) = apply {
+                this.params = Params.ofKeyValueMemoryBankParams(keyValueMemoryBankParams)
+            }
+
+            fun params(keywordMemoryBankParams: Params.KeywordMemoryBankParams) = apply {
+                this.params = Params.ofKeywordMemoryBankParams(keywordMemoryBankParams)
+            }
+
+            fun params(graphMemoryBankParams: Params.GraphMemoryBankParams) = apply {
+                this.params = Params.ofGraphMemoryBankParams(graphMemoryBankParams)
+            }
+
             fun providerId(providerId: String) = apply { this.providerId = providerId }
 
-            @JsonProperty("provider_memory_bank_id")
             fun providerMemoryBankId(providerMemoryBankId: String) = apply {
                 this.providerMemoryBankId = providerMemoryBankId
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): MemoryBankRegisterBody =
@@ -190,55 +196,46 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var memoryBankId: String? = null
-        private var params: Params? = null
-        private var providerId: String? = null
-        private var providerMemoryBankId: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: MemoryBankRegisterBody.Builder = MemoryBankRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryBankRegisterParams: MemoryBankRegisterParams) = apply {
-            memoryBankId = memoryBankRegisterParams.memoryBankId
-            params = memoryBankRegisterParams.params
-            providerId = memoryBankRegisterParams.providerId
-            providerMemoryBankId = memoryBankRegisterParams.providerMemoryBankId
             xLlamaStackProviderData = memoryBankRegisterParams.xLlamaStackProviderData
+            body = memoryBankRegisterParams.body.toBuilder()
             additionalHeaders = memoryBankRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = memoryBankRegisterParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties =
-                memoryBankRegisterParams.additionalBodyProperties.toMutableMap()
-        }
-
-        fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
-
-        fun params(params: Params) = apply { this.params = params }
-
-        fun params(vectorMemoryBankParams: Params.VectorMemoryBankParams) = apply {
-            this.params = Params.ofVectorMemoryBankParams(vectorMemoryBankParams)
-        }
-
-        fun params(keyValueMemoryBankParams: Params.KeyValueMemoryBankParams) = apply {
-            this.params = Params.ofKeyValueMemoryBankParams(keyValueMemoryBankParams)
-        }
-
-        fun params(keywordMemoryBankParams: Params.KeywordMemoryBankParams) = apply {
-            this.params = Params.ofKeywordMemoryBankParams(keywordMemoryBankParams)
-        }
-
-        fun params(graphMemoryBankParams: Params.GraphMemoryBankParams) = apply {
-            this.params = Params.ofGraphMemoryBankParams(graphMemoryBankParams)
-        }
-
-        fun providerId(providerId: String) = apply { this.providerId = providerId }
-
-        fun providerMemoryBankId(providerMemoryBankId: String) = apply {
-            this.providerMemoryBankId = providerMemoryBankId
         }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
+
+        fun memoryBankId(memoryBankId: String) = apply { body.memoryBankId(memoryBankId) }
+
+        fun params(params: Params) = apply { body.params(params) }
+
+        fun params(vectorMemoryBankParams: Params.VectorMemoryBankParams) = apply {
+            body.params(vectorMemoryBankParams)
+        }
+
+        fun params(keyValueMemoryBankParams: Params.KeyValueMemoryBankParams) = apply {
+            body.params(keyValueMemoryBankParams)
+        }
+
+        fun params(keywordMemoryBankParams: Params.KeywordMemoryBankParams) = apply {
+            body.params(keywordMemoryBankParams)
+        }
+
+        fun params(graphMemoryBankParams: Params.GraphMemoryBankParams) = apply {
+            body.params(graphMemoryBankParams)
+        }
+
+        fun providerId(providerId: String) = apply { body.providerId(providerId) }
+
+        fun providerMemoryBankId(providerMemoryBankId: String) = apply {
+            body.providerMemoryBankId(providerMemoryBankId)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -340,37 +337,30 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): MemoryBankRegisterParams =
             MemoryBankRegisterParams(
-                checkNotNull(memoryBankId) { "`memoryBankId` is required but was not set" },
-                checkNotNull(params) { "`params` is required but was not set" },
-                providerId,
-                providerMemoryBankId,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -384,8 +374,6 @@ constructor(
         private val graphMemoryBankParams: GraphMemoryBankParams? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun vectorMemoryBankParams(): VectorMemoryBankParams? = vectorMemoryBankParams
 
@@ -428,24 +416,6 @@ constructor(
                 graphMemoryBankParams != null ->
                     visitor.visitGraphMemoryBankParams(graphMemoryBankParams)
                 else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): Params = apply {
-            if (!validated) {
-                if (
-                    vectorMemoryBankParams == null &&
-                        keyValueMemoryBankParams == null &&
-                        keywordMemoryBankParams == null &&
-                        graphMemoryBankParams == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Params: $_json")
-                }
-                vectorMemoryBankParams?.validate()
-                keyValueMemoryBankParams?.validate()
-                keywordMemoryBankParams?.validate()
-                graphMemoryBankParams?.validate()
-                validated = true
             }
         }
 
@@ -508,22 +478,18 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Params {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<VectorMemoryBankParams>()) { it.validate() }
-                    ?.let {
-                        return Params(vectorMemoryBankParams = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<KeyValueMemoryBankParams>()) { it.validate() }
-                    ?.let {
-                        return Params(keyValueMemoryBankParams = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<KeywordMemoryBankParams>()) { it.validate() }
-                    ?.let {
-                        return Params(keywordMemoryBankParams = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<GraphMemoryBankParams>()) { it.validate() }
-                    ?.let {
-                        return Params(graphMemoryBankParams = it, _json = json)
-                    }
+                tryDeserialize(node, jacksonTypeRef<VectorMemoryBankParams>())?.let {
+                    return Params(vectorMemoryBankParams = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<KeyValueMemoryBankParams>())?.let {
+                    return Params(keyValueMemoryBankParams = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<KeywordMemoryBankParams>())?.let {
+                    return Params(keywordMemoryBankParams = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<GraphMemoryBankParams>())?.let {
+                    return Params(graphMemoryBankParams = it, _json = json)
+                }
 
                 return Params(_json = json)
             }
@@ -551,53 +517,30 @@ constructor(
             }
         }
 
-        @JsonDeserialize(builder = VectorMemoryBankParams.Builder::class)
         @NoAutoDetect
         class VectorMemoryBankParams
+        @JsonCreator
         private constructor(
-            private val chunkSizeInTokens: JsonField<Long>,
-            private val embeddingModel: JsonField<String>,
-            private val memoryBankType: JsonField<MemoryBankType>,
-            private val overlapSizeInTokens: JsonField<Long>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("chunk_size_in_tokens") private val chunkSizeInTokens: Long,
+            @JsonProperty("embedding_model") private val embeddingModel: String,
+            @JsonProperty("memory_bank_type") private val memoryBankType: MemoryBankType,
+            @JsonProperty("overlap_size_in_tokens") private val overlapSizeInTokens: Long?,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            private var validated: Boolean = false
+            @JsonProperty("chunk_size_in_tokens") fun chunkSizeInTokens(): Long = chunkSizeInTokens
 
-            fun chunkSizeInTokens(): Long = chunkSizeInTokens.getRequired("chunk_size_in_tokens")
+            @JsonProperty("embedding_model") fun embeddingModel(): String = embeddingModel
 
-            fun embeddingModel(): String = embeddingModel.getRequired("embedding_model")
-
-            fun memoryBankType(): MemoryBankType = memoryBankType.getRequired("memory_bank_type")
-
-            fun overlapSizeInTokens(): Long? =
-                overlapSizeInTokens.getNullable("overlap_size_in_tokens")
-
-            @JsonProperty("chunk_size_in_tokens")
-            @ExcludeMissing
-            fun _chunkSizeInTokens() = chunkSizeInTokens
-
-            @JsonProperty("embedding_model") @ExcludeMissing fun _embeddingModel() = embeddingModel
-
-            @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+            @JsonProperty("memory_bank_type") fun memoryBankType(): MemoryBankType = memoryBankType
 
             @JsonProperty("overlap_size_in_tokens")
-            @ExcludeMissing
-            fun _overlapSizeInTokens() = overlapSizeInTokens
+            fun overlapSizeInTokens(): Long? = overlapSizeInTokens
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            fun validate(): VectorMemoryBankParams = apply {
-                if (!validated) {
-                    chunkSizeInTokens()
-                    embeddingModel()
-                    memoryBankType()
-                    overlapSizeInTokens()
-                    validated = true
-                }
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -608,64 +551,44 @@ constructor(
 
             class Builder {
 
-                private var chunkSizeInTokens: JsonField<Long> = JsonMissing.of()
-                private var embeddingModel: JsonField<String> = JsonMissing.of()
-                private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
-                private var overlapSizeInTokens: JsonField<Long> = JsonMissing.of()
+                private var chunkSizeInTokens: Long? = null
+                private var embeddingModel: String? = null
+                private var memoryBankType: MemoryBankType? = null
+                private var overlapSizeInTokens: Long? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(vectorMemoryBankParams: VectorMemoryBankParams) = apply {
-                    this.chunkSizeInTokens = vectorMemoryBankParams.chunkSizeInTokens
-                    this.embeddingModel = vectorMemoryBankParams.embeddingModel
-                    this.memoryBankType = vectorMemoryBankParams.memoryBankType
-                    this.overlapSizeInTokens = vectorMemoryBankParams.overlapSizeInTokens
-                    additionalProperties(vectorMemoryBankParams.additionalProperties)
+                    chunkSizeInTokens = vectorMemoryBankParams.chunkSizeInTokens
+                    embeddingModel = vectorMemoryBankParams.embeddingModel
+                    memoryBankType = vectorMemoryBankParams.memoryBankType
+                    overlapSizeInTokens = vectorMemoryBankParams.overlapSizeInTokens
+                    additionalProperties =
+                        vectorMemoryBankParams.additionalProperties.toMutableMap()
                 }
 
-                fun chunkSizeInTokens(chunkSizeInTokens: Long) =
-                    chunkSizeInTokens(JsonField.of(chunkSizeInTokens))
-
-                @JsonProperty("chunk_size_in_tokens")
-                @ExcludeMissing
-                fun chunkSizeInTokens(chunkSizeInTokens: JsonField<Long>) = apply {
+                fun chunkSizeInTokens(chunkSizeInTokens: Long) = apply {
                     this.chunkSizeInTokens = chunkSizeInTokens
                 }
 
-                fun embeddingModel(embeddingModel: String) =
-                    embeddingModel(JsonField.of(embeddingModel))
-
-                @JsonProperty("embedding_model")
-                @ExcludeMissing
-                fun embeddingModel(embeddingModel: JsonField<String>) = apply {
+                fun embeddingModel(embeddingModel: String) = apply {
                     this.embeddingModel = embeddingModel
                 }
 
-                fun memoryBankType(memoryBankType: MemoryBankType) =
-                    memoryBankType(JsonField.of(memoryBankType))
-
-                @JsonProperty("memory_bank_type")
-                @ExcludeMissing
-                fun memoryBankType(memoryBankType: JsonField<MemoryBankType>) = apply {
+                fun memoryBankType(memoryBankType: MemoryBankType) = apply {
                     this.memoryBankType = memoryBankType
                 }
 
-                fun overlapSizeInTokens(overlapSizeInTokens: Long) =
-                    overlapSizeInTokens(JsonField.of(overlapSizeInTokens))
-
-                @JsonProperty("overlap_size_in_tokens")
-                @ExcludeMissing
-                fun overlapSizeInTokens(overlapSizeInTokens: JsonField<Long>) = apply {
+                fun overlapSizeInTokens(overlapSizeInTokens: Long) = apply {
                     this.overlapSizeInTokens = overlapSizeInTokens
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -673,11 +596,25 @@ constructor(
                         this.additionalProperties.putAll(additionalProperties)
                     }
 
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
                 fun build(): VectorMemoryBankParams =
                     VectorMemoryBankParams(
-                        chunkSizeInTokens,
-                        embeddingModel,
-                        memoryBankType,
+                        checkNotNull(chunkSizeInTokens) {
+                            "`chunkSizeInTokens` is required but was not set"
+                        },
+                        checkNotNull(embeddingModel) {
+                            "`embeddingModel` is required but was not set"
+                        },
+                        checkNotNull(memoryBankType) {
+                            "`memoryBankType` is required but was not set"
+                        },
                         overlapSizeInTokens,
                         additionalProperties.toImmutable(),
                     )
@@ -691,21 +628,9 @@ constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val VECTOR = MemoryBankType(JsonField.of("vector"))
+                    val VECTOR = of("vector")
 
                     fun of(value: String) = MemoryBankType(JsonField.of(value))
                 }
@@ -735,6 +660,18 @@ constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -755,30 +692,20 @@ constructor(
                 "VectorMemoryBankParams{chunkSizeInTokens=$chunkSizeInTokens, embeddingModel=$embeddingModel, memoryBankType=$memoryBankType, overlapSizeInTokens=$overlapSizeInTokens, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = KeyValueMemoryBankParams.Builder::class)
         @NoAutoDetect
         class KeyValueMemoryBankParams
+        @JsonCreator
         private constructor(
-            private val memoryBankType: JsonField<MemoryBankType>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("memory_bank_type") private val memoryBankType: MemoryBankType,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            private var validated: Boolean = false
-
-            fun memoryBankType(): MemoryBankType = memoryBankType.getRequired("memory_bank_type")
-
-            @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+            @JsonProperty("memory_bank_type") fun memoryBankType(): MemoryBankType = memoryBankType
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            fun validate(): KeyValueMemoryBankParams = apply {
-                if (!validated) {
-                    memoryBankType()
-                    validated = true
-                }
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -789,31 +716,26 @@ constructor(
 
             class Builder {
 
-                private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
+                private var memoryBankType: MemoryBankType? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(keyValueMemoryBankParams: KeyValueMemoryBankParams) = apply {
-                    this.memoryBankType = keyValueMemoryBankParams.memoryBankType
-                    additionalProperties(keyValueMemoryBankParams.additionalProperties)
+                    memoryBankType = keyValueMemoryBankParams.memoryBankType
+                    additionalProperties =
+                        keyValueMemoryBankParams.additionalProperties.toMutableMap()
                 }
 
-                fun memoryBankType(memoryBankType: MemoryBankType) =
-                    memoryBankType(JsonField.of(memoryBankType))
-
-                @JsonProperty("memory_bank_type")
-                @ExcludeMissing
-                fun memoryBankType(memoryBankType: JsonField<MemoryBankType>) = apply {
+                fun memoryBankType(memoryBankType: MemoryBankType) = apply {
                     this.memoryBankType = memoryBankType
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -821,8 +743,21 @@ constructor(
                         this.additionalProperties.putAll(additionalProperties)
                     }
 
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
                 fun build(): KeyValueMemoryBankParams =
-                    KeyValueMemoryBankParams(memoryBankType, additionalProperties.toImmutable())
+                    KeyValueMemoryBankParams(
+                        checkNotNull(memoryBankType) {
+                            "`memoryBankType` is required but was not set"
+                        },
+                        additionalProperties.toImmutable()
+                    )
             }
 
             class MemoryBankType
@@ -833,21 +768,9 @@ constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val KEYVALUE = MemoryBankType(JsonField.of("keyvalue"))
+                    val KEYVALUE = of("keyvalue")
 
                     fun of(value: String) = MemoryBankType(JsonField.of(value))
                 }
@@ -877,6 +800,18 @@ constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -897,30 +832,20 @@ constructor(
                 "KeyValueMemoryBankParams{memoryBankType=$memoryBankType, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = KeywordMemoryBankParams.Builder::class)
         @NoAutoDetect
         class KeywordMemoryBankParams
+        @JsonCreator
         private constructor(
-            private val memoryBankType: JsonField<MemoryBankType>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("memory_bank_type") private val memoryBankType: MemoryBankType,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            private var validated: Boolean = false
-
-            fun memoryBankType(): MemoryBankType = memoryBankType.getRequired("memory_bank_type")
-
-            @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+            @JsonProperty("memory_bank_type") fun memoryBankType(): MemoryBankType = memoryBankType
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            fun validate(): KeywordMemoryBankParams = apply {
-                if (!validated) {
-                    memoryBankType()
-                    validated = true
-                }
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -931,31 +856,26 @@ constructor(
 
             class Builder {
 
-                private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
+                private var memoryBankType: MemoryBankType? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(keywordMemoryBankParams: KeywordMemoryBankParams) = apply {
-                    this.memoryBankType = keywordMemoryBankParams.memoryBankType
-                    additionalProperties(keywordMemoryBankParams.additionalProperties)
+                    memoryBankType = keywordMemoryBankParams.memoryBankType
+                    additionalProperties =
+                        keywordMemoryBankParams.additionalProperties.toMutableMap()
                 }
 
-                fun memoryBankType(memoryBankType: MemoryBankType) =
-                    memoryBankType(JsonField.of(memoryBankType))
-
-                @JsonProperty("memory_bank_type")
-                @ExcludeMissing
-                fun memoryBankType(memoryBankType: JsonField<MemoryBankType>) = apply {
+                fun memoryBankType(memoryBankType: MemoryBankType) = apply {
                     this.memoryBankType = memoryBankType
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -963,8 +883,21 @@ constructor(
                         this.additionalProperties.putAll(additionalProperties)
                     }
 
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
                 fun build(): KeywordMemoryBankParams =
-                    KeywordMemoryBankParams(memoryBankType, additionalProperties.toImmutable())
+                    KeywordMemoryBankParams(
+                        checkNotNull(memoryBankType) {
+                            "`memoryBankType` is required but was not set"
+                        },
+                        additionalProperties.toImmutable()
+                    )
             }
 
             class MemoryBankType
@@ -975,21 +908,9 @@ constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val KEYWORD = MemoryBankType(JsonField.of("keyword"))
+                    val KEYWORD = of("keyword")
 
                     fun of(value: String) = MemoryBankType(JsonField.of(value))
                 }
@@ -1019,6 +940,18 @@ constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -1039,30 +972,20 @@ constructor(
                 "KeywordMemoryBankParams{memoryBankType=$memoryBankType, additionalProperties=$additionalProperties}"
         }
 
-        @JsonDeserialize(builder = GraphMemoryBankParams.Builder::class)
         @NoAutoDetect
         class GraphMemoryBankParams
+        @JsonCreator
         private constructor(
-            private val memoryBankType: JsonField<MemoryBankType>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("memory_bank_type") private val memoryBankType: MemoryBankType,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            private var validated: Boolean = false
-
-            fun memoryBankType(): MemoryBankType = memoryBankType.getRequired("memory_bank_type")
-
-            @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+            @JsonProperty("memory_bank_type") fun memoryBankType(): MemoryBankType = memoryBankType
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            fun validate(): GraphMemoryBankParams = apply {
-                if (!validated) {
-                    memoryBankType()
-                    validated = true
-                }
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -1073,31 +996,25 @@ constructor(
 
             class Builder {
 
-                private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
+                private var memoryBankType: MemoryBankType? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(graphMemoryBankParams: GraphMemoryBankParams) = apply {
-                    this.memoryBankType = graphMemoryBankParams.memoryBankType
-                    additionalProperties(graphMemoryBankParams.additionalProperties)
+                    memoryBankType = graphMemoryBankParams.memoryBankType
+                    additionalProperties = graphMemoryBankParams.additionalProperties.toMutableMap()
                 }
 
-                fun memoryBankType(memoryBankType: MemoryBankType) =
-                    memoryBankType(JsonField.of(memoryBankType))
-
-                @JsonProperty("memory_bank_type")
-                @ExcludeMissing
-                fun memoryBankType(memoryBankType: JsonField<MemoryBankType>) = apply {
+                fun memoryBankType(memoryBankType: MemoryBankType) = apply {
                     this.memoryBankType = memoryBankType
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -1105,8 +1022,21 @@ constructor(
                         this.additionalProperties.putAll(additionalProperties)
                     }
 
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
                 fun build(): GraphMemoryBankParams =
-                    GraphMemoryBankParams(memoryBankType, additionalProperties.toImmutable())
+                    GraphMemoryBankParams(
+                        checkNotNull(memoryBankType) {
+                            "`memoryBankType` is required but was not set"
+                        },
+                        additionalProperties.toImmutable()
+                    )
             }
 
             class MemoryBankType
@@ -1117,21 +1047,9 @@ constructor(
 
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-
                 companion object {
 
-                    val GRAPH = MemoryBankType(JsonField.of("graph"))
+                    val GRAPH = of("graph")
 
                     fun of(value: String) = MemoryBankType(JsonField.of(value))
                 }
@@ -1161,6 +1079,18 @@ constructor(
                     }
 
                 fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is MemoryBankType && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
             }
 
             override fun equals(other: Any?): Boolean {
@@ -1187,11 +1117,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryBankRegisterParams && memoryBankId == other.memoryBankId && params == other.params && providerId == other.providerId && providerMemoryBankId == other.providerMemoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryBankRegisterParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, params, providerId, providerMemoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "MemoryBankRegisterParams{memoryBankId=$memoryBankId, params=$params, providerId=$providerId, providerMemoryBankId=$providerMemoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "MemoryBankRegisterParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

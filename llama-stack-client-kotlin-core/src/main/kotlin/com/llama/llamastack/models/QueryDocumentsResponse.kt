@@ -4,36 +4,29 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.ObjectCodec
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.llama.llamastack.core.BaseDeserializer
-import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
-import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = QueryDocumentsResponse.Builder::class)
 @NoAutoDetect
 class QueryDocumentsResponse
+@JsonCreator
 private constructor(
-    private val chunks: JsonField<List<Chunk>>,
-    private val scores: JsonField<List<Double>>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("chunks")
+    @ExcludeMissing
+    private val chunks: JsonField<List<Chunk>> = JsonMissing.of(),
+    @JsonProperty("scores")
+    @ExcludeMissing
+    private val scores: JsonField<List<Double>> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun chunks(): List<Chunk> = chunks.getRequired("chunks")
 
@@ -46,6 +39,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): QueryDocumentsResponse = apply {
         if (!validated) {
@@ -69,35 +64,36 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(queryDocumentsResponse: QueryDocumentsResponse) = apply {
-            this.chunks = queryDocumentsResponse.chunks
-            this.scores = queryDocumentsResponse.scores
-            additionalProperties(queryDocumentsResponse.additionalProperties)
+            chunks = queryDocumentsResponse.chunks
+            scores = queryDocumentsResponse.scores
+            additionalProperties = queryDocumentsResponse.additionalProperties.toMutableMap()
         }
 
         fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
 
-        @JsonProperty("chunks")
-        @ExcludeMissing
         fun chunks(chunks: JsonField<List<Chunk>>) = apply { this.chunks = chunks }
 
         fun scores(scores: List<Double>) = scores(JsonField.of(scores))
 
-        @JsonProperty("scores")
-        @ExcludeMissing
         fun scores(scores: JsonField<List<Double>>) = apply { this.scores = scores }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): QueryDocumentsResponse =
@@ -108,19 +104,24 @@ private constructor(
             )
     }
 
-    @JsonDeserialize(builder = Chunk.Builder::class)
     @NoAutoDetect
     class Chunk
+    @JsonCreator
     private constructor(
-        private val content: JsonField<Content>,
-        private val documentId: JsonField<String>,
-        private val tokenCount: JsonField<Long>,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("content")
+        @ExcludeMissing
+        private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+        @JsonProperty("document_id")
+        @ExcludeMissing
+        private val documentId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("token_count")
+        @ExcludeMissing
+        private val tokenCount: JsonField<Long> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        private var validated: Boolean = false
-
-        fun content(): Content = content.getRequired("content")
+        fun content(): InterleavedContent = content.getRequired("content")
 
         fun documentId(): String = documentId.getRequired("document_id")
 
@@ -135,6 +136,8 @@ private constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Chunk = apply {
             if (!validated) {
@@ -154,48 +157,47 @@ private constructor(
 
         class Builder {
 
-            private var content: JsonField<Content> = JsonMissing.of()
+            private var content: JsonField<InterleavedContent> = JsonMissing.of()
             private var documentId: JsonField<String> = JsonMissing.of()
             private var tokenCount: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(chunk: Chunk) = apply {
-                this.content = chunk.content
-                this.documentId = chunk.documentId
-                this.tokenCount = chunk.tokenCount
-                additionalProperties(chunk.additionalProperties)
+                content = chunk.content
+                documentId = chunk.documentId
+                tokenCount = chunk.tokenCount
+                additionalProperties = chunk.additionalProperties.toMutableMap()
             }
 
-            fun content(content: Content) = content(JsonField.of(content))
+            fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-            @JsonProperty("content")
-            @ExcludeMissing
-            fun content(content: JsonField<Content>) = apply { this.content = content }
+            fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
             fun documentId(documentId: String) = documentId(JsonField.of(documentId))
 
-            @JsonProperty("document_id")
-            @ExcludeMissing
             fun documentId(documentId: JsonField<String>) = apply { this.documentId = documentId }
 
             fun tokenCount(tokenCount: Long) = tokenCount(JsonField.of(tokenCount))
 
-            @JsonProperty("token_count")
-            @ExcludeMissing
             fun tokenCount(tokenCount: JsonField<Long>) = apply { this.tokenCount = tokenCount }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Chunk =
@@ -205,259 +207,6 @@ private constructor(
                     tokenCount,
                     additionalProperties.toImmutable(),
                 )
-        }
-
-        @JsonDeserialize(using = Content.Deserializer::class)
-        @JsonSerialize(using = Content.Serializer::class)
-        class Content
-        private constructor(
-            private val string: String? = null,
-            private val imageMedia: ImageMedia? = null,
-            private val imageMediaArray: List<StringOrImageMediaUnion>? = null,
-            private val _json: JsonValue? = null,
-        ) {
-
-            private var validated: Boolean = false
-
-            fun string(): String? = string
-
-            fun imageMedia(): ImageMedia? = imageMedia
-
-            fun imageMediaArray(): List<StringOrImageMediaUnion>? = imageMediaArray
-
-            fun isString(): Boolean = string != null
-
-            fun isImageMedia(): Boolean = imageMedia != null
-
-            fun isImageMediaArray(): Boolean = imageMediaArray != null
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-            fun asImageMediaArray(): List<StringOrImageMediaUnion> =
-                imageMediaArray.getOrThrow("imageMediaArray")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    string != null -> visitor.visitString(string)
-                    imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                    imageMediaArray != null -> visitor.visitImageMediaArray(imageMediaArray)
-                    else -> visitor.unknown(_json)
-                }
-            }
-
-            fun validate(): Content = apply {
-                if (!validated) {
-                    if (string == null && imageMedia == null && imageMediaArray == null) {
-                        throw LlamaStackClientInvalidDataException("Unknown Content: $_json")
-                    }
-                    imageMedia?.validate()
-                    validated = true
-                }
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Content && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
-            }
-
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-
-            override fun toString(): String =
-                when {
-                    string != null -> "Content{string=$string}"
-                    imageMedia != null -> "Content{imageMedia=$imageMedia}"
-                    imageMediaArray != null -> "Content{imageMediaArray=$imageMediaArray}"
-                    _json != null -> "Content{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid Content")
-                }
-
-            companion object {
-
-                fun ofString(string: String) = Content(string = string)
-
-                fun ofImageMedia(imageMedia: ImageMedia) = Content(imageMedia = imageMedia)
-
-                fun ofImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>) =
-                    Content(imageMediaArray = imageMediaArray)
-            }
-
-            interface Visitor<out T> {
-
-                fun visitString(string: String): T
-
-                fun visitImageMedia(imageMedia: ImageMedia): T
-
-                fun visitImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>): T
-
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException("Unknown Content: $json")
-                }
-            }
-
-            class Deserializer : BaseDeserializer<Content>(Content::class) {
-
-                override fun ObjectCodec.deserialize(node: JsonNode): Content {
-                    val json = JsonValue.fromJsonNode(node)
-
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return Content(string = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                        ?.let {
-                            return Content(imageMedia = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<List<StringOrImageMediaUnion>>())?.let {
-                        return Content(imageMediaArray = it, _json = json)
-                    }
-
-                    return Content(_json = json)
-                }
-            }
-
-            class Serializer : BaseSerializer<Content>(Content::class) {
-
-                override fun serialize(
-                    value: Content,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.string != null -> generator.writeObject(value.string)
-                        value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                        value.imageMediaArray != null ->
-                            generator.writeObject(value.imageMediaArray)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid Content")
-                    }
-                }
-            }
-
-            @JsonDeserialize(using = StringOrImageMediaUnion.Deserializer::class)
-            @JsonSerialize(using = StringOrImageMediaUnion.Serializer::class)
-            class StringOrImageMediaUnion
-            private constructor(
-                private val string: String? = null,
-                private val imageMedia: ImageMedia? = null,
-                private val _json: JsonValue? = null,
-            ) {
-
-                private var validated: Boolean = false
-
-                fun string(): String? = string
-
-                fun imageMedia(): ImageMedia? = imageMedia
-
-                fun isString(): Boolean = string != null
-
-                fun isImageMedia(): Boolean = imageMedia != null
-
-                fun asString(): String = string.getOrThrow("string")
-
-                fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-                fun _json(): JsonValue? = _json
-
-                fun <T> accept(visitor: Visitor<T>): T {
-                    return when {
-                        string != null -> visitor.visitString(string)
-                        imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                        else -> visitor.unknown(_json)
-                    }
-                }
-
-                fun validate(): StringOrImageMediaUnion = apply {
-                    if (!validated) {
-                        if (string == null && imageMedia == null) {
-                            throw LlamaStackClientInvalidDataException(
-                                "Unknown StringOrImageMediaUnion: $_json"
-                            )
-                        }
-                        imageMedia?.validate()
-                        validated = true
-                    }
-                }
-
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
-                }
-
-                override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-
-                override fun toString(): String =
-                    when {
-                        string != null -> "StringOrImageMediaUnion{string=$string}"
-                        imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
-                        _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
-                        else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
-                    }
-
-                companion object {
-
-                    fun ofString(string: String) = StringOrImageMediaUnion(string = string)
-
-                    fun ofImageMedia(imageMedia: ImageMedia) =
-                        StringOrImageMediaUnion(imageMedia = imageMedia)
-                }
-
-                interface Visitor<out T> {
-
-                    fun visitString(string: String): T
-
-                    fun visitImageMedia(imageMedia: ImageMedia): T
-
-                    fun unknown(json: JsonValue?): T {
-                        throw LlamaStackClientInvalidDataException(
-                            "Unknown StringOrImageMediaUnion: $json"
-                        )
-                    }
-                }
-
-                class Deserializer :
-                    BaseDeserializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                    override fun ObjectCodec.deserialize(node: JsonNode): StringOrImageMediaUnion {
-                        val json = JsonValue.fromJsonNode(node)
-
-                        tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                            return StringOrImageMediaUnion(string = it, _json = json)
-                        }
-                        tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                            ?.let {
-                                return StringOrImageMediaUnion(imageMedia = it, _json = json)
-                            }
-
-                        return StringOrImageMediaUnion(_json = json)
-                    }
-                }
-
-                class Serializer :
-                    BaseSerializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                    override fun serialize(
-                        value: StringOrImageMediaUnion,
-                        generator: JsonGenerator,
-                        provider: SerializerProvider
-                    ) {
-                        when {
-                            value.string != null -> generator.writeObject(value.string)
-                            value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                            value._json != null -> generator.writeObject(value._json)
-                            else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
-                        }
-                    }
-                }
-            }
         }
 
         override fun equals(other: Any?): Boolean {

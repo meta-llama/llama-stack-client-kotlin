@@ -6,30 +6,36 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = WolframAlphaToolDefinition.Builder::class)
 @NoAutoDetect
 class WolframAlphaToolDefinition
+@JsonCreator
 private constructor(
-    private val apiKey: JsonField<String>,
-    private val inputShields: JsonField<List<String>>,
-    private val outputShields: JsonField<List<String>>,
-    private val remoteExecution: JsonField<RestApiExecutionConfig>,
-    private val type: JsonField<Type>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("api_key")
+    @ExcludeMissing
+    private val apiKey: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("output_shields")
+    @ExcludeMissing
+    private val outputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("remote_execution")
+    @ExcludeMissing
+    private val remoteExecution: JsonField<RestApiExecutionConfig> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun apiKey(): String = apiKey.getRequired("api_key")
 
@@ -54,6 +60,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): WolframAlphaToolDefinition = apply {
         if (!validated) {
@@ -83,32 +91,26 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(wolframAlphaToolDefinition: WolframAlphaToolDefinition) = apply {
-            this.apiKey = wolframAlphaToolDefinition.apiKey
-            this.inputShields = wolframAlphaToolDefinition.inputShields
-            this.outputShields = wolframAlphaToolDefinition.outputShields
-            this.remoteExecution = wolframAlphaToolDefinition.remoteExecution
-            this.type = wolframAlphaToolDefinition.type
-            additionalProperties(wolframAlphaToolDefinition.additionalProperties)
+            apiKey = wolframAlphaToolDefinition.apiKey
+            inputShields = wolframAlphaToolDefinition.inputShields
+            outputShields = wolframAlphaToolDefinition.outputShields
+            remoteExecution = wolframAlphaToolDefinition.remoteExecution
+            type = wolframAlphaToolDefinition.type
+            additionalProperties = wolframAlphaToolDefinition.additionalProperties.toMutableMap()
         }
 
         fun apiKey(apiKey: String) = apiKey(JsonField.of(apiKey))
 
-        @JsonProperty("api_key")
-        @ExcludeMissing
         fun apiKey(apiKey: JsonField<String>) = apply { this.apiKey = apiKey }
 
         fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
 
-        @JsonProperty("input_shields")
-        @ExcludeMissing
         fun inputShields(inputShields: JsonField<List<String>>) = apply {
             this.inputShields = inputShields
         }
 
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
-        @JsonProperty("output_shields")
-        @ExcludeMissing
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
             this.outputShields = outputShields
         }
@@ -116,30 +118,31 @@ private constructor(
         fun remoteExecution(remoteExecution: RestApiExecutionConfig) =
             remoteExecution(JsonField.of(remoteExecution))
 
-        @JsonProperty("remote_execution")
-        @ExcludeMissing
         fun remoteExecution(remoteExecution: JsonField<RestApiExecutionConfig>) = apply {
             this.remoteExecution = remoteExecution
         }
 
         fun type(type: Type) = type(JsonField.of(type))
 
-        @JsonProperty("type")
-        @ExcludeMissing
         fun type(type: JsonField<Type>) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): WolframAlphaToolDefinition =
@@ -161,21 +164,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val WOLFRAM_ALPHA = Type(JsonField.of("wolfram_alpha"))
+            val WOLFRAM_ALPHA = of("wolfram_alpha")
 
             fun of(value: String) = Type(JsonField.of(value))
         }
@@ -202,6 +193,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

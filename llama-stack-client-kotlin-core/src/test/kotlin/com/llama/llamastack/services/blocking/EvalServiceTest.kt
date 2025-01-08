@@ -4,7 +4,12 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.EvalEvaluateRowsParams
+import com.llama.llamastack.models.EvalRunEvalParams
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SamplingParams
+import com.llama.llamastack.models.SystemMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,7 +24,13 @@ class EvalServiceTest {
         val evaluateResponse =
             evalService.evaluateRows(
                 EvalEvaluateRowsParams.builder()
-                    .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+                    .inputRows(
+                        listOf(
+                            EvalEvaluateRowsParams.InputRow.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                    )
                     .scoringFunctions(listOf("string"))
                     .taskConfig(
                         EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
@@ -55,7 +66,7 @@ class EvalServiceTest {
                                                 .systemMessage(
                                                     SystemMessage.builder()
                                                         .content(
-                                                            SystemMessage.Content.ofString("string")
+                                                            InterleavedContent.ofString("string")
                                                         )
                                                         .role(SystemMessage.Role.SYSTEM)
                                                         .build()
@@ -120,7 +131,7 @@ class EvalServiceTest {
                                                 .systemMessage(
                                                     SystemMessage.builder()
                                                         .content(
-                                                            SystemMessage.Content.ofString("string")
+                                                            InterleavedContent.ofString("string")
                                                         )
                                                         .role(SystemMessage.Role.SYSTEM)
                                                         .build()

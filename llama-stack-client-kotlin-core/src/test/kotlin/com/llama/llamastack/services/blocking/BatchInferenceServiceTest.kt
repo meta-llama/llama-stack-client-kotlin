@@ -4,7 +4,12 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.BatchInferenceChatCompletionParams
+import com.llama.llamastack.models.BatchInferenceCompletionParams
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SamplingParams
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -24,9 +29,9 @@ class BatchInferenceServiceTest {
                             listOf(
                                 BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
                                     UserMessage.builder()
-                                        .content(UserMessage.Content.ofString("string"))
+                                        .content(InterleavedContent.ofString("string"))
                                         .role(UserMessage.Role.USER)
-                                        .context(UserMessage.Context.ofString("string"))
+                                        .context(InterleavedContent.ofString("string"))
                                         .build()
                                 )
                             )
@@ -57,6 +62,17 @@ class BatchInferenceServiceTest {
                                 .description("description")
                                 .parameters(
                                     BatchInferenceChatCompletionParams.Tool.Parameters.builder()
+                                        .putAdditionalProperty(
+                                            "foo",
+                                            JsonValue.from(
+                                                mapOf(
+                                                    "param_type" to "param_type",
+                                                    "default" to true,
+                                                    "description" to "description",
+                                                    "required" to true,
+                                                )
+                                            )
+                                        )
                                         .build()
                                 )
                                 .build()
@@ -77,9 +93,7 @@ class BatchInferenceServiceTest {
         val batchCompletion =
             batchInferenceService.completion(
                 BatchInferenceCompletionParams.builder()
-                    .contentBatch(
-                        listOf(BatchInferenceCompletionParams.ContentBatch.ofString("string"))
-                    )
+                    .contentBatch(listOf(InterleavedContent.ofString("string")))
                     .model("model")
                     .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .samplingParams(

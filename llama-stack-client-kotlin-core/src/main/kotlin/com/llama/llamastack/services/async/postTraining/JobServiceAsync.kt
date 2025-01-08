@@ -8,8 +8,6 @@ import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobArtifactsResponse
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
-import com.llama.llamastack.models.PostTrainingJobLogsParams
-import com.llama.llamastack.models.PostTrainingJobLogsResponse
 import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
@@ -23,20 +21,15 @@ interface JobServiceAsync {
     suspend fun artifacts(
         params: PostTrainingJobArtifactsParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): PostTrainingJobArtifactsResponse
+    ): PostTrainingJobArtifactsResponse?
 
     suspend fun cancel(
         params: PostTrainingJobCancelParams,
         requestOptions: RequestOptions = RequestOptions.none()
     )
 
-    suspend fun logs(
-        params: PostTrainingJobLogsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
-    ): PostTrainingJobLogsResponse
-
     suspend fun status(
         params: PostTrainingJobStatusParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): PostTrainingJobStatusResponse
+    ): PostTrainingJobStatusResponse?
 }

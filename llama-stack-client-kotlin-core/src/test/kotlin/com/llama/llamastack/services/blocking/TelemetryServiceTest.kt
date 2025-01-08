@@ -4,8 +4,14 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.TelemetryGetSpanTreeParams
+import com.llama.llamastack.models.TelemetryLogEventParams
+import com.llama.llamastack.models.TelemetryQuerySpansParams
+import com.llama.llamastack.models.TelemetryQueryTracesParams
+import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
 import java.time.OffsetDateTime
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -13,19 +19,21 @@ import org.junit.jupiter.api.extension.ExtendWith
 class TelemetryServiceTest {
 
     @Test
-    fun callGetTrace() {
+    fun callGetSpanTree() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val trace =
-            telemetryService.getTrace(
-                TelemetryGetTraceParams.builder()
+        val telemetryGetSpanTreeResponse =
+            telemetryService.getSpanTree(
+                TelemetryGetSpanTreeParams.builder()
+                    .spanId("span_id")
+                    .maxDepth(0L)
+                    .attributesToReturn(listOf("string"))
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")
-                    .traceId("trace_id")
                     .build()
             )
-        println(trace)
-        trace.validate()
+        println(telemetryGetSpanTreeResponse)
+        telemetryGetSpanTreeResponse.validate()
     }
 
     @Test
@@ -52,11 +60,104 @@ class TelemetryServiceTest {
                             .attributes(
                                 TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .build()
                     )
                 )
+                .ttlSeconds(0L)
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .build()
+        )
+    }
+
+    @Disabled(
+        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
+    )
+    @Test
+    fun callQuerySpans() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val telemetryService = client.telemetry()
+        val telemetryQuerySpansResponse =
+            telemetryService.querySpans(
+                TelemetryQuerySpansParams.builder()
+                    .attributeFilters(
+                        listOf(
+                            TelemetryQuerySpansParams.AttributeFilter.builder()
+                                .key("key")
+                                .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
+                                .value(
+                                    TelemetryQuerySpansParams.AttributeFilter.Value.ofBoolean(true)
+                                )
+                                .build()
+                        )
+                    )
+                    .attributesToReturn(listOf("string"))
+                    .maxDepth(0L)
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
+        println(telemetryQuerySpansResponse)
+        telemetryQuerySpansResponse.validate()
+    }
+
+    @Disabled(
+        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
+    )
+    @Test
+    fun callQueryTraces() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val telemetryService = client.telemetry()
+        val trace =
+            telemetryService.queryTraces(
+                TelemetryQueryTracesParams.builder()
+                    .attributeFilters(
+                        listOf(
+                            TelemetryQueryTracesParams.AttributeFilter.builder()
+                                .key("key")
+                                .op(TelemetryQueryTracesParams.AttributeFilter.Op.EQ)
+                                .value(
+                                    TelemetryQueryTracesParams.AttributeFilter.Value.ofBoolean(true)
+                                )
+                                .build()
+                        )
+                    )
+                    .limit(0L)
+                    .offset(0L)
+                    .orderBy(listOf("string"))
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .build()
+            )
+        println(trace)
+        trace.validate()
+    }
+
+    @Test
+    fun callSaveSpansToDataset() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val telemetryService = client.telemetry()
+        telemetryService.saveSpansToDataset(
+            TelemetrySaveSpansToDatasetParams.builder()
+                .attributeFilters(
+                    listOf(
+                        TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                            .key("key")
+                            .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
+                            .value(
+                                TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(
+                                    true
+                                )
+                            )
+                            .build()
+                    )
+                )
+                .attributesToSave(listOf("string"))
+                .datasetId("dataset_id")
+                .maxDepth(0L)
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         )

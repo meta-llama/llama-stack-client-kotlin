@@ -4,7 +4,14 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.AgentConfig
+import com.llama.llamastack.models.AgentCreateParams
+import com.llama.llamastack.models.AgentDeleteParams
+import com.llama.llamastack.models.RestApiExecutionConfig
+import com.llama.llamastack.models.SamplingParams
+import com.llama.llamastack.models.SearchToolDefinition
+import com.llama.llamastack.models.Url
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -51,17 +58,29 @@ class AgentServiceTest {
                                             .remoteExecution(
                                                 RestApiExecutionConfig.builder()
                                                     .method(RestApiExecutionConfig.Method.GET)
-                                                    .url("https://example.com")
+                                                    .url(Url.builder().uri("uri").build())
                                                     .body(
                                                         RestApiExecutionConfig.Body.builder()
+                                                            .putAdditionalProperty(
+                                                                "foo",
+                                                                JsonValue.from(true)
+                                                            )
                                                             .build()
                                                     )
                                                     .headers(
                                                         RestApiExecutionConfig.Headers.builder()
+                                                            .putAdditionalProperty(
+                                                                "foo",
+                                                                JsonValue.from(true)
+                                                            )
                                                             .build()
                                                     )
                                                     .params(
                                                         RestApiExecutionConfig.Params.builder()
+                                                            .putAdditionalProperty(
+                                                                "foo",
+                                                                JsonValue.from(true)
+                                                            )
                                                             .build()
                                                     )
                                                     .build()

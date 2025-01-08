@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,19 +13,43 @@ class RestApiExecutionConfigTest {
         val restApiExecutionConfig =
             RestApiExecutionConfig.builder()
                 .method(RestApiExecutionConfig.Method.GET)
-                .url("https://example.com")
-                .body(RestApiExecutionConfig.Body.builder().build())
-                .headers(RestApiExecutionConfig.Headers.builder().build())
-                .params(RestApiExecutionConfig.Params.builder().build())
+                .url(Url.builder().uri("uri").build())
+                .body(
+                    RestApiExecutionConfig.Body.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .headers(
+                    RestApiExecutionConfig.Headers.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .params(
+                    RestApiExecutionConfig.Params.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .build()
         assertThat(restApiExecutionConfig).isNotNull
         assertThat(restApiExecutionConfig.method()).isEqualTo(RestApiExecutionConfig.Method.GET)
-        assertThat(restApiExecutionConfig.url()).isEqualTo("https://example.com")
+        assertThat(restApiExecutionConfig.url()).isEqualTo(Url.builder().uri("uri").build())
         assertThat(restApiExecutionConfig.body())
-            .isEqualTo(RestApiExecutionConfig.Body.builder().build())
+            .isEqualTo(
+                RestApiExecutionConfig.Body.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
         assertThat(restApiExecutionConfig.headers())
-            .isEqualTo(RestApiExecutionConfig.Headers.builder().build())
+            .isEqualTo(
+                RestApiExecutionConfig.Headers.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
         assertThat(restApiExecutionConfig.params())
-            .isEqualTo(RestApiExecutionConfig.Params.builder().build())
+            .isEqualTo(
+                RestApiExecutionConfig.Params.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
     }
 }

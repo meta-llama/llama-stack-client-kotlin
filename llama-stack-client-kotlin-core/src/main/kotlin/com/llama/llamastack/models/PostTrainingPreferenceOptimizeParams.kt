@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
@@ -14,72 +13,40 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class PostTrainingPreferenceOptimizeParams
 constructor(
-    private val algorithm: Algorithm,
-    private val algorithmConfig: AlgorithmConfig,
-    private val datasetId: String,
-    private val finetunedModel: String,
-    private val hyperparamSearchConfig: HyperparamSearchConfig,
-    private val jobUuid: String,
-    private val loggerConfig: LoggerConfig,
-    private val optimizerConfig: OptimizerConfig,
-    private val trainingConfig: TrainingConfig,
-    private val validationDatasetId: String,
     private val xLlamaStackProviderData: String?,
+    private val body: PostTrainingPreferenceOptimizeBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun algorithm(): Algorithm = algorithm
-
-    fun algorithmConfig(): AlgorithmConfig = algorithmConfig
-
-    fun datasetId(): String = datasetId
-
-    fun finetunedModel(): String = finetunedModel
-
-    fun hyperparamSearchConfig(): HyperparamSearchConfig = hyperparamSearchConfig
-
-    fun jobUuid(): String = jobUuid
-
-    fun loggerConfig(): LoggerConfig = loggerConfig
-
-    fun optimizerConfig(): OptimizerConfig = optimizerConfig
-
-    fun trainingConfig(): TrainingConfig = trainingConfig
-
-    fun validationDatasetId(): String = validationDatasetId
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun algorithmConfig(): AlgorithmConfig = body.algorithmConfig()
+
+    fun finetunedModel(): String = body.finetunedModel()
+
+    fun hyperparamSearchConfig(): HyperparamSearchConfig = body.hyperparamSearchConfig()
+
+    fun jobUuid(): String = body.jobUuid()
+
+    fun loggerConfig(): LoggerConfig = body.loggerConfig()
+
+    fun trainingConfig(): TrainingConfig = body.trainingConfig()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): PostTrainingPreferenceOptimizeBody {
-        return PostTrainingPreferenceOptimizeBody(
-            algorithm,
-            algorithmConfig,
-            datasetId,
-            finetunedModel,
-            hyperparamSearchConfig,
-            jobUuid,
-            loggerConfig,
-            optimizerConfig,
-            trainingConfig,
-            validationDatasetId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): PostTrainingPreferenceOptimizeBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -92,44 +59,33 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = PostTrainingPreferenceOptimizeBody.Builder::class)
     @NoAutoDetect
     class PostTrainingPreferenceOptimizeBody
+    @JsonCreator
     internal constructor(
-        private val algorithm: Algorithm?,
-        private val algorithmConfig: AlgorithmConfig?,
-        private val datasetId: String?,
-        private val finetunedModel: String?,
-        private val hyperparamSearchConfig: HyperparamSearchConfig?,
-        private val jobUuid: String?,
-        private val loggerConfig: LoggerConfig?,
-        private val optimizerConfig: OptimizerConfig?,
-        private val trainingConfig: TrainingConfig?,
-        private val validationDatasetId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("algorithm_config") private val algorithmConfig: AlgorithmConfig,
+        @JsonProperty("finetuned_model") private val finetunedModel: String,
+        @JsonProperty("hyperparam_search_config")
+        private val hyperparamSearchConfig: HyperparamSearchConfig,
+        @JsonProperty("job_uuid") private val jobUuid: String,
+        @JsonProperty("logger_config") private val loggerConfig: LoggerConfig,
+        @JsonProperty("training_config") private val trainingConfig: TrainingConfig,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("algorithm") fun algorithm(): Algorithm? = algorithm
+        @JsonProperty("algorithm_config") fun algorithmConfig(): AlgorithmConfig = algorithmConfig
 
-        @JsonProperty("algorithm_config") fun algorithmConfig(): AlgorithmConfig? = algorithmConfig
-
-        @JsonProperty("dataset_id") fun datasetId(): String? = datasetId
-
-        @JsonProperty("finetuned_model") fun finetunedModel(): String? = finetunedModel
+        @JsonProperty("finetuned_model") fun finetunedModel(): String = finetunedModel
 
         @JsonProperty("hyperparam_search_config")
-        fun hyperparamSearchConfig(): HyperparamSearchConfig? = hyperparamSearchConfig
+        fun hyperparamSearchConfig(): HyperparamSearchConfig = hyperparamSearchConfig
 
-        @JsonProperty("job_uuid") fun jobUuid(): String? = jobUuid
+        @JsonProperty("job_uuid") fun jobUuid(): String = jobUuid
 
-        @JsonProperty("logger_config") fun loggerConfig(): LoggerConfig? = loggerConfig
+        @JsonProperty("logger_config") fun loggerConfig(): LoggerConfig = loggerConfig
 
-        @JsonProperty("optimizer_config") fun optimizerConfig(): OptimizerConfig? = optimizerConfig
-
-        @JsonProperty("training_config") fun trainingConfig(): TrainingConfig? = trainingConfig
-
-        @JsonProperty("validation_dataset_id")
-        fun validationDatasetId(): String? = validationDatasetId
+        @JsonProperty("training_config") fun trainingConfig(): TrainingConfig = trainingConfig
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -144,113 +100,80 @@ constructor(
 
         class Builder {
 
-            private var algorithm: Algorithm? = null
             private var algorithmConfig: AlgorithmConfig? = null
-            private var datasetId: String? = null
             private var finetunedModel: String? = null
             private var hyperparamSearchConfig: HyperparamSearchConfig? = null
             private var jobUuid: String? = null
             private var loggerConfig: LoggerConfig? = null
-            private var optimizerConfig: OptimizerConfig? = null
             private var trainingConfig: TrainingConfig? = null
-            private var validationDatasetId: String? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(
                 postTrainingPreferenceOptimizeBody: PostTrainingPreferenceOptimizeBody
             ) = apply {
-                this.algorithm = postTrainingPreferenceOptimizeBody.algorithm
-                this.algorithmConfig = postTrainingPreferenceOptimizeBody.algorithmConfig
-                this.datasetId = postTrainingPreferenceOptimizeBody.datasetId
-                this.finetunedModel = postTrainingPreferenceOptimizeBody.finetunedModel
-                this.hyperparamSearchConfig =
-                    postTrainingPreferenceOptimizeBody.hyperparamSearchConfig
-                this.jobUuid = postTrainingPreferenceOptimizeBody.jobUuid
-                this.loggerConfig = postTrainingPreferenceOptimizeBody.loggerConfig
-                this.optimizerConfig = postTrainingPreferenceOptimizeBody.optimizerConfig
-                this.trainingConfig = postTrainingPreferenceOptimizeBody.trainingConfig
-                this.validationDatasetId = postTrainingPreferenceOptimizeBody.validationDatasetId
-                additionalProperties(postTrainingPreferenceOptimizeBody.additionalProperties)
+                algorithmConfig = postTrainingPreferenceOptimizeBody.algorithmConfig
+                finetunedModel = postTrainingPreferenceOptimizeBody.finetunedModel
+                hyperparamSearchConfig = postTrainingPreferenceOptimizeBody.hyperparamSearchConfig
+                jobUuid = postTrainingPreferenceOptimizeBody.jobUuid
+                loggerConfig = postTrainingPreferenceOptimizeBody.loggerConfig
+                trainingConfig = postTrainingPreferenceOptimizeBody.trainingConfig
+                additionalProperties =
+                    postTrainingPreferenceOptimizeBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("algorithm")
-            fun algorithm(algorithm: Algorithm) = apply { this.algorithm = algorithm }
-
-            @JsonProperty("algorithm_config")
             fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
                 this.algorithmConfig = algorithmConfig
             }
 
-            @JsonProperty("dataset_id")
-            fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
-
-            @JsonProperty("finetuned_model")
             fun finetunedModel(finetunedModel: String) = apply {
                 this.finetunedModel = finetunedModel
             }
 
-            @JsonProperty("hyperparam_search_config")
             fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
                 this.hyperparamSearchConfig = hyperparamSearchConfig
             }
 
-            @JsonProperty("job_uuid")
             fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
 
-            @JsonProperty("logger_config")
             fun loggerConfig(loggerConfig: LoggerConfig) = apply {
                 this.loggerConfig = loggerConfig
             }
 
-            @JsonProperty("optimizer_config")
-            fun optimizerConfig(optimizerConfig: OptimizerConfig) = apply {
-                this.optimizerConfig = optimizerConfig
-            }
-
-            @JsonProperty("training_config")
             fun trainingConfig(trainingConfig: TrainingConfig) = apply {
                 this.trainingConfig = trainingConfig
             }
 
-            @JsonProperty("validation_dataset_id")
-            fun validationDatasetId(validationDatasetId: String) = apply {
-                this.validationDatasetId = validationDatasetId
-            }
-
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
             fun build(): PostTrainingPreferenceOptimizeBody =
                 PostTrainingPreferenceOptimizeBody(
-                    checkNotNull(algorithm) { "`algorithm` is required but was not set" },
                     checkNotNull(algorithmConfig) {
                         "`algorithmConfig` is required but was not set"
                     },
-                    checkNotNull(datasetId) { "`datasetId` is required but was not set" },
                     checkNotNull(finetunedModel) { "`finetunedModel` is required but was not set" },
                     checkNotNull(hyperparamSearchConfig) {
                         "`hyperparamSearchConfig` is required but was not set"
                     },
                     checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
                     checkNotNull(loggerConfig) { "`loggerConfig` is required but was not set" },
-                    checkNotNull(optimizerConfig) {
-                        "`optimizerConfig` is required but was not set"
-                    },
                     checkNotNull(trainingConfig) { "`trainingConfig` is required but was not set" },
-                    checkNotNull(validationDatasetId) {
-                        "`validationDatasetId` is required but was not set"
-                    },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -260,17 +183,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is PostTrainingPreferenceOptimizeBody && algorithm == other.algorithm && algorithmConfig == other.algorithmConfig && datasetId == other.datasetId && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && optimizerConfig == other.optimizerConfig && trainingConfig == other.trainingConfig && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is PostTrainingPreferenceOptimizeBody && algorithmConfig == other.algorithmConfig && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && trainingConfig == other.trainingConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(algorithm, algorithmConfig, datasetId, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, optimizerConfig, trainingConfig, validationDatasetId, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(algorithmConfig, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, trainingConfig, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "PostTrainingPreferenceOptimizeBody{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
+            "PostTrainingPreferenceOptimizeBody{algorithmConfig=$algorithmConfig, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -283,74 +206,42 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var algorithm: Algorithm? = null
-        private var algorithmConfig: AlgorithmConfig? = null
-        private var datasetId: String? = null
-        private var finetunedModel: String? = null
-        private var hyperparamSearchConfig: HyperparamSearchConfig? = null
-        private var jobUuid: String? = null
-        private var loggerConfig: LoggerConfig? = null
-        private var optimizerConfig: OptimizerConfig? = null
-        private var trainingConfig: TrainingConfig? = null
-        private var validationDatasetId: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: PostTrainingPreferenceOptimizeBody.Builder =
+            PostTrainingPreferenceOptimizeBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(
             postTrainingPreferenceOptimizeParams: PostTrainingPreferenceOptimizeParams
         ) = apply {
-            algorithm = postTrainingPreferenceOptimizeParams.algorithm
-            algorithmConfig = postTrainingPreferenceOptimizeParams.algorithmConfig
-            datasetId = postTrainingPreferenceOptimizeParams.datasetId
-            finetunedModel = postTrainingPreferenceOptimizeParams.finetunedModel
-            hyperparamSearchConfig = postTrainingPreferenceOptimizeParams.hyperparamSearchConfig
-            jobUuid = postTrainingPreferenceOptimizeParams.jobUuid
-            loggerConfig = postTrainingPreferenceOptimizeParams.loggerConfig
-            optimizerConfig = postTrainingPreferenceOptimizeParams.optimizerConfig
-            trainingConfig = postTrainingPreferenceOptimizeParams.trainingConfig
-            validationDatasetId = postTrainingPreferenceOptimizeParams.validationDatasetId
             xLlamaStackProviderData = postTrainingPreferenceOptimizeParams.xLlamaStackProviderData
+            body = postTrainingPreferenceOptimizeParams.body.toBuilder()
             additionalHeaders = postTrainingPreferenceOptimizeParams.additionalHeaders.toBuilder()
             additionalQueryParams =
                 postTrainingPreferenceOptimizeParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties =
-                postTrainingPreferenceOptimizeParams.additionalBodyProperties.toMutableMap()
-        }
-
-        fun algorithm(algorithm: Algorithm) = apply { this.algorithm = algorithm }
-
-        fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
-            this.algorithmConfig = algorithmConfig
-        }
-
-        fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
-
-        fun finetunedModel(finetunedModel: String) = apply { this.finetunedModel = finetunedModel }
-
-        fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
-            this.hyperparamSearchConfig = hyperparamSearchConfig
-        }
-
-        fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
-
-        fun loggerConfig(loggerConfig: LoggerConfig) = apply { this.loggerConfig = loggerConfig }
-
-        fun optimizerConfig(optimizerConfig: OptimizerConfig) = apply {
-            this.optimizerConfig = optimizerConfig
-        }
-
-        fun trainingConfig(trainingConfig: TrainingConfig) = apply {
-            this.trainingConfig = trainingConfig
-        }
-
-        fun validationDatasetId(validationDatasetId: String) = apply {
-            this.validationDatasetId = validationDatasetId
         }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
+
+        fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
+            body.algorithmConfig(algorithmConfig)
+        }
+
+        fun finetunedModel(finetunedModel: String) = apply { body.finetunedModel(finetunedModel) }
+
+        fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
+            body.hyperparamSearchConfig(hyperparamSearchConfig)
+        }
+
+        fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
+
+        fun loggerConfig(loggerConfig: LoggerConfig) = apply { body.loggerConfig(loggerConfig) }
+
+        fun trainingConfig(trainingConfig: TrainingConfig) = apply {
+            body.trainingConfig(trainingConfig)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -452,119 +343,52 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): PostTrainingPreferenceOptimizeParams =
             PostTrainingPreferenceOptimizeParams(
-                checkNotNull(algorithm) { "`algorithm` is required but was not set" },
-                checkNotNull(algorithmConfig) { "`algorithmConfig` is required but was not set" },
-                checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                checkNotNull(finetunedModel) { "`finetunedModel` is required but was not set" },
-                checkNotNull(hyperparamSearchConfig) {
-                    "`hyperparamSearchConfig` is required but was not set"
-                },
-                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
-                checkNotNull(loggerConfig) { "`loggerConfig` is required but was not set" },
-                checkNotNull(optimizerConfig) { "`optimizerConfig` is required but was not set" },
-                checkNotNull(trainingConfig) { "`trainingConfig` is required but was not set" },
-                checkNotNull(validationDatasetId) {
-                    "`validationDatasetId` is required but was not set"
-                },
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
-    class Algorithm
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Algorithm && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
-        companion object {
-
-            val DPO = Algorithm(JsonField.of("dpo"))
-
-            fun of(value: String) = Algorithm(JsonField.of(value))
-        }
-
-        enum class Known {
-            DPO,
-        }
-
-        enum class Value {
-            DPO,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                DPO -> Value.DPO
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                DPO -> Known.DPO
-                else -> throw LlamaStackClientInvalidDataException("Unknown Algorithm: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-    }
-
-    @JsonDeserialize(builder = AlgorithmConfig.Builder::class)
     @NoAutoDetect
     class AlgorithmConfig
+    @JsonCreator
     private constructor(
-        private val epsilon: Double?,
-        private val gamma: Double?,
-        private val rewardClip: Double?,
-        private val rewardScale: Double?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("epsilon") private val epsilon: Double,
+        @JsonProperty("gamma") private val gamma: Double,
+        @JsonProperty("reward_clip") private val rewardClip: Double,
+        @JsonProperty("reward_scale") private val rewardScale: Double,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("epsilon") fun epsilon(): Double? = epsilon
+        @JsonProperty("epsilon") fun epsilon(): Double = epsilon
 
-        @JsonProperty("gamma") fun gamma(): Double? = gamma
+        @JsonProperty("gamma") fun gamma(): Double = gamma
 
-        @JsonProperty("reward_clip") fun rewardClip(): Double? = rewardClip
+        @JsonProperty("reward_clip") fun rewardClip(): Double = rewardClip
 
-        @JsonProperty("reward_scale") fun rewardScale(): Double? = rewardScale
+        @JsonProperty("reward_scale") fun rewardScale(): Double = rewardScale
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -586,35 +410,38 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(algorithmConfig: AlgorithmConfig) = apply {
-                this.epsilon = algorithmConfig.epsilon
-                this.gamma = algorithmConfig.gamma
-                this.rewardClip = algorithmConfig.rewardClip
-                this.rewardScale = algorithmConfig.rewardScale
-                additionalProperties(algorithmConfig.additionalProperties)
+                epsilon = algorithmConfig.epsilon
+                gamma = algorithmConfig.gamma
+                rewardClip = algorithmConfig.rewardClip
+                rewardScale = algorithmConfig.rewardScale
+                additionalProperties = algorithmConfig.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("epsilon") fun epsilon(epsilon: Double) = apply { this.epsilon = epsilon }
+            fun epsilon(epsilon: Double) = apply { this.epsilon = epsilon }
 
-            @JsonProperty("gamma") fun gamma(gamma: Double) = apply { this.gamma = gamma }
+            fun gamma(gamma: Double) = apply { this.gamma = gamma }
 
-            @JsonProperty("reward_clip")
             fun rewardClip(rewardClip: Double) = apply { this.rewardClip = rewardClip }
 
-            @JsonProperty("reward_scale")
             fun rewardScale(rewardScale: Double) = apply { this.rewardScale = rewardScale }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): AlgorithmConfig =
@@ -645,11 +472,12 @@ constructor(
             "AlgorithmConfig{epsilon=$epsilon, gamma=$gamma, rewardClip=$rewardClip, rewardScale=$rewardScale, additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = HyperparamSearchConfig.Builder::class)
     @NoAutoDetect
     class HyperparamSearchConfig
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -668,21 +496,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
-                additionalProperties(hyperparamSearchConfig.additionalProperties)
+                additionalProperties = hyperparamSearchConfig.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): HyperparamSearchConfig =
@@ -707,11 +540,12 @@ constructor(
             "HyperparamSearchConfig{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = LoggerConfig.Builder::class)
     @NoAutoDetect
     class LoggerConfig
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -730,21 +564,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(loggerConfig: LoggerConfig) = apply {
-                additionalProperties(loggerConfig.additionalProperties)
+                additionalProperties = loggerConfig.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): LoggerConfig = LoggerConfig(additionalProperties.toImmutable())
@@ -767,24 +606,36 @@ constructor(
         override fun toString() = "LoggerConfig{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = OptimizerConfig.Builder::class)
     @NoAutoDetect
-    class OptimizerConfig
+    class TrainingConfig
+    @JsonCreator
     private constructor(
-        private val lr: Double?,
-        private val lrMin: Double?,
-        private val optimizerType: OptimizerType?,
-        private val weightDecay: Double?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("data_config") private val dataConfig: DataConfig,
+        @JsonProperty("dtype") private val dtype: String?,
+        @JsonProperty("efficiency_config") private val efficiencyConfig: EfficiencyConfig?,
+        @JsonProperty("gradient_accumulation_steps") private val gradientAccumulationSteps: Long,
+        @JsonProperty("max_steps_per_epoch") private val maxStepsPerEpoch: Long,
+        @JsonProperty("n_epochs") private val nEpochs: Long,
+        @JsonProperty("optimizer_config") private val optimizerConfig: OptimizerConfig,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("lr") fun lr(): Double? = lr
+        @JsonProperty("data_config") fun dataConfig(): DataConfig = dataConfig
 
-        @JsonProperty("lr_min") fun lrMin(): Double? = lrMin
+        @JsonProperty("dtype") fun dtype(): String? = dtype
 
-        @JsonProperty("optimizer_type") fun optimizerType(): OptimizerType? = optimizerType
+        @JsonProperty("efficiency_config")
+        fun efficiencyConfig(): EfficiencyConfig? = efficiencyConfig
 
-        @JsonProperty("weight_decay") fun weightDecay(): Double? = weightDecay
+        @JsonProperty("gradient_accumulation_steps")
+        fun gradientAccumulationSteps(): Long = gradientAccumulationSteps
+
+        @JsonProperty("max_steps_per_epoch") fun maxStepsPerEpoch(): Long = maxStepsPerEpoch
+
+        @JsonProperty("n_epochs") fun nEpochs(): Long = nEpochs
+
+        @JsonProperty("optimizer_config") fun optimizerConfig(): OptimizerConfig = optimizerConfig
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -799,255 +650,506 @@ constructor(
 
         class Builder {
 
-            private var lr: Double? = null
-            private var lrMin: Double? = null
-            private var optimizerType: OptimizerType? = null
-            private var weightDecay: Double? = null
+            private var dataConfig: DataConfig? = null
+            private var dtype: String? = null
+            private var efficiencyConfig: EfficiencyConfig? = null
+            private var gradientAccumulationSteps: Long? = null
+            private var maxStepsPerEpoch: Long? = null
+            private var nEpochs: Long? = null
+            private var optimizerConfig: OptimizerConfig? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(optimizerConfig: OptimizerConfig) = apply {
-                this.lr = optimizerConfig.lr
-                this.lrMin = optimizerConfig.lrMin
-                this.optimizerType = optimizerConfig.optimizerType
-                this.weightDecay = optimizerConfig.weightDecay
-                additionalProperties(optimizerConfig.additionalProperties)
+            internal fun from(trainingConfig: TrainingConfig) = apply {
+                dataConfig = trainingConfig.dataConfig
+                dtype = trainingConfig.dtype
+                efficiencyConfig = trainingConfig.efficiencyConfig
+                gradientAccumulationSteps = trainingConfig.gradientAccumulationSteps
+                maxStepsPerEpoch = trainingConfig.maxStepsPerEpoch
+                nEpochs = trainingConfig.nEpochs
+                optimizerConfig = trainingConfig.optimizerConfig
+                additionalProperties = trainingConfig.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("lr") fun lr(lr: Double) = apply { this.lr = lr }
+            fun dataConfig(dataConfig: DataConfig) = apply { this.dataConfig = dataConfig }
 
-            @JsonProperty("lr_min") fun lrMin(lrMin: Double) = apply { this.lrMin = lrMin }
+            fun dtype(dtype: String) = apply { this.dtype = dtype }
 
-            @JsonProperty("optimizer_type")
-            fun optimizerType(optimizerType: OptimizerType) = apply {
-                this.optimizerType = optimizerType
+            fun efficiencyConfig(efficiencyConfig: EfficiencyConfig) = apply {
+                this.efficiencyConfig = efficiencyConfig
             }
 
-            @JsonProperty("weight_decay")
-            fun weightDecay(weightDecay: Double) = apply { this.weightDecay = weightDecay }
+            fun gradientAccumulationSteps(gradientAccumulationSteps: Long) = apply {
+                this.gradientAccumulationSteps = gradientAccumulationSteps
+            }
+
+            fun maxStepsPerEpoch(maxStepsPerEpoch: Long) = apply {
+                this.maxStepsPerEpoch = maxStepsPerEpoch
+            }
+
+            fun nEpochs(nEpochs: Long) = apply { this.nEpochs = nEpochs }
+
+            fun optimizerConfig(optimizerConfig: OptimizerConfig) = apply {
+                this.optimizerConfig = optimizerConfig
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
-            fun build(): OptimizerConfig =
-                OptimizerConfig(
-                    checkNotNull(lr) { "`lr` is required but was not set" },
-                    checkNotNull(lrMin) { "`lrMin` is required but was not set" },
-                    checkNotNull(optimizerType) { "`optimizerType` is required but was not set" },
-                    checkNotNull(weightDecay) { "`weightDecay` is required but was not set" },
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): TrainingConfig =
+                TrainingConfig(
+                    checkNotNull(dataConfig) { "`dataConfig` is required but was not set" },
+                    dtype,
+                    efficiencyConfig,
+                    checkNotNull(gradientAccumulationSteps) {
+                        "`gradientAccumulationSteps` is required but was not set"
+                    },
+                    checkNotNull(maxStepsPerEpoch) {
+                        "`maxStepsPerEpoch` is required but was not set"
+                    },
+                    checkNotNull(nEpochs) { "`nEpochs` is required but was not set" },
+                    checkNotNull(optimizerConfig) {
+                        "`optimizerConfig` is required but was not set"
+                    },
                     additionalProperties.toImmutable(),
                 )
         }
 
-        class OptimizerType
+        @NoAutoDetect
+        class DataConfig
         @JsonCreator
         private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+            @JsonProperty("batch_size") private val batchSize: Long,
+            @JsonProperty("dataset_id") private val datasetId: String,
+            @JsonProperty("packed") private val packed: Boolean?,
+            @JsonProperty("shuffle") private val shuffle: Boolean,
+            @JsonProperty("train_on_input") private val trainOnInput: Boolean?,
+            @JsonProperty("validation_dataset_id") private val validationDatasetId: String?,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
 
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+            @JsonProperty("batch_size") fun batchSize(): Long = batchSize
+
+            @JsonProperty("dataset_id") fun datasetId(): String = datasetId
+
+            @JsonProperty("packed") fun packed(): Boolean? = packed
+
+            @JsonProperty("shuffle") fun shuffle(): Boolean = shuffle
+
+            @JsonProperty("train_on_input") fun trainOnInput(): Boolean? = trainOnInput
+
+            @JsonProperty("validation_dataset_id")
+            fun validationDatasetId(): String? = validationDatasetId
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var batchSize: Long? = null
+                private var datasetId: String? = null
+                private var packed: Boolean? = null
+                private var shuffle: Boolean? = null
+                private var trainOnInput: Boolean? = null
+                private var validationDatasetId: String? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(dataConfig: DataConfig) = apply {
+                    batchSize = dataConfig.batchSize
+                    datasetId = dataConfig.datasetId
+                    packed = dataConfig.packed
+                    shuffle = dataConfig.shuffle
+                    trainOnInput = dataConfig.trainOnInput
+                    validationDatasetId = dataConfig.validationDatasetId
+                    additionalProperties = dataConfig.additionalProperties.toMutableMap()
+                }
+
+                fun batchSize(batchSize: Long) = apply { this.batchSize = batchSize }
+
+                fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+
+                fun packed(packed: Boolean) = apply { this.packed = packed }
+
+                fun shuffle(shuffle: Boolean) = apply { this.shuffle = shuffle }
+
+                fun trainOnInput(trainOnInput: Boolean) = apply { this.trainOnInput = trainOnInput }
+
+                fun validationDatasetId(validationDatasetId: String) = apply {
+                    this.validationDatasetId = validationDatasetId
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): DataConfig =
+                    DataConfig(
+                        checkNotNull(batchSize) { "`batchSize` is required but was not set" },
+                        checkNotNull(datasetId) { "`datasetId` is required but was not set" },
+                        packed,
+                        checkNotNull(shuffle) { "`shuffle` is required but was not set" },
+                        trainOnInput,
+                        validationDatasetId,
+                        additionalProperties.toImmutable(),
+                    )
+            }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
                 }
 
-                return /* spotless:off */ other is OptimizerType && value == other.value /* spotless:on */
+                return /* spotless:off */ other is DataConfig && batchSize == other.batchSize && datasetId == other.datasetId && packed == other.packed && shuffle == other.shuffle && trainOnInput == other.trainOnInput && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            override fun hashCode() = value.hashCode()
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(batchSize, datasetId, packed, shuffle, trainOnInput, validationDatasetId, additionalProperties) }
+            /* spotless:on */
 
-            override fun toString() = value.toString()
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "DataConfig{batchSize=$batchSize, datasetId=$datasetId, packed=$packed, shuffle=$shuffle, trainOnInput=$trainOnInput, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
+        }
+
+        @NoAutoDetect
+        class OptimizerConfig
+        @JsonCreator
+        private constructor(
+            @JsonProperty("lr") private val lr: Double,
+            @JsonProperty("num_warmup_steps") private val numWarmupSteps: Long,
+            @JsonProperty("optimizer_type") private val optimizerType: OptimizerType,
+            @JsonProperty("weight_decay") private val weightDecay: Double,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            @JsonProperty("lr") fun lr(): Double = lr
+
+            @JsonProperty("num_warmup_steps") fun numWarmupSteps(): Long = numWarmupSteps
+
+            @JsonProperty("optimizer_type") fun optimizerType(): OptimizerType = optimizerType
+
+            @JsonProperty("weight_decay") fun weightDecay(): Double = weightDecay
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
 
             companion object {
 
-                val ADAM = OptimizerType(JsonField.of("adam"))
-
-                val ADAMW = OptimizerType(JsonField.of("adamw"))
-
-                val SGD = OptimizerType(JsonField.of("sgd"))
-
-                fun of(value: String) = OptimizerType(JsonField.of(value))
+                fun builder() = Builder()
             }
 
-            enum class Known {
-                ADAM,
-                ADAMW,
-                SGD,
-            }
+            class Builder {
 
-            enum class Value {
-                ADAM,
-                ADAMW,
-                SGD,
-                _UNKNOWN,
-            }
+                private var lr: Double? = null
+                private var numWarmupSteps: Long? = null
+                private var optimizerType: OptimizerType? = null
+                private var weightDecay: Double? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            fun value(): Value =
-                when (this) {
-                    ADAM -> Value.ADAM
-                    ADAMW -> Value.ADAMW
-                    SGD -> Value.SGD
-                    else -> Value._UNKNOWN
+                internal fun from(optimizerConfig: OptimizerConfig) = apply {
+                    lr = optimizerConfig.lr
+                    numWarmupSteps = optimizerConfig.numWarmupSteps
+                    optimizerType = optimizerConfig.optimizerType
+                    weightDecay = optimizerConfig.weightDecay
+                    additionalProperties = optimizerConfig.additionalProperties.toMutableMap()
                 }
 
-            fun known(): Known =
-                when (this) {
-                    ADAM -> Known.ADAM
-                    ADAMW -> Known.ADAMW
-                    SGD -> Known.SGD
-                    else ->
-                        throw LlamaStackClientInvalidDataException("Unknown OptimizerType: $value")
+                fun lr(lr: Double) = apply { this.lr = lr }
+
+                fun numWarmupSteps(numWarmupSteps: Long) = apply {
+                    this.numWarmupSteps = numWarmupSteps
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
-        }
+                fun optimizerType(optimizerType: OptimizerType) = apply {
+                    this.optimizerType = optimizerType
+                }
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
+                fun weightDecay(weightDecay: Double) = apply { this.weightDecay = weightDecay }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): OptimizerConfig =
+                    OptimizerConfig(
+                        checkNotNull(lr) { "`lr` is required but was not set" },
+                        checkNotNull(numWarmupSteps) {
+                            "`numWarmupSteps` is required but was not set"
+                        },
+                        checkNotNull(optimizerType) {
+                            "`optimizerType` is required but was not set"
+                        },
+                        checkNotNull(weightDecay) { "`weightDecay` is required but was not set" },
+                        additionalProperties.toImmutable(),
+                    )
             }
 
-            return /* spotless:off */ other is OptimizerConfig && lr == other.lr && lrMin == other.lrMin && optimizerType == other.optimizerType && weightDecay == other.weightDecay && additionalProperties == other.additionalProperties /* spotless:on */
-        }
+            class OptimizerType
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
 
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(lr, lrMin, optimizerType, weightDecay, additionalProperties) }
-        /* spotless:on */
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun hashCode(): Int = hashCode
+                companion object {
 
-        override fun toString() =
-            "OptimizerConfig{lr=$lr, lrMin=$lrMin, optimizerType=$optimizerType, weightDecay=$weightDecay, additionalProperties=$additionalProperties}"
-    }
+                    val ADAM = of("adam")
 
-    @JsonDeserialize(builder = TrainingConfig.Builder::class)
-    @NoAutoDetect
-    class TrainingConfig
-    private constructor(
-        private val batchSize: Long?,
-        private val enableActivationCheckpointing: Boolean?,
-        private val fsdpCpuOffload: Boolean?,
-        private val memoryEfficientFsdpWrap: Boolean?,
-        private val nEpochs: Long?,
-        private val nIters: Long?,
-        private val shuffle: Boolean?,
-        private val additionalProperties: Map<String, JsonValue>,
-    ) {
+                    val ADAMW = of("adamw")
 
-        @JsonProperty("batch_size") fun batchSize(): Long? = batchSize
+                    val SGD = of("sgd")
 
-        @JsonProperty("enable_activation_checkpointing")
-        fun enableActivationCheckpointing(): Boolean? = enableActivationCheckpointing
+                    fun of(value: String) = OptimizerType(JsonField.of(value))
+                }
 
-        @JsonProperty("fsdp_cpu_offload") fun fsdpCpuOffload(): Boolean? = fsdpCpuOffload
+                enum class Known {
+                    ADAM,
+                    ADAMW,
+                    SGD,
+                }
 
-        @JsonProperty("memory_efficient_fsdp_wrap")
-        fun memoryEfficientFsdpWrap(): Boolean? = memoryEfficientFsdpWrap
+                enum class Value {
+                    ADAM,
+                    ADAMW,
+                    SGD,
+                    _UNKNOWN,
+                }
 
-        @JsonProperty("n_epochs") fun nEpochs(): Long? = nEpochs
+                fun value(): Value =
+                    when (this) {
+                        ADAM -> Value.ADAM
+                        ADAMW -> Value.ADAMW
+                        SGD -> Value.SGD
+                        else -> Value._UNKNOWN
+                    }
 
-        @JsonProperty("n_iters") fun nIters(): Long? = nIters
+                fun known(): Known =
+                    when (this) {
+                        ADAM -> Known.ADAM
+                        ADAMW -> Known.ADAMW
+                        SGD -> Known.SGD
+                        else ->
+                            throw LlamaStackClientInvalidDataException(
+                                "Unknown OptimizerType: $value"
+                            )
+                    }
 
-        @JsonProperty("shuffle") fun shuffle(): Boolean? = shuffle
+                fun asString(): String = _value().asStringOrThrow()
 
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
 
-        fun toBuilder() = Builder().from(this)
+                    return /* spotless:off */ other is OptimizerType && value == other.value /* spotless:on */
+                }
 
-        companion object {
+                override fun hashCode() = value.hashCode()
 
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var batchSize: Long? = null
-            private var enableActivationCheckpointing: Boolean? = null
-            private var fsdpCpuOffload: Boolean? = null
-            private var memoryEfficientFsdpWrap: Boolean? = null
-            private var nEpochs: Long? = null
-            private var nIters: Long? = null
-            private var shuffle: Boolean? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(trainingConfig: TrainingConfig) = apply {
-                this.batchSize = trainingConfig.batchSize
-                this.enableActivationCheckpointing = trainingConfig.enableActivationCheckpointing
-                this.fsdpCpuOffload = trainingConfig.fsdpCpuOffload
-                this.memoryEfficientFsdpWrap = trainingConfig.memoryEfficientFsdpWrap
-                this.nEpochs = trainingConfig.nEpochs
-                this.nIters = trainingConfig.nIters
-                this.shuffle = trainingConfig.shuffle
-                additionalProperties(trainingConfig.additionalProperties)
+                override fun toString() = value.toString()
             }
 
-            @JsonProperty("batch_size")
-            fun batchSize(batchSize: Long) = apply { this.batchSize = batchSize }
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is OptimizerConfig && lr == other.lr && numWarmupSteps == other.numWarmupSteps && optimizerType == other.optimizerType && weightDecay == other.weightDecay && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(lr, numWarmupSteps, optimizerType, weightDecay, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "OptimizerConfig{lr=$lr, numWarmupSteps=$numWarmupSteps, optimizerType=$optimizerType, weightDecay=$weightDecay, additionalProperties=$additionalProperties}"
+        }
+
+        @NoAutoDetect
+        class EfficiencyConfig
+        @JsonCreator
+        private constructor(
+            @JsonProperty("enable_activation_checkpointing")
+            private val enableActivationCheckpointing: Boolean?,
+            @JsonProperty("enable_activation_offloading")
+            private val enableActivationOffloading: Boolean?,
+            @JsonProperty("fsdp_cpu_offload") private val fsdpCpuOffload: Boolean?,
+            @JsonProperty("memory_efficient_fsdp_wrap")
+            private val memoryEfficientFsdpWrap: Boolean?,
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
 
             @JsonProperty("enable_activation_checkpointing")
-            fun enableActivationCheckpointing(enableActivationCheckpointing: Boolean) = apply {
-                this.enableActivationCheckpointing = enableActivationCheckpointing
-            }
+            fun enableActivationCheckpointing(): Boolean? = enableActivationCheckpointing
 
-            @JsonProperty("fsdp_cpu_offload")
-            fun fsdpCpuOffload(fsdpCpuOffload: Boolean) = apply {
-                this.fsdpCpuOffload = fsdpCpuOffload
-            }
+            @JsonProperty("enable_activation_offloading")
+            fun enableActivationOffloading(): Boolean? = enableActivationOffloading
+
+            @JsonProperty("fsdp_cpu_offload") fun fsdpCpuOffload(): Boolean? = fsdpCpuOffload
 
             @JsonProperty("memory_efficient_fsdp_wrap")
-            fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: Boolean) = apply {
-                this.memoryEfficientFsdpWrap = memoryEfficientFsdpWrap
+            fun memoryEfficientFsdpWrap(): Boolean? = memoryEfficientFsdpWrap
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
             }
 
-            @JsonProperty("n_epochs") fun nEpochs(nEpochs: Long) = apply { this.nEpochs = nEpochs }
+            class Builder {
 
-            @JsonProperty("n_iters") fun nIters(nIters: Long) = apply { this.nIters = nIters }
+                private var enableActivationCheckpointing: Boolean? = null
+                private var enableActivationOffloading: Boolean? = null
+                private var fsdpCpuOffload: Boolean? = null
+                private var memoryEfficientFsdpWrap: Boolean? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            @JsonProperty("shuffle")
-            fun shuffle(shuffle: Boolean) = apply { this.shuffle = shuffle }
+                internal fun from(efficiencyConfig: EfficiencyConfig) = apply {
+                    enableActivationCheckpointing = efficiencyConfig.enableActivationCheckpointing
+                    enableActivationOffloading = efficiencyConfig.enableActivationOffloading
+                    fsdpCpuOffload = efficiencyConfig.fsdpCpuOffload
+                    memoryEfficientFsdpWrap = efficiencyConfig.memoryEfficientFsdpWrap
+                    additionalProperties = efficiencyConfig.additionalProperties.toMutableMap()
+                }
 
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                fun enableActivationCheckpointing(enableActivationCheckpointing: Boolean) = apply {
+                    this.enableActivationCheckpointing = enableActivationCheckpointing
+                }
+
+                fun enableActivationOffloading(enableActivationOffloading: Boolean) = apply {
+                    this.enableActivationOffloading = enableActivationOffloading
+                }
+
+                fun fsdpCpuOffload(fsdpCpuOffload: Boolean) = apply {
+                    this.fsdpCpuOffload = fsdpCpuOffload
+                }
+
+                fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: Boolean) = apply {
+                    this.memoryEfficientFsdpWrap = memoryEfficientFsdpWrap
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): EfficiencyConfig =
+                    EfficiencyConfig(
+                        enableActivationCheckpointing,
+                        enableActivationOffloading,
+                        fsdpCpuOffload,
+                        memoryEfficientFsdpWrap,
+                        additionalProperties.toImmutable(),
+                    )
             }
 
-            @JsonAnySetter
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is EfficiencyConfig && enableActivationCheckpointing == other.enableActivationCheckpointing && enableActivationOffloading == other.enableActivationOffloading && fsdpCpuOffload == other.fsdpCpuOffload && memoryEfficientFsdpWrap == other.memoryEfficientFsdpWrap && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(enableActivationCheckpointing, enableActivationOffloading, fsdpCpuOffload, memoryEfficientFsdpWrap, additionalProperties) }
+            /* spotless:on */
 
-            fun build(): TrainingConfig =
-                TrainingConfig(
-                    checkNotNull(batchSize) { "`batchSize` is required but was not set" },
-                    checkNotNull(enableActivationCheckpointing) {
-                        "`enableActivationCheckpointing` is required but was not set"
-                    },
-                    checkNotNull(fsdpCpuOffload) { "`fsdpCpuOffload` is required but was not set" },
-                    checkNotNull(memoryEfficientFsdpWrap) {
-                        "`memoryEfficientFsdpWrap` is required but was not set"
-                    },
-                    checkNotNull(nEpochs) { "`nEpochs` is required but was not set" },
-                    checkNotNull(nIters) { "`nIters` is required but was not set" },
-                    checkNotNull(shuffle) { "`shuffle` is required but was not set" },
-                    additionalProperties.toImmutable(),
-                )
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "EfficiencyConfig{enableActivationCheckpointing=$enableActivationCheckpointing, enableActivationOffloading=$enableActivationOffloading, fsdpCpuOffload=$fsdpCpuOffload, memoryEfficientFsdpWrap=$memoryEfficientFsdpWrap, additionalProperties=$additionalProperties}"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -1055,17 +1157,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TrainingConfig && batchSize == other.batchSize && enableActivationCheckpointing == other.enableActivationCheckpointing && fsdpCpuOffload == other.fsdpCpuOffload && memoryEfficientFsdpWrap == other.memoryEfficientFsdpWrap && nEpochs == other.nEpochs && nIters == other.nIters && shuffle == other.shuffle && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TrainingConfig && dataConfig == other.dataConfig && dtype == other.dtype && efficiencyConfig == other.efficiencyConfig && gradientAccumulationSteps == other.gradientAccumulationSteps && maxStepsPerEpoch == other.maxStepsPerEpoch && nEpochs == other.nEpochs && optimizerConfig == other.optimizerConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(batchSize, enableActivationCheckpointing, fsdpCpuOffload, memoryEfficientFsdpWrap, nEpochs, nIters, shuffle, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(dataConfig, dtype, efficiencyConfig, gradientAccumulationSteps, maxStepsPerEpoch, nEpochs, optimizerConfig, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TrainingConfig{batchSize=$batchSize, enableActivationCheckpointing=$enableActivationCheckpointing, fsdpCpuOffload=$fsdpCpuOffload, memoryEfficientFsdpWrap=$memoryEfficientFsdpWrap, nEpochs=$nEpochs, nIters=$nIters, shuffle=$shuffle, additionalProperties=$additionalProperties}"
+            "TrainingConfig{dataConfig=$dataConfig, dtype=$dtype, efficiencyConfig=$efficiencyConfig, gradientAccumulationSteps=$gradientAccumulationSteps, maxStepsPerEpoch=$maxStepsPerEpoch, nEpochs=$nEpochs, optimizerConfig=$optimizerConfig, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1073,11 +1175,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && algorithm == other.algorithm && algorithmConfig == other.algorithmConfig && datasetId == other.datasetId && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && optimizerConfig == other.optimizerConfig && trainingConfig == other.trainingConfig && validationDatasetId == other.validationDatasetId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(algorithm, algorithmConfig, datasetId, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, optimizerConfig, trainingConfig, validationDatasetId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "PostTrainingPreferenceOptimizeParams{algorithm=$algorithm, algorithmConfig=$algorithmConfig, datasetId=$datasetId, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, optimizerConfig=$optimizerConfig, trainingConfig=$trainingConfig, validationDatasetId=$validationDatasetId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "PostTrainingPreferenceOptimizeParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

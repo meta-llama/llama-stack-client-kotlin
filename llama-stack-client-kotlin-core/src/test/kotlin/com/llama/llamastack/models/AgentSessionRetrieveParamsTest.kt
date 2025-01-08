@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,10 +11,10 @@ class AgentSessionRetrieveParamsTest {
     @Test
     fun createAgentSessionRetrieveParams() {
         AgentSessionRetrieveParams.builder()
-            .turnIds(listOf("string"))
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
+            .turnIds(listOf("string"))
+            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
 
@@ -23,10 +22,10 @@ class AgentSessionRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             AgentSessionRetrieveParams.builder()
-                .turnIds(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
+                .turnIds(listOf("string"))
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val expected = QueryParams.builder()
         expected.put("agent_id", "agent_id")
@@ -48,10 +47,10 @@ class AgentSessionRetrieveParamsTest {
     fun getBody() {
         val params =
             AgentSessionRetrieveParams.builder()
-                .turnIds(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
+                .turnIds(listOf("string"))
+                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

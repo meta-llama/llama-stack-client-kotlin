@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -19,7 +20,11 @@ class ShieldCallStepTest {
                 .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .violation(
                     SafetyViolation.builder()
-                        .metadata(SafetyViolation.Metadata.builder().build())
+                        .metadata(
+                            SafetyViolation.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .violationLevel(SafetyViolation.ViolationLevel.INFO)
                         .userMessage("user_message")
                         .build()
@@ -36,7 +41,11 @@ class ShieldCallStepTest {
         assertThat(shieldCallStep.violation())
             .isEqualTo(
                 SafetyViolation.builder()
-                    .metadata(SafetyViolation.Metadata.builder().build())
+                    .metadata(
+                        SafetyViolation.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .violationLevel(SafetyViolation.ViolationLevel.INFO)
                     .userMessage("user_message")
                     .build()

@@ -23,44 +23,34 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class SyntheticDataGenerationGenerateParams
 constructor(
-    private val dialogs: List<Dialog>,
-    private val filteringFunction: FilteringFunction,
-    private val model: String?,
     private val xLlamaStackProviderData: String?,
+    private val body: SyntheticDataGenerationGenerateBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun dialogs(): List<Dialog> = dialogs
-
-    fun filteringFunction(): FilteringFunction = filteringFunction
-
-    fun model(): String? = model
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun dialogs(): List<Dialog> = body.dialogs()
+
+    fun filteringFunction(): FilteringFunction = body.filteringFunction()
+
+    fun model(): String? = body.model()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): SyntheticDataGenerationGenerateBody {
-        return SyntheticDataGenerationGenerateBody(
-            dialogs,
-            filteringFunction,
-            model,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): SyntheticDataGenerationGenerateBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -73,20 +63,21 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = SyntheticDataGenerationGenerateBody.Builder::class)
     @NoAutoDetect
     class SyntheticDataGenerationGenerateBody
+    @JsonCreator
     internal constructor(
-        private val dialogs: List<Dialog>?,
-        private val filteringFunction: FilteringFunction?,
-        private val model: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("dialogs") private val dialogs: List<Dialog>,
+        @JsonProperty("filtering_function") private val filteringFunction: FilteringFunction,
+        @JsonProperty("model") private val model: String?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("dialogs") fun dialogs(): List<Dialog>? = dialogs
+        @JsonProperty("dialogs") fun dialogs(): List<Dialog> = dialogs
 
         @JsonProperty("filtering_function")
-        fun filteringFunction(): FilteringFunction? = filteringFunction
+        fun filteringFunction(): FilteringFunction = filteringFunction
 
         @JsonProperty("model") fun model(): String? = model
 
@@ -103,7 +94,7 @@ constructor(
 
         class Builder {
 
-            private var dialogs: List<Dialog>? = null
+            private var dialogs: MutableList<Dialog>? = null
             private var filteringFunction: FilteringFunction? = null
             private var model: String? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -111,34 +102,42 @@ constructor(
             internal fun from(
                 syntheticDataGenerationGenerateBody: SyntheticDataGenerationGenerateBody
             ) = apply {
-                this.dialogs = syntheticDataGenerationGenerateBody.dialogs
-                this.filteringFunction = syntheticDataGenerationGenerateBody.filteringFunction
-                this.model = syntheticDataGenerationGenerateBody.model
-                additionalProperties(syntheticDataGenerationGenerateBody.additionalProperties)
+                dialogs = syntheticDataGenerationGenerateBody.dialogs.toMutableList()
+                filteringFunction = syntheticDataGenerationGenerateBody.filteringFunction
+                model = syntheticDataGenerationGenerateBody.model
+                additionalProperties =
+                    syntheticDataGenerationGenerateBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("dialogs")
-            fun dialogs(dialogs: List<Dialog>) = apply { this.dialogs = dialogs }
+            fun dialogs(dialogs: List<Dialog>) = apply { this.dialogs = dialogs.toMutableList() }
 
-            @JsonProperty("filtering_function")
+            fun addDialog(dialog: Dialog) = apply {
+                dialogs = (dialogs ?: mutableListOf()).apply { add(dialog) }
+            }
+
             fun filteringFunction(filteringFunction: FilteringFunction) = apply {
                 this.filteringFunction = filteringFunction
             }
 
-            @JsonProperty("model") fun model(model: String) = apply { this.model = model }
+            fun model(model: String) = apply { this.model = model }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): SyntheticDataGenerationGenerateBody =
@@ -180,44 +179,35 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var dialogs: MutableList<Dialog> = mutableListOf()
-        private var filteringFunction: FilteringFunction? = null
-        private var model: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: SyntheticDataGenerationGenerateBody.Builder =
+            SyntheticDataGenerationGenerateBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(
             syntheticDataGenerationGenerateParams: SyntheticDataGenerationGenerateParams
         ) = apply {
-            dialogs = syntheticDataGenerationGenerateParams.dialogs.toMutableList()
-            filteringFunction = syntheticDataGenerationGenerateParams.filteringFunction
-            model = syntheticDataGenerationGenerateParams.model
             xLlamaStackProviderData = syntheticDataGenerationGenerateParams.xLlamaStackProviderData
+            body = syntheticDataGenerationGenerateParams.body.toBuilder()
             additionalHeaders = syntheticDataGenerationGenerateParams.additionalHeaders.toBuilder()
             additionalQueryParams =
                 syntheticDataGenerationGenerateParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties =
-                syntheticDataGenerationGenerateParams.additionalBodyProperties.toMutableMap()
         }
-
-        fun dialogs(dialogs: List<Dialog>) = apply {
-            this.dialogs.clear()
-            this.dialogs.addAll(dialogs)
-        }
-
-        fun addDialog(dialog: Dialog) = apply { this.dialogs.add(dialog) }
-
-        fun filteringFunction(filteringFunction: FilteringFunction) = apply {
-            this.filteringFunction = filteringFunction
-        }
-
-        fun model(model: String) = apply { this.model = model }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
+
+        fun dialogs(dialogs: List<Dialog>) = apply { body.dialogs(dialogs) }
+
+        fun addDialog(dialog: Dialog) = apply { body.addDialog(dialog) }
+
+        fun filteringFunction(filteringFunction: FilteringFunction) = apply {
+            body.filteringFunction(filteringFunction)
+        }
+
+        fun model(model: String) = apply { body.model(model) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -318,38 +308,30 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): SyntheticDataGenerationGenerateParams =
             SyntheticDataGenerationGenerateParams(
-                dialogs.toImmutable(),
-                checkNotNull(filteringFunction) {
-                    "`filteringFunction` is required but was not set"
-                },
-                model,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -363,8 +345,6 @@ constructor(
         private val completionMessage: CompletionMessage? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun userMessage(): UserMessage? = userMessage
 
@@ -401,24 +381,6 @@ constructor(
                 toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
                 completionMessage != null -> visitor.visitCompletionMessage(completionMessage)
                 else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): Dialog = apply {
-            if (!validated) {
-                if (
-                    userMessage == null &&
-                        systemMessage == null &&
-                        toolResponseMessage == null &&
-                        completionMessage == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Dialog: $_json")
-                }
-                userMessage?.validate()
-                systemMessage?.validate()
-                toolResponseMessage?.validate()
-                completionMessage?.validate()
-                validated = true
             }
         }
 
@@ -476,22 +438,18 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Dialog {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(userMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(systemMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(toolResponseMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(completionMessage = it, _json = json)
-                    }
+                tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                    return Dialog(userMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<SystemMessage>())?.let {
+                    return Dialog(systemMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                    return Dialog(toolResponseMessage = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<CompletionMessage>())?.let {
+                    return Dialog(completionMessage = it, _json = json)
+                }
 
                 return Dialog(_json = json)
             }
@@ -526,31 +484,19 @@ constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is FilteringFunction && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val NONE = FilteringFunction(JsonField.of("none"))
+            val NONE = of("none")
 
-            val RANDOM = FilteringFunction(JsonField.of("random"))
+            val RANDOM = of("random")
 
-            val TOP_K = FilteringFunction(JsonField.of("top_k"))
+            val TOP_K = of("top_k")
 
-            val TOP_P = FilteringFunction(JsonField.of("top_p"))
+            val TOP_P = of("top_p")
 
-            val TOP_K_TOP_P = FilteringFunction(JsonField.of("top_k_top_p"))
+            val TOP_K_TOP_P = of("top_k_top_p")
 
-            val SIGMOID = FilteringFunction(JsonField.of("sigmoid"))
+            val SIGMOID = of("sigmoid")
 
             fun of(value: String) = FilteringFunction(JsonField.of(value))
         }
@@ -598,6 +544,18 @@ constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is FilteringFunction && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -605,11 +563,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(dialogs, filteringFunction, model, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "SyntheticDataGenerationGenerateParams{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "SyntheticDataGenerationGenerateParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

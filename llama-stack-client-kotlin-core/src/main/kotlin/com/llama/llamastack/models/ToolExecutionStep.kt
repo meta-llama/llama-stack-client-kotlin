@@ -6,33 +6,45 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
-@JsonDeserialize(builder = ToolExecutionStep.Builder::class)
 @NoAutoDetect
 class ToolExecutionStep
+@JsonCreator
 private constructor(
-    private val completedAt: JsonField<OffsetDateTime>,
-    private val startedAt: JsonField<OffsetDateTime>,
-    private val stepId: JsonField<String>,
-    private val stepType: JsonField<StepType>,
-    private val toolCalls: JsonField<List<ToolCall>>,
-    private val toolResponses: JsonField<List<ToolResponse>>,
-    private val turnId: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("step_id")
+    @ExcludeMissing
+    private val stepId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("step_type")
+    @ExcludeMissing
+    private val stepType: JsonField<StepType> = JsonMissing.of(),
+    @JsonProperty("tool_calls")
+    @ExcludeMissing
+    private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+    @JsonProperty("tool_responses")
+    @ExcludeMissing
+    private val toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of(),
+    @JsonProperty("turn_id")
+    @ExcludeMissing
+    private val turnId: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
@@ -66,6 +78,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): ToolExecutionStep = apply {
         if (!validated) {
             completedAt()
@@ -98,75 +112,66 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolExecutionStep: ToolExecutionStep) = apply {
-            this.completedAt = toolExecutionStep.completedAt
-            this.startedAt = toolExecutionStep.startedAt
-            this.stepId = toolExecutionStep.stepId
-            this.stepType = toolExecutionStep.stepType
-            this.toolCalls = toolExecutionStep.toolCalls
-            this.toolResponses = toolExecutionStep.toolResponses
-            this.turnId = toolExecutionStep.turnId
-            additionalProperties(toolExecutionStep.additionalProperties)
+            completedAt = toolExecutionStep.completedAt
+            startedAt = toolExecutionStep.startedAt
+            stepId = toolExecutionStep.stepId
+            stepType = toolExecutionStep.stepType
+            toolCalls = toolExecutionStep.toolCalls
+            toolResponses = toolExecutionStep.toolResponses
+            turnId = toolExecutionStep.turnId
+            additionalProperties = toolExecutionStep.additionalProperties.toMutableMap()
         }
 
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
-        @JsonProperty("completed_at")
-        @ExcludeMissing
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
 
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
-        @JsonProperty("started_at")
-        @ExcludeMissing
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
-        @JsonProperty("step_id")
-        @ExcludeMissing
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
         fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
-        @JsonProperty("step_type")
-        @ExcludeMissing
         fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
 
         fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
 
-        @JsonProperty("tool_calls")
-        @ExcludeMissing
         fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply { this.toolCalls = toolCalls }
 
         fun toolResponses(toolResponses: List<ToolResponse>) =
             toolResponses(JsonField.of(toolResponses))
 
-        @JsonProperty("tool_responses")
-        @ExcludeMissing
         fun toolResponses(toolResponses: JsonField<List<ToolResponse>>) = apply {
             this.toolResponses = toolResponses
         }
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
-        @JsonProperty("turn_id")
-        @ExcludeMissing
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): ToolExecutionStep =
@@ -190,21 +195,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val TOOL_EXECUTION = StepType(JsonField.of("tool_execution"))
+            val TOOL_EXECUTION = of("tool_execution")
 
             fun of(value: String) = StepType(JsonField.of(value))
         }
@@ -231,6 +224,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

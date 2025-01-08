@@ -4,62 +4,46 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class EvalTaskRegisterParams
 constructor(
-    private val datasetId: String,
-    private val evalTaskId: String,
-    private val scoringFunctions: List<String>,
-    private val metadata: Metadata?,
-    private val providerEvalTaskId: String?,
-    private val providerId: String?,
     private val xLlamaStackProviderData: String?,
+    private val body: EvalTaskRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun datasetId(): String = datasetId
-
-    fun evalTaskId(): String = evalTaskId
-
-    fun scoringFunctions(): List<String> = scoringFunctions
-
-    fun metadata(): Metadata? = metadata
-
-    fun providerEvalTaskId(): String? = providerEvalTaskId
-
-    fun providerId(): String? = providerId
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun datasetId(): String = body.datasetId()
+
+    fun evalTaskId(): String = body.evalTaskId()
+
+    fun scoringFunctions(): List<String> = body.scoringFunctions()
+
+    fun metadata(): Metadata? = body.metadata()
+
+    fun providerEvalTaskId(): String? = body.providerEvalTaskId()
+
+    fun providerId(): String? = body.providerId()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): EvalTaskRegisterBody {
-        return EvalTaskRegisterBody(
-            datasetId,
-            evalTaskId,
-            scoringFunctions,
-            metadata,
-            providerEvalTaskId,
-            providerId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): EvalTaskRegisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -72,24 +56,25 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = EvalTaskRegisterBody.Builder::class)
     @NoAutoDetect
     class EvalTaskRegisterBody
+    @JsonCreator
     internal constructor(
-        private val datasetId: String?,
-        private val evalTaskId: String?,
-        private val scoringFunctions: List<String>?,
-        private val metadata: Metadata?,
-        private val providerEvalTaskId: String?,
-        private val providerId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("dataset_id") private val datasetId: String,
+        @JsonProperty("eval_task_id") private val evalTaskId: String,
+        @JsonProperty("scoring_functions") private val scoringFunctions: List<String>,
+        @JsonProperty("metadata") private val metadata: Metadata?,
+        @JsonProperty("provider_eval_task_id") private val providerEvalTaskId: String?,
+        @JsonProperty("provider_id") private val providerId: String?,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("dataset_id") fun datasetId(): String? = datasetId
+        @JsonProperty("dataset_id") fun datasetId(): String = datasetId
 
-        @JsonProperty("eval_task_id") fun evalTaskId(): String? = evalTaskId
+        @JsonProperty("eval_task_id") fun evalTaskId(): String = evalTaskId
 
-        @JsonProperty("scoring_functions") fun scoringFunctions(): List<String>? = scoringFunctions
+        @JsonProperty("scoring_functions") fun scoringFunctions(): List<String> = scoringFunctions
 
         @JsonProperty("metadata") fun metadata(): Metadata? = metadata
 
@@ -113,56 +98,60 @@ constructor(
 
             private var datasetId: String? = null
             private var evalTaskId: String? = null
-            private var scoringFunctions: List<String>? = null
+            private var scoringFunctions: MutableList<String>? = null
             private var metadata: Metadata? = null
             private var providerEvalTaskId: String? = null
             private var providerId: String? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(evalTaskRegisterBody: EvalTaskRegisterBody) = apply {
-                this.datasetId = evalTaskRegisterBody.datasetId
-                this.evalTaskId = evalTaskRegisterBody.evalTaskId
-                this.scoringFunctions = evalTaskRegisterBody.scoringFunctions
-                this.metadata = evalTaskRegisterBody.metadata
-                this.providerEvalTaskId = evalTaskRegisterBody.providerEvalTaskId
-                this.providerId = evalTaskRegisterBody.providerId
-                additionalProperties(evalTaskRegisterBody.additionalProperties)
+                datasetId = evalTaskRegisterBody.datasetId
+                evalTaskId = evalTaskRegisterBody.evalTaskId
+                scoringFunctions = evalTaskRegisterBody.scoringFunctions.toMutableList()
+                metadata = evalTaskRegisterBody.metadata
+                providerEvalTaskId = evalTaskRegisterBody.providerEvalTaskId
+                providerId = evalTaskRegisterBody.providerId
+                additionalProperties = evalTaskRegisterBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("dataset_id")
             fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
 
-            @JsonProperty("eval_task_id")
             fun evalTaskId(evalTaskId: String) = apply { this.evalTaskId = evalTaskId }
 
-            @JsonProperty("scoring_functions")
             fun scoringFunctions(scoringFunctions: List<String>) = apply {
-                this.scoringFunctions = scoringFunctions
+                this.scoringFunctions = scoringFunctions.toMutableList()
             }
 
-            @JsonProperty("metadata")
+            fun addScoringFunction(scoringFunction: String) = apply {
+                scoringFunctions =
+                    (scoringFunctions ?: mutableListOf()).apply { add(scoringFunction) }
+            }
+
             fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
 
-            @JsonProperty("provider_eval_task_id")
             fun providerEvalTaskId(providerEvalTaskId: String) = apply {
                 this.providerEvalTaskId = providerEvalTaskId
             }
 
-            @JsonProperty("provider_id")
             fun providerId(providerId: String) = apply { this.providerId = providerId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): EvalTaskRegisterBody =
@@ -208,55 +197,41 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var datasetId: String? = null
-        private var evalTaskId: String? = null
-        private var scoringFunctions: MutableList<String> = mutableListOf()
-        private var metadata: Metadata? = null
-        private var providerEvalTaskId: String? = null
-        private var providerId: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: EvalTaskRegisterBody.Builder = EvalTaskRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalTaskRegisterParams: EvalTaskRegisterParams) = apply {
-            datasetId = evalTaskRegisterParams.datasetId
-            evalTaskId = evalTaskRegisterParams.evalTaskId
-            scoringFunctions = evalTaskRegisterParams.scoringFunctions.toMutableList()
-            metadata = evalTaskRegisterParams.metadata
-            providerEvalTaskId = evalTaskRegisterParams.providerEvalTaskId
-            providerId = evalTaskRegisterParams.providerId
             xLlamaStackProviderData = evalTaskRegisterParams.xLlamaStackProviderData
+            body = evalTaskRegisterParams.body.toBuilder()
             additionalHeaders = evalTaskRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalTaskRegisterParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties =
-                evalTaskRegisterParams.additionalBodyProperties.toMutableMap()
         }
-
-        fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
-
-        fun evalTaskId(evalTaskId: String) = apply { this.evalTaskId = evalTaskId }
-
-        fun scoringFunctions(scoringFunctions: List<String>) = apply {
-            this.scoringFunctions.clear()
-            this.scoringFunctions.addAll(scoringFunctions)
-        }
-
-        fun addScoringFunction(scoringFunction: String) = apply {
-            this.scoringFunctions.add(scoringFunction)
-        }
-
-        fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
-
-        fun providerEvalTaskId(providerEvalTaskId: String) = apply {
-            this.providerEvalTaskId = providerEvalTaskId
-        }
-
-        fun providerId(providerId: String) = apply { this.providerId = providerId }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
+
+        fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
+
+        fun evalTaskId(evalTaskId: String) = apply { body.evalTaskId(evalTaskId) }
+
+        fun scoringFunctions(scoringFunctions: List<String>) = apply {
+            body.scoringFunctions(scoringFunctions)
+        }
+
+        fun addScoringFunction(scoringFunction: String) = apply {
+            body.addScoringFunction(scoringFunction)
+        }
+
+        fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
+
+        fun providerEvalTaskId(providerEvalTaskId: String) = apply {
+            body.providerEvalTaskId(providerEvalTaskId)
+        }
+
+        fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -357,47 +332,39 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): EvalTaskRegisterParams =
             EvalTaskRegisterParams(
-                checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                checkNotNull(evalTaskId) { "`evalTaskId` is required but was not set" },
-                scoringFunctions.toImmutable(),
-                metadata,
-                providerEvalTaskId,
-                providerId,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = Metadata.Builder::class)
     @NoAutoDetect
     class Metadata
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
@@ -416,21 +383,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metadata: Metadata) = apply {
-                additionalProperties(metadata.additionalProperties)
+                additionalProperties = metadata.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
@@ -458,11 +430,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTaskRegisterParams && datasetId == other.datasetId && evalTaskId == other.evalTaskId && scoringFunctions == other.scoringFunctions && metadata == other.metadata && providerEvalTaskId == other.providerEvalTaskId && providerId == other.providerId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is EvalTaskRegisterParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, evalTaskId, scoringFunctions, metadata, providerEvalTaskId, providerId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalTaskRegisterParams{datasetId=$datasetId, evalTaskId=$evalTaskId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerEvalTaskId=$providerEvalTaskId, providerId=$providerId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "EvalTaskRegisterParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

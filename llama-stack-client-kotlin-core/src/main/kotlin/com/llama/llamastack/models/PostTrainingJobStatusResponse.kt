@@ -6,33 +6,45 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
-@JsonDeserialize(builder = PostTrainingJobStatusResponse.Builder::class)
 @NoAutoDetect
 class PostTrainingJobStatusResponse
+@JsonCreator
 private constructor(
-    private val checkpoints: JsonField<List<JsonValue>>,
-    private val completedAt: JsonField<OffsetDateTime>,
-    private val jobUuid: JsonField<String>,
-    private val resourcesAllocated: JsonField<ResourcesAllocated>,
-    private val scheduledAt: JsonField<OffsetDateTime>,
-    private val startedAt: JsonField<OffsetDateTime>,
-    private val status: JsonField<Status>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("checkpoints")
+    @ExcludeMissing
+    private val checkpoints: JsonField<List<JsonValue>> = JsonMissing.of(),
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("job_uuid")
+    @ExcludeMissing
+    private val jobUuid: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("resources_allocated")
+    @ExcludeMissing
+    private val resourcesAllocated: JsonField<ResourcesAllocated> = JsonMissing.of(),
+    @JsonProperty("scheduled_at")
+    @ExcludeMissing
+    private val scheduledAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("status")
+    @ExcludeMissing
+    private val status: JsonField<Status> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun checkpoints(): List<JsonValue> = checkpoints.getRequired("checkpoints")
 
@@ -69,6 +81,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): PostTrainingJobStatusResponse = apply {
         if (!validated) {
             checkpoints()
@@ -101,79 +115,70 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(postTrainingJobStatusResponse: PostTrainingJobStatusResponse) = apply {
-            this.checkpoints = postTrainingJobStatusResponse.checkpoints
-            this.completedAt = postTrainingJobStatusResponse.completedAt
-            this.jobUuid = postTrainingJobStatusResponse.jobUuid
-            this.resourcesAllocated = postTrainingJobStatusResponse.resourcesAllocated
-            this.scheduledAt = postTrainingJobStatusResponse.scheduledAt
-            this.startedAt = postTrainingJobStatusResponse.startedAt
-            this.status = postTrainingJobStatusResponse.status
-            additionalProperties(postTrainingJobStatusResponse.additionalProperties)
+            checkpoints = postTrainingJobStatusResponse.checkpoints
+            completedAt = postTrainingJobStatusResponse.completedAt
+            jobUuid = postTrainingJobStatusResponse.jobUuid
+            resourcesAllocated = postTrainingJobStatusResponse.resourcesAllocated
+            scheduledAt = postTrainingJobStatusResponse.scheduledAt
+            startedAt = postTrainingJobStatusResponse.startedAt
+            status = postTrainingJobStatusResponse.status
+            additionalProperties = postTrainingJobStatusResponse.additionalProperties.toMutableMap()
         }
 
         fun checkpoints(checkpoints: List<JsonValue>) = checkpoints(JsonField.of(checkpoints))
 
-        @JsonProperty("checkpoints")
-        @ExcludeMissing
         fun checkpoints(checkpoints: JsonField<List<JsonValue>>) = apply {
             this.checkpoints = checkpoints
         }
 
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
-        @JsonProperty("completed_at")
-        @ExcludeMissing
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
 
         fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
-        @JsonProperty("job_uuid")
-        @ExcludeMissing
         fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
         fun resourcesAllocated(resourcesAllocated: ResourcesAllocated) =
             resourcesAllocated(JsonField.of(resourcesAllocated))
 
-        @JsonProperty("resources_allocated")
-        @ExcludeMissing
         fun resourcesAllocated(resourcesAllocated: JsonField<ResourcesAllocated>) = apply {
             this.resourcesAllocated = resourcesAllocated
         }
 
         fun scheduledAt(scheduledAt: OffsetDateTime) = scheduledAt(JsonField.of(scheduledAt))
 
-        @JsonProperty("scheduled_at")
-        @ExcludeMissing
         fun scheduledAt(scheduledAt: JsonField<OffsetDateTime>) = apply {
             this.scheduledAt = scheduledAt
         }
 
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
-        @JsonProperty("started_at")
-        @ExcludeMissing
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun status(status: Status) = status(JsonField.of(status))
 
-        @JsonProperty("status")
-        @ExcludeMissing
         fun status(status: JsonField<Status>) = apply { this.status = status }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): PostTrainingJobStatusResponse =
@@ -197,6 +202,54 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
+        companion object {
+
+            val COMPLETED = of("completed")
+
+            val IN_PROGRESS = of("in_progress")
+
+            val FAILED = of("failed")
+
+            val SCHEDULED = of("scheduled")
+
+            fun of(value: String) = Status(JsonField.of(value))
+        }
+
+        enum class Known {
+            COMPLETED,
+            IN_PROGRESS,
+            FAILED,
+            SCHEDULED,
+        }
+
+        enum class Value {
+            COMPLETED,
+            IN_PROGRESS,
+            FAILED,
+            SCHEDULED,
+            _UNKNOWN,
+        }
+
+        fun value(): Value =
+            when (this) {
+                COMPLETED -> Value.COMPLETED
+                IN_PROGRESS -> Value.IN_PROGRESS
+                FAILED -> Value.FAILED
+                SCHEDULED -> Value.SCHEDULED
+                else -> Value._UNKNOWN
+            }
+
+        fun known(): Known =
+            when (this) {
+                COMPLETED -> Known.COMPLETED
+                IN_PROGRESS -> Known.IN_PROGRESS
+                FAILED -> Known.FAILED
+                SCHEDULED -> Known.SCHEDULED
+                else -> throw LlamaStackClientInvalidDataException("Unknown Status: $value")
+            }
+
+        fun asString(): String = _value().asStringOrThrow()
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -208,68 +261,21 @@ private constructor(
         override fun hashCode() = value.hashCode()
 
         override fun toString() = value.toString()
-
-        companion object {
-
-            val RUNNING = Status(JsonField.of("running"))
-
-            val COMPLETED = Status(JsonField.of("completed"))
-
-            val FAILED = Status(JsonField.of("failed"))
-
-            val SCHEDULED = Status(JsonField.of("scheduled"))
-
-            fun of(value: String) = Status(JsonField.of(value))
-        }
-
-        enum class Known {
-            RUNNING,
-            COMPLETED,
-            FAILED,
-            SCHEDULED,
-        }
-
-        enum class Value {
-            RUNNING,
-            COMPLETED,
-            FAILED,
-            SCHEDULED,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                RUNNING -> Value.RUNNING
-                COMPLETED -> Value.COMPLETED
-                FAILED -> Value.FAILED
-                SCHEDULED -> Value.SCHEDULED
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                RUNNING -> Known.RUNNING
-                COMPLETED -> Known.COMPLETED
-                FAILED -> Known.FAILED
-                SCHEDULED -> Known.SCHEDULED
-                else -> throw LlamaStackClientInvalidDataException("Unknown Status: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
     }
 
-    @JsonDeserialize(builder = ResourcesAllocated.Builder::class)
     @NoAutoDetect
     class ResourcesAllocated
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): ResourcesAllocated = apply {
             if (!validated) {
@@ -289,21 +295,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(resourcesAllocated: ResourcesAllocated) = apply {
-                additionalProperties(resourcesAllocated.additionalProperties)
+                additionalProperties = resourcesAllocated.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): ResourcesAllocated = ResourcesAllocated(additionalProperties.toImmutable())

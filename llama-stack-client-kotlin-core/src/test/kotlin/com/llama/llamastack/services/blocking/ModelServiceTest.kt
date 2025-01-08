@@ -4,7 +4,11 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.ModelListParams
+import com.llama.llamastack.models.ModelRegisterParams
+import com.llama.llamastack.models.ModelRetrieveParams
+import com.llama.llamastack.models.ModelUnregisterParams
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,8 +24,8 @@ class ModelServiceTest {
         val model =
             modelService.retrieve(
                 ModelRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .identifier("identifier")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(model)
@@ -55,7 +59,12 @@ class ModelServiceTest {
             modelService.register(
                 ModelRegisterParams.builder()
                     .modelId("model_id")
-                    .metadata(ModelRegisterParams.Metadata.builder().build())
+                    .metadata(
+                        ModelRegisterParams.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .modelType(ModelRegisterParams.ModelType.LLM)
                     .providerId("provider_id")
                     .providerModelId("provider_model_id")
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")

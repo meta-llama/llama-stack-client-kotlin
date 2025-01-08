@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 

@@ -18,8 +18,6 @@ import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobArtifactsResponse
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
-import com.llama.llamastack.models.PostTrainingJobLogsParams
-import com.llama.llamastack.models.PostTrainingJobLogsResponse
 import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
@@ -58,14 +56,14 @@ constructor(
         }
     }
 
-    private val artifactsHandler: Handler<PostTrainingJobArtifactsResponse> =
-        jsonHandler<PostTrainingJobArtifactsResponse>(clientOptions.jsonMapper)
+    private val artifactsHandler: Handler<PostTrainingJobArtifactsResponse?> =
+        jsonHandler<PostTrainingJobArtifactsResponse?>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override fun artifacts(
         params: PostTrainingJobArtifactsParams,
         requestOptions: RequestOptions
-    ): PostTrainingJobArtifactsResponse {
+    ): PostTrainingJobArtifactsResponse? {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -80,7 +78,7 @@ constructor(
                 .use { artifactsHandler.handle(it) }
                 .apply {
                     if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
+                        this?.validate()
                     }
                 }
         }
@@ -104,42 +102,14 @@ constructor(
         }
     }
 
-    private val logsHandler: Handler<PostTrainingJobLogsResponse> =
-        jsonHandler<PostTrainingJobLogsResponse>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
-
-    override fun logs(
-        params: PostTrainingJobLogsParams,
-        requestOptions: RequestOptions
-    ): PostTrainingJobLogsResponse {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "job", "logs")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { logsHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
-                }
-        }
-    }
-
-    private val statusHandler: Handler<PostTrainingJobStatusResponse> =
-        jsonHandler<PostTrainingJobStatusResponse>(clientOptions.jsonMapper)
+    private val statusHandler: Handler<PostTrainingJobStatusResponse?> =
+        jsonHandler<PostTrainingJobStatusResponse?>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override fun status(
         params: PostTrainingJobStatusParams,
         requestOptions: RequestOptions
-    ): PostTrainingJobStatusResponse {
+    ): PostTrainingJobStatusResponse? {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -154,7 +124,7 @@ constructor(
                 .use { statusHandler.handle(it) }
                 .apply {
                     if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
+                        this?.validate()
                     }
                 }
         }

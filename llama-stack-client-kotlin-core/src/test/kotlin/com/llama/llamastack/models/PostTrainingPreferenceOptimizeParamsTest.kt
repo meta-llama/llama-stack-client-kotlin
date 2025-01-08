@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,7 +11,6 @@ class PostTrainingPreferenceOptimizeParamsTest {
     @Test
     fun createPostTrainingPreferenceOptimizeParams() {
         PostTrainingPreferenceOptimizeParams.builder()
-            .algorithm(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
             .algorithmConfig(
                 PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
                     .epsilon(0.0)
@@ -20,35 +19,58 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .rewardScale(0.0)
                     .build()
             )
-            .datasetId("dataset_id")
-            .finetunedModel("https://example.com")
+            .finetunedModel("finetuned_model")
             .hyperparamSearchConfig(
-                PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder().build()
+                PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
             )
             .jobUuid("job_uuid")
-            .loggerConfig(PostTrainingPreferenceOptimizeParams.LoggerConfig.builder().build())
-            .optimizerConfig(
-                PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                    .lr(0.0)
-                    .lrMin(0.0)
-                    .optimizerType(
-                        PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType.ADAM
-                    )
-                    .weightDecay(0.0)
+            .loggerConfig(
+                PostTrainingPreferenceOptimizeParams.LoggerConfig.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
             .trainingConfig(
                 PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                    .batchSize(0L)
-                    .enableActivationCheckpointing(true)
-                    .fsdpCpuOffload(true)
-                    .memoryEfficientFsdpWrap(true)
+                    .dataConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
+                            .batchSize(0L)
+                            .datasetId("dataset_id")
+                            .shuffle(true)
+                            .packed(true)
+                            .trainOnInput(true)
+                            .validationDatasetId("validation_dataset_id")
+                            .build()
+                    )
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
                     .nEpochs(0L)
-                    .nIters(0L)
-                    .shuffle(true)
+                    .optimizerConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                            .builder()
+                            .lr(0.0)
+                            .numWarmupSteps(0L)
+                            .optimizerType(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                                    .OptimizerType
+                                    .ADAM
+                            )
+                            .weightDecay(0.0)
+                            .build()
+                    )
+                    .dtype("dtype")
+                    .efficiencyConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                            .builder()
+                            .enableActivationCheckpointing(true)
+                            .enableActivationOffloading(true)
+                            .fsdpCpuOffload(true)
+                            .memoryEfficientFsdpWrap(true)
+                            .build()
+                    )
                     .build()
             )
-            .validationDatasetId("validation_dataset_id")
             .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .build()
     }
@@ -57,7 +79,6 @@ class PostTrainingPreferenceOptimizeParamsTest {
     fun getBody() {
         val params =
             PostTrainingPreferenceOptimizeParams.builder()
-                .algorithm(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
                 .algorithmConfig(
                     PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
                         .epsilon(0.0)
@@ -66,40 +87,63 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         .rewardScale(0.0)
                         .build()
                 )
-                .datasetId("dataset_id")
-                .finetunedModel("https://example.com")
+                .finetunedModel("finetuned_model")
                 .hyperparamSearchConfig(
-                    PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder().build()
+                    PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .jobUuid("job_uuid")
-                .loggerConfig(PostTrainingPreferenceOptimizeParams.LoggerConfig.builder().build())
-                .optimizerConfig(
-                    PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                        .lr(0.0)
-                        .lrMin(0.0)
-                        .optimizerType(
-                            PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType.ADAM
-                        )
-                        .weightDecay(0.0)
+                .loggerConfig(
+                    PostTrainingPreferenceOptimizeParams.LoggerConfig.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .trainingConfig(
                     PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                        .batchSize(0L)
-                        .enableActivationCheckpointing(true)
-                        .fsdpCpuOffload(true)
-                        .memoryEfficientFsdpWrap(true)
+                        .dataConfig(
+                            PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
+                                .batchSize(0L)
+                                .datasetId("dataset_id")
+                                .shuffle(true)
+                                .packed(true)
+                                .trainOnInput(true)
+                                .validationDatasetId("validation_dataset_id")
+                                .build()
+                        )
+                        .gradientAccumulationSteps(0L)
+                        .maxStepsPerEpoch(0L)
                         .nEpochs(0L)
-                        .nIters(0L)
-                        .shuffle(true)
+                        .optimizerConfig(
+                            PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                                .builder()
+                                .lr(0.0)
+                                .numWarmupSteps(0L)
+                                .optimizerType(
+                                    PostTrainingPreferenceOptimizeParams.TrainingConfig
+                                        .OptimizerConfig
+                                        .OptimizerType
+                                        .ADAM
+                                )
+                                .weightDecay(0.0)
+                                .build()
+                        )
+                        .dtype("dtype")
+                        .efficiencyConfig(
+                            PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                                .builder()
+                                .enableActivationCheckpointing(true)
+                                .enableActivationOffloading(true)
+                                .fsdpCpuOffload(true)
+                                .memoryEfficientFsdpWrap(true)
+                                .build()
+                        )
                         .build()
                 )
-                .validationDatasetId("validation_dataset_id")
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.algorithm()).isEqualTo(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
         assertThat(body.algorithmConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
@@ -109,46 +153,67 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .rewardScale(0.0)
                     .build()
             )
-        assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.finetunedModel()).isEqualTo("https://example.com")
+        assertThat(body.finetunedModel()).isEqualTo("finetuned_model")
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
-                PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder().build()
+                PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
             )
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
         assertThat(body.loggerConfig())
-            .isEqualTo(PostTrainingPreferenceOptimizeParams.LoggerConfig.builder().build())
-        assertThat(body.optimizerConfig())
             .isEqualTo(
-                PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                    .lr(0.0)
-                    .lrMin(0.0)
-                    .optimizerType(
-                        PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType.ADAM
-                    )
-                    .weightDecay(0.0)
+                PostTrainingPreferenceOptimizeParams.LoggerConfig.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
         assertThat(body.trainingConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                    .batchSize(0L)
-                    .enableActivationCheckpointing(true)
-                    .fsdpCpuOffload(true)
-                    .memoryEfficientFsdpWrap(true)
+                    .dataConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
+                            .batchSize(0L)
+                            .datasetId("dataset_id")
+                            .shuffle(true)
+                            .packed(true)
+                            .trainOnInput(true)
+                            .validationDatasetId("validation_dataset_id")
+                            .build()
+                    )
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
                     .nEpochs(0L)
-                    .nIters(0L)
-                    .shuffle(true)
+                    .optimizerConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                            .builder()
+                            .lr(0.0)
+                            .numWarmupSteps(0L)
+                            .optimizerType(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                                    .OptimizerType
+                                    .ADAM
+                            )
+                            .weightDecay(0.0)
+                            .build()
+                    )
+                    .dtype("dtype")
+                    .efficiencyConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                            .builder()
+                            .enableActivationCheckpointing(true)
+                            .enableActivationOffloading(true)
+                            .fsdpCpuOffload(true)
+                            .memoryEfficientFsdpWrap(true)
+                            .build()
+                    )
                     .build()
             )
-        assertThat(body.validationDatasetId()).isEqualTo("validation_dataset_id")
     }
 
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
             PostTrainingPreferenceOptimizeParams.builder()
-                .algorithm(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
                 .algorithmConfig(
                     PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
                         .epsilon(0.0)
@@ -157,39 +222,49 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         .rewardScale(0.0)
                         .build()
                 )
-                .datasetId("dataset_id")
-                .finetunedModel("https://example.com")
+                .finetunedModel("finetuned_model")
                 .hyperparamSearchConfig(
-                    PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder().build()
+                    PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .jobUuid("job_uuid")
-                .loggerConfig(PostTrainingPreferenceOptimizeParams.LoggerConfig.builder().build())
-                .optimizerConfig(
-                    PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                        .lr(0.0)
-                        .lrMin(0.0)
-                        .optimizerType(
-                            PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType.ADAM
-                        )
-                        .weightDecay(0.0)
+                .loggerConfig(
+                    PostTrainingPreferenceOptimizeParams.LoggerConfig.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .trainingConfig(
                     PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                        .batchSize(0L)
-                        .enableActivationCheckpointing(true)
-                        .fsdpCpuOffload(true)
-                        .memoryEfficientFsdpWrap(true)
+                        .dataConfig(
+                            PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
+                                .batchSize(0L)
+                                .datasetId("dataset_id")
+                                .shuffle(true)
+                                .build()
+                        )
+                        .gradientAccumulationSteps(0L)
+                        .maxStepsPerEpoch(0L)
                         .nEpochs(0L)
-                        .nIters(0L)
-                        .shuffle(true)
+                        .optimizerConfig(
+                            PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                                .builder()
+                                .lr(0.0)
+                                .numWarmupSteps(0L)
+                                .optimizerType(
+                                    PostTrainingPreferenceOptimizeParams.TrainingConfig
+                                        .OptimizerConfig
+                                        .OptimizerType
+                                        .ADAM
+                                )
+                                .weightDecay(0.0)
+                                .build()
+                        )
                         .build()
                 )
-                .validationDatasetId("validation_dataset_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.algorithm()).isEqualTo(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
         assertThat(body.algorithmConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
@@ -199,38 +274,47 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .rewardScale(0.0)
                     .build()
             )
-        assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.finetunedModel()).isEqualTo("https://example.com")
+        assertThat(body.finetunedModel()).isEqualTo("finetuned_model")
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
-                PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder().build()
+                PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
             )
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
         assertThat(body.loggerConfig())
-            .isEqualTo(PostTrainingPreferenceOptimizeParams.LoggerConfig.builder().build())
-        assertThat(body.optimizerConfig())
             .isEqualTo(
-                PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                    .lr(0.0)
-                    .lrMin(0.0)
-                    .optimizerType(
-                        PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType.ADAM
-                    )
-                    .weightDecay(0.0)
+                PostTrainingPreferenceOptimizeParams.LoggerConfig.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
         assertThat(body.trainingConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                    .batchSize(0L)
-                    .enableActivationCheckpointing(true)
-                    .fsdpCpuOffload(true)
-                    .memoryEfficientFsdpWrap(true)
+                    .dataConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
+                            .batchSize(0L)
+                            .datasetId("dataset_id")
+                            .shuffle(true)
+                            .build()
+                    )
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
                     .nEpochs(0L)
-                    .nIters(0L)
-                    .shuffle(true)
+                    .optimizerConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                            .builder()
+                            .lr(0.0)
+                            .numWarmupSteps(0L)
+                            .optimizerType(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                                    .OptimizerType
+                                    .ADAM
+                            )
+                            .weightDecay(0.0)
+                            .build()
+                    )
                     .build()
             )
-        assertThat(body.validationDatasetId()).isEqualTo("validation_dataset_id")
     }
 }

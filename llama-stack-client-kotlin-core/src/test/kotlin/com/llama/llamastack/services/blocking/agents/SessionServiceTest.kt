@@ -4,7 +4,9 @@ package com.llama.llamastack.services.blocking.agents
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.AgentSessionCreateParams
+import com.llama.llamastack.models.AgentSessionDeleteParams
+import com.llama.llamastack.models.AgentSessionRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -36,10 +38,10 @@ class SessionServiceTest {
         val session =
             sessionService.retrieve(
                 AgentSessionRetrieveParams.builder()
-                    .turnIds(listOf("string"))
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
+                    .turnIds(listOf("string"))
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(session)

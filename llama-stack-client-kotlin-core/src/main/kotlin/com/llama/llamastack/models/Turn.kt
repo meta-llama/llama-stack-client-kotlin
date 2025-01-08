@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -20,27 +21,42 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
-@JsonDeserialize(builder = Turn.Builder::class)
 @NoAutoDetect
 class Turn
+@JsonCreator
 private constructor(
-    private val completedAt: JsonField<OffsetDateTime>,
-    private val inputMessages: JsonField<List<InputMessage>>,
-    private val outputAttachments: JsonField<List<Attachment>>,
-    private val outputMessage: JsonField<CompletionMessage>,
-    private val sessionId: JsonField<String>,
-    private val startedAt: JsonField<OffsetDateTime>,
-    private val steps: JsonField<List<Step>>,
-    private val turnId: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("input_messages")
+    @ExcludeMissing
+    private val inputMessages: JsonField<List<InputMessage>> = JsonMissing.of(),
+    @JsonProperty("output_attachments")
+    @ExcludeMissing
+    private val outputAttachments: JsonField<List<Attachment>> = JsonMissing.of(),
+    @JsonProperty("output_message")
+    @ExcludeMissing
+    private val outputMessage: JsonField<CompletionMessage> = JsonMissing.of(),
+    @JsonProperty("session_id")
+    @ExcludeMissing
+    private val sessionId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("steps")
+    @ExcludeMissing
+    private val steps: JsonField<List<Step>> = JsonMissing.of(),
+    @JsonProperty("turn_id")
+    @ExcludeMissing
+    private val turnId: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
@@ -78,6 +94,8 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): Turn = apply {
         if (!validated) {
             completedAt()
@@ -112,21 +130,19 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(turn: Turn) = apply {
-            this.completedAt = turn.completedAt
-            this.inputMessages = turn.inputMessages
-            this.outputAttachments = turn.outputAttachments
-            this.outputMessage = turn.outputMessage
-            this.sessionId = turn.sessionId
-            this.startedAt = turn.startedAt
-            this.steps = turn.steps
-            this.turnId = turn.turnId
-            additionalProperties(turn.additionalProperties)
+            completedAt = turn.completedAt
+            inputMessages = turn.inputMessages
+            outputAttachments = turn.outputAttachments
+            outputMessage = turn.outputMessage
+            sessionId = turn.sessionId
+            startedAt = turn.startedAt
+            steps = turn.steps
+            turnId = turn.turnId
+            additionalProperties = turn.additionalProperties.toMutableMap()
         }
 
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
-        @JsonProperty("completed_at")
-        @ExcludeMissing
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
@@ -134,8 +150,6 @@ private constructor(
         fun inputMessages(inputMessages: List<InputMessage>) =
             inputMessages(JsonField.of(inputMessages))
 
-        @JsonProperty("input_messages")
-        @ExcludeMissing
         fun inputMessages(inputMessages: JsonField<List<InputMessage>>) = apply {
             this.inputMessages = inputMessages
         }
@@ -143,8 +157,6 @@ private constructor(
         fun outputAttachments(outputAttachments: List<Attachment>) =
             outputAttachments(JsonField.of(outputAttachments))
 
-        @JsonProperty("output_attachments")
-        @ExcludeMissing
         fun outputAttachments(outputAttachments: JsonField<List<Attachment>>) = apply {
             this.outputAttachments = outputAttachments
         }
@@ -152,48 +164,43 @@ private constructor(
         fun outputMessage(outputMessage: CompletionMessage) =
             outputMessage(JsonField.of(outputMessage))
 
-        @JsonProperty("output_message")
-        @ExcludeMissing
         fun outputMessage(outputMessage: JsonField<CompletionMessage>) = apply {
             this.outputMessage = outputMessage
         }
 
         fun sessionId(sessionId: String) = sessionId(JsonField.of(sessionId))
 
-        @JsonProperty("session_id")
-        @ExcludeMissing
         fun sessionId(sessionId: JsonField<String>) = apply { this.sessionId = sessionId }
 
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
-        @JsonProperty("started_at")
-        @ExcludeMissing
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun steps(steps: List<Step>) = steps(JsonField.of(steps))
 
-        @JsonProperty("steps")
-        @ExcludeMissing
         fun steps(steps: JsonField<List<Step>>) = apply { this.steps = steps }
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
-        @JsonProperty("turn_id")
-        @ExcludeMissing
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): Turn =

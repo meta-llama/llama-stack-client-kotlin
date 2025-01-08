@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.EvalTaskListParams
+import com.llama.llamastack.models.EvalTaskRegisterParams
+import com.llama.llamastack.models.EvalTaskRetrieveParams
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,8 +23,8 @@ class EvalTaskServiceTest {
         val evalTask =
             evalTaskService.retrieve(
                 EvalTaskRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .name("name")
+                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
         println(evalTask)
@@ -56,7 +59,11 @@ class EvalTaskServiceTest {
                 .datasetId("dataset_id")
                 .evalTaskId("eval_task_id")
                 .scoringFunctions(listOf("string"))
-                .metadata(EvalTaskRegisterParams.Metadata.builder().build())
+                .metadata(
+                    EvalTaskRegisterParams.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .providerEvalTaskId("provider_eval_task_id")
                 .providerId("provider_id")
                 .xLlamaStackProviderData("X-LlamaStack-ProviderData")

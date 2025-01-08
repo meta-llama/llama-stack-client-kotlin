@@ -4,29 +4,36 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.time.OffsetDateTime
 import java.util.Objects
 
-@JsonDeserialize(builder = Trace.Builder::class)
 @NoAutoDetect
 class Trace
+@JsonCreator
 private constructor(
-    private val endTime: JsonField<OffsetDateTime>,
-    private val rootSpanId: JsonField<String>,
-    private val startTime: JsonField<OffsetDateTime>,
-    private val traceId: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("end_time")
+    @ExcludeMissing
+    private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("root_span_id")
+    @ExcludeMissing
+    private val rootSpanId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("start_time")
+    @ExcludeMissing
+    private val startTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("trace_id")
+    @ExcludeMissing
+    private val traceId: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun endTime(): OffsetDateTime? = endTime.getNullable("end_time")
 
@@ -47,6 +54,8 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+    private var validated: Boolean = false
 
     fun validate(): Trace = apply {
         if (!validated) {
@@ -74,49 +83,46 @@ private constructor(
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(trace: Trace) = apply {
-            this.endTime = trace.endTime
-            this.rootSpanId = trace.rootSpanId
-            this.startTime = trace.startTime
-            this.traceId = trace.traceId
-            additionalProperties(trace.additionalProperties)
+            endTime = trace.endTime
+            rootSpanId = trace.rootSpanId
+            startTime = trace.startTime
+            traceId = trace.traceId
+            additionalProperties = trace.additionalProperties.toMutableMap()
         }
 
         fun endTime(endTime: OffsetDateTime) = endTime(JsonField.of(endTime))
 
-        @JsonProperty("end_time")
-        @ExcludeMissing
         fun endTime(endTime: JsonField<OffsetDateTime>) = apply { this.endTime = endTime }
 
         fun rootSpanId(rootSpanId: String) = rootSpanId(JsonField.of(rootSpanId))
 
-        @JsonProperty("root_span_id")
-        @ExcludeMissing
         fun rootSpanId(rootSpanId: JsonField<String>) = apply { this.rootSpanId = rootSpanId }
 
         fun startTime(startTime: OffsetDateTime) = startTime(JsonField.of(startTime))
 
-        @JsonProperty("start_time")
-        @ExcludeMissing
         fun startTime(startTime: JsonField<OffsetDateTime>) = apply { this.startTime = startTime }
 
         fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
-        @JsonProperty("trace_id")
-        @ExcludeMissing
         fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): Trace =

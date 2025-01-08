@@ -4,39 +4,36 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class PostTrainingJobCancelParams
 constructor(
-    private val jobUuid: String,
     private val xLlamaStackProviderData: String?,
+    private val body: PostTrainingJobCancelBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun jobUuid(): String = jobUuid
-
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun jobUuid(): String = body.jobUuid()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
-    internal fun getBody(): PostTrainingJobCancelBody {
-        return PostTrainingJobCancelBody(jobUuid, additionalBodyProperties)
-    }
+    internal fun getBody(): PostTrainingJobCancelBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -49,15 +46,16 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = PostTrainingJobCancelBody.Builder::class)
     @NoAutoDetect
     class PostTrainingJobCancelBody
+    @JsonCreator
     internal constructor(
-        private val jobUuid: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("job_uuid") private val jobUuid: String,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("job_uuid") fun jobUuid(): String? = jobUuid
+        @JsonProperty("job_uuid") fun jobUuid(): String = jobUuid
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -76,25 +74,29 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(postTrainingJobCancelBody: PostTrainingJobCancelBody) = apply {
-                this.jobUuid = postTrainingJobCancelBody.jobUuid
-                additionalProperties(postTrainingJobCancelBody.additionalProperties)
+                jobUuid = postTrainingJobCancelBody.jobUuid
+                additionalProperties = postTrainingJobCancelBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("job_uuid")
             fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): PostTrainingJobCancelBody =
@@ -132,26 +134,23 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var jobUuid: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: PostTrainingJobCancelBody.Builder = PostTrainingJobCancelBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(postTrainingJobCancelParams: PostTrainingJobCancelParams) = apply {
-            jobUuid = postTrainingJobCancelParams.jobUuid
             xLlamaStackProviderData = postTrainingJobCancelParams.xLlamaStackProviderData
+            body = postTrainingJobCancelParams.body.toBuilder()
             additionalHeaders = postTrainingJobCancelParams.additionalHeaders.toBuilder()
             additionalQueryParams = postTrainingJobCancelParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties =
-                postTrainingJobCancelParams.additionalBodyProperties.toMutableMap()
         }
-
-        fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
+
+        fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -252,34 +251,30 @@ constructor(
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
+            body.additionalProperties(additionalBodyProperties)
         }
 
         fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
+            body.putAdditionalProperty(key, value)
         }
 
         fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
             apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
+                body.putAllAdditionalProperties(additionalBodyProperties)
             }
 
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
 
         fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun build(): PostTrainingJobCancelParams =
             PostTrainingJobCancelParams(
-                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -288,11 +283,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingJobCancelParams && jobUuid == other.jobUuid && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is PostTrainingJobCancelParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobUuid, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "PostTrainingJobCancelParams{jobUuid=$jobUuid, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "PostTrainingJobCancelParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

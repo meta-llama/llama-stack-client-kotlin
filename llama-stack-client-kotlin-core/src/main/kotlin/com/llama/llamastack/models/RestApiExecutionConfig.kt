@@ -6,30 +6,34 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = RestApiExecutionConfig.Builder::class)
 @NoAutoDetect
 class RestApiExecutionConfig
+@JsonCreator
 private constructor(
-    private val body: JsonField<Body>,
-    private val headers: JsonField<Headers>,
-    private val method: JsonField<Method>,
-    private val params: JsonField<Params>,
-    private val url: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("body") @ExcludeMissing private val body: JsonField<Body> = JsonMissing.of(),
+    @JsonProperty("headers")
+    @ExcludeMissing
+    private val headers: JsonField<Headers> = JsonMissing.of(),
+    @JsonProperty("method")
+    @ExcludeMissing
+    private val method: JsonField<Method> = JsonMissing.of(),
+    @JsonProperty("params")
+    @ExcludeMissing
+    private val params: JsonField<Params> = JsonMissing.of(),
+    @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun body(): Body? = body.getNullable("body")
 
@@ -39,7 +43,7 @@ private constructor(
 
     fun params(): Params? = params.getNullable("params")
 
-    fun url(): String = url.getRequired("url")
+    fun url(): Url = url.getRequired("url")
 
     @JsonProperty("body") @ExcludeMissing fun _body() = body
 
@@ -55,13 +59,15 @@ private constructor(
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): RestApiExecutionConfig = apply {
         if (!validated) {
             body()?.validate()
             headers()?.validate()
             method()
             params()?.validate()
-            url()
+            url().validate()
             validated = true
         }
     }
@@ -79,60 +85,55 @@ private constructor(
         private var headers: JsonField<Headers> = JsonMissing.of()
         private var method: JsonField<Method> = JsonMissing.of()
         private var params: JsonField<Params> = JsonMissing.of()
-        private var url: JsonField<String> = JsonMissing.of()
+        private var url: JsonField<Url> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(restApiExecutionConfig: RestApiExecutionConfig) = apply {
-            this.body = restApiExecutionConfig.body
-            this.headers = restApiExecutionConfig.headers
-            this.method = restApiExecutionConfig.method
-            this.params = restApiExecutionConfig.params
-            this.url = restApiExecutionConfig.url
-            additionalProperties(restApiExecutionConfig.additionalProperties)
+            body = restApiExecutionConfig.body
+            headers = restApiExecutionConfig.headers
+            method = restApiExecutionConfig.method
+            params = restApiExecutionConfig.params
+            url = restApiExecutionConfig.url
+            additionalProperties = restApiExecutionConfig.additionalProperties.toMutableMap()
         }
 
         fun body(body: Body) = body(JsonField.of(body))
 
-        @JsonProperty("body")
-        @ExcludeMissing
         fun body(body: JsonField<Body>) = apply { this.body = body }
 
         fun headers(headers: Headers) = headers(JsonField.of(headers))
 
-        @JsonProperty("headers")
-        @ExcludeMissing
         fun headers(headers: JsonField<Headers>) = apply { this.headers = headers }
 
         fun method(method: Method) = method(JsonField.of(method))
 
-        @JsonProperty("method")
-        @ExcludeMissing
         fun method(method: JsonField<Method>) = apply { this.method = method }
 
         fun params(params: Params) = params(JsonField.of(params))
 
-        @JsonProperty("params")
-        @ExcludeMissing
         fun params(params: JsonField<Params>) = apply { this.params = params }
 
-        fun url(url: String) = url(JsonField.of(url))
+        fun url(url: Url) = url(JsonField.of(url))
 
-        @JsonProperty("url")
-        @ExcludeMissing
-        fun url(url: JsonField<String>) = apply { this.url = url }
+        fun url(url: JsonField<Url>) = apply { this.url = url }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
+        }
+
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
         }
 
         fun build(): RestApiExecutionConfig =
@@ -154,27 +155,15 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Method && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val GET = Method(JsonField.of("GET"))
+            val GET = of("GET")
 
-            val POST = Method(JsonField.of("POST"))
+            val POST = of("POST")
 
-            val PUT = Method(JsonField.of("PUT"))
+            val PUT = of("PUT")
 
-            val DELETE = Method(JsonField.of("DELETE"))
+            val DELETE = of("DELETE")
 
             fun of(value: String) = Method(JsonField.of(value))
         }
@@ -213,20 +202,33 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Method && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
-    @JsonDeserialize(builder = Body.Builder::class)
     @NoAutoDetect
     class Body
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Body = apply {
             if (!validated) {
@@ -246,21 +248,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(body: Body) = apply {
-                additionalProperties(body.additionalProperties)
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Body = Body(additionalProperties.toImmutable())
@@ -283,18 +290,19 @@ private constructor(
         override fun toString() = "Body{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = Headers.Builder::class)
     @NoAutoDetect
     class Headers
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Headers = apply {
             if (!validated) {
@@ -314,21 +322,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(headers: Headers) = apply {
-                additionalProperties(headers.additionalProperties)
+                additionalProperties = headers.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Headers = Headers(additionalProperties.toImmutable())
@@ -351,18 +364,19 @@ private constructor(
         override fun toString() = "Headers{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = Params.Builder::class)
     @NoAutoDetect
     class Params
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
 
         fun validate(): Params = apply {
             if (!validated) {
@@ -382,21 +396,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(params: Params) = apply {
-                additionalProperties(params.additionalProperties)
+                additionalProperties = params.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Params = Params(additionalProperties.toImmutable())

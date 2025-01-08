@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.MemoryInsertParams
+import com.llama.llamastack.models.MemoryQueryParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -24,7 +27,11 @@ class MemoryServiceTest {
                         MemoryInsertParams.Document.builder()
                             .content(MemoryInsertParams.Document.Content.ofString("string"))
                             .documentId("document_id")
-                            .metadata(MemoryInsertParams.Document.Metadata.builder().build())
+                            .metadata(
+                                MemoryInsertParams.Document.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
                             .mimeType("mime_type")
                             .build()
                     )
@@ -44,8 +51,12 @@ class MemoryServiceTest {
             memoryService.query(
                 MemoryQueryParams.builder()
                     .bankId("bank_id")
-                    .query(MemoryQueryParams.Query.ofString("string"))
-                    .params(MemoryQueryParams.Params.builder().build())
+                    .query(InterleavedContent.ofString("string"))
+                    .params(
+                        MemoryQueryParams.Params.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .build()
             )
