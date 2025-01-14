@@ -24,7 +24,8 @@ class EvalTaskServiceTest {
             evalTaskService.retrieve(
                 EvalTaskRetrieveParams.builder()
                     .name("name")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(evalTask)
@@ -42,7 +43,8 @@ class EvalTaskServiceTest {
         val evalTask =
             evalTaskService.list(
                 EvalTaskListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(evalTask)
@@ -66,7 +68,8 @@ class EvalTaskServiceTest {
                 )
                 .providerEvalTaskId("provider_eval_task_id")
                 .providerId("provider_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

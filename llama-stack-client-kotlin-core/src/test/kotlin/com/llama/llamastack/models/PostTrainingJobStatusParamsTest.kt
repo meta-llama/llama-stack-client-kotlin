@@ -12,7 +12,8 @@ class PostTrainingJobStatusParamsTest {
     fun createPostTrainingJobStatusParams() {
         PostTrainingJobStatusParams.builder()
             .jobUuid("job_uuid")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,7 +22,8 @@ class PostTrainingJobStatusParamsTest {
         val params =
             PostTrainingJobStatusParams.builder()
                 .jobUuid("job_uuid")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("job_uuid", "job_uuid")

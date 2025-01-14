@@ -27,7 +27,7 @@ private constructor(
 
     fun type(): Type = type.getRequired("type")
 
-    @JsonProperty("type") @ExcludeMissing fun _type() = type
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +36,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ReturnType = apply {
-        if (!validated) {
-            type()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        type()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +53,7 @@ private constructor(
 
     class Builder {
 
-        private var type: JsonField<Type> = JsonMissing.of()
+        private var type: JsonField<Type>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(returnType: ReturnType) = apply {
@@ -82,7 +84,11 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ReturnType = ReturnType(type, additionalProperties.toImmutable())
+        fun build(): ReturnType =
+            ReturnType(
+                checkNotNull(type) { "`type` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     class Type

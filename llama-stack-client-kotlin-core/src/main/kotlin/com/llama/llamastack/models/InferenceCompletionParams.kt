@@ -18,6 +18,7 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
@@ -30,11 +31,14 @@ import java.util.Objects
 
 class InferenceCompletionParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: InferenceCompletionBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -48,18 +52,31 @@ constructor(
 
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
+    fun _content(): JsonField<InterleavedContent> = body._content()
+
+    fun _modelId(): JsonField<String> = body._modelId()
+
+    fun _logprobs(): JsonField<Logprobs> = body._logprobs()
+
+    fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
+
+    fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): InferenceCompletionBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -71,28 +88,69 @@ constructor(
     class InferenceCompletionBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("content") private val content: InterleavedContent,
-        @JsonProperty("model_id") private val modelId: String,
-        @JsonProperty("logprobs") private val logprobs: Logprobs?,
-        @JsonProperty("response_format") private val responseFormat: ResponseFormat?,
-        @JsonProperty("sampling_params") private val samplingParams: SamplingParams?,
+        @JsonProperty("content")
+        @ExcludeMissing
+        private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+        @JsonProperty("model_id")
+        @ExcludeMissing
+        private val modelId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("logprobs")
+        @ExcludeMissing
+        private val logprobs: JsonField<Logprobs> = JsonMissing.of(),
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("content") fun content(): InterleavedContent = content
+        fun content(): InterleavedContent = content.getRequired("content")
 
-        @JsonProperty("model_id") fun modelId(): String = modelId
+        fun modelId(): String = modelId.getRequired("model_id")
 
-        @JsonProperty("logprobs") fun logprobs(): Logprobs? = logprobs
+        fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
-        @JsonProperty("response_format") fun responseFormat(): ResponseFormat? = responseFormat
+        fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
-        @JsonProperty("sampling_params") fun samplingParams(): SamplingParams? = samplingParams
+        fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
+
+        @JsonProperty("content")
+        @ExcludeMissing
+        fun _content(): JsonField<InterleavedContent> = content
+
+        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
+
+        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
+
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
+
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): InferenceCompletionBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            modelId()
+            logprobs()?.validate()
+            responseFormat()?.validate()
+            samplingParams()?.validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -103,11 +161,11 @@ constructor(
 
         class Builder {
 
-            private var content: InterleavedContent? = null
-            private var modelId: String? = null
-            private var logprobs: Logprobs? = null
-            private var responseFormat: ResponseFormat? = null
-            private var samplingParams: SamplingParams? = null
+            private var content: JsonField<InterleavedContent>? = null
+            private var modelId: JsonField<String>? = null
+            private var logprobs: JsonField<Logprobs> = JsonMissing.of()
+            private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
+            private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(inferenceCompletionBody: InferenceCompletionBody) = apply {
@@ -119,43 +177,47 @@ constructor(
                 additionalProperties = inferenceCompletionBody.additionalProperties.toMutableMap()
             }
 
-            fun content(content: InterleavedContent) = apply { this.content = content }
+            fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-            fun content(string: String) = apply {
-                this.content = InterleavedContent.ofString(string)
-            }
+            fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-            fun content(imageContentItem: InterleavedContent.ImageContentItem) = apply {
-                this.content = InterleavedContent.ofImageContentItem(imageContentItem)
-            }
+            fun content(string: String) = content(InterleavedContent.ofString(string))
 
-            fun content(textContentItem: InterleavedContent.TextContentItem) = apply {
-                this.content = InterleavedContent.ofTextContentItem(textContentItem)
-            }
+            fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+                content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            fun content(textContentItem: InterleavedContent.TextContentItem) =
+                content(InterleavedContent.ofTextContentItem(textContentItem))
 
             fun contentOfInterleavedContentItems(
                 interleavedContentItems: List<InterleavedContentItem>
-            ) = apply {
-                this.content = InterleavedContent.ofInterleavedContentItems(interleavedContentItems)
-            }
+            ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
-            fun modelId(modelId: String) = apply { this.modelId = modelId }
+            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
-            fun logprobs(logprobs: Logprobs) = apply { this.logprobs = logprobs }
+            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
-            fun responseFormat(responseFormat: ResponseFormat) = apply {
+            fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
+
+            fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
+
+            fun responseFormat(responseFormat: ResponseFormat) =
+                responseFormat(JsonField.of(responseFormat))
+
+            fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
                 this.responseFormat = responseFormat
             }
 
-            fun responseFormat(unionMember0: ResponseFormat.UnionMember0) = apply {
-                this.responseFormat = ResponseFormat.ofUnionMember0(unionMember0)
-            }
+            fun responseFormat(unionMember0: ResponseFormat.UnionMember0) =
+                responseFormat(ResponseFormat.ofUnionMember0(unionMember0))
 
-            fun responseFormat(unionMember1: ResponseFormat.UnionMember1) = apply {
-                this.responseFormat = ResponseFormat.ofUnionMember1(unionMember1)
-            }
+            fun responseFormat(unionMember1: ResponseFormat.UnionMember1) =
+                responseFormat(ResponseFormat.ofUnionMember1(unionMember1))
 
-            fun samplingParams(samplingParams: SamplingParams) = apply {
+            fun samplingParams(samplingParams: SamplingParams) =
+                samplingParams(JsonField.of(samplingParams))
+
+            fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
 
@@ -217,23 +279,31 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: InferenceCompletionBody.Builder = InferenceCompletionBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(inferenceCompletionParams: InferenceCompletionParams) = apply {
+            xLlamaStackClientVersion = inferenceCompletionParams.xLlamaStackClientVersion
             xLlamaStackProviderData = inferenceCompletionParams.xLlamaStackProviderData
             body = inferenceCompletionParams.body.toBuilder()
             additionalHeaders = inferenceCompletionParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceCompletionParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun content(content: InterleavedContent) = apply { body.content(content) }
+
+        fun content(content: JsonField<InterleavedContent>) = apply { body.content(content) }
 
         fun content(string: String) = apply { body.content(string) }
 
@@ -251,9 +321,17 @@ constructor(
 
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
+        fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
+
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
+        fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
+
         fun responseFormat(responseFormat: ResponseFormat) = apply {
+            body.responseFormat(responseFormat)
+        }
+
+        fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
             body.responseFormat(responseFormat)
         }
 
@@ -267,6 +345,29 @@ constructor(
 
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
+        }
+
+        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
+            body.samplingParams(samplingParams)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -367,27 +468,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): InferenceCompletionParams =
             InferenceCompletionParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -399,16 +482,29 @@ constructor(
     class Logprobs
     @JsonCreator
     private constructor(
-        @JsonProperty("top_k") private val topK: Long?,
+        @JsonProperty("top_k") @ExcludeMissing private val topK: JsonField<Long> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("top_k") fun topK(): Long? = topK
+        fun topK(): Long? = topK.getNullable("top_k")
+
+        @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Logprobs = apply {
+            if (validated) {
+                return@apply
+            }
+
+            topK()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -419,7 +515,7 @@ constructor(
 
         class Builder {
 
-            private var topK: Long? = null
+            private var topK: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(logprobs: Logprobs) = apply {
@@ -427,7 +523,9 @@ constructor(
                 additionalProperties = logprobs.additionalProperties.toMutableMap()
             }
 
-            fun topK(topK: Long) = apply { this.topK = topK }
+            fun topK(topK: Long) = topK(JsonField.of(topK))
+
+            fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -499,6 +597,27 @@ constructor(
             }
         }
 
+        private var validated: Boolean = false
+
+        fun validate(): ResponseFormat = apply {
+            if (validated) {
+                return@apply
+            }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitUnionMember0(unionMember0: UnionMember0) {
+                        unionMember0.validate()
+                    }
+
+                    override fun visitUnionMember1(unionMember1: UnionMember1) {
+                        unionMember1.validate()
+                    }
+                }
+            )
+            validated = true
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -542,12 +661,14 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): ResponseFormat {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UnionMember0>())?.let {
-                    return ResponseFormat(unionMember0 = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<UnionMember1>())?.let {
-                    return ResponseFormat(unionMember1 = it, _json = json)
-                }
+                tryDeserialize(node, jacksonTypeRef<UnionMember0>()) { it.validate() }
+                    ?.let {
+                        return ResponseFormat(unionMember0 = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<UnionMember1>()) { it.validate() }
+                    ?.let {
+                        return ResponseFormat(unionMember1 = it, _json = json)
+                    }
 
                 return ResponseFormat(_json = json)
             }
@@ -573,19 +694,41 @@ constructor(
         class UnionMember0
         @JsonCreator
         private constructor(
-            @JsonProperty("json_schema") private val jsonSchema: JsonSchema,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("json_schema")
+            @ExcludeMissing
+            private val jsonSchema: JsonField<JsonSchema> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("json_schema") fun jsonSchema(): JsonSchema = jsonSchema
+            fun jsonSchema(): JsonSchema = jsonSchema.getRequired("json_schema")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun type(): Type = type.getRequired("type")
+
+            @JsonProperty("json_schema")
+            @ExcludeMissing
+            fun _jsonSchema(): JsonField<JsonSchema> = jsonSchema
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): UnionMember0 = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                jsonSchema().validate()
+                type()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -596,8 +739,8 @@ constructor(
 
             class Builder {
 
-                private var jsonSchema: JsonSchema? = null
-                private var type: Type? = null
+                private var jsonSchema: JsonField<JsonSchema>? = null
+                private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(unionMember0: UnionMember0) = apply {
@@ -606,9 +749,15 @@ constructor(
                     additionalProperties = unionMember0.additionalProperties.toMutableMap()
                 }
 
-                fun jsonSchema(jsonSchema: JsonSchema) = apply { this.jsonSchema = jsonSchema }
+                fun jsonSchema(jsonSchema: JsonSchema) = jsonSchema(JsonField.of(jsonSchema))
 
-                fun type(type: Type) = apply { this.type = type }
+                fun jsonSchema(jsonSchema: JsonField<JsonSchema>) = apply {
+                    this.jsonSchema = jsonSchema
+                }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -651,6 +800,16 @@ constructor(
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): JsonSchema = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -782,19 +941,37 @@ constructor(
         class UnionMember1
         @JsonCreator
         private constructor(
-            @JsonProperty("bnf") private val bnf: Bnf,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("bnf") @ExcludeMissing private val bnf: JsonField<Bnf> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("bnf") fun bnf(): Bnf = bnf
+            fun bnf(): Bnf = bnf.getRequired("bnf")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun type(): Type = type.getRequired("type")
+
+            @JsonProperty("bnf") @ExcludeMissing fun _bnf(): JsonField<Bnf> = bnf
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): UnionMember1 = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                bnf().validate()
+                type()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -805,8 +982,8 @@ constructor(
 
             class Builder {
 
-                private var bnf: Bnf? = null
-                private var type: Type? = null
+                private var bnf: JsonField<Bnf>? = null
+                private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(unionMember1: UnionMember1) = apply {
@@ -815,9 +992,13 @@ constructor(
                     additionalProperties = unionMember1.additionalProperties.toMutableMap()
                 }
 
-                fun bnf(bnf: Bnf) = apply { this.bnf = bnf }
+                fun bnf(bnf: Bnf) = bnf(JsonField.of(bnf))
 
-                fun type(type: Type) = apply { this.type = type }
+                fun bnf(bnf: JsonField<Bnf>) = apply { this.bnf = bnf }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -860,6 +1041,16 @@ constructor(
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): Bnf = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -993,11 +1184,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceCompletionParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is InferenceCompletionParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "InferenceCompletionParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "InferenceCompletionParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

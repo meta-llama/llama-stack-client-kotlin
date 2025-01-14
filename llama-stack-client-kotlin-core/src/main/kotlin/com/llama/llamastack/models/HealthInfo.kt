@@ -27,7 +27,7 @@ private constructor(
 
     fun status(): String = status.getRequired("status")
 
-    @JsonProperty("status") @ExcludeMissing fun _status() = status
+    @JsonProperty("status") @ExcludeMissing fun _status(): JsonField<String> = status
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +36,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): HealthInfo = apply {
-        if (!validated) {
-            status()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        status()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +53,7 @@ private constructor(
 
     class Builder {
 
-        private var status: JsonField<String> = JsonMissing.of()
+        private var status: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(healthInfo: HealthInfo) = apply {
@@ -82,7 +84,11 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): HealthInfo = HealthInfo(status, additionalProperties.toImmutable())
+        fun build(): HealthInfo =
+            HealthInfo(
+                checkNotNull(status) { "`status` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {

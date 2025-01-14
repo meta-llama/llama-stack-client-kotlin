@@ -32,9 +32,11 @@ private constructor(
 
     fun scores(): Scores = scores.getRequired("scores")
 
-    @JsonProperty("generations") @ExcludeMissing fun _generations() = generations
+    @JsonProperty("generations")
+    @ExcludeMissing
+    fun _generations(): JsonField<List<Generation>> = generations
 
-    @JsonProperty("scores") @ExcludeMissing fun _scores() = scores
+    @JsonProperty("scores") @ExcludeMissing fun _scores(): JsonField<Scores> = scores
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +45,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): EvaluateResponse = apply {
-        if (!validated) {
-            generations().forEach { it.validate() }
-            scores().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        generations().forEach { it.validate() }
+        scores().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,12 +63,12 @@ private constructor(
 
     class Builder {
 
-        private var generations: JsonField<List<Generation>> = JsonMissing.of()
-        private var scores: JsonField<Scores> = JsonMissing.of()
+        private var generations: JsonField<MutableList<Generation>>? = null
+        private var scores: JsonField<Scores>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evaluateResponse: EvaluateResponse) = apply {
-            generations = evaluateResponse.generations
+            generations = evaluateResponse.generations.map { it.toMutableList() }
             scores = evaluateResponse.scores
             additionalProperties = evaluateResponse.additionalProperties.toMutableMap()
         }
@@ -72,7 +76,18 @@ private constructor(
         fun generations(generations: List<Generation>) = generations(JsonField.of(generations))
 
         fun generations(generations: JsonField<List<Generation>>) = apply {
-            this.generations = generations
+            this.generations = generations.map { it.toMutableList() }
+        }
+
+        fun addGeneration(generation: Generation) = apply {
+            generations =
+                (generations ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(generation)
+                }
         }
 
         fun scores(scores: Scores) = scores(JsonField.of(scores))
@@ -100,8 +115,9 @@ private constructor(
 
         fun build(): EvaluateResponse =
             EvaluateResponse(
-                generations.map { it.toImmutable() },
-                scores,
+                checkNotNull(generations) { "`generations` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(scores) { "`scores` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }
@@ -121,9 +137,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Generation = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -195,9 +213,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Scores = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

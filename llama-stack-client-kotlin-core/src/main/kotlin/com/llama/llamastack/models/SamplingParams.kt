@@ -21,15 +21,15 @@ import java.util.Objects
 class SamplingParams
 @JsonCreator
 private constructor(
+    @JsonProperty("strategy")
+    @ExcludeMissing
+    private val strategy: JsonField<Strategy> = JsonMissing.of(),
     @JsonProperty("max_tokens")
     @ExcludeMissing
     private val maxTokens: JsonField<Long> = JsonMissing.of(),
     @JsonProperty("repetition_penalty")
     @ExcludeMissing
     private val repetitionPenalty: JsonField<Double> = JsonMissing.of(),
-    @JsonProperty("strategy")
-    @ExcludeMissing
-    private val strategy: JsonField<Strategy> = JsonMissing.of(),
     @JsonProperty("temperature")
     @ExcludeMissing
     private val temperature: JsonField<Double> = JsonMissing.of(),
@@ -38,11 +38,11 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    fun strategy(): Strategy = strategy.getRequired("strategy")
+
     fun maxTokens(): Long? = maxTokens.getNullable("max_tokens")
 
     fun repetitionPenalty(): Double? = repetitionPenalty.getNullable("repetition_penalty")
-
-    fun strategy(): Strategy = strategy.getRequired("strategy")
 
     fun temperature(): Double? = temperature.getNullable("temperature")
 
@@ -50,17 +50,19 @@ private constructor(
 
     fun topP(): Double? = topP.getNullable("top_p")
 
-    @JsonProperty("max_tokens") @ExcludeMissing fun _maxTokens() = maxTokens
+    @JsonProperty("strategy") @ExcludeMissing fun _strategy(): JsonField<Strategy> = strategy
 
-    @JsonProperty("repetition_penalty") @ExcludeMissing fun _repetitionPenalty() = repetitionPenalty
+    @JsonProperty("max_tokens") @ExcludeMissing fun _maxTokens(): JsonField<Long> = maxTokens
 
-    @JsonProperty("strategy") @ExcludeMissing fun _strategy() = strategy
+    @JsonProperty("repetition_penalty")
+    @ExcludeMissing
+    fun _repetitionPenalty(): JsonField<Double> = repetitionPenalty
 
-    @JsonProperty("temperature") @ExcludeMissing fun _temperature() = temperature
+    @JsonProperty("temperature") @ExcludeMissing fun _temperature(): JsonField<Double> = temperature
 
-    @JsonProperty("top_k") @ExcludeMissing fun _topK() = topK
+    @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
-    @JsonProperty("top_p") @ExcludeMissing fun _topP() = topP
+    @JsonProperty("top_p") @ExcludeMissing fun _topP(): JsonField<Double> = topP
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -69,15 +71,17 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): SamplingParams = apply {
-        if (!validated) {
-            maxTokens()
-            repetitionPenalty()
-            strategy()
-            temperature()
-            topK()
-            topP()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        strategy()
+        maxTokens()
+        repetitionPenalty()
+        temperature()
+        topK()
+        topP()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -89,23 +93,27 @@ private constructor(
 
     class Builder {
 
+        private var strategy: JsonField<Strategy>? = null
         private var maxTokens: JsonField<Long> = JsonMissing.of()
         private var repetitionPenalty: JsonField<Double> = JsonMissing.of()
-        private var strategy: JsonField<Strategy> = JsonMissing.of()
         private var temperature: JsonField<Double> = JsonMissing.of()
         private var topK: JsonField<Long> = JsonMissing.of()
         private var topP: JsonField<Double> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(samplingParams: SamplingParams) = apply {
+            strategy = samplingParams.strategy
             maxTokens = samplingParams.maxTokens
             repetitionPenalty = samplingParams.repetitionPenalty
-            strategy = samplingParams.strategy
             temperature = samplingParams.temperature
             topK = samplingParams.topK
             topP = samplingParams.topP
             additionalProperties = samplingParams.additionalProperties.toMutableMap()
         }
+
+        fun strategy(strategy: Strategy) = strategy(JsonField.of(strategy))
+
+        fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
         fun maxTokens(maxTokens: Long) = maxTokens(JsonField.of(maxTokens))
 
@@ -117,10 +125,6 @@ private constructor(
         fun repetitionPenalty(repetitionPenalty: JsonField<Double>) = apply {
             this.repetitionPenalty = repetitionPenalty
         }
-
-        fun strategy(strategy: Strategy) = strategy(JsonField.of(strategy))
-
-        fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
         fun temperature(temperature: Double) = temperature(JsonField.of(temperature))
 
@@ -155,9 +159,9 @@ private constructor(
 
         fun build(): SamplingParams =
             SamplingParams(
+                checkNotNull(strategy) { "`strategy` is required but was not set" },
                 maxTokens,
                 repetitionPenalty,
-                strategy,
                 temperature,
                 topK,
                 topP,
@@ -233,15 +237,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SamplingParams && maxTokens == other.maxTokens && repetitionPenalty == other.repetitionPenalty && strategy == other.strategy && temperature == other.temperature && topK == other.topK && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SamplingParams && strategy == other.strategy && maxTokens == other.maxTokens && repetitionPenalty == other.repetitionPenalty && temperature == other.temperature && topK == other.topK && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(maxTokens, repetitionPenalty, strategy, temperature, topK, topP, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(strategy, maxTokens, repetitionPenalty, temperature, topK, topP, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "SamplingParams{maxTokens=$maxTokens, repetitionPenalty=$repetitionPenalty, strategy=$strategy, temperature=$temperature, topK=$topK, topP=$topP, additionalProperties=$additionalProperties}"
+        "SamplingParams{strategy=$strategy, maxTokens=$maxTokens, repetitionPenalty=$repetitionPenalty, temperature=$temperature, topK=$topK, topP=$topP, additionalProperties=$additionalProperties}"
 }

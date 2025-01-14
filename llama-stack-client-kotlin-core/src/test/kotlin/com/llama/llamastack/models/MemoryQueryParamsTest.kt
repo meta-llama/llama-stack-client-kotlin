@@ -18,7 +18,8 @@ class MemoryQueryParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -33,7 +34,8 @@ class MemoryQueryParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

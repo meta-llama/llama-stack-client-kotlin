@@ -11,7 +11,8 @@ class MemoryBankUnregisterParamsTest {
     fun createMemoryBankUnregisterParams() {
         MemoryBankUnregisterParams.builder()
             .memoryBankId("memory_bank_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -20,7 +21,8 @@ class MemoryBankUnregisterParamsTest {
         val params =
             MemoryBankUnregisterParams.builder()
                 .memoryBankId("memory_bank_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

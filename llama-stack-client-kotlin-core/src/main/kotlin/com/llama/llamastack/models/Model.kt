@@ -52,19 +52,19 @@ private constructor(
 
     fun type(): Type = type.getRequired("type")
 
-    @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+    @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
-    @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+    @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-    @JsonProperty("model_type") @ExcludeMissing fun _modelType() = modelType
+    @JsonProperty("model_type") @ExcludeMissing fun _modelType(): JsonField<ModelType> = modelType
 
-    @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+    @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
-    fun _providerResourceId() = providerResourceId
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
-    @JsonProperty("type") @ExcludeMissing fun _type() = type
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -73,15 +73,17 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): Model = apply {
-        if (!validated) {
-            identifier()
-            metadata().validate()
-            modelType()
-            providerId()
-            providerResourceId()
-            type()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        identifier()
+        metadata().validate()
+        modelType()
+        providerId()
+        providerResourceId()
+        type()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -93,12 +95,12 @@ private constructor(
 
     class Builder {
 
-        private var identifier: JsonField<String> = JsonMissing.of()
-        private var metadata: JsonField<Metadata> = JsonMissing.of()
-        private var modelType: JsonField<ModelType> = JsonMissing.of()
-        private var providerId: JsonField<String> = JsonMissing.of()
-        private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var type: JsonField<Type> = JsonMissing.of()
+        private var identifier: JsonField<String>? = null
+        private var metadata: JsonField<Metadata>? = null
+        private var modelType: JsonField<ModelType>? = null
+        private var providerId: JsonField<String>? = null
+        private var providerResourceId: JsonField<String>? = null
+        private var type: JsonField<Type>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(model: Model) = apply {
@@ -159,12 +161,14 @@ private constructor(
 
         fun build(): Model =
             Model(
-                identifier,
-                metadata,
-                modelType,
-                providerId,
-                providerResourceId,
-                type,
+                checkNotNull(identifier) { "`identifier` is required but was not set" },
+                checkNotNull(metadata) { "`metadata` is required but was not set" },
+                checkNotNull(modelType) { "`modelType` is required but was not set" },
+                checkNotNull(providerId) { "`providerId` is required but was not set" },
+                checkNotNull(providerResourceId) {
+                    "`providerResourceId` is required but was not set"
+                },
+                checkNotNull(type) { "`type` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }
@@ -184,9 +188,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Metadata = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

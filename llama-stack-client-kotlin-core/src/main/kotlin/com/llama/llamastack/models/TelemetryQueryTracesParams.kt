@@ -18,6 +18,7 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
@@ -30,11 +31,14 @@ import java.util.Objects
 
 class TelemetryQueryTracesParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: TelemetryQueryTracesBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -46,18 +50,29 @@ constructor(
 
     fun orderBy(): List<String>? = body.orderBy()
 
+    fun _attributeFilters(): JsonField<List<AttributeFilter>> = body._attributeFilters()
+
+    fun _limit(): JsonField<Long> = body._limit()
+
+    fun _offset(): JsonField<Long> = body._offset()
+
+    fun _orderBy(): JsonField<List<String>> = body._orderBy()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): TelemetryQueryTracesBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -69,26 +84,58 @@ constructor(
     class TelemetryQueryTracesBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("attribute_filters") private val attributeFilters: List<AttributeFilter>?,
-        @JsonProperty("limit") private val limit: Long?,
-        @JsonProperty("offset") private val offset: Long?,
-        @JsonProperty("order_by") private val orderBy: List<String>?,
+        @JsonProperty("attribute_filters")
+        @ExcludeMissing
+        private val attributeFilters: JsonField<List<AttributeFilter>> = JsonMissing.of(),
+        @JsonProperty("limit")
+        @ExcludeMissing
+        private val limit: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("offset")
+        @ExcludeMissing
+        private val offset: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("order_by")
+        @ExcludeMissing
+        private val orderBy: JsonField<List<String>> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        fun attributeFilters(): List<AttributeFilter>? =
+            attributeFilters.getNullable("attribute_filters")
+
+        fun limit(): Long? = limit.getNullable("limit")
+
+        fun offset(): Long? = offset.getNullable("offset")
+
+        fun orderBy(): List<String>? = orderBy.getNullable("order_by")
+
         @JsonProperty("attribute_filters")
-        fun attributeFilters(): List<AttributeFilter>? = attributeFilters
+        @ExcludeMissing
+        fun _attributeFilters(): JsonField<List<AttributeFilter>> = attributeFilters
 
-        @JsonProperty("limit") fun limit(): Long? = limit
+        @JsonProperty("limit") @ExcludeMissing fun _limit(): JsonField<Long> = limit
 
-        @JsonProperty("offset") fun offset(): Long? = offset
+        @JsonProperty("offset") @ExcludeMissing fun _offset(): JsonField<Long> = offset
 
-        @JsonProperty("order_by") fun orderBy(): List<String>? = orderBy
+        @JsonProperty("order_by") @ExcludeMissing fun _orderBy(): JsonField<List<String>> = orderBy
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): TelemetryQueryTracesBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            attributeFilters()?.forEach { it.validate() }
+            limit()
+            offset()
+            orderBy()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -99,37 +146,62 @@ constructor(
 
         class Builder {
 
-            private var attributeFilters: MutableList<AttributeFilter>? = null
-            private var limit: Long? = null
-            private var offset: Long? = null
-            private var orderBy: MutableList<String>? = null
+            private var attributeFilters: JsonField<MutableList<AttributeFilter>>? = null
+            private var limit: JsonField<Long> = JsonMissing.of()
+            private var offset: JsonField<Long> = JsonMissing.of()
+            private var orderBy: JsonField<MutableList<String>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(telemetryQueryTracesBody: TelemetryQueryTracesBody) = apply {
-                attributeFilters = telemetryQueryTracesBody.attributeFilters?.toMutableList()
+                attributeFilters =
+                    telemetryQueryTracesBody.attributeFilters.map { it.toMutableList() }
                 limit = telemetryQueryTracesBody.limit
                 offset = telemetryQueryTracesBody.offset
-                orderBy = telemetryQueryTracesBody.orderBy?.toMutableList()
+                orderBy = telemetryQueryTracesBody.orderBy.map { it.toMutableList() }
                 additionalProperties = telemetryQueryTracesBody.additionalProperties.toMutableMap()
             }
 
-            fun attributeFilters(attributeFilters: List<AttributeFilter>) = apply {
-                this.attributeFilters = attributeFilters.toMutableList()
+            fun attributeFilters(attributeFilters: List<AttributeFilter>) =
+                attributeFilters(JsonField.of(attributeFilters))
+
+            fun attributeFilters(attributeFilters: JsonField<List<AttributeFilter>>) = apply {
+                this.attributeFilters = attributeFilters.map { it.toMutableList() }
             }
 
             fun addAttributeFilter(attributeFilter: AttributeFilter) = apply {
                 attributeFilters =
-                    (attributeFilters ?: mutableListOf()).apply { add(attributeFilter) }
+                    (attributeFilters ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(attributeFilter)
+                    }
             }
 
-            fun limit(limit: Long) = apply { this.limit = limit }
+            fun limit(limit: Long) = limit(JsonField.of(limit))
 
-            fun offset(offset: Long) = apply { this.offset = offset }
+            fun limit(limit: JsonField<Long>) = apply { this.limit = limit }
 
-            fun orderBy(orderBy: List<String>) = apply { this.orderBy = orderBy.toMutableList() }
+            fun offset(offset: Long) = offset(JsonField.of(offset))
+
+            fun offset(offset: JsonField<Long>) = apply { this.offset = offset }
+
+            fun orderBy(orderBy: List<String>) = orderBy(JsonField.of(orderBy))
+
+            fun orderBy(orderBy: JsonField<List<String>>) = apply {
+                this.orderBy = orderBy.map { it.toMutableList() }
+            }
 
             fun addOrderBy(orderBy: String) = apply {
-                this.orderBy = (this.orderBy ?: mutableListOf()).apply { add(orderBy) }
+                this.orderBy =
+                    (this.orderBy ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(orderBy)
+                    }
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -153,10 +225,10 @@ constructor(
 
             fun build(): TelemetryQueryTracesBody =
                 TelemetryQueryTracesBody(
-                    attributeFilters?.toImmutable(),
+                    (attributeFilters ?: JsonMissing.of()).map { it.toImmutable() },
                     limit,
                     offset,
-                    orderBy?.toImmutable(),
+                    (orderBy ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -189,23 +261,33 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: TelemetryQueryTracesBody.Builder = TelemetryQueryTracesBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(telemetryQueryTracesParams: TelemetryQueryTracesParams) = apply {
+            xLlamaStackClientVersion = telemetryQueryTracesParams.xLlamaStackClientVersion
             xLlamaStackProviderData = telemetryQueryTracesParams.xLlamaStackProviderData
             body = telemetryQueryTracesParams.body.toBuilder()
             additionalHeaders = telemetryQueryTracesParams.additionalHeaders.toBuilder()
             additionalQueryParams = telemetryQueryTracesParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun attributeFilters(attributeFilters: List<AttributeFilter>) = apply {
+            body.attributeFilters(attributeFilters)
+        }
+
+        fun attributeFilters(attributeFilters: JsonField<List<AttributeFilter>>) = apply {
             body.attributeFilters(attributeFilters)
         }
 
@@ -215,11 +297,36 @@ constructor(
 
         fun limit(limit: Long) = apply { body.limit(limit) }
 
+        fun limit(limit: JsonField<Long>) = apply { body.limit(limit) }
+
         fun offset(offset: Long) = apply { body.offset(offset) }
+
+        fun offset(offset: JsonField<Long>) = apply { body.offset(offset) }
 
         fun orderBy(orderBy: List<String>) = apply { body.orderBy(orderBy) }
 
+        fun orderBy(orderBy: JsonField<List<String>>) = apply { body.orderBy(orderBy) }
+
         fun addOrderBy(orderBy: String) = apply { body.addOrderBy(orderBy) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -319,27 +426,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): TelemetryQueryTracesParams =
             TelemetryQueryTracesParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -351,22 +440,43 @@ constructor(
     class AttributeFilter
     @JsonCreator
     private constructor(
-        @JsonProperty("key") private val key: String,
-        @JsonProperty("op") private val op: Op,
-        @JsonProperty("value") private val value: Value?,
+        @JsonProperty("key") @ExcludeMissing private val key: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("op") @ExcludeMissing private val op: JsonField<Op> = JsonMissing.of(),
+        @JsonProperty("value")
+        @ExcludeMissing
+        private val value: JsonField<Value> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("key") fun key(): String = key
+        fun key(): String = key.getRequired("key")
 
-        @JsonProperty("op") fun op(): Op = op
+        fun op(): Op = op.getRequired("op")
 
-        @JsonProperty("value") fun value(): Value? = value
+        fun value(): Value? = value.getNullable("value")
+
+        @JsonProperty("key") @ExcludeMissing fun _key(): JsonField<String> = key
+
+        @JsonProperty("op") @ExcludeMissing fun _op(): JsonField<Op> = op
+
+        @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Value> = value
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): AttributeFilter = apply {
+            if (validated) {
+                return@apply
+            }
+
+            key()
+            op()
+            value()?.validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -377,9 +487,9 @@ constructor(
 
         class Builder {
 
-            private var key: String? = null
-            private var op: Op? = null
-            private var value: Value? = null
+            private var key: JsonField<String>? = null
+            private var op: JsonField<Op>? = null
+            private var value: JsonField<Value>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(attributeFilter: AttributeFilter) = apply {
@@ -389,23 +499,28 @@ constructor(
                 additionalProperties = attributeFilter.additionalProperties.toMutableMap()
             }
 
-            fun key(key: String) = apply { this.key = key }
+            fun key(key: String) = key(JsonField.of(key))
 
-            fun op(op: Op) = apply { this.op = op }
+            fun key(key: JsonField<String>) = apply { this.key = key }
 
-            fun value(value: Value) = apply { this.value = value }
+            fun op(op: Op) = op(JsonField.of(op))
 
-            fun value(boolean: Boolean) = apply { this.value = Value.ofBoolean(boolean) }
+            fun op(op: JsonField<Op>) = apply { this.op = op }
 
-            fun value(double: Double) = apply { this.value = Value.ofDouble(double) }
+            fun value(value: Value?) = value(JsonField.ofNullable(value))
 
-            fun value(string: String) = apply { this.value = Value.ofString(string) }
+            fun value(value: JsonField<Value>) = apply { this.value = value }
 
-            fun valueOfJsonValues(jsonValues: List<JsonValue>) = apply {
-                this.value = Value.ofJsonValues(jsonValues)
-            }
+            fun value(boolean: Boolean) = value(Value.ofBoolean(boolean))
 
-            fun value(jsonValue: JsonValue) = apply { this.value = Value.ofJsonValue(jsonValue) }
+            fun value(double: Double) = value(Value.ofDouble(double))
+
+            fun value(string: String) = value(Value.ofString(string))
+
+            fun valueOfJsonValues(jsonValues: List<JsonValue>) =
+                value(Value.ofJsonValues(jsonValues))
+
+            fun value(jsonValue: JsonValue) = value(Value.ofJsonValue(jsonValue))
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -430,7 +545,7 @@ constructor(
                 AttributeFilter(
                     checkNotNull(key) { "`key` is required but was not set" },
                     checkNotNull(op) { "`op` is required but was not set" },
-                    value,
+                    checkNotNull(value) { "`value` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -559,6 +674,29 @@ constructor(
                 }
             }
 
+            private var validated: Boolean = false
+
+            fun validate(): Value = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                accept(
+                    object : Visitor<Unit> {
+                        override fun visitBoolean(boolean: Boolean) {}
+
+                        override fun visitDouble(double: Double) {}
+
+                        override fun visitString(string: String) {}
+
+                        override fun visitJsonValues(jsonValues: List<JsonValue>) {}
+
+                        override fun visitJsonValue(jsonValue: JsonValue) {}
+                    }
+                )
+                validated = true
+            }
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -678,11 +816,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryQueryTracesParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryQueryTracesParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryQueryTracesParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryQueryTracesParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

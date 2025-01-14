@@ -39,7 +39,8 @@ class InferenceCompletionParamsTest {
                     .topP(0.0)
                     .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -76,7 +77,8 @@ class InferenceCompletionParamsTest {
                         .topP(0.0)
                         .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

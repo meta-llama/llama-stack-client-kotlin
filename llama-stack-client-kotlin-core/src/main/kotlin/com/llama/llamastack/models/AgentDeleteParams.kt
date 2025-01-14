@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,28 +19,36 @@ import java.util.Objects
 
 class AgentDeleteParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: AgentDeleteBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun agentId(): String = body.agentId()
+
+    fun _agentId(): JsonField<String> = body._agentId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     internal fun getBody(): AgentDeleteBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -50,16 +60,31 @@ constructor(
     class AgentDeleteBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("agent_id") private val agentId: String,
+        @JsonProperty("agent_id")
+        @ExcludeMissing
+        private val agentId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("agent_id") fun agentId(): String = agentId
+        fun agentId(): String = agentId.getRequired("agent_id")
+
+        @JsonProperty("agent_id") @ExcludeMissing fun _agentId(): JsonField<String> = agentId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentDeleteBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            agentId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -70,7 +95,7 @@ constructor(
 
         class Builder {
 
-            private var agentId: String? = null
+            private var agentId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentDeleteBody: AgentDeleteBody) = apply {
@@ -78,7 +103,9 @@ constructor(
                 additionalProperties = agentDeleteBody.additionalProperties.toMutableMap()
             }
 
-            fun agentId(agentId: String) = apply { this.agentId = agentId }
+            fun agentId(agentId: String) = agentId(JsonField.of(agentId))
+
+            fun agentId(agentId: JsonField<String>) = apply { this.agentId = agentId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -134,23 +161,50 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: AgentDeleteBody.Builder = AgentDeleteBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(agentDeleteParams: AgentDeleteParams) = apply {
+            xLlamaStackClientVersion = agentDeleteParams.xLlamaStackClientVersion
             xLlamaStackProviderData = agentDeleteParams.xLlamaStackProviderData
             body = agentDeleteParams.body.toBuilder()
             additionalHeaders = agentDeleteParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentDeleteParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun agentId(agentId: String) = apply { body.agentId(agentId) }
+
+        fun agentId(agentId: JsonField<String>) = apply { body.agentId(agentId) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -250,27 +304,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): AgentDeleteParams =
             AgentDeleteParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -283,11 +319,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentDeleteParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentDeleteParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentDeleteParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentDeleteParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

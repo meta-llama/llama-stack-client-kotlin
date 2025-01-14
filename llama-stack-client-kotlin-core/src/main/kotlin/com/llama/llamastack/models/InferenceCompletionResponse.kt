@@ -36,8 +36,6 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
-    private var validated: Boolean = false
-
     fun completionResponse(): CompletionResponse? = completionResponse
 
     fun completionResponseStreamChunk(): CompletionResponseStreamChunk? =
@@ -64,17 +62,27 @@ private constructor(
         }
     }
 
+    private var validated: Boolean = false
+
     fun validate(): InferenceCompletionResponse = apply {
-        if (!validated) {
-            if (completionResponse == null && completionResponseStreamChunk == null) {
-                throw LlamaStackClientInvalidDataException(
-                    "Unknown InferenceCompletionResponse: $_json"
-                )
-            }
-            completionResponse?.validate()
-            completionResponseStreamChunk?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        accept(
+            object : Visitor<Unit> {
+                override fun visitCompletionResponse(completionResponse: CompletionResponse) {
+                    completionResponse.validate()
+                }
+
+                override fun visitCompletionResponseStreamChunk(
+                    completionResponseStreamChunk: CompletionResponseStreamChunk
+                ) {
+                    completionResponseStreamChunk.validate()
+                }
+            }
+        )
+        validated = true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -186,11 +194,15 @@ private constructor(
 
         fun stopReason(): StopReason? = stopReason.getNullable("stop_reason")
 
-        @JsonProperty("delta") @ExcludeMissing fun _delta() = delta
+        @JsonProperty("delta") @ExcludeMissing fun _delta(): JsonField<String> = delta
 
-        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs() = logprobs
+        @JsonProperty("logprobs")
+        @ExcludeMissing
+        fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
 
-        @JsonProperty("stop_reason") @ExcludeMissing fun _stopReason() = stopReason
+        @JsonProperty("stop_reason")
+        @ExcludeMissing
+        fun _stopReason(): JsonField<StopReason> = stopReason
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -199,12 +211,14 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): CompletionResponseStreamChunk = apply {
-            if (!validated) {
-                delta()
-                logprobs()?.forEach { it.validate() }
-                stopReason()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            delta()
+            logprobs()?.forEach { it.validate() }
+            stopReason()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -216,15 +230,15 @@ private constructor(
 
         class Builder {
 
-            private var delta: JsonField<String> = JsonMissing.of()
-            private var logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of()
+            private var delta: JsonField<String>? = null
+            private var logprobs: JsonField<MutableList<TokenLogProbs>>? = null
             private var stopReason: JsonField<StopReason> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(completionResponseStreamChunk: CompletionResponseStreamChunk) =
                 apply {
                     delta = completionResponseStreamChunk.delta
-                    logprobs = completionResponseStreamChunk.logprobs
+                    logprobs = completionResponseStreamChunk.logprobs.map { it.toMutableList() }
                     stopReason = completionResponseStreamChunk.stopReason
                     additionalProperties =
                         completionResponseStreamChunk.additionalProperties.toMutableMap()
@@ -237,7 +251,18 @@ private constructor(
             fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
             fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
-                this.logprobs = logprobs
+                this.logprobs = logprobs.map { it.toMutableList() }
+            }
+
+            fun addLogprob(logprob: TokenLogProbs) = apply {
+                logprobs =
+                    (logprobs ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(logprob)
+                    }
             }
 
             fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
@@ -267,8 +292,8 @@ private constructor(
 
             fun build(): CompletionResponseStreamChunk =
                 CompletionResponseStreamChunk(
-                    delta,
-                    logprobs.map { it.toImmutable() },
+                    checkNotNull(delta) { "`delta` is required but was not set" },
+                    (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                     stopReason,
                     additionalProperties.toImmutable(),
                 )

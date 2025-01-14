@@ -6,7 +6,6 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
-import com.llama.llamastack.models.Attachment
 import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
@@ -40,15 +39,17 @@ class TurnServiceTest {
                         )
                     )
                     .sessionId("session_id")
-                    .attachments(
+                    .documents(
                         listOf(
-                            Attachment.builder()
-                                .content(Attachment.Content.ofString("string"))
+                            AgentTurnCreateParams.Document.builder()
+                                .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                                 .mimeType("mime_type")
                                 .build()
                         )
                     )
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentTurnCreateResponse)
@@ -79,15 +80,17 @@ class TurnServiceTest {
                         )
                     )
                     .sessionId("session_id")
-                    .attachments(
+                    .documents(
                         listOf(
-                            Attachment.builder()
-                                .content(Attachment.Content.ofString("string"))
+                            AgentTurnCreateParams.Document.builder()
+                                .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                                 .mimeType("mime_type")
                                 .build()
                         )
                     )
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
 
@@ -107,7 +110,8 @@ class TurnServiceTest {
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .turnId("turn_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(turn)

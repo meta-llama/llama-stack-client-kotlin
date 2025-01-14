@@ -12,7 +12,8 @@ class InferenceEmbeddingsParamsTest {
         InferenceEmbeddingsParams.builder()
             .contents(listOf(InterleavedContent.ofString("string")))
             .modelId("model_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -22,7 +23,8 @@ class InferenceEmbeddingsParamsTest {
             InferenceEmbeddingsParams.builder()
                 .contents(listOf(InterleavedContent.ofString("string")))
                 .modelId("model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

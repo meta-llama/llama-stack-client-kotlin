@@ -34,7 +34,8 @@ class TelemetryLogEventParamsTest {
                 )
             )
             .ttlSeconds(0L)
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -66,7 +67,8 @@ class TelemetryLogEventParamsTest {
                     )
                 )
                 .ttlSeconds(0L)
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

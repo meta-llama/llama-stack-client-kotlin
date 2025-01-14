@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,28 +19,36 @@ import java.util.Objects
 
 class DatasetUnregisterParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: DatasetUnregisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun datasetId(): String = body.datasetId()
+
+    fun _datasetId(): JsonField<String> = body._datasetId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     internal fun getBody(): DatasetUnregisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -50,16 +60,31 @@ constructor(
     class DatasetUnregisterBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("dataset_id") private val datasetId: String,
+        @JsonProperty("dataset_id")
+        @ExcludeMissing
+        private val datasetId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("dataset_id") fun datasetId(): String = datasetId
+        fun datasetId(): String = datasetId.getRequired("dataset_id")
+
+        @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): DatasetUnregisterBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            datasetId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -70,7 +95,7 @@ constructor(
 
         class Builder {
 
-            private var datasetId: String? = null
+            private var datasetId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(datasetUnregisterBody: DatasetUnregisterBody) = apply {
@@ -78,7 +103,9 @@ constructor(
                 additionalProperties = datasetUnregisterBody.additionalProperties.toMutableMap()
             }
 
-            fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+            fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
+
+            fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -134,23 +161,50 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: DatasetUnregisterBody.Builder = DatasetUnregisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(datasetUnregisterParams: DatasetUnregisterParams) = apply {
+            xLlamaStackClientVersion = datasetUnregisterParams.xLlamaStackClientVersion
             xLlamaStackProviderData = datasetUnregisterParams.xLlamaStackProviderData
             body = datasetUnregisterParams.body.toBuilder()
             additionalHeaders = datasetUnregisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = datasetUnregisterParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
+
+        fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -250,27 +304,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): DatasetUnregisterParams =
             DatasetUnregisterParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -283,11 +319,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetUnregisterParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetUnregisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetUnregisterParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetUnregisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

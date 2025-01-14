@@ -8,6 +8,9 @@ class RouteListParamsTest {
 
     @Test
     fun createRouteListParams() {
-        RouteListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
+        RouteListParams.builder()
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
     }
 }

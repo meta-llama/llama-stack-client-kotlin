@@ -22,12 +22,6 @@ import java.util.Objects
 class ShieldCallStep
 @JsonCreator
 private constructor(
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("step_id")
     @ExcludeMissing
     private val stepId: JsonField<String> = JsonMissing.of(),
@@ -37,15 +31,17 @@ private constructor(
     @JsonProperty("turn_id")
     @ExcludeMissing
     private val turnId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("violation")
     @ExcludeMissing
     private val violation: JsonField<SafetyViolation> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
-
-    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
     fun stepId(): String = stepId.getRequired("step_id")
 
@@ -53,19 +49,29 @@ private constructor(
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
+    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
+
+    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
+
     fun violation(): SafetyViolation? = violation.getNullable("violation")
 
-    @JsonProperty("completed_at") @ExcludeMissing fun _completedAt() = completedAt
+    @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
-    @JsonProperty("started_at") @ExcludeMissing fun _startedAt() = startedAt
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
-    @JsonProperty("step_id") @ExcludeMissing fun _stepId() = stepId
+    @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    fun _completedAt(): JsonField<OffsetDateTime> = completedAt
 
-    @JsonProperty("turn_id") @ExcludeMissing fun _turnId() = turnId
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
-    @JsonProperty("violation") @ExcludeMissing fun _violation() = violation
+    @JsonProperty("violation")
+    @ExcludeMissing
+    fun _violation(): JsonField<SafetyViolation> = violation
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -74,15 +80,17 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ShieldCallStep = apply {
-        if (!validated) {
-            completedAt()
-            startedAt()
-            stepId()
-            stepType()
-            turnId()
-            violation()?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        stepId()
+        stepType()
+        turnId()
+        completedAt()
+        startedAt()
+        violation()?.validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -94,33 +102,23 @@ private constructor(
 
     class Builder {
 
+        private var stepId: JsonField<String>? = null
+        private var stepType: JsonField<StepType>? = null
+        private var turnId: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
         private var startedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var stepId: JsonField<String> = JsonMissing.of()
-        private var stepType: JsonField<StepType> = JsonMissing.of()
-        private var turnId: JsonField<String> = JsonMissing.of()
         private var violation: JsonField<SafetyViolation> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(shieldCallStep: ShieldCallStep) = apply {
-            completedAt = shieldCallStep.completedAt
-            startedAt = shieldCallStep.startedAt
             stepId = shieldCallStep.stepId
             stepType = shieldCallStep.stepType
             turnId = shieldCallStep.turnId
+            completedAt = shieldCallStep.completedAt
+            startedAt = shieldCallStep.startedAt
             violation = shieldCallStep.violation
             additionalProperties = shieldCallStep.additionalProperties.toMutableMap()
         }
-
-        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
-
-        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
-            this.completedAt = completedAt
-        }
-
-        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
-
-        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
@@ -133,6 +131,16 @@ private constructor(
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
+
+        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
+
+        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
+            this.completedAt = completedAt
+        }
+
+        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
+
+        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun violation(violation: SafetyViolation) = violation(JsonField.of(violation))
 
@@ -159,11 +167,11 @@ private constructor(
 
         fun build(): ShieldCallStep =
             ShieldCallStep(
+                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                checkNotNull(turnId) { "`turnId` is required but was not set" },
                 completedAt,
                 startedAt,
-                stepId,
-                stepType,
-                turnId,
                 violation,
                 additionalProperties.toImmutable(),
             )
@@ -225,15 +233,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ShieldCallStep && completedAt == other.completedAt && startedAt == other.startedAt && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && violation == other.violation && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ShieldCallStep && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && completedAt == other.completedAt && startedAt == other.startedAt && violation == other.violation && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(completedAt, startedAt, stepId, stepType, turnId, violation, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(stepId, stepType, turnId, completedAt, startedAt, violation, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ShieldCallStep{completedAt=$completedAt, startedAt=$startedAt, stepId=$stepId, stepType=$stepType, turnId=$turnId, violation=$violation, additionalProperties=$additionalProperties}"
+        "ShieldCallStep{stepId=$stepId, stepType=$stepType, turnId=$turnId, completedAt=$completedAt, startedAt=$startedAt, violation=$violation, additionalProperties=$additionalProperties}"
 }

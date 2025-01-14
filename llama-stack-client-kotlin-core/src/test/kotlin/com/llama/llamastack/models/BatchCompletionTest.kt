@@ -14,10 +14,12 @@ class BatchCompletionTest {
             BatchCompletion.builder()
                 .completionMessageBatch(
                     listOf(
-                        CompletionMessage.builder()
+                        BatchCompletion.CompletionMessageBatch.builder()
                             .content(InterleavedContent.ofString("string"))
-                            .role(CompletionMessage.Role.ASSISTANT)
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
+                            .stopReason(
+                                BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN
+                            )
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
@@ -41,10 +43,10 @@ class BatchCompletionTest {
         assertThat(batchCompletion).isNotNull
         assertThat(batchCompletion.completionMessageBatch())
             .containsExactly(
-                CompletionMessage.builder()
+                BatchCompletion.CompletionMessageBatch.builder()
                     .content(InterleavedContent.ofString("string"))
-                    .role(CompletionMessage.Role.ASSISTANT)
-                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                    .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
+                    .stopReason(BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN)
                     .toolCalls(
                         listOf(
                             ToolCall.builder()

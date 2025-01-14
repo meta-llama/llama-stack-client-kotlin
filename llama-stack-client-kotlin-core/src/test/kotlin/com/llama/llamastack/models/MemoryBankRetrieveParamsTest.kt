@@ -12,7 +12,8 @@ class MemoryBankRetrieveParamsTest {
     fun createMemoryBankRetrieveParams() {
         MemoryBankRetrieveParams.builder()
             .memoryBankId("memory_bank_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,7 +22,8 @@ class MemoryBankRetrieveParamsTest {
         val params =
             MemoryBankRetrieveParams.builder()
                 .memoryBankId("memory_bank_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("memory_bank_id", "memory_bank_id")

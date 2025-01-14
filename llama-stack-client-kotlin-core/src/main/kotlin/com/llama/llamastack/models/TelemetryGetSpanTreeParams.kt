@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -19,6 +21,7 @@ class TelemetryGetSpanTreeParams
 constructor(
     private val spanId: String,
     private val maxDepth: Long?,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: TelemetryGetSpanTreeBody,
     private val additionalHeaders: Headers,
@@ -29,22 +32,29 @@ constructor(
 
     fun maxDepth(): Long? = maxDepth
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun attributesToReturn(): List<String>? = body.attributesToReturn()
+
+    fun _attributesToReturn(): JsonField<List<String>> = body._attributesToReturn()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     internal fun getBody(): TelemetryGetSpanTreeBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -62,17 +72,34 @@ constructor(
     class TelemetryGetSpanTreeBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("attributes_to_return") private val attributesToReturn: List<String>?,
+        @JsonProperty("attributes_to_return")
+        @ExcludeMissing
+        private val attributesToReturn: JsonField<List<String>> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        fun attributesToReturn(): List<String>? =
+            attributesToReturn.getNullable("attributes_to_return")
+
         @JsonProperty("attributes_to_return")
-        fun attributesToReturn(): List<String>? = attributesToReturn
+        @ExcludeMissing
+        fun _attributesToReturn(): JsonField<List<String>> = attributesToReturn
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): TelemetryGetSpanTreeBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            attributesToReturn()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -83,21 +110,31 @@ constructor(
 
         class Builder {
 
-            private var attributesToReturn: MutableList<String>? = null
+            private var attributesToReturn: JsonField<MutableList<String>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(telemetryGetSpanTreeBody: TelemetryGetSpanTreeBody) = apply {
-                attributesToReturn = telemetryGetSpanTreeBody.attributesToReturn?.toMutableList()
+                attributesToReturn =
+                    telemetryGetSpanTreeBody.attributesToReturn.map { it.toMutableList() }
                 additionalProperties = telemetryGetSpanTreeBody.additionalProperties.toMutableMap()
             }
 
-            fun attributesToReturn(attributesToReturn: List<String>) = apply {
-                this.attributesToReturn = attributesToReturn.toMutableList()
+            fun attributesToReturn(attributesToReturn: List<String>) =
+                attributesToReturn(JsonField.of(attributesToReturn))
+
+            fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
+                this.attributesToReturn = attributesToReturn.map { it.toMutableList() }
             }
 
             fun addAttributesToReturn(attributesToReturn: String) = apply {
                 this.attributesToReturn =
-                    (this.attributesToReturn ?: mutableListOf()).apply { add(attributesToReturn) }
+                    (this.attributesToReturn ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(attributesToReturn)
+                    }
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -121,7 +158,7 @@ constructor(
 
             fun build(): TelemetryGetSpanTreeBody =
                 TelemetryGetSpanTreeBody(
-                    attributesToReturn?.toImmutable(),
+                    (attributesToReturn ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable()
                 )
         }
@@ -156,6 +193,7 @@ constructor(
 
         private var spanId: String? = null
         private var maxDepth: Long? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: TelemetryGetSpanTreeBody.Builder = TelemetryGetSpanTreeBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
@@ -164,6 +202,7 @@ constructor(
         internal fun from(telemetryGetSpanTreeParams: TelemetryGetSpanTreeParams) = apply {
             spanId = telemetryGetSpanTreeParams.spanId
             maxDepth = telemetryGetSpanTreeParams.maxDepth
+            xLlamaStackClientVersion = telemetryGetSpanTreeParams.xLlamaStackClientVersion
             xLlamaStackProviderData = telemetryGetSpanTreeParams.xLlamaStackProviderData
             body = telemetryGetSpanTreeParams.body.toBuilder()
             additionalHeaders = telemetryGetSpanTreeParams.additionalHeaders.toBuilder()
@@ -172,9 +211,15 @@ constructor(
 
         fun spanId(spanId: String) = apply { this.spanId = spanId }
 
-        fun maxDepth(maxDepth: Long) = apply { this.maxDepth = maxDepth }
+        fun maxDepth(maxDepth: Long?) = apply { this.maxDepth = maxDepth }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun maxDepth(maxDepth: Long) = maxDepth(maxDepth as Long?)
+
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -182,8 +227,31 @@ constructor(
             body.attributesToReturn(attributesToReturn)
         }
 
+        fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
+            body.attributesToReturn(attributesToReturn)
+        }
+
         fun addAttributesToReturn(attributesToReturn: String) = apply {
             body.addAttributesToReturn(attributesToReturn)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -284,29 +352,11 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): TelemetryGetSpanTreeParams =
             TelemetryGetSpanTreeParams(
                 checkNotNull(spanId) { "`spanId` is required but was not set" },
                 maxDepth,
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -319,11 +369,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryGetSpanTreeParams && spanId == other.spanId && maxDepth == other.maxDepth && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryGetSpanTreeParams && spanId == other.spanId && maxDepth == other.maxDepth && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(spanId, maxDepth, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(spanId, maxDepth, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryGetSpanTreeParams{spanId=$spanId, maxDepth=$maxDepth, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryGetSpanTreeParams{spanId=$spanId, maxDepth=$maxDepth, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

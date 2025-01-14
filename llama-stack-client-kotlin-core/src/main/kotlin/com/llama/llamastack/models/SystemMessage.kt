@@ -32,9 +32,9 @@ private constructor(
 
     fun role(): Role = role.getRequired("role")
 
-    @JsonProperty("content") @ExcludeMissing fun _content() = content
+    @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
-    @JsonProperty("role") @ExcludeMissing fun _role() = role
+    @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +43,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): SystemMessage = apply {
-        if (!validated) {
-            content()
-            role()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        content().validate()
+        role()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,8 +61,8 @@ private constructor(
 
     class Builder {
 
-        private var content: JsonField<InterleavedContent> = JsonMissing.of()
-        private var role: JsonField<Role> = JsonMissing.of()
+        private var content: JsonField<InterleavedContent>? = null
+        private var role: JsonField<Role>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(systemMessage: SystemMessage) = apply {
@@ -72,6 +74,18 @@ private constructor(
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
+
+        fun content(string: String) = content(InterleavedContent.ofString(string))
+
+        fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+            content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun content(textContentItem: InterleavedContent.TextContentItem) =
+            content(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun contentOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
         fun role(role: Role) = role(JsonField.of(role))
 
@@ -98,8 +112,8 @@ private constructor(
 
         fun build(): SystemMessage =
             SystemMessage(
-                content,
-                role,
+                checkNotNull(content) { "`content` is required but was not set" },
+                checkNotNull(role) { "`role` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }

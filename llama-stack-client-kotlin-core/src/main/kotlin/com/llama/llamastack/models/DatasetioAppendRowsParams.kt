@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class DatasetioAppendRowsParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: DatasetioAppendRowsBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -29,18 +34,25 @@ constructor(
 
     fun rows(): List<Row> = body.rows()
 
+    fun _datasetId(): JsonField<String> = body._datasetId()
+
+    fun _rows(): JsonField<List<Row>> = body._rows()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): DatasetioAppendRowsBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -52,19 +64,39 @@ constructor(
     class DatasetioAppendRowsBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("dataset_id") private val datasetId: String,
-        @JsonProperty("rows") private val rows: List<Row>,
+        @JsonProperty("dataset_id")
+        @ExcludeMissing
+        private val datasetId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("rows")
+        @ExcludeMissing
+        private val rows: JsonField<List<Row>> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("dataset_id") fun datasetId(): String = datasetId
+        fun datasetId(): String = datasetId.getRequired("dataset_id")
 
-        @JsonProperty("rows") fun rows(): List<Row> = rows
+        fun rows(): List<Row> = rows.getRequired("rows")
+
+        @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
+
+        @JsonProperty("rows") @ExcludeMissing fun _rows(): JsonField<List<Row>> = rows
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): DatasetioAppendRowsBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            datasetId()
+            rows().forEach { it.validate() }
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -75,21 +107,36 @@ constructor(
 
         class Builder {
 
-            private var datasetId: String? = null
-            private var rows: MutableList<Row>? = null
+            private var datasetId: JsonField<String>? = null
+            private var rows: JsonField<MutableList<Row>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(datasetioAppendRowsBody: DatasetioAppendRowsBody) = apply {
                 datasetId = datasetioAppendRowsBody.datasetId
-                rows = datasetioAppendRowsBody.rows.toMutableList()
+                rows = datasetioAppendRowsBody.rows.map { it.toMutableList() }
                 additionalProperties = datasetioAppendRowsBody.additionalProperties.toMutableMap()
             }
 
-            fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+            fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
-            fun rows(rows: List<Row>) = apply { this.rows = rows.toMutableList() }
+            fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
-            fun addRow(row: Row) = apply { rows = (rows ?: mutableListOf()).apply { add(row) } }
+            fun rows(rows: List<Row>) = rows(JsonField.of(rows))
+
+            fun rows(rows: JsonField<List<Row>>) = apply {
+                this.rows = rows.map { it.toMutableList() }
+            }
+
+            fun addRow(row: Row) = apply {
+                rows =
+                    (rows ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(row)
+                    }
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -113,7 +160,8 @@ constructor(
             fun build(): DatasetioAppendRowsBody =
                 DatasetioAppendRowsBody(
                     checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                    checkNotNull(rows) { "`rows` is required but was not set" }.toImmutable(),
+                    checkNotNull(rows) { "`rows` is required but was not set" }
+                        .map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -146,27 +194,56 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: DatasetioAppendRowsBody.Builder = DatasetioAppendRowsBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(datasetioAppendRowsParams: DatasetioAppendRowsParams) = apply {
+            xLlamaStackClientVersion = datasetioAppendRowsParams.xLlamaStackClientVersion
             xLlamaStackProviderData = datasetioAppendRowsParams.xLlamaStackProviderData
             body = datasetioAppendRowsParams.body.toBuilder()
             additionalHeaders = datasetioAppendRowsParams.additionalHeaders.toBuilder()
             additionalQueryParams = datasetioAppendRowsParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
+
         fun rows(rows: List<Row>) = apply { body.rows(rows) }
 
+        fun rows(rows: JsonField<List<Row>>) = apply { body.rows(rows) }
+
         fun addRow(row: Row) = apply { body.addRow(row) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -266,27 +343,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): DatasetioAppendRowsParams =
             DatasetioAppendRowsParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -305,6 +364,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Row = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -365,11 +434,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetioAppendRowsParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetioAppendRowsParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetioAppendRowsParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetioAppendRowsParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

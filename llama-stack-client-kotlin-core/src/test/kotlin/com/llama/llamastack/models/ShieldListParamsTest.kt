@@ -8,6 +8,9 @@ class ShieldListParamsTest {
 
     @Test
     fun createShieldListParams() {
-        ShieldListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
+        ShieldListParams.builder()
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
     }
 }

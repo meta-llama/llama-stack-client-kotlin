@@ -9,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -20,11 +21,14 @@ import java.util.Objects
 
 class PostTrainingPreferenceOptimizeParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: PostTrainingPreferenceOptimizeBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -40,18 +44,34 @@ constructor(
 
     fun trainingConfig(): TrainingConfig = body.trainingConfig()
 
+    fun _algorithmConfig(): JsonField<AlgorithmConfig> = body._algorithmConfig()
+
+    fun _finetunedModel(): JsonField<String> = body._finetunedModel()
+
+    fun _hyperparamSearchConfig(): JsonField<HyperparamSearchConfig> =
+        body._hyperparamSearchConfig()
+
+    fun _jobUuid(): JsonField<String> = body._jobUuid()
+
+    fun _loggerConfig(): JsonField<LoggerConfig> = body._loggerConfig()
+
+    fun _trainingConfig(): JsonField<TrainingConfig> = body._trainingConfig()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): PostTrainingPreferenceOptimizeBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -63,33 +83,82 @@ constructor(
     class PostTrainingPreferenceOptimizeBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("algorithm_config") private val algorithmConfig: AlgorithmConfig,
-        @JsonProperty("finetuned_model") private val finetunedModel: String,
+        @JsonProperty("algorithm_config")
+        @ExcludeMissing
+        private val algorithmConfig: JsonField<AlgorithmConfig> = JsonMissing.of(),
+        @JsonProperty("finetuned_model")
+        @ExcludeMissing
+        private val finetunedModel: JsonField<String> = JsonMissing.of(),
         @JsonProperty("hyperparam_search_config")
-        private val hyperparamSearchConfig: HyperparamSearchConfig,
-        @JsonProperty("job_uuid") private val jobUuid: String,
-        @JsonProperty("logger_config") private val loggerConfig: LoggerConfig,
-        @JsonProperty("training_config") private val trainingConfig: TrainingConfig,
+        @ExcludeMissing
+        private val hyperparamSearchConfig: JsonField<HyperparamSearchConfig> = JsonMissing.of(),
+        @JsonProperty("job_uuid")
+        @ExcludeMissing
+        private val jobUuid: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("logger_config")
+        @ExcludeMissing
+        private val loggerConfig: JsonField<LoggerConfig> = JsonMissing.of(),
+        @JsonProperty("training_config")
+        @ExcludeMissing
+        private val trainingConfig: JsonField<TrainingConfig> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("algorithm_config") fun algorithmConfig(): AlgorithmConfig = algorithmConfig
+        fun algorithmConfig(): AlgorithmConfig = algorithmConfig.getRequired("algorithm_config")
 
-        @JsonProperty("finetuned_model") fun finetunedModel(): String = finetunedModel
+        fun finetunedModel(): String = finetunedModel.getRequired("finetuned_model")
+
+        fun hyperparamSearchConfig(): HyperparamSearchConfig =
+            hyperparamSearchConfig.getRequired("hyperparam_search_config")
+
+        fun jobUuid(): String = jobUuid.getRequired("job_uuid")
+
+        fun loggerConfig(): LoggerConfig = loggerConfig.getRequired("logger_config")
+
+        fun trainingConfig(): TrainingConfig = trainingConfig.getRequired("training_config")
+
+        @JsonProperty("algorithm_config")
+        @ExcludeMissing
+        fun _algorithmConfig(): JsonField<AlgorithmConfig> = algorithmConfig
+
+        @JsonProperty("finetuned_model")
+        @ExcludeMissing
+        fun _finetunedModel(): JsonField<String> = finetunedModel
 
         @JsonProperty("hyperparam_search_config")
-        fun hyperparamSearchConfig(): HyperparamSearchConfig = hyperparamSearchConfig
+        @ExcludeMissing
+        fun _hyperparamSearchConfig(): JsonField<HyperparamSearchConfig> = hyperparamSearchConfig
 
-        @JsonProperty("job_uuid") fun jobUuid(): String = jobUuid
+        @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
-        @JsonProperty("logger_config") fun loggerConfig(): LoggerConfig = loggerConfig
+        @JsonProperty("logger_config")
+        @ExcludeMissing
+        fun _loggerConfig(): JsonField<LoggerConfig> = loggerConfig
 
-        @JsonProperty("training_config") fun trainingConfig(): TrainingConfig = trainingConfig
+        @JsonProperty("training_config")
+        @ExcludeMissing
+        fun _trainingConfig(): JsonField<TrainingConfig> = trainingConfig
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): PostTrainingPreferenceOptimizeBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            algorithmConfig().validate()
+            finetunedModel()
+            hyperparamSearchConfig().validate()
+            jobUuid()
+            loggerConfig().validate()
+            trainingConfig().validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -100,12 +169,12 @@ constructor(
 
         class Builder {
 
-            private var algorithmConfig: AlgorithmConfig? = null
-            private var finetunedModel: String? = null
-            private var hyperparamSearchConfig: HyperparamSearchConfig? = null
-            private var jobUuid: String? = null
-            private var loggerConfig: LoggerConfig? = null
-            private var trainingConfig: TrainingConfig? = null
+            private var algorithmConfig: JsonField<AlgorithmConfig>? = null
+            private var finetunedModel: JsonField<String>? = null
+            private var hyperparamSearchConfig: JsonField<HyperparamSearchConfig>? = null
+            private var jobUuid: JsonField<String>? = null
+            private var loggerConfig: JsonField<LoggerConfig>? = null
+            private var trainingConfig: JsonField<TrainingConfig>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(
@@ -121,25 +190,42 @@ constructor(
                     postTrainingPreferenceOptimizeBody.additionalProperties.toMutableMap()
             }
 
-            fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
+            fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
+                algorithmConfig(JsonField.of(algorithmConfig))
+
+            fun algorithmConfig(algorithmConfig: JsonField<AlgorithmConfig>) = apply {
                 this.algorithmConfig = algorithmConfig
             }
 
-            fun finetunedModel(finetunedModel: String) = apply {
+            fun finetunedModel(finetunedModel: String) =
+                finetunedModel(JsonField.of(finetunedModel))
+
+            fun finetunedModel(finetunedModel: JsonField<String>) = apply {
                 this.finetunedModel = finetunedModel
             }
 
-            fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
-                this.hyperparamSearchConfig = hyperparamSearchConfig
-            }
+            fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) =
+                hyperparamSearchConfig(JsonField.of(hyperparamSearchConfig))
 
-            fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
+            fun hyperparamSearchConfig(hyperparamSearchConfig: JsonField<HyperparamSearchConfig>) =
+                apply {
+                    this.hyperparamSearchConfig = hyperparamSearchConfig
+                }
 
-            fun loggerConfig(loggerConfig: LoggerConfig) = apply {
+            fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
+
+            fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
+
+            fun loggerConfig(loggerConfig: LoggerConfig) = loggerConfig(JsonField.of(loggerConfig))
+
+            fun loggerConfig(loggerConfig: JsonField<LoggerConfig>) = apply {
                 this.loggerConfig = loggerConfig
             }
 
-            fun trainingConfig(trainingConfig: TrainingConfig) = apply {
+            fun trainingConfig(trainingConfig: TrainingConfig) =
+                trainingConfig(JsonField.of(trainingConfig))
+
+            fun trainingConfig(trainingConfig: JsonField<TrainingConfig>) = apply {
                 this.trainingConfig = trainingConfig
             }
 
@@ -206,6 +292,7 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: PostTrainingPreferenceOptimizeBody.Builder =
             PostTrainingPreferenceOptimizeBody.builder()
@@ -215,6 +302,7 @@ constructor(
         internal fun from(
             postTrainingPreferenceOptimizeParams: PostTrainingPreferenceOptimizeParams
         ) = apply {
+            xLlamaStackClientVersion = postTrainingPreferenceOptimizeParams.xLlamaStackClientVersion
             xLlamaStackProviderData = postTrainingPreferenceOptimizeParams.xLlamaStackProviderData
             body = postTrainingPreferenceOptimizeParams.body.toBuilder()
             additionalHeaders = postTrainingPreferenceOptimizeParams.additionalHeaders.toBuilder()
@@ -222,7 +310,11 @@ constructor(
                 postTrainingPreferenceOptimizeParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -230,18 +322,60 @@ constructor(
             body.algorithmConfig(algorithmConfig)
         }
 
+        fun algorithmConfig(algorithmConfig: JsonField<AlgorithmConfig>) = apply {
+            body.algorithmConfig(algorithmConfig)
+        }
+
         fun finetunedModel(finetunedModel: String) = apply { body.finetunedModel(finetunedModel) }
+
+        fun finetunedModel(finetunedModel: JsonField<String>) = apply {
+            body.finetunedModel(finetunedModel)
+        }
 
         fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
             body.hyperparamSearchConfig(hyperparamSearchConfig)
         }
 
+        fun hyperparamSearchConfig(hyperparamSearchConfig: JsonField<HyperparamSearchConfig>) =
+            apply {
+                body.hyperparamSearchConfig(hyperparamSearchConfig)
+            }
+
         fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
+
+        fun jobUuid(jobUuid: JsonField<String>) = apply { body.jobUuid(jobUuid) }
 
         fun loggerConfig(loggerConfig: LoggerConfig) = apply { body.loggerConfig(loggerConfig) }
 
+        fun loggerConfig(loggerConfig: JsonField<LoggerConfig>) = apply {
+            body.loggerConfig(loggerConfig)
+        }
+
         fun trainingConfig(trainingConfig: TrainingConfig) = apply {
             body.trainingConfig(trainingConfig)
+        }
+
+        fun trainingConfig(trainingConfig: JsonField<TrainingConfig>) = apply {
+            body.trainingConfig(trainingConfig)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -342,27 +476,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): PostTrainingPreferenceOptimizeParams =
             PostTrainingPreferenceOptimizeParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -374,25 +490,59 @@ constructor(
     class AlgorithmConfig
     @JsonCreator
     private constructor(
-        @JsonProperty("epsilon") private val epsilon: Double,
-        @JsonProperty("gamma") private val gamma: Double,
-        @JsonProperty("reward_clip") private val rewardClip: Double,
-        @JsonProperty("reward_scale") private val rewardScale: Double,
+        @JsonProperty("epsilon")
+        @ExcludeMissing
+        private val epsilon: JsonField<Double> = JsonMissing.of(),
+        @JsonProperty("gamma")
+        @ExcludeMissing
+        private val gamma: JsonField<Double> = JsonMissing.of(),
+        @JsonProperty("reward_clip")
+        @ExcludeMissing
+        private val rewardClip: JsonField<Double> = JsonMissing.of(),
+        @JsonProperty("reward_scale")
+        @ExcludeMissing
+        private val rewardScale: JsonField<Double> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("epsilon") fun epsilon(): Double = epsilon
+        fun epsilon(): Double = epsilon.getRequired("epsilon")
 
-        @JsonProperty("gamma") fun gamma(): Double = gamma
+        fun gamma(): Double = gamma.getRequired("gamma")
 
-        @JsonProperty("reward_clip") fun rewardClip(): Double = rewardClip
+        fun rewardClip(): Double = rewardClip.getRequired("reward_clip")
 
-        @JsonProperty("reward_scale") fun rewardScale(): Double = rewardScale
+        fun rewardScale(): Double = rewardScale.getRequired("reward_scale")
+
+        @JsonProperty("epsilon") @ExcludeMissing fun _epsilon(): JsonField<Double> = epsilon
+
+        @JsonProperty("gamma") @ExcludeMissing fun _gamma(): JsonField<Double> = gamma
+
+        @JsonProperty("reward_clip")
+        @ExcludeMissing
+        fun _rewardClip(): JsonField<Double> = rewardClip
+
+        @JsonProperty("reward_scale")
+        @ExcludeMissing
+        fun _rewardScale(): JsonField<Double> = rewardScale
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): AlgorithmConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            epsilon()
+            gamma()
+            rewardClip()
+            rewardScale()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -403,10 +553,10 @@ constructor(
 
         class Builder {
 
-            private var epsilon: Double? = null
-            private var gamma: Double? = null
-            private var rewardClip: Double? = null
-            private var rewardScale: Double? = null
+            private var epsilon: JsonField<Double>? = null
+            private var gamma: JsonField<Double>? = null
+            private var rewardClip: JsonField<Double>? = null
+            private var rewardScale: JsonField<Double>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(algorithmConfig: AlgorithmConfig) = apply {
@@ -417,13 +567,23 @@ constructor(
                 additionalProperties = algorithmConfig.additionalProperties.toMutableMap()
             }
 
-            fun epsilon(epsilon: Double) = apply { this.epsilon = epsilon }
+            fun epsilon(epsilon: Double) = epsilon(JsonField.of(epsilon))
 
-            fun gamma(gamma: Double) = apply { this.gamma = gamma }
+            fun epsilon(epsilon: JsonField<Double>) = apply { this.epsilon = epsilon }
 
-            fun rewardClip(rewardClip: Double) = apply { this.rewardClip = rewardClip }
+            fun gamma(gamma: Double) = gamma(JsonField.of(gamma))
 
-            fun rewardScale(rewardScale: Double) = apply { this.rewardScale = rewardScale }
+            fun gamma(gamma: JsonField<Double>) = apply { this.gamma = gamma }
+
+            fun rewardClip(rewardClip: Double) = rewardClip(JsonField.of(rewardClip))
+
+            fun rewardClip(rewardClip: JsonField<Double>) = apply { this.rewardClip = rewardClip }
+
+            fun rewardScale(rewardScale: Double) = rewardScale(JsonField.of(rewardScale))
+
+            fun rewardScale(rewardScale: JsonField<Double>) = apply {
+                this.rewardScale = rewardScale
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -483,6 +643,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): HyperparamSearchConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -552,6 +722,16 @@ constructor(
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
+        fun validate(): LoggerConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
         fun toBuilder() = Builder().from(this)
 
         companion object {
@@ -610,36 +790,101 @@ constructor(
     class TrainingConfig
     @JsonCreator
     private constructor(
-        @JsonProperty("data_config") private val dataConfig: DataConfig,
-        @JsonProperty("dtype") private val dtype: String?,
-        @JsonProperty("efficiency_config") private val efficiencyConfig: EfficiencyConfig?,
-        @JsonProperty("gradient_accumulation_steps") private val gradientAccumulationSteps: Long,
-        @JsonProperty("max_steps_per_epoch") private val maxStepsPerEpoch: Long,
-        @JsonProperty("n_epochs") private val nEpochs: Long,
-        @JsonProperty("optimizer_config") private val optimizerConfig: OptimizerConfig,
+        @JsonProperty("data_config")
+        @ExcludeMissing
+        private val dataConfig: JsonField<DataConfig> = JsonMissing.of(),
+        @JsonProperty("gradient_accumulation_steps")
+        @ExcludeMissing
+        private val gradientAccumulationSteps: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("max_steps_per_epoch")
+        @ExcludeMissing
+        private val maxStepsPerEpoch: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("max_validation_steps")
+        @ExcludeMissing
+        private val maxValidationSteps: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("n_epochs")
+        @ExcludeMissing
+        private val nEpochs: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("optimizer_config")
+        @ExcludeMissing
+        private val optimizerConfig: JsonField<OptimizerConfig> = JsonMissing.of(),
+        @JsonProperty("dtype")
+        @ExcludeMissing
+        private val dtype: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("efficiency_config")
+        @ExcludeMissing
+        private val efficiencyConfig: JsonField<EfficiencyConfig> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("data_config") fun dataConfig(): DataConfig = dataConfig
+        fun dataConfig(): DataConfig = dataConfig.getRequired("data_config")
 
-        @JsonProperty("dtype") fun dtype(): String? = dtype
+        fun gradientAccumulationSteps(): Long =
+            gradientAccumulationSteps.getRequired("gradient_accumulation_steps")
 
-        @JsonProperty("efficiency_config")
-        fun efficiencyConfig(): EfficiencyConfig? = efficiencyConfig
+        fun maxStepsPerEpoch(): Long = maxStepsPerEpoch.getRequired("max_steps_per_epoch")
+
+        fun maxValidationSteps(): Long = maxValidationSteps.getRequired("max_validation_steps")
+
+        fun nEpochs(): Long = nEpochs.getRequired("n_epochs")
+
+        fun optimizerConfig(): OptimizerConfig = optimizerConfig.getRequired("optimizer_config")
+
+        fun dtype(): String? = dtype.getNullable("dtype")
+
+        fun efficiencyConfig(): EfficiencyConfig? =
+            efficiencyConfig.getNullable("efficiency_config")
+
+        @JsonProperty("data_config")
+        @ExcludeMissing
+        fun _dataConfig(): JsonField<DataConfig> = dataConfig
 
         @JsonProperty("gradient_accumulation_steps")
-        fun gradientAccumulationSteps(): Long = gradientAccumulationSteps
+        @ExcludeMissing
+        fun _gradientAccumulationSteps(): JsonField<Long> = gradientAccumulationSteps
 
-        @JsonProperty("max_steps_per_epoch") fun maxStepsPerEpoch(): Long = maxStepsPerEpoch
+        @JsonProperty("max_steps_per_epoch")
+        @ExcludeMissing
+        fun _maxStepsPerEpoch(): JsonField<Long> = maxStepsPerEpoch
 
-        @JsonProperty("n_epochs") fun nEpochs(): Long = nEpochs
+        @JsonProperty("max_validation_steps")
+        @ExcludeMissing
+        fun _maxValidationSteps(): JsonField<Long> = maxValidationSteps
 
-        @JsonProperty("optimizer_config") fun optimizerConfig(): OptimizerConfig = optimizerConfig
+        @JsonProperty("n_epochs") @ExcludeMissing fun _nEpochs(): JsonField<Long> = nEpochs
+
+        @JsonProperty("optimizer_config")
+        @ExcludeMissing
+        fun _optimizerConfig(): JsonField<OptimizerConfig> = optimizerConfig
+
+        @JsonProperty("dtype") @ExcludeMissing fun _dtype(): JsonField<String> = dtype
+
+        @JsonProperty("efficiency_config")
+        @ExcludeMissing
+        fun _efficiencyConfig(): JsonField<EfficiencyConfig> = efficiencyConfig
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): TrainingConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            dataConfig().validate()
+            gradientAccumulationSteps()
+            maxStepsPerEpoch()
+            maxValidationSteps()
+            nEpochs()
+            optimizerConfig().validate()
+            dtype()
+            efficiencyConfig()?.validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -650,46 +895,75 @@ constructor(
 
         class Builder {
 
-            private var dataConfig: DataConfig? = null
-            private var dtype: String? = null
-            private var efficiencyConfig: EfficiencyConfig? = null
-            private var gradientAccumulationSteps: Long? = null
-            private var maxStepsPerEpoch: Long? = null
-            private var nEpochs: Long? = null
-            private var optimizerConfig: OptimizerConfig? = null
+            private var dataConfig: JsonField<DataConfig>? = null
+            private var gradientAccumulationSteps: JsonField<Long>? = null
+            private var maxStepsPerEpoch: JsonField<Long>? = null
+            private var maxValidationSteps: JsonField<Long>? = null
+            private var nEpochs: JsonField<Long>? = null
+            private var optimizerConfig: JsonField<OptimizerConfig>? = null
+            private var dtype: JsonField<String> = JsonMissing.of()
+            private var efficiencyConfig: JsonField<EfficiencyConfig> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(trainingConfig: TrainingConfig) = apply {
                 dataConfig = trainingConfig.dataConfig
-                dtype = trainingConfig.dtype
-                efficiencyConfig = trainingConfig.efficiencyConfig
                 gradientAccumulationSteps = trainingConfig.gradientAccumulationSteps
                 maxStepsPerEpoch = trainingConfig.maxStepsPerEpoch
+                maxValidationSteps = trainingConfig.maxValidationSteps
                 nEpochs = trainingConfig.nEpochs
                 optimizerConfig = trainingConfig.optimizerConfig
+                dtype = trainingConfig.dtype
+                efficiencyConfig = trainingConfig.efficiencyConfig
                 additionalProperties = trainingConfig.additionalProperties.toMutableMap()
             }
 
-            fun dataConfig(dataConfig: DataConfig) = apply { this.dataConfig = dataConfig }
+            fun dataConfig(dataConfig: DataConfig) = dataConfig(JsonField.of(dataConfig))
 
-            fun dtype(dtype: String) = apply { this.dtype = dtype }
-
-            fun efficiencyConfig(efficiencyConfig: EfficiencyConfig) = apply {
-                this.efficiencyConfig = efficiencyConfig
+            fun dataConfig(dataConfig: JsonField<DataConfig>) = apply {
+                this.dataConfig = dataConfig
             }
 
-            fun gradientAccumulationSteps(gradientAccumulationSteps: Long) = apply {
+            fun gradientAccumulationSteps(gradientAccumulationSteps: Long) =
+                gradientAccumulationSteps(JsonField.of(gradientAccumulationSteps))
+
+            fun gradientAccumulationSteps(gradientAccumulationSteps: JsonField<Long>) = apply {
                 this.gradientAccumulationSteps = gradientAccumulationSteps
             }
 
-            fun maxStepsPerEpoch(maxStepsPerEpoch: Long) = apply {
+            fun maxStepsPerEpoch(maxStepsPerEpoch: Long) =
+                maxStepsPerEpoch(JsonField.of(maxStepsPerEpoch))
+
+            fun maxStepsPerEpoch(maxStepsPerEpoch: JsonField<Long>) = apply {
                 this.maxStepsPerEpoch = maxStepsPerEpoch
             }
 
-            fun nEpochs(nEpochs: Long) = apply { this.nEpochs = nEpochs }
+            fun maxValidationSteps(maxValidationSteps: Long) =
+                maxValidationSteps(JsonField.of(maxValidationSteps))
 
-            fun optimizerConfig(optimizerConfig: OptimizerConfig) = apply {
+            fun maxValidationSteps(maxValidationSteps: JsonField<Long>) = apply {
+                this.maxValidationSteps = maxValidationSteps
+            }
+
+            fun nEpochs(nEpochs: Long) = nEpochs(JsonField.of(nEpochs))
+
+            fun nEpochs(nEpochs: JsonField<Long>) = apply { this.nEpochs = nEpochs }
+
+            fun optimizerConfig(optimizerConfig: OptimizerConfig) =
+                optimizerConfig(JsonField.of(optimizerConfig))
+
+            fun optimizerConfig(optimizerConfig: JsonField<OptimizerConfig>) = apply {
                 this.optimizerConfig = optimizerConfig
+            }
+
+            fun dtype(dtype: String) = dtype(JsonField.of(dtype))
+
+            fun dtype(dtype: JsonField<String>) = apply { this.dtype = dtype }
+
+            fun efficiencyConfig(efficiencyConfig: EfficiencyConfig) =
+                efficiencyConfig(JsonField.of(efficiencyConfig))
+
+            fun efficiencyConfig(efficiencyConfig: JsonField<EfficiencyConfig>) = apply {
+                this.efficiencyConfig = efficiencyConfig
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -714,18 +988,21 @@ constructor(
             fun build(): TrainingConfig =
                 TrainingConfig(
                     checkNotNull(dataConfig) { "`dataConfig` is required but was not set" },
-                    dtype,
-                    efficiencyConfig,
                     checkNotNull(gradientAccumulationSteps) {
                         "`gradientAccumulationSteps` is required but was not set"
                     },
                     checkNotNull(maxStepsPerEpoch) {
                         "`maxStepsPerEpoch` is required but was not set"
                     },
+                    checkNotNull(maxValidationSteps) {
+                        "`maxValidationSteps` is required but was not set"
+                    },
                     checkNotNull(nEpochs) { "`nEpochs` is required but was not set" },
                     checkNotNull(optimizerConfig) {
                         "`optimizerConfig` is required but was not set"
                     },
+                    dtype,
+                    efficiencyConfig,
                     additionalProperties.toImmutable(),
                 )
         }
@@ -734,32 +1011,80 @@ constructor(
         class DataConfig
         @JsonCreator
         private constructor(
-            @JsonProperty("batch_size") private val batchSize: Long,
-            @JsonProperty("dataset_id") private val datasetId: String,
-            @JsonProperty("packed") private val packed: Boolean?,
-            @JsonProperty("shuffle") private val shuffle: Boolean,
-            @JsonProperty("train_on_input") private val trainOnInput: Boolean?,
-            @JsonProperty("validation_dataset_id") private val validationDatasetId: String?,
+            @JsonProperty("batch_size")
+            @ExcludeMissing
+            private val batchSize: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("dataset_id")
+            @ExcludeMissing
+            private val datasetId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("shuffle")
+            @ExcludeMissing
+            private val shuffle: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("packed")
+            @ExcludeMissing
+            private val packed: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("train_on_input")
+            @ExcludeMissing
+            private val trainOnInput: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("validation_dataset_id")
+            @ExcludeMissing
+            private val validationDatasetId: JsonField<String> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("batch_size") fun batchSize(): Long = batchSize
+            fun batchSize(): Long = batchSize.getRequired("batch_size")
 
-            @JsonProperty("dataset_id") fun datasetId(): String = datasetId
+            fun datasetId(): String = datasetId.getRequired("dataset_id")
 
-            @JsonProperty("packed") fun packed(): Boolean? = packed
+            fun shuffle(): Boolean = shuffle.getRequired("shuffle")
 
-            @JsonProperty("shuffle") fun shuffle(): Boolean = shuffle
+            fun packed(): Boolean? = packed.getNullable("packed")
 
-            @JsonProperty("train_on_input") fun trainOnInput(): Boolean? = trainOnInput
+            fun trainOnInput(): Boolean? = trainOnInput.getNullable("train_on_input")
+
+            fun validationDatasetId(): String? =
+                validationDatasetId.getNullable("validation_dataset_id")
+
+            @JsonProperty("batch_size")
+            @ExcludeMissing
+            fun _batchSize(): JsonField<Long> = batchSize
+
+            @JsonProperty("dataset_id")
+            @ExcludeMissing
+            fun _datasetId(): JsonField<String> = datasetId
+
+            @JsonProperty("shuffle") @ExcludeMissing fun _shuffle(): JsonField<Boolean> = shuffle
+
+            @JsonProperty("packed") @ExcludeMissing fun _packed(): JsonField<Boolean> = packed
+
+            @JsonProperty("train_on_input")
+            @ExcludeMissing
+            fun _trainOnInput(): JsonField<Boolean> = trainOnInput
 
             @JsonProperty("validation_dataset_id")
-            fun validationDatasetId(): String? = validationDatasetId
+            @ExcludeMissing
+            fun _validationDatasetId(): JsonField<String> = validationDatasetId
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): DataConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                batchSize()
+                datasetId()
+                shuffle()
+                packed()
+                trainOnInput()
+                validationDatasetId()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -770,35 +1095,50 @@ constructor(
 
             class Builder {
 
-                private var batchSize: Long? = null
-                private var datasetId: String? = null
-                private var packed: Boolean? = null
-                private var shuffle: Boolean? = null
-                private var trainOnInput: Boolean? = null
-                private var validationDatasetId: String? = null
+                private var batchSize: JsonField<Long>? = null
+                private var datasetId: JsonField<String>? = null
+                private var shuffle: JsonField<Boolean>? = null
+                private var packed: JsonField<Boolean> = JsonMissing.of()
+                private var trainOnInput: JsonField<Boolean> = JsonMissing.of()
+                private var validationDatasetId: JsonField<String> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(dataConfig: DataConfig) = apply {
                     batchSize = dataConfig.batchSize
                     datasetId = dataConfig.datasetId
-                    packed = dataConfig.packed
                     shuffle = dataConfig.shuffle
+                    packed = dataConfig.packed
                     trainOnInput = dataConfig.trainOnInput
                     validationDatasetId = dataConfig.validationDatasetId
                     additionalProperties = dataConfig.additionalProperties.toMutableMap()
                 }
 
-                fun batchSize(batchSize: Long) = apply { this.batchSize = batchSize }
+                fun batchSize(batchSize: Long) = batchSize(JsonField.of(batchSize))
 
-                fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+                fun batchSize(batchSize: JsonField<Long>) = apply { this.batchSize = batchSize }
 
-                fun packed(packed: Boolean) = apply { this.packed = packed }
+                fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
-                fun shuffle(shuffle: Boolean) = apply { this.shuffle = shuffle }
+                fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
-                fun trainOnInput(trainOnInput: Boolean) = apply { this.trainOnInput = trainOnInput }
+                fun shuffle(shuffle: Boolean) = shuffle(JsonField.of(shuffle))
 
-                fun validationDatasetId(validationDatasetId: String) = apply {
+                fun shuffle(shuffle: JsonField<Boolean>) = apply { this.shuffle = shuffle }
+
+                fun packed(packed: Boolean) = packed(JsonField.of(packed))
+
+                fun packed(packed: JsonField<Boolean>) = apply { this.packed = packed }
+
+                fun trainOnInput(trainOnInput: Boolean) = trainOnInput(JsonField.of(trainOnInput))
+
+                fun trainOnInput(trainOnInput: JsonField<Boolean>) = apply {
+                    this.trainOnInput = trainOnInput
+                }
+
+                fun validationDatasetId(validationDatasetId: String) =
+                    validationDatasetId(JsonField.of(validationDatasetId))
+
+                fun validationDatasetId(validationDatasetId: JsonField<String>) = apply {
                     this.validationDatasetId = validationDatasetId
                 }
 
@@ -828,8 +1168,8 @@ constructor(
                     DataConfig(
                         checkNotNull(batchSize) { "`batchSize` is required but was not set" },
                         checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                        packed,
                         checkNotNull(shuffle) { "`shuffle` is required but was not set" },
+                        packed,
                         trainOnInput,
                         validationDatasetId,
                         additionalProperties.toImmutable(),
@@ -841,42 +1181,78 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is DataConfig && batchSize == other.batchSize && datasetId == other.datasetId && packed == other.packed && shuffle == other.shuffle && trainOnInput == other.trainOnInput && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is DataConfig && batchSize == other.batchSize && datasetId == other.datasetId && shuffle == other.shuffle && packed == other.packed && trainOnInput == other.trainOnInput && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(batchSize, datasetId, packed, shuffle, trainOnInput, validationDatasetId, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(batchSize, datasetId, shuffle, packed, trainOnInput, validationDatasetId, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "DataConfig{batchSize=$batchSize, datasetId=$datasetId, packed=$packed, shuffle=$shuffle, trainOnInput=$trainOnInput, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
+                "DataConfig{batchSize=$batchSize, datasetId=$datasetId, shuffle=$shuffle, packed=$packed, trainOnInput=$trainOnInput, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
         class OptimizerConfig
         @JsonCreator
         private constructor(
-            @JsonProperty("lr") private val lr: Double,
-            @JsonProperty("num_warmup_steps") private val numWarmupSteps: Long,
-            @JsonProperty("optimizer_type") private val optimizerType: OptimizerType,
-            @JsonProperty("weight_decay") private val weightDecay: Double,
+            @JsonProperty("lr")
+            @ExcludeMissing
+            private val lr: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("num_warmup_steps")
+            @ExcludeMissing
+            private val numWarmupSteps: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("optimizer_type")
+            @ExcludeMissing
+            private val optimizerType: JsonField<OptimizerType> = JsonMissing.of(),
+            @JsonProperty("weight_decay")
+            @ExcludeMissing
+            private val weightDecay: JsonField<Double> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("lr") fun lr(): Double = lr
+            fun lr(): Double = lr.getRequired("lr")
 
-            @JsonProperty("num_warmup_steps") fun numWarmupSteps(): Long = numWarmupSteps
+            fun numWarmupSteps(): Long = numWarmupSteps.getRequired("num_warmup_steps")
 
-            @JsonProperty("optimizer_type") fun optimizerType(): OptimizerType = optimizerType
+            fun optimizerType(): OptimizerType = optimizerType.getRequired("optimizer_type")
 
-            @JsonProperty("weight_decay") fun weightDecay(): Double = weightDecay
+            fun weightDecay(): Double = weightDecay.getRequired("weight_decay")
+
+            @JsonProperty("lr") @ExcludeMissing fun _lr(): JsonField<Double> = lr
+
+            @JsonProperty("num_warmup_steps")
+            @ExcludeMissing
+            fun _numWarmupSteps(): JsonField<Long> = numWarmupSteps
+
+            @JsonProperty("optimizer_type")
+            @ExcludeMissing
+            fun _optimizerType(): JsonField<OptimizerType> = optimizerType
+
+            @JsonProperty("weight_decay")
+            @ExcludeMissing
+            fun _weightDecay(): JsonField<Double> = weightDecay
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): OptimizerConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                lr()
+                numWarmupSteps()
+                optimizerType()
+                weightDecay()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -887,10 +1263,10 @@ constructor(
 
             class Builder {
 
-                private var lr: Double? = null
-                private var numWarmupSteps: Long? = null
-                private var optimizerType: OptimizerType? = null
-                private var weightDecay: Double? = null
+                private var lr: JsonField<Double>? = null
+                private var numWarmupSteps: JsonField<Long>? = null
+                private var optimizerType: JsonField<OptimizerType>? = null
+                private var weightDecay: JsonField<Double>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(optimizerConfig: OptimizerConfig) = apply {
@@ -901,17 +1277,29 @@ constructor(
                     additionalProperties = optimizerConfig.additionalProperties.toMutableMap()
                 }
 
-                fun lr(lr: Double) = apply { this.lr = lr }
+                fun lr(lr: Double) = lr(JsonField.of(lr))
 
-                fun numWarmupSteps(numWarmupSteps: Long) = apply {
+                fun lr(lr: JsonField<Double>) = apply { this.lr = lr }
+
+                fun numWarmupSteps(numWarmupSteps: Long) =
+                    numWarmupSteps(JsonField.of(numWarmupSteps))
+
+                fun numWarmupSteps(numWarmupSteps: JsonField<Long>) = apply {
                     this.numWarmupSteps = numWarmupSteps
                 }
 
-                fun optimizerType(optimizerType: OptimizerType) = apply {
+                fun optimizerType(optimizerType: OptimizerType) =
+                    optimizerType(JsonField.of(optimizerType))
+
+                fun optimizerType(optimizerType: JsonField<OptimizerType>) = apply {
                     this.optimizerType = optimizerType
                 }
 
-                fun weightDecay(weightDecay: Double) = apply { this.weightDecay = weightDecay }
+                fun weightDecay(weightDecay: Double) = weightDecay(JsonField.of(weightDecay))
+
+                fun weightDecay(weightDecay: JsonField<Double>) = apply {
+                    this.weightDecay = weightDecay
+                }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -1038,30 +1426,65 @@ constructor(
         @JsonCreator
         private constructor(
             @JsonProperty("enable_activation_checkpointing")
-            private val enableActivationCheckpointing: Boolean?,
+            @ExcludeMissing
+            private val enableActivationCheckpointing: JsonField<Boolean> = JsonMissing.of(),
             @JsonProperty("enable_activation_offloading")
-            private val enableActivationOffloading: Boolean?,
-            @JsonProperty("fsdp_cpu_offload") private val fsdpCpuOffload: Boolean?,
+            @ExcludeMissing
+            private val enableActivationOffloading: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("fsdp_cpu_offload")
+            @ExcludeMissing
+            private val fsdpCpuOffload: JsonField<Boolean> = JsonMissing.of(),
             @JsonProperty("memory_efficient_fsdp_wrap")
-            private val memoryEfficientFsdpWrap: Boolean?,
+            @ExcludeMissing
+            private val memoryEfficientFsdpWrap: JsonField<Boolean> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            fun enableActivationCheckpointing(): Boolean? =
+                enableActivationCheckpointing.getNullable("enable_activation_checkpointing")
+
+            fun enableActivationOffloading(): Boolean? =
+                enableActivationOffloading.getNullable("enable_activation_offloading")
+
+            fun fsdpCpuOffload(): Boolean? = fsdpCpuOffload.getNullable("fsdp_cpu_offload")
+
+            fun memoryEfficientFsdpWrap(): Boolean? =
+                memoryEfficientFsdpWrap.getNullable("memory_efficient_fsdp_wrap")
+
             @JsonProperty("enable_activation_checkpointing")
-            fun enableActivationCheckpointing(): Boolean? = enableActivationCheckpointing
+            @ExcludeMissing
+            fun _enableActivationCheckpointing(): JsonField<Boolean> = enableActivationCheckpointing
 
             @JsonProperty("enable_activation_offloading")
-            fun enableActivationOffloading(): Boolean? = enableActivationOffloading
+            @ExcludeMissing
+            fun _enableActivationOffloading(): JsonField<Boolean> = enableActivationOffloading
 
-            @JsonProperty("fsdp_cpu_offload") fun fsdpCpuOffload(): Boolean? = fsdpCpuOffload
+            @JsonProperty("fsdp_cpu_offload")
+            @ExcludeMissing
+            fun _fsdpCpuOffload(): JsonField<Boolean> = fsdpCpuOffload
 
             @JsonProperty("memory_efficient_fsdp_wrap")
-            fun memoryEfficientFsdpWrap(): Boolean? = memoryEfficientFsdpWrap
+            @ExcludeMissing
+            fun _memoryEfficientFsdpWrap(): JsonField<Boolean> = memoryEfficientFsdpWrap
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): EfficiencyConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                enableActivationCheckpointing()
+                enableActivationOffloading()
+                fsdpCpuOffload()
+                memoryEfficientFsdpWrap()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -1072,10 +1495,10 @@ constructor(
 
             class Builder {
 
-                private var enableActivationCheckpointing: Boolean? = null
-                private var enableActivationOffloading: Boolean? = null
-                private var fsdpCpuOffload: Boolean? = null
-                private var memoryEfficientFsdpWrap: Boolean? = null
+                private var enableActivationCheckpointing: JsonField<Boolean> = JsonMissing.of()
+                private var enableActivationOffloading: JsonField<Boolean> = JsonMissing.of()
+                private var fsdpCpuOffload: JsonField<Boolean> = JsonMissing.of()
+                private var memoryEfficientFsdpWrap: JsonField<Boolean> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(efficiencyConfig: EfficiencyConfig) = apply {
@@ -1086,19 +1509,32 @@ constructor(
                     additionalProperties = efficiencyConfig.additionalProperties.toMutableMap()
                 }
 
-                fun enableActivationCheckpointing(enableActivationCheckpointing: Boolean) = apply {
-                    this.enableActivationCheckpointing = enableActivationCheckpointing
-                }
+                fun enableActivationCheckpointing(enableActivationCheckpointing: Boolean) =
+                    enableActivationCheckpointing(JsonField.of(enableActivationCheckpointing))
 
-                fun enableActivationOffloading(enableActivationOffloading: Boolean) = apply {
-                    this.enableActivationOffloading = enableActivationOffloading
-                }
+                fun enableActivationCheckpointing(
+                    enableActivationCheckpointing: JsonField<Boolean>
+                ) = apply { this.enableActivationCheckpointing = enableActivationCheckpointing }
 
-                fun fsdpCpuOffload(fsdpCpuOffload: Boolean) = apply {
+                fun enableActivationOffloading(enableActivationOffloading: Boolean) =
+                    enableActivationOffloading(JsonField.of(enableActivationOffloading))
+
+                fun enableActivationOffloading(enableActivationOffloading: JsonField<Boolean>) =
+                    apply {
+                        this.enableActivationOffloading = enableActivationOffloading
+                    }
+
+                fun fsdpCpuOffload(fsdpCpuOffload: Boolean) =
+                    fsdpCpuOffload(JsonField.of(fsdpCpuOffload))
+
+                fun fsdpCpuOffload(fsdpCpuOffload: JsonField<Boolean>) = apply {
                     this.fsdpCpuOffload = fsdpCpuOffload
                 }
 
-                fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: Boolean) = apply {
+                fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: Boolean) =
+                    memoryEfficientFsdpWrap(JsonField.of(memoryEfficientFsdpWrap))
+
+                fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: JsonField<Boolean>) = apply {
                     this.memoryEfficientFsdpWrap = memoryEfficientFsdpWrap
                 }
 
@@ -1157,17 +1593,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TrainingConfig && dataConfig == other.dataConfig && dtype == other.dtype && efficiencyConfig == other.efficiencyConfig && gradientAccumulationSteps == other.gradientAccumulationSteps && maxStepsPerEpoch == other.maxStepsPerEpoch && nEpochs == other.nEpochs && optimizerConfig == other.optimizerConfig && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TrainingConfig && dataConfig == other.dataConfig && gradientAccumulationSteps == other.gradientAccumulationSteps && maxStepsPerEpoch == other.maxStepsPerEpoch && maxValidationSteps == other.maxValidationSteps && nEpochs == other.nEpochs && optimizerConfig == other.optimizerConfig && dtype == other.dtype && efficiencyConfig == other.efficiencyConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(dataConfig, dtype, efficiencyConfig, gradientAccumulationSteps, maxStepsPerEpoch, nEpochs, optimizerConfig, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(dataConfig, gradientAccumulationSteps, maxStepsPerEpoch, maxValidationSteps, nEpochs, optimizerConfig, dtype, efficiencyConfig, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TrainingConfig{dataConfig=$dataConfig, dtype=$dtype, efficiencyConfig=$efficiencyConfig, gradientAccumulationSteps=$gradientAccumulationSteps, maxStepsPerEpoch=$maxStepsPerEpoch, nEpochs=$nEpochs, optimizerConfig=$optimizerConfig, additionalProperties=$additionalProperties}"
+            "TrainingConfig{dataConfig=$dataConfig, gradientAccumulationSteps=$gradientAccumulationSteps, maxStepsPerEpoch=$maxStepsPerEpoch, maxValidationSteps=$maxValidationSteps, nEpochs=$nEpochs, optimizerConfig=$optimizerConfig, dtype=$dtype, efficiencyConfig=$efficiencyConfig, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1175,11 +1611,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "PostTrainingPreferenceOptimizeParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "PostTrainingPreferenceOptimizeParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

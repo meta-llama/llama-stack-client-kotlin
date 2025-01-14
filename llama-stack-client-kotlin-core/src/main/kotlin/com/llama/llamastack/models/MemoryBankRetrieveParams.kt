@@ -10,12 +10,15 @@ import java.util.Objects
 class MemoryBankRetrieveParams
 constructor(
     private val memoryBankId: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun memoryBankId(): String = memoryBankId
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -25,8 +28,11 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -50,12 +56,14 @@ constructor(
     class Builder {
 
         private var memoryBankId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(memoryBankRetrieveParams: MemoryBankRetrieveParams) = apply {
             memoryBankId = memoryBankRetrieveParams.memoryBankId
+            xLlamaStackClientVersion = memoryBankRetrieveParams.xLlamaStackClientVersion
             xLlamaStackProviderData = memoryBankRetrieveParams.xLlamaStackProviderData
             additionalHeaders = memoryBankRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = memoryBankRetrieveParams.additionalQueryParams.toBuilder()
@@ -63,7 +71,11 @@ constructor(
 
         fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -168,6 +180,7 @@ constructor(
         fun build(): MemoryBankRetrieveParams =
             MemoryBankRetrieveParams(
                 checkNotNull(memoryBankId) { "`memoryBankId` is required but was not set" },
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -179,11 +192,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryBankRetrieveParams && memoryBankId == other.memoryBankId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is MemoryBankRetrieveParams && memoryBankId == other.memoryBankId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(memoryBankId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "MemoryBankRetrieveParams{memoryBankId=$memoryBankId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "MemoryBankRetrieveParams{memoryBankId=$memoryBankId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

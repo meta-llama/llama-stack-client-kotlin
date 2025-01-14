@@ -24,24 +24,24 @@ private constructor(
     @JsonProperty("content")
     @ExcludeMissing
     private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+    @JsonProperty("role") @ExcludeMissing private val role: JsonField<Role> = JsonMissing.of(),
     @JsonProperty("context")
     @ExcludeMissing
     private val context: JsonField<InterleavedContent> = JsonMissing.of(),
-    @JsonProperty("role") @ExcludeMissing private val role: JsonField<Role> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun content(): InterleavedContent = content.getRequired("content")
 
-    fun context(): InterleavedContent? = context.getNullable("context")
-
     fun role(): Role = role.getRequired("role")
 
-    @JsonProperty("content") @ExcludeMissing fun _content() = content
+    fun context(): InterleavedContent? = context.getNullable("context")
 
-    @JsonProperty("context") @ExcludeMissing fun _context() = context
+    @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
-    @JsonProperty("role") @ExcludeMissing fun _role() = role
+    @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
+
+    @JsonProperty("context") @ExcludeMissing fun _context(): JsonField<InterleavedContent> = context
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -50,12 +50,14 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): UserMessage = apply {
-        if (!validated) {
-            content()
-            context()
-            role()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        content().validate()
+        role()
+        context()?.validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -67,15 +69,15 @@ private constructor(
 
     class Builder {
 
-        private var content: JsonField<InterleavedContent> = JsonMissing.of()
+        private var content: JsonField<InterleavedContent>? = null
+        private var role: JsonField<Role>? = null
         private var context: JsonField<InterleavedContent> = JsonMissing.of()
-        private var role: JsonField<Role> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(userMessage: UserMessage) = apply {
             content = userMessage.content
-            context = userMessage.context
             role = userMessage.role
+            context = userMessage.context
             additionalProperties = userMessage.additionalProperties.toMutableMap()
         }
 
@@ -83,13 +85,37 @@ private constructor(
 
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        fun context(context: InterleavedContent) = context(JsonField.of(context))
+        fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        fun context(context: JsonField<InterleavedContent>) = apply { this.context = context }
+        fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+            content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun content(textContentItem: InterleavedContent.TextContentItem) =
+            content(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun contentOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
         fun role(role: Role) = role(JsonField.of(role))
 
         fun role(role: JsonField<Role>) = apply { this.role = role }
+
+        fun context(context: InterleavedContent) = context(JsonField.of(context))
+
+        fun context(context: JsonField<InterleavedContent>) = apply { this.context = context }
+
+        fun context(string: String) = context(InterleavedContent.ofString(string))
+
+        fun context(imageContentItem: InterleavedContent.ImageContentItem) =
+            context(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun context(textContentItem: InterleavedContent.TextContentItem) =
+            context(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun contextOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = context(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -112,9 +138,9 @@ private constructor(
 
         fun build(): UserMessage =
             UserMessage(
-                content,
+                checkNotNull(content) { "`content` is required but was not set" },
+                checkNotNull(role) { "`role` is required but was not set" },
                 context,
-                role,
                 additionalProperties.toImmutable(),
             )
     }
@@ -175,15 +201,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is UserMessage && content == other.content && context == other.context && role == other.role && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is UserMessage && content == other.content && role == other.role && context == other.context && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(content, context, role, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(content, role, context, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "UserMessage{content=$content, context=$context, role=$role, additionalProperties=$additionalProperties}"
+        "UserMessage{content=$content, role=$role, context=$context, additionalProperties=$additionalProperties}"
 }

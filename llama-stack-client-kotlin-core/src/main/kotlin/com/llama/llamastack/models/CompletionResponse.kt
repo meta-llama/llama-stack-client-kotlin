@@ -24,26 +24,30 @@ private constructor(
     @JsonProperty("content")
     @ExcludeMissing
     private val content: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("logprobs")
-    @ExcludeMissing
-    private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
     @JsonProperty("stop_reason")
     @ExcludeMissing
     private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+    @JsonProperty("logprobs")
+    @ExcludeMissing
+    private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun content(): String = content.getRequired("content")
 
-    fun logprobs(): List<TokenLogProbs>? = logprobs.getNullable("logprobs")
-
     fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
 
-    @JsonProperty("content") @ExcludeMissing fun _content() = content
+    fun logprobs(): List<TokenLogProbs>? = logprobs.getNullable("logprobs")
 
-    @JsonProperty("logprobs") @ExcludeMissing fun _logprobs() = logprobs
+    @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<String> = content
 
-    @JsonProperty("stop_reason") @ExcludeMissing fun _stopReason() = stopReason
+    @JsonProperty("stop_reason")
+    @ExcludeMissing
+    fun _stopReason(): JsonField<StopReason> = stopReason
+
+    @JsonProperty("logprobs")
+    @ExcludeMissing
+    fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -52,12 +56,14 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): CompletionResponse = apply {
-        if (!validated) {
-            content()
-            logprobs()?.forEach { it.validate() }
-            stopReason()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        content()
+        stopReason()
+        logprobs()?.forEach { it.validate() }
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -69,15 +75,15 @@ private constructor(
 
     class Builder {
 
-        private var content: JsonField<String> = JsonMissing.of()
-        private var logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of()
-        private var stopReason: JsonField<StopReason> = JsonMissing.of()
+        private var content: JsonField<String>? = null
+        private var stopReason: JsonField<StopReason>? = null
+        private var logprobs: JsonField<MutableList<TokenLogProbs>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(completionResponse: CompletionResponse) = apply {
             content = completionResponse.content
-            logprobs = completionResponse.logprobs
             stopReason = completionResponse.stopReason
+            logprobs = completionResponse.logprobs.map { it.toMutableList() }
             additionalProperties = completionResponse.additionalProperties.toMutableMap()
         }
 
@@ -85,13 +91,26 @@ private constructor(
 
         fun content(content: JsonField<String>) = apply { this.content = content }
 
-        fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
-
-        fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply { this.logprobs = logprobs }
-
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
+
+        fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
+
+        fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
+            this.logprobs = logprobs.map { it.toMutableList() }
+        }
+
+        fun addLogprob(logprob: TokenLogProbs) = apply {
+            logprobs =
+                (logprobs ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(logprob)
+                }
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -114,9 +133,9 @@ private constructor(
 
         fun build(): CompletionResponse =
             CompletionResponse(
-                content,
-                logprobs.map { it.toImmutable() },
-                stopReason,
+                checkNotNull(content) { "`content` is required but was not set" },
+                checkNotNull(stopReason) { "`stopReason` is required but was not set" },
+                (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -189,15 +208,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is CompletionResponse && content == other.content && logprobs == other.logprobs && stopReason == other.stopReason && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is CompletionResponse && content == other.content && stopReason == other.stopReason && logprobs == other.logprobs && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(content, logprobs, stopReason, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(content, stopReason, logprobs, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "CompletionResponse{content=$content, logprobs=$logprobs, stopReason=$stopReason, additionalProperties=$additionalProperties}"
+        "CompletionResponse{content=$content, stopReason=$stopReason, logprobs=$logprobs, additionalProperties=$additionalProperties}"
 }

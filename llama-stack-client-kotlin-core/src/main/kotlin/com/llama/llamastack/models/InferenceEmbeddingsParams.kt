@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class InferenceEmbeddingsParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: InferenceEmbeddingsBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -29,18 +34,25 @@ constructor(
 
     fun modelId(): String = body.modelId()
 
+    fun _contents(): JsonField<List<InterleavedContent>> = body._contents()
+
+    fun _modelId(): JsonField<String> = body._modelId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): InferenceEmbeddingsBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -52,19 +64,41 @@ constructor(
     class InferenceEmbeddingsBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("contents") private val contents: List<InterleavedContent>,
-        @JsonProperty("model_id") private val modelId: String,
+        @JsonProperty("contents")
+        @ExcludeMissing
+        private val contents: JsonField<List<InterleavedContent>> = JsonMissing.of(),
+        @JsonProperty("model_id")
+        @ExcludeMissing
+        private val modelId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("contents") fun contents(): List<InterleavedContent> = contents
+        fun contents(): List<InterleavedContent> = contents.getRequired("contents")
 
-        @JsonProperty("model_id") fun modelId(): String = modelId
+        fun modelId(): String = modelId.getRequired("model_id")
+
+        @JsonProperty("contents")
+        @ExcludeMissing
+        fun _contents(): JsonField<List<InterleavedContent>> = contents
+
+        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): InferenceEmbeddingsBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            contents().forEach { it.validate() }
+            modelId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -75,25 +109,48 @@ constructor(
 
         class Builder {
 
-            private var contents: MutableList<InterleavedContent>? = null
-            private var modelId: String? = null
+            private var contents: JsonField<MutableList<InterleavedContent>>? = null
+            private var modelId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(inferenceEmbeddingsBody: InferenceEmbeddingsBody) = apply {
-                contents = inferenceEmbeddingsBody.contents.toMutableList()
+                contents = inferenceEmbeddingsBody.contents.map { it.toMutableList() }
                 modelId = inferenceEmbeddingsBody.modelId
                 additionalProperties = inferenceEmbeddingsBody.additionalProperties.toMutableMap()
             }
 
-            fun contents(contents: List<InterleavedContent>) = apply {
-                this.contents = contents.toMutableList()
+            fun contents(contents: List<InterleavedContent>) = contents(JsonField.of(contents))
+
+            fun contents(contents: JsonField<List<InterleavedContent>>) = apply {
+                this.contents = contents.map { it.toMutableList() }
             }
 
             fun addContent(content: InterleavedContent) = apply {
-                contents = (contents ?: mutableListOf()).apply { add(content) }
+                contents =
+                    (contents ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(content)
+                    }
             }
 
-            fun modelId(modelId: String) = apply { this.modelId = modelId }
+            fun addContent(string: String) = addContent(InterleavedContent.ofString(string))
+
+            fun addContent(imageContentItem: InterleavedContent.ImageContentItem) =
+                addContent(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            fun addContent(textContentItem: InterleavedContent.TextContentItem) =
+                addContent(InterleavedContent.ofTextContentItem(textContentItem))
+
+            fun addContentOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = addContent(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
+            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
+
+            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -117,7 +174,7 @@ constructor(
             fun build(): InferenceEmbeddingsBody =
                 InferenceEmbeddingsBody(
                     checkNotNull(contents) { "`contents` is required but was not set" }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     checkNotNull(modelId) { "`modelId` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
@@ -151,27 +208,72 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: InferenceEmbeddingsBody.Builder = InferenceEmbeddingsBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(inferenceEmbeddingsParams: InferenceEmbeddingsParams) = apply {
+            xLlamaStackClientVersion = inferenceEmbeddingsParams.xLlamaStackClientVersion
             xLlamaStackProviderData = inferenceEmbeddingsParams.xLlamaStackProviderData
             body = inferenceEmbeddingsParams.body.toBuilder()
             additionalHeaders = inferenceEmbeddingsParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceEmbeddingsParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun contents(contents: List<InterleavedContent>) = apply { body.contents(contents) }
 
+        fun contents(contents: JsonField<List<InterleavedContent>>) = apply {
+            body.contents(contents)
+        }
+
         fun addContent(content: InterleavedContent) = apply { body.addContent(content) }
 
+        fun addContent(string: String) = apply { body.addContent(string) }
+
+        fun addContent(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addContent(imageContentItem)
+        }
+
+        fun addContent(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addContent(textContentItem)
+        }
+
+        fun addContentOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = apply { body.addContentOfInterleavedContentItems(interleavedContentItems) }
+
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
+
+        fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -271,27 +373,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): InferenceEmbeddingsParams =
             InferenceEmbeddingsParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -304,11 +388,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceEmbeddingsParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is InferenceEmbeddingsParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "InferenceEmbeddingsParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "InferenceEmbeddingsParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

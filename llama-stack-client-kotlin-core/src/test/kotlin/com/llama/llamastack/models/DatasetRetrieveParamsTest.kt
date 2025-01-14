@@ -12,7 +12,8 @@ class DatasetRetrieveParamsTest {
     fun createDatasetRetrieveParams() {
         DatasetRetrieveParams.builder()
             .datasetId("dataset_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,7 +22,8 @@ class DatasetRetrieveParamsTest {
         val params =
             DatasetRetrieveParams.builder()
                 .datasetId("dataset_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("dataset_id", "dataset_id")

@@ -23,15 +23,17 @@ class AgentTurnCreateParamsTest {
                 )
             )
             .sessionId("session_id")
-            .attachments(
+            .documents(
                 listOf(
-                    Attachment.builder()
-                        .content(Attachment.Content.ofString("string"))
+                    AgentTurnCreateParams.Document.builder()
+                        .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                         .mimeType("mime_type")
                         .build()
                 )
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -52,15 +54,17 @@ class AgentTurnCreateParamsTest {
                     )
                 )
                 .sessionId("session_id")
-                .attachments(
+                .documents(
                     listOf(
-                        Attachment.builder()
-                            .content(Attachment.Content.ofString("string"))
+                        AgentTurnCreateParams.Document.builder()
+                            .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                             .mimeType("mime_type")
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -78,15 +82,17 @@ class AgentTurnCreateParamsTest {
                 )
             )
         assertThat(body.sessionId()).isEqualTo("session_id")
-        assertThat(body.attachments())
+        assertThat(body.documents())
             .isEqualTo(
                 listOf(
-                    Attachment.builder()
-                        .content(Attachment.Content.ofString("string"))
+                    AgentTurnCreateParams.Document.builder()
+                        .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                         .mimeType("mime_type")
                         .build()
                 )
             )
+        assertThat(body.toolgroups())
+            .isEqualTo(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
     }
 
     @Test

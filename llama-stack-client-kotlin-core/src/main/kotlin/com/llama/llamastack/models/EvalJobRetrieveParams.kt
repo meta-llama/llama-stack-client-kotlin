@@ -11,6 +11,7 @@ class EvalJobRetrieveParams
 constructor(
     private val jobId: String,
     private val taskId: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -20,6 +21,8 @@ constructor(
 
     fun taskId(): String = taskId
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -28,8 +31,11 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -55,6 +61,7 @@ constructor(
 
         private var jobId: String? = null
         private var taskId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
@@ -62,6 +69,7 @@ constructor(
         internal fun from(evalJobRetrieveParams: EvalJobRetrieveParams) = apply {
             jobId = evalJobRetrieveParams.jobId
             taskId = evalJobRetrieveParams.taskId
+            xLlamaStackClientVersion = evalJobRetrieveParams.xLlamaStackClientVersion
             xLlamaStackProviderData = evalJobRetrieveParams.xLlamaStackProviderData
             additionalHeaders = evalJobRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalJobRetrieveParams.additionalQueryParams.toBuilder()
@@ -71,7 +79,11 @@ constructor(
 
         fun taskId(taskId: String) = apply { this.taskId = taskId }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -177,6 +189,7 @@ constructor(
             EvalJobRetrieveParams(
                 checkNotNull(jobId) { "`jobId` is required but was not set" },
                 checkNotNull(taskId) { "`taskId` is required but was not set" },
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -188,11 +201,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobRetrieveParams && jobId == other.jobId && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalJobRetrieveParams && jobId == other.jobId && taskId == other.taskId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobId, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobId, taskId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalJobRetrieveParams{jobId=$jobId, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalJobRetrieveParams{jobId=$jobId, taskId=$taskId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

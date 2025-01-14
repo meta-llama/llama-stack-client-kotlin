@@ -36,8 +36,6 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
-    private var validated: Boolean = false
-
     fun chatCompletionResponse(): ChatCompletionResponse? = chatCompletionResponse
 
     fun chatCompletionResponseStreamChunk(): ChatCompletionResponseStreamChunk? =
@@ -65,17 +63,29 @@ private constructor(
         }
     }
 
+    private var validated: Boolean = false
+
     fun validate(): InferenceChatCompletionResponse = apply {
-        if (!validated) {
-            if (chatCompletionResponse == null && chatCompletionResponseStreamChunk == null) {
-                throw LlamaStackClientInvalidDataException(
-                    "Unknown InferenceChatCompletionResponse: $_json"
-                )
-            }
-            chatCompletionResponse?.validate()
-            chatCompletionResponseStreamChunk?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        accept(
+            object : Visitor<Unit> {
+                override fun visitChatCompletionResponse(
+                    chatCompletionResponse: ChatCompletionResponse
+                ) {
+                    chatCompletionResponse.validate()
+                }
+
+                override fun visitChatCompletionResponseStreamChunk(
+                    chatCompletionResponseStreamChunk: ChatCompletionResponseStreamChunk
+                ) {
+                    chatCompletionResponseStreamChunk.validate()
+                }
+            }
+        )
+        validated = true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -193,9 +203,11 @@ private constructor(
 
         @JsonProperty("completion_message")
         @ExcludeMissing
-        fun _completionMessage() = completionMessage
+        fun _completionMessage(): JsonField<CompletionMessage> = completionMessage
 
-        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs() = logprobs
+        @JsonProperty("logprobs")
+        @ExcludeMissing
+        fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -204,11 +216,13 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): ChatCompletionResponse = apply {
-            if (!validated) {
-                completionMessage().validate()
-                logprobs()?.forEach { it.validate() }
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            completionMessage().validate()
+            logprobs()?.forEach { it.validate() }
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -220,13 +234,13 @@ private constructor(
 
         class Builder {
 
-            private var completionMessage: JsonField<CompletionMessage> = JsonMissing.of()
-            private var logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of()
+            private var completionMessage: JsonField<CompletionMessage>? = null
+            private var logprobs: JsonField<MutableList<TokenLogProbs>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(chatCompletionResponse: ChatCompletionResponse) = apply {
                 completionMessage = chatCompletionResponse.completionMessage
-                logprobs = chatCompletionResponse.logprobs
+                logprobs = chatCompletionResponse.logprobs.map { it.toMutableList() }
                 additionalProperties = chatCompletionResponse.additionalProperties.toMutableMap()
             }
 
@@ -240,7 +254,18 @@ private constructor(
             fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
             fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
-                this.logprobs = logprobs
+                this.logprobs = logprobs.map { it.toMutableList() }
+            }
+
+            fun addLogprob(logprob: TokenLogProbs) = apply {
+                logprobs =
+                    (logprobs ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(logprob)
+                    }
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -264,10 +289,306 @@ private constructor(
 
             fun build(): ChatCompletionResponse =
                 ChatCompletionResponse(
-                    completionMessage,
-                    logprobs.map { it.toImmutable() },
+                    checkNotNull(completionMessage) {
+                        "`completionMessage` is required but was not set"
+                    },
+                    (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
+        }
+
+        @NoAutoDetect
+        class CompletionMessage
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content")
+            @ExcludeMissing
+            private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+            @JsonProperty("role")
+            @ExcludeMissing
+            private val role: JsonField<Role> = JsonMissing.of(),
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+            @JsonProperty("tool_calls")
+            @ExcludeMissing
+            private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            fun content(): InterleavedContent = content.getRequired("content")
+
+            fun role(): Role = role.getRequired("role")
+
+            fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
+
+            fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
+
+            @JsonProperty("content")
+            @ExcludeMissing
+            fun _content(): JsonField<InterleavedContent> = content
+
+            @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
+
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            fun _stopReason(): JsonField<StopReason> = stopReason
+
+            @JsonProperty("tool_calls")
+            @ExcludeMissing
+            fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): CompletionMessage = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                content().validate()
+                role()
+                stopReason()
+                toolCalls().forEach { it.validate() }
+                validated = true
+            }
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var content: JsonField<InterleavedContent>? = null
+                private var role: JsonField<Role>? = null
+                private var stopReason: JsonField<StopReason>? = null
+                private var toolCalls: JsonField<MutableList<ToolCall>>? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(completionMessage: CompletionMessage) = apply {
+                    content = completionMessage.content
+                    role = completionMessage.role
+                    stopReason = completionMessage.stopReason
+                    toolCalls = completionMessage.toolCalls.map { it.toMutableList() }
+                    additionalProperties = completionMessage.additionalProperties.toMutableMap()
+                }
+
+                fun content(content: InterleavedContent) = content(JsonField.of(content))
+
+                fun content(content: JsonField<InterleavedContent>) = apply {
+                    this.content = content
+                }
+
+                fun content(string: String) = content(InterleavedContent.ofString(string))
+
+                fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+                    content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+                fun content(textContentItem: InterleavedContent.TextContentItem) =
+                    content(InterleavedContent.ofTextContentItem(textContentItem))
+
+                fun contentOfInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
+                fun role(role: Role) = role(JsonField.of(role))
+
+                fun role(role: JsonField<Role>) = apply { this.role = role }
+
+                fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
+
+                fun stopReason(stopReason: JsonField<StopReason>) = apply {
+                    this.stopReason = stopReason
+                }
+
+                fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
+
+                fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
+                    this.toolCalls = toolCalls.map { it.toMutableList() }
+                }
+
+                fun addToolCall(toolCall: ToolCall) = apply {
+                    toolCalls =
+                        (toolCalls ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(toolCall)
+                        }
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): CompletionMessage =
+                    CompletionMessage(
+                        checkNotNull(content) { "`content` is required but was not set" },
+                        checkNotNull(role) { "`role` is required but was not set" },
+                        checkNotNull(stopReason) { "`stopReason` is required but was not set" },
+                        checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
+                            .map { it.toImmutable() },
+                        additionalProperties.toImmutable(),
+                    )
+            }
+
+            class Role
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
+
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+                companion object {
+
+                    val ASSISTANT = of("assistant")
+
+                    fun of(value: String) = Role(JsonField.of(value))
+                }
+
+                enum class Known {
+                    ASSISTANT,
+                }
+
+                enum class Value {
+                    ASSISTANT,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        ASSISTANT -> Value.ASSISTANT
+                        else -> Value._UNKNOWN
+                    }
+
+                fun known(): Known =
+                    when (this) {
+                        ASSISTANT -> Known.ASSISTANT
+                        else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
+                    }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Role && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
+            }
+
+            class StopReason
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
+
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+                companion object {
+
+                    val END_OF_TURN = of("end_of_turn")
+
+                    val END_OF_MESSAGE = of("end_of_message")
+
+                    val OUT_OF_TOKENS = of("out_of_tokens")
+
+                    fun of(value: String) = StopReason(JsonField.of(value))
+                }
+
+                enum class Known {
+                    END_OF_TURN,
+                    END_OF_MESSAGE,
+                    OUT_OF_TOKENS,
+                }
+
+                enum class Value {
+                    END_OF_TURN,
+                    END_OF_MESSAGE,
+                    OUT_OF_TOKENS,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        END_OF_TURN -> Value.END_OF_TURN
+                        END_OF_MESSAGE -> Value.END_OF_MESSAGE
+                        OUT_OF_TOKENS -> Value.OUT_OF_TOKENS
+                        else -> Value._UNKNOWN
+                    }
+
+                fun known(): Known =
+                    when (this) {
+                        END_OF_TURN -> Known.END_OF_TURN
+                        END_OF_MESSAGE -> Known.END_OF_MESSAGE
+                        OUT_OF_TOKENS -> Known.OUT_OF_TOKENS
+                        else ->
+                            throw LlamaStackClientInvalidDataException("Unknown StopReason: $value")
+                    }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is CompletionMessage && content == other.content && role == other.role && stopReason == other.stopReason && toolCalls == other.toolCalls && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(content, role, stopReason, toolCalls, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "CompletionMessage{content=$content, role=$role, stopReason=$stopReason, toolCalls=$toolCalls, additionalProperties=$additionalProperties}"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -301,7 +622,7 @@ private constructor(
 
         fun event(): Event = event.getRequired("event")
 
-        @JsonProperty("event") @ExcludeMissing fun _event() = event
+        @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<Event> = event
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -310,10 +631,12 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): ChatCompletionResponseStreamChunk = apply {
-            if (!validated) {
-                event().validate()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            event().validate()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -325,7 +648,7 @@ private constructor(
 
         class Builder {
 
-            private var event: JsonField<Event> = JsonMissing.of()
+            private var event: JsonField<Event>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(
@@ -360,7 +683,10 @@ private constructor(
             }
 
             fun build(): ChatCompletionResponseStreamChunk =
-                ChatCompletionResponseStreamChunk(event, additionalProperties.toImmutable())
+                ChatCompletionResponseStreamChunk(
+                    checkNotNull(event) { "`event` is required but was not set" },
+                    additionalProperties.toImmutable()
+                )
         }
 
         @NoAutoDetect
@@ -391,13 +717,19 @@ private constructor(
 
             fun stopReason(): StopReason? = stopReason.getNullable("stop_reason")
 
-            @JsonProperty("delta") @ExcludeMissing fun _delta() = delta
+            @JsonProperty("delta") @ExcludeMissing fun _delta(): JsonField<Delta> = delta
 
-            @JsonProperty("event_type") @ExcludeMissing fun _eventType() = eventType
+            @JsonProperty("event_type")
+            @ExcludeMissing
+            fun _eventType(): JsonField<EventType> = eventType
 
-            @JsonProperty("logprobs") @ExcludeMissing fun _logprobs() = logprobs
+            @JsonProperty("logprobs")
+            @ExcludeMissing
+            fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
 
-            @JsonProperty("stop_reason") @ExcludeMissing fun _stopReason() = stopReason
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            fun _stopReason(): JsonField<StopReason> = stopReason
 
             @JsonAnyGetter
             @ExcludeMissing
@@ -406,13 +738,15 @@ private constructor(
             private var validated: Boolean = false
 
             fun validate(): Event = apply {
-                if (!validated) {
-                    delta()
-                    eventType()
-                    logprobs()?.forEach { it.validate() }
-                    stopReason()
-                    validated = true
+                if (validated) {
+                    return@apply
                 }
+
+                delta().validate()
+                eventType()
+                logprobs()?.forEach { it.validate() }
+                stopReason()
+                validated = true
             }
 
             fun toBuilder() = Builder().from(this)
@@ -424,16 +758,16 @@ private constructor(
 
             class Builder {
 
-                private var delta: JsonField<Delta> = JsonMissing.of()
-                private var eventType: JsonField<EventType> = JsonMissing.of()
-                private var logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of()
+                private var delta: JsonField<Delta>? = null
+                private var eventType: JsonField<EventType>? = null
+                private var logprobs: JsonField<MutableList<TokenLogProbs>>? = null
                 private var stopReason: JsonField<StopReason> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(event: Event) = apply {
                     delta = event.delta
                     eventType = event.eventType
-                    logprobs = event.logprobs
+                    logprobs = event.logprobs.map { it.toMutableList() }
                     stopReason = event.stopReason
                     additionalProperties = event.additionalProperties.toMutableMap()
                 }
@@ -441,6 +775,11 @@ private constructor(
                 fun delta(delta: Delta) = delta(JsonField.of(delta))
 
                 fun delta(delta: JsonField<Delta>) = apply { this.delta = delta }
+
+                fun delta(string: String) = delta(Delta.ofString(string))
+
+                fun delta(toolCallDelta: Delta.ToolCallDelta) =
+                    delta(Delta.ofToolCallDelta(toolCallDelta))
 
                 fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
@@ -451,7 +790,18 @@ private constructor(
                 fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
                 fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
-                    this.logprobs = logprobs
+                    this.logprobs = logprobs.map { it.toMutableList() }
+                }
+
+                fun addLogprob(logprob: TokenLogProbs) = apply {
+                    logprobs =
+                        (logprobs ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(logprob)
+                        }
                 }
 
                 fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
@@ -484,9 +834,9 @@ private constructor(
 
                 fun build(): Event =
                     Event(
-                        delta,
-                        eventType,
-                        logprobs.map { it.toImmutable() },
+                        checkNotNull(delta) { "`delta` is required but was not set" },
+                        checkNotNull(eventType) { "`eventType` is required but was not set" },
+                        (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                         stopReason,
                         additionalProperties.toImmutable(),
                     )
@@ -500,8 +850,6 @@ private constructor(
                 private val toolCallDelta: ToolCallDelta? = null,
                 private val _json: JsonValue? = null,
             ) {
-
-                private var validated: Boolean = false
 
                 fun string(): String? = string
 
@@ -525,14 +873,23 @@ private constructor(
                     }
                 }
 
+                private var validated: Boolean = false
+
                 fun validate(): Delta = apply {
-                    if (!validated) {
-                        if (string == null && toolCallDelta == null) {
-                            throw LlamaStackClientInvalidDataException("Unknown Delta: $_json")
-                        }
-                        toolCallDelta?.validate()
-                        validated = true
+                    if (validated) {
+                        return@apply
                     }
+
+                    accept(
+                        object : Visitor<Unit> {
+                            override fun visitString(string: String) {}
+
+                            override fun visitToolCallDelta(toolCallDelta: ToolCallDelta) {
+                                toolCallDelta.validate()
+                            }
+                        }
+                    )
+                    validated = true
                 }
 
                 override fun equals(other: Any?): Boolean {
@@ -624,9 +981,13 @@ private constructor(
 
                     fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
 
-                    @JsonProperty("content") @ExcludeMissing fun _content() = content
+                    @JsonProperty("content")
+                    @ExcludeMissing
+                    fun _content(): JsonField<Content> = content
 
-                    @JsonProperty("parse_status") @ExcludeMissing fun _parseStatus() = parseStatus
+                    @JsonProperty("parse_status")
+                    @ExcludeMissing
+                    fun _parseStatus(): JsonField<ParseStatus> = parseStatus
 
                     @JsonAnyGetter
                     @ExcludeMissing
@@ -635,11 +996,13 @@ private constructor(
                     private var validated: Boolean = false
 
                     fun validate(): ToolCallDelta = apply {
-                        if (!validated) {
-                            content()
-                            parseStatus()
-                            validated = true
+                        if (validated) {
+                            return@apply
                         }
+
+                        content().validate()
+                        parseStatus()
+                        validated = true
                     }
 
                     fun toBuilder() = Builder().from(this)
@@ -651,8 +1014,8 @@ private constructor(
 
                     class Builder {
 
-                        private var content: JsonField<Content> = JsonMissing.of()
-                        private var parseStatus: JsonField<ParseStatus> = JsonMissing.of()
+                        private var content: JsonField<Content>? = null
+                        private var parseStatus: JsonField<ParseStatus>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -665,6 +1028,10 @@ private constructor(
                         fun content(content: Content) = content(JsonField.of(content))
 
                         fun content(content: JsonField<Content>) = apply { this.content = content }
+
+                        fun content(string: String) = content(Content.ofString(string))
+
+                        fun content(toolCall: ToolCall) = content(Content.ofToolCall(toolCall))
 
                         fun parseStatus(parseStatus: ParseStatus) =
                             parseStatus(JsonField.of(parseStatus))
@@ -697,8 +1064,10 @@ private constructor(
 
                         fun build(): ToolCallDelta =
                             ToolCallDelta(
-                                content,
-                                parseStatus,
+                                checkNotNull(content) { "`content` is required but was not set" },
+                                checkNotNull(parseStatus) {
+                                    "`parseStatus` is required but was not set"
+                                },
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -711,8 +1080,6 @@ private constructor(
                         private val toolCall: ToolCall? = null,
                         private val _json: JsonValue? = null,
                     ) {
-
-                        private var validated: Boolean = false
 
                         fun string(): String? = string
 
@@ -736,16 +1103,23 @@ private constructor(
                             }
                         }
 
+                        private var validated: Boolean = false
+
                         fun validate(): Content = apply {
-                            if (!validated) {
-                                if (string == null && toolCall == null) {
-                                    throw LlamaStackClientInvalidDataException(
-                                        "Unknown Content: $_json"
-                                    )
-                                }
-                                toolCall?.validate()
-                                validated = true
+                            if (validated) {
+                                return@apply
                             }
+
+                            accept(
+                                object : Visitor<Unit> {
+                                    override fun visitString(string: String) {}
+
+                                    override fun visitToolCall(toolCall: ToolCall) {
+                                        toolCall.validate()
+                                    }
+                                }
+                            )
+                            validated = true
                         }
 
                         override fun equals(other: Any?): Boolean {

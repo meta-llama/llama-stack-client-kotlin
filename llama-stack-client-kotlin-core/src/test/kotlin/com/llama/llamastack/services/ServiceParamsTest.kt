@@ -17,7 +17,6 @@ import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.jsonMapper
-import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.InterleavedContent
@@ -123,7 +122,8 @@ class ServiceParamsTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .additionalHeaders(additionalHeaders)
                 .additionalBodyProperties(additionalBodyProperties)
                 .additionalQueryParams(additionalQueryParams)
@@ -133,10 +133,21 @@ class ServiceParamsTest {
             InferenceChatCompletionResponse.ofChatCompletionResponse(
                 InferenceChatCompletionResponse.ChatCompletionResponse.builder()
                     .completionMessage(
-                        CompletionMessage.builder()
+                        InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage
+                            .builder()
                             .content(InterleavedContent.ofString("string"))
-                            .role(CompletionMessage.Role.ASSISTANT)
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .role(
+                                InferenceChatCompletionResponse.ChatCompletionResponse
+                                    .CompletionMessage
+                                    .Role
+                                    .ASSISTANT
+                            )
+                            .stopReason(
+                                InferenceChatCompletionResponse.ChatCompletionResponse
+                                    .CompletionMessage
+                                    .StopReason
+                                    .END_OF_TURN
+                            )
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
@@ -207,7 +218,8 @@ class ServiceParamsTest {
                 .modelType(ModelRegisterParams.ModelType.LLM)
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .additionalHeaders(additionalHeaders)
                 .additionalBodyProperties(additionalBodyProperties)
                 .additionalQueryParams(additionalQueryParams)

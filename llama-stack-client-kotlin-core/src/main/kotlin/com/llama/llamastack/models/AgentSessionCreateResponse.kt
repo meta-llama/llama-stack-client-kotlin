@@ -27,7 +27,7 @@ private constructor(
 
     fun sessionId(): String = sessionId.getRequired("session_id")
 
-    @JsonProperty("session_id") @ExcludeMissing fun _sessionId() = sessionId
+    @JsonProperty("session_id") @ExcludeMissing fun _sessionId(): JsonField<String> = sessionId
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +36,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): AgentSessionCreateResponse = apply {
-        if (!validated) {
-            sessionId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        sessionId()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +53,7 @@ private constructor(
 
     class Builder {
 
-        private var sessionId: JsonField<String> = JsonMissing.of()
+        private var sessionId: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentSessionCreateResponse: AgentSessionCreateResponse) = apply {
@@ -83,7 +85,10 @@ private constructor(
         }
 
         fun build(): AgentSessionCreateResponse =
-            AgentSessionCreateResponse(sessionId, additionalProperties.toImmutable())
+            AgentSessionCreateResponse(
+                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {

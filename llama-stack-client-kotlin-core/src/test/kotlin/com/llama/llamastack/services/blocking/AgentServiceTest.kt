@@ -8,10 +8,8 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.AgentConfig
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentDeleteParams
-import com.llama.llamastack.models.RestApiExecutionConfig
 import com.llama.llamastack.models.SamplingParams
-import com.llama.llamastack.models.SearchToolDefinition
-import com.llama.llamastack.models.Url
+import com.llama.llamastack.models.ToolDef
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -32,6 +30,32 @@ class AgentServiceTest {
                             .instructions("instructions")
                             .maxInferIters(0L)
                             .model("model")
+                            .clientTools(
+                                listOf(
+                                    ToolDef.builder()
+                                        .name("name")
+                                        .description("description")
+                                        .metadata(
+                                            ToolDef.Metadata.builder()
+                                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                                .build()
+                                        )
+                                        .parameters(
+                                            listOf(
+                                                ToolDef.Parameter.builder()
+                                                    .description("description")
+                                                    .name("name")
+                                                    .parameterType("parameter_type")
+                                                    .required(true)
+                                                    .default(
+                                                        ToolDef.Parameter.Default.ofBoolean(true)
+                                                    )
+                                                    .build()
+                                            )
+                                        )
+                                        .build()
+                                )
+                            )
                             .inputShields(listOf("string"))
                             .outputShields(listOf("string"))
                             .samplingParams(
@@ -46,52 +70,11 @@ class AgentServiceTest {
                             )
                             .toolChoice(AgentConfig.ToolChoice.AUTO)
                             .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                            .tools(
-                                listOf(
-                                    AgentConfig.Tool.ofSearchToolDefinition(
-                                        SearchToolDefinition.builder()
-                                            .apiKey("api_key")
-                                            .engine(SearchToolDefinition.Engine.BING)
-                                            .type(SearchToolDefinition.Type.BRAVE_SEARCH)
-                                            .inputShields(listOf("string"))
-                                            .outputShields(listOf("string"))
-                                            .remoteExecution(
-                                                RestApiExecutionConfig.builder()
-                                                    .method(RestApiExecutionConfig.Method.GET)
-                                                    .url(Url.builder().uri("uri").build())
-                                                    .body(
-                                                        RestApiExecutionConfig.Body.builder()
-                                                            .putAdditionalProperty(
-                                                                "foo",
-                                                                JsonValue.from(true)
-                                                            )
-                                                            .build()
-                                                    )
-                                                    .headers(
-                                                        RestApiExecutionConfig.Headers.builder()
-                                                            .putAdditionalProperty(
-                                                                "foo",
-                                                                JsonValue.from(true)
-                                                            )
-                                                            .build()
-                                                    )
-                                                    .params(
-                                                        RestApiExecutionConfig.Params.builder()
-                                                            .putAdditionalProperty(
-                                                                "foo",
-                                                                JsonValue.from(true)
-                                                            )
-                                                            .build()
-                                                    )
-                                                    .build()
-                                            )
-                                            .build()
-                                    )
-                                )
-                            )
+                            .toolgroups(listOf(AgentConfig.Toolgroup.ofString("string")))
                             .build()
                     )
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentCreateResponse)
@@ -106,7 +89,8 @@ class AgentServiceTest {
         agentService.delete(
             AgentDeleteParams.builder()
                 .agentId("agent_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

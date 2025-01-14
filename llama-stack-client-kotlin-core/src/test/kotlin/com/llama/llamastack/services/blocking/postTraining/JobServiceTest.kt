@@ -26,7 +26,8 @@ class JobServiceTest {
         val postTrainingJob =
             jobService.list(
                 PostTrainingJobListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJob)
@@ -42,7 +43,8 @@ class JobServiceTest {
             jobService.artifacts(
                 PostTrainingJobArtifactsParams.builder()
                     .jobUuid("job_uuid")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJobArtifactsResponse)
@@ -57,7 +59,8 @@ class JobServiceTest {
         jobService.cancel(
             PostTrainingJobCancelParams.builder()
                 .jobUuid("job_uuid")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -71,7 +74,8 @@ class JobServiceTest {
             jobService.status(
                 PostTrainingJobStatusParams.builder()
                     .jobUuid("job_uuid")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJobStatusResponse)

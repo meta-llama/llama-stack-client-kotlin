@@ -27,9 +27,11 @@ constructor(
     private var modelName: String = ""
 
     private var sequenceLengthKey: String = "seq_len"
+    private var stopToken: String = ""
 
     override fun onResult(p0: String?) {
         if (PromptFormatLocal.getStopTokens(modelName).any { it == p0 }) {
+            stopToken = p0!!
             onResultComplete = true
             return
         }
@@ -55,7 +57,7 @@ constructor(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
     ): InferenceChatCompletionResponse {
-        resultMessage = ""
+        clearElements()
         val mModule = clientOptions.llamaModule
         modelName = params.modelId()
         val formattedPrompt =
@@ -79,7 +81,7 @@ constructor(
         onResultComplete = false
         onStatsComplete = false
 
-        return buildInferenceChatCompletionResponse(resultMessage, statsMetric)
+        return buildInferenceChatCompletionResponse(resultMessage, statsMetric, stopToken)
     }
 
     override fun chatCompletionStreaming(
@@ -108,5 +110,10 @@ constructor(
         requestOptions: RequestOptions
     ): EmbeddingsResponse {
         TODO("Not yet implemented")
+    }
+
+    fun clearElements() {
+        resultMessage = ""
+        stopToken = ""
     }
 }

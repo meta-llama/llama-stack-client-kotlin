@@ -27,7 +27,7 @@ private constructor(
 
     fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
-    @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid() = jobUuid
+    @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +36,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): PostTrainingJob = apply {
-        if (!validated) {
-            jobUuid()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        jobUuid()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +53,7 @@ private constructor(
 
     class Builder {
 
-        private var jobUuid: JsonField<String> = JsonMissing.of()
+        private var jobUuid: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(postTrainingJob: PostTrainingJob) = apply {
@@ -82,7 +84,11 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): PostTrainingJob = PostTrainingJob(jobUuid, additionalProperties.toImmutable())
+        fun build(): PostTrainingJob =
+            PostTrainingJob(
+                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {

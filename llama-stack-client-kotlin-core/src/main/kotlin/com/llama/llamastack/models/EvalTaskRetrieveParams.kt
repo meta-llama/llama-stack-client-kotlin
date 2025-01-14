@@ -10,12 +10,15 @@ import java.util.Objects
 class EvalTaskRetrieveParams
 constructor(
     private val name: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun name(): String = name
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -25,8 +28,11 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -50,12 +56,14 @@ constructor(
     class Builder {
 
         private var name: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalTaskRetrieveParams: EvalTaskRetrieveParams) = apply {
             name = evalTaskRetrieveParams.name
+            xLlamaStackClientVersion = evalTaskRetrieveParams.xLlamaStackClientVersion
             xLlamaStackProviderData = evalTaskRetrieveParams.xLlamaStackProviderData
             additionalHeaders = evalTaskRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalTaskRetrieveParams.additionalQueryParams.toBuilder()
@@ -63,7 +71,11 @@ constructor(
 
         fun name(name: String) = apply { this.name = name }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -168,6 +180,7 @@ constructor(
         fun build(): EvalTaskRetrieveParams =
             EvalTaskRetrieveParams(
                 checkNotNull(name) { "`name` is required but was not set" },
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -179,11 +192,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTaskRetrieveParams && name == other.name && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalTaskRetrieveParams && name == other.name && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(name, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(name, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalTaskRetrieveParams{name=$name, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalTaskRetrieveParams{name=$name, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

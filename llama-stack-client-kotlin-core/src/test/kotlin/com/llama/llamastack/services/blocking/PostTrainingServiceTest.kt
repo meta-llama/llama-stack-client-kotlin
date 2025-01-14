@@ -56,6 +56,7 @@ class PostTrainingServiceTest {
                             )
                             .gradientAccumulationSteps(0L)
                             .maxStepsPerEpoch(0L)
+                            .maxValidationSteps(0L)
                             .nEpochs(0L)
                             .optimizerConfig(
                                 PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
@@ -83,7 +84,8 @@ class PostTrainingServiceTest {
                             )
                             .build()
                     )
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJob)
@@ -125,6 +127,7 @@ class PostTrainingServiceTest {
                             )
                             .gradientAccumulationSteps(0L)
                             .maxStepsPerEpoch(0L)
+                            .maxValidationSteps(0L)
                             .nEpochs(0L)
                             .optimizerConfig(
                                 PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
@@ -174,7 +177,8 @@ class PostTrainingServiceTest {
                         )
                     )
                     .checkpointDir("checkpoint_dir")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJob)

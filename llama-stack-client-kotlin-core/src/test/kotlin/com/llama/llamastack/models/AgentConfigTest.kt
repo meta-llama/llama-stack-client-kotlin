@@ -16,6 +16,30 @@ class AgentConfigTest {
                 .instructions("instructions")
                 .maxInferIters(0L)
                 .model("model")
+                .clientTools(
+                    listOf(
+                        ToolDef.builder()
+                            .name("name")
+                            .description("description")
+                            .metadata(
+                                ToolDef.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .parameters(
+                                listOf(
+                                    ToolDef.Parameter.builder()
+                                        .description("description")
+                                        .name("name")
+                                        .parameterType("parameter_type")
+                                        .required(true)
+                                        .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                        .build()
+                                )
+                            )
+                            .build()
+                    )
+                )
                 .inputShields(listOf("string"))
                 .outputShields(listOf("string"))
                 .samplingParams(
@@ -30,46 +54,36 @@ class AgentConfigTest {
                 )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
                 .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        AgentConfig.Tool.ofSearchToolDefinition(
-                            SearchToolDefinition.builder()
-                                .apiKey("api_key")
-                                .engine(SearchToolDefinition.Engine.BING)
-                                .type(SearchToolDefinition.Type.BRAVE_SEARCH)
-                                .inputShields(listOf("string"))
-                                .outputShields(listOf("string"))
-                                .remoteExecution(
-                                    RestApiExecutionConfig.builder()
-                                        .method(RestApiExecutionConfig.Method.GET)
-                                        .url(Url.builder().uri("uri").build())
-                                        .body(
-                                            RestApiExecutionConfig.Body.builder()
-                                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                                .build()
-                                        )
-                                        .headers(
-                                            RestApiExecutionConfig.Headers.builder()
-                                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                                .build()
-                                        )
-                                        .params(
-                                            RestApiExecutionConfig.Params.builder()
-                                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                                .build()
-                        )
-                    )
-                )
+                .toolgroups(listOf(AgentConfig.Toolgroup.ofString("string")))
                 .build()
         assertThat(agentConfig).isNotNull
         assertThat(agentConfig.enableSessionPersistence()).isEqualTo(true)
         assertThat(agentConfig.instructions()).isEqualTo("instructions")
         assertThat(agentConfig.maxInferIters()).isEqualTo(0L)
         assertThat(agentConfig.model()).isEqualTo("model")
+        assertThat(agentConfig.clientTools())
+            .containsExactly(
+                ToolDef.builder()
+                    .name("name")
+                    .description("description")
+                    .metadata(
+                        ToolDef.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .parameters(
+                        listOf(
+                            ToolDef.Parameter.builder()
+                                .description("description")
+                                .name("name")
+                                .parameterType("parameter_type")
+                                .required(true)
+                                .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                .build()
+                        )
+                    )
+                    .build()
+            )
         assertThat(agentConfig.inputShields()).containsExactly("string")
         assertThat(agentConfig.outputShields()).containsExactly("string")
         assertThat(agentConfig.samplingParams())
@@ -85,38 +99,7 @@ class AgentConfigTest {
             )
         assertThat(agentConfig.toolChoice()).isEqualTo(AgentConfig.ToolChoice.AUTO)
         assertThat(agentConfig.toolPromptFormat()).isEqualTo(AgentConfig.ToolPromptFormat.JSON)
-        assertThat(agentConfig.tools())
-            .containsExactly(
-                AgentConfig.Tool.ofSearchToolDefinition(
-                    SearchToolDefinition.builder()
-                        .apiKey("api_key")
-                        .engine(SearchToolDefinition.Engine.BING)
-                        .type(SearchToolDefinition.Type.BRAVE_SEARCH)
-                        .inputShields(listOf("string"))
-                        .outputShields(listOf("string"))
-                        .remoteExecution(
-                            RestApiExecutionConfig.builder()
-                                .method(RestApiExecutionConfig.Method.GET)
-                                .url(Url.builder().uri("uri").build())
-                                .body(
-                                    RestApiExecutionConfig.Body.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .headers(
-                                    RestApiExecutionConfig.Headers.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .params(
-                                    RestApiExecutionConfig.Params.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .build()
-                        )
-                        .build()
-                )
-            )
+        assertThat(agentConfig.toolgroups())
+            .containsExactly(AgentConfig.Toolgroup.ofString("string"))
     }
 }

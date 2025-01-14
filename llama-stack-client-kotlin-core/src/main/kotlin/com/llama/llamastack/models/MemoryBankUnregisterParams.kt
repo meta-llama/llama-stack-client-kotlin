@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,28 +19,36 @@ import java.util.Objects
 
 class MemoryBankUnregisterParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: MemoryBankUnregisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun memoryBankId(): String = body.memoryBankId()
+
+    fun _memoryBankId(): JsonField<String> = body._memoryBankId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     internal fun getBody(): MemoryBankUnregisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -50,16 +60,33 @@ constructor(
     class MemoryBankUnregisterBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("memory_bank_id") private val memoryBankId: String,
+        @JsonProperty("memory_bank_id")
+        @ExcludeMissing
+        private val memoryBankId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("memory_bank_id") fun memoryBankId(): String = memoryBankId
+        fun memoryBankId(): String = memoryBankId.getRequired("memory_bank_id")
+
+        @JsonProperty("memory_bank_id")
+        @ExcludeMissing
+        fun _memoryBankId(): JsonField<String> = memoryBankId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): MemoryBankUnregisterBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            memoryBankId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -70,7 +97,7 @@ constructor(
 
         class Builder {
 
-            private var memoryBankId: String? = null
+            private var memoryBankId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(memoryBankUnregisterBody: MemoryBankUnregisterBody) = apply {
@@ -78,7 +105,11 @@ constructor(
                 additionalProperties = memoryBankUnregisterBody.additionalProperties.toMutableMap()
             }
 
-            fun memoryBankId(memoryBankId: String) = apply { this.memoryBankId = memoryBankId }
+            fun memoryBankId(memoryBankId: String) = memoryBankId(JsonField.of(memoryBankId))
+
+            fun memoryBankId(memoryBankId: JsonField<String>) = apply {
+                this.memoryBankId = memoryBankId
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -134,23 +165,52 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: MemoryBankUnregisterBody.Builder = MemoryBankUnregisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(memoryBankUnregisterParams: MemoryBankUnregisterParams) = apply {
+            xLlamaStackClientVersion = memoryBankUnregisterParams.xLlamaStackClientVersion
             xLlamaStackProviderData = memoryBankUnregisterParams.xLlamaStackProviderData
             body = memoryBankUnregisterParams.body.toBuilder()
             additionalHeaders = memoryBankUnregisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = memoryBankUnregisterParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun memoryBankId(memoryBankId: String) = apply { body.memoryBankId(memoryBankId) }
+
+        fun memoryBankId(memoryBankId: JsonField<String>) = apply {
+            body.memoryBankId(memoryBankId)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -250,27 +310,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): MemoryBankUnregisterParams =
             MemoryBankUnregisterParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -283,11 +325,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryBankUnregisterParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is MemoryBankUnregisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "MemoryBankUnregisterParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "MemoryBankUnregisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

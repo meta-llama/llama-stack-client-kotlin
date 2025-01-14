@@ -25,6 +25,7 @@ import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import com.llama.llamastack.models.ParamType.Type
 import java.util.Objects
 
 @JsonDeserialize(using = ParamType.Deserializer::class)
@@ -34,8 +35,6 @@ private constructor(
     private val type: Type? = null,
     private val _json: JsonValue? = null,
 ) {
-
-    private var validated: Boolean = false
 
     fun type(): Type? = type
 
@@ -52,14 +51,21 @@ private constructor(
         }
     }
 
+    private var validated: Boolean = false
+
     fun validate(): ParamType = apply {
-        if (!validated) {
-            if (type == null) {
-                throw LlamaStackClientInvalidDataException("Unknown ParamType: $_json")
-            }
-            type.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        accept(
+            object : Visitor<Unit> {
+                override fun visitType(type: Type) {
+                    type.validate()
+                }
+            }
+        )
+        validated = true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -67,14 +73,14 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ParamType && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type && type == other.type /* spotless:on */
+        return /* spotless:off */ other is ParamType && type == other.type /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(type, type, type, type, type, type, type, type, type, type) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(type) /* spotless:on */
 
     override fun toString(): String =
         when {
-            type != null -> "ParamType{type=$type}"
+            type != null -> "ParamType{type=${type}}"
             _json != null -> "ParamType{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid ParamType")
         }
@@ -115,6 +121,7 @@ private constructor(
             provider: SerializerProvider
         ) {
             when {
+                value.type != null -> generator.writeObject(value.type)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid ParamType")
             }
@@ -132,7 +139,7 @@ private constructor(
 
         fun type(): Type = type.getRequired("type")
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -141,10 +148,12 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): ParamType.Type = apply {
-            if (!validated) {
-                type()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            type()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -156,7 +165,7 @@ private constructor(
 
         class Builder {
 
-            private var type: JsonField<Type> = JsonMissing.of()
+            private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(type: ParamType.Type) = apply {
@@ -187,7 +196,11 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ParamType.Type = Type(type, additionalProperties.toImmutable())
+            fun build(): ParamType.Type =
+                Type(
+                    checkNotNull(type) { "`type` is required but was not set" },
+                    additionalProperties.toImmutable()
+                )
         }
 
         class Type
@@ -201,28 +214,73 @@ private constructor(
             companion object {
 
                 val STRING = of("string")
+                val NUMBER = of("number")
+                val BOOLEAN = of("boolean")
+                val ARRAY = of("array")
+                val OBJECT = of("object")
+                val JSON = of("json")
+                val UNION = of("union")
+                val CHAT_COMPLETION_INPUT = of("chat_completion_input")
+                val COMPLETION_INPUT = of("completion_input")
+                val AGENT_TURN_INPUT = of("agent_turn_input")
 
                 fun of(value: String) = Type(JsonField.of(value))
             }
 
             enum class Known {
                 STRING,
+                NUMBER,
+                BOOLEAN,
+                ARRAY,
+                OBJECT,
+                JSON,
+                UNION,
+                CHAT_COMPLETION_INPUT,
+                COMPLETION_INPUT,
+                AGENT_TURN_INPUT,
             }
 
             enum class Value {
                 STRING,
+                NUMBER,
+                BOOLEAN,
+                ARRAY,
+                OBJECT,
+                JSON,
+                UNION,
+                CHAT_COMPLETION_INPUT,
+                COMPLETION_INPUT,
+                AGENT_TURN_INPUT,
                 _UNKNOWN,
             }
 
             fun value(): Value =
                 when (this) {
                     STRING -> Value.STRING
+                    NUMBER -> Value.NUMBER
+                    BOOLEAN -> Value.BOOLEAN
+                    ARRAY -> Value.ARRAY
+                    OBJECT -> Value.OBJECT
+                    JSON -> Value.JSON
+                    UNION -> Value.UNION
+                    CHAT_COMPLETION_INPUT -> Value.CHAT_COMPLETION_INPUT
+                    COMPLETION_INPUT -> Value.COMPLETION_INPUT
+                    AGENT_TURN_INPUT -> Value.AGENT_TURN_INPUT
                     else -> Value._UNKNOWN
                 }
 
             fun known(): Known =
                 when (this) {
                     STRING -> Known.STRING
+                    NUMBER -> Known.NUMBER
+                    BOOLEAN -> Known.BOOLEAN
+                    ARRAY -> Known.ARRAY
+                    OBJECT -> Known.OBJECT
+                    JSON -> Known.JSON
+                    UNION -> Known.UNION
+                    CHAT_COMPLETION_INPUT -> Known.CHAT_COMPLETION_INPUT
+                    COMPLETION_INPUT -> Known.COMPLETION_INPUT
+                    AGENT_TURN_INPUT -> Known.AGENT_TURN_INPUT
                     else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
                 }
 
@@ -246,7 +304,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is com.llama.llamastack.models.ParamType.Type && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ParamType.Type && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */

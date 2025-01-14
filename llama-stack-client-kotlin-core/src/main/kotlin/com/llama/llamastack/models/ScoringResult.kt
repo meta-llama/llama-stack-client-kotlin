@@ -32,9 +32,13 @@ private constructor(
 
     fun scoreRows(): List<ScoreRow> = scoreRows.getRequired("score_rows")
 
-    @JsonProperty("aggregated_results") @ExcludeMissing fun _aggregatedResults() = aggregatedResults
+    @JsonProperty("aggregated_results")
+    @ExcludeMissing
+    fun _aggregatedResults(): JsonField<AggregatedResults> = aggregatedResults
 
-    @JsonProperty("score_rows") @ExcludeMissing fun _scoreRows() = scoreRows
+    @JsonProperty("score_rows")
+    @ExcludeMissing
+    fun _scoreRows(): JsonField<List<ScoreRow>> = scoreRows
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +47,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ScoringResult = apply {
-        if (!validated) {
-            aggregatedResults().validate()
-            scoreRows().forEach { it.validate() }
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        aggregatedResults().validate()
+        scoreRows().forEach { it.validate() }
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,13 +65,13 @@ private constructor(
 
     class Builder {
 
-        private var aggregatedResults: JsonField<AggregatedResults> = JsonMissing.of()
-        private var scoreRows: JsonField<List<ScoreRow>> = JsonMissing.of()
+        private var aggregatedResults: JsonField<AggregatedResults>? = null
+        private var scoreRows: JsonField<MutableList<ScoreRow>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringResult: ScoringResult) = apply {
             aggregatedResults = scoringResult.aggregatedResults
-            scoreRows = scoringResult.scoreRows
+            scoreRows = scoringResult.scoreRows.map { it.toMutableList() }
             additionalProperties = scoringResult.additionalProperties.toMutableMap()
         }
 
@@ -78,7 +84,20 @@ private constructor(
 
         fun scoreRows(scoreRows: List<ScoreRow>) = scoreRows(JsonField.of(scoreRows))
 
-        fun scoreRows(scoreRows: JsonField<List<ScoreRow>>) = apply { this.scoreRows = scoreRows }
+        fun scoreRows(scoreRows: JsonField<List<ScoreRow>>) = apply {
+            this.scoreRows = scoreRows.map { it.toMutableList() }
+        }
+
+        fun addScoreRow(scoreRow: ScoreRow) = apply {
+            scoreRows =
+                (scoreRows ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(scoreRow)
+                }
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -101,8 +120,11 @@ private constructor(
 
         fun build(): ScoringResult =
             ScoringResult(
-                aggregatedResults,
-                scoreRows.map { it.toImmutable() },
+                checkNotNull(aggregatedResults) {
+                    "`aggregatedResults` is required but was not set"
+                },
+                checkNotNull(scoreRows) { "`scoreRows` is required but was not set" }
+                    .map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -122,9 +144,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): AggregatedResults = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -196,9 +220,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): ScoreRow = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

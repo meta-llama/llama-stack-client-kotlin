@@ -25,7 +25,7 @@ private constructor(
 
     fun uri(): String = uri.getRequired("uri")
 
-    @JsonProperty("uri") @ExcludeMissing fun _uri() = uri
+    @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -34,10 +34,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): Url = apply {
-        if (!validated) {
-            uri()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        uri()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -49,7 +51,7 @@ private constructor(
 
     class Builder {
 
-        private var uri: JsonField<String> = JsonMissing.of()
+        private var uri: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(url: Url) = apply {
@@ -80,7 +82,11 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): Url = Url(uri, additionalProperties.toImmutable())
+        fun build(): Url =
+            Url(
+                checkNotNull(uri) { "`uri` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {

@@ -37,6 +37,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
+                    .maxValidationSteps(0L)
                     .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
@@ -84,7 +85,8 @@ class PostTrainingSupervisedFineTuneParamsTest {
                 )
             )
             .checkpointDir("checkpoint_dir")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -118,6 +120,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         )
                         .gradientAccumulationSteps(0L)
                         .maxStepsPerEpoch(0L)
+                        .maxValidationSteps(0L)
                         .nEpochs(0L)
                         .optimizerConfig(
                             PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
@@ -166,7 +169,8 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     )
                 )
                 .checkpointDir("checkpoint_dir")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -199,6 +203,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
+                    .maxValidationSteps(0L)
                     .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
@@ -276,6 +281,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         )
                         .gradientAccumulationSteps(0L)
                         .maxStepsPerEpoch(0L)
+                        .maxValidationSteps(0L)
                         .nEpochs(0L)
                         .optimizerConfig(
                             PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
@@ -322,6 +328,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
+                    .maxValidationSteps(0L)
                     .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig

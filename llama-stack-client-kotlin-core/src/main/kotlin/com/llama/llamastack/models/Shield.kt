@@ -24,9 +24,6 @@ private constructor(
     @JsonProperty("identifier")
     @ExcludeMissing
     private val identifier: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("params")
-    @ExcludeMissing
-    private val params: JsonField<Params> = JsonMissing.of(),
     @JsonProperty("provider_id")
     @ExcludeMissing
     private val providerId: JsonField<String> = JsonMissing.of(),
@@ -34,12 +31,13 @@ private constructor(
     @ExcludeMissing
     private val providerResourceId: JsonField<String> = JsonMissing.of(),
     @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonProperty("params")
+    @ExcludeMissing
+    private val params: JsonField<Params> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun identifier(): String = identifier.getRequired("identifier")
-
-    fun params(): Params? = params.getNullable("params")
 
     fun providerId(): String = providerId.getRequired("provider_id")
 
@@ -47,17 +45,19 @@ private constructor(
 
     fun type(): Type = type.getRequired("type")
 
-    @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+    fun params(): Params? = params.getNullable("params")
 
-    @JsonProperty("params") @ExcludeMissing fun _params() = params
+    @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
-    @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+    @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
-    fun _providerResourceId() = providerResourceId
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
-    @JsonProperty("type") @ExcludeMissing fun _type() = type
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+    @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -66,14 +66,16 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): Shield = apply {
-        if (!validated) {
-            identifier()
-            params()?.validate()
-            providerId()
-            providerResourceId()
-            type()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        identifier()
+        providerId()
+        providerResourceId()
+        type()
+        params()?.validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -85,29 +87,25 @@ private constructor(
 
     class Builder {
 
-        private var identifier: JsonField<String> = JsonMissing.of()
+        private var identifier: JsonField<String>? = null
+        private var providerId: JsonField<String>? = null
+        private var providerResourceId: JsonField<String>? = null
+        private var type: JsonField<Type>? = null
         private var params: JsonField<Params> = JsonMissing.of()
-        private var providerId: JsonField<String> = JsonMissing.of()
-        private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var type: JsonField<Type> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(shield: Shield) = apply {
             identifier = shield.identifier
-            params = shield.params
             providerId = shield.providerId
             providerResourceId = shield.providerResourceId
             type = shield.type
+            params = shield.params
             additionalProperties = shield.additionalProperties.toMutableMap()
         }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
-
-        fun params(params: Params) = params(JsonField.of(params))
-
-        fun params(params: JsonField<Params>) = apply { this.params = params }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
@@ -123,6 +121,10 @@ private constructor(
         fun type(type: Type) = type(JsonField.of(type))
 
         fun type(type: JsonField<Type>) = apply { this.type = type }
+
+        fun params(params: Params) = params(JsonField.of(params))
+
+        fun params(params: JsonField<Params>) = apply { this.params = params }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -145,11 +147,13 @@ private constructor(
 
         fun build(): Shield =
             Shield(
-                identifier,
+                checkNotNull(identifier) { "`identifier` is required but was not set" },
+                checkNotNull(providerId) { "`providerId` is required but was not set" },
+                checkNotNull(providerResourceId) {
+                    "`providerResourceId` is required but was not set"
+                },
+                checkNotNull(type) { "`type` is required but was not set" },
                 params,
-                providerId,
-                providerResourceId,
-                type,
                 additionalProperties.toImmutable(),
             )
     }
@@ -220,9 +224,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Params = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -284,15 +290,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Shield && identifier == other.identifier && params == other.params && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Shield && identifier == other.identifier && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(identifier, params, providerId, providerResourceId, type, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(identifier, providerId, providerResourceId, type, params, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Shield{identifier=$identifier, params=$params, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
+        "Shield{identifier=$identifier, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, params=$params, additionalProperties=$additionalProperties}"
 }

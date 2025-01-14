@@ -22,12 +22,6 @@ import java.util.Objects
 class ToolExecutionStep
 @JsonCreator
 private constructor(
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("step_id")
     @ExcludeMissing
     private val stepId: JsonField<String> = JsonMissing.of(),
@@ -43,12 +37,14 @@ private constructor(
     @JsonProperty("turn_id")
     @ExcludeMissing
     private val turnId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
-
-    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
     fun stepId(): String = stepId.getRequired("step_id")
 
@@ -60,19 +56,31 @@ private constructor(
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
-    @JsonProperty("completed_at") @ExcludeMissing fun _completedAt() = completedAt
+    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
-    @JsonProperty("started_at") @ExcludeMissing fun _startedAt() = startedAt
+    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
-    @JsonProperty("step_id") @ExcludeMissing fun _stepId() = stepId
+    @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
-    @JsonProperty("tool_calls") @ExcludeMissing fun _toolCalls() = toolCalls
+    @JsonProperty("tool_calls")
+    @ExcludeMissing
+    fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
 
-    @JsonProperty("tool_responses") @ExcludeMissing fun _toolResponses() = toolResponses
+    @JsonProperty("tool_responses")
+    @ExcludeMissing
+    fun _toolResponses(): JsonField<List<ToolResponse>> = toolResponses
 
-    @JsonProperty("turn_id") @ExcludeMissing fun _turnId() = turnId
+    @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
+
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    fun _completedAt(): JsonField<OffsetDateTime> = completedAt
+
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -81,16 +89,18 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ToolExecutionStep = apply {
-        if (!validated) {
-            completedAt()
-            startedAt()
-            stepId()
-            stepType()
-            toolCalls().forEach { it.validate() }
-            toolResponses().forEach { it.validate() }
-            turnId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        stepId()
+        stepType()
+        toolCalls().forEach { it.validate() }
+        toolResponses().forEach { it.validate() }
+        turnId()
+        completedAt()
+        startedAt()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -102,35 +112,25 @@ private constructor(
 
     class Builder {
 
+        private var stepId: JsonField<String>? = null
+        private var stepType: JsonField<StepType>? = null
+        private var toolCalls: JsonField<MutableList<ToolCall>>? = null
+        private var toolResponses: JsonField<MutableList<ToolResponse>>? = null
+        private var turnId: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
         private var startedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var stepId: JsonField<String> = JsonMissing.of()
-        private var stepType: JsonField<StepType> = JsonMissing.of()
-        private var toolCalls: JsonField<List<ToolCall>> = JsonMissing.of()
-        private var toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of()
-        private var turnId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolExecutionStep: ToolExecutionStep) = apply {
-            completedAt = toolExecutionStep.completedAt
-            startedAt = toolExecutionStep.startedAt
             stepId = toolExecutionStep.stepId
             stepType = toolExecutionStep.stepType
-            toolCalls = toolExecutionStep.toolCalls
-            toolResponses = toolExecutionStep.toolResponses
+            toolCalls = toolExecutionStep.toolCalls.map { it.toMutableList() }
+            toolResponses = toolExecutionStep.toolResponses.map { it.toMutableList() }
             turnId = toolExecutionStep.turnId
+            completedAt = toolExecutionStep.completedAt
+            startedAt = toolExecutionStep.startedAt
             additionalProperties = toolExecutionStep.additionalProperties.toMutableMap()
         }
-
-        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
-
-        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
-            this.completedAt = completedAt
-        }
-
-        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
-
-        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
@@ -142,18 +142,52 @@ private constructor(
 
         fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
 
-        fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply { this.toolCalls = toolCalls }
+        fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
+            this.toolCalls = toolCalls.map { it.toMutableList() }
+        }
+
+        fun addToolCall(toolCall: ToolCall) = apply {
+            toolCalls =
+                (toolCalls ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(toolCall)
+                }
+        }
 
         fun toolResponses(toolResponses: List<ToolResponse>) =
             toolResponses(JsonField.of(toolResponses))
 
         fun toolResponses(toolResponses: JsonField<List<ToolResponse>>) = apply {
-            this.toolResponses = toolResponses
+            this.toolResponses = toolResponses.map { it.toMutableList() }
+        }
+
+        fun addToolResponse(toolResponse: ToolResponse) = apply {
+            toolResponses =
+                (toolResponses ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(toolResponse)
+                }
         }
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
+
+        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
+
+        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
+            this.completedAt = completedAt
+        }
+
+        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
+
+        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -176,13 +210,15 @@ private constructor(
 
         fun build(): ToolExecutionStep =
             ToolExecutionStep(
+                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(toolResponses) { "`toolResponses` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(turnId) { "`turnId` is required but was not set" },
                 completedAt,
                 startedAt,
-                stepId,
-                stepType,
-                toolCalls.map { it.toImmutable() },
-                toolResponses.map { it.toImmutable() },
-                turnId,
                 additionalProperties.toImmutable(),
             )
     }
@@ -243,15 +279,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolExecutionStep && completedAt == other.completedAt && startedAt == other.startedAt && stepId == other.stepId && stepType == other.stepType && toolCalls == other.toolCalls && toolResponses == other.toolResponses && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ToolExecutionStep && stepId == other.stepId && stepType == other.stepType && toolCalls == other.toolCalls && toolResponses == other.toolResponses && turnId == other.turnId && completedAt == other.completedAt && startedAt == other.startedAt && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(completedAt, startedAt, stepId, stepType, toolCalls, toolResponses, turnId, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(stepId, stepType, toolCalls, toolResponses, turnId, completedAt, startedAt, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ToolExecutionStep{completedAt=$completedAt, startedAt=$startedAt, stepId=$stepId, stepType=$stepType, toolCalls=$toolCalls, toolResponses=$toolResponses, turnId=$turnId, additionalProperties=$additionalProperties}"
+        "ToolExecutionStep{stepId=$stepId, stepType=$stepType, toolCalls=$toolCalls, toolResponses=$toolResponses, turnId=$turnId, completedAt=$completedAt, startedAt=$startedAt, additionalProperties=$additionalProperties}"
 }

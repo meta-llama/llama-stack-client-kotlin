@@ -35,11 +35,13 @@ private constructor(
 
     fun route(): String = route.getRequired("route")
 
-    @JsonProperty("method") @ExcludeMissing fun _method() = method
+    @JsonProperty("method") @ExcludeMissing fun _method(): JsonField<String> = method
 
-    @JsonProperty("provider_types") @ExcludeMissing fun _providerTypes() = providerTypes
+    @JsonProperty("provider_types")
+    @ExcludeMissing
+    fun _providerTypes(): JsonField<List<String>> = providerTypes
 
-    @JsonProperty("route") @ExcludeMissing fun _route() = route
+    @JsonProperty("route") @ExcludeMissing fun _route(): JsonField<String> = route
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -48,12 +50,14 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): RouteInfo = apply {
-        if (!validated) {
-            method()
-            providerTypes()
-            route()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        method()
+        providerTypes()
+        route()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -65,14 +69,14 @@ private constructor(
 
     class Builder {
 
-        private var method: JsonField<String> = JsonMissing.of()
-        private var providerTypes: JsonField<List<String>> = JsonMissing.of()
-        private var route: JsonField<String> = JsonMissing.of()
+        private var method: JsonField<String>? = null
+        private var providerTypes: JsonField<MutableList<String>>? = null
+        private var route: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(routeInfo: RouteInfo) = apply {
             method = routeInfo.method
-            providerTypes = routeInfo.providerTypes
+            providerTypes = routeInfo.providerTypes.map { it.toMutableList() }
             route = routeInfo.route
             additionalProperties = routeInfo.additionalProperties.toMutableMap()
         }
@@ -84,7 +88,18 @@ private constructor(
         fun providerTypes(providerTypes: List<String>) = providerTypes(JsonField.of(providerTypes))
 
         fun providerTypes(providerTypes: JsonField<List<String>>) = apply {
-            this.providerTypes = providerTypes
+            this.providerTypes = providerTypes.map { it.toMutableList() }
+        }
+
+        fun addProviderType(providerType: String) = apply {
+            providerTypes =
+                (providerTypes ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(providerType)
+                }
         }
 
         fun route(route: String) = route(JsonField.of(route))
@@ -112,9 +127,10 @@ private constructor(
 
         fun build(): RouteInfo =
             RouteInfo(
-                method,
-                providerTypes.map { it.toImmutable() },
-                route,
+                checkNotNull(method) { "`method` is required but was not set" },
+                checkNotNull(providerTypes) { "`providerTypes` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(route) { "`route` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }

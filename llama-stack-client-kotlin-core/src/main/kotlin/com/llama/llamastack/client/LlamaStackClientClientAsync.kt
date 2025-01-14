@@ -22,10 +22,19 @@ import com.llama.llamastack.services.async.ScoringServiceAsync
 import com.llama.llamastack.services.async.ShieldServiceAsync
 import com.llama.llamastack.services.async.SyntheticDataGenerationServiceAsync
 import com.llama.llamastack.services.async.TelemetryServiceAsync
+import com.llama.llamastack.services.async.ToolRuntimeServiceAsync
+import com.llama.llamastack.services.async.ToolServiceAsync
+import com.llama.llamastack.services.async.ToolgroupServiceAsync
 
 interface LlamaStackClientClientAsync {
 
     fun sync(): LlamaStackClientClient
+
+    fun toolgroups(): ToolgroupServiceAsync
+
+    fun tools(): ToolServiceAsync
+
+    fun toolRuntime(): ToolRuntimeServiceAsync
 
     fun agents(): AgentServiceAsync
 

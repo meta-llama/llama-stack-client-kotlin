@@ -27,7 +27,9 @@ private constructor(
 
     fun violation(): SafetyViolation? = violation.getNullable("violation")
 
-    @JsonProperty("violation") @ExcludeMissing fun _violation() = violation
+    @JsonProperty("violation")
+    @ExcludeMissing
+    fun _violation(): JsonField<SafetyViolation> = violation
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +38,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): RunShieldResponse = apply {
-        if (!validated) {
-            violation()?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        violation()?.validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)

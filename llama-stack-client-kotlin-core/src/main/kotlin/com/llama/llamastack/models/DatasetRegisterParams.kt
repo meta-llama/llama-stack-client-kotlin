@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class DatasetRegisterParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: DatasetRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -37,18 +42,33 @@ constructor(
 
     fun providerId(): String? = body.providerId()
 
+    fun _datasetId(): JsonField<String> = body._datasetId()
+
+    fun _datasetSchema(): JsonField<DatasetSchema> = body._datasetSchema()
+
+    fun _url(): JsonField<Url> = body._url()
+
+    fun _metadata(): JsonField<Metadata> = body._metadata()
+
+    fun _providerDatasetId(): JsonField<String> = body._providerDatasetId()
+
+    fun _providerId(): JsonField<String> = body._providerId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): DatasetRegisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -60,31 +80,75 @@ constructor(
     class DatasetRegisterBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("dataset_id") private val datasetId: String,
-        @JsonProperty("dataset_schema") private val datasetSchema: DatasetSchema,
-        @JsonProperty("url") private val url: Url,
-        @JsonProperty("metadata") private val metadata: Metadata?,
-        @JsonProperty("provider_dataset_id") private val providerDatasetId: String?,
-        @JsonProperty("provider_id") private val providerId: String?,
+        @JsonProperty("dataset_id")
+        @ExcludeMissing
+        private val datasetId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("dataset_schema")
+        @ExcludeMissing
+        private val datasetSchema: JsonField<DatasetSchema> = JsonMissing.of(),
+        @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
+        @JsonProperty("metadata")
+        @ExcludeMissing
+        private val metadata: JsonField<Metadata> = JsonMissing.of(),
+        @JsonProperty("provider_dataset_id")
+        @ExcludeMissing
+        private val providerDatasetId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        private val providerId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("dataset_id") fun datasetId(): String = datasetId
+        fun datasetId(): String = datasetId.getRequired("dataset_id")
 
-        @JsonProperty("dataset_schema") fun datasetSchema(): DatasetSchema = datasetSchema
+        fun datasetSchema(): DatasetSchema = datasetSchema.getRequired("dataset_schema")
 
-        @JsonProperty("url") fun url(): Url = url
+        fun url(): Url = url.getRequired("url")
 
-        @JsonProperty("metadata") fun metadata(): Metadata? = metadata
+        fun metadata(): Metadata? = metadata.getNullable("metadata")
 
-        @JsonProperty("provider_dataset_id") fun providerDatasetId(): String? = providerDatasetId
+        fun providerDatasetId(): String? = providerDatasetId.getNullable("provider_dataset_id")
 
-        @JsonProperty("provider_id") fun providerId(): String? = providerId
+        fun providerId(): String? = providerId.getNullable("provider_id")
+
+        @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
+
+        @JsonProperty("dataset_schema")
+        @ExcludeMissing
+        fun _datasetSchema(): JsonField<DatasetSchema> = datasetSchema
+
+        @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
+
+        @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
+
+        @JsonProperty("provider_dataset_id")
+        @ExcludeMissing
+        fun _providerDatasetId(): JsonField<String> = providerDatasetId
+
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        fun _providerId(): JsonField<String> = providerId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): DatasetRegisterBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            datasetId()
+            datasetSchema().validate()
+            url().validate()
+            metadata()?.validate()
+            providerDatasetId()
+            providerId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -95,12 +159,12 @@ constructor(
 
         class Builder {
 
-            private var datasetId: String? = null
-            private var datasetSchema: DatasetSchema? = null
-            private var url: Url? = null
-            private var metadata: Metadata? = null
-            private var providerDatasetId: String? = null
-            private var providerId: String? = null
+            private var datasetId: JsonField<String>? = null
+            private var datasetSchema: JsonField<DatasetSchema>? = null
+            private var url: JsonField<Url>? = null
+            private var metadata: JsonField<Metadata> = JsonMissing.of()
+            private var providerDatasetId: JsonField<String> = JsonMissing.of()
+            private var providerId: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(datasetRegisterBody: DatasetRegisterBody) = apply {
@@ -113,21 +177,35 @@ constructor(
                 additionalProperties = datasetRegisterBody.additionalProperties.toMutableMap()
             }
 
-            fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+            fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
-            fun datasetSchema(datasetSchema: DatasetSchema) = apply {
+            fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
+
+            fun datasetSchema(datasetSchema: DatasetSchema) =
+                datasetSchema(JsonField.of(datasetSchema))
+
+            fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
                 this.datasetSchema = datasetSchema
             }
 
-            fun url(url: Url) = apply { this.url = url }
+            fun url(url: Url) = url(JsonField.of(url))
 
-            fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
+            fun url(url: JsonField<Url>) = apply { this.url = url }
 
-            fun providerDatasetId(providerDatasetId: String) = apply {
+            fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
+
+            fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
+
+            fun providerDatasetId(providerDatasetId: String) =
+                providerDatasetId(JsonField.of(providerDatasetId))
+
+            fun providerDatasetId(providerDatasetId: JsonField<String>) = apply {
                 this.providerDatasetId = providerDatasetId
             }
 
-            fun providerId(providerId: String) = apply { this.providerId = providerId }
+            fun providerId(providerId: String) = providerId(JsonField.of(providerId))
+
+            fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -188,37 +266,78 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: DatasetRegisterBody.Builder = DatasetRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(datasetRegisterParams: DatasetRegisterParams) = apply {
+            xLlamaStackClientVersion = datasetRegisterParams.xLlamaStackClientVersion
             xLlamaStackProviderData = datasetRegisterParams.xLlamaStackProviderData
             body = datasetRegisterParams.body.toBuilder()
             additionalHeaders = datasetRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = datasetRegisterParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
+
         fun datasetSchema(datasetSchema: DatasetSchema) = apply {
+            body.datasetSchema(datasetSchema)
+        }
+
+        fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
             body.datasetSchema(datasetSchema)
         }
 
         fun url(url: Url) = apply { body.url(url) }
 
+        fun url(url: JsonField<Url>) = apply { body.url(url) }
+
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
+
+        fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
         fun providerDatasetId(providerDatasetId: String) = apply {
             body.providerDatasetId(providerDatasetId)
         }
 
+        fun providerDatasetId(providerDatasetId: JsonField<String>) = apply {
+            body.providerDatasetId(providerDatasetId)
+        }
+
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
+
+        fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -318,27 +437,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): DatasetRegisterParams =
             DatasetRegisterParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -357,6 +458,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): DatasetSchema = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -424,6 +535,16 @@ constructor(
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
+        fun validate(): Metadata = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
         fun toBuilder() = Builder().from(this)
 
         companion object {
@@ -483,11 +604,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetRegisterParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetRegisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetRegisterParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetRegisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

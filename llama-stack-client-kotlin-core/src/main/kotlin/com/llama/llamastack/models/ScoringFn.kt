@@ -31,18 +31,12 @@ import java.util.Objects
 class ScoringFn
 @JsonCreator
 private constructor(
-    @JsonProperty("description")
-    @ExcludeMissing
-    private val description: JsonField<String> = JsonMissing.of(),
     @JsonProperty("identifier")
     @ExcludeMissing
     private val identifier: JsonField<String> = JsonMissing.of(),
     @JsonProperty("metadata")
     @ExcludeMissing
     private val metadata: JsonField<Metadata> = JsonMissing.of(),
-    @JsonProperty("params")
-    @ExcludeMissing
-    private val params: JsonField<Params> = JsonMissing.of(),
     @JsonProperty("provider_id")
     @ExcludeMissing
     private val providerId: JsonField<String> = JsonMissing.of(),
@@ -53,16 +47,18 @@ private constructor(
     @ExcludeMissing
     private val returnType: JsonField<ReturnType> = JsonMissing.of(),
     @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonProperty("description")
+    @ExcludeMissing
+    private val description: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("params")
+    @ExcludeMissing
+    private val params: JsonField<Params> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    fun description(): String? = description.getNullable("description")
 
     fun identifier(): String = identifier.getRequired("identifier")
 
     fun metadata(): Metadata = metadata.getRequired("metadata")
-
-    fun params(): Params? = params.getNullable("params")
 
     fun providerId(): String = providerId.getRequired("provider_id")
 
@@ -72,23 +68,29 @@ private constructor(
 
     fun type(): Type = type.getRequired("type")
 
-    @JsonProperty("description") @ExcludeMissing fun _description() = description
+    fun description(): String? = description.getNullable("description")
 
-    @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+    fun params(): Params? = params.getNullable("params")
 
-    @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+    @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
-    @JsonProperty("params") @ExcludeMissing fun _params() = params
+    @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-    @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+    @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
-    fun _providerResourceId() = providerResourceId
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
-    @JsonProperty("return_type") @ExcludeMissing fun _returnType() = returnType
+    @JsonProperty("return_type")
+    @ExcludeMissing
+    fun _returnType(): JsonField<ReturnType> = returnType
 
-    @JsonProperty("type") @ExcludeMissing fun _type() = type
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+    @JsonProperty("description") @ExcludeMissing fun _description(): JsonField<String> = description
+
+    @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -97,17 +99,19 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ScoringFn = apply {
-        if (!validated) {
-            description()
-            identifier()
-            metadata().validate()
-            params()
-            providerId()
-            providerResourceId()
-            returnType().validate()
-            type()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        identifier()
+        metadata().validate()
+        providerId()
+        providerResourceId()
+        returnType().validate()
+        type()
+        description()
+        params()?.validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -119,31 +123,27 @@ private constructor(
 
     class Builder {
 
+        private var identifier: JsonField<String>? = null
+        private var metadata: JsonField<Metadata>? = null
+        private var providerId: JsonField<String>? = null
+        private var providerResourceId: JsonField<String>? = null
+        private var returnType: JsonField<ReturnType>? = null
+        private var type: JsonField<Type>? = null
         private var description: JsonField<String> = JsonMissing.of()
-        private var identifier: JsonField<String> = JsonMissing.of()
-        private var metadata: JsonField<Metadata> = JsonMissing.of()
         private var params: JsonField<Params> = JsonMissing.of()
-        private var providerId: JsonField<String> = JsonMissing.of()
-        private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var returnType: JsonField<ReturnType> = JsonMissing.of()
-        private var type: JsonField<Type> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringFn: ScoringFn) = apply {
-            description = scoringFn.description
             identifier = scoringFn.identifier
             metadata = scoringFn.metadata
-            params = scoringFn.params
             providerId = scoringFn.providerId
             providerResourceId = scoringFn.providerResourceId
             returnType = scoringFn.returnType
             type = scoringFn.type
+            description = scoringFn.description
+            params = scoringFn.params
             additionalProperties = scoringFn.additionalProperties.toMutableMap()
         }
-
-        fun description(description: String) = description(JsonField.of(description))
-
-        fun description(description: JsonField<String>) = apply { this.description = description }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
@@ -152,10 +152,6 @@ private constructor(
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
-
-        fun params(params: Params) = params(JsonField.of(params))
-
-        fun params(params: JsonField<Params>) = apply { this.params = params }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
@@ -175,6 +171,23 @@ private constructor(
         fun type(type: Type) = type(JsonField.of(type))
 
         fun type(type: JsonField<Type>) = apply { this.type = type }
+
+        fun description(description: String) = description(JsonField.of(description))
+
+        fun description(description: JsonField<String>) = apply { this.description = description }
+
+        fun params(params: Params) = params(JsonField.of(params))
+
+        fun params(params: JsonField<Params>) = apply { this.params = params }
+
+        fun params(llmAsJudgeScoringFnParams: Params.LlmAsJudgeScoringFnParams) =
+            params(Params.ofLlmAsJudgeScoringFnParams(llmAsJudgeScoringFnParams))
+
+        fun params(regexParserScoringFnParams: Params.RegexParserScoringFnParams) =
+            params(Params.ofRegexParserScoringFnParams(regexParserScoringFnParams))
+
+        fun params(basicScoringFnParams: Params.BasicScoringFnParams) =
+            params(Params.ofBasicScoringFnParams(basicScoringFnParams))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -197,14 +210,16 @@ private constructor(
 
         fun build(): ScoringFn =
             ScoringFn(
+                checkNotNull(identifier) { "`identifier` is required but was not set" },
+                checkNotNull(metadata) { "`metadata` is required but was not set" },
+                checkNotNull(providerId) { "`providerId` is required but was not set" },
+                checkNotNull(providerResourceId) {
+                    "`providerResourceId` is required but was not set"
+                },
+                checkNotNull(returnType) { "`returnType` is required but was not set" },
+                checkNotNull(type) { "`type` is required but was not set" },
                 description,
-                identifier,
-                metadata,
                 params,
-                providerId,
-                providerResourceId,
-                returnType,
-                type,
                 additionalProperties.toImmutable(),
             )
     }
@@ -224,9 +239,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Metadata = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -344,8 +361,6 @@ private constructor(
         private val _json: JsonValue? = null,
     ) {
 
-        private var validated: Boolean = false
-
         fun llmAsJudgeScoringFnParams(): LlmAsJudgeScoringFnParams? = llmAsJudgeScoringFnParams
 
         fun regexParserScoringFnParams(): RegexParserScoringFnParams? = regexParserScoringFnParams
@@ -381,20 +396,35 @@ private constructor(
             }
         }
 
+        private var validated: Boolean = false
+
         fun validate(): Params = apply {
-            if (!validated) {
-                if (
-                    llmAsJudgeScoringFnParams == null &&
-                        regexParserScoringFnParams == null &&
-                        basicScoringFnParams == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Params: $_json")
-                }
-                llmAsJudgeScoringFnParams?.validate()
-                regexParserScoringFnParams?.validate()
-                basicScoringFnParams?.validate()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitLlmAsJudgeScoringFnParams(
+                        llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams
+                    ) {
+                        llmAsJudgeScoringFnParams.validate()
+                    }
+
+                    override fun visitRegexParserScoringFnParams(
+                        regexParserScoringFnParams: RegexParserScoringFnParams
+                    ) {
+                        regexParserScoringFnParams.validate()
+                    }
+
+                    override fun visitBasicScoringFnParams(
+                        basicScoringFnParams: BasicScoringFnParams
+                    ) {
+                        basicScoringFnParams.validate()
+                    }
+                }
+            )
+            validated = true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -494,51 +524,55 @@ private constructor(
         class LlmAsJudgeScoringFnParams
         @JsonCreator
         private constructor(
+            @JsonProperty("judge_model")
+            @ExcludeMissing
+            private val judgeModel: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonProperty("aggregation_functions")
             @ExcludeMissing
             private val aggregationFunctions: JsonField<List<AggregationFunction>> =
                 JsonMissing.of(),
-            @JsonProperty("judge_model")
-            @ExcludeMissing
-            private val judgeModel: JsonField<String> = JsonMissing.of(),
             @JsonProperty("judge_score_regexes")
             @ExcludeMissing
             private val judgeScoreRegexes: JsonField<List<String>> = JsonMissing.of(),
             @JsonProperty("prompt_template")
             @ExcludeMissing
             private val promptTemplate: JsonField<String> = JsonMissing.of(),
-            @JsonProperty("type")
-            @ExcludeMissing
-            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            fun judgeModel(): String = judgeModel.getRequired("judge_model")
+
+            fun type(): Type = type.getRequired("type")
+
             fun aggregationFunctions(): List<AggregationFunction>? =
                 aggregationFunctions.getNullable("aggregation_functions")
-
-            fun judgeModel(): String = judgeModel.getRequired("judge_model")
 
             fun judgeScoreRegexes(): List<String>? =
                 judgeScoreRegexes.getNullable("judge_score_regexes")
 
             fun promptTemplate(): String? = promptTemplate.getNullable("prompt_template")
 
-            fun type(): Type = type.getRequired("type")
+            @JsonProperty("judge_model")
+            @ExcludeMissing
+            fun _judgeModel(): JsonField<String> = judgeModel
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonProperty("aggregation_functions")
             @ExcludeMissing
-            fun _aggregationFunctions() = aggregationFunctions
-
-            @JsonProperty("judge_model") @ExcludeMissing fun _judgeModel() = judgeModel
+            fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
 
             @JsonProperty("judge_score_regexes")
             @ExcludeMissing
-            fun _judgeScoreRegexes() = judgeScoreRegexes
+            fun _judgeScoreRegexes(): JsonField<List<String>> = judgeScoreRegexes
 
-            @JsonProperty("prompt_template") @ExcludeMissing fun _promptTemplate() = promptTemplate
-
-            @JsonProperty("type") @ExcludeMissing fun _type() = type
+            @JsonProperty("prompt_template")
+            @ExcludeMissing
+            fun _promptTemplate(): JsonField<String> = promptTemplate
 
             @JsonAnyGetter
             @ExcludeMissing
@@ -547,14 +581,16 @@ private constructor(
             private var validated: Boolean = false
 
             fun validate(): LlmAsJudgeScoringFnParams = apply {
-                if (!validated) {
-                    aggregationFunctions()
-                    judgeModel()
-                    judgeScoreRegexes()
-                    promptTemplate()
-                    type()
-                    validated = true
+                if (validated) {
+                    return@apply
                 }
+
+                judgeModel()
+                type()
+                aggregationFunctions()
+                judgeScoreRegexes()
+                promptTemplate()
+                validated = true
             }
 
             fun toBuilder() = Builder().from(this)
@@ -566,30 +602,25 @@ private constructor(
 
             class Builder {
 
-                private var aggregationFunctions: JsonField<List<AggregationFunction>> =
-                    JsonMissing.of()
-                private var judgeModel: JsonField<String> = JsonMissing.of()
-                private var judgeScoreRegexes: JsonField<List<String>> = JsonMissing.of()
+                private var judgeModel: JsonField<String>? = null
+                private var type: JsonField<Type>? = null
+                private var aggregationFunctions: JsonField<MutableList<AggregationFunction>>? =
+                    null
+                private var judgeScoreRegexes: JsonField<MutableList<String>>? = null
                 private var promptTemplate: JsonField<String> = JsonMissing.of()
-                private var type: JsonField<Type> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams) = apply {
-                    aggregationFunctions = llmAsJudgeScoringFnParams.aggregationFunctions
                     judgeModel = llmAsJudgeScoringFnParams.judgeModel
-                    judgeScoreRegexes = llmAsJudgeScoringFnParams.judgeScoreRegexes
-                    promptTemplate = llmAsJudgeScoringFnParams.promptTemplate
                     type = llmAsJudgeScoringFnParams.type
+                    aggregationFunctions =
+                        llmAsJudgeScoringFnParams.aggregationFunctions.map { it.toMutableList() }
+                    judgeScoreRegexes =
+                        llmAsJudgeScoringFnParams.judgeScoreRegexes.map { it.toMutableList() }
+                    promptTemplate = llmAsJudgeScoringFnParams.promptTemplate
                     additionalProperties =
                         llmAsJudgeScoringFnParams.additionalProperties.toMutableMap()
                 }
-
-                fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
-                    aggregationFunctions(JsonField.of(aggregationFunctions))
-
-                fun aggregationFunctions(
-                    aggregationFunctions: JsonField<List<AggregationFunction>>
-                ) = apply { this.aggregationFunctions = aggregationFunctions }
 
                 fun judgeModel(judgeModel: String) = judgeModel(JsonField.of(judgeModel))
 
@@ -597,11 +628,46 @@ private constructor(
                     this.judgeModel = judgeModel
                 }
 
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
+                    aggregationFunctions(JsonField.of(aggregationFunctions))
+
+                fun aggregationFunctions(
+                    aggregationFunctions: JsonField<List<AggregationFunction>>
+                ) = apply {
+                    this.aggregationFunctions = aggregationFunctions.map { it.toMutableList() }
+                }
+
+                fun addAggregationFunction(aggregationFunction: AggregationFunction) = apply {
+                    aggregationFunctions =
+                        (aggregationFunctions ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(aggregationFunction)
+                        }
+                }
+
                 fun judgeScoreRegexes(judgeScoreRegexes: List<String>) =
                     judgeScoreRegexes(JsonField.of(judgeScoreRegexes))
 
                 fun judgeScoreRegexes(judgeScoreRegexes: JsonField<List<String>>) = apply {
-                    this.judgeScoreRegexes = judgeScoreRegexes
+                    this.judgeScoreRegexes = judgeScoreRegexes.map { it.toMutableList() }
+                }
+
+                fun addJudgeScoreRegex(judgeScoreRegex: String) = apply {
+                    judgeScoreRegexes =
+                        (judgeScoreRegexes ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(judgeScoreRegex)
+                        }
                 }
 
                 fun promptTemplate(promptTemplate: String) =
@@ -610,10 +676,6 @@ private constructor(
                 fun promptTemplate(promptTemplate: JsonField<String>) = apply {
                     this.promptTemplate = promptTemplate
                 }
-
-                fun type(type: Type) = type(JsonField.of(type))
-
-                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -639,11 +701,11 @@ private constructor(
 
                 fun build(): LlmAsJudgeScoringFnParams =
                     LlmAsJudgeScoringFnParams(
-                        aggregationFunctions.map { it.toImmutable() },
-                        judgeModel,
-                        judgeScoreRegexes.map { it.toImmutable() },
+                        checkNotNull(judgeModel) { "`judgeModel` is required but was not set" },
+                        checkNotNull(type) { "`type` is required but was not set" },
+                        (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
+                        (judgeScoreRegexes ?: JsonMissing.of()).map { it.toImmutable() },
                         promptTemplate,
-                        type,
                         additionalProperties.toImmutable(),
                     )
             }
@@ -776,23 +838,26 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is LlmAsJudgeScoringFnParams && aggregationFunctions == other.aggregationFunctions && judgeModel == other.judgeModel && judgeScoreRegexes == other.judgeScoreRegexes && promptTemplate == other.promptTemplate && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is LlmAsJudgeScoringFnParams && judgeModel == other.judgeModel && type == other.type && aggregationFunctions == other.aggregationFunctions && judgeScoreRegexes == other.judgeScoreRegexes && promptTemplate == other.promptTemplate && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(aggregationFunctions, judgeModel, judgeScoreRegexes, promptTemplate, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(judgeModel, type, aggregationFunctions, judgeScoreRegexes, promptTemplate, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "LlmAsJudgeScoringFnParams{aggregationFunctions=$aggregationFunctions, judgeModel=$judgeModel, judgeScoreRegexes=$judgeScoreRegexes, promptTemplate=$promptTemplate, type=$type, additionalProperties=$additionalProperties}"
+                "LlmAsJudgeScoringFnParams{judgeModel=$judgeModel, type=$type, aggregationFunctions=$aggregationFunctions, judgeScoreRegexes=$judgeScoreRegexes, promptTemplate=$promptTemplate, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
         class RegexParserScoringFnParams
         @JsonCreator
         private constructor(
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonProperty("aggregation_functions")
             @ExcludeMissing
             private val aggregationFunctions: JsonField<List<AggregationFunction>> =
@@ -800,27 +865,26 @@ private constructor(
             @JsonProperty("parsing_regexes")
             @ExcludeMissing
             private val parsingRegexes: JsonField<List<String>> = JsonMissing.of(),
-            @JsonProperty("type")
-            @ExcludeMissing
-            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
+
+            fun type(): Type = type.getRequired("type")
 
             fun aggregationFunctions(): List<AggregationFunction>? =
                 aggregationFunctions.getNullable("aggregation_functions")
 
             fun parsingRegexes(): List<String>? = parsingRegexes.getNullable("parsing_regexes")
 
-            fun type(): Type = type.getRequired("type")
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonProperty("aggregation_functions")
             @ExcludeMissing
-            fun _aggregationFunctions() = aggregationFunctions
+            fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
 
-            @JsonProperty("parsing_regexes") @ExcludeMissing fun _parsingRegexes() = parsingRegexes
-
-            @JsonProperty("type") @ExcludeMissing fun _type() = type
+            @JsonProperty("parsing_regexes")
+            @ExcludeMissing
+            fun _parsingRegexes(): JsonField<List<String>> = parsingRegexes
 
             @JsonAnyGetter
             @ExcludeMissing
@@ -829,12 +893,14 @@ private constructor(
             private var validated: Boolean = false
 
             fun validate(): RegexParserScoringFnParams = apply {
-                if (!validated) {
-                    aggregationFunctions()
-                    parsingRegexes()
-                    type()
-                    validated = true
+                if (validated) {
+                    return@apply
                 }
+
+                type()
+                aggregationFunctions()
+                parsingRegexes()
+                validated = true
             }
 
             fun toBuilder() = Builder().from(this)
@@ -846,37 +912,63 @@ private constructor(
 
             class Builder {
 
-                private var aggregationFunctions: JsonField<List<AggregationFunction>> =
-                    JsonMissing.of()
-                private var parsingRegexes: JsonField<List<String>> = JsonMissing.of()
-                private var type: JsonField<Type> = JsonMissing.of()
+                private var type: JsonField<Type>? = null
+                private var aggregationFunctions: JsonField<MutableList<AggregationFunction>>? =
+                    null
+                private var parsingRegexes: JsonField<MutableList<String>>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(regexParserScoringFnParams: RegexParserScoringFnParams) = apply {
-                    aggregationFunctions = regexParserScoringFnParams.aggregationFunctions
-                    parsingRegexes = regexParserScoringFnParams.parsingRegexes
                     type = regexParserScoringFnParams.type
+                    aggregationFunctions =
+                        regexParserScoringFnParams.aggregationFunctions.map { it.toMutableList() }
+                    parsingRegexes =
+                        regexParserScoringFnParams.parsingRegexes.map { it.toMutableList() }
                     additionalProperties =
                         regexParserScoringFnParams.additionalProperties.toMutableMap()
                 }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
                     aggregationFunctions(JsonField.of(aggregationFunctions))
 
                 fun aggregationFunctions(
                     aggregationFunctions: JsonField<List<AggregationFunction>>
-                ) = apply { this.aggregationFunctions = aggregationFunctions }
+                ) = apply {
+                    this.aggregationFunctions = aggregationFunctions.map { it.toMutableList() }
+                }
+
+                fun addAggregationFunction(aggregationFunction: AggregationFunction) = apply {
+                    aggregationFunctions =
+                        (aggregationFunctions ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(aggregationFunction)
+                        }
+                }
 
                 fun parsingRegexes(parsingRegexes: List<String>) =
                     parsingRegexes(JsonField.of(parsingRegexes))
 
                 fun parsingRegexes(parsingRegexes: JsonField<List<String>>) = apply {
-                    this.parsingRegexes = parsingRegexes
+                    this.parsingRegexes = parsingRegexes.map { it.toMutableList() }
                 }
 
-                fun type(type: Type) = type(JsonField.of(type))
-
-                fun type(type: JsonField<Type>) = apply { this.type = type }
+                fun addParsingRegex(parsingRegex: String) = apply {
+                    parsingRegexes =
+                        (parsingRegexes ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(parsingRegex)
+                        }
+                }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -902,9 +994,9 @@ private constructor(
 
                 fun build(): RegexParserScoringFnParams =
                     RegexParserScoringFnParams(
-                        aggregationFunctions.map { it.toImmutable() },
-                        parsingRegexes.map { it.toImmutable() },
-                        type,
+                        checkNotNull(type) { "`type` is required but was not set" },
+                        (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
+                        (parsingRegexes ?: JsonMissing.of()).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1037,44 +1129,44 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is RegexParserScoringFnParams && aggregationFunctions == other.aggregationFunctions && parsingRegexes == other.parsingRegexes && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is RegexParserScoringFnParams && type == other.type && aggregationFunctions == other.aggregationFunctions && parsingRegexes == other.parsingRegexes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(aggregationFunctions, parsingRegexes, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(type, aggregationFunctions, parsingRegexes, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "RegexParserScoringFnParams{aggregationFunctions=$aggregationFunctions, parsingRegexes=$parsingRegexes, type=$type, additionalProperties=$additionalProperties}"
+                "RegexParserScoringFnParams{type=$type, aggregationFunctions=$aggregationFunctions, parsingRegexes=$parsingRegexes, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
         class BasicScoringFnParams
         @JsonCreator
         private constructor(
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonProperty("aggregation_functions")
             @ExcludeMissing
             private val aggregationFunctions: JsonField<List<AggregationFunction>> =
                 JsonMissing.of(),
-            @JsonProperty("type")
-            @ExcludeMissing
-            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            fun type(): Type = type.getRequired("type")
+
             fun aggregationFunctions(): List<AggregationFunction>? =
                 aggregationFunctions.getNullable("aggregation_functions")
 
-            fun type(): Type = type.getRequired("type")
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonProperty("aggregation_functions")
             @ExcludeMissing
-            fun _aggregationFunctions() = aggregationFunctions
-
-            @JsonProperty("type") @ExcludeMissing fun _type() = type
+            fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
 
             @JsonAnyGetter
             @ExcludeMissing
@@ -1083,11 +1175,13 @@ private constructor(
             private var validated: Boolean = false
 
             fun validate(): BasicScoringFnParams = apply {
-                if (!validated) {
-                    aggregationFunctions()
-                    type()
-                    validated = true
+                if (validated) {
+                    return@apply
                 }
+
+                type()
+                aggregationFunctions()
+                validated = true
             }
 
             fun toBuilder() = Builder().from(this)
@@ -1099,27 +1193,41 @@ private constructor(
 
             class Builder {
 
-                private var aggregationFunctions: JsonField<List<AggregationFunction>> =
-                    JsonMissing.of()
-                private var type: JsonField<Type> = JsonMissing.of()
+                private var type: JsonField<Type>? = null
+                private var aggregationFunctions: JsonField<MutableList<AggregationFunction>>? =
+                    null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(basicScoringFnParams: BasicScoringFnParams) = apply {
-                    aggregationFunctions = basicScoringFnParams.aggregationFunctions
                     type = basicScoringFnParams.type
+                    aggregationFunctions =
+                        basicScoringFnParams.aggregationFunctions.map { it.toMutableList() }
                     additionalProperties = basicScoringFnParams.additionalProperties.toMutableMap()
                 }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
                     aggregationFunctions(JsonField.of(aggregationFunctions))
 
                 fun aggregationFunctions(
                     aggregationFunctions: JsonField<List<AggregationFunction>>
-                ) = apply { this.aggregationFunctions = aggregationFunctions }
+                ) = apply {
+                    this.aggregationFunctions = aggregationFunctions.map { it.toMutableList() }
+                }
 
-                fun type(type: Type) = type(JsonField.of(type))
-
-                fun type(type: JsonField<Type>) = apply { this.type = type }
+                fun addAggregationFunction(aggregationFunction: AggregationFunction) = apply {
+                    aggregationFunctions =
+                        (aggregationFunctions ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(aggregationFunction)
+                        }
+                }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -1145,8 +1253,8 @@ private constructor(
 
                 fun build(): BasicScoringFnParams =
                     BasicScoringFnParams(
-                        aggregationFunctions.map { it.toImmutable() },
-                        type,
+                        checkNotNull(type) { "`type` is required but was not set" },
+                        (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1279,17 +1387,17 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is BasicScoringFnParams && aggregationFunctions == other.aggregationFunctions && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is BasicScoringFnParams && type == other.type && aggregationFunctions == other.aggregationFunctions && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(aggregationFunctions, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(type, aggregationFunctions, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "BasicScoringFnParams{aggregationFunctions=$aggregationFunctions, type=$type, additionalProperties=$additionalProperties}"
+                "BasicScoringFnParams{type=$type, aggregationFunctions=$aggregationFunctions, additionalProperties=$additionalProperties}"
         }
     }
 
@@ -1298,15 +1406,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringFn && description == other.description && identifier == other.identifier && metadata == other.metadata && params == other.params && providerId == other.providerId && providerResourceId == other.providerResourceId && returnType == other.returnType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ScoringFn && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && returnType == other.returnType && type == other.type && description == other.description && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(description, identifier, metadata, params, providerId, providerResourceId, returnType, type, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, providerId, providerResourceId, returnType, type, description, params, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ScoringFn{description=$description, identifier=$identifier, metadata=$metadata, params=$params, providerId=$providerId, providerResourceId=$providerResourceId, returnType=$returnType, type=$type, additionalProperties=$additionalProperties}"
+        "ScoringFn{identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, returnType=$returnType, type=$type, description=$description, params=$params, additionalProperties=$additionalProperties}"
 }

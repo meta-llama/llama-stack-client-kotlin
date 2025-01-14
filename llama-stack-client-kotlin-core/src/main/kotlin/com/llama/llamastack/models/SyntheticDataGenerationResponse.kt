@@ -19,22 +19,26 @@ import java.util.Objects
 class SyntheticDataGenerationResponse
 @JsonCreator
 private constructor(
-    @JsonProperty("statistics")
-    @ExcludeMissing
-    private val statistics: JsonField<Statistics> = JsonMissing.of(),
     @JsonProperty("synthetic_data")
     @ExcludeMissing
     private val syntheticData: JsonField<List<SyntheticData>> = JsonMissing.of(),
+    @JsonProperty("statistics")
+    @ExcludeMissing
+    private val statistics: JsonField<Statistics> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun statistics(): Statistics? = statistics.getNullable("statistics")
-
     fun syntheticData(): List<SyntheticData> = syntheticData.getRequired("synthetic_data")
 
-    @JsonProperty("statistics") @ExcludeMissing fun _statistics() = statistics
+    fun statistics(): Statistics? = statistics.getNullable("statistics")
 
-    @JsonProperty("synthetic_data") @ExcludeMissing fun _syntheticData() = syntheticData
+    @JsonProperty("synthetic_data")
+    @ExcludeMissing
+    fun _syntheticData(): JsonField<List<SyntheticData>> = syntheticData
+
+    @JsonProperty("statistics")
+    @ExcludeMissing
+    fun _statistics(): JsonField<Statistics> = statistics
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +47,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): SyntheticDataGenerationResponse = apply {
-        if (!validated) {
-            statistics()?.validate()
-            syntheticData().forEach { it.validate() }
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        syntheticData().forEach { it.validate() }
+        statistics()?.validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,28 +65,40 @@ private constructor(
 
     class Builder {
 
+        private var syntheticData: JsonField<MutableList<SyntheticData>>? = null
         private var statistics: JsonField<Statistics> = JsonMissing.of()
-        private var syntheticData: JsonField<List<SyntheticData>> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(syntheticDataGenerationResponse: SyntheticDataGenerationResponse) =
             apply {
+                syntheticData =
+                    syntheticDataGenerationResponse.syntheticData.map { it.toMutableList() }
                 statistics = syntheticDataGenerationResponse.statistics
-                syntheticData = syntheticDataGenerationResponse.syntheticData
                 additionalProperties =
                     syntheticDataGenerationResponse.additionalProperties.toMutableMap()
             }
-
-        fun statistics(statistics: Statistics) = statistics(JsonField.of(statistics))
-
-        fun statistics(statistics: JsonField<Statistics>) = apply { this.statistics = statistics }
 
         fun syntheticData(syntheticData: List<SyntheticData>) =
             syntheticData(JsonField.of(syntheticData))
 
         fun syntheticData(syntheticData: JsonField<List<SyntheticData>>) = apply {
-            this.syntheticData = syntheticData
+            this.syntheticData = syntheticData.map { it.toMutableList() }
         }
+
+        fun addSyntheticData(syntheticData: SyntheticData) = apply {
+            this.syntheticData =
+                (this.syntheticData ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(syntheticData)
+                }
+        }
+
+        fun statistics(statistics: Statistics) = statistics(JsonField.of(statistics))
+
+        fun statistics(statistics: JsonField<Statistics>) = apply { this.statistics = statistics }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -103,8 +121,9 @@ private constructor(
 
         fun build(): SyntheticDataGenerationResponse =
             SyntheticDataGenerationResponse(
+                checkNotNull(syntheticData) { "`syntheticData` is required but was not set" }
+                    .map { it.toImmutable() },
                 statistics,
-                syntheticData.map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -124,9 +143,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): SyntheticData = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -198,9 +219,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Statistics = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -262,15 +285,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SyntheticDataGenerationResponse && statistics == other.statistics && syntheticData == other.syntheticData && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SyntheticDataGenerationResponse && syntheticData == other.syntheticData && statistics == other.statistics && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(statistics, syntheticData, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(syntheticData, statistics, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "SyntheticDataGenerationResponse{statistics=$statistics, syntheticData=$syntheticData, additionalProperties=$additionalProperties}"
+        "SyntheticDataGenerationResponse{syntheticData=$syntheticData, statistics=$statistics, additionalProperties=$additionalProperties}"
 }

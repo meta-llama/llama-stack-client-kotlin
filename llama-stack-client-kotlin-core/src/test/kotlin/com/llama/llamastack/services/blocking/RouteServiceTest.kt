@@ -19,7 +19,8 @@ class RouteServiceTest {
         val routeListResponse =
             routeService.list(
                 RouteListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(routeListResponse)

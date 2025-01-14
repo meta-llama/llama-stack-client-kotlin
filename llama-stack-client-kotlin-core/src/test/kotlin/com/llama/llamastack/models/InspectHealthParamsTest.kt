@@ -8,6 +8,9 @@ class InspectHealthParamsTest {
 
     @Test
     fun createInspectHealthParams() {
-        InspectHealthParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
+        InspectHealthParams.builder()
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
     }
 }

@@ -25,7 +25,8 @@ class ModelServiceTest {
             modelService.retrieve(
                 ModelRetrieveParams.builder()
                     .identifier("identifier")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(model)
@@ -43,7 +44,8 @@ class ModelServiceTest {
         val model =
             modelService.list(
                 ModelListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(model)
@@ -67,7 +69,8 @@ class ModelServiceTest {
                     .modelType(ModelRegisterParams.ModelType.LLM)
                     .providerId("provider_id")
                     .providerModelId("provider_model_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(model)
@@ -82,7 +85,8 @@ class ModelServiceTest {
         modelService.unregister(
             ModelUnregisterParams.builder()
                 .modelId("model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

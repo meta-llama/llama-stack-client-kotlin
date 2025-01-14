@@ -8,6 +8,9 @@ class ProviderListParamsTest {
 
     @Test
     fun createProviderListParams() {
-        ProviderListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
+        ProviderListParams.builder()
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
     }
 }

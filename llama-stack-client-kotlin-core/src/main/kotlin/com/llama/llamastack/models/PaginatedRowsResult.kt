@@ -19,27 +19,29 @@ import java.util.Objects
 class PaginatedRowsResult
 @JsonCreator
 private constructor(
-    @JsonProperty("next_page_token")
-    @ExcludeMissing
-    private val nextPageToken: JsonField<String> = JsonMissing.of(),
     @JsonProperty("rows") @ExcludeMissing private val rows: JsonField<List<Row>> = JsonMissing.of(),
     @JsonProperty("total_count")
     @ExcludeMissing
     private val totalCount: JsonField<Long> = JsonMissing.of(),
+    @JsonProperty("next_page_token")
+    @ExcludeMissing
+    private val nextPageToken: JsonField<String> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    fun nextPageToken(): String? = nextPageToken.getNullable("next_page_token")
 
     fun rows(): List<Row> = rows.getRequired("rows")
 
     fun totalCount(): Long = totalCount.getRequired("total_count")
 
-    @JsonProperty("next_page_token") @ExcludeMissing fun _nextPageToken() = nextPageToken
+    fun nextPageToken(): String? = nextPageToken.getNullable("next_page_token")
 
-    @JsonProperty("rows") @ExcludeMissing fun _rows() = rows
+    @JsonProperty("rows") @ExcludeMissing fun _rows(): JsonField<List<Row>> = rows
 
-    @JsonProperty("total_count") @ExcludeMissing fun _totalCount() = totalCount
+    @JsonProperty("total_count") @ExcludeMissing fun _totalCount(): JsonField<Long> = totalCount
+
+    @JsonProperty("next_page_token")
+    @ExcludeMissing
+    fun _nextPageToken(): JsonField<String> = nextPageToken
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -48,12 +50,14 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): PaginatedRowsResult = apply {
-        if (!validated) {
-            nextPageToken()
-            rows().forEach { it.validate() }
-            totalCount()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        rows().forEach { it.validate() }
+        totalCount()
+        nextPageToken()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -65,31 +69,42 @@ private constructor(
 
     class Builder {
 
+        private var rows: JsonField<MutableList<Row>>? = null
+        private var totalCount: JsonField<Long>? = null
         private var nextPageToken: JsonField<String> = JsonMissing.of()
-        private var rows: JsonField<List<Row>> = JsonMissing.of()
-        private var totalCount: JsonField<Long> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(paginatedRowsResult: PaginatedRowsResult) = apply {
-            nextPageToken = paginatedRowsResult.nextPageToken
-            rows = paginatedRowsResult.rows
+            rows = paginatedRowsResult.rows.map { it.toMutableList() }
             totalCount = paginatedRowsResult.totalCount
+            nextPageToken = paginatedRowsResult.nextPageToken
             additionalProperties = paginatedRowsResult.additionalProperties.toMutableMap()
         }
+
+        fun rows(rows: List<Row>) = rows(JsonField.of(rows))
+
+        fun rows(rows: JsonField<List<Row>>) = apply { this.rows = rows.map { it.toMutableList() } }
+
+        fun addRow(row: Row) = apply {
+            rows =
+                (rows ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(row)
+                }
+        }
+
+        fun totalCount(totalCount: Long) = totalCount(JsonField.of(totalCount))
+
+        fun totalCount(totalCount: JsonField<Long>) = apply { this.totalCount = totalCount }
 
         fun nextPageToken(nextPageToken: String) = nextPageToken(JsonField.of(nextPageToken))
 
         fun nextPageToken(nextPageToken: JsonField<String>) = apply {
             this.nextPageToken = nextPageToken
         }
-
-        fun rows(rows: List<Row>) = rows(JsonField.of(rows))
-
-        fun rows(rows: JsonField<List<Row>>) = apply { this.rows = rows }
-
-        fun totalCount(totalCount: Long) = totalCount(JsonField.of(totalCount))
-
-        fun totalCount(totalCount: JsonField<Long>) = apply { this.totalCount = totalCount }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -112,9 +127,10 @@ private constructor(
 
         fun build(): PaginatedRowsResult =
             PaginatedRowsResult(
+                checkNotNull(rows) { "`rows` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(totalCount) { "`totalCount` is required but was not set" },
                 nextPageToken,
-                rows.map { it.toImmutable() },
-                totalCount,
                 additionalProperties.toImmutable(),
             )
     }
@@ -134,9 +150,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Row = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -198,15 +216,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is PaginatedRowsResult && nextPageToken == other.nextPageToken && rows == other.rows && totalCount == other.totalCount && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is PaginatedRowsResult && rows == other.rows && totalCount == other.totalCount && nextPageToken == other.nextPageToken && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(nextPageToken, rows, totalCount, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(rows, totalCount, nextPageToken, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "PaginatedRowsResult{nextPageToken=$nextPageToken, rows=$rows, totalCount=$totalCount, additionalProperties=$additionalProperties}"
+        "PaginatedRowsResult{rows=$rows, totalCount=$totalCount, nextPageToken=$nextPageToken, additionalProperties=$additionalProperties}"
 }

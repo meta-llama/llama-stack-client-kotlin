@@ -24,7 +24,8 @@ class ScoringFunctionServiceTest {
             scoringFunctionService.retrieve(
                 ScoringFunctionRetrieveParams.builder()
                     .scoringFnId("scoring_fn_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(scoringFn)
@@ -42,7 +43,8 @@ class ScoringFunctionServiceTest {
         val scoringFn =
             scoringFunctionService.list(
                 ScoringFunctionListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(scoringFn)
@@ -81,7 +83,8 @@ class ScoringFunctionServiceTest {
                 )
                 .providerId("provider_id")
                 .providerScoringFnId("provider_scoring_fn_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

@@ -24,7 +24,8 @@ class ShieldServiceTest {
             shieldService.retrieve(
                 ShieldRetrieveParams.builder()
                     .identifier("identifier")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)
@@ -42,7 +43,8 @@ class ShieldServiceTest {
         val shield =
             shieldService.list(
                 ShieldListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)
@@ -65,7 +67,8 @@ class ShieldServiceTest {
                     )
                     .providerId("provider_id")
                     .providerShieldId("provider_shield_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)

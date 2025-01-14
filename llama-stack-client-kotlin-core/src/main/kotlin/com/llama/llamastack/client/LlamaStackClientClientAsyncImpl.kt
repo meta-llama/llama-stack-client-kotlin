@@ -44,6 +44,12 @@ import com.llama.llamastack.services.async.SyntheticDataGenerationServiceAsync
 import com.llama.llamastack.services.async.SyntheticDataGenerationServiceAsyncImpl
 import com.llama.llamastack.services.async.TelemetryServiceAsync
 import com.llama.llamastack.services.async.TelemetryServiceAsyncImpl
+import com.llama.llamastack.services.async.ToolRuntimeServiceAsync
+import com.llama.llamastack.services.async.ToolRuntimeServiceAsyncImpl
+import com.llama.llamastack.services.async.ToolServiceAsync
+import com.llama.llamastack.services.async.ToolServiceAsyncImpl
+import com.llama.llamastack.services.async.ToolgroupServiceAsync
+import com.llama.llamastack.services.async.ToolgroupServiceAsyncImpl
 
 class LlamaStackClientClientAsyncImpl
 constructor(
@@ -60,6 +66,16 @@ constructor(
 
     // Pass the original clientOptions so that this client sets its own User-Agent.
     private val sync: LlamaStackClientClient by lazy { LlamaStackClientClientImpl(clientOptions) }
+
+    private val toolgroups: ToolgroupServiceAsync by lazy {
+        ToolgroupServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
+
+    private val tools: ToolServiceAsync by lazy { ToolServiceAsyncImpl(clientOptionsWithUserAgent) }
+
+    private val toolRuntime: ToolRuntimeServiceAsync by lazy {
+        ToolRuntimeServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
 
     private val agents: AgentServiceAsync by lazy {
         AgentServiceAsyncImpl(clientOptionsWithUserAgent)
@@ -140,6 +156,12 @@ constructor(
     }
 
     override fun sync(): LlamaStackClientClient = sync
+
+    override fun toolgroups(): ToolgroupServiceAsync = toolgroups
+
+    override fun tools(): ToolServiceAsync = tools
+
+    override fun toolRuntime(): ToolRuntimeServiceAsync = toolRuntime
 
     override fun agents(): AgentServiceAsync = agents
 

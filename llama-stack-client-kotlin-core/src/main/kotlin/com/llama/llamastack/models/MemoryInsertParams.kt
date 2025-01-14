@@ -18,6 +18,7 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
@@ -30,11 +31,14 @@ import java.util.Objects
 
 class MemoryInsertParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: MemoryInsertBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -44,18 +48,27 @@ constructor(
 
     fun ttlSeconds(): Long? = body.ttlSeconds()
 
+    fun _bankId(): JsonField<String> = body._bankId()
+
+    fun _documents(): JsonField<List<Document>> = body._documents()
+
+    fun _ttlSeconds(): JsonField<Long> = body._ttlSeconds()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): MemoryInsertBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -67,22 +80,49 @@ constructor(
     class MemoryInsertBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("bank_id") private val bankId: String,
-        @JsonProperty("documents") private val documents: List<Document>,
-        @JsonProperty("ttl_seconds") private val ttlSeconds: Long?,
+        @JsonProperty("bank_id")
+        @ExcludeMissing
+        private val bankId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("documents")
+        @ExcludeMissing
+        private val documents: JsonField<List<Document>> = JsonMissing.of(),
+        @JsonProperty("ttl_seconds")
+        @ExcludeMissing
+        private val ttlSeconds: JsonField<Long> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("bank_id") fun bankId(): String = bankId
+        fun bankId(): String = bankId.getRequired("bank_id")
 
-        @JsonProperty("documents") fun documents(): List<Document> = documents
+        fun documents(): List<Document> = documents.getRequired("documents")
 
-        @JsonProperty("ttl_seconds") fun ttlSeconds(): Long? = ttlSeconds
+        fun ttlSeconds(): Long? = ttlSeconds.getNullable("ttl_seconds")
+
+        @JsonProperty("bank_id") @ExcludeMissing fun _bankId(): JsonField<String> = bankId
+
+        @JsonProperty("documents")
+        @ExcludeMissing
+        fun _documents(): JsonField<List<Document>> = documents
+
+        @JsonProperty("ttl_seconds") @ExcludeMissing fun _ttlSeconds(): JsonField<Long> = ttlSeconds
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): MemoryInsertBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            bankId()
+            documents().forEach { it.validate() }
+            ttlSeconds()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -93,29 +133,42 @@ constructor(
 
         class Builder {
 
-            private var bankId: String? = null
-            private var documents: MutableList<Document>? = null
-            private var ttlSeconds: Long? = null
+            private var bankId: JsonField<String>? = null
+            private var documents: JsonField<MutableList<Document>>? = null
+            private var ttlSeconds: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(memoryInsertBody: MemoryInsertBody) = apply {
                 bankId = memoryInsertBody.bankId
-                documents = memoryInsertBody.documents.toMutableList()
+                documents = memoryInsertBody.documents.map { it.toMutableList() }
                 ttlSeconds = memoryInsertBody.ttlSeconds
                 additionalProperties = memoryInsertBody.additionalProperties.toMutableMap()
             }
 
-            fun bankId(bankId: String) = apply { this.bankId = bankId }
+            fun bankId(bankId: String) = bankId(JsonField.of(bankId))
 
-            fun documents(documents: List<Document>) = apply {
-                this.documents = documents.toMutableList()
+            fun bankId(bankId: JsonField<String>) = apply { this.bankId = bankId }
+
+            fun documents(documents: List<Document>) = documents(JsonField.of(documents))
+
+            fun documents(documents: JsonField<List<Document>>) = apply {
+                this.documents = documents.map { it.toMutableList() }
             }
 
             fun addDocument(document: Document) = apply {
-                documents = (documents ?: mutableListOf()).apply { add(document) }
+                documents =
+                    (documents ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(document)
+                    }
             }
 
-            fun ttlSeconds(ttlSeconds: Long) = apply { this.ttlSeconds = ttlSeconds }
+            fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
+
+            fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { this.ttlSeconds = ttlSeconds }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -140,7 +193,7 @@ constructor(
                 MemoryInsertBody(
                     checkNotNull(bankId) { "`bankId` is required but was not set" },
                     checkNotNull(documents) { "`documents` is required but was not set" }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     ttlSeconds,
                     additionalProperties.toImmutable(),
                 )
@@ -174,29 +227,60 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: MemoryInsertBody.Builder = MemoryInsertBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(memoryInsertParams: MemoryInsertParams) = apply {
+            xLlamaStackClientVersion = memoryInsertParams.xLlamaStackClientVersion
             xLlamaStackProviderData = memoryInsertParams.xLlamaStackProviderData
             body = memoryInsertParams.body.toBuilder()
             additionalHeaders = memoryInsertParams.additionalHeaders.toBuilder()
             additionalQueryParams = memoryInsertParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun bankId(bankId: String) = apply { body.bankId(bankId) }
 
+        fun bankId(bankId: JsonField<String>) = apply { body.bankId(bankId) }
+
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
+
+        fun documents(documents: JsonField<List<Document>>) = apply { body.documents(documents) }
 
         fun addDocument(document: Document) = apply { body.addDocument(document) }
 
         fun ttlSeconds(ttlSeconds: Long) = apply { body.ttlSeconds(ttlSeconds) }
+
+        fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { body.ttlSeconds(ttlSeconds) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -296,27 +380,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): MemoryInsertParams =
             MemoryInsertParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -328,25 +394,57 @@ constructor(
     class Document
     @JsonCreator
     private constructor(
-        @JsonProperty("content") private val content: Content,
-        @JsonProperty("document_id") private val documentId: String,
-        @JsonProperty("metadata") private val metadata: Metadata,
-        @JsonProperty("mime_type") private val mimeType: String?,
+        @JsonProperty("content")
+        @ExcludeMissing
+        private val content: JsonField<Content> = JsonMissing.of(),
+        @JsonProperty("document_id")
+        @ExcludeMissing
+        private val documentId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("metadata")
+        @ExcludeMissing
+        private val metadata: JsonField<Metadata> = JsonMissing.of(),
+        @JsonProperty("mime_type")
+        @ExcludeMissing
+        private val mimeType: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("content") fun content(): Content = content
+        fun content(): Content = content.getRequired("content")
 
-        @JsonProperty("document_id") fun documentId(): String = documentId
+        fun documentId(): String = documentId.getRequired("document_id")
 
-        @JsonProperty("metadata") fun metadata(): Metadata = metadata
+        fun metadata(): Metadata = metadata.getRequired("metadata")
 
-        @JsonProperty("mime_type") fun mimeType(): String? = mimeType
+        fun mimeType(): String? = mimeType.getNullable("mime_type")
+
+        @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
+
+        @JsonProperty("document_id")
+        @ExcludeMissing
+        fun _documentId(): JsonField<String> = documentId
+
+        @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
+
+        @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Document = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            documentId()
+            metadata().validate()
+            mimeType()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -357,10 +455,10 @@ constructor(
 
         class Builder {
 
-            private var content: Content? = null
-            private var documentId: String? = null
-            private var metadata: Metadata? = null
-            private var mimeType: String? = null
+            private var content: JsonField<Content>? = null
+            private var documentId: JsonField<String>? = null
+            private var metadata: JsonField<Metadata>? = null
+            private var mimeType: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(document: Document) = apply {
@@ -371,29 +469,35 @@ constructor(
                 additionalProperties = document.additionalProperties.toMutableMap()
             }
 
-            fun content(content: Content) = apply { this.content = content }
+            fun content(content: Content) = content(JsonField.of(content))
 
-            fun content(string: String) = apply { this.content = Content.ofString(string) }
+            fun content(content: JsonField<Content>) = apply { this.content = content }
 
-            fun content(imageContentItem: Content.ImageContentItem) = apply {
-                this.content = Content.ofImageContentItem(imageContentItem)
-            }
+            fun content(string: String) = content(Content.ofString(string))
 
-            fun content(textContentItem: Content.TextContentItem) = apply {
-                this.content = Content.ofTextContentItem(textContentItem)
-            }
+            fun content(imageContentItem: Content.ImageContentItem) =
+                content(Content.ofImageContentItem(imageContentItem))
 
-            fun contentOfContentArray(contentArray: List<InterleavedContentItem>) = apply {
-                this.content = Content.ofContentArray(contentArray)
-            }
+            fun content(textContentItem: Content.TextContentItem) =
+                content(Content.ofTextContentItem(textContentItem))
 
-            fun content(url: Url) = apply { this.content = Content.ofUrl(url) }
+            fun contentOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = content(Content.ofInterleavedContentItems(interleavedContentItems))
 
-            fun documentId(documentId: String) = apply { this.documentId = documentId }
+            fun content(url: Url) = content(Content.ofUrl(url))
 
-            fun metadata(metadata: Metadata) = apply { this.metadata = metadata }
+            fun documentId(documentId: String) = documentId(JsonField.of(documentId))
 
-            fun mimeType(mimeType: String) = apply { this.mimeType = mimeType }
+            fun documentId(documentId: JsonField<String>) = apply { this.documentId = documentId }
+
+            fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
+
+            fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
+
+            fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
+
+            fun mimeType(mimeType: JsonField<String>) = apply { this.mimeType = mimeType }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -431,7 +535,7 @@ constructor(
             private val string: String? = null,
             private val imageContentItem: ImageContentItem? = null,
             private val textContentItem: TextContentItem? = null,
-            private val contentArray: List<InterleavedContentItem>? = null,
+            private val interleavedContentItems: List<InterleavedContentItem>? = null,
             private val url: Url? = null,
             private val _json: JsonValue? = null,
         ) {
@@ -442,7 +546,7 @@ constructor(
 
             fun textContentItem(): TextContentItem? = textContentItem
 
-            fun contentArray(): List<InterleavedContentItem>? = contentArray
+            fun interleavedContentItems(): List<InterleavedContentItem>? = interleavedContentItems
 
             fun url(): Url? = url
 
@@ -452,7 +556,7 @@ constructor(
 
             fun isTextContentItem(): Boolean = textContentItem != null
 
-            fun isContentArray(): Boolean = contentArray != null
+            fun isInterleavedContentItems(): Boolean = interleavedContentItems != null
 
             fun isUrl(): Boolean = url != null
 
@@ -463,8 +567,8 @@ constructor(
 
             fun asTextContentItem(): TextContentItem = textContentItem.getOrThrow("textContentItem")
 
-            fun asContentArray(): List<InterleavedContentItem> =
-                contentArray.getOrThrow("contentArray")
+            fun asInterleavedContentItems(): List<InterleavedContentItem> =
+                interleavedContentItems.getOrThrow("interleavedContentItems")
 
             fun asUrl(): Url = url.getOrThrow("url")
 
@@ -475,10 +579,44 @@ constructor(
                     string != null -> visitor.visitString(string)
                     imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
                     textContentItem != null -> visitor.visitTextContentItem(textContentItem)
-                    contentArray != null -> visitor.visitContentArray(contentArray)
+                    interleavedContentItems != null ->
+                        visitor.visitInterleavedContentItems(interleavedContentItems)
                     url != null -> visitor.visitUrl(url)
                     else -> visitor.unknown(_json)
                 }
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): Content = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                accept(
+                    object : Visitor<Unit> {
+                        override fun visitString(string: String) {}
+
+                        override fun visitImageContentItem(imageContentItem: ImageContentItem) {
+                            imageContentItem.validate()
+                        }
+
+                        override fun visitTextContentItem(textContentItem: TextContentItem) {
+                            textContentItem.validate()
+                        }
+
+                        override fun visitInterleavedContentItems(
+                            interleavedContentItems: List<InterleavedContentItem>
+                        ) {
+                            interleavedContentItems.forEach { it.validate() }
+                        }
+
+                        override fun visitUrl(url: Url) {
+                            url.validate()
+                        }
+                    }
+                )
+                validated = true
             }
 
             override fun equals(other: Any?): Boolean {
@@ -486,17 +624,18 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Content && string == other.string && imageContentItem == other.imageContentItem && textContentItem == other.textContentItem && contentArray == other.contentArray && url == other.url /* spotless:on */
+                return /* spotless:off */ other is Content && string == other.string && imageContentItem == other.imageContentItem && textContentItem == other.textContentItem && interleavedContentItems == other.interleavedContentItems && url == other.url /* spotless:on */
             }
 
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageContentItem, textContentItem, contentArray, url) /* spotless:on */
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageContentItem, textContentItem, interleavedContentItems, url) /* spotless:on */
 
             override fun toString(): String =
                 when {
                     string != null -> "Content{string=$string}"
                     imageContentItem != null -> "Content{imageContentItem=$imageContentItem}"
                     textContentItem != null -> "Content{textContentItem=$textContentItem}"
-                    contentArray != null -> "Content{contentArray=$contentArray}"
+                    interleavedContentItems != null ->
+                        "Content{interleavedContentItems=$interleavedContentItems}"
                     url != null -> "Content{url=$url}"
                     _json != null -> "Content{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid Content")
@@ -512,8 +651,9 @@ constructor(
                 fun ofTextContentItem(textContentItem: TextContentItem) =
                     Content(textContentItem = textContentItem)
 
-                fun ofContentArray(contentArray: List<InterleavedContentItem>) =
-                    Content(contentArray = contentArray)
+                fun ofInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ) = Content(interleavedContentItems = interleavedContentItems)
 
                 fun ofUrl(url: Url) = Content(url = url)
             }
@@ -526,7 +666,9 @@ constructor(
 
                 fun visitTextContentItem(textContentItem: TextContentItem): T
 
-                fun visitContentArray(contentArray: List<InterleavedContentItem>): T
+                fun visitInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ): T
 
                 fun visitUrl(url: Url): T
 
@@ -543,18 +685,24 @@ constructor(
                     tryDeserialize(node, jacksonTypeRef<String>())?.let {
                         return Content(string = it, _json = json)
                     }
-                    tryDeserialize(node, jacksonTypeRef<ImageContentItem>())?.let {
-                        return Content(imageContentItem = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<TextContentItem>())?.let {
-                        return Content(textContentItem = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>())?.let {
-                        return Content(contentArray = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<Url>())?.let {
-                        return Content(url = it, _json = json)
-                    }
+                    tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
+                        ?.let {
+                            return Content(imageContentItem = it, _json = json)
+                        }
+                    tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
+                        ?.let {
+                            return Content(textContentItem = it, _json = json)
+                        }
+                    tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
+                            it.forEach { it.validate() }
+                        }
+                        ?.let {
+                            return Content(interleavedContentItems = it, _json = json)
+                        }
+                    tryDeserialize(node, jacksonTypeRef<Url>()) { it.validate() }
+                        ?.let {
+                            return Content(url = it, _json = json)
+                        }
 
                     return Content(_json = json)
                 }
@@ -573,7 +721,8 @@ constructor(
                             generator.writeObject(value.imageContentItem)
                         value.textContentItem != null ->
                             generator.writeObject(value.textContentItem)
-                        value.contentArray != null -> generator.writeObject(value.contentArray)
+                        value.interleavedContentItems != null ->
+                            generator.writeObject(value.interleavedContentItems)
                         value.url != null -> generator.writeObject(value.url)
                         value._json != null -> generator.writeObject(value._json)
                         else -> throw IllegalStateException("Invalid Content")
@@ -585,22 +734,47 @@ constructor(
             class ImageContentItem
             @JsonCreator
             private constructor(
-                @JsonProperty("data") private val data: String?,
-                @JsonProperty("type") private val type: Type,
-                @JsonProperty("url") private val url: Url?,
+                @JsonProperty("type")
+                @ExcludeMissing
+                private val type: JsonField<Type> = JsonMissing.of(),
+                @JsonProperty("data")
+                @ExcludeMissing
+                private val data: JsonField<String> = JsonMissing.of(),
+                @JsonProperty("url")
+                @ExcludeMissing
+                private val url: JsonField<Url> = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
-                @JsonProperty("data") fun data(): String? = data
+                fun type(): Type = type.getRequired("type")
 
-                @JsonProperty("type") fun type(): Type = type
+                fun data(): String? = data.getNullable("data")
 
-                @JsonProperty("url") fun url(): Url? = url
+                fun url(): Url? = url.getNullable("url")
+
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+                @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
+
+                @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): ImageContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    type()
+                    data()
+                    url()?.validate()
+                    validated = true
+                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -611,23 +785,29 @@ constructor(
 
                 class Builder {
 
-                    private var data: String? = null
-                    private var type: Type? = null
-                    private var url: Url? = null
+                    private var type: JsonField<Type>? = null
+                    private var data: JsonField<String> = JsonMissing.of()
+                    private var url: JsonField<Url> = JsonMissing.of()
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(imageContentItem: ImageContentItem) = apply {
-                        data = imageContentItem.data
                         type = imageContentItem.type
+                        data = imageContentItem.data
                         url = imageContentItem.url
                         additionalProperties = imageContentItem.additionalProperties.toMutableMap()
                     }
 
-                    fun data(data: String) = apply { this.data = data }
+                    fun type(type: Type) = type(JsonField.of(type))
 
-                    fun type(type: Type) = apply { this.type = type }
+                    fun type(type: JsonField<Type>) = apply { this.type = type }
 
-                    fun url(url: Url) = apply { this.url = url }
+                    fun data(data: String) = data(JsonField.of(data))
+
+                    fun data(data: JsonField<String>) = apply { this.data = data }
+
+                    fun url(url: Url) = url(JsonField.of(url))
+
+                    fun url(url: JsonField<Url>) = apply { this.url = url }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -653,8 +833,8 @@ constructor(
 
                     fun build(): ImageContentItem =
                         ImageContentItem(
-                            data,
                             checkNotNull(type) { "`type` is required but was not set" },
+                            data,
                             url,
                             additionalProperties.toImmutable(),
                         )
@@ -718,36 +898,56 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is ImageContentItem && data == other.data && type == other.type && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is ImageContentItem && type == other.type && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
                 /* spotless:off */
-                private val hashCode: Int by lazy { Objects.hash(data, type, url, additionalProperties) }
+                private val hashCode: Int by lazy { Objects.hash(type, data, url, additionalProperties) }
                 /* spotless:on */
 
                 override fun hashCode(): Int = hashCode
 
                 override fun toString() =
-                    "ImageContentItem{data=$data, type=$type, url=$url, additionalProperties=$additionalProperties}"
+                    "ImageContentItem{type=$type, data=$data, url=$url, additionalProperties=$additionalProperties}"
             }
 
             @NoAutoDetect
             class TextContentItem
             @JsonCreator
             private constructor(
-                @JsonProperty("text") private val text: String,
-                @JsonProperty("type") private val type: Type,
+                @JsonProperty("text")
+                @ExcludeMissing
+                private val text: JsonField<String> = JsonMissing.of(),
+                @JsonProperty("type")
+                @ExcludeMissing
+                private val type: JsonField<Type> = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
-                @JsonProperty("text") fun text(): String = text
+                fun text(): String = text.getRequired("text")
 
-                @JsonProperty("type") fun type(): Type = type
+                fun type(): Type = type.getRequired("type")
+
+                @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
+
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): TextContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    text()
+                    type()
+                    validated = true
+                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -758,8 +958,8 @@ constructor(
 
                 class Builder {
 
-                    private var text: String? = null
-                    private var type: Type? = null
+                    private var text: JsonField<String>? = null
+                    private var type: JsonField<Type>? = null
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(textContentItem: TextContentItem) = apply {
@@ -768,9 +968,13 @@ constructor(
                         additionalProperties = textContentItem.additionalProperties.toMutableMap()
                     }
 
-                    fun text(text: String) = apply { this.text = text }
+                    fun text(text: String) = text(JsonField.of(text))
 
-                    fun type(type: Type) = apply { this.type = type }
+                    fun text(text: JsonField<String>) = apply { this.text = text }
+
+                    fun type(type: Type) = type(JsonField.of(type))
+
+                    fun type(type: JsonField<Type>) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -886,6 +1090,16 @@ constructor(
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+            private var validated: Boolean = false
+
+            fun validate(): Metadata = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
             fun toBuilder() = Builder().from(this)
 
             companion object {
@@ -966,11 +1180,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryInsertParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is MemoryInsertParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "MemoryInsertParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "MemoryInsertParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

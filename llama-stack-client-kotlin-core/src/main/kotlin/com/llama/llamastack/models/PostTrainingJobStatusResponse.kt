@@ -25,12 +25,15 @@ private constructor(
     @JsonProperty("checkpoints")
     @ExcludeMissing
     private val checkpoints: JsonField<List<JsonValue>> = JsonMissing.of(),
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("job_uuid")
     @ExcludeMissing
     private val jobUuid: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("status")
+    @ExcludeMissing
+    private val status: JsonField<Status> = JsonMissing.of(),
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("resources_allocated")
     @ExcludeMissing
     private val resourcesAllocated: JsonField<ResourcesAllocated> = JsonMissing.of(),
@@ -40,17 +43,16 @@ private constructor(
     @JsonProperty("started_at")
     @ExcludeMissing
     private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("status")
-    @ExcludeMissing
-    private val status: JsonField<Status> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun checkpoints(): List<JsonValue> = checkpoints.getRequired("checkpoints")
 
-    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
-
     fun jobUuid(): String = jobUuid.getRequired("job_uuid")
+
+    fun status(): Status = status.getRequired("status")
+
+    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
     fun resourcesAllocated(): ResourcesAllocated? =
         resourcesAllocated.getNullable("resources_allocated")
@@ -59,23 +61,29 @@ private constructor(
 
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
-    fun status(): Status = status.getRequired("status")
+    @JsonProperty("checkpoints")
+    @ExcludeMissing
+    fun _checkpoints(): JsonField<List<JsonValue>> = checkpoints
 
-    @JsonProperty("checkpoints") @ExcludeMissing fun _checkpoints() = checkpoints
+    @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
-    @JsonProperty("completed_at") @ExcludeMissing fun _completedAt() = completedAt
+    @JsonProperty("status") @ExcludeMissing fun _status(): JsonField<Status> = status
 
-    @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid() = jobUuid
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    fun _completedAt(): JsonField<OffsetDateTime> = completedAt
 
     @JsonProperty("resources_allocated")
     @ExcludeMissing
-    fun _resourcesAllocated() = resourcesAllocated
+    fun _resourcesAllocated(): JsonField<ResourcesAllocated> = resourcesAllocated
 
-    @JsonProperty("scheduled_at") @ExcludeMissing fun _scheduledAt() = scheduledAt
+    @JsonProperty("scheduled_at")
+    @ExcludeMissing
+    fun _scheduledAt(): JsonField<OffsetDateTime> = scheduledAt
 
-    @JsonProperty("started_at") @ExcludeMissing fun _startedAt() = startedAt
-
-    @JsonProperty("status") @ExcludeMissing fun _status() = status
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -84,16 +92,18 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): PostTrainingJobStatusResponse = apply {
-        if (!validated) {
-            checkpoints()
-            completedAt()
-            jobUuid()
-            resourcesAllocated()?.validate()
-            scheduledAt()
-            startedAt()
-            status()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        checkpoints()
+        jobUuid()
+        status()
+        completedAt()
+        resourcesAllocated()?.validate()
+        scheduledAt()
+        startedAt()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -105,41 +115,56 @@ private constructor(
 
     class Builder {
 
-        private var checkpoints: JsonField<List<JsonValue>> = JsonMissing.of()
+        private var checkpoints: JsonField<MutableList<JsonValue>>? = null
+        private var jobUuid: JsonField<String>? = null
+        private var status: JsonField<Status>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var jobUuid: JsonField<String> = JsonMissing.of()
         private var resourcesAllocated: JsonField<ResourcesAllocated> = JsonMissing.of()
         private var scheduledAt: JsonField<OffsetDateTime> = JsonMissing.of()
         private var startedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var status: JsonField<Status> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(postTrainingJobStatusResponse: PostTrainingJobStatusResponse) = apply {
-            checkpoints = postTrainingJobStatusResponse.checkpoints
-            completedAt = postTrainingJobStatusResponse.completedAt
+            checkpoints = postTrainingJobStatusResponse.checkpoints.map { it.toMutableList() }
             jobUuid = postTrainingJobStatusResponse.jobUuid
+            status = postTrainingJobStatusResponse.status
+            completedAt = postTrainingJobStatusResponse.completedAt
             resourcesAllocated = postTrainingJobStatusResponse.resourcesAllocated
             scheduledAt = postTrainingJobStatusResponse.scheduledAt
             startedAt = postTrainingJobStatusResponse.startedAt
-            status = postTrainingJobStatusResponse.status
             additionalProperties = postTrainingJobStatusResponse.additionalProperties.toMutableMap()
         }
 
         fun checkpoints(checkpoints: List<JsonValue>) = checkpoints(JsonField.of(checkpoints))
 
         fun checkpoints(checkpoints: JsonField<List<JsonValue>>) = apply {
-            this.checkpoints = checkpoints
+            this.checkpoints = checkpoints.map { it.toMutableList() }
         }
+
+        fun addCheckpoint(checkpoint: JsonValue) = apply {
+            checkpoints =
+                (checkpoints ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(checkpoint)
+                }
+        }
+
+        fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
+
+        fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
+
+        fun status(status: Status) = status(JsonField.of(status))
+
+        fun status(status: JsonField<Status>) = apply { this.status = status }
 
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
-
-        fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
-
-        fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
         fun resourcesAllocated(resourcesAllocated: ResourcesAllocated) =
             resourcesAllocated(JsonField.of(resourcesAllocated))
@@ -157,10 +182,6 @@ private constructor(
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
-
-        fun status(status: Status) = status(JsonField.of(status))
-
-        fun status(status: JsonField<Status>) = apply { this.status = status }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -183,13 +204,14 @@ private constructor(
 
         fun build(): PostTrainingJobStatusResponse =
             PostTrainingJobStatusResponse(
-                checkpoints.map { it.toImmutable() },
+                checkNotNull(checkpoints) { "`checkpoints` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
+                checkNotNull(status) { "`status` is required but was not set" },
                 completedAt,
-                jobUuid,
                 resourcesAllocated,
                 scheduledAt,
                 startedAt,
-                status,
                 additionalProperties.toImmutable(),
             )
     }
@@ -278,9 +300,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): ResourcesAllocated = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -342,15 +366,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingJobStatusResponse && checkpoints == other.checkpoints && completedAt == other.completedAt && jobUuid == other.jobUuid && resourcesAllocated == other.resourcesAllocated && scheduledAt == other.scheduledAt && startedAt == other.startedAt && status == other.status && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is PostTrainingJobStatusResponse && checkpoints == other.checkpoints && jobUuid == other.jobUuid && status == other.status && completedAt == other.completedAt && resourcesAllocated == other.resourcesAllocated && scheduledAt == other.scheduledAt && startedAt == other.startedAt && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(checkpoints, completedAt, jobUuid, resourcesAllocated, scheduledAt, startedAt, status, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(checkpoints, jobUuid, status, completedAt, resourcesAllocated, scheduledAt, startedAt, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "PostTrainingJobStatusResponse{checkpoints=$checkpoints, completedAt=$completedAt, jobUuid=$jobUuid, resourcesAllocated=$resourcesAllocated, scheduledAt=$scheduledAt, startedAt=$startedAt, status=$status, additionalProperties=$additionalProperties}"
+        "PostTrainingJobStatusResponse{checkpoints=$checkpoints, jobUuid=$jobUuid, status=$status, completedAt=$completedAt, resourcesAllocated=$resourcesAllocated, scheduledAt=$scheduledAt, startedAt=$startedAt, additionalProperties=$additionalProperties}"
 }

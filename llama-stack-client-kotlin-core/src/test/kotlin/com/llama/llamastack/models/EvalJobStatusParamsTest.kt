@@ -13,7 +13,8 @@ class EvalJobStatusParamsTest {
         EvalJobStatusParams.builder()
             .jobId("job_id")
             .taskId("task_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -23,7 +24,8 @@ class EvalJobStatusParamsTest {
             EvalJobStatusParams.builder()
                 .jobId("job_id")
                 .taskId("task_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("job_id", "job_id")

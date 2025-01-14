@@ -10,12 +10,15 @@ import java.util.Objects
 class PostTrainingJobStatusParams
 constructor(
     private val jobUuid: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
     fun jobUuid(): String = jobUuid
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -25,8 +28,11 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -50,12 +56,14 @@ constructor(
     class Builder {
 
         private var jobUuid: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(postTrainingJobStatusParams: PostTrainingJobStatusParams) = apply {
             jobUuid = postTrainingJobStatusParams.jobUuid
+            xLlamaStackClientVersion = postTrainingJobStatusParams.xLlamaStackClientVersion
             xLlamaStackProviderData = postTrainingJobStatusParams.xLlamaStackProviderData
             additionalHeaders = postTrainingJobStatusParams.additionalHeaders.toBuilder()
             additionalQueryParams = postTrainingJobStatusParams.additionalQueryParams.toBuilder()
@@ -63,7 +71,11 @@ constructor(
 
         fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -168,6 +180,7 @@ constructor(
         fun build(): PostTrainingJobStatusParams =
             PostTrainingJobStatusParams(
                 checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -179,11 +192,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingJobStatusParams && jobUuid == other.jobUuid && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is PostTrainingJobStatusParams && jobUuid == other.jobUuid && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobUuid, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobUuid, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "PostTrainingJobStatusParams{jobUuid=$jobUuid, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "PostTrainingJobStatusParams{jobUuid=$jobUuid, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

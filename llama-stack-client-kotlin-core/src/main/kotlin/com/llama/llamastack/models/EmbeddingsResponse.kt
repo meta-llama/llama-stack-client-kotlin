@@ -27,7 +27,9 @@ private constructor(
 
     fun embeddings(): List<List<Double>> = embeddings.getRequired("embeddings")
 
-    @JsonProperty("embeddings") @ExcludeMissing fun _embeddings() = embeddings
+    @JsonProperty("embeddings")
+    @ExcludeMissing
+    fun _embeddings(): JsonField<List<List<Double>>> = embeddings
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +38,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): EmbeddingsResponse = apply {
-        if (!validated) {
-            embeddings()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        embeddings()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,18 +55,29 @@ private constructor(
 
     class Builder {
 
-        private var embeddings: JsonField<List<List<Double>>> = JsonMissing.of()
+        private var embeddings: JsonField<MutableList<List<Double>>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(embeddingsResponse: EmbeddingsResponse) = apply {
-            embeddings = embeddingsResponse.embeddings
+            embeddings = embeddingsResponse.embeddings.map { it.toMutableList() }
             additionalProperties = embeddingsResponse.additionalProperties.toMutableMap()
         }
 
         fun embeddings(embeddings: List<List<Double>>) = embeddings(JsonField.of(embeddings))
 
         fun embeddings(embeddings: JsonField<List<List<Double>>>) = apply {
-            this.embeddings = embeddings
+            this.embeddings = embeddings.map { it.toMutableList() }
+        }
+
+        fun addEmbedding(embedding: List<Double>) = apply {
+            embeddings =
+                (embeddings ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(embedding)
+                }
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -86,7 +101,8 @@ private constructor(
 
         fun build(): EmbeddingsResponse =
             EmbeddingsResponse(
-                embeddings.map { it.toImmutable() },
+                checkNotNull(embeddings) { "`embeddings` is required but was not set" }
+                    .map { it.toImmutable() },
                 additionalProperties.toImmutable()
             )
     }

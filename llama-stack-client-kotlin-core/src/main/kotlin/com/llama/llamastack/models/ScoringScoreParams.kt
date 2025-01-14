@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class ScoringScoreParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: ScoringScoreBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -29,18 +34,25 @@ constructor(
 
     fun scoringFunctions(): ScoringFunctions = body.scoringFunctions()
 
+    fun _inputRows(): JsonField<List<InputRow>> = body._inputRows()
+
+    fun _scoringFunctions(): JsonField<ScoringFunctions> = body._scoringFunctions()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): ScoringScoreBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -52,20 +64,43 @@ constructor(
     class ScoringScoreBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("input_rows") private val inputRows: List<InputRow>,
-        @JsonProperty("scoring_functions") private val scoringFunctions: ScoringFunctions,
+        @JsonProperty("input_rows")
+        @ExcludeMissing
+        private val inputRows: JsonField<List<InputRow>> = JsonMissing.of(),
+        @JsonProperty("scoring_functions")
+        @ExcludeMissing
+        private val scoringFunctions: JsonField<ScoringFunctions> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("input_rows") fun inputRows(): List<InputRow> = inputRows
+        fun inputRows(): List<InputRow> = inputRows.getRequired("input_rows")
+
+        fun scoringFunctions(): ScoringFunctions = scoringFunctions.getRequired("scoring_functions")
+
+        @JsonProperty("input_rows")
+        @ExcludeMissing
+        fun _inputRows(): JsonField<List<InputRow>> = inputRows
 
         @JsonProperty("scoring_functions")
-        fun scoringFunctions(): ScoringFunctions = scoringFunctions
+        @ExcludeMissing
+        fun _scoringFunctions(): JsonField<ScoringFunctions> = scoringFunctions
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ScoringScoreBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            inputRows().forEach { it.validate() }
+            scoringFunctions().validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -76,25 +111,37 @@ constructor(
 
         class Builder {
 
-            private var inputRows: MutableList<InputRow>? = null
-            private var scoringFunctions: ScoringFunctions? = null
+            private var inputRows: JsonField<MutableList<InputRow>>? = null
+            private var scoringFunctions: JsonField<ScoringFunctions>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(scoringScoreBody: ScoringScoreBody) = apply {
-                inputRows = scoringScoreBody.inputRows.toMutableList()
+                inputRows = scoringScoreBody.inputRows.map { it.toMutableList() }
                 scoringFunctions = scoringScoreBody.scoringFunctions
                 additionalProperties = scoringScoreBody.additionalProperties.toMutableMap()
             }
 
-            fun inputRows(inputRows: List<InputRow>) = apply {
-                this.inputRows = inputRows.toMutableList()
+            fun inputRows(inputRows: List<InputRow>) = inputRows(JsonField.of(inputRows))
+
+            fun inputRows(inputRows: JsonField<List<InputRow>>) = apply {
+                this.inputRows = inputRows.map { it.toMutableList() }
             }
 
             fun addInputRow(inputRow: InputRow) = apply {
-                inputRows = (inputRows ?: mutableListOf()).apply { add(inputRow) }
+                inputRows =
+                    (inputRows ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(inputRow)
+                    }
             }
 
-            fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
+            fun scoringFunctions(scoringFunctions: ScoringFunctions) =
+                scoringFunctions(JsonField.of(scoringFunctions))
+
+            fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
                 this.scoringFunctions = scoringFunctions
             }
 
@@ -120,7 +167,7 @@ constructor(
             fun build(): ScoringScoreBody =
                 ScoringScoreBody(
                     checkNotNull(inputRows) { "`inputRows` is required but was not set" }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     checkNotNull(scoringFunctions) {
                         "`scoringFunctions` is required but was not set"
                     },
@@ -156,28 +203,59 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: ScoringScoreBody.Builder = ScoringScoreBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(scoringScoreParams: ScoringScoreParams) = apply {
+            xLlamaStackClientVersion = scoringScoreParams.xLlamaStackClientVersion
             xLlamaStackProviderData = scoringScoreParams.xLlamaStackProviderData
             body = scoringScoreParams.body.toBuilder()
             additionalHeaders = scoringScoreParams.additionalHeaders.toBuilder()
             additionalQueryParams = scoringScoreParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun inputRows(inputRows: List<InputRow>) = apply { body.inputRows(inputRows) }
 
+        fun inputRows(inputRows: JsonField<List<InputRow>>) = apply { body.inputRows(inputRows) }
+
         fun addInputRow(inputRow: InputRow) = apply { body.addInputRow(inputRow) }
 
         fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
             body.scoringFunctions(scoringFunctions)
+        }
+
+        fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
+            body.scoringFunctions(scoringFunctions)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -278,27 +356,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): ScoringScoreParams =
             ScoringScoreParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -317,6 +377,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): InputRow = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -384,6 +454,16 @@ constructor(
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
+        fun validate(): ScoringFunctions = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
         fun toBuilder() = Builder().from(this)
 
         companion object {
@@ -443,11 +523,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringScoreParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ScoringScoreParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ScoringScoreParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ScoringScoreParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

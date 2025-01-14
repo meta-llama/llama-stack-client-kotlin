@@ -30,36 +30,36 @@ import java.util.Objects
 class ToolParamDefinition
 @JsonCreator
 private constructor(
+    @JsonProperty("param_type")
+    @ExcludeMissing
+    private val paramType: JsonField<String> = JsonMissing.of(),
     @JsonProperty("default")
     @ExcludeMissing
     private val default: JsonField<Default> = JsonMissing.of(),
     @JsonProperty("description")
     @ExcludeMissing
     private val description: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("param_type")
-    @ExcludeMissing
-    private val paramType: JsonField<String> = JsonMissing.of(),
     @JsonProperty("required")
     @ExcludeMissing
     private val required: JsonField<Boolean> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    fun paramType(): String = paramType.getRequired("param_type")
+
     fun default(): Default? = default.getNullable("default")
 
     fun description(): String? = description.getNullable("description")
 
-    fun paramType(): String = paramType.getRequired("param_type")
-
     fun required(): Boolean? = required.getNullable("required")
 
-    @JsonProperty("default") @ExcludeMissing fun _default() = default
+    @JsonProperty("param_type") @ExcludeMissing fun _paramType(): JsonField<String> = paramType
 
-    @JsonProperty("description") @ExcludeMissing fun _description() = description
+    @JsonProperty("default") @ExcludeMissing fun _default(): JsonField<Default> = default
 
-    @JsonProperty("param_type") @ExcludeMissing fun _paramType() = paramType
+    @JsonProperty("description") @ExcludeMissing fun _description(): JsonField<String> = description
 
-    @JsonProperty("required") @ExcludeMissing fun _required() = required
+    @JsonProperty("required") @ExcludeMissing fun _required(): JsonField<Boolean> = required
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -68,13 +68,15 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ToolParamDefinition = apply {
-        if (!validated) {
-            default()
-            description()
-            paramType()
-            required()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        paramType()
+        default()?.validate()
+        description()
+        required()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -86,31 +88,42 @@ private constructor(
 
     class Builder {
 
+        private var paramType: JsonField<String>? = null
         private var default: JsonField<Default> = JsonMissing.of()
         private var description: JsonField<String> = JsonMissing.of()
-        private var paramType: JsonField<String> = JsonMissing.of()
         private var required: JsonField<Boolean> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolParamDefinition: ToolParamDefinition) = apply {
+            paramType = toolParamDefinition.paramType
             default = toolParamDefinition.default
             description = toolParamDefinition.description
-            paramType = toolParamDefinition.paramType
             required = toolParamDefinition.required
             additionalProperties = toolParamDefinition.additionalProperties.toMutableMap()
         }
 
-        fun default(default: Default) = default(JsonField.of(default))
+        fun paramType(paramType: String) = paramType(JsonField.of(paramType))
+
+        fun paramType(paramType: JsonField<String>) = apply { this.paramType = paramType }
+
+        fun default(default: Default?) = default(JsonField.ofNullable(default))
 
         fun default(default: JsonField<Default>) = apply { this.default = default }
+
+        fun default(boolean: Boolean) = default(Default.ofBoolean(boolean))
+
+        fun default(double: Double) = default(Default.ofDouble(double))
+
+        fun default(string: String) = default(Default.ofString(string))
+
+        fun defaultOfJsonValues(jsonValues: List<JsonValue>) =
+            default(Default.ofJsonValues(jsonValues))
+
+        fun default(jsonValue: JsonValue) = default(Default.ofJsonValue(jsonValue))
 
         fun description(description: String) = description(JsonField.of(description))
 
         fun description(description: JsonField<String>) = apply { this.description = description }
-
-        fun paramType(paramType: String) = paramType(JsonField.of(paramType))
-
-        fun paramType(paramType: JsonField<String>) = apply { this.paramType = paramType }
 
         fun required(required: Boolean) = required(JsonField.of(required))
 
@@ -137,9 +150,9 @@ private constructor(
 
         fun build(): ToolParamDefinition =
             ToolParamDefinition(
+                checkNotNull(paramType) { "`paramType` is required but was not set" },
                 default,
                 description,
-                paramType,
                 required,
                 additionalProperties.toImmutable(),
             )
@@ -156,8 +169,6 @@ private constructor(
         private val jsonValue: JsonValue? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun boolean(): Boolean? = boolean
 
@@ -202,19 +213,27 @@ private constructor(
             }
         }
 
+        private var validated: Boolean = false
+
         fun validate(): Default = apply {
-            if (!validated) {
-                if (
-                    boolean == null &&
-                        double == null &&
-                        string == null &&
-                        jsonValues == null &&
-                        jsonValue == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Default: $_json")
-                }
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitBoolean(boolean: Boolean) {}
+
+                    override fun visitDouble(double: Double) {}
+
+                    override fun visitString(string: String) {}
+
+                    override fun visitJsonValues(jsonValues: List<JsonValue>) {}
+
+                    override fun visitJsonValue(jsonValue: JsonValue) {}
+                }
+            )
+            validated = true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -318,15 +337,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolParamDefinition && default == other.default && description == other.description && paramType == other.paramType && required == other.required && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ToolParamDefinition && paramType == other.paramType && default == other.default && description == other.description && required == other.required && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(default, description, paramType, required, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(paramType, default, description, required, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ToolParamDefinition{default=$default, description=$description, paramType=$paramType, required=$required, additionalProperties=$additionalProperties}"
+        "ToolParamDefinition{paramType=$paramType, default=$default, description=$description, required=$required, additionalProperties=$additionalProperties}"
 }

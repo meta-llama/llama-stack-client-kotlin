@@ -32,9 +32,9 @@ private constructor(
 
     fun scores(): List<Double> = scores.getRequired("scores")
 
-    @JsonProperty("chunks") @ExcludeMissing fun _chunks() = chunks
+    @JsonProperty("chunks") @ExcludeMissing fun _chunks(): JsonField<List<Chunk>> = chunks
 
-    @JsonProperty("scores") @ExcludeMissing fun _scores() = scores
+    @JsonProperty("scores") @ExcludeMissing fun _scores(): JsonField<List<Double>> = scores
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +43,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): QueryDocumentsResponse = apply {
-        if (!validated) {
-            chunks().forEach { it.validate() }
-            scores()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        chunks().forEach { it.validate() }
+        scores()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,23 +61,49 @@ private constructor(
 
     class Builder {
 
-        private var chunks: JsonField<List<Chunk>> = JsonMissing.of()
-        private var scores: JsonField<List<Double>> = JsonMissing.of()
+        private var chunks: JsonField<MutableList<Chunk>>? = null
+        private var scores: JsonField<MutableList<Double>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(queryDocumentsResponse: QueryDocumentsResponse) = apply {
-            chunks = queryDocumentsResponse.chunks
-            scores = queryDocumentsResponse.scores
+            chunks = queryDocumentsResponse.chunks.map { it.toMutableList() }
+            scores = queryDocumentsResponse.scores.map { it.toMutableList() }
             additionalProperties = queryDocumentsResponse.additionalProperties.toMutableMap()
         }
 
         fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
 
-        fun chunks(chunks: JsonField<List<Chunk>>) = apply { this.chunks = chunks }
+        fun chunks(chunks: JsonField<List<Chunk>>) = apply {
+            this.chunks = chunks.map { it.toMutableList() }
+        }
+
+        fun addChunk(chunk: Chunk) = apply {
+            chunks =
+                (chunks ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(chunk)
+                }
+        }
 
         fun scores(scores: List<Double>) = scores(JsonField.of(scores))
 
-        fun scores(scores: JsonField<List<Double>>) = apply { this.scores = scores }
+        fun scores(scores: JsonField<List<Double>>) = apply {
+            this.scores = scores.map { it.toMutableList() }
+        }
+
+        fun addScore(score: Double) = apply {
+            scores =
+                (scores ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(score)
+                }
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -98,8 +126,10 @@ private constructor(
 
         fun build(): QueryDocumentsResponse =
             QueryDocumentsResponse(
-                chunks.map { it.toImmutable() },
-                scores.map { it.toImmutable() },
+                checkNotNull(chunks) { "`chunks` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(scores) { "`scores` is required but was not set" }
+                    .map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -127,11 +157,15 @@ private constructor(
 
         fun tokenCount(): Long = tokenCount.getRequired("token_count")
 
-        @JsonProperty("content") @ExcludeMissing fun _content() = content
+        @JsonProperty("content")
+        @ExcludeMissing
+        fun _content(): JsonField<InterleavedContent> = content
 
-        @JsonProperty("document_id") @ExcludeMissing fun _documentId() = documentId
+        @JsonProperty("document_id")
+        @ExcludeMissing
+        fun _documentId(): JsonField<String> = documentId
 
-        @JsonProperty("token_count") @ExcludeMissing fun _tokenCount() = tokenCount
+        @JsonProperty("token_count") @ExcludeMissing fun _tokenCount(): JsonField<Long> = tokenCount
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -140,12 +174,14 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Chunk = apply {
-            if (!validated) {
-                content()
-                documentId()
-                tokenCount()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            content().validate()
+            documentId()
+            tokenCount()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -157,9 +193,9 @@ private constructor(
 
         class Builder {
 
-            private var content: JsonField<InterleavedContent> = JsonMissing.of()
-            private var documentId: JsonField<String> = JsonMissing.of()
-            private var tokenCount: JsonField<Long> = JsonMissing.of()
+            private var content: JsonField<InterleavedContent>? = null
+            private var documentId: JsonField<String>? = null
+            private var tokenCount: JsonField<Long>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(chunk: Chunk) = apply {
@@ -172,6 +208,18 @@ private constructor(
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
+
+            fun content(string: String) = content(InterleavedContent.ofString(string))
+
+            fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+                content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            fun content(textContentItem: InterleavedContent.TextContentItem) =
+                content(InterleavedContent.ofTextContentItem(textContentItem))
+
+            fun contentOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
             fun documentId(documentId: String) = documentId(JsonField.of(documentId))
 
@@ -202,9 +250,9 @@ private constructor(
 
             fun build(): Chunk =
                 Chunk(
-                    content,
-                    documentId,
-                    tokenCount,
+                    checkNotNull(content) { "`content` is required but was not set" },
+                    checkNotNull(documentId) { "`documentId` is required but was not set" },
+                    checkNotNull(tokenCount) { "`tokenCount` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }

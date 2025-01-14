@@ -20,9 +20,6 @@ import java.util.Objects
 class Trace
 @JsonCreator
 private constructor(
-    @JsonProperty("end_time")
-    @ExcludeMissing
-    private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("root_span_id")
     @ExcludeMissing
     private val rootSpanId: JsonField<String> = JsonMissing.of(),
@@ -32,10 +29,11 @@ private constructor(
     @JsonProperty("trace_id")
     @ExcludeMissing
     private val traceId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("end_time")
+    @ExcludeMissing
+    private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    fun endTime(): OffsetDateTime? = endTime.getNullable("end_time")
 
     fun rootSpanId(): String = rootSpanId.getRequired("root_span_id")
 
@@ -43,13 +41,17 @@ private constructor(
 
     fun traceId(): String = traceId.getRequired("trace_id")
 
-    @JsonProperty("end_time") @ExcludeMissing fun _endTime() = endTime
+    fun endTime(): OffsetDateTime? = endTime.getNullable("end_time")
 
-    @JsonProperty("root_span_id") @ExcludeMissing fun _rootSpanId() = rootSpanId
+    @JsonProperty("root_span_id") @ExcludeMissing fun _rootSpanId(): JsonField<String> = rootSpanId
 
-    @JsonProperty("start_time") @ExcludeMissing fun _startTime() = startTime
+    @JsonProperty("start_time")
+    @ExcludeMissing
+    fun _startTime(): JsonField<OffsetDateTime> = startTime
 
-    @JsonProperty("trace_id") @ExcludeMissing fun _traceId() = traceId
+    @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
+
+    @JsonProperty("end_time") @ExcludeMissing fun _endTime(): JsonField<OffsetDateTime> = endTime
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -58,13 +60,15 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): Trace = apply {
-        if (!validated) {
-            endTime()
-            rootSpanId()
-            startTime()
-            traceId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        rootSpanId()
+        startTime()
+        traceId()
+        endTime()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -76,23 +80,19 @@ private constructor(
 
     class Builder {
 
+        private var rootSpanId: JsonField<String>? = null
+        private var startTime: JsonField<OffsetDateTime>? = null
+        private var traceId: JsonField<String>? = null
         private var endTime: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var rootSpanId: JsonField<String> = JsonMissing.of()
-        private var startTime: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var traceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(trace: Trace) = apply {
-            endTime = trace.endTime
             rootSpanId = trace.rootSpanId
             startTime = trace.startTime
             traceId = trace.traceId
+            endTime = trace.endTime
             additionalProperties = trace.additionalProperties.toMutableMap()
         }
-
-        fun endTime(endTime: OffsetDateTime) = endTime(JsonField.of(endTime))
-
-        fun endTime(endTime: JsonField<OffsetDateTime>) = apply { this.endTime = endTime }
 
         fun rootSpanId(rootSpanId: String) = rootSpanId(JsonField.of(rootSpanId))
 
@@ -105,6 +105,10 @@ private constructor(
         fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
         fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
+
+        fun endTime(endTime: OffsetDateTime) = endTime(JsonField.of(endTime))
+
+        fun endTime(endTime: JsonField<OffsetDateTime>) = apply { this.endTime = endTime }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -127,10 +131,10 @@ private constructor(
 
         fun build(): Trace =
             Trace(
+                checkNotNull(rootSpanId) { "`rootSpanId` is required but was not set" },
+                checkNotNull(startTime) { "`startTime` is required but was not set" },
+                checkNotNull(traceId) { "`traceId` is required but was not set" },
                 endTime,
-                rootSpanId,
-                startTime,
-                traceId,
                 additionalProperties.toImmutable(),
             )
     }
@@ -140,15 +144,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Trace && endTime == other.endTime && rootSpanId == other.rootSpanId && startTime == other.startTime && traceId == other.traceId && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Trace && rootSpanId == other.rootSpanId && startTime == other.startTime && traceId == other.traceId && endTime == other.endTime && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(endTime, rootSpanId, startTime, traceId, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(rootSpanId, startTime, traceId, endTime, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Trace{endTime=$endTime, rootSpanId=$rootSpanId, startTime=$startTime, traceId=$traceId, additionalProperties=$additionalProperties}"
+        "Trace{rootSpanId=$rootSpanId, startTime=$startTime, traceId=$traceId, endTime=$endTime, additionalProperties=$additionalProperties}"
 }

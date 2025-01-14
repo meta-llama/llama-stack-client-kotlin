@@ -22,62 +22,68 @@ import java.util.Objects
 class SpanWithStatus
 @JsonCreator
 private constructor(
-    @JsonProperty("attributes")
-    @ExcludeMissing
-    private val attributes: JsonField<Attributes> = JsonMissing.of(),
-    @JsonProperty("end_time")
-    @ExcludeMissing
-    private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("name") @ExcludeMissing private val name: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("parent_span_id")
-    @ExcludeMissing
-    private val parentSpanId: JsonField<String> = JsonMissing.of(),
     @JsonProperty("span_id")
     @ExcludeMissing
     private val spanId: JsonField<String> = JsonMissing.of(),
     @JsonProperty("start_time")
     @ExcludeMissing
     private val startTime: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("status")
-    @ExcludeMissing
-    private val status: JsonField<Status> = JsonMissing.of(),
     @JsonProperty("trace_id")
     @ExcludeMissing
     private val traceId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("attributes")
+    @ExcludeMissing
+    private val attributes: JsonField<Attributes> = JsonMissing.of(),
+    @JsonProperty("end_time")
+    @ExcludeMissing
+    private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("parent_span_id")
+    @ExcludeMissing
+    private val parentSpanId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("status")
+    @ExcludeMissing
+    private val status: JsonField<Status> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun attributes(): Attributes? = attributes.getNullable("attributes")
-
-    fun endTime(): OffsetDateTime? = endTime.getNullable("end_time")
-
     fun name(): String = name.getRequired("name")
-
-    fun parentSpanId(): String? = parentSpanId.getNullable("parent_span_id")
 
     fun spanId(): String = spanId.getRequired("span_id")
 
     fun startTime(): OffsetDateTime = startTime.getRequired("start_time")
 
-    fun status(): Status? = status.getNullable("status")
-
     fun traceId(): String = traceId.getRequired("trace_id")
 
-    @JsonProperty("attributes") @ExcludeMissing fun _attributes() = attributes
+    fun attributes(): Attributes? = attributes.getNullable("attributes")
 
-    @JsonProperty("end_time") @ExcludeMissing fun _endTime() = endTime
+    fun endTime(): OffsetDateTime? = endTime.getNullable("end_time")
 
-    @JsonProperty("name") @ExcludeMissing fun _name() = name
+    fun parentSpanId(): String? = parentSpanId.getNullable("parent_span_id")
 
-    @JsonProperty("parent_span_id") @ExcludeMissing fun _parentSpanId() = parentSpanId
+    fun status(): Status? = status.getNullable("status")
 
-    @JsonProperty("span_id") @ExcludeMissing fun _spanId() = spanId
+    @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
-    @JsonProperty("start_time") @ExcludeMissing fun _startTime() = startTime
+    @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
 
-    @JsonProperty("status") @ExcludeMissing fun _status() = status
+    @JsonProperty("start_time")
+    @ExcludeMissing
+    fun _startTime(): JsonField<OffsetDateTime> = startTime
 
-    @JsonProperty("trace_id") @ExcludeMissing fun _traceId() = traceId
+    @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
+
+    @JsonProperty("attributes")
+    @ExcludeMissing
+    fun _attributes(): JsonField<Attributes> = attributes
+
+    @JsonProperty("end_time") @ExcludeMissing fun _endTime(): JsonField<OffsetDateTime> = endTime
+
+    @JsonProperty("parent_span_id")
+    @ExcludeMissing
+    fun _parentSpanId(): JsonField<String> = parentSpanId
+
+    @JsonProperty("status") @ExcludeMissing fun _status(): JsonField<Status> = status
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -86,17 +92,19 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): SpanWithStatus = apply {
-        if (!validated) {
-            attributes()?.validate()
-            endTime()
-            name()
-            parentSpanId()
-            spanId()
-            startTime()
-            status()
-            traceId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        name()
+        spanId()
+        startTime()
+        traceId()
+        attributes()?.validate()
+        endTime()
+        parentSpanId()
+        status()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -108,45 +116,31 @@ private constructor(
 
     class Builder {
 
+        private var name: JsonField<String>? = null
+        private var spanId: JsonField<String>? = null
+        private var startTime: JsonField<OffsetDateTime>? = null
+        private var traceId: JsonField<String>? = null
         private var attributes: JsonField<Attributes> = JsonMissing.of()
         private var endTime: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var name: JsonField<String> = JsonMissing.of()
         private var parentSpanId: JsonField<String> = JsonMissing.of()
-        private var spanId: JsonField<String> = JsonMissing.of()
-        private var startTime: JsonField<OffsetDateTime> = JsonMissing.of()
         private var status: JsonField<Status> = JsonMissing.of()
-        private var traceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(spanWithStatus: SpanWithStatus) = apply {
-            attributes = spanWithStatus.attributes
-            endTime = spanWithStatus.endTime
             name = spanWithStatus.name
-            parentSpanId = spanWithStatus.parentSpanId
             spanId = spanWithStatus.spanId
             startTime = spanWithStatus.startTime
-            status = spanWithStatus.status
             traceId = spanWithStatus.traceId
+            attributes = spanWithStatus.attributes
+            endTime = spanWithStatus.endTime
+            parentSpanId = spanWithStatus.parentSpanId
+            status = spanWithStatus.status
             additionalProperties = spanWithStatus.additionalProperties.toMutableMap()
         }
-
-        fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
-
-        fun attributes(attributes: JsonField<Attributes>) = apply { this.attributes = attributes }
-
-        fun endTime(endTime: OffsetDateTime) = endTime(JsonField.of(endTime))
-
-        fun endTime(endTime: JsonField<OffsetDateTime>) = apply { this.endTime = endTime }
 
         fun name(name: String) = name(JsonField.of(name))
 
         fun name(name: JsonField<String>) = apply { this.name = name }
-
-        fun parentSpanId(parentSpanId: String) = parentSpanId(JsonField.of(parentSpanId))
-
-        fun parentSpanId(parentSpanId: JsonField<String>) = apply {
-            this.parentSpanId = parentSpanId
-        }
 
         fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
@@ -156,13 +150,27 @@ private constructor(
 
         fun startTime(startTime: JsonField<OffsetDateTime>) = apply { this.startTime = startTime }
 
-        fun status(status: Status) = status(JsonField.of(status))
-
-        fun status(status: JsonField<Status>) = apply { this.status = status }
-
         fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
         fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
+
+        fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
+
+        fun attributes(attributes: JsonField<Attributes>) = apply { this.attributes = attributes }
+
+        fun endTime(endTime: OffsetDateTime) = endTime(JsonField.of(endTime))
+
+        fun endTime(endTime: JsonField<OffsetDateTime>) = apply { this.endTime = endTime }
+
+        fun parentSpanId(parentSpanId: String) = parentSpanId(JsonField.of(parentSpanId))
+
+        fun parentSpanId(parentSpanId: JsonField<String>) = apply {
+            this.parentSpanId = parentSpanId
+        }
+
+        fun status(status: Status) = status(JsonField.of(status))
+
+        fun status(status: JsonField<Status>) = apply { this.status = status }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -185,14 +193,14 @@ private constructor(
 
         fun build(): SpanWithStatus =
             SpanWithStatus(
+                checkNotNull(name) { "`name` is required but was not set" },
+                checkNotNull(spanId) { "`spanId` is required but was not set" },
+                checkNotNull(startTime) { "`startTime` is required but was not set" },
+                checkNotNull(traceId) { "`traceId` is required but was not set" },
                 attributes,
                 endTime,
-                name,
                 parentSpanId,
-                spanId,
-                startTime,
                 status,
-                traceId,
                 additionalProperties.toImmutable(),
             )
     }
@@ -212,9 +220,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Attributes = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -333,15 +343,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SpanWithStatus && attributes == other.attributes && endTime == other.endTime && name == other.name && parentSpanId == other.parentSpanId && spanId == other.spanId && startTime == other.startTime && status == other.status && traceId == other.traceId && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SpanWithStatus && name == other.name && spanId == other.spanId && startTime == other.startTime && traceId == other.traceId && attributes == other.attributes && endTime == other.endTime && parentSpanId == other.parentSpanId && status == other.status && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(attributes, endTime, name, parentSpanId, spanId, startTime, status, traceId, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(name, spanId, startTime, traceId, attributes, endTime, parentSpanId, status, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "SpanWithStatus{attributes=$attributes, endTime=$endTime, name=$name, parentSpanId=$parentSpanId, spanId=$spanId, startTime=$startTime, status=$status, traceId=$traceId, additionalProperties=$additionalProperties}"
+        "SpanWithStatus{name=$name, spanId=$spanId, startTime=$startTime, traceId=$traceId, attributes=$attributes, endTime=$endTime, parentSpanId=$parentSpanId, status=$status, additionalProperties=$additionalProperties}"
 }

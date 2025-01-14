@@ -14,10 +14,17 @@ class BatchInferenceChatCompletionResponseTest {
             BatchInferenceChatCompletionResponse.builder()
                 .completionMessageBatch(
                     listOf(
-                        CompletionMessage.builder()
+                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
                             .content(InterleavedContent.ofString("string"))
-                            .role(CompletionMessage.Role.ASSISTANT)
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .role(
+                                BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role
+                                    .ASSISTANT
+                            )
+                            .stopReason(
+                                BatchInferenceChatCompletionResponse.CompletionMessageBatch
+                                    .StopReason
+                                    .END_OF_TURN
+                            )
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
@@ -41,10 +48,15 @@ class BatchInferenceChatCompletionResponseTest {
         assertThat(batchInferenceChatCompletionResponse).isNotNull
         assertThat(batchInferenceChatCompletionResponse.completionMessageBatch())
             .containsExactly(
-                CompletionMessage.builder()
+                BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
                     .content(InterleavedContent.ofString("string"))
-                    .role(CompletionMessage.Role.ASSISTANT)
-                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                    .role(
+                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role.ASSISTANT
+                    )
+                    .stopReason(
+                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.StopReason
+                            .END_OF_TURN
+                    )
                     .toolCalls(
                         listOf(
                             ToolCall.builder()

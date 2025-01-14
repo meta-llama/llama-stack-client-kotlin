@@ -55,21 +55,23 @@ private constructor(
 
     fun url(): Url = url.getRequired("url")
 
-    @JsonProperty("dataset_schema") @ExcludeMissing fun _datasetSchema() = datasetSchema
+    @JsonProperty("dataset_schema")
+    @ExcludeMissing
+    fun _datasetSchema(): JsonField<DatasetSchema> = datasetSchema
 
-    @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+    @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
-    @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+    @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-    @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+    @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
-    fun _providerResourceId() = providerResourceId
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
-    @JsonProperty("type") @ExcludeMissing fun _type() = type
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
-    @JsonProperty("url") @ExcludeMissing fun _url() = url
+    @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -78,16 +80,18 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): DatasetListResponse = apply {
-        if (!validated) {
-            datasetSchema().validate()
-            identifier()
-            metadata().validate()
-            providerId()
-            providerResourceId()
-            type()
-            url().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        datasetSchema().validate()
+        identifier()
+        metadata().validate()
+        providerId()
+        providerResourceId()
+        type()
+        url().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -99,13 +103,13 @@ private constructor(
 
     class Builder {
 
-        private var datasetSchema: JsonField<DatasetSchema> = JsonMissing.of()
-        private var identifier: JsonField<String> = JsonMissing.of()
-        private var metadata: JsonField<Metadata> = JsonMissing.of()
-        private var providerId: JsonField<String> = JsonMissing.of()
-        private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var type: JsonField<Type> = JsonMissing.of()
-        private var url: JsonField<Url> = JsonMissing.of()
+        private var datasetSchema: JsonField<DatasetSchema>? = null
+        private var identifier: JsonField<String>? = null
+        private var metadata: JsonField<Metadata>? = null
+        private var providerId: JsonField<String>? = null
+        private var providerResourceId: JsonField<String>? = null
+        private var type: JsonField<Type>? = null
+        private var url: JsonField<Url>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(datasetListResponse: DatasetListResponse) = apply {
@@ -173,13 +177,15 @@ private constructor(
 
         fun build(): DatasetListResponse =
             DatasetListResponse(
-                datasetSchema,
-                identifier,
-                metadata,
-                providerId,
-                providerResourceId,
-                type,
-                url,
+                checkNotNull(datasetSchema) { "`datasetSchema` is required but was not set" },
+                checkNotNull(identifier) { "`identifier` is required but was not set" },
+                checkNotNull(metadata) { "`metadata` is required but was not set" },
+                checkNotNull(providerId) { "`providerId` is required but was not set" },
+                checkNotNull(providerResourceId) {
+                    "`providerResourceId` is required but was not set"
+                },
+                checkNotNull(type) { "`type` is required but was not set" },
+                checkNotNull(url) { "`url` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }
@@ -199,9 +205,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): DatasetSchema = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -273,9 +281,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Metadata = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

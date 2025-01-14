@@ -26,7 +26,8 @@ class DatasetServiceTest {
             datasetService.retrieve(
                 DatasetRetrieveParams.builder()
                     .datasetId("dataset_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(datasetRetrieveResponse)
@@ -44,7 +45,8 @@ class DatasetServiceTest {
         val datasetListResponse =
             datasetService.list(
                 DatasetListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(datasetListResponse)
@@ -72,7 +74,8 @@ class DatasetServiceTest {
                 )
                 .providerDatasetId("provider_dataset_id")
                 .providerId("provider_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -85,7 +88,8 @@ class DatasetServiceTest {
         datasetService.unregister(
             DatasetUnregisterParams.builder()
                 .datasetId("dataset_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

@@ -32,9 +32,11 @@ private constructor(
 
     fun providerType(): String = providerType.getRequired("provider_type")
 
-    @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+    @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
-    @JsonProperty("provider_type") @ExcludeMissing fun _providerType() = providerType
+    @JsonProperty("provider_type")
+    @ExcludeMissing
+    fun _providerType(): JsonField<String> = providerType
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +45,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ProviderInfo = apply {
-        if (!validated) {
-            providerId()
-            providerType()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        providerId()
+        providerType()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,8 +63,8 @@ private constructor(
 
     class Builder {
 
-        private var providerId: JsonField<String> = JsonMissing.of()
-        private var providerType: JsonField<String> = JsonMissing.of()
+        private var providerId: JsonField<String>? = null
+        private var providerType: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(providerInfo: ProviderInfo) = apply {
@@ -100,8 +104,8 @@ private constructor(
 
         fun build(): ProviderInfo =
             ProviderInfo(
-                providerId,
-                providerType,
+                checkNotNull(providerId) { "`providerId` is required but was not set" },
+                checkNotNull(providerType) { "`providerType` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }

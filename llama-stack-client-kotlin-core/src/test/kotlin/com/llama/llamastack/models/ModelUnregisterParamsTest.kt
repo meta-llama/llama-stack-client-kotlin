@@ -11,7 +11,8 @@ class ModelUnregisterParamsTest {
     fun createModelUnregisterParams() {
         ModelUnregisterParams.builder()
             .modelId("model_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -20,7 +21,8 @@ class ModelUnregisterParamsTest {
         val params =
             ModelUnregisterParams.builder()
                 .modelId("model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

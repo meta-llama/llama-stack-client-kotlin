@@ -20,7 +20,8 @@ class ModelRegisterParamsTest {
             .modelType(ModelRegisterParams.ModelType.LLM)
             .providerId("provider_id")
             .providerModelId("provider_model_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -37,7 +38,8 @@ class ModelRegisterParamsTest {
                 .modelType(ModelRegisterParams.ModelType.LLM)
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

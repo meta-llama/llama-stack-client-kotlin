@@ -34,9 +34,6 @@ private constructor(
     @JsonProperty("enable_session_persistence")
     @ExcludeMissing
     private val enableSessionPersistence: JsonField<Boolean> = JsonMissing.of(),
-    @JsonProperty("input_shields")
-    @ExcludeMissing
-    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
     @JsonProperty("instructions")
     @ExcludeMissing
     private val instructions: JsonField<String> = JsonMissing.of(),
@@ -44,6 +41,12 @@ private constructor(
     @ExcludeMissing
     private val maxInferIters: JsonField<Long> = JsonMissing.of(),
     @JsonProperty("model") @ExcludeMissing private val model: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("client_tools")
+    @ExcludeMissing
+    private val clientTools: JsonField<List<ToolDef>> = JsonMissing.of(),
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
     @JsonProperty("output_shields")
     @ExcludeMissing
     private val outputShields: JsonField<List<String>> = JsonMissing.of(),
@@ -56,22 +59,24 @@ private constructor(
     @JsonProperty("tool_prompt_format")
     @ExcludeMissing
     private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
-    @JsonProperty("tools")
+    @JsonProperty("toolgroups")
     @ExcludeMissing
-    private val tools: JsonField<List<Tool>> = JsonMissing.of(),
+    private val toolgroups: JsonField<List<Toolgroup>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun enableSessionPersistence(): Boolean =
         enableSessionPersistence.getRequired("enable_session_persistence")
 
-    fun inputShields(): List<String>? = inputShields.getNullable("input_shields")
-
     fun instructions(): String = instructions.getRequired("instructions")
 
     fun maxInferIters(): Long = maxInferIters.getRequired("max_infer_iters")
 
     fun model(): String = model.getRequired("model")
+
+    fun clientTools(): List<ToolDef>? = clientTools.getNullable("client_tools")
+
+    fun inputShields(): List<String>? = inputShields.getNullable("input_shields")
 
     fun outputShields(): List<String>? = outputShields.getNullable("output_shields")
 
@@ -92,25 +97,41 @@ private constructor(
      */
     fun toolPromptFormat(): ToolPromptFormat? = toolPromptFormat.getNullable("tool_prompt_format")
 
-    fun tools(): List<Tool>? = tools.getNullable("tools")
+    fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
 
     @JsonProperty("enable_session_persistence")
     @ExcludeMissing
-    fun _enableSessionPersistence() = enableSessionPersistence
+    fun _enableSessionPersistence(): JsonField<Boolean> = enableSessionPersistence
 
-    @JsonProperty("input_shields") @ExcludeMissing fun _inputShields() = inputShields
+    @JsonProperty("instructions")
+    @ExcludeMissing
+    fun _instructions(): JsonField<String> = instructions
 
-    @JsonProperty("instructions") @ExcludeMissing fun _instructions() = instructions
+    @JsonProperty("max_infer_iters")
+    @ExcludeMissing
+    fun _maxInferIters(): JsonField<Long> = maxInferIters
 
-    @JsonProperty("max_infer_iters") @ExcludeMissing fun _maxInferIters() = maxInferIters
+    @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
-    @JsonProperty("model") @ExcludeMissing fun _model() = model
+    @JsonProperty("client_tools")
+    @ExcludeMissing
+    fun _clientTools(): JsonField<List<ToolDef>> = clientTools
 
-    @JsonProperty("output_shields") @ExcludeMissing fun _outputShields() = outputShields
+    @JsonProperty("input_shields")
+    @ExcludeMissing
+    fun _inputShields(): JsonField<List<String>> = inputShields
 
-    @JsonProperty("sampling_params") @ExcludeMissing fun _samplingParams() = samplingParams
+    @JsonProperty("output_shields")
+    @ExcludeMissing
+    fun _outputShields(): JsonField<List<String>> = outputShields
 
-    @JsonProperty("tool_choice") @ExcludeMissing fun _toolChoice() = toolChoice
+    @JsonProperty("sampling_params")
+    @ExcludeMissing
+    fun _samplingParams(): JsonField<SamplingParams> = samplingParams
+
+    @JsonProperty("tool_choice")
+    @ExcludeMissing
+    fun _toolChoice(): JsonField<ToolChoice> = toolChoice
 
     /**
      * `json` -- Refers to the json format for calling tools. The json format takes the form like {
@@ -123,9 +144,13 @@ private constructor(
      *
      * The detailed prompts for each of these formats are added to llama cli
      */
-    @JsonProperty("tool_prompt_format") @ExcludeMissing fun _toolPromptFormat() = toolPromptFormat
+    @JsonProperty("tool_prompt_format")
+    @ExcludeMissing
+    fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
 
-    @JsonProperty("tools") @ExcludeMissing fun _tools() = tools
+    @JsonProperty("toolgroups")
+    @ExcludeMissing
+    fun _toolgroups(): JsonField<List<Toolgroup>> = toolgroups
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -134,19 +159,22 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): AgentConfig = apply {
-        if (!validated) {
-            enableSessionPersistence()
-            inputShields()
-            instructions()
-            maxInferIters()
-            model()
-            outputShields()
-            samplingParams()?.validate()
-            toolChoice()
-            toolPromptFormat()
-            tools()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        enableSessionPersistence()
+        instructions()
+        maxInferIters()
+        model()
+        clientTools()?.forEach { it.validate() }
+        inputShields()
+        outputShields()
+        samplingParams()?.validate()
+        toolChoice()
+        toolPromptFormat()
+        toolgroups()?.forEach { it.validate() }
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -158,29 +186,31 @@ private constructor(
 
     class Builder {
 
-        private var enableSessionPersistence: JsonField<Boolean> = JsonMissing.of()
-        private var inputShields: JsonField<List<String>> = JsonMissing.of()
-        private var instructions: JsonField<String> = JsonMissing.of()
-        private var maxInferIters: JsonField<Long> = JsonMissing.of()
-        private var model: JsonField<String> = JsonMissing.of()
-        private var outputShields: JsonField<List<String>> = JsonMissing.of()
+        private var enableSessionPersistence: JsonField<Boolean>? = null
+        private var instructions: JsonField<String>? = null
+        private var maxInferIters: JsonField<Long>? = null
+        private var model: JsonField<String>? = null
+        private var clientTools: JsonField<MutableList<ToolDef>>? = null
+        private var inputShields: JsonField<MutableList<String>>? = null
+        private var outputShields: JsonField<MutableList<String>>? = null
         private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
         private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
         private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
-        private var tools: JsonField<List<Tool>> = JsonMissing.of()
+        private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentConfig: AgentConfig) = apply {
             enableSessionPersistence = agentConfig.enableSessionPersistence
-            inputShields = agentConfig.inputShields
             instructions = agentConfig.instructions
             maxInferIters = agentConfig.maxInferIters
             model = agentConfig.model
-            outputShields = agentConfig.outputShields
+            clientTools = agentConfig.clientTools.map { it.toMutableList() }
+            inputShields = agentConfig.inputShields.map { it.toMutableList() }
+            outputShields = agentConfig.outputShields.map { it.toMutableList() }
             samplingParams = agentConfig.samplingParams
             toolChoice = agentConfig.toolChoice
             toolPromptFormat = agentConfig.toolPromptFormat
-            tools = agentConfig.tools
+            toolgroups = agentConfig.toolgroups.map { it.toMutableList() }
             additionalProperties = agentConfig.additionalProperties.toMutableMap()
         }
 
@@ -189,12 +219,6 @@ private constructor(
 
         fun enableSessionPersistence(enableSessionPersistence: JsonField<Boolean>) = apply {
             this.enableSessionPersistence = enableSessionPersistence
-        }
-
-        fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
-
-        fun inputShields(inputShields: JsonField<List<String>>) = apply {
-            this.inputShields = inputShields
         }
 
         fun instructions(instructions: String) = instructions(JsonField.of(instructions))
@@ -213,10 +237,55 @@ private constructor(
 
         fun model(model: JsonField<String>) = apply { this.model = model }
 
+        fun clientTools(clientTools: List<ToolDef>) = clientTools(JsonField.of(clientTools))
+
+        fun clientTools(clientTools: JsonField<List<ToolDef>>) = apply {
+            this.clientTools = clientTools.map { it.toMutableList() }
+        }
+
+        fun addClientTool(clientTool: ToolDef) = apply {
+            clientTools =
+                (clientTools ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(clientTool)
+                }
+        }
+
+        fun inputShields(inputShields: List<String>) = inputShields(JsonField.of(inputShields))
+
+        fun inputShields(inputShields: JsonField<List<String>>) = apply {
+            this.inputShields = inputShields.map { it.toMutableList() }
+        }
+
+        fun addInputShield(inputShield: String) = apply {
+            inputShields =
+                (inputShields ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(inputShield)
+                }
+        }
+
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
-            this.outputShields = outputShields
+            this.outputShields = outputShields.map { it.toMutableList() }
+        }
+
+        fun addOutputShield(outputShield: String) = apply {
+            outputShields =
+                (outputShields ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(outputShield)
+                }
         }
 
         fun samplingParams(samplingParams: SamplingParams) =
@@ -259,9 +328,27 @@ private constructor(
             this.toolPromptFormat = toolPromptFormat
         }
 
-        fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
+        fun toolgroups(toolgroups: List<Toolgroup>) = toolgroups(JsonField.of(toolgroups))
 
-        fun tools(tools: JsonField<List<Tool>>) = apply { this.tools = tools }
+        fun toolgroups(toolgroups: JsonField<List<Toolgroup>>) = apply {
+            this.toolgroups = toolgroups.map { it.toMutableList() }
+        }
+
+        fun addToolgroup(toolgroup: Toolgroup) = apply {
+            toolgroups =
+                (toolgroups ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(toolgroup)
+                }
+        }
+
+        fun addToolgroup(string: String) = addToolgroup(Toolgroup.ofString(string))
+
+        fun addToolgroup(unionMember1: Toolgroup.UnionMember1) =
+            addToolgroup(Toolgroup.ofUnionMember1(unionMember1))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -284,16 +371,19 @@ private constructor(
 
         fun build(): AgentConfig =
             AgentConfig(
-                enableSessionPersistence,
-                inputShields.map { it.toImmutable() },
-                instructions,
-                maxInferIters,
-                model,
-                outputShields.map { it.toImmutable() },
+                checkNotNull(enableSessionPersistence) {
+                    "`enableSessionPersistence` is required but was not set"
+                },
+                checkNotNull(instructions) { "`instructions` is required but was not set" },
+                checkNotNull(maxInferIters) { "`maxInferIters` is required but was not set" },
+                checkNotNull(model) { "`model` is required but was not set" },
+                (clientTools ?: JsonMissing.of()).map { it.toImmutable() },
+                (inputShields ?: JsonMissing.of()).map { it.toImmutable() },
+                (outputShields ?: JsonMissing.of()).map { it.toImmutable() },
                 samplingParams,
                 toolChoice,
                 toolPromptFormat,
-                tools.map { it.toImmutable() },
+                (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -419,104 +509,54 @@ private constructor(
         override fun toString() = value.toString()
     }
 
-    @JsonDeserialize(using = Tool.Deserializer::class)
-    @JsonSerialize(using = Tool.Serializer::class)
-    class Tool
+    @JsonDeserialize(using = Toolgroup.Deserializer::class)
+    @JsonSerialize(using = Toolgroup.Serializer::class)
+    class Toolgroup
     private constructor(
-        private val searchToolDefinition: SearchToolDefinition? = null,
-        private val wolframAlphaToolDefinition: WolframAlphaToolDefinition? = null,
-        private val photogenToolDefinition: PhotogenToolDefinition? = null,
-        private val codeInterpreterToolDefinition: CodeInterpreterToolDefinition? = null,
-        private val functionCallToolDefinition: FunctionCallToolDefinition? = null,
-        private val memoryToolDefinition: MemoryToolDefinition? = null,
+        private val string: String? = null,
+        private val unionMember1: UnionMember1? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        private var validated: Boolean = false
+        fun string(): String? = string
 
-        fun searchToolDefinition(): SearchToolDefinition? = searchToolDefinition
+        fun unionMember1(): UnionMember1? = unionMember1
 
-        fun wolframAlphaToolDefinition(): WolframAlphaToolDefinition? = wolframAlphaToolDefinition
+        fun isString(): Boolean = string != null
 
-        fun photogenToolDefinition(): PhotogenToolDefinition? = photogenToolDefinition
+        fun isUnionMember1(): Boolean = unionMember1 != null
 
-        fun codeInterpreterToolDefinition(): CodeInterpreterToolDefinition? =
-            codeInterpreterToolDefinition
+        fun asString(): String = string.getOrThrow("string")
 
-        fun functionCallToolDefinition(): FunctionCallToolDefinition? = functionCallToolDefinition
-
-        fun memoryToolDefinition(): MemoryToolDefinition? = memoryToolDefinition
-
-        fun isSearchToolDefinition(): Boolean = searchToolDefinition != null
-
-        fun isWolframAlphaToolDefinition(): Boolean = wolframAlphaToolDefinition != null
-
-        fun isPhotogenToolDefinition(): Boolean = photogenToolDefinition != null
-
-        fun isCodeInterpreterToolDefinition(): Boolean = codeInterpreterToolDefinition != null
-
-        fun isFunctionCallToolDefinition(): Boolean = functionCallToolDefinition != null
-
-        fun isMemoryToolDefinition(): Boolean = memoryToolDefinition != null
-
-        fun asSearchToolDefinition(): SearchToolDefinition =
-            searchToolDefinition.getOrThrow("searchToolDefinition")
-
-        fun asWolframAlphaToolDefinition(): WolframAlphaToolDefinition =
-            wolframAlphaToolDefinition.getOrThrow("wolframAlphaToolDefinition")
-
-        fun asPhotogenToolDefinition(): PhotogenToolDefinition =
-            photogenToolDefinition.getOrThrow("photogenToolDefinition")
-
-        fun asCodeInterpreterToolDefinition(): CodeInterpreterToolDefinition =
-            codeInterpreterToolDefinition.getOrThrow("codeInterpreterToolDefinition")
-
-        fun asFunctionCallToolDefinition(): FunctionCallToolDefinition =
-            functionCallToolDefinition.getOrThrow("functionCallToolDefinition")
-
-        fun asMemoryToolDefinition(): MemoryToolDefinition =
-            memoryToolDefinition.getOrThrow("memoryToolDefinition")
+        fun asUnionMember1(): UnionMember1 = unionMember1.getOrThrow("unionMember1")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                searchToolDefinition != null ->
-                    visitor.visitSearchToolDefinition(searchToolDefinition)
-                wolframAlphaToolDefinition != null ->
-                    visitor.visitWolframAlphaToolDefinition(wolframAlphaToolDefinition)
-                photogenToolDefinition != null ->
-                    visitor.visitPhotogenToolDefinition(photogenToolDefinition)
-                codeInterpreterToolDefinition != null ->
-                    visitor.visitCodeInterpreterToolDefinition(codeInterpreterToolDefinition)
-                functionCallToolDefinition != null ->
-                    visitor.visitFunctionCallToolDefinition(functionCallToolDefinition)
-                memoryToolDefinition != null ->
-                    visitor.visitMemoryToolDefinition(memoryToolDefinition)
+                string != null -> visitor.visitString(string)
+                unionMember1 != null -> visitor.visitUnionMember1(unionMember1)
                 else -> visitor.unknown(_json)
             }
         }
 
-        fun validate(): Tool = apply {
-            if (!validated) {
-                if (
-                    searchToolDefinition == null &&
-                        wolframAlphaToolDefinition == null &&
-                        photogenToolDefinition == null &&
-                        codeInterpreterToolDefinition == null &&
-                        functionCallToolDefinition == null &&
-                        memoryToolDefinition == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Tool: $_json")
-                }
-                searchToolDefinition?.validate()
-                wolframAlphaToolDefinition?.validate()
-                photogenToolDefinition?.validate()
-                codeInterpreterToolDefinition?.validate()
-                functionCallToolDefinition?.validate()
-                memoryToolDefinition?.validate()
-                validated = true
+        private var validated: Boolean = false
+
+        fun validate(): Toolgroup = apply {
+            if (validated) {
+                return@apply
             }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitString(string: String) {}
+
+                    override fun visitUnionMember1(unionMember1: UnionMember1) {
+                        unionMember1.validate()
+                    }
+                }
+            )
+            validated = true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -524,136 +564,260 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Tool && searchToolDefinition == other.searchToolDefinition && wolframAlphaToolDefinition == other.wolframAlphaToolDefinition && photogenToolDefinition == other.photogenToolDefinition && codeInterpreterToolDefinition == other.codeInterpreterToolDefinition && functionCallToolDefinition == other.functionCallToolDefinition && memoryToolDefinition == other.memoryToolDefinition /* spotless:on */
+            return /* spotless:off */ other is Toolgroup && string == other.string && unionMember1 == other.unionMember1 /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(searchToolDefinition, wolframAlphaToolDefinition, photogenToolDefinition, codeInterpreterToolDefinition, functionCallToolDefinition, memoryToolDefinition) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, unionMember1) /* spotless:on */
 
         override fun toString(): String =
             when {
-                searchToolDefinition != null -> "Tool{searchToolDefinition=$searchToolDefinition}"
-                wolframAlphaToolDefinition != null ->
-                    "Tool{wolframAlphaToolDefinition=$wolframAlphaToolDefinition}"
-                photogenToolDefinition != null ->
-                    "Tool{photogenToolDefinition=$photogenToolDefinition}"
-                codeInterpreterToolDefinition != null ->
-                    "Tool{codeInterpreterToolDefinition=$codeInterpreterToolDefinition}"
-                functionCallToolDefinition != null ->
-                    "Tool{functionCallToolDefinition=$functionCallToolDefinition}"
-                memoryToolDefinition != null -> "Tool{memoryToolDefinition=$memoryToolDefinition}"
-                _json != null -> "Tool{_unknown=$_json}"
-                else -> throw IllegalStateException("Invalid Tool")
+                string != null -> "Toolgroup{string=$string}"
+                unionMember1 != null -> "Toolgroup{unionMember1=$unionMember1}"
+                _json != null -> "Toolgroup{_unknown=$_json}"
+                else -> throw IllegalStateException("Invalid Toolgroup")
             }
 
         companion object {
 
-            fun ofSearchToolDefinition(searchToolDefinition: SearchToolDefinition) =
-                Tool(searchToolDefinition = searchToolDefinition)
+            fun ofString(string: String) = Toolgroup(string = string)
 
-            fun ofWolframAlphaToolDefinition(
-                wolframAlphaToolDefinition: WolframAlphaToolDefinition
-            ) = Tool(wolframAlphaToolDefinition = wolframAlphaToolDefinition)
-
-            fun ofPhotogenToolDefinition(photogenToolDefinition: PhotogenToolDefinition) =
-                Tool(photogenToolDefinition = photogenToolDefinition)
-
-            fun ofCodeInterpreterToolDefinition(
-                codeInterpreterToolDefinition: CodeInterpreterToolDefinition
-            ) = Tool(codeInterpreterToolDefinition = codeInterpreterToolDefinition)
-
-            fun ofFunctionCallToolDefinition(
-                functionCallToolDefinition: FunctionCallToolDefinition
-            ) = Tool(functionCallToolDefinition = functionCallToolDefinition)
-
-            fun ofMemoryToolDefinition(memoryToolDefinition: MemoryToolDefinition) =
-                Tool(memoryToolDefinition = memoryToolDefinition)
+            fun ofUnionMember1(unionMember1: UnionMember1) = Toolgroup(unionMember1 = unionMember1)
         }
 
         interface Visitor<out T> {
 
-            fun visitSearchToolDefinition(searchToolDefinition: SearchToolDefinition): T
+            fun visitString(string: String): T
 
-            fun visitWolframAlphaToolDefinition(
-                wolframAlphaToolDefinition: WolframAlphaToolDefinition
-            ): T
-
-            fun visitPhotogenToolDefinition(photogenToolDefinition: PhotogenToolDefinition): T
-
-            fun visitCodeInterpreterToolDefinition(
-                codeInterpreterToolDefinition: CodeInterpreterToolDefinition
-            ): T
-
-            fun visitFunctionCallToolDefinition(
-                functionCallToolDefinition: FunctionCallToolDefinition
-            ): T
-
-            fun visitMemoryToolDefinition(memoryToolDefinition: MemoryToolDefinition): T
+            fun visitUnionMember1(unionMember1: UnionMember1): T
 
             fun unknown(json: JsonValue?): T {
-                throw LlamaStackClientInvalidDataException("Unknown Tool: $json")
+                throw LlamaStackClientInvalidDataException("Unknown Toolgroup: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Tool>(Tool::class) {
+        class Deserializer : BaseDeserializer<Toolgroup>(Toolgroup::class) {
 
-            override fun ObjectCodec.deserialize(node: JsonNode): Tool {
+            override fun ObjectCodec.deserialize(node: JsonNode): Toolgroup {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<SearchToolDefinition>()) { it.validate() }
+                tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                    return Toolgroup(string = it, _json = json)
+                }
+                tryDeserialize(node, jacksonTypeRef<UnionMember1>()) { it.validate() }
                     ?.let {
-                        return Tool(searchToolDefinition = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<WolframAlphaToolDefinition>()) { it.validate() }
-                    ?.let {
-                        return Tool(wolframAlphaToolDefinition = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<PhotogenToolDefinition>()) { it.validate() }
-                    ?.let {
-                        return Tool(photogenToolDefinition = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<CodeInterpreterToolDefinition>()) {
-                        it.validate()
-                    }
-                    ?.let {
-                        return Tool(codeInterpreterToolDefinition = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<FunctionCallToolDefinition>()) { it.validate() }
-                    ?.let {
-                        return Tool(functionCallToolDefinition = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<MemoryToolDefinition>()) { it.validate() }
-                    ?.let {
-                        return Tool(memoryToolDefinition = it, _json = json)
+                        return Toolgroup(unionMember1 = it, _json = json)
                     }
 
-                return Tool(_json = json)
+                return Toolgroup(_json = json)
             }
         }
 
-        class Serializer : BaseSerializer<Tool>(Tool::class) {
+        class Serializer : BaseSerializer<Toolgroup>(Toolgroup::class) {
 
             override fun serialize(
-                value: Tool,
+                value: Toolgroup,
                 generator: JsonGenerator,
                 provider: SerializerProvider
             ) {
                 when {
-                    value.searchToolDefinition != null ->
-                        generator.writeObject(value.searchToolDefinition)
-                    value.wolframAlphaToolDefinition != null ->
-                        generator.writeObject(value.wolframAlphaToolDefinition)
-                    value.photogenToolDefinition != null ->
-                        generator.writeObject(value.photogenToolDefinition)
-                    value.codeInterpreterToolDefinition != null ->
-                        generator.writeObject(value.codeInterpreterToolDefinition)
-                    value.functionCallToolDefinition != null ->
-                        generator.writeObject(value.functionCallToolDefinition)
-                    value.memoryToolDefinition != null ->
-                        generator.writeObject(value.memoryToolDefinition)
+                    value.string != null -> generator.writeObject(value.string)
+                    value.unionMember1 != null -> generator.writeObject(value.unionMember1)
                     value._json != null -> generator.writeObject(value._json)
-                    else -> throw IllegalStateException("Invalid Tool")
+                    else -> throw IllegalStateException("Invalid Toolgroup")
                 }
             }
+        }
+
+        @NoAutoDetect
+        class UnionMember1
+        @JsonCreator
+        private constructor(
+            @JsonProperty("args")
+            @ExcludeMissing
+            private val args: JsonField<Args> = JsonMissing.of(),
+            @JsonProperty("name")
+            @ExcludeMissing
+            private val name: JsonField<String> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            fun args(): Args = args.getRequired("args")
+
+            fun name(): String = name.getRequired("name")
+
+            @JsonProperty("args") @ExcludeMissing fun _args(): JsonField<Args> = args
+
+            @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): UnionMember1 = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                args().validate()
+                name()
+                validated = true
+            }
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var args: JsonField<Args>? = null
+                private var name: JsonField<String>? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(unionMember1: UnionMember1) = apply {
+                    args = unionMember1.args
+                    name = unionMember1.name
+                    additionalProperties = unionMember1.additionalProperties.toMutableMap()
+                }
+
+                fun args(args: Args) = args(JsonField.of(args))
+
+                fun args(args: JsonField<Args>) = apply { this.args = args }
+
+                fun name(name: String) = name(JsonField.of(name))
+
+                fun name(name: JsonField<String>) = apply { this.name = name }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): UnionMember1 =
+                    UnionMember1(
+                        checkNotNull(args) { "`args` is required but was not set" },
+                        checkNotNull(name) { "`name` is required but was not set" },
+                        additionalProperties.toImmutable(),
+                    )
+            }
+
+            @NoAutoDetect
+            class Args
+            @JsonCreator
+            private constructor(
+                @JsonAnySetter
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            ) {
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): Args = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    fun builder() = Builder()
+                }
+
+                class Builder {
+
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(args: Args) = apply {
+                        additionalProperties = args.additionalProperties.toMutableMap()
+                    }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    fun build(): Args = Args(additionalProperties.toImmutable())
+                }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Args && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() = "Args{additionalProperties=$additionalProperties}"
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is UnionMember1 && args == other.args && name == other.name && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(args, name, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "UnionMember1{args=$args, name=$name, additionalProperties=$additionalProperties}"
         }
     }
 
@@ -662,15 +826,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentConfig && enableSessionPersistence == other.enableSessionPersistence && inputShields == other.inputShields && instructions == other.instructions && maxInferIters == other.maxInferIters && model == other.model && outputShields == other.outputShields && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentConfig && enableSessionPersistence == other.enableSessionPersistence && instructions == other.instructions && maxInferIters == other.maxInferIters && model == other.model && clientTools == other.clientTools && inputShields == other.inputShields && outputShields == other.outputShields && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(enableSessionPersistence, inputShields, instructions, maxInferIters, model, outputShields, samplingParams, toolChoice, toolPromptFormat, tools, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(enableSessionPersistence, instructions, maxInferIters, model, clientTools, inputShields, outputShields, samplingParams, toolChoice, toolPromptFormat, toolgroups, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "AgentConfig{enableSessionPersistence=$enableSessionPersistence, inputShields=$inputShields, instructions=$instructions, maxInferIters=$maxInferIters, model=$model, outputShields=$outputShields, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
+        "AgentConfig{enableSessionPersistence=$enableSessionPersistence, instructions=$instructions, maxInferIters=$maxInferIters, model=$model, clientTools=$clientTools, inputShields=$inputShields, outputShields=$outputShields, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
 }

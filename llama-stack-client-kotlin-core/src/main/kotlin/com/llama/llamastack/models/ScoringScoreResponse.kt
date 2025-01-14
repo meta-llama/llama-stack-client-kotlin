@@ -27,7 +27,7 @@ private constructor(
 
     fun results(): Results = results.getRequired("results")
 
-    @JsonProperty("results") @ExcludeMissing fun _results() = results
+    @JsonProperty("results") @ExcludeMissing fun _results(): JsonField<Results> = results
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +36,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ScoringScoreResponse = apply {
-        if (!validated) {
-            results().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        results().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +53,7 @@ private constructor(
 
     class Builder {
 
-        private var results: JsonField<Results> = JsonMissing.of()
+        private var results: JsonField<Results>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringScoreResponse: ScoringScoreResponse) = apply {
@@ -83,7 +85,10 @@ private constructor(
         }
 
         fun build(): ScoringScoreResponse =
-            ScoringScoreResponse(results, additionalProperties.toImmutable())
+            ScoringScoreResponse(
+                checkNotNull(results) { "`results` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     @NoAutoDetect
@@ -101,9 +106,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Results = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

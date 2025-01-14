@@ -17,10 +17,10 @@ class AgentStepRetrieveResponseTest {
                     AgentStepRetrieveResponse.Step.ofInferenceStep(
                         InferenceStep.builder()
                             .modelResponse(
-                                CompletionMessage.builder()
+                                InferenceStep.ModelResponse.builder()
                                     .content(InterleavedContent.ofString("string"))
-                                    .role(CompletionMessage.Role.ASSISTANT)
-                                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                    .role(InferenceStep.ModelResponse.Role.ASSISTANT)
+                                    .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
                                     .toolCalls(
                                         listOf(
                                             ToolCall.builder()
@@ -54,10 +54,10 @@ class AgentStepRetrieveResponseTest {
                 AgentStepRetrieveResponse.Step.ofInferenceStep(
                     InferenceStep.builder()
                         .modelResponse(
-                            CompletionMessage.builder()
+                            InferenceStep.ModelResponse.builder()
                                 .content(InterleavedContent.ofString("string"))
-                                .role(CompletionMessage.Role.ASSISTANT)
-                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                .role(InferenceStep.ModelResponse.Role.ASSISTANT)
+                                .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
                                 .toolCalls(
                                     listOf(
                                         ToolCall.builder()

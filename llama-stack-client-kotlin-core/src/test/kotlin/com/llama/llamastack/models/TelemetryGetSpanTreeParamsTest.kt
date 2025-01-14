@@ -14,7 +14,8 @@ class TelemetryGetSpanTreeParamsTest {
             .spanId("span_id")
             .maxDepth(0L)
             .attributesToReturn(listOf("string"))
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -25,7 +26,8 @@ class TelemetryGetSpanTreeParamsTest {
                 .spanId("span_id")
                 .maxDepth(0L)
                 .attributesToReturn(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("span_id", "span_id")
@@ -48,7 +50,8 @@ class TelemetryGetSpanTreeParamsTest {
                 .spanId("span_id")
                 .maxDepth(0L)
                 .attributesToReturn(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

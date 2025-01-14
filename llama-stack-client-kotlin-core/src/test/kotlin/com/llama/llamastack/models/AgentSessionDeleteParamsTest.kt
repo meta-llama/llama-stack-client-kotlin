@@ -12,7 +12,8 @@ class AgentSessionDeleteParamsTest {
         AgentSessionDeleteParams.builder()
             .agentId("agent_id")
             .sessionId("session_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -22,7 +23,8 @@ class AgentSessionDeleteParamsTest {
             AgentSessionDeleteParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class ScoringScoreBatchParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: ScoringScoreBatchBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -31,18 +36,27 @@ constructor(
 
     fun scoringFunctions(): ScoringFunctions = body.scoringFunctions()
 
+    fun _datasetId(): JsonField<String> = body._datasetId()
+
+    fun _saveResultsDataset(): JsonField<Boolean> = body._saveResultsDataset()
+
+    fun _scoringFunctions(): JsonField<ScoringFunctions> = body._scoringFunctions()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): ScoringScoreBatchBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -54,23 +68,51 @@ constructor(
     class ScoringScoreBatchBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("dataset_id") private val datasetId: String,
-        @JsonProperty("save_results_dataset") private val saveResultsDataset: Boolean,
-        @JsonProperty("scoring_functions") private val scoringFunctions: ScoringFunctions,
+        @JsonProperty("dataset_id")
+        @ExcludeMissing
+        private val datasetId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("save_results_dataset")
+        @ExcludeMissing
+        private val saveResultsDataset: JsonField<Boolean> = JsonMissing.of(),
+        @JsonProperty("scoring_functions")
+        @ExcludeMissing
+        private val scoringFunctions: JsonField<ScoringFunctions> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("dataset_id") fun datasetId(): String = datasetId
+        fun datasetId(): String = datasetId.getRequired("dataset_id")
 
-        @JsonProperty("save_results_dataset") fun saveResultsDataset(): Boolean = saveResultsDataset
+        fun saveResultsDataset(): Boolean = saveResultsDataset.getRequired("save_results_dataset")
+
+        fun scoringFunctions(): ScoringFunctions = scoringFunctions.getRequired("scoring_functions")
+
+        @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
+
+        @JsonProperty("save_results_dataset")
+        @ExcludeMissing
+        fun _saveResultsDataset(): JsonField<Boolean> = saveResultsDataset
 
         @JsonProperty("scoring_functions")
-        fun scoringFunctions(): ScoringFunctions = scoringFunctions
+        @ExcludeMissing
+        fun _scoringFunctions(): JsonField<ScoringFunctions> = scoringFunctions
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ScoringScoreBatchBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            datasetId()
+            saveResultsDataset()
+            scoringFunctions().validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -81,9 +123,9 @@ constructor(
 
         class Builder {
 
-            private var datasetId: String? = null
-            private var saveResultsDataset: Boolean? = null
-            private var scoringFunctions: ScoringFunctions? = null
+            private var datasetId: JsonField<String>? = null
+            private var saveResultsDataset: JsonField<Boolean>? = null
+            private var scoringFunctions: JsonField<ScoringFunctions>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(scoringScoreBatchBody: ScoringScoreBatchBody) = apply {
@@ -93,13 +135,21 @@ constructor(
                 additionalProperties = scoringScoreBatchBody.additionalProperties.toMutableMap()
             }
 
-            fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+            fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
-            fun saveResultsDataset(saveResultsDataset: Boolean) = apply {
+            fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
+
+            fun saveResultsDataset(saveResultsDataset: Boolean) =
+                saveResultsDataset(JsonField.of(saveResultsDataset))
+
+            fun saveResultsDataset(saveResultsDataset: JsonField<Boolean>) = apply {
                 this.saveResultsDataset = saveResultsDataset
             }
 
-            fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
+            fun scoringFunctions(scoringFunctions: ScoringFunctions) =
+                scoringFunctions(JsonField.of(scoringFunctions))
+
+            fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
                 this.scoringFunctions = scoringFunctions
             }
 
@@ -163,30 +213,65 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: ScoringScoreBatchBody.Builder = ScoringScoreBatchBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(scoringScoreBatchParams: ScoringScoreBatchParams) = apply {
+            xLlamaStackClientVersion = scoringScoreBatchParams.xLlamaStackClientVersion
             xLlamaStackProviderData = scoringScoreBatchParams.xLlamaStackProviderData
             body = scoringScoreBatchParams.body.toBuilder()
             additionalHeaders = scoringScoreBatchParams.additionalHeaders.toBuilder()
             additionalQueryParams = scoringScoreBatchParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
+
         fun saveResultsDataset(saveResultsDataset: Boolean) = apply {
+            body.saveResultsDataset(saveResultsDataset)
+        }
+
+        fun saveResultsDataset(saveResultsDataset: JsonField<Boolean>) = apply {
             body.saveResultsDataset(saveResultsDataset)
         }
 
         fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
             body.scoringFunctions(scoringFunctions)
+        }
+
+        fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
+            body.scoringFunctions(scoringFunctions)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -287,27 +372,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): ScoringScoreBatchParams =
             ScoringScoreBatchParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -326,6 +393,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ScoringFunctions = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -386,11 +463,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringScoreBatchParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ScoringScoreBatchParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ScoringScoreBatchParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ScoringScoreBatchParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

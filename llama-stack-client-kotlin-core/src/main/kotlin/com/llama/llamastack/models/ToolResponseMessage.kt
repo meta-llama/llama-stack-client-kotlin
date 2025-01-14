@@ -42,13 +42,13 @@ private constructor(
 
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
-    @JsonProperty("call_id") @ExcludeMissing fun _callId() = callId
+    @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
-    @JsonProperty("content") @ExcludeMissing fun _content() = content
+    @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
-    @JsonProperty("role") @ExcludeMissing fun _role() = role
+    @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
 
-    @JsonProperty("tool_name") @ExcludeMissing fun _toolName() = toolName
+    @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -57,13 +57,15 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ToolResponseMessage = apply {
-        if (!validated) {
-            callId()
-            content()
-            role()
-            toolName()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        callId()
+        content().validate()
+        role()
+        toolName()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -75,10 +77,10 @@ private constructor(
 
     class Builder {
 
-        private var callId: JsonField<String> = JsonMissing.of()
-        private var content: JsonField<InterleavedContent> = JsonMissing.of()
-        private var role: JsonField<Role> = JsonMissing.of()
-        private var toolName: JsonField<ToolName> = JsonMissing.of()
+        private var callId: JsonField<String>? = null
+        private var content: JsonField<InterleavedContent>? = null
+        private var role: JsonField<Role>? = null
+        private var toolName: JsonField<ToolName>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolResponseMessage: ToolResponseMessage) = apply {
@@ -97,6 +99,18 @@ private constructor(
 
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+        fun content(string: String) = content(InterleavedContent.ofString(string))
+
+        fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+            content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun content(textContentItem: InterleavedContent.TextContentItem) =
+            content(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun contentOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
         fun role(role: Role) = role(JsonField.of(role))
 
         fun role(role: JsonField<Role>) = apply { this.role = role }
@@ -104,6 +118,8 @@ private constructor(
         fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
         fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
+
+        fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -126,10 +142,10 @@ private constructor(
 
         fun build(): ToolResponseMessage =
             ToolResponseMessage(
-                callId,
-                content,
-                role,
-                toolName,
+                checkNotNull(callId) { "`callId` is required but was not set" },
+                checkNotNull(content) { "`content` is required but was not set" },
+                checkNotNull(role) { "`role` is required but was not set" },
+                checkNotNull(toolName) { "`toolName` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }

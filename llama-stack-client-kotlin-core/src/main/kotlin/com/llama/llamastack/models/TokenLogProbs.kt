@@ -27,7 +27,9 @@ private constructor(
 
     fun logprobsByToken(): LogprobsByToken = logprobsByToken.getRequired("logprobs_by_token")
 
-    @JsonProperty("logprobs_by_token") @ExcludeMissing fun _logprobsByToken() = logprobsByToken
+    @JsonProperty("logprobs_by_token")
+    @ExcludeMissing
+    fun _logprobsByToken(): JsonField<LogprobsByToken> = logprobsByToken
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +38,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): TokenLogProbs = apply {
-        if (!validated) {
-            logprobsByToken().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        logprobsByToken().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +55,7 @@ private constructor(
 
     class Builder {
 
-        private var logprobsByToken: JsonField<LogprobsByToken> = JsonMissing.of()
+        private var logprobsByToken: JsonField<LogprobsByToken>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(tokenLogProbs: TokenLogProbs) = apply {
@@ -86,7 +90,10 @@ private constructor(
         }
 
         fun build(): TokenLogProbs =
-            TokenLogProbs(logprobsByToken, additionalProperties.toImmutable())
+            TokenLogProbs(
+                checkNotNull(logprobsByToken) { "`logprobsByToken` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     @NoAutoDetect
@@ -104,9 +111,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): LogprobsByToken = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

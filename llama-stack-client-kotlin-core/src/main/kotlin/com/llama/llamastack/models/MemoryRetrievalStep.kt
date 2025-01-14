@@ -22,18 +22,12 @@ import java.util.Objects
 class MemoryRetrievalStep
 @JsonCreator
 private constructor(
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("inserted_context")
     @ExcludeMissing
     private val insertedContext: JsonField<InterleavedContent> = JsonMissing.of(),
     @JsonProperty("memory_bank_ids")
     @ExcludeMissing
     private val memoryBankIds: JsonField<List<String>> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonProperty("step_id")
     @ExcludeMissing
     private val stepId: JsonField<String> = JsonMissing.of(),
@@ -43,16 +37,18 @@ private constructor(
     @JsonProperty("turn_id")
     @ExcludeMissing
     private val turnId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
     fun insertedContext(): InterleavedContent = insertedContext.getRequired("inserted_context")
 
     fun memoryBankIds(): List<String> = memoryBankIds.getRequired("memory_bank_ids")
-
-    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
     fun stepId(): String = stepId.getRequired("step_id")
 
@@ -60,19 +56,31 @@ private constructor(
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
-    @JsonProperty("completed_at") @ExcludeMissing fun _completedAt() = completedAt
+    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
-    @JsonProperty("inserted_context") @ExcludeMissing fun _insertedContext() = insertedContext
+    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
-    @JsonProperty("memory_bank_ids") @ExcludeMissing fun _memoryBankIds() = memoryBankIds
+    @JsonProperty("inserted_context")
+    @ExcludeMissing
+    fun _insertedContext(): JsonField<InterleavedContent> = insertedContext
 
-    @JsonProperty("started_at") @ExcludeMissing fun _startedAt() = startedAt
+    @JsonProperty("memory_bank_ids")
+    @ExcludeMissing
+    fun _memoryBankIds(): JsonField<List<String>> = memoryBankIds
 
-    @JsonProperty("step_id") @ExcludeMissing fun _stepId() = stepId
+    @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
-    @JsonProperty("turn_id") @ExcludeMissing fun _turnId() = turnId
+    @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
+
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    fun _completedAt(): JsonField<OffsetDateTime> = completedAt
+
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -81,16 +89,18 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): MemoryRetrievalStep = apply {
-        if (!validated) {
-            completedAt()
-            insertedContext()
-            memoryBankIds()
-            startedAt()
-            stepId()
-            stepType()
-            turnId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        insertedContext().validate()
+        memoryBankIds()
+        stepId()
+        stepType()
+        turnId()
+        completedAt()
+        startedAt()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -102,30 +112,24 @@ private constructor(
 
     class Builder {
 
+        private var insertedContext: JsonField<InterleavedContent>? = null
+        private var memoryBankIds: JsonField<MutableList<String>>? = null
+        private var stepId: JsonField<String>? = null
+        private var stepType: JsonField<StepType>? = null
+        private var turnId: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var insertedContext: JsonField<InterleavedContent> = JsonMissing.of()
-        private var memoryBankIds: JsonField<List<String>> = JsonMissing.of()
         private var startedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var stepId: JsonField<String> = JsonMissing.of()
-        private var stepType: JsonField<StepType> = JsonMissing.of()
-        private var turnId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(memoryRetrievalStep: MemoryRetrievalStep) = apply {
-            completedAt = memoryRetrievalStep.completedAt
             insertedContext = memoryRetrievalStep.insertedContext
-            memoryBankIds = memoryRetrievalStep.memoryBankIds
-            startedAt = memoryRetrievalStep.startedAt
+            memoryBankIds = memoryRetrievalStep.memoryBankIds.map { it.toMutableList() }
             stepId = memoryRetrievalStep.stepId
             stepType = memoryRetrievalStep.stepType
             turnId = memoryRetrievalStep.turnId
+            completedAt = memoryRetrievalStep.completedAt
+            startedAt = memoryRetrievalStep.startedAt
             additionalProperties = memoryRetrievalStep.additionalProperties.toMutableMap()
-        }
-
-        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
-
-        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
-            this.completedAt = completedAt
         }
 
         fun insertedContext(insertedContext: InterleavedContent) =
@@ -135,15 +139,34 @@ private constructor(
             this.insertedContext = insertedContext
         }
 
+        fun insertedContext(string: String) = insertedContext(InterleavedContent.ofString(string))
+
+        fun insertedContext(imageContentItem: InterleavedContent.ImageContentItem) =
+            insertedContext(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun insertedContext(textContentItem: InterleavedContent.TextContentItem) =
+            insertedContext(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun insertedContextOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = insertedContext(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
         fun memoryBankIds(memoryBankIds: List<String>) = memoryBankIds(JsonField.of(memoryBankIds))
 
         fun memoryBankIds(memoryBankIds: JsonField<List<String>>) = apply {
-            this.memoryBankIds = memoryBankIds
+            this.memoryBankIds = memoryBankIds.map { it.toMutableList() }
         }
 
-        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
-
-        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
+        fun addMemoryBankId(memoryBankId: String) = apply {
+            memoryBankIds =
+                (memoryBankIds ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(memoryBankId)
+                }
+        }
 
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
@@ -156,6 +179,16 @@ private constructor(
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
+
+        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
+
+        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
+            this.completedAt = completedAt
+        }
+
+        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
+
+        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -178,13 +211,14 @@ private constructor(
 
         fun build(): MemoryRetrievalStep =
             MemoryRetrievalStep(
+                checkNotNull(insertedContext) { "`insertedContext` is required but was not set" },
+                checkNotNull(memoryBankIds) { "`memoryBankIds` is required but was not set" }
+                    .map { it.toImmutable() },
+                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                checkNotNull(turnId) { "`turnId` is required but was not set" },
                 completedAt,
-                insertedContext,
-                memoryBankIds.map { it.toImmutable() },
                 startedAt,
-                stepId,
-                stepType,
-                turnId,
                 additionalProperties.toImmutable(),
             )
     }
@@ -245,15 +279,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryRetrievalStep && completedAt == other.completedAt && insertedContext == other.insertedContext && memoryBankIds == other.memoryBankIds && startedAt == other.startedAt && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is MemoryRetrievalStep && insertedContext == other.insertedContext && memoryBankIds == other.memoryBankIds && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && completedAt == other.completedAt && startedAt == other.startedAt && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(completedAt, insertedContext, memoryBankIds, startedAt, stepId, stepType, turnId, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(insertedContext, memoryBankIds, stepId, stepType, turnId, completedAt, startedAt, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "MemoryRetrievalStep{completedAt=$completedAt, insertedContext=$insertedContext, memoryBankIds=$memoryBankIds, startedAt=$startedAt, stepId=$stepId, stepType=$stepType, turnId=$turnId, additionalProperties=$additionalProperties}"
+        "MemoryRetrievalStep{insertedContext=$insertedContext, memoryBankIds=$memoryBankIds, stepId=$stepId, stepType=$stepType, turnId=$turnId, completedAt=$completedAt, startedAt=$startedAt, additionalProperties=$additionalProperties}"
 }

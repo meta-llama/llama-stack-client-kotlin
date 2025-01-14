@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class BatchInferenceCompletionParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: BatchInferenceCompletionBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -33,18 +38,29 @@ constructor(
 
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
+    fun _contentBatch(): JsonField<List<InterleavedContent>> = body._contentBatch()
+
+    fun _model(): JsonField<String> = body._model()
+
+    fun _logprobs(): JsonField<Logprobs> = body._logprobs()
+
+    fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): BatchInferenceCompletionBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -56,25 +72,59 @@ constructor(
     class BatchInferenceCompletionBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("content_batch") private val contentBatch: List<InterleavedContent>,
-        @JsonProperty("model") private val model: String,
-        @JsonProperty("logprobs") private val logprobs: Logprobs?,
-        @JsonProperty("sampling_params") private val samplingParams: SamplingParams?,
+        @JsonProperty("content_batch")
+        @ExcludeMissing
+        private val contentBatch: JsonField<List<InterleavedContent>> = JsonMissing.of(),
+        @JsonProperty("model")
+        @ExcludeMissing
+        private val model: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("logprobs")
+        @ExcludeMissing
+        private val logprobs: JsonField<Logprobs> = JsonMissing.of(),
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("content_batch") fun contentBatch(): List<InterleavedContent> = contentBatch
+        fun contentBatch(): List<InterleavedContent> = contentBatch.getRequired("content_batch")
 
-        @JsonProperty("model") fun model(): String = model
+        fun model(): String = model.getRequired("model")
 
-        @JsonProperty("logprobs") fun logprobs(): Logprobs? = logprobs
+        fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
-        @JsonProperty("sampling_params") fun samplingParams(): SamplingParams? = samplingParams
+        fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
+
+        @JsonProperty("content_batch")
+        @ExcludeMissing
+        fun _contentBatch(): JsonField<List<InterleavedContent>> = contentBatch
+
+        @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
+
+        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
+
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): BatchInferenceCompletionBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            contentBatch().forEach { it.validate() }
+            model()
+            logprobs()?.validate()
+            samplingParams()?.validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -85,14 +135,14 @@ constructor(
 
         class Builder {
 
-            private var contentBatch: MutableList<InterleavedContent>? = null
-            private var model: String? = null
-            private var logprobs: Logprobs? = null
-            private var samplingParams: SamplingParams? = null
+            private var contentBatch: JsonField<MutableList<InterleavedContent>>? = null
+            private var model: JsonField<String>? = null
+            private var logprobs: JsonField<Logprobs> = JsonMissing.of()
+            private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(batchInferenceCompletionBody: BatchInferenceCompletionBody) = apply {
-                contentBatch = batchInferenceCompletionBody.contentBatch.toMutableList()
+                contentBatch = batchInferenceCompletionBody.contentBatch.map { it.toMutableList() }
                 model = batchInferenceCompletionBody.model
                 logprobs = batchInferenceCompletionBody.logprobs
                 samplingParams = batchInferenceCompletionBody.samplingParams
@@ -100,20 +150,52 @@ constructor(
                     batchInferenceCompletionBody.additionalProperties.toMutableMap()
             }
 
-            fun contentBatch(contentBatch: List<InterleavedContent>) = apply {
-                this.contentBatch = contentBatch.toMutableList()
+            fun contentBatch(contentBatch: List<InterleavedContent>) =
+                contentBatch(JsonField.of(contentBatch))
+
+            fun contentBatch(contentBatch: JsonField<List<InterleavedContent>>) = apply {
+                this.contentBatch = contentBatch.map { it.toMutableList() }
             }
 
             fun addContentBatch(contentBatch: InterleavedContent) = apply {
                 this.contentBatch =
-                    (this.contentBatch ?: mutableListOf()).apply { add(contentBatch) }
+                    (this.contentBatch ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(contentBatch)
+                    }
             }
 
-            fun model(model: String) = apply { this.model = model }
+            fun addContentBatch(string: String) =
+                addContentBatch(InterleavedContent.ofString(string))
 
-            fun logprobs(logprobs: Logprobs) = apply { this.logprobs = logprobs }
+            fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) =
+                addContentBatch(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            fun samplingParams(samplingParams: SamplingParams) = apply {
+            fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) =
+                addContentBatch(InterleavedContent.ofTextContentItem(textContentItem))
+
+            fun addContentBatchOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) =
+                addContentBatch(
+                    InterleavedContent.ofInterleavedContentItems(interleavedContentItems)
+                )
+
+            fun model(model: String) = model(JsonField.of(model))
+
+            fun model(model: JsonField<String>) = apply { this.model = model }
+
+            fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
+
+            fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
+
+            fun samplingParams(samplingParams: SamplingParams) =
+                samplingParams(JsonField.of(samplingParams))
+
+            fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
 
@@ -139,7 +221,7 @@ constructor(
             fun build(): BatchInferenceCompletionBody =
                 BatchInferenceCompletionBody(
                     checkNotNull(contentBatch) { "`contentBatch` is required but was not set" }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     checkNotNull(model) { "`model` is required but was not set" },
                     logprobs,
                     samplingParams,
@@ -175,6 +257,7 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: BatchInferenceCompletionBody.Builder =
             BatchInferenceCompletionBody.builder()
@@ -182,13 +265,18 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(batchInferenceCompletionParams: BatchInferenceCompletionParams) = apply {
+            xLlamaStackClientVersion = batchInferenceCompletionParams.xLlamaStackClientVersion
             xLlamaStackProviderData = batchInferenceCompletionParams.xLlamaStackProviderData
             body = batchInferenceCompletionParams.body.toBuilder()
             additionalHeaders = batchInferenceCompletionParams.additionalHeaders.toBuilder()
             additionalQueryParams = batchInferenceCompletionParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -196,16 +284,61 @@ constructor(
             body.contentBatch(contentBatch)
         }
 
+        fun contentBatch(contentBatch: JsonField<List<InterleavedContent>>) = apply {
+            body.contentBatch(contentBatch)
+        }
+
         fun addContentBatch(contentBatch: InterleavedContent) = apply {
             body.addContentBatch(contentBatch)
         }
 
+        fun addContentBatch(string: String) = apply { body.addContentBatch(string) }
+
+        fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addContentBatch(imageContentItem)
+        }
+
+        fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addContentBatch(textContentItem)
+        }
+
+        fun addContentBatchOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = apply { body.addContentBatchOfInterleavedContentItems(interleavedContentItems) }
+
         fun model(model: String) = apply { body.model(model) }
+
+        fun model(model: JsonField<String>) = apply { body.model(model) }
 
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
+        fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
+
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
+        }
+
+        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
+            body.samplingParams(samplingParams)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -306,27 +439,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): BatchInferenceCompletionParams =
             BatchInferenceCompletionParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -338,16 +453,29 @@ constructor(
     class Logprobs
     @JsonCreator
     private constructor(
-        @JsonProperty("top_k") private val topK: Long?,
+        @JsonProperty("top_k") @ExcludeMissing private val topK: JsonField<Long> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("top_k") fun topK(): Long? = topK
+        fun topK(): Long? = topK.getNullable("top_k")
+
+        @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Logprobs = apply {
+            if (validated) {
+                return@apply
+            }
+
+            topK()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -358,7 +486,7 @@ constructor(
 
         class Builder {
 
-            private var topK: Long? = null
+            private var topK: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(logprobs: Logprobs) = apply {
@@ -366,7 +494,9 @@ constructor(
                 additionalProperties = logprobs.additionalProperties.toMutableMap()
             }
 
-            fun topK(topK: Long) = apply { this.topK = topK }
+            fun topK(topK: Long) = topK(JsonField.of(topK))
+
+            fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -412,11 +542,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is BatchInferenceCompletionParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is BatchInferenceCompletionParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "BatchInferenceCompletionParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "BatchInferenceCompletionParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

@@ -12,7 +12,8 @@ class ModelRetrieveParamsTest {
     fun createModelRetrieveParams() {
         ModelRetrieveParams.builder()
             .identifier("identifier")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,7 +22,8 @@ class ModelRetrieveParamsTest {
         val params =
             ModelRetrieveParams.builder()
                 .identifier("identifier")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("identifier", "identifier")

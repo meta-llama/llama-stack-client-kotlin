@@ -9,7 +9,8 @@ class ScoringFunctionListParamsTest {
     @Test
     fun createScoringFunctionListParams() {
         ScoringFunctionListParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 }

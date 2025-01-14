@@ -12,7 +12,8 @@ class EvalJobCancelParamsTest {
         EvalJobCancelParams.builder()
             .jobId("job_id")
             .taskId("task_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -22,7 +23,8 @@ class EvalJobCancelParamsTest {
             EvalJobCancelParams.builder()
                 .jobId("job_id")
                 .taskId("task_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

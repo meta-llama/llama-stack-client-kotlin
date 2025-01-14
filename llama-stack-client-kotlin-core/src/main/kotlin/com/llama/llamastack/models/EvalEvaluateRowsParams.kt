@@ -18,6 +18,7 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
@@ -30,11 +31,14 @@ import java.util.Objects
 
 class EvalEvaluateRowsParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: EvalEvaluateRowsBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -46,18 +50,29 @@ constructor(
 
     fun taskId(): String = body.taskId()
 
+    fun _inputRows(): JsonField<List<InputRow>> = body._inputRows()
+
+    fun _scoringFunctions(): JsonField<List<String>> = body._scoringFunctions()
+
+    fun _taskConfig(): JsonField<TaskConfig> = body._taskConfig()
+
+    fun _taskId(): JsonField<String> = body._taskId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): EvalEvaluateRowsBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -69,25 +84,61 @@ constructor(
     class EvalEvaluateRowsBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("input_rows") private val inputRows: List<InputRow>,
-        @JsonProperty("scoring_functions") private val scoringFunctions: List<String>,
-        @JsonProperty("task_config") private val taskConfig: TaskConfig,
-        @JsonProperty("task_id") private val taskId: String,
+        @JsonProperty("input_rows")
+        @ExcludeMissing
+        private val inputRows: JsonField<List<InputRow>> = JsonMissing.of(),
+        @JsonProperty("scoring_functions")
+        @ExcludeMissing
+        private val scoringFunctions: JsonField<List<String>> = JsonMissing.of(),
+        @JsonProperty("task_config")
+        @ExcludeMissing
+        private val taskConfig: JsonField<TaskConfig> = JsonMissing.of(),
+        @JsonProperty("task_id")
+        @ExcludeMissing
+        private val taskId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("input_rows") fun inputRows(): List<InputRow> = inputRows
+        fun inputRows(): List<InputRow> = inputRows.getRequired("input_rows")
 
-        @JsonProperty("scoring_functions") fun scoringFunctions(): List<String> = scoringFunctions
+        fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
-        @JsonProperty("task_config") fun taskConfig(): TaskConfig = taskConfig
+        fun taskConfig(): TaskConfig = taskConfig.getRequired("task_config")
 
-        @JsonProperty("task_id") fun taskId(): String = taskId
+        fun taskId(): String = taskId.getRequired("task_id")
+
+        @JsonProperty("input_rows")
+        @ExcludeMissing
+        fun _inputRows(): JsonField<List<InputRow>> = inputRows
+
+        @JsonProperty("scoring_functions")
+        @ExcludeMissing
+        fun _scoringFunctions(): JsonField<List<String>> = scoringFunctions
+
+        @JsonProperty("task_config")
+        @ExcludeMissing
+        fun _taskConfig(): JsonField<TaskConfig> = taskConfig
+
+        @JsonProperty("task_id") @ExcludeMissing fun _taskId(): JsonField<String> = taskId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): EvalEvaluateRowsBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            inputRows().forEach { it.validate() }
+            scoringFunctions()
+            taskConfig().validate()
+            taskId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -98,48 +149,70 @@ constructor(
 
         class Builder {
 
-            private var inputRows: MutableList<InputRow>? = null
-            private var scoringFunctions: MutableList<String>? = null
-            private var taskConfig: TaskConfig? = null
-            private var taskId: String? = null
+            private var inputRows: JsonField<MutableList<InputRow>>? = null
+            private var scoringFunctions: JsonField<MutableList<String>>? = null
+            private var taskConfig: JsonField<TaskConfig>? = null
+            private var taskId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(evalEvaluateRowsBody: EvalEvaluateRowsBody) = apply {
-                inputRows = evalEvaluateRowsBody.inputRows.toMutableList()
-                scoringFunctions = evalEvaluateRowsBody.scoringFunctions.toMutableList()
+                inputRows = evalEvaluateRowsBody.inputRows.map { it.toMutableList() }
+                scoringFunctions = evalEvaluateRowsBody.scoringFunctions.map { it.toMutableList() }
                 taskConfig = evalEvaluateRowsBody.taskConfig
                 taskId = evalEvaluateRowsBody.taskId
                 additionalProperties = evalEvaluateRowsBody.additionalProperties.toMutableMap()
             }
 
-            fun inputRows(inputRows: List<InputRow>) = apply {
-                this.inputRows = inputRows.toMutableList()
+            fun inputRows(inputRows: List<InputRow>) = inputRows(JsonField.of(inputRows))
+
+            fun inputRows(inputRows: JsonField<List<InputRow>>) = apply {
+                this.inputRows = inputRows.map { it.toMutableList() }
             }
 
             fun addInputRow(inputRow: InputRow) = apply {
-                inputRows = (inputRows ?: mutableListOf()).apply { add(inputRow) }
+                inputRows =
+                    (inputRows ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(inputRow)
+                    }
             }
 
-            fun scoringFunctions(scoringFunctions: List<String>) = apply {
-                this.scoringFunctions = scoringFunctions.toMutableList()
+            fun scoringFunctions(scoringFunctions: List<String>) =
+                scoringFunctions(JsonField.of(scoringFunctions))
+
+            fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
+                this.scoringFunctions = scoringFunctions.map { it.toMutableList() }
             }
 
             fun addScoringFunction(scoringFunction: String) = apply {
                 scoringFunctions =
-                    (scoringFunctions ?: mutableListOf()).apply { add(scoringFunction) }
+                    (scoringFunctions ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(scoringFunction)
+                    }
             }
 
-            fun taskConfig(taskConfig: TaskConfig) = apply { this.taskConfig = taskConfig }
+            fun taskConfig(taskConfig: TaskConfig) = taskConfig(JsonField.of(taskConfig))
 
-            fun taskConfig(benchmarkEvalTaskConfig: TaskConfig.BenchmarkEvalTaskConfig) = apply {
-                this.taskConfig = TaskConfig.ofBenchmarkEvalTaskConfig(benchmarkEvalTaskConfig)
+            fun taskConfig(taskConfig: JsonField<TaskConfig>) = apply {
+                this.taskConfig = taskConfig
             }
 
-            fun taskConfig(appEvalTaskConfig: TaskConfig.AppEvalTaskConfig) = apply {
-                this.taskConfig = TaskConfig.ofAppEvalTaskConfig(appEvalTaskConfig)
-            }
+            fun taskConfig(benchmarkEvalTaskConfig: TaskConfig.BenchmarkEvalTaskConfig) =
+                taskConfig(TaskConfig.ofBenchmarkEvalTaskConfig(benchmarkEvalTaskConfig))
 
-            fun taskId(taskId: String) = apply { this.taskId = taskId }
+            fun taskConfig(appEvalTaskConfig: TaskConfig.AppEvalTaskConfig) =
+                taskConfig(TaskConfig.ofAppEvalTaskConfig(appEvalTaskConfig))
+
+            fun taskId(taskId: String) = taskId(JsonField.of(taskId))
+
+            fun taskId(taskId: JsonField<String>) = apply { this.taskId = taskId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -163,11 +236,11 @@ constructor(
             fun build(): EvalEvaluateRowsBody =
                 EvalEvaluateRowsBody(
                     checkNotNull(inputRows) { "`inputRows` is required but was not set" }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     checkNotNull(scoringFunctions) {
                             "`scoringFunctions` is required but was not set"
                         }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     checkNotNull(taskConfig) { "`taskConfig` is required but was not set" },
                     checkNotNull(taskId) { "`taskId` is required but was not set" },
                     additionalProperties.toImmutable(),
@@ -202,27 +275,39 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: EvalEvaluateRowsBody.Builder = EvalEvaluateRowsBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalEvaluateRowsParams: EvalEvaluateRowsParams) = apply {
+            xLlamaStackClientVersion = evalEvaluateRowsParams.xLlamaStackClientVersion
             xLlamaStackProviderData = evalEvaluateRowsParams.xLlamaStackProviderData
             body = evalEvaluateRowsParams.body.toBuilder()
             additionalHeaders = evalEvaluateRowsParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalEvaluateRowsParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun inputRows(inputRows: List<InputRow>) = apply { body.inputRows(inputRows) }
 
+        fun inputRows(inputRows: JsonField<List<InputRow>>) = apply { body.inputRows(inputRows) }
+
         fun addInputRow(inputRow: InputRow) = apply { body.addInputRow(inputRow) }
 
         fun scoringFunctions(scoringFunctions: List<String>) = apply {
+            body.scoringFunctions(scoringFunctions)
+        }
+
+        fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
 
@@ -231,6 +316,8 @@ constructor(
         }
 
         fun taskConfig(taskConfig: TaskConfig) = apply { body.taskConfig(taskConfig) }
+
+        fun taskConfig(taskConfig: JsonField<TaskConfig>) = apply { body.taskConfig(taskConfig) }
 
         fun taskConfig(benchmarkEvalTaskConfig: TaskConfig.BenchmarkEvalTaskConfig) = apply {
             body.taskConfig(benchmarkEvalTaskConfig)
@@ -241,6 +328,27 @@ constructor(
         }
 
         fun taskId(taskId: String) = apply { body.taskId(taskId) }
+
+        fun taskId(taskId: JsonField<String>) = apply { body.taskId(taskId) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -340,27 +448,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): EvalEvaluateRowsParams =
             EvalEvaluateRowsParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -379,6 +469,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): InputRow = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -468,6 +568,29 @@ constructor(
             }
         }
 
+        private var validated: Boolean = false
+
+        fun validate(): TaskConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitBenchmarkEvalTaskConfig(
+                        benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig
+                    ) {
+                        benchmarkEvalTaskConfig.validate()
+                    }
+
+                    override fun visitAppEvalTaskConfig(appEvalTaskConfig: AppEvalTaskConfig) {
+                        appEvalTaskConfig.validate()
+                    }
+                }
+            )
+            validated = true
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -512,12 +635,14 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): TaskConfig {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<BenchmarkEvalTaskConfig>())?.let {
-                    return TaskConfig(benchmarkEvalTaskConfig = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<AppEvalTaskConfig>())?.let {
-                    return TaskConfig(appEvalTaskConfig = it, _json = json)
-                }
+                tryDeserialize(node, jacksonTypeRef<BenchmarkEvalTaskConfig>()) { it.validate() }
+                    ?.let {
+                        return TaskConfig(benchmarkEvalTaskConfig = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<AppEvalTaskConfig>()) { it.validate() }
+                    ?.let {
+                        return TaskConfig(appEvalTaskConfig = it, _json = json)
+                    }
 
                 return TaskConfig(_json = json)
             }
@@ -545,22 +670,51 @@ constructor(
         class BenchmarkEvalTaskConfig
         @JsonCreator
         private constructor(
-            @JsonProperty("eval_candidate") private val evalCandidate: EvalCandidate,
-            @JsonProperty("num_examples") private val numExamples: Long?,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("eval_candidate")
+            @ExcludeMissing
+            private val evalCandidate: JsonField<EvalCandidate> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonProperty("num_examples")
+            @ExcludeMissing
+            private val numExamples: JsonField<Long> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("eval_candidate") fun evalCandidate(): EvalCandidate = evalCandidate
+            fun evalCandidate(): EvalCandidate = evalCandidate.getRequired("eval_candidate")
 
-            @JsonProperty("num_examples") fun numExamples(): Long? = numExamples
+            fun type(): Type = type.getRequired("type")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun numExamples(): Long? = numExamples.getNullable("num_examples")
+
+            @JsonProperty("eval_candidate")
+            @ExcludeMissing
+            fun _evalCandidate(): JsonField<EvalCandidate> = evalCandidate
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+            @JsonProperty("num_examples")
+            @ExcludeMissing
+            fun _numExamples(): JsonField<Long> = numExamples
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): BenchmarkEvalTaskConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                evalCandidate().validate()
+                type()
+                numExamples()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -571,34 +725,41 @@ constructor(
 
             class Builder {
 
-                private var evalCandidate: EvalCandidate? = null
-                private var numExamples: Long? = null
-                private var type: Type? = null
+                private var evalCandidate: JsonField<EvalCandidate>? = null
+                private var type: JsonField<Type>? = null
+                private var numExamples: JsonField<Long> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig) = apply {
                     evalCandidate = benchmarkEvalTaskConfig.evalCandidate
-                    numExamples = benchmarkEvalTaskConfig.numExamples
                     type = benchmarkEvalTaskConfig.type
+                    numExamples = benchmarkEvalTaskConfig.numExamples
                     additionalProperties =
                         benchmarkEvalTaskConfig.additionalProperties.toMutableMap()
                 }
 
-                fun evalCandidate(evalCandidate: EvalCandidate) = apply {
+                fun evalCandidate(evalCandidate: EvalCandidate) =
+                    evalCandidate(JsonField.of(evalCandidate))
+
+                fun evalCandidate(evalCandidate: JsonField<EvalCandidate>) = apply {
                     this.evalCandidate = evalCandidate
                 }
 
-                fun evalCandidate(modelCandidate: EvalCandidate.ModelCandidate) = apply {
-                    this.evalCandidate = EvalCandidate.ofModelCandidate(modelCandidate)
+                fun evalCandidate(modelCandidate: EvalCandidate.ModelCandidate) =
+                    evalCandidate(EvalCandidate.ofModelCandidate(modelCandidate))
+
+                fun evalCandidate(agentCandidate: EvalCandidate.AgentCandidate) =
+                    evalCandidate(EvalCandidate.ofAgentCandidate(agentCandidate))
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun numExamples(numExamples: Long) = numExamples(JsonField.of(numExamples))
+
+                fun numExamples(numExamples: JsonField<Long>) = apply {
+                    this.numExamples = numExamples
                 }
-
-                fun evalCandidate(agentCandidate: EvalCandidate.AgentCandidate) = apply {
-                    this.evalCandidate = EvalCandidate.ofAgentCandidate(agentCandidate)
-                }
-
-                fun numExamples(numExamples: Long) = apply { this.numExamples = numExamples }
-
-                fun type(type: Type) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -627,8 +788,8 @@ constructor(
                         checkNotNull(evalCandidate) {
                             "`evalCandidate` is required but was not set"
                         },
-                        numExamples,
                         checkNotNull(type) { "`type` is required but was not set" },
+                        numExamples,
                         additionalProperties.toImmutable(),
                     )
             }
@@ -662,6 +823,27 @@ constructor(
                         agentCandidate != null -> visitor.visitAgentCandidate(agentCandidate)
                         else -> visitor.unknown(_json)
                     }
+                }
+
+                private var validated: Boolean = false
+
+                fun validate(): EvalCandidate = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    accept(
+                        object : Visitor<Unit> {
+                            override fun visitModelCandidate(modelCandidate: ModelCandidate) {
+                                modelCandidate.validate()
+                            }
+
+                            override fun visitAgentCandidate(agentCandidate: AgentCandidate) {
+                                agentCandidate.validate()
+                            }
+                        }
+                    )
+                    validated = true
                 }
 
                 override fun equals(other: Any?): Boolean {
@@ -707,12 +889,14 @@ constructor(
                     override fun ObjectCodec.deserialize(node: JsonNode): EvalCandidate {
                         val json = JsonValue.fromJsonNode(node)
 
-                        tryDeserialize(node, jacksonTypeRef<ModelCandidate>())?.let {
-                            return EvalCandidate(modelCandidate = it, _json = json)
-                        }
-                        tryDeserialize(node, jacksonTypeRef<AgentCandidate>())?.let {
-                            return EvalCandidate(agentCandidate = it, _json = json)
-                        }
+                        tryDeserialize(node, jacksonTypeRef<ModelCandidate>()) { it.validate() }
+                            ?.let {
+                                return EvalCandidate(modelCandidate = it, _json = json)
+                            }
+                        tryDeserialize(node, jacksonTypeRef<AgentCandidate>()) { it.validate() }
+                            ?.let {
+                                return EvalCandidate(agentCandidate = it, _json = json)
+                            }
 
                         return EvalCandidate(_json = json)
                     }
@@ -740,27 +924,61 @@ constructor(
                 class ModelCandidate
                 @JsonCreator
                 private constructor(
-                    @JsonProperty("model") private val model: String,
-                    @JsonProperty("sampling_params") private val samplingParams: SamplingParams,
-                    @JsonProperty("system_message") private val systemMessage: SystemMessage?,
-                    @JsonProperty("type") private val type: Type,
+                    @JsonProperty("model")
+                    @ExcludeMissing
+                    private val model: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("sampling_params")
+                    @ExcludeMissing
+                    private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+                    @JsonProperty("type")
+                    @ExcludeMissing
+                    private val type: JsonField<Type> = JsonMissing.of(),
+                    @JsonProperty("system_message")
+                    @ExcludeMissing
+                    private val systemMessage: JsonField<SystemMessage> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    @JsonProperty("model") fun model(): String = model
+                    fun model(): String = model.getRequired("model")
+
+                    fun samplingParams(): SamplingParams =
+                        samplingParams.getRequired("sampling_params")
+
+                    fun type(): Type = type.getRequired("type")
+
+                    fun systemMessage(): SystemMessage? =
+                        systemMessage.getNullable("system_message")
+
+                    @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
                     @JsonProperty("sampling_params")
-                    fun samplingParams(): SamplingParams = samplingParams
+                    @ExcludeMissing
+                    fun _samplingParams(): JsonField<SamplingParams> = samplingParams
+
+                    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                     @JsonProperty("system_message")
-                    fun systemMessage(): SystemMessage? = systemMessage
-
-                    @JsonProperty("type") fun type(): Type = type
+                    @ExcludeMissing
+                    fun _systemMessage(): JsonField<SystemMessage> = systemMessage
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): ModelCandidate = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        model()
+                        samplingParams().validate()
+                        type()
+                        systemMessage()?.validate()
+                        validated = true
+                    }
 
                     fun toBuilder() = Builder().from(this)
 
@@ -771,33 +989,43 @@ constructor(
 
                     class Builder {
 
-                        private var model: String? = null
-                        private var samplingParams: SamplingParams? = null
-                        private var systemMessage: SystemMessage? = null
-                        private var type: Type? = null
+                        private var model: JsonField<String>? = null
+                        private var samplingParams: JsonField<SamplingParams>? = null
+                        private var type: JsonField<Type>? = null
+                        private var systemMessage: JsonField<SystemMessage> = JsonMissing.of()
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
                         internal fun from(modelCandidate: ModelCandidate) = apply {
                             model = modelCandidate.model
                             samplingParams = modelCandidate.samplingParams
-                            systemMessage = modelCandidate.systemMessage
                             type = modelCandidate.type
+                            systemMessage = modelCandidate.systemMessage
                             additionalProperties =
                                 modelCandidate.additionalProperties.toMutableMap()
                         }
 
-                        fun model(model: String) = apply { this.model = model }
+                        fun model(model: String) = model(JsonField.of(model))
 
-                        fun samplingParams(samplingParams: SamplingParams) = apply {
+                        fun model(model: JsonField<String>) = apply { this.model = model }
+
+                        fun samplingParams(samplingParams: SamplingParams) =
+                            samplingParams(JsonField.of(samplingParams))
+
+                        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                             this.samplingParams = samplingParams
                         }
 
-                        fun systemMessage(systemMessage: SystemMessage) = apply {
+                        fun type(type: Type) = type(JsonField.of(type))
+
+                        fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                        fun systemMessage(systemMessage: SystemMessage) =
+                            systemMessage(JsonField.of(systemMessage))
+
+                        fun systemMessage(systemMessage: JsonField<SystemMessage>) = apply {
                             this.systemMessage = systemMessage
                         }
-
-                        fun type(type: Type) = apply { this.type = type }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
@@ -827,8 +1055,8 @@ constructor(
                                 checkNotNull(samplingParams) {
                                     "`samplingParams` is required but was not set"
                                 },
-                                systemMessage,
                                 checkNotNull(type) { "`type` is required but was not set" },
+                                systemMessage,
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -893,36 +1121,58 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && systemMessage == other.systemMessage && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(model, samplingParams, systemMessage, type, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(model, samplingParams, type, systemMessage, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "ModelCandidate{model=$model, samplingParams=$samplingParams, systemMessage=$systemMessage, type=$type, additionalProperties=$additionalProperties}"
+                        "ModelCandidate{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect
                 class AgentCandidate
                 @JsonCreator
                 private constructor(
-                    @JsonProperty("config") private val config: AgentConfig,
-                    @JsonProperty("type") private val type: Type,
+                    @JsonProperty("config")
+                    @ExcludeMissing
+                    private val config: JsonField<AgentConfig> = JsonMissing.of(),
+                    @JsonProperty("type")
+                    @ExcludeMissing
+                    private val type: JsonField<Type> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    @JsonProperty("config") fun config(): AgentConfig = config
+                    fun config(): AgentConfig = config.getRequired("config")
 
-                    @JsonProperty("type") fun type(): Type = type
+                    fun type(): Type = type.getRequired("type")
+
+                    @JsonProperty("config")
+                    @ExcludeMissing
+                    fun _config(): JsonField<AgentConfig> = config
+
+                    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): AgentCandidate = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        config().validate()
+                        type()
+                        validated = true
+                    }
 
                     fun toBuilder() = Builder().from(this)
 
@@ -933,8 +1183,8 @@ constructor(
 
                     class Builder {
 
-                        private var config: AgentConfig? = null
-                        private var type: Type? = null
+                        private var config: JsonField<AgentConfig>? = null
+                        private var type: JsonField<Type>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -945,9 +1195,13 @@ constructor(
                                 agentCandidate.additionalProperties.toMutableMap()
                         }
 
-                        fun config(config: AgentConfig) = apply { this.config = config }
+                        fun config(config: AgentConfig) = config(JsonField.of(config))
 
-                        fun type(type: Type) = apply { this.type = type }
+                        fun config(config: JsonField<AgentConfig>) = apply { this.config = config }
+
+                        fun type(type: Type) = type(JsonField.of(type))
+
+                        fun type(type: JsonField<Type>) = apply { this.type = type }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
@@ -1109,42 +1363,78 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is BenchmarkEvalTaskConfig && evalCandidate == other.evalCandidate && numExamples == other.numExamples && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is BenchmarkEvalTaskConfig && evalCandidate == other.evalCandidate && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(evalCandidate, numExamples, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(evalCandidate, type, numExamples, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "BenchmarkEvalTaskConfig{evalCandidate=$evalCandidate, numExamples=$numExamples, type=$type, additionalProperties=$additionalProperties}"
+                "BenchmarkEvalTaskConfig{evalCandidate=$evalCandidate, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
         class AppEvalTaskConfig
         @JsonCreator
         private constructor(
-            @JsonProperty("eval_candidate") private val evalCandidate: EvalCandidate,
-            @JsonProperty("num_examples") private val numExamples: Long?,
-            @JsonProperty("scoring_params") private val scoringParams: ScoringParams,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("eval_candidate")
+            @ExcludeMissing
+            private val evalCandidate: JsonField<EvalCandidate> = JsonMissing.of(),
+            @JsonProperty("scoring_params")
+            @ExcludeMissing
+            private val scoringParams: JsonField<ScoringParams> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonProperty("num_examples")
+            @ExcludeMissing
+            private val numExamples: JsonField<Long> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("eval_candidate") fun evalCandidate(): EvalCandidate = evalCandidate
+            fun evalCandidate(): EvalCandidate = evalCandidate.getRequired("eval_candidate")
 
-            @JsonProperty("num_examples") fun numExamples(): Long? = numExamples
+            fun scoringParams(): ScoringParams = scoringParams.getRequired("scoring_params")
 
-            @JsonProperty("scoring_params") fun scoringParams(): ScoringParams = scoringParams
+            fun type(): Type = type.getRequired("type")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun numExamples(): Long? = numExamples.getNullable("num_examples")
+
+            @JsonProperty("eval_candidate")
+            @ExcludeMissing
+            fun _evalCandidate(): JsonField<EvalCandidate> = evalCandidate
+
+            @JsonProperty("scoring_params")
+            @ExcludeMissing
+            fun _scoringParams(): JsonField<ScoringParams> = scoringParams
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+            @JsonProperty("num_examples")
+            @ExcludeMissing
+            fun _numExamples(): JsonField<Long> = numExamples
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): AppEvalTaskConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                evalCandidate().validate()
+                scoringParams().validate()
+                type()
+                numExamples()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -1155,39 +1445,49 @@ constructor(
 
             class Builder {
 
-                private var evalCandidate: EvalCandidate? = null
-                private var numExamples: Long? = null
-                private var scoringParams: ScoringParams? = null
-                private var type: Type? = null
+                private var evalCandidate: JsonField<EvalCandidate>? = null
+                private var scoringParams: JsonField<ScoringParams>? = null
+                private var type: JsonField<Type>? = null
+                private var numExamples: JsonField<Long> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(appEvalTaskConfig: AppEvalTaskConfig) = apply {
                     evalCandidate = appEvalTaskConfig.evalCandidate
-                    numExamples = appEvalTaskConfig.numExamples
                     scoringParams = appEvalTaskConfig.scoringParams
                     type = appEvalTaskConfig.type
+                    numExamples = appEvalTaskConfig.numExamples
                     additionalProperties = appEvalTaskConfig.additionalProperties.toMutableMap()
                 }
 
-                fun evalCandidate(evalCandidate: EvalCandidate) = apply {
+                fun evalCandidate(evalCandidate: EvalCandidate) =
+                    evalCandidate(JsonField.of(evalCandidate))
+
+                fun evalCandidate(evalCandidate: JsonField<EvalCandidate>) = apply {
                     this.evalCandidate = evalCandidate
                 }
 
-                fun evalCandidate(modelCandidate: EvalCandidate.ModelCandidate) = apply {
-                    this.evalCandidate = EvalCandidate.ofModelCandidate(modelCandidate)
-                }
+                fun evalCandidate(modelCandidate: EvalCandidate.ModelCandidate) =
+                    evalCandidate(EvalCandidate.ofModelCandidate(modelCandidate))
 
-                fun evalCandidate(agentCandidate: EvalCandidate.AgentCandidate) = apply {
-                    this.evalCandidate = EvalCandidate.ofAgentCandidate(agentCandidate)
-                }
+                fun evalCandidate(agentCandidate: EvalCandidate.AgentCandidate) =
+                    evalCandidate(EvalCandidate.ofAgentCandidate(agentCandidate))
 
-                fun numExamples(numExamples: Long) = apply { this.numExamples = numExamples }
+                fun scoringParams(scoringParams: ScoringParams) =
+                    scoringParams(JsonField.of(scoringParams))
 
-                fun scoringParams(scoringParams: ScoringParams) = apply {
+                fun scoringParams(scoringParams: JsonField<ScoringParams>) = apply {
                     this.scoringParams = scoringParams
                 }
 
-                fun type(type: Type) = apply { this.type = type }
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun numExamples(numExamples: Long) = numExamples(JsonField.of(numExamples))
+
+                fun numExamples(numExamples: JsonField<Long>) = apply {
+                    this.numExamples = numExamples
+                }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -1216,11 +1516,11 @@ constructor(
                         checkNotNull(evalCandidate) {
                             "`evalCandidate` is required but was not set"
                         },
-                        numExamples,
                         checkNotNull(scoringParams) {
                             "`scoringParams` is required but was not set"
                         },
                         checkNotNull(type) { "`type` is required but was not set" },
+                        numExamples,
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1254,6 +1554,27 @@ constructor(
                         agentCandidate != null -> visitor.visitAgentCandidate(agentCandidate)
                         else -> visitor.unknown(_json)
                     }
+                }
+
+                private var validated: Boolean = false
+
+                fun validate(): EvalCandidate = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    accept(
+                        object : Visitor<Unit> {
+                            override fun visitModelCandidate(modelCandidate: ModelCandidate) {
+                                modelCandidate.validate()
+                            }
+
+                            override fun visitAgentCandidate(agentCandidate: AgentCandidate) {
+                                agentCandidate.validate()
+                            }
+                        }
+                    )
+                    validated = true
                 }
 
                 override fun equals(other: Any?): Boolean {
@@ -1299,12 +1620,14 @@ constructor(
                     override fun ObjectCodec.deserialize(node: JsonNode): EvalCandidate {
                         val json = JsonValue.fromJsonNode(node)
 
-                        tryDeserialize(node, jacksonTypeRef<ModelCandidate>())?.let {
-                            return EvalCandidate(modelCandidate = it, _json = json)
-                        }
-                        tryDeserialize(node, jacksonTypeRef<AgentCandidate>())?.let {
-                            return EvalCandidate(agentCandidate = it, _json = json)
-                        }
+                        tryDeserialize(node, jacksonTypeRef<ModelCandidate>()) { it.validate() }
+                            ?.let {
+                                return EvalCandidate(modelCandidate = it, _json = json)
+                            }
+                        tryDeserialize(node, jacksonTypeRef<AgentCandidate>()) { it.validate() }
+                            ?.let {
+                                return EvalCandidate(agentCandidate = it, _json = json)
+                            }
 
                         return EvalCandidate(_json = json)
                     }
@@ -1332,27 +1655,61 @@ constructor(
                 class ModelCandidate
                 @JsonCreator
                 private constructor(
-                    @JsonProperty("model") private val model: String,
-                    @JsonProperty("sampling_params") private val samplingParams: SamplingParams,
-                    @JsonProperty("system_message") private val systemMessage: SystemMessage?,
-                    @JsonProperty("type") private val type: Type,
+                    @JsonProperty("model")
+                    @ExcludeMissing
+                    private val model: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("sampling_params")
+                    @ExcludeMissing
+                    private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+                    @JsonProperty("type")
+                    @ExcludeMissing
+                    private val type: JsonField<Type> = JsonMissing.of(),
+                    @JsonProperty("system_message")
+                    @ExcludeMissing
+                    private val systemMessage: JsonField<SystemMessage> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    @JsonProperty("model") fun model(): String = model
+                    fun model(): String = model.getRequired("model")
+
+                    fun samplingParams(): SamplingParams =
+                        samplingParams.getRequired("sampling_params")
+
+                    fun type(): Type = type.getRequired("type")
+
+                    fun systemMessage(): SystemMessage? =
+                        systemMessage.getNullable("system_message")
+
+                    @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
                     @JsonProperty("sampling_params")
-                    fun samplingParams(): SamplingParams = samplingParams
+                    @ExcludeMissing
+                    fun _samplingParams(): JsonField<SamplingParams> = samplingParams
+
+                    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                     @JsonProperty("system_message")
-                    fun systemMessage(): SystemMessage? = systemMessage
-
-                    @JsonProperty("type") fun type(): Type = type
+                    @ExcludeMissing
+                    fun _systemMessage(): JsonField<SystemMessage> = systemMessage
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): ModelCandidate = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        model()
+                        samplingParams().validate()
+                        type()
+                        systemMessage()?.validate()
+                        validated = true
+                    }
 
                     fun toBuilder() = Builder().from(this)
 
@@ -1363,33 +1720,43 @@ constructor(
 
                     class Builder {
 
-                        private var model: String? = null
-                        private var samplingParams: SamplingParams? = null
-                        private var systemMessage: SystemMessage? = null
-                        private var type: Type? = null
+                        private var model: JsonField<String>? = null
+                        private var samplingParams: JsonField<SamplingParams>? = null
+                        private var type: JsonField<Type>? = null
+                        private var systemMessage: JsonField<SystemMessage> = JsonMissing.of()
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
                         internal fun from(modelCandidate: ModelCandidate) = apply {
                             model = modelCandidate.model
                             samplingParams = modelCandidate.samplingParams
-                            systemMessage = modelCandidate.systemMessage
                             type = modelCandidate.type
+                            systemMessage = modelCandidate.systemMessage
                             additionalProperties =
                                 modelCandidate.additionalProperties.toMutableMap()
                         }
 
-                        fun model(model: String) = apply { this.model = model }
+                        fun model(model: String) = model(JsonField.of(model))
 
-                        fun samplingParams(samplingParams: SamplingParams) = apply {
+                        fun model(model: JsonField<String>) = apply { this.model = model }
+
+                        fun samplingParams(samplingParams: SamplingParams) =
+                            samplingParams(JsonField.of(samplingParams))
+
+                        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                             this.samplingParams = samplingParams
                         }
 
-                        fun systemMessage(systemMessage: SystemMessage) = apply {
+                        fun type(type: Type) = type(JsonField.of(type))
+
+                        fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                        fun systemMessage(systemMessage: SystemMessage) =
+                            systemMessage(JsonField.of(systemMessage))
+
+                        fun systemMessage(systemMessage: JsonField<SystemMessage>) = apply {
                             this.systemMessage = systemMessage
                         }
-
-                        fun type(type: Type) = apply { this.type = type }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
@@ -1419,8 +1786,8 @@ constructor(
                                 checkNotNull(samplingParams) {
                                     "`samplingParams` is required but was not set"
                                 },
-                                systemMessage,
                                 checkNotNull(type) { "`type` is required but was not set" },
+                                systemMessage,
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1485,36 +1852,58 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && systemMessage == other.systemMessage && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(model, samplingParams, systemMessage, type, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(model, samplingParams, type, systemMessage, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "ModelCandidate{model=$model, samplingParams=$samplingParams, systemMessage=$systemMessage, type=$type, additionalProperties=$additionalProperties}"
+                        "ModelCandidate{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect
                 class AgentCandidate
                 @JsonCreator
                 private constructor(
-                    @JsonProperty("config") private val config: AgentConfig,
-                    @JsonProperty("type") private val type: Type,
+                    @JsonProperty("config")
+                    @ExcludeMissing
+                    private val config: JsonField<AgentConfig> = JsonMissing.of(),
+                    @JsonProperty("type")
+                    @ExcludeMissing
+                    private val type: JsonField<Type> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    @JsonProperty("config") fun config(): AgentConfig = config
+                    fun config(): AgentConfig = config.getRequired("config")
 
-                    @JsonProperty("type") fun type(): Type = type
+                    fun type(): Type = type.getRequired("type")
+
+                    @JsonProperty("config")
+                    @ExcludeMissing
+                    fun _config(): JsonField<AgentConfig> = config
+
+                    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): AgentCandidate = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        config().validate()
+                        type()
+                        validated = true
+                    }
 
                     fun toBuilder() = Builder().from(this)
 
@@ -1525,8 +1914,8 @@ constructor(
 
                     class Builder {
 
-                        private var config: AgentConfig? = null
-                        private var type: Type? = null
+                        private var config: JsonField<AgentConfig>? = null
+                        private var type: JsonField<Type>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -1537,9 +1926,13 @@ constructor(
                                 agentCandidate.additionalProperties.toMutableMap()
                         }
 
-                        fun config(config: AgentConfig) = apply { this.config = config }
+                        fun config(config: AgentConfig) = config(JsonField.of(config))
 
-                        fun type(type: Type) = apply { this.type = type }
+                        fun config(config: JsonField<AgentConfig>) = apply { this.config = config }
+
+                        fun type(type: Type) = type(JsonField.of(type))
+
+                        fun type(type: JsonField<Type>) = apply { this.type = type }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
@@ -1657,6 +2050,16 @@ constructor(
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                private var validated: Boolean = false
+
+                fun validate(): ScoringParams = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
                 fun toBuilder() = Builder().from(this)
 
                 companion object {
@@ -1771,17 +2174,17 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is AppEvalTaskConfig && evalCandidate == other.evalCandidate && numExamples == other.numExamples && scoringParams == other.scoringParams && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is AppEvalTaskConfig && evalCandidate == other.evalCandidate && scoringParams == other.scoringParams && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(evalCandidate, numExamples, scoringParams, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(evalCandidate, scoringParams, type, numExamples, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "AppEvalTaskConfig{evalCandidate=$evalCandidate, numExamples=$numExamples, scoringParams=$scoringParams, type=$type, additionalProperties=$additionalProperties}"
+                "AppEvalTaskConfig{evalCandidate=$evalCandidate, scoringParams=$scoringParams, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
         }
     }
 
@@ -1790,11 +2193,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalEvaluateRowsParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalEvaluateRowsParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalEvaluateRowsParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalEvaluateRowsParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

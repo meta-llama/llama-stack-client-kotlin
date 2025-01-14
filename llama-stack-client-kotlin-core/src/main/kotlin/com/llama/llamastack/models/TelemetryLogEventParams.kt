@@ -18,6 +18,7 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
@@ -31,11 +32,14 @@ import java.util.Objects
 
 class TelemetryLogEventParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: TelemetryLogEventBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -43,18 +47,25 @@ constructor(
 
     fun ttlSeconds(): Long = body.ttlSeconds()
 
+    fun _event(): JsonField<Event> = body._event()
+
+    fun _ttlSeconds(): JsonField<Long> = body._ttlSeconds()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): TelemetryLogEventBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -66,19 +77,39 @@ constructor(
     class TelemetryLogEventBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("event") private val event: Event,
-        @JsonProperty("ttl_seconds") private val ttlSeconds: Long,
+        @JsonProperty("event")
+        @ExcludeMissing
+        private val event: JsonField<Event> = JsonMissing.of(),
+        @JsonProperty("ttl_seconds")
+        @ExcludeMissing
+        private val ttlSeconds: JsonField<Long> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("event") fun event(): Event = event
+        fun event(): Event = event.getRequired("event")
 
-        @JsonProperty("ttl_seconds") fun ttlSeconds(): Long = ttlSeconds
+        fun ttlSeconds(): Long = ttlSeconds.getRequired("ttl_seconds")
+
+        @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<Event> = event
+
+        @JsonProperty("ttl_seconds") @ExcludeMissing fun _ttlSeconds(): JsonField<Long> = ttlSeconds
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): TelemetryLogEventBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            event().validate()
+            ttlSeconds()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -89,8 +120,8 @@ constructor(
 
         class Builder {
 
-            private var event: Event? = null
-            private var ttlSeconds: Long? = null
+            private var event: JsonField<Event>? = null
+            private var ttlSeconds: JsonField<Long>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(telemetryLogEventBody: TelemetryLogEventBody) = apply {
@@ -99,21 +130,21 @@ constructor(
                 additionalProperties = telemetryLogEventBody.additionalProperties.toMutableMap()
             }
 
-            fun event(event: Event) = apply { this.event = event }
+            fun event(event: Event) = event(JsonField.of(event))
 
-            fun event(unstructuredLogEvent: Event.UnstructuredLogEvent) = apply {
-                this.event = Event.ofUnstructuredLogEvent(unstructuredLogEvent)
-            }
+            fun event(event: JsonField<Event>) = apply { this.event = event }
 
-            fun event(metricEvent: Event.MetricEvent) = apply {
-                this.event = Event.ofMetricEvent(metricEvent)
-            }
+            fun event(unstructuredLogEvent: Event.UnstructuredLogEvent) =
+                event(Event.ofUnstructuredLogEvent(unstructuredLogEvent))
 
-            fun event(structuredLogEvent: Event.StructuredLogEvent) = apply {
-                this.event = Event.ofStructuredLogEvent(structuredLogEvent)
-            }
+            fun event(metricEvent: Event.MetricEvent) = event(Event.ofMetricEvent(metricEvent))
 
-            fun ttlSeconds(ttlSeconds: Long) = apply { this.ttlSeconds = ttlSeconds }
+            fun event(structuredLogEvent: Event.StructuredLogEvent) =
+                event(Event.ofStructuredLogEvent(structuredLogEvent))
+
+            fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
+
+            fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { this.ttlSeconds = ttlSeconds }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -170,23 +201,31 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: TelemetryLogEventBody.Builder = TelemetryLogEventBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(telemetryLogEventParams: TelemetryLogEventParams) = apply {
+            xLlamaStackClientVersion = telemetryLogEventParams.xLlamaStackClientVersion
             xLlamaStackProviderData = telemetryLogEventParams.xLlamaStackProviderData
             body = telemetryLogEventParams.body.toBuilder()
             additionalHeaders = telemetryLogEventParams.additionalHeaders.toBuilder()
             additionalQueryParams = telemetryLogEventParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun event(event: Event) = apply { body.event(event) }
+
+        fun event(event: JsonField<Event>) = apply { body.event(event) }
 
         fun event(unstructuredLogEvent: Event.UnstructuredLogEvent) = apply {
             body.event(unstructuredLogEvent)
@@ -199,6 +238,27 @@ constructor(
         }
 
         fun ttlSeconds(ttlSeconds: Long) = apply { body.ttlSeconds(ttlSeconds) }
+
+        fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { body.ttlSeconds(ttlSeconds) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -298,27 +358,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): TelemetryLogEventParams =
             TelemetryLogEventParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -366,6 +408,33 @@ constructor(
                 structuredLogEvent != null -> visitor.visitStructuredLogEvent(structuredLogEvent)
                 else -> visitor.unknown(_json)
             }
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Event = apply {
+            if (validated) {
+                return@apply
+            }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitUnstructuredLogEvent(
+                        unstructuredLogEvent: UnstructuredLogEvent
+                    ) {
+                        unstructuredLogEvent.validate()
+                    }
+
+                    override fun visitMetricEvent(metricEvent: MetricEvent) {
+                        metricEvent.validate()
+                    }
+
+                    override fun visitStructuredLogEvent(structuredLogEvent: StructuredLogEvent) {
+                        structuredLogEvent.validate()
+                    }
+                }
+            )
+            validated = true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -416,15 +485,18 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Event {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UnstructuredLogEvent>())?.let {
-                    return Event(unstructuredLogEvent = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<MetricEvent>())?.let {
-                    return Event(metricEvent = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<StructuredLogEvent>())?.let {
-                    return Event(structuredLogEvent = it, _json = json)
-                }
+                tryDeserialize(node, jacksonTypeRef<UnstructuredLogEvent>()) { it.validate() }
+                    ?.let {
+                        return Event(unstructuredLogEvent = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<MetricEvent>()) { it.validate() }
+                    ?.let {
+                        return Event(metricEvent = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<StructuredLogEvent>()) { it.validate() }
+                    ?.let {
+                        return Event(structuredLogEvent = it, _json = json)
+                    }
 
                 return Event(_json = json)
             }
@@ -453,34 +525,85 @@ constructor(
         class UnstructuredLogEvent
         @JsonCreator
         private constructor(
-            @JsonProperty("attributes") private val attributes: Attributes?,
-            @JsonProperty("message") private val message: String,
-            @JsonProperty("severity") private val severity: Severity,
-            @JsonProperty("span_id") private val spanId: String,
-            @JsonProperty("timestamp") private val timestamp: OffsetDateTime,
-            @JsonProperty("trace_id") private val traceId: String,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("message")
+            @ExcludeMissing
+            private val message: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("severity")
+            @ExcludeMissing
+            private val severity: JsonField<Severity> = JsonMissing.of(),
+            @JsonProperty("span_id")
+            @ExcludeMissing
+            private val spanId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("timestamp")
+            @ExcludeMissing
+            private val timestamp: JsonField<OffsetDateTime> = JsonMissing.of(),
+            @JsonProperty("trace_id")
+            @ExcludeMissing
+            private val traceId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            private val attributes: JsonField<Attributes> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("attributes") fun attributes(): Attributes? = attributes
+            fun message(): String = message.getRequired("message")
 
-            @JsonProperty("message") fun message(): String = message
+            fun severity(): Severity = severity.getRequired("severity")
 
-            @JsonProperty("severity") fun severity(): Severity = severity
+            fun spanId(): String = spanId.getRequired("span_id")
 
-            @JsonProperty("span_id") fun spanId(): String = spanId
+            fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
 
-            @JsonProperty("timestamp") fun timestamp(): OffsetDateTime = timestamp
+            fun traceId(): String = traceId.getRequired("trace_id")
 
-            @JsonProperty("trace_id") fun traceId(): String = traceId
+            fun type(): Type = type.getRequired("type")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun attributes(): Attributes? = attributes.getNullable("attributes")
+
+            @JsonProperty("message") @ExcludeMissing fun _message(): JsonField<String> = message
+
+            @JsonProperty("severity")
+            @ExcludeMissing
+            fun _severity(): JsonField<Severity> = severity
+
+            @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
+
+            @JsonProperty("timestamp")
+            @ExcludeMissing
+            fun _timestamp(): JsonField<OffsetDateTime> = timestamp
+
+            @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            fun _attributes(): JsonField<Attributes> = attributes
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): UnstructuredLogEvent = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                message()
+                severity()
+                spanId()
+                timestamp()
+                traceId()
+                type()
+                attributes()?.validate()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -491,39 +614,57 @@ constructor(
 
             class Builder {
 
-                private var attributes: Attributes? = null
-                private var message: String? = null
-                private var severity: Severity? = null
-                private var spanId: String? = null
-                private var timestamp: OffsetDateTime? = null
-                private var traceId: String? = null
-                private var type: Type? = null
+                private var message: JsonField<String>? = null
+                private var severity: JsonField<Severity>? = null
+                private var spanId: JsonField<String>? = null
+                private var timestamp: JsonField<OffsetDateTime>? = null
+                private var traceId: JsonField<String>? = null
+                private var type: JsonField<Type>? = null
+                private var attributes: JsonField<Attributes> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(unstructuredLogEvent: UnstructuredLogEvent) = apply {
-                    attributes = unstructuredLogEvent.attributes
                     message = unstructuredLogEvent.message
                     severity = unstructuredLogEvent.severity
                     spanId = unstructuredLogEvent.spanId
                     timestamp = unstructuredLogEvent.timestamp
                     traceId = unstructuredLogEvent.traceId
                     type = unstructuredLogEvent.type
+                    attributes = unstructuredLogEvent.attributes
                     additionalProperties = unstructuredLogEvent.additionalProperties.toMutableMap()
                 }
 
-                fun attributes(attributes: Attributes) = apply { this.attributes = attributes }
+                fun message(message: String) = message(JsonField.of(message))
 
-                fun message(message: String) = apply { this.message = message }
+                fun message(message: JsonField<String>) = apply { this.message = message }
 
-                fun severity(severity: Severity) = apply { this.severity = severity }
+                fun severity(severity: Severity) = severity(JsonField.of(severity))
 
-                fun spanId(spanId: String) = apply { this.spanId = spanId }
+                fun severity(severity: JsonField<Severity>) = apply { this.severity = severity }
 
-                fun timestamp(timestamp: OffsetDateTime) = apply { this.timestamp = timestamp }
+                fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
-                fun traceId(traceId: String) = apply { this.traceId = traceId }
+                fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
 
-                fun type(type: Type) = apply { this.type = type }
+                fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
+
+                fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
+                    this.timestamp = timestamp
+                }
+
+                fun traceId(traceId: String) = traceId(JsonField.of(traceId))
+
+                fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
+
+                fun attributes(attributes: JsonField<Attributes>) = apply {
+                    this.attributes = attributes
+                }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -549,13 +690,13 @@ constructor(
 
                 fun build(): UnstructuredLogEvent =
                     UnstructuredLogEvent(
-                        attributes,
                         checkNotNull(message) { "`message` is required but was not set" },
                         checkNotNull(severity) { "`severity` is required but was not set" },
                         checkNotNull(spanId) { "`spanId` is required but was not set" },
                         checkNotNull(timestamp) { "`timestamp` is required but was not set" },
                         checkNotNull(traceId) { "`traceId` is required but was not set" },
                         checkNotNull(type) { "`type` is required but was not set" },
+                        attributes,
                         additionalProperties.toImmutable(),
                     )
             }
@@ -705,6 +846,16 @@ constructor(
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                private var validated: Boolean = false
+
+                fun validate(): Attributes = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
                 fun toBuilder() = Builder().from(this)
 
                 companion object {
@@ -767,54 +918,108 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UnstructuredLogEvent && attributes == other.attributes && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is UnstructuredLogEvent && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(attributes, message, severity, spanId, timestamp, traceId, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(message, severity, spanId, timestamp, traceId, type, attributes, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "UnstructuredLogEvent{attributes=$attributes, message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, additionalProperties=$additionalProperties}"
+                "UnstructuredLogEvent{message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
         class MetricEvent
         @JsonCreator
         private constructor(
-            @JsonProperty("attributes") private val attributes: Attributes?,
-            @JsonProperty("metric") private val metric: String,
-            @JsonProperty("span_id") private val spanId: String,
-            @JsonProperty("timestamp") private val timestamp: OffsetDateTime,
-            @JsonProperty("trace_id") private val traceId: String,
-            @JsonProperty("type") private val type: Type,
-            @JsonProperty("unit") private val unit: String,
-            @JsonProperty("value") private val value: Double,
+            @JsonProperty("metric")
+            @ExcludeMissing
+            private val metric: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("span_id")
+            @ExcludeMissing
+            private val spanId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("timestamp")
+            @ExcludeMissing
+            private val timestamp: JsonField<OffsetDateTime> = JsonMissing.of(),
+            @JsonProperty("trace_id")
+            @ExcludeMissing
+            private val traceId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonProperty("unit")
+            @ExcludeMissing
+            private val unit: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("value")
+            @ExcludeMissing
+            private val value: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            private val attributes: JsonField<Attributes> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("attributes") fun attributes(): Attributes? = attributes
+            fun metric(): String = metric.getRequired("metric")
 
-            @JsonProperty("metric") fun metric(): String = metric
+            fun spanId(): String = spanId.getRequired("span_id")
 
-            @JsonProperty("span_id") fun spanId(): String = spanId
+            fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
 
-            @JsonProperty("timestamp") fun timestamp(): OffsetDateTime = timestamp
+            fun traceId(): String = traceId.getRequired("trace_id")
 
-            @JsonProperty("trace_id") fun traceId(): String = traceId
+            fun type(): Type = type.getRequired("type")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun unit(): String = unit.getRequired("unit")
 
-            @JsonProperty("unit") fun unit(): String = unit
+            fun value(): Double = value.getRequired("value")
 
-            @JsonProperty("value") fun value(): Double = value
+            fun attributes(): Attributes? = attributes.getNullable("attributes")
+
+            @JsonProperty("metric") @ExcludeMissing fun _metric(): JsonField<String> = metric
+
+            @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
+
+            @JsonProperty("timestamp")
+            @ExcludeMissing
+            fun _timestamp(): JsonField<OffsetDateTime> = timestamp
+
+            @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+            @JsonProperty("unit") @ExcludeMissing fun _unit(): JsonField<String> = unit
+
+            @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Double> = value
+
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            fun _attributes(): JsonField<Attributes> = attributes
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): MetricEvent = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                metric()
+                spanId()
+                timestamp()
+                traceId()
+                type()
+                unit()
+                value()
+                attributes()?.validate()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -825,18 +1030,17 @@ constructor(
 
             class Builder {
 
-                private var attributes: Attributes? = null
-                private var metric: String? = null
-                private var spanId: String? = null
-                private var timestamp: OffsetDateTime? = null
-                private var traceId: String? = null
-                private var type: Type? = null
-                private var unit: String? = null
-                private var value: Double? = null
+                private var metric: JsonField<String>? = null
+                private var spanId: JsonField<String>? = null
+                private var timestamp: JsonField<OffsetDateTime>? = null
+                private var traceId: JsonField<String>? = null
+                private var type: JsonField<Type>? = null
+                private var unit: JsonField<String>? = null
+                private var value: JsonField<Double>? = null
+                private var attributes: JsonField<Attributes> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(metricEvent: MetricEvent) = apply {
-                    attributes = metricEvent.attributes
                     metric = metricEvent.metric
                     spanId = metricEvent.spanId
                     timestamp = metricEvent.timestamp
@@ -844,24 +1048,45 @@ constructor(
                     type = metricEvent.type
                     unit = metricEvent.unit
                     value = metricEvent.value
+                    attributes = metricEvent.attributes
                     additionalProperties = metricEvent.additionalProperties.toMutableMap()
                 }
 
-                fun attributes(attributes: Attributes) = apply { this.attributes = attributes }
+                fun metric(metric: String) = metric(JsonField.of(metric))
 
-                fun metric(metric: String) = apply { this.metric = metric }
+                fun metric(metric: JsonField<String>) = apply { this.metric = metric }
 
-                fun spanId(spanId: String) = apply { this.spanId = spanId }
+                fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
-                fun timestamp(timestamp: OffsetDateTime) = apply { this.timestamp = timestamp }
+                fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
 
-                fun traceId(traceId: String) = apply { this.traceId = traceId }
+                fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
 
-                fun type(type: Type) = apply { this.type = type }
+                fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
+                    this.timestamp = timestamp
+                }
 
-                fun unit(unit: String) = apply { this.unit = unit }
+                fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
-                fun value(value: Double) = apply { this.value = value }
+                fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun unit(unit: String) = unit(JsonField.of(unit))
+
+                fun unit(unit: JsonField<String>) = apply { this.unit = unit }
+
+                fun value(value: Double) = value(JsonField.of(value))
+
+                fun value(value: JsonField<Double>) = apply { this.value = value }
+
+                fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
+
+                fun attributes(attributes: JsonField<Attributes>) = apply {
+                    this.attributes = attributes
+                }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -887,7 +1112,6 @@ constructor(
 
                 fun build(): MetricEvent =
                     MetricEvent(
-                        attributes,
                         checkNotNull(metric) { "`metric` is required but was not set" },
                         checkNotNull(spanId) { "`spanId` is required but was not set" },
                         checkNotNull(timestamp) { "`timestamp` is required but was not set" },
@@ -895,6 +1119,7 @@ constructor(
                         checkNotNull(type) { "`type` is required but was not set" },
                         checkNotNull(unit) { "`unit` is required but was not set" },
                         checkNotNull(value) { "`value` is required but was not set" },
+                        attributes,
                         additionalProperties.toImmutable(),
                     )
             }
@@ -962,6 +1187,16 @@ constructor(
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                private var validated: Boolean = false
+
+                fun validate(): Attributes = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
                 fun toBuilder() = Builder().from(this)
 
                 companion object {
@@ -1024,48 +1259,92 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MetricEvent && attributes == other.attributes && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is MetricEvent && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(attributes, metric, spanId, timestamp, traceId, type, unit, value, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(metric, spanId, timestamp, traceId, type, unit, value, attributes, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "MetricEvent{attributes=$attributes, metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, additionalProperties=$additionalProperties}"
+                "MetricEvent{metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, attributes=$attributes, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
         class StructuredLogEvent
         @JsonCreator
         private constructor(
-            @JsonProperty("attributes") private val attributes: Attributes?,
-            @JsonProperty("payload") private val payload: Payload,
-            @JsonProperty("span_id") private val spanId: String,
-            @JsonProperty("timestamp") private val timestamp: OffsetDateTime,
-            @JsonProperty("trace_id") private val traceId: String,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("payload")
+            @ExcludeMissing
+            private val payload: JsonField<Payload> = JsonMissing.of(),
+            @JsonProperty("span_id")
+            @ExcludeMissing
+            private val spanId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("timestamp")
+            @ExcludeMissing
+            private val timestamp: JsonField<OffsetDateTime> = JsonMissing.of(),
+            @JsonProperty("trace_id")
+            @ExcludeMissing
+            private val traceId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            private val attributes: JsonField<Attributes> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("attributes") fun attributes(): Attributes? = attributes
+            fun payload(): Payload = payload.getRequired("payload")
 
-            @JsonProperty("payload") fun payload(): Payload = payload
+            fun spanId(): String = spanId.getRequired("span_id")
 
-            @JsonProperty("span_id") fun spanId(): String = spanId
+            fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
 
-            @JsonProperty("timestamp") fun timestamp(): OffsetDateTime = timestamp
+            fun traceId(): String = traceId.getRequired("trace_id")
 
-            @JsonProperty("trace_id") fun traceId(): String = traceId
+            fun type(): Type = type.getRequired("type")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun attributes(): Attributes? = attributes.getNullable("attributes")
+
+            @JsonProperty("payload") @ExcludeMissing fun _payload(): JsonField<Payload> = payload
+
+            @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
+
+            @JsonProperty("timestamp")
+            @ExcludeMissing
+            fun _timestamp(): JsonField<OffsetDateTime> = timestamp
+
+            @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            fun _attributes(): JsonField<Attributes> = attributes
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): StructuredLogEvent = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                payload().validate()
+                spanId()
+                timestamp()
+                traceId()
+                type()
+                attributes()?.validate()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -1076,43 +1355,57 @@ constructor(
 
             class Builder {
 
-                private var attributes: Attributes? = null
-                private var payload: Payload? = null
-                private var spanId: String? = null
-                private var timestamp: OffsetDateTime? = null
-                private var traceId: String? = null
-                private var type: Type? = null
+                private var payload: JsonField<Payload>? = null
+                private var spanId: JsonField<String>? = null
+                private var timestamp: JsonField<OffsetDateTime>? = null
+                private var traceId: JsonField<String>? = null
+                private var type: JsonField<Type>? = null
+                private var attributes: JsonField<Attributes> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(structuredLogEvent: StructuredLogEvent) = apply {
-                    attributes = structuredLogEvent.attributes
                     payload = structuredLogEvent.payload
                     spanId = structuredLogEvent.spanId
                     timestamp = structuredLogEvent.timestamp
                     traceId = structuredLogEvent.traceId
                     type = structuredLogEvent.type
+                    attributes = structuredLogEvent.attributes
                     additionalProperties = structuredLogEvent.additionalProperties.toMutableMap()
                 }
 
-                fun attributes(attributes: Attributes) = apply { this.attributes = attributes }
+                fun payload(payload: Payload) = payload(JsonField.of(payload))
 
-                fun payload(payload: Payload) = apply { this.payload = payload }
+                fun payload(payload: JsonField<Payload>) = apply { this.payload = payload }
 
-                fun payload(spanStartPayload: Payload.SpanStartPayload) = apply {
-                    this.payload = Payload.ofSpanStartPayload(spanStartPayload)
+                fun payload(spanStartPayload: Payload.SpanStartPayload) =
+                    payload(Payload.ofSpanStartPayload(spanStartPayload))
+
+                fun payload(spanEndPayload: Payload.SpanEndPayload) =
+                    payload(Payload.ofSpanEndPayload(spanEndPayload))
+
+                fun spanId(spanId: String) = spanId(JsonField.of(spanId))
+
+                fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
+
+                fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
+
+                fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
+                    this.timestamp = timestamp
                 }
 
-                fun payload(spanEndPayload: Payload.SpanEndPayload) = apply {
-                    this.payload = Payload.ofSpanEndPayload(spanEndPayload)
+                fun traceId(traceId: String) = traceId(JsonField.of(traceId))
+
+                fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
+
+                fun attributes(attributes: JsonField<Attributes>) = apply {
+                    this.attributes = attributes
                 }
-
-                fun spanId(spanId: String) = apply { this.spanId = spanId }
-
-                fun timestamp(timestamp: OffsetDateTime) = apply { this.timestamp = timestamp }
-
-                fun traceId(traceId: String) = apply { this.traceId = traceId }
-
-                fun type(type: Type) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -1138,12 +1431,12 @@ constructor(
 
                 fun build(): StructuredLogEvent =
                     StructuredLogEvent(
-                        attributes,
                         checkNotNull(payload) { "`payload` is required but was not set" },
                         checkNotNull(spanId) { "`spanId` is required but was not set" },
                         checkNotNull(timestamp) { "`timestamp` is required but was not set" },
                         checkNotNull(traceId) { "`traceId` is required but was not set" },
                         checkNotNull(type) { "`type` is required but was not set" },
+                        attributes,
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1178,6 +1471,27 @@ constructor(
                         spanEndPayload != null -> visitor.visitSpanEndPayload(spanEndPayload)
                         else -> visitor.unknown(_json)
                     }
+                }
+
+                private var validated: Boolean = false
+
+                fun validate(): Payload = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    accept(
+                        object : Visitor<Unit> {
+                            override fun visitSpanStartPayload(spanStartPayload: SpanStartPayload) {
+                                spanStartPayload.validate()
+                            }
+
+                            override fun visitSpanEndPayload(spanEndPayload: SpanEndPayload) {
+                                spanEndPayload.validate()
+                            }
+                        }
+                    )
+                    validated = true
                 }
 
                 override fun equals(other: Any?): Boolean {
@@ -1223,12 +1537,14 @@ constructor(
                     override fun ObjectCodec.deserialize(node: JsonNode): Payload {
                         val json = JsonValue.fromJsonNode(node)
 
-                        tryDeserialize(node, jacksonTypeRef<SpanStartPayload>())?.let {
-                            return Payload(spanStartPayload = it, _json = json)
-                        }
-                        tryDeserialize(node, jacksonTypeRef<SpanEndPayload>())?.let {
-                            return Payload(spanEndPayload = it, _json = json)
-                        }
+                        tryDeserialize(node, jacksonTypeRef<SpanStartPayload>()) { it.validate() }
+                            ?.let {
+                                return Payload(spanStartPayload = it, _json = json)
+                            }
+                        tryDeserialize(node, jacksonTypeRef<SpanEndPayload>()) { it.validate() }
+                            ?.let {
+                                return Payload(spanEndPayload = it, _json = json)
+                            }
 
                         return Payload(_json = json)
                     }
@@ -1256,22 +1572,49 @@ constructor(
                 class SpanStartPayload
                 @JsonCreator
                 private constructor(
-                    @JsonProperty("name") private val name: String,
-                    @JsonProperty("parent_span_id") private val parentSpanId: String?,
-                    @JsonProperty("type") private val type: Type,
+                    @JsonProperty("name")
+                    @ExcludeMissing
+                    private val name: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("type")
+                    @ExcludeMissing
+                    private val type: JsonField<Type> = JsonMissing.of(),
+                    @JsonProperty("parent_span_id")
+                    @ExcludeMissing
+                    private val parentSpanId: JsonField<String> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    @JsonProperty("name") fun name(): String = name
+                    fun name(): String = name.getRequired("name")
 
-                    @JsonProperty("parent_span_id") fun parentSpanId(): String? = parentSpanId
+                    fun type(): Type = type.getRequired("type")
 
-                    @JsonProperty("type") fun type(): Type = type
+                    fun parentSpanId(): String? = parentSpanId.getNullable("parent_span_id")
+
+                    @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
+
+                    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+                    @JsonProperty("parent_span_id")
+                    @ExcludeMissing
+                    fun _parentSpanId(): JsonField<String> = parentSpanId
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): SpanStartPayload = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        name()
+                        type()
+                        parentSpanId()
+                        validated = true
+                    }
 
                     fun toBuilder() = Builder().from(this)
 
@@ -1282,27 +1625,34 @@ constructor(
 
                     class Builder {
 
-                        private var name: String? = null
-                        private var parentSpanId: String? = null
-                        private var type: Type? = null
+                        private var name: JsonField<String>? = null
+                        private var type: JsonField<Type>? = null
+                        private var parentSpanId: JsonField<String> = JsonMissing.of()
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
                         internal fun from(spanStartPayload: SpanStartPayload) = apply {
                             name = spanStartPayload.name
-                            parentSpanId = spanStartPayload.parentSpanId
                             type = spanStartPayload.type
+                            parentSpanId = spanStartPayload.parentSpanId
                             additionalProperties =
                                 spanStartPayload.additionalProperties.toMutableMap()
                         }
 
-                        fun name(name: String) = apply { this.name = name }
+                        fun name(name: String) = name(JsonField.of(name))
 
-                        fun parentSpanId(parentSpanId: String) = apply {
+                        fun name(name: JsonField<String>) = apply { this.name = name }
+
+                        fun type(type: Type) = type(JsonField.of(type))
+
+                        fun type(type: JsonField<Type>) = apply { this.type = type }
+
+                        fun parentSpanId(parentSpanId: String) =
+                            parentSpanId(JsonField.of(parentSpanId))
+
+                        fun parentSpanId(parentSpanId: JsonField<String>) = apply {
                             this.parentSpanId = parentSpanId
                         }
-
-                        fun type(type: Type) = apply { this.type = type }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
@@ -1329,8 +1679,8 @@ constructor(
                         fun build(): SpanStartPayload =
                             SpanStartPayload(
                                 checkNotNull(name) { "`name` is required but was not set" },
-                                parentSpanId,
                                 checkNotNull(type) { "`type` is required but was not set" },
+                                parentSpanId,
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1395,36 +1745,58 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is SpanStartPayload && name == other.name && parentSpanId == other.parentSpanId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is SpanStartPayload && name == other.name && type == other.type && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(name, parentSpanId, type, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(name, type, parentSpanId, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "SpanStartPayload{name=$name, parentSpanId=$parentSpanId, type=$type, additionalProperties=$additionalProperties}"
+                        "SpanStartPayload{name=$name, type=$type, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect
                 class SpanEndPayload
                 @JsonCreator
                 private constructor(
-                    @JsonProperty("status") private val status: Status,
-                    @JsonProperty("type") private val type: Type,
+                    @JsonProperty("status")
+                    @ExcludeMissing
+                    private val status: JsonField<Status> = JsonMissing.of(),
+                    @JsonProperty("type")
+                    @ExcludeMissing
+                    private val type: JsonField<Type> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    @JsonProperty("status") fun status(): Status = status
+                    fun status(): Status = status.getRequired("status")
 
-                    @JsonProperty("type") fun type(): Type = type
+                    fun type(): Type = type.getRequired("type")
+
+                    @JsonProperty("status")
+                    @ExcludeMissing
+                    fun _status(): JsonField<Status> = status
+
+                    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): SpanEndPayload = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        status()
+                        type()
+                        validated = true
+                    }
 
                     fun toBuilder() = Builder().from(this)
 
@@ -1435,8 +1807,8 @@ constructor(
 
                     class Builder {
 
-                        private var status: Status? = null
-                        private var type: Type? = null
+                        private var status: JsonField<Status>? = null
+                        private var type: JsonField<Type>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -1447,9 +1819,13 @@ constructor(
                                 spanEndPayload.additionalProperties.toMutableMap()
                         }
 
-                        fun status(status: Status) = apply { this.status = status }
+                        fun status(status: Status) = status(JsonField.of(status))
 
-                        fun type(type: Type) = apply { this.type = type }
+                        fun status(status: JsonField<Status>) = apply { this.status = status }
+
+                        fun type(type: Type) = type(JsonField.of(type))
+
+                        fun type(type: JsonField<Type>) = apply { this.type = type }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
@@ -1679,6 +2055,16 @@ constructor(
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                private var validated: Boolean = false
+
+                fun validate(): Attributes = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
                 fun toBuilder() = Builder().from(this)
 
                 companion object {
@@ -1741,17 +2127,17 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StructuredLogEvent && attributes == other.attributes && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is StructuredLogEvent && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(attributes, payload, spanId, timestamp, traceId, type, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(payload, spanId, timestamp, traceId, type, attributes, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "StructuredLogEvent{attributes=$attributes, payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, additionalProperties=$additionalProperties}"
+                "StructuredLogEvent{payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
         }
     }
 
@@ -1760,11 +2146,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryLogEventParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryLogEventParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryLogEventParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryLogEventParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

@@ -38,8 +38,6 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
-    private var validated: Boolean = false
-
     fun vectorMemoryBank(): VectorMemoryBank? = vectorMemoryBank
 
     fun keyValueMemoryBank(): KeyValueMemoryBank? = keyValueMemoryBank
@@ -77,22 +75,33 @@ private constructor(
         }
     }
 
+    private var validated: Boolean = false
+
     fun validate(): MemoryBankListResponse = apply {
-        if (!validated) {
-            if (
-                vectorMemoryBank == null &&
-                    keyValueMemoryBank == null &&
-                    keywordMemoryBank == null &&
-                    graphMemoryBank == null
-            ) {
-                throw LlamaStackClientInvalidDataException("Unknown MemoryBankListResponse: $_json")
-            }
-            vectorMemoryBank?.validate()
-            keyValueMemoryBank?.validate()
-            keywordMemoryBank?.validate()
-            graphMemoryBank?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        accept(
+            object : Visitor<Unit> {
+                override fun visitVectorMemoryBank(vectorMemoryBank: VectorMemoryBank) {
+                    vectorMemoryBank.validate()
+                }
+
+                override fun visitKeyValueMemoryBank(keyValueMemoryBank: KeyValueMemoryBank) {
+                    keyValueMemoryBank.validate()
+                }
+
+                override fun visitKeywordMemoryBank(keywordMemoryBank: KeywordMemoryBank) {
+                    keywordMemoryBank.validate()
+                }
+
+                override fun visitGraphMemoryBank(graphMemoryBank: GraphMemoryBank) {
+                    graphMemoryBank.validate()
+                }
+            }
+        )
+        validated = true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -198,9 +207,6 @@ private constructor(
         @JsonProperty("chunk_size_in_tokens")
         @ExcludeMissing
         private val chunkSizeInTokens: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("embedding_dimension")
-        @ExcludeMissing
-        private val embeddingDimension: JsonField<Long> = JsonMissing.of(),
         @JsonProperty("embedding_model")
         @ExcludeMissing
         private val embeddingModel: JsonField<String> = JsonMissing.of(),
@@ -210,9 +216,6 @@ private constructor(
         @JsonProperty("memory_bank_type")
         @ExcludeMissing
         private val memoryBankType: JsonField<MemoryBankType> = JsonMissing.of(),
-        @JsonProperty("overlap_size_in_tokens")
-        @ExcludeMissing
-        private val overlapSizeInTokens: JsonField<Long> = JsonMissing.of(),
         @JsonProperty("provider_id")
         @ExcludeMissing
         private val providerId: JsonField<String> = JsonMissing.of(),
@@ -220,13 +223,17 @@ private constructor(
         @ExcludeMissing
         private val providerResourceId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+        @JsonProperty("embedding_dimension")
+        @ExcludeMissing
+        private val embeddingDimension: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("overlap_size_in_tokens")
+        @ExcludeMissing
+        private val overlapSizeInTokens: JsonField<Long> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         fun chunkSizeInTokens(): Long = chunkSizeInTokens.getRequired("chunk_size_in_tokens")
-
-        fun embeddingDimension(): Long? = embeddingDimension.getNullable("embedding_dimension")
 
         fun embeddingModel(): String = embeddingModel.getRequired("embedding_model")
 
@@ -234,39 +241,49 @@ private constructor(
 
         fun memoryBankType(): MemoryBankType = memoryBankType.getRequired("memory_bank_type")
 
-        fun overlapSizeInTokens(): Long? = overlapSizeInTokens.getNullable("overlap_size_in_tokens")
-
         fun providerId(): String = providerId.getRequired("provider_id")
 
         fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
         fun type(): Type = type.getRequired("type")
 
+        fun embeddingDimension(): Long? = embeddingDimension.getNullable("embedding_dimension")
+
+        fun overlapSizeInTokens(): Long? = overlapSizeInTokens.getNullable("overlap_size_in_tokens")
+
         @JsonProperty("chunk_size_in_tokens")
         @ExcludeMissing
-        fun _chunkSizeInTokens() = chunkSizeInTokens
+        fun _chunkSizeInTokens(): JsonField<Long> = chunkSizeInTokens
 
-        @JsonProperty("embedding_dimension")
+        @JsonProperty("embedding_model")
         @ExcludeMissing
-        fun _embeddingDimension() = embeddingDimension
+        fun _embeddingModel(): JsonField<String> = embeddingModel
 
-        @JsonProperty("embedding_model") @ExcludeMissing fun _embeddingModel() = embeddingModel
-
-        @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
-
-        @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
-
-        @JsonProperty("overlap_size_in_tokens")
+        @JsonProperty("identifier")
         @ExcludeMissing
-        fun _overlapSizeInTokens() = overlapSizeInTokens
+        fun _identifier(): JsonField<String> = identifier
 
-        @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+        @JsonProperty("memory_bank_type")
+        @ExcludeMissing
+        fun _memoryBankType(): JsonField<MemoryBankType> = memoryBankType
+
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        fun _providerId(): JsonField<String> = providerId
 
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
-        fun _providerResourceId() = providerResourceId
+        fun _providerResourceId(): JsonField<String> = providerResourceId
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+
+        @JsonProperty("embedding_dimension")
+        @ExcludeMissing
+        fun _embeddingDimension(): JsonField<Long> = embeddingDimension
+
+        @JsonProperty("overlap_size_in_tokens")
+        @ExcludeMissing
+        fun _overlapSizeInTokens(): JsonField<Long> = overlapSizeInTokens
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -275,18 +292,20 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): VectorMemoryBank = apply {
-            if (!validated) {
-                chunkSizeInTokens()
-                embeddingDimension()
-                embeddingModel()
-                identifier()
-                memoryBankType()
-                overlapSizeInTokens()
-                providerId()
-                providerResourceId()
-                type()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            chunkSizeInTokens()
+            embeddingModel()
+            identifier()
+            memoryBankType()
+            providerId()
+            providerResourceId()
+            type()
+            embeddingDimension()
+            overlapSizeInTokens()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -298,27 +317,27 @@ private constructor(
 
         class Builder {
 
-            private var chunkSizeInTokens: JsonField<Long> = JsonMissing.of()
+            private var chunkSizeInTokens: JsonField<Long>? = null
+            private var embeddingModel: JsonField<String>? = null
+            private var identifier: JsonField<String>? = null
+            private var memoryBankType: JsonField<MemoryBankType>? = null
+            private var providerId: JsonField<String>? = null
+            private var providerResourceId: JsonField<String>? = null
+            private var type: JsonField<Type>? = null
             private var embeddingDimension: JsonField<Long> = JsonMissing.of()
-            private var embeddingModel: JsonField<String> = JsonMissing.of()
-            private var identifier: JsonField<String> = JsonMissing.of()
-            private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
             private var overlapSizeInTokens: JsonField<Long> = JsonMissing.of()
-            private var providerId: JsonField<String> = JsonMissing.of()
-            private var providerResourceId: JsonField<String> = JsonMissing.of()
-            private var type: JsonField<Type> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(vectorMemoryBank: VectorMemoryBank) = apply {
                 chunkSizeInTokens = vectorMemoryBank.chunkSizeInTokens
-                embeddingDimension = vectorMemoryBank.embeddingDimension
                 embeddingModel = vectorMemoryBank.embeddingModel
                 identifier = vectorMemoryBank.identifier
                 memoryBankType = vectorMemoryBank.memoryBankType
-                overlapSizeInTokens = vectorMemoryBank.overlapSizeInTokens
                 providerId = vectorMemoryBank.providerId
                 providerResourceId = vectorMemoryBank.providerResourceId
                 type = vectorMemoryBank.type
+                embeddingDimension = vectorMemoryBank.embeddingDimension
+                overlapSizeInTokens = vectorMemoryBank.overlapSizeInTokens
                 additionalProperties = vectorMemoryBank.additionalProperties.toMutableMap()
             }
 
@@ -327,13 +346,6 @@ private constructor(
 
             fun chunkSizeInTokens(chunkSizeInTokens: JsonField<Long>) = apply {
                 this.chunkSizeInTokens = chunkSizeInTokens
-            }
-
-            fun embeddingDimension(embeddingDimension: Long) =
-                embeddingDimension(JsonField.of(embeddingDimension))
-
-            fun embeddingDimension(embeddingDimension: JsonField<Long>) = apply {
-                this.embeddingDimension = embeddingDimension
             }
 
             fun embeddingModel(embeddingModel: String) =
@@ -354,13 +366,6 @@ private constructor(
                 this.memoryBankType = memoryBankType
             }
 
-            fun overlapSizeInTokens(overlapSizeInTokens: Long) =
-                overlapSizeInTokens(JsonField.of(overlapSizeInTokens))
-
-            fun overlapSizeInTokens(overlapSizeInTokens: JsonField<Long>) = apply {
-                this.overlapSizeInTokens = overlapSizeInTokens
-            }
-
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
@@ -375,6 +380,20 @@ private constructor(
             fun type(type: Type) = type(JsonField.of(type))
 
             fun type(type: JsonField<Type>) = apply { this.type = type }
+
+            fun embeddingDimension(embeddingDimension: Long) =
+                embeddingDimension(JsonField.of(embeddingDimension))
+
+            fun embeddingDimension(embeddingDimension: JsonField<Long>) = apply {
+                this.embeddingDimension = embeddingDimension
+            }
+
+            fun overlapSizeInTokens(overlapSizeInTokens: Long) =
+                overlapSizeInTokens(JsonField.of(overlapSizeInTokens))
+
+            fun overlapSizeInTokens(overlapSizeInTokens: JsonField<Long>) = apply {
+                this.overlapSizeInTokens = overlapSizeInTokens
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -397,15 +416,19 @@ private constructor(
 
             fun build(): VectorMemoryBank =
                 VectorMemoryBank(
-                    chunkSizeInTokens,
+                    checkNotNull(chunkSizeInTokens) {
+                        "`chunkSizeInTokens` is required but was not set"
+                    },
+                    checkNotNull(embeddingModel) { "`embeddingModel` is required but was not set" },
+                    checkNotNull(identifier) { "`identifier` is required but was not set" },
+                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
+                    checkNotNull(providerId) { "`providerId` is required but was not set" },
+                    checkNotNull(providerResourceId) {
+                        "`providerResourceId` is required but was not set"
+                    },
+                    checkNotNull(type) { "`type` is required but was not set" },
                     embeddingDimension,
-                    embeddingModel,
-                    identifier,
-                    memoryBankType,
                     overlapSizeInTokens,
-                    providerId,
-                    providerResourceId,
-                    type,
                     additionalProperties.toImmutable(),
                 )
         }
@@ -518,17 +541,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is VectorMemoryBank && chunkSizeInTokens == other.chunkSizeInTokens && embeddingDimension == other.embeddingDimension && embeddingModel == other.embeddingModel && identifier == other.identifier && memoryBankType == other.memoryBankType && overlapSizeInTokens == other.overlapSizeInTokens && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is VectorMemoryBank && chunkSizeInTokens == other.chunkSizeInTokens && embeddingModel == other.embeddingModel && identifier == other.identifier && memoryBankType == other.memoryBankType && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && embeddingDimension == other.embeddingDimension && overlapSizeInTokens == other.overlapSizeInTokens && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(chunkSizeInTokens, embeddingDimension, embeddingModel, identifier, memoryBankType, overlapSizeInTokens, providerId, providerResourceId, type, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(chunkSizeInTokens, embeddingModel, identifier, memoryBankType, providerId, providerResourceId, type, embeddingDimension, overlapSizeInTokens, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "VectorMemoryBank{chunkSizeInTokens=$chunkSizeInTokens, embeddingDimension=$embeddingDimension, embeddingModel=$embeddingModel, identifier=$identifier, memoryBankType=$memoryBankType, overlapSizeInTokens=$overlapSizeInTokens, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
+            "VectorMemoryBank{chunkSizeInTokens=$chunkSizeInTokens, embeddingModel=$embeddingModel, identifier=$identifier, memoryBankType=$memoryBankType, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, embeddingDimension=$embeddingDimension, overlapSizeInTokens=$overlapSizeInTokens, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
@@ -562,17 +585,23 @@ private constructor(
 
         fun type(): Type = type.getRequired("type")
 
-        @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+        @JsonProperty("identifier")
+        @ExcludeMissing
+        fun _identifier(): JsonField<String> = identifier
 
-        @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+        @JsonProperty("memory_bank_type")
+        @ExcludeMissing
+        fun _memoryBankType(): JsonField<MemoryBankType> = memoryBankType
 
-        @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        fun _providerId(): JsonField<String> = providerId
 
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
-        fun _providerResourceId() = providerResourceId
+        fun _providerResourceId(): JsonField<String> = providerResourceId
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -581,14 +610,16 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): KeyValueMemoryBank = apply {
-            if (!validated) {
-                identifier()
-                memoryBankType()
-                providerId()
-                providerResourceId()
-                type()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            identifier()
+            memoryBankType()
+            providerId()
+            providerResourceId()
+            type()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -600,11 +631,11 @@ private constructor(
 
         class Builder {
 
-            private var identifier: JsonField<String> = JsonMissing.of()
-            private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
-            private var providerId: JsonField<String> = JsonMissing.of()
-            private var providerResourceId: JsonField<String> = JsonMissing.of()
-            private var type: JsonField<Type> = JsonMissing.of()
+            private var identifier: JsonField<String>? = null
+            private var memoryBankType: JsonField<MemoryBankType>? = null
+            private var providerId: JsonField<String>? = null
+            private var providerResourceId: JsonField<String>? = null
+            private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(keyValueMemoryBank: KeyValueMemoryBank) = apply {
@@ -663,11 +694,13 @@ private constructor(
 
             fun build(): KeyValueMemoryBank =
                 KeyValueMemoryBank(
-                    identifier,
-                    memoryBankType,
-                    providerId,
-                    providerResourceId,
-                    type,
+                    checkNotNull(identifier) { "`identifier` is required but was not set" },
+                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
+                    checkNotNull(providerId) { "`providerId` is required but was not set" },
+                    checkNotNull(providerResourceId) {
+                        "`providerResourceId` is required but was not set"
+                    },
+                    checkNotNull(type) { "`type` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -824,17 +857,23 @@ private constructor(
 
         fun type(): Type = type.getRequired("type")
 
-        @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+        @JsonProperty("identifier")
+        @ExcludeMissing
+        fun _identifier(): JsonField<String> = identifier
 
-        @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+        @JsonProperty("memory_bank_type")
+        @ExcludeMissing
+        fun _memoryBankType(): JsonField<MemoryBankType> = memoryBankType
 
-        @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        fun _providerId(): JsonField<String> = providerId
 
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
-        fun _providerResourceId() = providerResourceId
+        fun _providerResourceId(): JsonField<String> = providerResourceId
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -843,14 +882,16 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): KeywordMemoryBank = apply {
-            if (!validated) {
-                identifier()
-                memoryBankType()
-                providerId()
-                providerResourceId()
-                type()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            identifier()
+            memoryBankType()
+            providerId()
+            providerResourceId()
+            type()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -862,11 +903,11 @@ private constructor(
 
         class Builder {
 
-            private var identifier: JsonField<String> = JsonMissing.of()
-            private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
-            private var providerId: JsonField<String> = JsonMissing.of()
-            private var providerResourceId: JsonField<String> = JsonMissing.of()
-            private var type: JsonField<Type> = JsonMissing.of()
+            private var identifier: JsonField<String>? = null
+            private var memoryBankType: JsonField<MemoryBankType>? = null
+            private var providerId: JsonField<String>? = null
+            private var providerResourceId: JsonField<String>? = null
+            private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(keywordMemoryBank: KeywordMemoryBank) = apply {
@@ -925,11 +966,13 @@ private constructor(
 
             fun build(): KeywordMemoryBank =
                 KeywordMemoryBank(
-                    identifier,
-                    memoryBankType,
-                    providerId,
-                    providerResourceId,
-                    type,
+                    checkNotNull(identifier) { "`identifier` is required but was not set" },
+                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
+                    checkNotNull(providerId) { "`providerId` is required but was not set" },
+                    checkNotNull(providerResourceId) {
+                        "`providerResourceId` is required but was not set"
+                    },
+                    checkNotNull(type) { "`type` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -1086,17 +1129,23 @@ private constructor(
 
         fun type(): Type = type.getRequired("type")
 
-        @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+        @JsonProperty("identifier")
+        @ExcludeMissing
+        fun _identifier(): JsonField<String> = identifier
 
-        @JsonProperty("memory_bank_type") @ExcludeMissing fun _memoryBankType() = memoryBankType
+        @JsonProperty("memory_bank_type")
+        @ExcludeMissing
+        fun _memoryBankType(): JsonField<MemoryBankType> = memoryBankType
 
-        @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        fun _providerId(): JsonField<String> = providerId
 
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
-        fun _providerResourceId() = providerResourceId
+        fun _providerResourceId(): JsonField<String> = providerResourceId
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -1105,14 +1154,16 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): GraphMemoryBank = apply {
-            if (!validated) {
-                identifier()
-                memoryBankType()
-                providerId()
-                providerResourceId()
-                type()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            identifier()
+            memoryBankType()
+            providerId()
+            providerResourceId()
+            type()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -1124,11 +1175,11 @@ private constructor(
 
         class Builder {
 
-            private var identifier: JsonField<String> = JsonMissing.of()
-            private var memoryBankType: JsonField<MemoryBankType> = JsonMissing.of()
-            private var providerId: JsonField<String> = JsonMissing.of()
-            private var providerResourceId: JsonField<String> = JsonMissing.of()
-            private var type: JsonField<Type> = JsonMissing.of()
+            private var identifier: JsonField<String>? = null
+            private var memoryBankType: JsonField<MemoryBankType>? = null
+            private var providerId: JsonField<String>? = null
+            private var providerResourceId: JsonField<String>? = null
+            private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(graphMemoryBank: GraphMemoryBank) = apply {
@@ -1187,11 +1238,13 @@ private constructor(
 
             fun build(): GraphMemoryBank =
                 GraphMemoryBank(
-                    identifier,
-                    memoryBankType,
-                    providerId,
-                    providerResourceId,
-                    type,
+                    checkNotNull(identifier) { "`identifier` is required but was not set" },
+                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
+                    checkNotNull(providerId) { "`providerId` is required but was not set" },
+                    checkNotNull(providerResourceId) {
+                        "`providerResourceId` is required but was not set"
+                    },
+                    checkNotNull(type) { "`type` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }

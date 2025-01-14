@@ -19,22 +19,22 @@ import java.util.Objects
 class ScoringScoreBatchResponse
 @JsonCreator
 private constructor(
-    @JsonProperty("dataset_id")
-    @ExcludeMissing
-    private val datasetId: JsonField<String> = JsonMissing.of(),
     @JsonProperty("results")
     @ExcludeMissing
     private val results: JsonField<Results> = JsonMissing.of(),
+    @JsonProperty("dataset_id")
+    @ExcludeMissing
+    private val datasetId: JsonField<String> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun datasetId(): String? = datasetId.getNullable("dataset_id")
-
     fun results(): Results = results.getRequired("results")
 
-    @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId() = datasetId
+    fun datasetId(): String? = datasetId.getNullable("dataset_id")
 
-    @JsonProperty("results") @ExcludeMissing fun _results() = results
+    @JsonProperty("results") @ExcludeMissing fun _results(): JsonField<Results> = results
+
+    @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -43,11 +43,13 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ScoringScoreBatchResponse = apply {
-        if (!validated) {
-            datasetId()
-            results().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        results().validate()
+        datasetId()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -59,23 +61,23 @@ private constructor(
 
     class Builder {
 
+        private var results: JsonField<Results>? = null
         private var datasetId: JsonField<String> = JsonMissing.of()
-        private var results: JsonField<Results> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringScoreBatchResponse: ScoringScoreBatchResponse) = apply {
-            datasetId = scoringScoreBatchResponse.datasetId
             results = scoringScoreBatchResponse.results
+            datasetId = scoringScoreBatchResponse.datasetId
             additionalProperties = scoringScoreBatchResponse.additionalProperties.toMutableMap()
         }
-
-        fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
-
-        fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
         fun results(results: Results) = results(JsonField.of(results))
 
         fun results(results: JsonField<Results>) = apply { this.results = results }
+
+        fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
+
+        fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -98,8 +100,8 @@ private constructor(
 
         fun build(): ScoringScoreBatchResponse =
             ScoringScoreBatchResponse(
+                checkNotNull(results) { "`results` is required but was not set" },
                 datasetId,
-                results,
                 additionalProperties.toImmutable(),
             )
     }
@@ -119,9 +121,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Results = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -183,15 +187,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringScoreBatchResponse && datasetId == other.datasetId && results == other.results && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ScoringScoreBatchResponse && results == other.results && datasetId == other.datasetId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(datasetId, results, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(results, datasetId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ScoringScoreBatchResponse{datasetId=$datasetId, results=$results, additionalProperties=$additionalProperties}"
+        "ScoringScoreBatchResponse{results=$results, datasetId=$datasetId, additionalProperties=$additionalProperties}"
 }

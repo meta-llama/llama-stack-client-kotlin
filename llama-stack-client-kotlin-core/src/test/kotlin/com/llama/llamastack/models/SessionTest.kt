@@ -32,17 +32,17 @@ class SessionTest {
                             )
                             .outputAttachments(
                                 listOf(
-                                    Attachment.builder()
-                                        .content(Attachment.Content.ofString("string"))
+                                    Turn.OutputAttachment.builder()
+                                        .content(Turn.OutputAttachment.Content.ofString("string"))
                                         .mimeType("mime_type")
                                         .build()
                                 )
                             )
                             .outputMessage(
-                                CompletionMessage.builder()
+                                Turn.OutputMessage.builder()
                                     .content(InterleavedContent.ofString("string"))
-                                    .role(CompletionMessage.Role.ASSISTANT)
-                                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                    .role(Turn.OutputMessage.Role.ASSISTANT)
+                                    .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
                                     .toolCalls(
                                         listOf(
                                             ToolCall.builder()
@@ -68,11 +68,14 @@ class SessionTest {
                                     Turn.Step.ofInferenceStep(
                                         InferenceStep.builder()
                                             .modelResponse(
-                                                CompletionMessage.builder()
+                                                InferenceStep.ModelResponse.builder()
                                                     .content(InterleavedContent.ofString("string"))
-                                                    .role(CompletionMessage.Role.ASSISTANT)
+                                                    .role(
+                                                        InferenceStep.ModelResponse.Role.ASSISTANT
+                                                    )
                                                     .stopReason(
-                                                        CompletionMessage.StopReason.END_OF_TURN
+                                                        InferenceStep.ModelResponse.StopReason
+                                                            .END_OF_TURN
                                                     )
                                                     .toolCalls(
                                                         listOf(
@@ -150,17 +153,17 @@ class SessionTest {
                     )
                     .outputAttachments(
                         listOf(
-                            Attachment.builder()
-                                .content(Attachment.Content.ofString("string"))
+                            Turn.OutputAttachment.builder()
+                                .content(Turn.OutputAttachment.Content.ofString("string"))
                                 .mimeType("mime_type")
                                 .build()
                         )
                     )
                     .outputMessage(
-                        CompletionMessage.builder()
+                        Turn.OutputMessage.builder()
                             .content(InterleavedContent.ofString("string"))
-                            .role(CompletionMessage.Role.ASSISTANT)
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .role(Turn.OutputMessage.Role.ASSISTANT)
+                            .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
@@ -186,10 +189,12 @@ class SessionTest {
                             Turn.Step.ofInferenceStep(
                                 InferenceStep.builder()
                                     .modelResponse(
-                                        CompletionMessage.builder()
+                                        InferenceStep.ModelResponse.builder()
                                             .content(InterleavedContent.ofString("string"))
-                                            .role(CompletionMessage.Role.ASSISTANT)
-                                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                            .role(InferenceStep.ModelResponse.Role.ASSISTANT)
+                                            .stopReason(
+                                                InferenceStep.ModelResponse.StopReason.END_OF_TURN
+                                            )
                                             .toolCalls(
                                                 listOf(
                                                     ToolCall.builder()

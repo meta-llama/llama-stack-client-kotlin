@@ -35,7 +35,8 @@ class ScoringFunctionRegisterParamsTest {
             )
             .providerId("provider_id")
             .providerScoringFnId("provider_scoring_fn_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -68,7 +69,8 @@ class ScoringFunctionRegisterParamsTest {
                 )
                 .providerId("provider_id")
                 .providerScoringFnId("provider_scoring_fn_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

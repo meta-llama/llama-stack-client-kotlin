@@ -39,11 +39,11 @@ private constructor(
 
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
-    @JsonProperty("arguments") @ExcludeMissing fun _arguments() = arguments
+    @JsonProperty("arguments") @ExcludeMissing fun _arguments(): JsonField<Arguments> = arguments
 
-    @JsonProperty("call_id") @ExcludeMissing fun _callId() = callId
+    @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
-    @JsonProperty("tool_name") @ExcludeMissing fun _toolName() = toolName
+    @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -52,12 +52,14 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ToolCall = apply {
-        if (!validated) {
-            arguments().validate()
-            callId()
-            toolName()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        arguments().validate()
+        callId()
+        toolName()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -69,9 +71,9 @@ private constructor(
 
     class Builder {
 
-        private var arguments: JsonField<Arguments> = JsonMissing.of()
-        private var callId: JsonField<String> = JsonMissing.of()
-        private var toolName: JsonField<ToolName> = JsonMissing.of()
+        private var arguments: JsonField<Arguments>? = null
+        private var callId: JsonField<String>? = null
+        private var toolName: JsonField<ToolName>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolCall: ToolCall) = apply {
@@ -92,6 +94,8 @@ private constructor(
         fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
         fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
+
+        fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -114,9 +118,9 @@ private constructor(
 
         fun build(): ToolCall =
             ToolCall(
-                arguments,
-                callId,
-                toolName,
+                checkNotNull(arguments) { "`arguments` is required but was not set" },
+                checkNotNull(callId) { "`callId` is required but was not set" },
+                checkNotNull(toolName) { "`toolName` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }
@@ -136,9 +140,11 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): Arguments = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)

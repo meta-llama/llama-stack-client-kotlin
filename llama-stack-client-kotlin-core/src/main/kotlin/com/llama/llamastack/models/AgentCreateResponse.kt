@@ -27,7 +27,7 @@ private constructor(
 
     fun agentId(): String = agentId.getRequired("agent_id")
 
-    @JsonProperty("agent_id") @ExcludeMissing fun _agentId() = agentId
+    @JsonProperty("agent_id") @ExcludeMissing fun _agentId(): JsonField<String> = agentId
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,10 +36,12 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): AgentCreateResponse = apply {
-        if (!validated) {
-            agentId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        agentId()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -51,7 +53,7 @@ private constructor(
 
     class Builder {
 
-        private var agentId: JsonField<String> = JsonMissing.of()
+        private var agentId: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentCreateResponse: AgentCreateResponse) = apply {
@@ -83,7 +85,10 @@ private constructor(
         }
 
         fun build(): AgentCreateResponse =
-            AgentCreateResponse(agentId, additionalProperties.toImmutable())
+            AgentCreateResponse(
+                checkNotNull(agentId) { "`agentId` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {

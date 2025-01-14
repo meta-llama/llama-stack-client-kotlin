@@ -19,7 +19,8 @@ class ProviderServiceTest {
         val providerListResponse =
             providerService.list(
                 ProviderListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(providerListResponse)

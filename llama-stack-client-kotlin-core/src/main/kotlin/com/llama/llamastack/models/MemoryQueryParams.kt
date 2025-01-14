@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
@@ -17,11 +19,14 @@ import java.util.Objects
 
 class MemoryQueryParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: MemoryQueryBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -31,18 +36,27 @@ constructor(
 
     fun params(): Params? = body.params()
 
+    fun _bankId(): JsonField<String> = body._bankId()
+
+    fun _query(): JsonField<InterleavedContent> = body._query()
+
+    fun _params(): JsonField<Params> = body._params()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): MemoryQueryBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -54,22 +68,47 @@ constructor(
     class MemoryQueryBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("bank_id") private val bankId: String,
-        @JsonProperty("query") private val query: InterleavedContent,
-        @JsonProperty("params") private val params: Params?,
+        @JsonProperty("bank_id")
+        @ExcludeMissing
+        private val bankId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("query")
+        @ExcludeMissing
+        private val query: JsonField<InterleavedContent> = JsonMissing.of(),
+        @JsonProperty("params")
+        @ExcludeMissing
+        private val params: JsonField<Params> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("bank_id") fun bankId(): String = bankId
+        fun bankId(): String = bankId.getRequired("bank_id")
 
-        @JsonProperty("query") fun query(): InterleavedContent = query
+        fun query(): InterleavedContent = query.getRequired("query")
 
-        @JsonProperty("params") fun params(): Params? = params
+        fun params(): Params? = params.getNullable("params")
+
+        @JsonProperty("bank_id") @ExcludeMissing fun _bankId(): JsonField<String> = bankId
+
+        @JsonProperty("query") @ExcludeMissing fun _query(): JsonField<InterleavedContent> = query
+
+        @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): MemoryQueryBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            bankId()
+            query().validate()
+            params()?.validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -80,9 +119,9 @@ constructor(
 
         class Builder {
 
-            private var bankId: String? = null
-            private var query: InterleavedContent? = null
-            private var params: Params? = null
+            private var bankId: JsonField<String>? = null
+            private var query: JsonField<InterleavedContent>? = null
+            private var params: JsonField<Params> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(memoryQueryBody: MemoryQueryBody) = apply {
@@ -92,27 +131,29 @@ constructor(
                 additionalProperties = memoryQueryBody.additionalProperties.toMutableMap()
             }
 
-            fun bankId(bankId: String) = apply { this.bankId = bankId }
+            fun bankId(bankId: String) = bankId(JsonField.of(bankId))
 
-            fun query(query: InterleavedContent) = apply { this.query = query }
+            fun bankId(bankId: JsonField<String>) = apply { this.bankId = bankId }
 
-            fun query(string: String) = apply { this.query = InterleavedContent.ofString(string) }
+            fun query(query: InterleavedContent) = query(JsonField.of(query))
 
-            fun query(imageContentItem: InterleavedContent.ImageContentItem) = apply {
-                this.query = InterleavedContent.ofImageContentItem(imageContentItem)
-            }
+            fun query(query: JsonField<InterleavedContent>) = apply { this.query = query }
 
-            fun query(textContentItem: InterleavedContent.TextContentItem) = apply {
-                this.query = InterleavedContent.ofTextContentItem(textContentItem)
-            }
+            fun query(string: String) = query(InterleavedContent.ofString(string))
+
+            fun query(imageContentItem: InterleavedContent.ImageContentItem) =
+                query(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            fun query(textContentItem: InterleavedContent.TextContentItem) =
+                query(InterleavedContent.ofTextContentItem(textContentItem))
 
             fun queryOfInterleavedContentItems(
                 interleavedContentItems: List<InterleavedContentItem>
-            ) = apply {
-                this.query = InterleavedContent.ofInterleavedContentItems(interleavedContentItems)
-            }
+            ) = query(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
-            fun params(params: Params) = apply { this.params = params }
+            fun params(params: Params) = params(JsonField.of(params))
+
+            fun params(params: JsonField<Params>) = apply { this.params = params }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -170,25 +211,35 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: MemoryQueryBody.Builder = MemoryQueryBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(memoryQueryParams: MemoryQueryParams) = apply {
+            xLlamaStackClientVersion = memoryQueryParams.xLlamaStackClientVersion
             xLlamaStackProviderData = memoryQueryParams.xLlamaStackProviderData
             body = memoryQueryParams.body.toBuilder()
             additionalHeaders = memoryQueryParams.additionalHeaders.toBuilder()
             additionalQueryParams = memoryQueryParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun bankId(bankId: String) = apply { body.bankId(bankId) }
 
+        fun bankId(bankId: JsonField<String>) = apply { body.bankId(bankId) }
+
         fun query(query: InterleavedContent) = apply { body.query(query) }
+
+        fun query(query: JsonField<InterleavedContent>) = apply { body.query(query) }
 
         fun query(string: String) = apply { body.query(string) }
 
@@ -206,6 +257,27 @@ constructor(
             }
 
         fun params(params: Params) = apply { body.params(params) }
+
+        fun params(params: JsonField<Params>) = apply { body.params(params) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -305,27 +377,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): MemoryQueryParams =
             MemoryQueryParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -344,6 +398,16 @@ constructor(
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Params = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -404,11 +468,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is MemoryQueryParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is MemoryQueryParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "MemoryQueryParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "MemoryQueryParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

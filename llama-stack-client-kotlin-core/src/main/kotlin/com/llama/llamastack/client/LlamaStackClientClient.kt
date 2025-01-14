@@ -22,10 +22,19 @@ import com.llama.llamastack.services.blocking.ScoringService
 import com.llama.llamastack.services.blocking.ShieldService
 import com.llama.llamastack.services.blocking.SyntheticDataGenerationService
 import com.llama.llamastack.services.blocking.TelemetryService
+import com.llama.llamastack.services.blocking.ToolRuntimeService
+import com.llama.llamastack.services.blocking.ToolService
+import com.llama.llamastack.services.blocking.ToolgroupService
 
 interface LlamaStackClientClient {
 
     fun async(): LlamaStackClientClientAsync
+
+    fun toolgroups(): ToolgroupService
+
+    fun tools(): ToolService
+
+    fun toolRuntime(): ToolRuntimeService
 
     fun agents(): AgentService
 

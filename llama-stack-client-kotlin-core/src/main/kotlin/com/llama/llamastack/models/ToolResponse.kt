@@ -39,11 +39,11 @@ private constructor(
 
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
-    @JsonProperty("call_id") @ExcludeMissing fun _callId() = callId
+    @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
-    @JsonProperty("content") @ExcludeMissing fun _content() = content
+    @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
-    @JsonProperty("tool_name") @ExcludeMissing fun _toolName() = toolName
+    @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -52,12 +52,14 @@ private constructor(
     private var validated: Boolean = false
 
     fun validate(): ToolResponse = apply {
-        if (!validated) {
-            callId()
-            content()
-            toolName()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        callId()
+        content().validate()
+        toolName()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -69,9 +71,9 @@ private constructor(
 
     class Builder {
 
-        private var callId: JsonField<String> = JsonMissing.of()
-        private var content: JsonField<InterleavedContent> = JsonMissing.of()
-        private var toolName: JsonField<ToolName> = JsonMissing.of()
+        private var callId: JsonField<String>? = null
+        private var content: JsonField<InterleavedContent>? = null
+        private var toolName: JsonField<ToolName>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolResponse: ToolResponse) = apply {
@@ -89,9 +91,23 @@ private constructor(
 
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+        fun content(string: String) = content(InterleavedContent.ofString(string))
+
+        fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+            content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun content(textContentItem: InterleavedContent.TextContentItem) =
+            content(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun contentOfInterleavedContentItems(
+            interleavedContentItems: List<InterleavedContentItem>
+        ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
         fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
         fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
+
+        fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -114,9 +130,9 @@ private constructor(
 
         fun build(): ToolResponse =
             ToolResponse(
-                callId,
-                content,
-                toolName,
+                checkNotNull(callId) { "`callId` is required but was not set" },
+                checkNotNull(content) { "`content` is required but was not set" },
+                checkNotNull(toolName) { "`toolName` is required but was not set" },
                 additionalProperties.toImmutable(),
             )
     }

@@ -14,7 +14,8 @@ class AgentSessionRetrieveParamsTest {
             .agentId("agent_id")
             .sessionId("session_id")
             .turnIds(listOf("string"))
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -25,7 +26,8 @@ class AgentSessionRetrieveParamsTest {
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .turnIds(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("agent_id", "agent_id")
@@ -50,7 +52,8 @@ class AgentSessionRetrieveParamsTest {
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .turnIds(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull

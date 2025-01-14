@@ -25,7 +25,6 @@ import com.llama.llamastack.errors.RateLimitException
 import com.llama.llamastack.errors.UnauthorizedException
 import com.llama.llamastack.errors.UnexpectedStatusCodeException
 import com.llama.llamastack.errors.UnprocessableEntityException
-import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.InterleavedContent
@@ -125,17 +124,29 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         val expected =
             InferenceChatCompletionResponse.ofChatCompletionResponse(
                 InferenceChatCompletionResponse.ChatCompletionResponse.builder()
                     .completionMessage(
-                        CompletionMessage.builder()
+                        InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage
+                            .builder()
                             .content(InterleavedContent.ofString("string"))
-                            .role(CompletionMessage.Role.ASSISTANT)
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .role(
+                                InferenceChatCompletionResponse.ChatCompletionResponse
+                                    .CompletionMessage
+                                    .Role
+                                    .ASSISTANT
+                            )
+                            .stopReason(
+                                InferenceChatCompletionResponse.ChatCompletionResponse
+                                    .CompletionMessage
+                                    .StopReason
+                                    .END_OF_TURN
+                            )
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
@@ -241,7 +252,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -329,7 +341,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -417,7 +430,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -505,7 +519,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -593,7 +608,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -681,7 +697,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -769,7 +786,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -857,7 +875,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -946,7 +965,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(post(anyUrl()).willReturn(status(200).withBody("Not JSON")))
@@ -1027,7 +1047,8 @@ class ErrorHandlingTest {
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(post(anyUrl()).willReturn(status(400).withBody("Not JSON")))

@@ -45,6 +45,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
+                    .maxValidationSteps(0L)
                     .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
@@ -71,7 +72,8 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     )
                     .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -113,6 +115,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         )
                         .gradientAccumulationSteps(0L)
                         .maxStepsPerEpoch(0L)
+                        .maxValidationSteps(0L)
                         .nEpochs(0L)
                         .optimizerConfig(
                             PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
@@ -140,7 +143,8 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -182,6 +186,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
+                    .maxValidationSteps(0L)
                     .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
@@ -245,6 +250,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         )
                         .gradientAccumulationSteps(0L)
                         .maxStepsPerEpoch(0L)
+                        .maxValidationSteps(0L)
                         .nEpochs(0L)
                         .optimizerConfig(
                             PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
@@ -300,6 +306,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
+                    .maxValidationSteps(0L)
                     .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig

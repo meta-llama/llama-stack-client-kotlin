@@ -38,8 +38,6 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
-    private var validated: Boolean = false
-
     fun string(): String? = string
 
     fun imageContentItem(): ImageContentItem? = imageContentItem
@@ -78,20 +76,33 @@ private constructor(
         }
     }
 
+    private var validated: Boolean = false
+
     fun validate(): InterleavedContent = apply {
-        if (!validated) {
-            if (
-                string == null &&
-                    imageContentItem == null &&
-                    textContentItem == null &&
-                    interleavedContentItems == null
-            ) {
-                throw LlamaStackClientInvalidDataException("Unknown InterleavedContent: $_json")
-            }
-            imageContentItem?.validate()
-            textContentItem?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        accept(
+            object : Visitor<Unit> {
+                override fun visitString(string: String) {}
+
+                override fun visitImageContentItem(imageContentItem: ImageContentItem) {
+                    imageContentItem.validate()
+                }
+
+                override fun visitTextContentItem(textContentItem: TextContentItem) {
+                    textContentItem.validate()
+                }
+
+                override fun visitInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ) {
+                    interleavedContentItems.forEach { it.validate() }
+                }
+            }
+        )
+        validated = true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -160,9 +171,12 @@ private constructor(
                 ?.let {
                     return InterleavedContent(textContentItem = it, _json = json)
                 }
-            tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>())?.let {
-                return InterleavedContent(interleavedContentItems = it, _json = json)
-            }
+            tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
+                    it.forEach { it.validate() }
+                }
+                ?.let {
+                    return InterleavedContent(interleavedContentItems = it, _json = json)
+                }
 
             return InterleavedContent(_json = json)
         }
@@ -191,26 +205,26 @@ private constructor(
     class ImageContentItem
     @JsonCreator
     private constructor(
+        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
         @JsonProperty("data")
         @ExcludeMissing
         private val data: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
         @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun data(): String? = data.getNullable("data")
-
         fun type(): Type = type.getRequired("type")
+
+        fun data(): String? = data.getNullable("data")
 
         fun url(): Url? = url.getNullable("url")
 
-        @JsonProperty("data") @ExcludeMissing fun _data() = data
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
 
-        @JsonProperty("url") @ExcludeMissing fun _url() = url
+        @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -219,12 +233,14 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): ImageContentItem = apply {
-            if (!validated) {
-                data()
-                type()
-                url()?.validate()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            type()
+            data()
+            url()?.validate()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -236,25 +252,25 @@ private constructor(
 
         class Builder {
 
+            private var type: JsonField<Type>? = null
             private var data: JsonField<String> = JsonMissing.of()
-            private var type: JsonField<Type> = JsonMissing.of()
             private var url: JsonField<Url> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(imageContentItem: ImageContentItem) = apply {
-                data = imageContentItem.data
                 type = imageContentItem.type
+                data = imageContentItem.data
                 url = imageContentItem.url
                 additionalProperties = imageContentItem.additionalProperties.toMutableMap()
             }
 
-            fun data(data: String) = data(JsonField.of(data))
-
-            fun data(data: JsonField<String>) = apply { this.data = data }
-
             fun type(type: Type) = type(JsonField.of(type))
 
             fun type(type: JsonField<Type>) = apply { this.type = type }
+
+            fun data(data: String) = data(JsonField.of(data))
+
+            fun data(data: JsonField<String>) = apply { this.data = data }
 
             fun url(url: Url) = url(JsonField.of(url))
 
@@ -281,8 +297,8 @@ private constructor(
 
             fun build(): ImageContentItem =
                 ImageContentItem(
+                    checkNotNull(type) { "`type` is required but was not set" },
                     data,
-                    type,
                     url,
                     additionalProperties.toImmutable(),
                 )
@@ -344,17 +360,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageContentItem && data == other.data && type == other.type && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ImageContentItem && type == other.type && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(data, type, url, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(type, data, url, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageContentItem{data=$data, type=$type, url=$url, additionalProperties=$additionalProperties}"
+            "ImageContentItem{type=$type, data=$data, url=$url, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
@@ -373,9 +389,9 @@ private constructor(
 
         fun type(): Type = type.getRequired("type")
 
-        @JsonProperty("text") @ExcludeMissing fun _text() = text
+        @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
-        @JsonProperty("type") @ExcludeMissing fun _type() = type
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -384,11 +400,13 @@ private constructor(
         private var validated: Boolean = false
 
         fun validate(): TextContentItem = apply {
-            if (!validated) {
-                text()
-                type()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            text()
+            type()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -400,8 +418,8 @@ private constructor(
 
         class Builder {
 
-            private var text: JsonField<String> = JsonMissing.of()
-            private var type: JsonField<Type> = JsonMissing.of()
+            private var text: JsonField<String>? = null
+            private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(textContentItem: TextContentItem) = apply {
@@ -439,8 +457,8 @@ private constructor(
 
             fun build(): TextContentItem =
                 TextContentItem(
-                    text,
-                    type,
+                    checkNotNull(text) { "`text` is required but was not set" },
+                    checkNotNull(type) { "`type` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }

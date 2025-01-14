@@ -18,6 +18,7 @@ import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
@@ -30,11 +31,14 @@ import java.util.Objects
 
 class InferenceChatCompletionParams
 constructor(
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: InferenceChatCompletionBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -65,18 +69,48 @@ constructor(
 
     fun tools(): List<Tool>? = body.tools()
 
+    fun _messages(): JsonField<List<Message>> = body._messages()
+
+    fun _modelId(): JsonField<String> = body._modelId()
+
+    fun _logprobs(): JsonField<Logprobs> = body._logprobs()
+
+    fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
+
+    fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
+
+    fun _toolChoice(): JsonField<ToolChoice> = body._toolChoice()
+
+    /**
+     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
+     * "type": "function", "function" : { "name": "function_name", "description":
+     * "function_description", "parameters": {...} } }
+     *
+     * `function_tag` -- This is an example of how you could define your own user defined format for
+     * making tool calls. The function_tag format looks like this,
+     * <function=function_name>(parameters)</function>
+     *
+     * The detailed prompts for each of these formats are added to llama cli
+     */
+    fun _toolPromptFormat(): JsonField<ToolPromptFormat> = body._toolPromptFormat()
+
+    fun _tools(): JsonField<List<Tool>> = body._tools()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     internal fun getBody(): InferenceChatCompletionBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -88,29 +122,81 @@ constructor(
     class InferenceChatCompletionBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("messages") private val messages: List<Message>,
-        @JsonProperty("model_id") private val modelId: String,
-        @JsonProperty("logprobs") private val logprobs: Logprobs?,
-        @JsonProperty("response_format") private val responseFormat: ResponseFormat?,
-        @JsonProperty("sampling_params") private val samplingParams: SamplingParams?,
-        @JsonProperty("tool_choice") private val toolChoice: ToolChoice?,
-        @JsonProperty("tool_prompt_format") private val toolPromptFormat: ToolPromptFormat?,
-        @JsonProperty("tools") private val tools: List<Tool>?,
+        @JsonProperty("messages")
+        @ExcludeMissing
+        private val messages: JsonField<List<Message>> = JsonMissing.of(),
+        @JsonProperty("model_id")
+        @ExcludeMissing
+        private val modelId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("logprobs")
+        @ExcludeMissing
+        private val logprobs: JsonField<Logprobs> = JsonMissing.of(),
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        @JsonProperty("tools")
+        @ExcludeMissing
+        private val tools: JsonField<List<Tool>> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("messages") fun messages(): List<Message> = messages
+        fun messages(): List<Message> = messages.getRequired("messages")
 
-        @JsonProperty("model_id") fun modelId(): String = modelId
+        fun modelId(): String = modelId.getRequired("model_id")
 
-        @JsonProperty("logprobs") fun logprobs(): Logprobs? = logprobs
+        fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
-        @JsonProperty("response_format") fun responseFormat(): ResponseFormat? = responseFormat
+        fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
-        @JsonProperty("sampling_params") fun samplingParams(): SamplingParams? = samplingParams
+        fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
-        @JsonProperty("tool_choice") fun toolChoice(): ToolChoice? = toolChoice
+        fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
+
+        /**
+         * `json` -- Refers to the json format for calling tools. The json format takes the form
+         * like { "type": "function", "function" : { "name": "function_name", "description":
+         * "function_description", "parameters": {...} } }
+         *
+         * `function_tag` -- This is an example of how you could define your own user defined format
+         * for making tool calls. The function_tag format looks like this,
+         * <function=function_name>(parameters)</function>
+         *
+         * The detailed prompts for each of these formats are added to llama cli
+         */
+        fun toolPromptFormat(): ToolPromptFormat? =
+            toolPromptFormat.getNullable("tool_prompt_format")
+
+        fun tools(): List<Tool>? = tools.getNullable("tools")
+
+        @JsonProperty("messages")
+        @ExcludeMissing
+        fun _messages(): JsonField<List<Message>> = messages
+
+        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
+
+        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
+
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
+
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        fun _samplingParams(): JsonField<SamplingParams> = samplingParams
+
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        fun _toolChoice(): JsonField<ToolChoice> = toolChoice
 
         /**
          * `json` -- Refers to the json format for calling tools. The json format takes the form
@@ -124,13 +210,32 @@ constructor(
          * The detailed prompts for each of these formats are added to llama cli
          */
         @JsonProperty("tool_prompt_format")
-        fun toolPromptFormat(): ToolPromptFormat? = toolPromptFormat
+        @ExcludeMissing
+        fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
 
-        @JsonProperty("tools") fun tools(): List<Tool>? = tools
+        @JsonProperty("tools") @ExcludeMissing fun _tools(): JsonField<List<Tool>> = tools
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): InferenceChatCompletionBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            messages().forEach { it.validate() }
+            modelId()
+            logprobs()?.validate()
+            responseFormat()?.validate()
+            samplingParams()?.validate()
+            toolChoice()
+            toolPromptFormat()
+            tools()?.forEach { it.validate() }
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -141,58 +246,91 @@ constructor(
 
         class Builder {
 
-            private var messages: MutableList<Message>? = null
-            private var modelId: String? = null
-            private var logprobs: Logprobs? = null
-            private var responseFormat: ResponseFormat? = null
-            private var samplingParams: SamplingParams? = null
-            private var toolChoice: ToolChoice? = null
-            private var toolPromptFormat: ToolPromptFormat? = null
-            private var tools: MutableList<Tool>? = null
+            private var messages: JsonField<MutableList<Message>>? = null
+            private var modelId: JsonField<String>? = null
+            private var logprobs: JsonField<Logprobs> = JsonMissing.of()
+            private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
+            private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
+            private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
+            private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
+            private var tools: JsonField<MutableList<Tool>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(inferenceChatCompletionBody: InferenceChatCompletionBody) = apply {
-                messages = inferenceChatCompletionBody.messages.toMutableList()
+                messages = inferenceChatCompletionBody.messages.map { it.toMutableList() }
                 modelId = inferenceChatCompletionBody.modelId
                 logprobs = inferenceChatCompletionBody.logprobs
                 responseFormat = inferenceChatCompletionBody.responseFormat
                 samplingParams = inferenceChatCompletionBody.samplingParams
                 toolChoice = inferenceChatCompletionBody.toolChoice
                 toolPromptFormat = inferenceChatCompletionBody.toolPromptFormat
-                tools = inferenceChatCompletionBody.tools?.toMutableList()
+                tools = inferenceChatCompletionBody.tools.map { it.toMutableList() }
                 additionalProperties =
                     inferenceChatCompletionBody.additionalProperties.toMutableMap()
             }
 
-            fun messages(messages: List<Message>) = apply {
-                this.messages = messages.toMutableList()
+            fun messages(messages: List<Message>) = messages(JsonField.of(messages))
+
+            fun messages(messages: JsonField<List<Message>>) = apply {
+                this.messages = messages.map { it.toMutableList() }
             }
 
             fun addMessage(message: Message) = apply {
-                messages = (messages ?: mutableListOf()).apply { add(message) }
+                messages =
+                    (messages ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(message)
+                    }
             }
 
-            fun modelId(modelId: String) = apply { this.modelId = modelId }
+            fun addMessage(userMessage: UserMessage) =
+                addMessage(Message.ofUserMessage(userMessage))
 
-            fun logprobs(logprobs: Logprobs) = apply { this.logprobs = logprobs }
+            fun addMessage(systemMessage: SystemMessage) =
+                addMessage(Message.ofSystemMessage(systemMessage))
 
-            fun responseFormat(responseFormat: ResponseFormat) = apply {
+            fun addMessage(toolResponseMessage: ToolResponseMessage) =
+                addMessage(Message.ofToolResponseMessage(toolResponseMessage))
+
+            fun addMessage(completionMessage: Message.CompletionMessage) =
+                addMessage(Message.ofCompletionMessage(completionMessage))
+
+            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
+
+            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
+
+            fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
+
+            fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
+
+            fun responseFormat(responseFormat: ResponseFormat) =
+                responseFormat(JsonField.of(responseFormat))
+
+            fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
                 this.responseFormat = responseFormat
             }
 
-            fun responseFormat(unionMember0: ResponseFormat.UnionMember0) = apply {
-                this.responseFormat = ResponseFormat.ofUnionMember0(unionMember0)
-            }
+            fun responseFormat(unionMember0: ResponseFormat.UnionMember0) =
+                responseFormat(ResponseFormat.ofUnionMember0(unionMember0))
 
-            fun responseFormat(unionMember1: ResponseFormat.UnionMember1) = apply {
-                this.responseFormat = ResponseFormat.ofUnionMember1(unionMember1)
-            }
+            fun responseFormat(unionMember1: ResponseFormat.UnionMember1) =
+                responseFormat(ResponseFormat.ofUnionMember1(unionMember1))
 
-            fun samplingParams(samplingParams: SamplingParams) = apply {
+            fun samplingParams(samplingParams: SamplingParams) =
+                samplingParams(JsonField.of(samplingParams))
+
+            fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
 
-            fun toolChoice(toolChoice: ToolChoice) = apply { this.toolChoice = toolChoice }
+            fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
+
+            fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
+                this.toolChoice = toolChoice
+            }
 
             /**
              * `json` -- Refers to the json format for calling tools. The json format takes the form
@@ -205,14 +343,39 @@ constructor(
              *
              * The detailed prompts for each of these formats are added to llama cli
              */
-            fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) = apply {
+            fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
+                toolPromptFormat(JsonField.of(toolPromptFormat))
+
+            /**
+             * `json` -- Refers to the json format for calling tools. The json format takes the form
+             * like { "type": "function", "function" : { "name": "function_name", "description":
+             * "function_description", "parameters": {...} } }
+             *
+             * `function_tag` -- This is an example of how you could define your own user defined
+             * format for making tool calls. The function_tag format looks like this,
+             * <function=function_name>(parameters)</function>
+             *
+             * The detailed prompts for each of these formats are added to llama cli
+             */
+            fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
                 this.toolPromptFormat = toolPromptFormat
             }
 
-            fun tools(tools: List<Tool>) = apply { this.tools = tools.toMutableList() }
+            fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
+
+            fun tools(tools: JsonField<List<Tool>>) = apply {
+                this.tools = tools.map { it.toMutableList() }
+            }
 
             fun addTool(tool: Tool) = apply {
-                tools = (tools ?: mutableListOf()).apply { add(tool) }
+                tools =
+                    (tools ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(tool)
+                    }
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -237,14 +400,14 @@ constructor(
             fun build(): InferenceChatCompletionBody =
                 InferenceChatCompletionBody(
                     checkNotNull(messages) { "`messages` is required but was not set" }
-                        .toImmutable(),
+                        .map { it.toImmutable() },
                     checkNotNull(modelId) { "`modelId` is required but was not set" },
                     logprobs,
                     responseFormat,
                     samplingParams,
                     toolChoice,
                     toolPromptFormat,
-                    tools?.toImmutable(),
+                    (tools ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -277,6 +440,7 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: InferenceChatCompletionBody.Builder =
             InferenceChatCompletionBody.builder()
@@ -284,25 +448,52 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(inferenceChatCompletionParams: InferenceChatCompletionParams) = apply {
+            xLlamaStackClientVersion = inferenceChatCompletionParams.xLlamaStackClientVersion
             xLlamaStackProviderData = inferenceChatCompletionParams.xLlamaStackProviderData
             body = inferenceChatCompletionParams.body.toBuilder()
             additionalHeaders = inferenceChatCompletionParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceChatCompletionParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
+        fun messages(messages: JsonField<List<Message>>) = apply { body.messages(messages) }
+
         fun addMessage(message: Message) = apply { body.addMessage(message) }
+
+        fun addMessage(userMessage: UserMessage) = apply { body.addMessage(userMessage) }
+
+        fun addMessage(systemMessage: SystemMessage) = apply { body.addMessage(systemMessage) }
+
+        fun addMessage(toolResponseMessage: ToolResponseMessage) = apply {
+            body.addMessage(toolResponseMessage)
+        }
+
+        fun addMessage(completionMessage: Message.CompletionMessage) = apply {
+            body.addMessage(completionMessage)
+        }
 
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
+        fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
+
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
+        fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
+
         fun responseFormat(responseFormat: ResponseFormat) = apply {
+            body.responseFormat(responseFormat)
+        }
+
+        fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
             body.responseFormat(responseFormat)
         }
 
@@ -318,7 +509,13 @@ constructor(
             body.samplingParams(samplingParams)
         }
 
+        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
+            body.samplingParams(samplingParams)
+        }
+
         fun toolChoice(toolChoice: ToolChoice) = apply { body.toolChoice(toolChoice) }
+
+        fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply { body.toolChoice(toolChoice) }
 
         /**
          * `json` -- Refers to the json format for calling tools. The json format takes the form
@@ -335,9 +532,45 @@ constructor(
             body.toolPromptFormat(toolPromptFormat)
         }
 
+        /**
+         * `json` -- Refers to the json format for calling tools. The json format takes the form
+         * like { "type": "function", "function" : { "name": "function_name", "description":
+         * "function_description", "parameters": {...} } }
+         *
+         * `function_tag` -- This is an example of how you could define your own user defined format
+         * for making tool calls. The function_tag format looks like this,
+         * <function=function_name>(parameters)</function>
+         *
+         * The detailed prompts for each of these formats are added to llama cli
+         */
+        fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
+            body.toolPromptFormat(toolPromptFormat)
+        }
+
         fun tools(tools: List<Tool>) = apply { body.tools(tools) }
 
+        fun tools(tools: JsonField<List<Tool>>) = apply { body.tools(tools) }
+
         fun addTool(tool: Tool) = apply { body.addTool(tool) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -437,27 +670,9 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
         fun build(): InferenceChatCompletionParams =
             InferenceChatCompletionParams(
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
@@ -514,6 +729,37 @@ constructor(
             }
         }
 
+        private var validated: Boolean = false
+
+        fun validate(): Message = apply {
+            if (validated) {
+                return@apply
+            }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitUserMessage(userMessage: UserMessage) {
+                        userMessage.validate()
+                    }
+
+                    override fun visitSystemMessage(systemMessage: SystemMessage) {
+                        systemMessage.validate()
+                    }
+
+                    override fun visitToolResponseMessage(
+                        toolResponseMessage: ToolResponseMessage
+                    ) {
+                        toolResponseMessage.validate()
+                    }
+
+                    override fun visitCompletionMessage(completionMessage: CompletionMessage) {
+                        completionMessage.validate()
+                    }
+                }
+            )
+            validated = true
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -568,18 +814,22 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Message {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
-                    return Message(userMessage = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<SystemMessage>())?.let {
-                    return Message(systemMessage = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
-                    return Message(toolResponseMessage = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<CompletionMessage>())?.let {
-                    return Message(completionMessage = it, _json = json)
-                }
+                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
+                    ?.let {
+                        return Message(userMessage = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
+                    ?.let {
+                        return Message(systemMessage = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
+                    ?.let {
+                        return Message(toolResponseMessage = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
+                    ?.let {
+                        return Message(completionMessage = it, _json = json)
+                    }
 
                 return Message(_json = json)
             }
@@ -604,22 +854,329 @@ constructor(
                 }
             }
         }
+
+        @NoAutoDetect
+        class CompletionMessage
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content")
+            @ExcludeMissing
+            private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+            @JsonProperty("role")
+            @ExcludeMissing
+            private val role: JsonField<Role> = JsonMissing.of(),
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+            @JsonProperty("tool_calls")
+            @ExcludeMissing
+            private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            fun content(): InterleavedContent = content.getRequired("content")
+
+            fun role(): Role = role.getRequired("role")
+
+            fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
+
+            fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
+
+            @JsonProperty("content")
+            @ExcludeMissing
+            fun _content(): JsonField<InterleavedContent> = content
+
+            @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
+
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            fun _stopReason(): JsonField<StopReason> = stopReason
+
+            @JsonProperty("tool_calls")
+            @ExcludeMissing
+            fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): CompletionMessage = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                content().validate()
+                role()
+                stopReason()
+                toolCalls().forEach { it.validate() }
+                validated = true
+            }
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var content: JsonField<InterleavedContent>? = null
+                private var role: JsonField<Role>? = null
+                private var stopReason: JsonField<StopReason>? = null
+                private var toolCalls: JsonField<MutableList<ToolCall>>? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(completionMessage: CompletionMessage) = apply {
+                    content = completionMessage.content
+                    role = completionMessage.role
+                    stopReason = completionMessage.stopReason
+                    toolCalls = completionMessage.toolCalls.map { it.toMutableList() }
+                    additionalProperties = completionMessage.additionalProperties.toMutableMap()
+                }
+
+                fun content(content: InterleavedContent) = content(JsonField.of(content))
+
+                fun content(content: JsonField<InterleavedContent>) = apply {
+                    this.content = content
+                }
+
+                fun content(string: String) = content(InterleavedContent.ofString(string))
+
+                fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+                    content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+                fun content(textContentItem: InterleavedContent.TextContentItem) =
+                    content(InterleavedContent.ofTextContentItem(textContentItem))
+
+                fun contentOfInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
+                fun role(role: Role) = role(JsonField.of(role))
+
+                fun role(role: JsonField<Role>) = apply { this.role = role }
+
+                fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
+
+                fun stopReason(stopReason: JsonField<StopReason>) = apply {
+                    this.stopReason = stopReason
+                }
+
+                fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
+
+                fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
+                    this.toolCalls = toolCalls.map { it.toMutableList() }
+                }
+
+                fun addToolCall(toolCall: ToolCall) = apply {
+                    toolCalls =
+                        (toolCalls ?: JsonField.of(mutableListOf())).apply {
+                            (asKnown()
+                                    ?: throw IllegalStateException(
+                                        "Field was set to non-list type: ${javaClass.simpleName}"
+                                    ))
+                                .add(toolCall)
+                        }
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): CompletionMessage =
+                    CompletionMessage(
+                        checkNotNull(content) { "`content` is required but was not set" },
+                        checkNotNull(role) { "`role` is required but was not set" },
+                        checkNotNull(stopReason) { "`stopReason` is required but was not set" },
+                        checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
+                            .map { it.toImmutable() },
+                        additionalProperties.toImmutable(),
+                    )
+            }
+
+            class Role
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
+
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+                companion object {
+
+                    val ASSISTANT = of("assistant")
+
+                    fun of(value: String) = Role(JsonField.of(value))
+                }
+
+                enum class Known {
+                    ASSISTANT,
+                }
+
+                enum class Value {
+                    ASSISTANT,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        ASSISTANT -> Value.ASSISTANT
+                        else -> Value._UNKNOWN
+                    }
+
+                fun known(): Known =
+                    when (this) {
+                        ASSISTANT -> Known.ASSISTANT
+                        else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
+                    }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Role && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
+            }
+
+            class StopReason
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
+
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+                companion object {
+
+                    val END_OF_TURN = of("end_of_turn")
+
+                    val END_OF_MESSAGE = of("end_of_message")
+
+                    val OUT_OF_TOKENS = of("out_of_tokens")
+
+                    fun of(value: String) = StopReason(JsonField.of(value))
+                }
+
+                enum class Known {
+                    END_OF_TURN,
+                    END_OF_MESSAGE,
+                    OUT_OF_TOKENS,
+                }
+
+                enum class Value {
+                    END_OF_TURN,
+                    END_OF_MESSAGE,
+                    OUT_OF_TOKENS,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        END_OF_TURN -> Value.END_OF_TURN
+                        END_OF_MESSAGE -> Value.END_OF_MESSAGE
+                        OUT_OF_TOKENS -> Value.OUT_OF_TOKENS
+                        else -> Value._UNKNOWN
+                    }
+
+                fun known(): Known =
+                    when (this) {
+                        END_OF_TURN -> Known.END_OF_TURN
+                        END_OF_MESSAGE -> Known.END_OF_MESSAGE
+                        OUT_OF_TOKENS -> Known.OUT_OF_TOKENS
+                        else ->
+                            throw LlamaStackClientInvalidDataException("Unknown StopReason: $value")
+                    }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is CompletionMessage && content == other.content && role == other.role && stopReason == other.stopReason && toolCalls == other.toolCalls && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(content, role, stopReason, toolCalls, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "CompletionMessage{content=$content, role=$role, stopReason=$stopReason, toolCalls=$toolCalls, additionalProperties=$additionalProperties}"
+        }
     }
 
     @NoAutoDetect
     class Logprobs
     @JsonCreator
     private constructor(
-        @JsonProperty("top_k") private val topK: Long?,
+        @JsonProperty("top_k") @ExcludeMissing private val topK: JsonField<Long> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("top_k") fun topK(): Long? = topK
+        fun topK(): Long? = topK.getNullable("top_k")
+
+        @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Logprobs = apply {
+            if (validated) {
+                return@apply
+            }
+
+            topK()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -630,7 +1187,7 @@ constructor(
 
         class Builder {
 
-            private var topK: Long? = null
+            private var topK: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(logprobs: Logprobs) = apply {
@@ -638,7 +1195,9 @@ constructor(
                 additionalProperties = logprobs.additionalProperties.toMutableMap()
             }
 
-            fun topK(topK: Long) = apply { this.topK = topK }
+            fun topK(topK: Long) = topK(JsonField.of(topK))
+
+            fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -710,6 +1269,27 @@ constructor(
             }
         }
 
+        private var validated: Boolean = false
+
+        fun validate(): ResponseFormat = apply {
+            if (validated) {
+                return@apply
+            }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitUnionMember0(unionMember0: UnionMember0) {
+                        unionMember0.validate()
+                    }
+
+                    override fun visitUnionMember1(unionMember1: UnionMember1) {
+                        unionMember1.validate()
+                    }
+                }
+            )
+            validated = true
+        }
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -753,12 +1333,14 @@ constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): ResponseFormat {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UnionMember0>())?.let {
-                    return ResponseFormat(unionMember0 = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<UnionMember1>())?.let {
-                    return ResponseFormat(unionMember1 = it, _json = json)
-                }
+                tryDeserialize(node, jacksonTypeRef<UnionMember0>()) { it.validate() }
+                    ?.let {
+                        return ResponseFormat(unionMember0 = it, _json = json)
+                    }
+                tryDeserialize(node, jacksonTypeRef<UnionMember1>()) { it.validate() }
+                    ?.let {
+                        return ResponseFormat(unionMember1 = it, _json = json)
+                    }
 
                 return ResponseFormat(_json = json)
             }
@@ -784,19 +1366,41 @@ constructor(
         class UnionMember0
         @JsonCreator
         private constructor(
-            @JsonProperty("json_schema") private val jsonSchema: JsonSchema,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("json_schema")
+            @ExcludeMissing
+            private val jsonSchema: JsonField<JsonSchema> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("json_schema") fun jsonSchema(): JsonSchema = jsonSchema
+            fun jsonSchema(): JsonSchema = jsonSchema.getRequired("json_schema")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun type(): Type = type.getRequired("type")
+
+            @JsonProperty("json_schema")
+            @ExcludeMissing
+            fun _jsonSchema(): JsonField<JsonSchema> = jsonSchema
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): UnionMember0 = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                jsonSchema().validate()
+                type()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -807,8 +1411,8 @@ constructor(
 
             class Builder {
 
-                private var jsonSchema: JsonSchema? = null
-                private var type: Type? = null
+                private var jsonSchema: JsonField<JsonSchema>? = null
+                private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(unionMember0: UnionMember0) = apply {
@@ -817,9 +1421,15 @@ constructor(
                     additionalProperties = unionMember0.additionalProperties.toMutableMap()
                 }
 
-                fun jsonSchema(jsonSchema: JsonSchema) = apply { this.jsonSchema = jsonSchema }
+                fun jsonSchema(jsonSchema: JsonSchema) = jsonSchema(JsonField.of(jsonSchema))
 
-                fun type(type: Type) = apply { this.type = type }
+                fun jsonSchema(jsonSchema: JsonField<JsonSchema>) = apply {
+                    this.jsonSchema = jsonSchema
+                }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -862,6 +1472,16 @@ constructor(
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): JsonSchema = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -993,19 +1613,37 @@ constructor(
         class UnionMember1
         @JsonCreator
         private constructor(
-            @JsonProperty("bnf") private val bnf: Bnf,
-            @JsonProperty("type") private val type: Type,
+            @JsonProperty("bnf") @ExcludeMissing private val bnf: JsonField<Bnf> = JsonMissing.of(),
+            @JsonProperty("type")
+            @ExcludeMissing
+            private val type: JsonField<Type> = JsonMissing.of(),
             @JsonAnySetter
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            @JsonProperty("bnf") fun bnf(): Bnf = bnf
+            fun bnf(): Bnf = bnf.getRequired("bnf")
 
-            @JsonProperty("type") fun type(): Type = type
+            fun type(): Type = type.getRequired("type")
+
+            @JsonProperty("bnf") @ExcludeMissing fun _bnf(): JsonField<Bnf> = bnf
+
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): UnionMember1 = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                bnf().validate()
+                type()
+                validated = true
+            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -1016,8 +1654,8 @@ constructor(
 
             class Builder {
 
-                private var bnf: Bnf? = null
-                private var type: Type? = null
+                private var bnf: JsonField<Bnf>? = null
+                private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(unionMember1: UnionMember1) = apply {
@@ -1026,9 +1664,13 @@ constructor(
                     additionalProperties = unionMember1.additionalProperties.toMutableMap()
                 }
 
-                fun bnf(bnf: Bnf) = apply { this.bnf = bnf }
+                fun bnf(bnf: Bnf) = bnf(JsonField.of(bnf))
 
-                fun type(type: Type) = apply { this.type = type }
+                fun bnf(bnf: JsonField<Bnf>) = apply { this.bnf = bnf }
+
+                fun type(type: Type) = type(JsonField.of(type))
+
+                fun type(type: JsonField<Type>) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
@@ -1071,6 +1713,16 @@ constructor(
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): Bnf = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1324,22 +1976,51 @@ constructor(
     class Tool
     @JsonCreator
     private constructor(
-        @JsonProperty("description") private val description: String?,
-        @JsonProperty("parameters") private val parameters: Parameters?,
-        @JsonProperty("tool_name") private val toolName: ToolName,
+        @JsonProperty("tool_name")
+        @ExcludeMissing
+        private val toolName: JsonField<ToolName> = JsonMissing.of(),
+        @JsonProperty("description")
+        @ExcludeMissing
+        private val description: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("parameters")
+        @ExcludeMissing
+        private val parameters: JsonField<Parameters> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("description") fun description(): String? = description
+        fun toolName(): ToolName = toolName.getRequired("tool_name")
 
-        @JsonProperty("parameters") fun parameters(): Parameters? = parameters
+        fun description(): String? = description.getNullable("description")
 
-        @JsonProperty("tool_name") fun toolName(): ToolName = toolName
+        fun parameters(): Parameters? = parameters.getNullable("parameters")
+
+        @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
+
+        @JsonProperty("description")
+        @ExcludeMissing
+        fun _description(): JsonField<String> = description
+
+        @JsonProperty("parameters")
+        @ExcludeMissing
+        fun _parameters(): JsonField<Parameters> = parameters
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Tool = apply {
+            if (validated) {
+                return@apply
+            }
+
+            toolName()
+            description()
+            parameters()?.validate()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -1350,25 +2031,35 @@ constructor(
 
         class Builder {
 
-            private var description: String? = null
-            private var parameters: Parameters? = null
-            private var toolName: ToolName? = null
+            private var toolName: JsonField<ToolName>? = null
+            private var description: JsonField<String> = JsonMissing.of()
+            private var parameters: JsonField<Parameters> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(tool: Tool) = apply {
+                toolName = tool.toolName
                 description = tool.description
                 parameters = tool.parameters
-                toolName = tool.toolName
                 additionalProperties = tool.additionalProperties.toMutableMap()
             }
 
-            fun description(description: String) = apply { this.description = description }
+            fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
-            fun parameters(parameters: Parameters) = apply { this.parameters = parameters }
+            fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
 
-            fun toolName(toolName: ToolName) = apply { this.toolName = toolName }
+            fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
 
-            fun toolName(value: String) = apply { toolName = ToolName.of(value) }
+            fun description(description: String) = description(JsonField.of(description))
+
+            fun description(description: JsonField<String>) = apply {
+                this.description = description
+            }
+
+            fun parameters(parameters: Parameters) = parameters(JsonField.of(parameters))
+
+            fun parameters(parameters: JsonField<Parameters>) = apply {
+                this.parameters = parameters
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -1391,9 +2082,9 @@ constructor(
 
             fun build(): Tool =
                 Tool(
+                    checkNotNull(toolName) { "`toolName` is required but was not set" },
                     description,
                     parameters,
-                    checkNotNull(toolName) { "`toolName` is required but was not set" },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -1479,6 +2170,16 @@ constructor(
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+            private var validated: Boolean = false
+
+            fun validate(): Parameters = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
             fun toBuilder() = Builder().from(this)
 
             companion object {
@@ -1541,17 +2242,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Tool && description == other.description && parameters == other.parameters && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Tool && toolName == other.toolName && description == other.description && parameters == other.parameters && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(description, parameters, toolName, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(toolName, description, parameters, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Tool{description=$description, parameters=$parameters, toolName=$toolName, additionalProperties=$additionalProperties}"
+            "Tool{toolName=$toolName, description=$description, parameters=$parameters, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -1559,11 +2260,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceChatCompletionParams && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is InferenceChatCompletionParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "InferenceChatCompletionParams{xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "InferenceChatCompletionParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

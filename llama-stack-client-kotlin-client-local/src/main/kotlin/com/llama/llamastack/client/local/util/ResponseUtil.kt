@@ -1,7 +1,6 @@
 package com.llama.llamastack.client.local.util
 
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.ToolCall
@@ -9,20 +8,33 @@ import java.util.UUID
 
 fun buildInferenceChatCompletionResponse(
     response: String,
-    stats: Float
+    stats: Float,
+    stopToken: String
 ): InferenceChatCompletionResponse {
     // check for prefix [ and suffix ] if so then tool call.
     // parse for "toolName", "additionalProperties"
-
     var completionMessage =
         if (response.startsWith("[") && response.endsWith("]")) {
             // custom tool call
-            CompletionMessage.builder()
+            InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.builder()
                 .toolCalls(createCustomToolCalls(response))
                 .content(InterleavedContent.ofString(""))
+                .role(
+                    InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.Role
+                        .ASSISTANT
+                )
+                .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         } else {
-            CompletionMessage.builder().content(InterleavedContent.ofString(response)).build()
+            InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.builder()
+                .toolCalls(listOf())
+                .content(InterleavedContent.ofString(response))
+                .role(
+                    InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.Role
+                        .ASSISTANT
+                )
+                .stopReason(mapStopTokenToReason(stopToken))
+                .build()
         }
 
     var inferenceChatCompletionResponse =
@@ -67,3 +79,18 @@ fun createCustomToolCalls(response: String): List<ToolCall> {
 
     return toolCalls.toList()
 }
+
+fun mapStopTokenToReason(
+    stopToken: String
+): InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.StopReason =
+    when (stopToken) {
+        "<|eot_id|>" ->
+            InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.StopReason
+                .END_OF_TURN
+        "<|eom_id|>" ->
+            InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.StopReason
+                .END_OF_MESSAGE
+        else ->
+            InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.StopReason
+                .OUT_OF_TOKENS
+    }
