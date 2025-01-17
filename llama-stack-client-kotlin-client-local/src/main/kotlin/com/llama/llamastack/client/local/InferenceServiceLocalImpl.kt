@@ -4,6 +4,8 @@ package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
+import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStreaming
+import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponseFromStreaming
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.EmbeddingsResponse
@@ -32,7 +34,7 @@ constructor(
     private val streamingResponseList = mutableListOf<InferenceChatCompletionResponse>()
     private var isStreaming: Boolean = false
 
-    private val waitTime: Long = 100;
+    private val waitTime: Long = 100
 
     override fun onResult(p0: String?) {
         if (PromptFormatLocal.getStopTokens(modelName).any { it == p0 }) {
@@ -45,13 +47,13 @@ constructor(
             if (resultMessage.isNotEmpty()) {
                 resultMessage += p0
                 if (p0 != null && isStreaming) {
-                    streamingResponseList.add(getInferenceChatCompletionResponseFromString(p0))
+                    streamingResponseList.add(buildInferenceChatCompletionResponseFromStreaming(p0))
                 }
             }
         } else {
             resultMessage += p0
             if (p0 != null && isStreaming) {
-                streamingResponseList.add(getInferenceChatCompletionResponseFromString(p0))
+                streamingResponseList.add(buildInferenceChatCompletionResponseFromStreaming(p0))
             }
         }
     }
@@ -107,6 +109,16 @@ constructor(
                             Thread.sleep(waitTime)
                         }
                     }
+                    while (!onStatsComplete) {
+                        Thread.sleep(waitTime)
+                    }
+                    yield(
+                        buildLastInferenceChatCompletionResponseFromStreaming(
+                            resultMessage,
+                            statsMetric,
+                            stopToken,
+                        )
+                    )
                 }
             }
 
@@ -114,30 +126,6 @@ constructor(
                 isStreaming = false
             }
         }
-
-    private fun getInferenceChatCompletionResponseFromString(
-        response: String
-    ): InferenceChatCompletionResponse {
-        return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
-            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
-                .event(
-                    InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
-                        .builder()
-                        .delta(
-                            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
-                                .Delta
-                                .ofString(response)
-                        )
-                        .eventType(
-                            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
-                                .EventType
-                                .PROGRESS
-                        )
-                        .build()
-                )
-                .build()
-        )
-    }
 
     override fun chatCompletionStreaming(
         params: InferenceChatCompletionParams,

@@ -14,7 +14,7 @@ fun buildInferenceChatCompletionResponse(
     // check for prefix [ and suffix ] if so then tool call.
     // parse for "toolName", "additionalProperties"
     var completionMessage =
-        if (response.startsWith("[") && response.endsWith("]")) {
+        if (isResponseAToolCall(response)) {
             // custom tool call
             InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.builder()
                 .toolCalls(createCustomToolCalls(response))
@@ -45,6 +45,80 @@ fun buildInferenceChatCompletionResponse(
                 .build()
         )
     return inferenceChatCompletionResponse
+}
+
+fun buildInferenceChatCompletionResponseFromStreaming(
+    response: String,
+): InferenceChatCompletionResponse {
+    return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
+        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
+            .event(
+                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
+                    .delta(
+                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                            .Delta
+                            .ofString(response)
+                    )
+                    .eventType(
+                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                            .EventType
+                            .PROGRESS
+                    )
+                    .build()
+            )
+            .build()
+    )
+}
+
+fun buildLastInferenceChatCompletionResponseFromStreaming(
+    resultMessage: String,
+    stats: Float,
+    stopToken: String,
+): InferenceChatCompletionResponse {
+    val delta =
+        if (isResponseAToolCall(resultMessage)) {
+            // tool call setup
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
+                .ofToolCallDelta(
+                    InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
+                        .ToolCallDelta
+                        .builder()
+                        .content(createCustomToolCalls(resultMessage)[0])
+                        .parseStatus(
+                            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                                .Delta
+                                .ToolCallDelta
+                                .ParseStatus
+                                .SUCCESS
+                        )
+                        .build()
+                )
+        } else {
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta.ofString(
+                ""
+            )
+        }
+
+    return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
+        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
+            .event(
+                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
+                    .delta(delta)
+                    .stopReason(mapStopTokenToReasonForStreaming(stopToken))
+                    .eventType(
+                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                            .EventType
+                            .PROGRESS
+                    )
+                    .build()
+            )
+            .putAdditionalProperty("tps", JsonValue.from(stats))
+            .build()
+    )
+}
+
+fun isResponseAToolCall(response: String): Boolean {
+    return response.startsWith("[") && response.endsWith("]")
 }
 
 fun createCustomToolCalls(response: String): List<ToolCall> {
@@ -92,5 +166,20 @@ fun mapStopTokenToReason(
                 .END_OF_MESSAGE
         else ->
             InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage.StopReason
+                .OUT_OF_TOKENS
+    }
+
+fun mapStopTokenToReasonForStreaming(
+    stopToken: String
+): InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason =
+    when (stopToken) {
+        "<|eot_id|>" ->
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason
+                .END_OF_TURN
+        "<|eom_id|>" ->
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason
+                .END_OF_MESSAGE
+        else ->
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason
                 .OUT_OF_TOKENS
     }
