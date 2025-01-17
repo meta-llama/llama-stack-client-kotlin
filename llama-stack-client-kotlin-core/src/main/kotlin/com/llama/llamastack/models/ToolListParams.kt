@@ -10,14 +10,14 @@ import java.util.Objects
 /** List tools with optional tool group */
 class ToolListParams
 constructor(
-    private val toolGroupId: String?,
+    private val toolgroupId: String?,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
-    fun toolGroupId(): String? = toolGroupId
+    fun toolgroupId(): String? = toolgroupId
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
@@ -41,7 +41,7 @@ constructor(
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
-        this.toolGroupId?.let { queryParams.put("tool_group_id", listOf(it.toString())) }
+        this.toolgroupId?.let { queryParams.put("toolgroup_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
     }
@@ -56,21 +56,21 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var toolGroupId: String? = null
+        private var toolgroupId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolListParams: ToolListParams) = apply {
-            toolGroupId = toolListParams.toolGroupId
+            toolgroupId = toolListParams.toolgroupId
             xLlamaStackClientVersion = toolListParams.xLlamaStackClientVersion
             xLlamaStackProviderData = toolListParams.xLlamaStackProviderData
             additionalHeaders = toolListParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolListParams.additionalQueryParams.toBuilder()
         }
 
-        fun toolGroupId(toolGroupId: String?) = apply { this.toolGroupId = toolGroupId }
+        fun toolgroupId(toolgroupId: String?) = apply { this.toolgroupId = toolgroupId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -180,7 +180,7 @@ constructor(
 
         fun build(): ToolListParams =
             ToolListParams(
-                toolGroupId,
+                toolgroupId,
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
@@ -193,11 +193,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolListParams && toolGroupId == other.toolGroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolListParams && toolgroupId == other.toolgroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolGroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolgroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolListParams{toolGroupId=$toolGroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolListParams{toolgroupId=$toolgroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

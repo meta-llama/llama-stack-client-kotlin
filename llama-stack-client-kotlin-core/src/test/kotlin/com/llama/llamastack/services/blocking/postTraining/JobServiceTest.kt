@@ -8,30 +8,26 @@ import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
 import com.llama.llamastack.models.PostTrainingJobStatusParams
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 class JobServiceTest {
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.postTraining().job()
-        val postTrainingJob =
+        val postTrainingJobListResponse =
             jobService.list(
                 PostTrainingJobListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(postTrainingJob)
-        postTrainingJob.validate()
+        println(postTrainingJobListResponse)
+        postTrainingJobListResponse.validate()
     }
 
     @Test

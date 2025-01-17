@@ -11,8 +11,8 @@ class ToolRuntimeListToolsParamsTest {
     @Test
     fun createToolRuntimeListToolsParams() {
         ToolRuntimeListToolsParams.builder()
-            .toolGroupId("tool_group_id")
             .mcpEndpoint(Url.builder().uri("uri").build())
+            .toolGroupId("tool_group_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
@@ -22,12 +22,15 @@ class ToolRuntimeListToolsParamsTest {
     fun getQueryParams() {
         val params =
             ToolRuntimeListToolsParams.builder()
-                .toolGroupId("tool_group_id")
                 .mcpEndpoint(Url.builder().uri("uri").build())
+                .toolGroupId("tool_group_id")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
+        Url.builder().uri("uri").build()._additionalProperties().forEach { (key, values) ->
+            expected.put("mcp_endpoint[$key]", values.toString())
+        }
         expected.put("tool_group_id", "tool_group_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
@@ -37,26 +40,5 @@ class ToolRuntimeListToolsParamsTest {
         val params = ToolRuntimeListToolsParams.builder().build()
         val expected = QueryParams.builder()
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getBody() {
-        val params =
-            ToolRuntimeListToolsParams.builder()
-                .toolGroupId("tool_group_id")
-                .mcpEndpoint(Url.builder().uri("uri").build())
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.mcpEndpoint()).isEqualTo(Url.builder().uri("uri").build())
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
-        val params = ToolRuntimeListToolsParams.builder().build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
     }
 }

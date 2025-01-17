@@ -10,7 +10,6 @@ import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetUnregisterParams
 import com.llama.llamastack.models.Url
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -34,9 +33,6 @@ class DatasetServiceTest {
         datasetRetrieveResponse?.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =

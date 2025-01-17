@@ -61,12 +61,18 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .strategy(
+                                SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
+                                )
+                            )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
-                            .temperature(0.0)
-                            .topK(0L)
-                            .topP(0.0)
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -145,12 +151,18 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .strategy(
+                                SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
+                                )
+                            )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
-                            .temperature(0.0)
-                            .topK(0L)
-                            .topP(0.0)
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -220,12 +232,18 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .strategy(
+                                SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
+                                )
+                            )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
-                            .temperature(0.0)
-                            .topK(0L)
-                            .topP(0.0)
                             .build()
                     )
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -268,12 +286,18 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .strategy(
+                                SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
+                                )
+                            )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
-                            .temperature(0.0)
-                            .topK(0L)
-                            .topP(0.0)
                             .build()
                     )
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")

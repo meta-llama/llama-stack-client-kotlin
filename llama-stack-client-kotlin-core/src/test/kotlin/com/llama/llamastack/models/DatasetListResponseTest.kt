@@ -12,39 +12,51 @@ class DatasetListResponseTest {
     fun createDatasetListResponse() {
         val datasetListResponse =
             DatasetListResponse.builder()
-                .datasetSchema(
-                    DatasetListResponse.DatasetSchema.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                        .build()
+                .data(
+                    listOf(
+                        DatasetListResponse.Data.builder()
+                            .datasetSchema(
+                                DatasetListResponse.Data.DatasetSchema.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(mapOf("type" to "string"))
+                                    )
+                                    .build()
+                            )
+                            .identifier("identifier")
+                            .metadata(
+                                DatasetListResponse.Data.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .providerId("provider_id")
+                            .providerResourceId("provider_resource_id")
+                            .type(DatasetListResponse.Data.Type.DATASET)
+                            .url(Url.builder().uri("uri").build())
+                            .build()
+                    )
                 )
-                .identifier("identifier")
-                .metadata(
-                    DatasetListResponse.Metadata.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
-                .type(DatasetListResponse.Type.DATASET)
-                .url(Url.builder().uri("uri").build())
                 .build()
         assertThat(datasetListResponse).isNotNull
-        assertThat(datasetListResponse.datasetSchema())
-            .isEqualTo(
-                DatasetListResponse.DatasetSchema.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
+        assertThat(datasetListResponse.data())
+            .containsExactly(
+                DatasetListResponse.Data.builder()
+                    .datasetSchema(
+                        DatasetListResponse.Data.DatasetSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
+                            .build()
+                    )
+                    .identifier("identifier")
+                    .metadata(
+                        DatasetListResponse.Data.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .providerId("provider_id")
+                    .providerResourceId("provider_resource_id")
+                    .type(DatasetListResponse.Data.Type.DATASET)
+                    .url(Url.builder().uri("uri").build())
                     .build()
             )
-        assertThat(datasetListResponse.identifier()).isEqualTo("identifier")
-        assertThat(datasetListResponse.metadata())
-            .isEqualTo(
-                DatasetListResponse.Metadata.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(true))
-                    .build()
-            )
-        assertThat(datasetListResponse.providerId()).isEqualTo("provider_id")
-        assertThat(datasetListResponse.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(datasetListResponse.type()).isEqualTo(DatasetListResponse.Type.DATASET)
-        assertThat(datasetListResponse.url()).isEqualTo(Url.builder().uri("uri").build())
     }
 }

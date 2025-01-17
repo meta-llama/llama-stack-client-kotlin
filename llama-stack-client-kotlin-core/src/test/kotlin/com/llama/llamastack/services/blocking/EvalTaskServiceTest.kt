@@ -8,7 +8,6 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.EvalTaskListParams
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -23,7 +22,7 @@ class EvalTaskServiceTest {
         val evalTask =
             evalTaskService.retrieve(
                 EvalTaskRetrieveParams.builder()
-                    .name("name")
+                    .evalTaskId("eval_task_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
@@ -32,23 +31,20 @@ class EvalTaskServiceTest {
         evalTask?.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
-        val evalTask =
+        val evalTaskListResponse =
             evalTaskService.list(
                 EvalTaskListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(evalTask)
-        evalTask.validate()
+        println(evalTaskListResponse)
+        evalTaskListResponse.validate()
     }
 
     @Test

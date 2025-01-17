@@ -16,6 +16,7 @@ import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.MemoryBankListParams
 import com.llama.llamastack.models.MemoryBankListResponse
 import com.llama.llamastack.models.MemoryBankRegisterParams
+import com.llama.llamastack.models.MemoryBankRegisterResponse
 import com.llama.llamastack.models.MemoryBankRetrieveParams
 import com.llama.llamastack.models.MemoryBankRetrieveResponse
 import com.llama.llamastack.models.MemoryBankUnregisterParams
@@ -39,7 +40,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "memory-banks", "get")
+                .addPathSegments("v1", "memory-banks", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -66,7 +67,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "memory-banks", "list")
+                .addPathSegments("v1", "memory-banks")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -83,16 +84,18 @@ constructor(
         }
     }
 
-    private val registerHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+    private val registerHandler: Handler<MemoryBankRegisterResponse> =
+        jsonHandler<MemoryBankRegisterResponse>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun register(
         params: MemoryBankRegisterParams,
         requestOptions: RequestOptions
-    ) {
+    ): MemoryBankRegisterResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "memory-banks", "register")
+                .addPathSegments("v1", "memory-banks")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -100,7 +103,13 @@ constructor(
                 .body(json(clientOptions.jsonMapper, params.getBody()))
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response.use { registerHandler.handle(it) }
+            response
+                .use { registerHandler.handle(it) }
+                .apply {
+                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                        validate()
+                    }
+                }
         }
     }
 
@@ -112,13 +121,13 @@ constructor(
     ) {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("alpha", "memory-banks", "unregister")
+                .method(HttpMethod.DELETE)
+                .addPathSegments("v1", "memory-banks", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response.use { unregisterHandler.handle(it) }

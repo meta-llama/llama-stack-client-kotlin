@@ -28,7 +28,6 @@ class AgentSessionCreateParamsTest {
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
         assertThat(body.sessionName()).isEqualTo("session_name")
     }
 
@@ -41,7 +40,20 @@ class AgentSessionCreateParamsTest {
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
         assertThat(body.sessionName()).isEqualTo("session_name")
+    }
+
+    @Test
+    fun getPathParam() {
+        val params =
+            AgentSessionCreateParams.builder()
+                .agentId("agent_id")
+                .sessionName("session_name")
+                .build()
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

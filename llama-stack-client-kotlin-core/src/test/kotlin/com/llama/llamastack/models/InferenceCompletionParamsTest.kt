@@ -31,12 +31,15 @@ class InferenceCompletionParamsTest {
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategy(SamplingParams.Strategy.GREEDY)
+                    .strategy(
+                        SamplingParams.Strategy.ofGreedySamplingStrategy(
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
+                        )
+                    )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
-                    .temperature(0.0)
-                    .topK(0L)
-                    .topP(0.0)
                     .build()
             )
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -69,12 +72,17 @@ class InferenceCompletionParamsTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .strategy(
+                            SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
+                            )
+                        )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
-                        .temperature(0.0)
-                        .topK(0L)
-                        .topP(0.0)
                         .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -105,12 +113,15 @@ class InferenceCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategy(SamplingParams.Strategy.GREEDY)
+                    .strategy(
+                        SamplingParams.Strategy.ofGreedySamplingStrategy(
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
+                        )
+                    )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
-                    .temperature(0.0)
-                    .topK(0L)
-                    .topP(0.0)
                     .build()
             )
     }

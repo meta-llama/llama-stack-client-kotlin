@@ -10,30 +10,26 @@ import com.llama.llamastack.models.ToolgroupListParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 import com.llama.llamastack.models.Url
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 class ToolgroupServiceTest {
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
-        val toolGroup =
+        val toolgroupListResponse =
             toolgroupService.list(
                 ToolgroupListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(toolGroup)
-        toolGroup.validate()
+        println(toolgroupListResponse)
+        toolgroupListResponse.validate()
     }
 
     @Test
@@ -81,7 +77,7 @@ class ToolgroupServiceTest {
         val toolgroupService = client.toolgroups()
         toolgroupService.unregister(
             ToolgroupUnregisterParams.builder()
-                .toolGroupId("tool_group_id")
+                .toolgroupId("toolgroup_id")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()

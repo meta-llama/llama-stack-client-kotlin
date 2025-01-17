@@ -38,11 +38,13 @@ constructor(
         return headers.build()
     }
 
-    internal fun getQueryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.identifier.let { queryParams.put("identifier", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
+    internal fun getQueryParams(): QueryParams = additionalQueryParams
+
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> identifier
+            else -> ""
+        }
     }
 
     fun toBuilder() = Builder().from(this)

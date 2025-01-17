@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,30 +10,19 @@ class EvalTaskRetrieveParamsTest {
     @Test
     fun createEvalTaskRetrieveParams() {
         EvalTaskRetrieveParams.builder()
-            .name("name")
+            .evalTaskId("eval_task_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            EvalTaskRetrieveParams.builder()
-                .name("name")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val expected = QueryParams.builder()
-        expected.put("name", "name")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getQueryParamsWithoutOptionalFields() {
-        val params = EvalTaskRetrieveParams.builder().name("name").build()
-        val expected = QueryParams.builder()
-        expected.put("name", "name")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+    fun getPathParam() {
+        val params = EvalTaskRetrieveParams.builder().evalTaskId("eval_task_id").build()
+        assertThat(params).isNotNull
+        // path param "evalTaskId"
+        assertThat(params.getPathParam(0)).isEqualTo("eval_task_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

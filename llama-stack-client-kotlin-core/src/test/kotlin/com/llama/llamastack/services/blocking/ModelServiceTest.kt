@@ -9,7 +9,6 @@ import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -24,7 +23,7 @@ class ModelServiceTest {
         val model =
             modelService.retrieve(
                 ModelRetrieveParams.builder()
-                    .identifier("identifier")
+                    .modelId("model_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
@@ -33,23 +32,20 @@ class ModelServiceTest {
         model?.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        val model =
+        val modelListResponse =
             modelService.list(
                 ModelListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(model)
-        model.validate()
+        println(modelListResponse)
+        modelListResponse.validate()
     }
 
     @Test

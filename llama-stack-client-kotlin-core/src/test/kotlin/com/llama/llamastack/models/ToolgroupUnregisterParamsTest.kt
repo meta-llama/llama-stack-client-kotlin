@@ -10,30 +10,19 @@ class ToolgroupUnregisterParamsTest {
     @Test
     fun createToolgroupUnregisterParams() {
         ToolgroupUnregisterParams.builder()
-            .toolGroupId("tool_group_id")
+            .toolgroupId("toolgroup_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
-        val params =
-            ToolgroupUnregisterParams.builder()
-                .toolGroupId("tool_group_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.toolGroupId()).isEqualTo("tool_group_id")
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
-        val params = ToolgroupUnregisterParams.builder().toolGroupId("tool_group_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.toolGroupId()).isEqualTo("tool_group_id")
+    fun getPathParam() {
+        val params = ToolgroupUnregisterParams.builder().toolgroupId("toolgroup_id").build()
+        assertThat(params).isNotNull
+        // path param "toolgroupId"
+        assertThat(params.getPathParam(0)).isEqualTo("toolgroup_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

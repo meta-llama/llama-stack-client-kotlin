@@ -33,7 +33,17 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "agents", "step", "get")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn",
+                    params.getPathParam(2),
+                    "step",
+                    params.getPathParam(3)
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

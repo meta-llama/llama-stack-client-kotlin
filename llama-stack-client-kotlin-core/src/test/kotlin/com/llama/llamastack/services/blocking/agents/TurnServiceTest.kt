@@ -27,6 +27,7 @@ class TurnServiceTest {
             turnService.create(
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
+                    .sessionId("session_id")
                     .messages(
                         listOf(
                             AgentTurnCreateParams.Message.ofUserMessage(
@@ -38,7 +39,6 @@ class TurnServiceTest {
                             )
                         )
                     )
-                    .sessionId("session_id")
                     .documents(
                         listOf(
                             AgentTurnCreateParams.Document.builder()
@@ -68,6 +68,7 @@ class TurnServiceTest {
             turnService.createStreaming(
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
+                    .sessionId("session_id")
                     .messages(
                         listOf(
                             AgentTurnCreateParams.Message.ofUserMessage(
@@ -79,7 +80,6 @@ class TurnServiceTest {
                             )
                         )
                     )
-                    .sessionId("session_id")
                     .documents(
                         listOf(
                             AgentTurnCreateParams.Document.builder()

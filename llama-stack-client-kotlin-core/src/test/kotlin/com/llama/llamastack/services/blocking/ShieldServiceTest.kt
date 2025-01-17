@@ -8,7 +8,6 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.ShieldListParams
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -32,23 +31,20 @@ class ShieldServiceTest {
         shield?.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
-        val shield =
+        val shieldListResponse =
             shieldService.list(
                 ShieldListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(shield)
-        shield.validate()
+        println(shieldListResponse)
+        shieldListResponse.validate()
     }
 
     @Test

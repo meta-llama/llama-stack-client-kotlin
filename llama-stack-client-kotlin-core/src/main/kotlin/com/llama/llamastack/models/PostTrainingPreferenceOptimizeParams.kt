@@ -1014,6 +1014,9 @@ constructor(
             @JsonProperty("batch_size")
             @ExcludeMissing
             private val batchSize: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("data_format")
+            @ExcludeMissing
+            private val dataFormat: JsonField<DataFormat> = JsonMissing.of(),
             @JsonProperty("dataset_id")
             @ExcludeMissing
             private val datasetId: JsonField<String> = JsonMissing.of(),
@@ -1035,6 +1038,8 @@ constructor(
 
             fun batchSize(): Long = batchSize.getRequired("batch_size")
 
+            fun dataFormat(): DataFormat = dataFormat.getRequired("data_format")
+
             fun datasetId(): String = datasetId.getRequired("dataset_id")
 
             fun shuffle(): Boolean = shuffle.getRequired("shuffle")
@@ -1049,6 +1054,10 @@ constructor(
             @JsonProperty("batch_size")
             @ExcludeMissing
             fun _batchSize(): JsonField<Long> = batchSize
+
+            @JsonProperty("data_format")
+            @ExcludeMissing
+            fun _dataFormat(): JsonField<DataFormat> = dataFormat
 
             @JsonProperty("dataset_id")
             @ExcludeMissing
@@ -1078,6 +1087,7 @@ constructor(
                 }
 
                 batchSize()
+                dataFormat()
                 datasetId()
                 shuffle()
                 packed()
@@ -1096,6 +1106,7 @@ constructor(
             class Builder {
 
                 private var batchSize: JsonField<Long>? = null
+                private var dataFormat: JsonField<DataFormat>? = null
                 private var datasetId: JsonField<String>? = null
                 private var shuffle: JsonField<Boolean>? = null
                 private var packed: JsonField<Boolean> = JsonMissing.of()
@@ -1105,6 +1116,7 @@ constructor(
 
                 internal fun from(dataConfig: DataConfig) = apply {
                     batchSize = dataConfig.batchSize
+                    dataFormat = dataConfig.dataFormat
                     datasetId = dataConfig.datasetId
                     shuffle = dataConfig.shuffle
                     packed = dataConfig.packed
@@ -1116,6 +1128,12 @@ constructor(
                 fun batchSize(batchSize: Long) = batchSize(JsonField.of(batchSize))
 
                 fun batchSize(batchSize: JsonField<Long>) = apply { this.batchSize = batchSize }
+
+                fun dataFormat(dataFormat: DataFormat) = dataFormat(JsonField.of(dataFormat))
+
+                fun dataFormat(dataFormat: JsonField<DataFormat>) = apply {
+                    this.dataFormat = dataFormat
+                }
 
                 fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
@@ -1167,6 +1185,7 @@ constructor(
                 fun build(): DataConfig =
                     DataConfig(
                         checkNotNull(batchSize) { "`batchSize` is required but was not set" },
+                        checkNotNull(dataFormat) { "`dataFormat` is required but was not set" },
                         checkNotNull(datasetId) { "`datasetId` is required but was not set" },
                         checkNotNull(shuffle) { "`shuffle` is required but was not set" },
                         packed,
@@ -1176,22 +1195,80 @@ constructor(
                     )
             }
 
+            class DataFormat
+            @JsonCreator
+            private constructor(
+                private val value: JsonField<String>,
+            ) : Enum {
+
+                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+                companion object {
+
+                    val INSTRUCT = of("instruct")
+
+                    val DIALOG = of("dialog")
+
+                    fun of(value: String) = DataFormat(JsonField.of(value))
+                }
+
+                enum class Known {
+                    INSTRUCT,
+                    DIALOG,
+                }
+
+                enum class Value {
+                    INSTRUCT,
+                    DIALOG,
+                    _UNKNOWN,
+                }
+
+                fun value(): Value =
+                    when (this) {
+                        INSTRUCT -> Value.INSTRUCT
+                        DIALOG -> Value.DIALOG
+                        else -> Value._UNKNOWN
+                    }
+
+                fun known(): Known =
+                    when (this) {
+                        INSTRUCT -> Known.INSTRUCT
+                        DIALOG -> Known.DIALOG
+                        else ->
+                            throw LlamaStackClientInvalidDataException("Unknown DataFormat: $value")
+                    }
+
+                fun asString(): String = _value().asStringOrThrow()
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is DataFormat && value == other.value /* spotless:on */
+                }
+
+                override fun hashCode() = value.hashCode()
+
+                override fun toString() = value.toString()
+            }
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
                 }
 
-                return /* spotless:off */ other is DataConfig && batchSize == other.batchSize && datasetId == other.datasetId && shuffle == other.shuffle && packed == other.packed && trainOnInput == other.trainOnInput && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is DataConfig && batchSize == other.batchSize && dataFormat == other.dataFormat && datasetId == other.datasetId && shuffle == other.shuffle && packed == other.packed && trainOnInput == other.trainOnInput && validationDatasetId == other.validationDatasetId && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(batchSize, datasetId, shuffle, packed, trainOnInput, validationDatasetId, additionalProperties) }
+            private val hashCode: Int by lazy { Objects.hash(batchSize, dataFormat, datasetId, shuffle, packed, trainOnInput, validationDatasetId, additionalProperties) }
             /* spotless:on */
 
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "DataConfig{batchSize=$batchSize, datasetId=$datasetId, shuffle=$shuffle, packed=$packed, trainOnInput=$trainOnInput, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
+                "DataConfig{batchSize=$batchSize, dataFormat=$dataFormat, datasetId=$datasetId, shuffle=$shuffle, packed=$packed, trainOnInput=$trainOnInput, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect

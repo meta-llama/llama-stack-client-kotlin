@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
+import com.llama.llamastack.models.EvalTaskListResponse
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
@@ -18,7 +19,7 @@ interface EvalTaskService {
     fun list(
         params: EvalTaskListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): EvalTask
+    ): EvalTaskListResponse
 
     fun register(
         params: EvalTaskRegisterParams,

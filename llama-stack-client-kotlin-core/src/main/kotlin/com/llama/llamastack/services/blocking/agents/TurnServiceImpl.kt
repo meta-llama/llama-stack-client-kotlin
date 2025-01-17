@@ -41,7 +41,14 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "agents", "turn", "create")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn"
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -71,7 +78,14 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "agents", "turn", "create")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn"
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -107,7 +121,15 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "agents", "turn", "get")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn",
+                    params.getPathParam(2)
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

@@ -2,45 +2,36 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.ExcludeMissing
-import com.llama.llamastack.core.JsonField
-import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class ModelUnregisterParams
 constructor(
+    private val modelId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
-    private val body: ModelUnregisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
+    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
+
+    fun modelId(): String = modelId
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun modelId(): String = body.modelId()
-
-    fun _modelId(): JsonField<String> = body._modelId()
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): ModelUnregisterBody = body
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
+    internal fun getBody(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -56,99 +47,11 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @NoAutoDetect
-    class ModelUnregisterBody
-    @JsonCreator
-    internal constructor(
-        @JsonProperty("model_id")
-        @ExcludeMissing
-        private val modelId: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun modelId(): String = modelId.getRequired("model_id")
-
-        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ModelUnregisterBody = apply {
-            if (validated) {
-                return@apply
-            }
-
-            modelId()
-            validated = true
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> modelId
+            else -> ""
         }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var modelId: JsonField<String>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(modelUnregisterBody: ModelUnregisterBody) = apply {
-                modelId = modelUnregisterBody.modelId
-                additionalProperties = modelUnregisterBody.additionalProperties.toMutableMap()
-            }
-
-            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
-
-            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): ModelUnregisterBody =
-                ModelUnregisterBody(
-                    checkNotNull(modelId) { "`modelId` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ModelUnregisterBody && modelId == other.modelId && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(modelId, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "ModelUnregisterBody{modelId=$modelId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -161,19 +64,23 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var modelId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
-        private var body: ModelUnregisterBody.Builder = ModelUnregisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
+        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(modelUnregisterParams: ModelUnregisterParams) = apply {
+            modelId = modelUnregisterParams.modelId
             xLlamaStackClientVersion = modelUnregisterParams.xLlamaStackClientVersion
             xLlamaStackProviderData = modelUnregisterParams.xLlamaStackProviderData
-            body = modelUnregisterParams.body.toBuilder()
             additionalHeaders = modelUnregisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = modelUnregisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties = modelUnregisterParams.additionalBodyProperties.toMutableMap()
         }
+
+        fun modelId(modelId: String) = apply { this.modelId = modelId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -181,29 +88,6 @@ constructor(
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
-        fun modelId(modelId: String) = apply { body.modelId(modelId) }
-
-        fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
-
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -304,13 +188,36 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            this.additionalBodyProperties.clear()
+            putAllAdditionalBodyProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            additionalBodyProperties.put(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                this.additionalBodyProperties.putAll(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply {
+            additionalBodyProperties.remove(key)
+        }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalBodyProperty)
+        }
+
         fun build(): ModelUnregisterParams =
             ModelUnregisterParams(
+                checkNotNull(modelId) { "`modelId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
-                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
+                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -319,11 +226,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ModelUnregisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ModelUnregisterParams && modelId == other.modelId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "ModelUnregisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ModelUnregisterParams{modelId=$modelId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

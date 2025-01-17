@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -18,23 +17,12 @@ class ShieldRetrieveParamsTest {
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            ShieldRetrieveParams.builder()
-                .identifier("identifier")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val expected = QueryParams.builder()
-        expected.put("identifier", "identifier")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun getPathParam() {
         val params = ShieldRetrieveParams.builder().identifier("identifier").build()
-        val expected = QueryParams.builder()
-        expected.put("identifier", "identifier")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params).isNotNull
+        // path param "identifier"
+        assertThat(params.getPathParam(0)).isEqualTo("identifier")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

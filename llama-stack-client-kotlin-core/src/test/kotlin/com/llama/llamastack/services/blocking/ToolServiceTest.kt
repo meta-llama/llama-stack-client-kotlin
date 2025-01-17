@@ -6,31 +6,27 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 class ToolServiceTest {
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolService = client.tools()
-        val tool =
+        val toolListResponse =
             toolService.list(
                 ToolListParams.builder()
-                    .toolGroupId("tool_group_id")
+                    .toolgroupId("toolgroup_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(tool)
-        tool.validate()
+        println(toolListResponse)
+        toolListResponse.validate()
     }
 
     @Test

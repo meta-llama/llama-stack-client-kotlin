@@ -15,6 +15,7 @@ import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
+import com.llama.llamastack.models.ModelListResponse
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
@@ -34,7 +35,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "models", "get")
+                .addPathSegments("v1", "models", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -51,14 +52,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<Model> =
-        jsonHandler<Model>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<ModelListResponse> =
+        jsonHandler<ModelListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
-    override fun list(params: ModelListParams, requestOptions: RequestOptions): Model {
+    override fun list(params: ModelListParams, requestOptions: RequestOptions): ModelListResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "models", "list")
+                .addPathSegments("v1", "models")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -82,7 +83,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "models", "register")
+                .addPathSegments("v1", "models")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -105,13 +106,13 @@ constructor(
     override fun unregister(params: ModelUnregisterParams, requestOptions: RequestOptions) {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("alpha", "models", "unregister")
+                .method(HttpMethod.DELETE)
+                .addPathSegments("v1", "models", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
         clientOptions.httpClient.execute(request, requestOptions).let { response ->
             response.use { unregisterHandler.handle(it) }

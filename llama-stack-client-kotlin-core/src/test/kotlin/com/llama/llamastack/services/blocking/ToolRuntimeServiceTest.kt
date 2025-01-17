@@ -48,8 +48,8 @@ class ToolRuntimeServiceTest {
         val toolDef =
             toolRuntimeService.listTools(
                 ToolRuntimeListToolsParams.builder()
-                    .toolGroupId("tool_group_id")
                     .mcpEndpoint(Url.builder().uri("uri").build())
+                    .toolGroupId("tool_group_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()

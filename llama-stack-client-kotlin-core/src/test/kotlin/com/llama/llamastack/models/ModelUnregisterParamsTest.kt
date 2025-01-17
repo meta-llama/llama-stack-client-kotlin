@@ -17,23 +17,12 @@ class ModelUnregisterParamsTest {
     }
 
     @Test
-    fun getBody() {
-        val params =
-            ModelUnregisterParams.builder()
-                .modelId("model_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.modelId()).isEqualTo("model_id")
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getPathParam() {
         val params = ModelUnregisterParams.builder().modelId("model_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.modelId()).isEqualTo("model_id")
+        assertThat(params).isNotNull
+        // path param "modelId"
+        assertThat(params.getPathParam(0)).isEqualTo("model_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

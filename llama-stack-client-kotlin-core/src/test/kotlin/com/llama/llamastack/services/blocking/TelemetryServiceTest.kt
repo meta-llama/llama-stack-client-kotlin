@@ -27,8 +27,8 @@ class TelemetryServiceTest {
             telemetryService.getSpanTree(
                 TelemetryGetSpanTreeParams.builder()
                     .spanId("span_id")
-                    .maxDepth(0L)
                     .attributesToReturn(listOf("string"))
+                    .maxDepth(0L)
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()

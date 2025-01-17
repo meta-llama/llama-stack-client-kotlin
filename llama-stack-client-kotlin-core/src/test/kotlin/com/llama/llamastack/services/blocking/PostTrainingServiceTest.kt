@@ -47,6 +47,12 @@ class PostTrainingServiceTest {
                                 PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
                                     .builder()
                                     .batchSize(0L)
+                                    .dataFormat(
+                                        PostTrainingPreferenceOptimizeParams.TrainingConfig
+                                            .DataConfig
+                                            .DataFormat
+                                            .INSTRUCT
+                                    )
                                     .datasetId("dataset_id")
                                     .shuffle(true)
                                     .packed(true)
@@ -118,6 +124,12 @@ class PostTrainingServiceTest {
                                 PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
                                     .builder()
                                     .batchSize(0L)
+                                    .dataFormat(
+                                        PostTrainingSupervisedFineTuneParams.TrainingConfig
+                                            .DataConfig
+                                            .DataFormat
+                                            .INSTRUCT
+                                    )
                                     .datasetId("dataset_id")
                                     .shuffle(true)
                                     .packed(true)

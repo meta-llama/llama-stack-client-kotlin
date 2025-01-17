@@ -43,10 +43,16 @@ constructor(
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
-        this.jobId.let { queryParams.put("job_id", listOf(it.toString())) }
         this.taskId.let { queryParams.put("task_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
+    }
+
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> jobId
+            else -> ""
+        }
     }
 
     fun toBuilder() = Builder().from(this)

@@ -31,6 +31,8 @@ import java.util.Objects
 
 class AgentTurnCreateParams
 constructor(
+    private val agentId: String,
+    private val sessionId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: AgentTurnCreateBody,
@@ -38,25 +40,21 @@ constructor(
     private val additionalQueryParams: QueryParams,
 ) {
 
+    fun agentId(): String = agentId
+
+    fun sessionId(): String = sessionId
+
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun agentId(): String = body.agentId()
-
     fun messages(): List<Message> = body.messages()
-
-    fun sessionId(): String = body.sessionId()
 
     fun documents(): List<Document>? = body.documents()
 
     fun toolgroups(): List<Toolgroup>? = body.toolgroups()
 
-    fun _agentId(): JsonField<String> = body._agentId()
-
     fun _messages(): JsonField<List<Message>> = body._messages()
-
-    fun _sessionId(): JsonField<String> = body._sessionId()
 
     fun _documents(): JsonField<List<Document>> = body._documents()
 
@@ -84,19 +82,21 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> agentId
+            1 -> sessionId
+            else -> ""
+        }
+    }
+
     @NoAutoDetect
     class AgentTurnCreateBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("agent_id")
-        @ExcludeMissing
-        private val agentId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("messages")
         @ExcludeMissing
         private val messages: JsonField<List<Message>> = JsonMissing.of(),
-        @JsonProperty("session_id")
-        @ExcludeMissing
-        private val sessionId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("documents")
         @ExcludeMissing
         private val documents: JsonField<List<Document>> = JsonMissing.of(),
@@ -107,23 +107,15 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun agentId(): String = agentId.getRequired("agent_id")
-
         fun messages(): List<Message> = messages.getRequired("messages")
-
-        fun sessionId(): String = sessionId.getRequired("session_id")
 
         fun documents(): List<Document>? = documents.getNullable("documents")
 
         fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
 
-        @JsonProperty("agent_id") @ExcludeMissing fun _agentId(): JsonField<String> = agentId
-
         @JsonProperty("messages")
         @ExcludeMissing
         fun _messages(): JsonField<List<Message>> = messages
-
-        @JsonProperty("session_id") @ExcludeMissing fun _sessionId(): JsonField<String> = sessionId
 
         @JsonProperty("documents")
         @ExcludeMissing
@@ -144,9 +136,7 @@ constructor(
                 return@apply
             }
 
-            agentId()
             messages().forEach { it.validate() }
-            sessionId()
             documents()?.forEach { it.validate() }
             toolgroups()?.forEach { it.validate() }
             validated = true
@@ -161,25 +151,17 @@ constructor(
 
         class Builder {
 
-            private var agentId: JsonField<String>? = null
             private var messages: JsonField<MutableList<Message>>? = null
-            private var sessionId: JsonField<String>? = null
             private var documents: JsonField<MutableList<Document>>? = null
             private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentTurnCreateBody: AgentTurnCreateBody) = apply {
-                agentId = agentTurnCreateBody.agentId
                 messages = agentTurnCreateBody.messages.map { it.toMutableList() }
-                sessionId = agentTurnCreateBody.sessionId
                 documents = agentTurnCreateBody.documents.map { it.toMutableList() }
                 toolgroups = agentTurnCreateBody.toolgroups.map { it.toMutableList() }
                 additionalProperties = agentTurnCreateBody.additionalProperties.toMutableMap()
             }
-
-            fun agentId(agentId: String) = agentId(JsonField.of(agentId))
-
-            fun agentId(agentId: JsonField<String>) = apply { this.agentId = agentId }
 
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
 
@@ -203,10 +185,6 @@ constructor(
 
             fun addMessage(toolResponseMessage: ToolResponseMessage) =
                 addMessage(Message.ofToolResponseMessage(toolResponseMessage))
-
-            fun sessionId(sessionId: String) = sessionId(JsonField.of(sessionId))
-
-            fun sessionId(sessionId: JsonField<String>) = apply { this.sessionId = sessionId }
 
             fun documents(documents: List<Document>) = documents(JsonField.of(documents))
 
@@ -268,10 +246,8 @@ constructor(
 
             fun build(): AgentTurnCreateBody =
                 AgentTurnCreateBody(
-                    checkNotNull(agentId) { "`agentId` is required but was not set" },
                     checkNotNull(messages) { "`messages` is required but was not set" }
                         .map { it.toImmutable() },
-                    checkNotNull(sessionId) { "`sessionId` is required but was not set" },
                     (documents ?: JsonMissing.of()).map { it.toImmutable() },
                     (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
@@ -283,17 +259,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnCreateBody && agentId == other.agentId && messages == other.messages && sessionId == other.sessionId && documents == other.documents && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentTurnCreateBody && messages == other.messages && documents == other.documents && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(agentId, messages, sessionId, documents, toolgroups, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolgroups, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnCreateBody{agentId=$agentId, messages=$messages, sessionId=$sessionId, documents=$documents, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+            "AgentTurnCreateBody{messages=$messages, documents=$documents, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -306,6 +282,8 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var agentId: String? = null
+        private var sessionId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: AgentTurnCreateBody.Builder = AgentTurnCreateBody.builder()
@@ -313,12 +291,18 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(agentTurnCreateParams: AgentTurnCreateParams) = apply {
+            agentId = agentTurnCreateParams.agentId
+            sessionId = agentTurnCreateParams.sessionId
             xLlamaStackClientVersion = agentTurnCreateParams.xLlamaStackClientVersion
             xLlamaStackProviderData = agentTurnCreateParams.xLlamaStackProviderData
             body = agentTurnCreateParams.body.toBuilder()
             additionalHeaders = agentTurnCreateParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentTurnCreateParams.additionalQueryParams.toBuilder()
         }
+
+        fun agentId(agentId: String) = apply { this.agentId = agentId }
+
+        fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -327,10 +311,6 @@ constructor(
         fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
-
-        fun agentId(agentId: String) = apply { body.agentId(agentId) }
-
-        fun agentId(agentId: JsonField<String>) = apply { body.agentId(agentId) }
 
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
@@ -343,10 +323,6 @@ constructor(
         fun addMessage(toolResponseMessage: ToolResponseMessage) = apply {
             body.addMessage(toolResponseMessage)
         }
-
-        fun sessionId(sessionId: String) = apply { body.sessionId(sessionId) }
-
-        fun sessionId(sessionId: JsonField<String>) = apply { body.sessionId(sessionId) }
 
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
 
@@ -487,6 +463,8 @@ constructor(
 
         fun build(): AgentTurnCreateParams =
             AgentTurnCreateParams(
+                checkNotNull(agentId) { "`agentId` is required but was not set" },
+                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
@@ -1614,11 +1592,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnCreateParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && sessionId == other.sessionId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentTurnCreateParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentTurnCreateParams{agentId=$agentId, sessionId=$sessionId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

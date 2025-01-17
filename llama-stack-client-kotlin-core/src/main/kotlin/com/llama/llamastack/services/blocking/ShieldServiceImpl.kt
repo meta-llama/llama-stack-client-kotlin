@@ -14,6 +14,7 @@ import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.Shield
 import com.llama.llamastack.models.ShieldListParams
+import com.llama.llamastack.models.ShieldListResponse
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
 
@@ -32,7 +33,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "shields", "get")
+                .addPathSegments("v1", "shields", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -49,14 +50,17 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<Shield> =
-        jsonHandler<Shield>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<ShieldListResponse> =
+        jsonHandler<ShieldListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
-    override fun list(params: ShieldListParams, requestOptions: RequestOptions): Shield {
+    override fun list(
+        params: ShieldListParams,
+        requestOptions: RequestOptions
+    ): ShieldListResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "shields", "list")
+                .addPathSegments("v1", "shields")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -80,7 +84,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "shields", "register")
+                .addPathSegments("v1", "shields")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

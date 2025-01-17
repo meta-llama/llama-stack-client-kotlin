@@ -17,23 +17,12 @@ class DatasetUnregisterParamsTest {
     }
 
     @Test
-    fun getBody() {
-        val params =
-            DatasetUnregisterParams.builder()
-                .datasetId("dataset_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.datasetId()).isEqualTo("dataset_id")
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getPathParam() {
         val params = DatasetUnregisterParams.builder().datasetId("dataset_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.datasetId()).isEqualTo("dataset_id")
+        assertThat(params).isNotNull
+        // path param "datasetId"
+        assertThat(params.getPathParam(0)).isEqualTo("dataset_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -18,23 +17,12 @@ class DatasetRetrieveParamsTest {
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            DatasetRetrieveParams.builder()
-                .datasetId("dataset_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val expected = QueryParams.builder()
-        expected.put("dataset_id", "dataset_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun getPathParam() {
         val params = DatasetRetrieveParams.builder().datasetId("dataset_id").build()
-        val expected = QueryParams.builder()
-        expected.put("dataset_id", "dataset_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params).isNotNull
+        // path param "datasetId"
+        assertThat(params.getPathParam(0)).isEqualTo("dataset_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

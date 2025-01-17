@@ -2,30 +2,22 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.ExcludeMissing
-import com.llama.llamastack.core.JsonField
-import com.llama.llamastack.core.JsonMissing
-import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class ToolRuntimeListToolsParams
 constructor(
+    private val mcpEndpoint: Url?,
     private val toolGroupId: String?,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
-    private val body: ToolRuntimeListToolsBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun mcpEndpoint(): Url? = mcpEndpoint
 
     fun toolGroupId(): String? = toolGroupId
 
@@ -33,17 +25,9 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun mcpEndpoint(): Url? = body.mcpEndpoint()
-
-    fun _mcpEndpoint(): JsonField<Url> = body._mcpEndpoint()
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    internal fun getBody(): ToolRuntimeListToolsBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -59,103 +43,13 @@ constructor(
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
+        this.mcpEndpoint?._additionalProperties()?.forEach { (key, values) ->
+            queryParams.put("mcp_endpoint[$key]", values.toString())
+        }
+        this.mcpEndpoint
         this.toolGroupId?.let { queryParams.put("tool_group_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()
-    }
-
-    @NoAutoDetect
-    class ToolRuntimeListToolsBody
-    @JsonCreator
-    internal constructor(
-        @JsonProperty("mcp_endpoint")
-        @ExcludeMissing
-        private val mcpEndpoint: JsonField<Url> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun mcpEndpoint(): Url? = mcpEndpoint.getNullable("mcp_endpoint")
-
-        @JsonProperty("mcp_endpoint")
-        @ExcludeMissing
-        fun _mcpEndpoint(): JsonField<Url> = mcpEndpoint
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolRuntimeListToolsBody = apply {
-            if (validated) {
-                return@apply
-            }
-
-            mcpEndpoint()?.validate()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var mcpEndpoint: JsonField<Url> = JsonMissing.of()
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(toolRuntimeListToolsBody: ToolRuntimeListToolsBody) = apply {
-                mcpEndpoint = toolRuntimeListToolsBody.mcpEndpoint
-                additionalProperties = toolRuntimeListToolsBody.additionalProperties.toMutableMap()
-            }
-
-            fun mcpEndpoint(mcpEndpoint: Url) = mcpEndpoint(JsonField.of(mcpEndpoint))
-
-            fun mcpEndpoint(mcpEndpoint: JsonField<Url>) = apply { this.mcpEndpoint = mcpEndpoint }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): ToolRuntimeListToolsBody =
-                ToolRuntimeListToolsBody(mcpEndpoint, additionalProperties.toImmutable())
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolRuntimeListToolsBody && mcpEndpoint == other.mcpEndpoint && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(mcpEndpoint, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "ToolRuntimeListToolsBody{mcpEndpoint=$mcpEndpoint, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -168,21 +62,23 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var mcpEndpoint: Url? = null
         private var toolGroupId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
-        private var body: ToolRuntimeListToolsBody.Builder = ToolRuntimeListToolsBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolRuntimeListToolsParams: ToolRuntimeListToolsParams) = apply {
+            mcpEndpoint = toolRuntimeListToolsParams.mcpEndpoint
             toolGroupId = toolRuntimeListToolsParams.toolGroupId
             xLlamaStackClientVersion = toolRuntimeListToolsParams.xLlamaStackClientVersion
             xLlamaStackProviderData = toolRuntimeListToolsParams.xLlamaStackProviderData
-            body = toolRuntimeListToolsParams.body.toBuilder()
             additionalHeaders = toolRuntimeListToolsParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolRuntimeListToolsParams.additionalQueryParams.toBuilder()
         }
+
+        fun mcpEndpoint(mcpEndpoint: Url?) = apply { this.mcpEndpoint = mcpEndpoint }
 
         fun toolGroupId(toolGroupId: String?) = apply { this.toolGroupId = toolGroupId }
 
@@ -192,29 +88,6 @@ constructor(
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
-        fun mcpEndpoint(mcpEndpoint: Url) = apply { body.mcpEndpoint(mcpEndpoint) }
-
-        fun mcpEndpoint(mcpEndpoint: JsonField<Url>) = apply { body.mcpEndpoint(mcpEndpoint) }
-
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -317,10 +190,10 @@ constructor(
 
         fun build(): ToolRuntimeListToolsParams =
             ToolRuntimeListToolsParams(
+                mcpEndpoint,
                 toolGroupId,
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
-                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -331,11 +204,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolRuntimeListToolsParams && toolGroupId == other.toolGroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolRuntimeListToolsParams && mcpEndpoint == other.mcpEndpoint && toolGroupId == other.toolGroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolGroupId, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(mcpEndpoint, toolGroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolRuntimeListToolsParams{toolGroupId=$toolGroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolRuntimeListToolsParams{mcpEndpoint=$mcpEndpoint, toolGroupId=$toolGroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

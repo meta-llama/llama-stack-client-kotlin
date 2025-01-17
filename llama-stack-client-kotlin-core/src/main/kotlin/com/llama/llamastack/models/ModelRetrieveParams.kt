@@ -9,14 +9,14 @@ import java.util.Objects
 
 class ModelRetrieveParams
 constructor(
-    private val identifier: String,
+    private val modelId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
-    fun identifier(): String = identifier
+    fun modelId(): String = modelId
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
@@ -38,11 +38,13 @@ constructor(
         return headers.build()
     }
 
-    internal fun getQueryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.identifier.let { queryParams.put("identifier", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
+    internal fun getQueryParams(): QueryParams = additionalQueryParams
+
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> modelId
+            else -> ""
+        }
     }
 
     fun toBuilder() = Builder().from(this)
@@ -55,21 +57,21 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var identifier: String? = null
+        private var modelId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(modelRetrieveParams: ModelRetrieveParams) = apply {
-            identifier = modelRetrieveParams.identifier
+            modelId = modelRetrieveParams.modelId
             xLlamaStackClientVersion = modelRetrieveParams.xLlamaStackClientVersion
             xLlamaStackProviderData = modelRetrieveParams.xLlamaStackProviderData
             additionalHeaders = modelRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = modelRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun identifier(identifier: String) = apply { this.identifier = identifier }
+        fun modelId(modelId: String) = apply { this.modelId = modelId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -179,7 +181,7 @@ constructor(
 
         fun build(): ModelRetrieveParams =
             ModelRetrieveParams(
-                checkNotNull(identifier) { "`identifier` is required but was not set" },
+                checkNotNull(modelId) { "`modelId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
@@ -192,11 +194,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ModelRetrieveParams && identifier == other.identifier && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ModelRetrieveParams && modelId == other.modelId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(identifier, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ModelRetrieveParams{identifier=$identifier, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ModelRetrieveParams{modelId=$modelId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

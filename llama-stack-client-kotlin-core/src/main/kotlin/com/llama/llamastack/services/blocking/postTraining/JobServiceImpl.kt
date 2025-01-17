@@ -13,11 +13,11 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
-import com.llama.llamastack.models.PostTrainingJob
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobArtifactsResponse
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
+import com.llama.llamastack.models.PostTrainingJobListResponse
 import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
@@ -29,17 +29,18 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<PostTrainingJob> =
-        jsonHandler<PostTrainingJob>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<PostTrainingJobListResponse> =
+        jsonHandler<PostTrainingJobListResponse>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override fun list(
         params: PostTrainingJobListParams,
         requestOptions: RequestOptions
-    ): PostTrainingJob {
+    ): PostTrainingJobListResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "jobs")
+                .addPathSegments("v1", "post-training", "jobs")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -67,7 +68,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "job", "artifacts")
+                .addPathSegments("v1", "post-training", "job", "artifacts")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -90,7 +91,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "post-training", "job", "cancel")
+                .addPathSegments("v1", "post-training", "job", "cancel")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -113,7 +114,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "job", "status")
+                .addPathSegments("v1", "post-training", "job", "status")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

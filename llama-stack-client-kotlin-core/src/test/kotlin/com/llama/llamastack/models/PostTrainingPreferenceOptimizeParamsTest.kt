@@ -36,6 +36,11 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .dataConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
+                            .dataFormat(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
+                                    .DataFormat
+                                    .INSTRUCT
+                            )
                             .datasetId("dataset_id")
                             .shuffle(true)
                             .packed(true)
@@ -106,6 +111,11 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         .dataConfig(
                             PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                                 .batchSize(0L)
+                                .dataFormat(
+                                    PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
+                                        .DataFormat
+                                        .INSTRUCT
+                                )
                                 .datasetId("dataset_id")
                                 .shuffle(true)
                                 .packed(true)
@@ -177,6 +187,11 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .dataConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
+                            .dataFormat(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
+                                    .DataFormat
+                                    .INSTRUCT
+                            )
                             .datasetId("dataset_id")
                             .shuffle(true)
                             .packed(true)
@@ -244,6 +259,11 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         .dataConfig(
                             PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                                 .batchSize(0L)
+                                .dataFormat(
+                                    PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
+                                        .DataFormat
+                                        .INSTRUCT
+                                )
                                 .datasetId("dataset_id")
                                 .shuffle(true)
                                 .build()
@@ -300,6 +320,11 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     .dataConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
+                            .dataFormat(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
+                                    .DataFormat
+                                    .INSTRUCT
+                            )
                             .datasetId("dataset_id")
                             .shuffle(true)
                             .build()

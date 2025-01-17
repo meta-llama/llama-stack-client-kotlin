@@ -2,46 +2,37 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.ExcludeMissing
-import com.llama.llamastack.core.JsonField
-import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 /** Unregister a tool group */
 class ToolgroupUnregisterParams
 constructor(
+    private val toolgroupId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
-    private val body: ToolgroupUnregisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
+    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
+
+    fun toolgroupId(): String = toolgroupId
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun toolGroupId(): String = body.toolGroupId()
-
-    fun _toolGroupId(): JsonField<String> = body._toolGroupId()
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): ToolgroupUnregisterBody = body
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
+    internal fun getBody(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -57,103 +48,11 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @NoAutoDetect
-    class ToolgroupUnregisterBody
-    @JsonCreator
-    internal constructor(
-        @JsonProperty("tool_group_id")
-        @ExcludeMissing
-        private val toolGroupId: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun toolGroupId(): String = toolGroupId.getRequired("tool_group_id")
-
-        @JsonProperty("tool_group_id")
-        @ExcludeMissing
-        fun _toolGroupId(): JsonField<String> = toolGroupId
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolgroupUnregisterBody = apply {
-            if (validated) {
-                return@apply
-            }
-
-            toolGroupId()
-            validated = true
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> toolgroupId
+            else -> ""
         }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var toolGroupId: JsonField<String>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(toolgroupUnregisterBody: ToolgroupUnregisterBody) = apply {
-                toolGroupId = toolgroupUnregisterBody.toolGroupId
-                additionalProperties = toolgroupUnregisterBody.additionalProperties.toMutableMap()
-            }
-
-            fun toolGroupId(toolGroupId: String) = toolGroupId(JsonField.of(toolGroupId))
-
-            fun toolGroupId(toolGroupId: JsonField<String>) = apply {
-                this.toolGroupId = toolGroupId
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): ToolgroupUnregisterBody =
-                ToolgroupUnregisterBody(
-                    checkNotNull(toolGroupId) { "`toolGroupId` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolgroupUnregisterBody && toolGroupId == other.toolGroupId && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(toolGroupId, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "ToolgroupUnregisterBody{toolGroupId=$toolGroupId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -166,19 +65,24 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var toolgroupId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
-        private var body: ToolgroupUnregisterBody.Builder = ToolgroupUnregisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
+        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolgroupUnregisterParams: ToolgroupUnregisterParams) = apply {
+            toolgroupId = toolgroupUnregisterParams.toolgroupId
             xLlamaStackClientVersion = toolgroupUnregisterParams.xLlamaStackClientVersion
             xLlamaStackProviderData = toolgroupUnregisterParams.xLlamaStackProviderData
-            body = toolgroupUnregisterParams.body.toBuilder()
             additionalHeaders = toolgroupUnregisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolgroupUnregisterParams.additionalQueryParams.toBuilder()
+            additionalBodyProperties =
+                toolgroupUnregisterParams.additionalBodyProperties.toMutableMap()
         }
+
+        fun toolgroupId(toolgroupId: String) = apply { this.toolgroupId = toolgroupId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -186,29 +90,6 @@ constructor(
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
-        fun toolGroupId(toolGroupId: String) = apply { body.toolGroupId(toolGroupId) }
-
-        fun toolGroupId(toolGroupId: JsonField<String>) = apply { body.toolGroupId(toolGroupId) }
-
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -309,13 +190,36 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            this.additionalBodyProperties.clear()
+            putAllAdditionalBodyProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            additionalBodyProperties.put(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                this.additionalBodyProperties.putAll(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply {
+            additionalBodyProperties.remove(key)
+        }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalBodyProperty)
+        }
+
         fun build(): ToolgroupUnregisterParams =
             ToolgroupUnregisterParams(
+                checkNotNull(toolgroupId) { "`toolgroupId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
-                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
+                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -324,11 +228,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolgroupUnregisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolgroupUnregisterParams && toolgroupId == other.toolgroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolgroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "ToolgroupUnregisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolgroupUnregisterParams{toolgroupId=$toolgroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

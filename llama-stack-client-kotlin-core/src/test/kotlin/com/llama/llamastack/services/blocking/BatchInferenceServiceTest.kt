@@ -43,12 +43,18 @@ class BatchInferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .strategy(
+                                SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
+                                )
+                            )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
-                            .temperature(0.0)
-                            .topK(0L)
-                            .topP(0.0)
                             .build()
                     )
                     .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
@@ -99,12 +105,18 @@ class BatchInferenceServiceTest {
                     .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(SamplingParams.Strategy.GREEDY)
+                            .strategy(
+                                SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
+                                )
+                            )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
-                            .temperature(0.0)
-                            .topK(0L)
-                            .topP(0.0)
                             .build()
                     )
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")

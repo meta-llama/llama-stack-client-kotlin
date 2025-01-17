@@ -5,7 +5,10 @@ package com.llama.llamastack.models
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.immutableEmptyMap
@@ -16,8 +19,15 @@ import java.util.Objects
 class ProviderListResponse
 @JsonCreator
 private constructor(
+    @JsonProperty("data")
+    @ExcludeMissing
+    private val data: JsonField<List<ProviderInfo>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
+
+    fun data(): List<ProviderInfo> = data.getRequired("data")
+
+    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<ProviderInfo>> = data
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -30,6 +40,7 @@ private constructor(
             return@apply
         }
 
+        data().forEach { it.validate() }
         validated = true
     }
 
@@ -42,10 +53,29 @@ private constructor(
 
     class Builder {
 
+        private var data: JsonField<MutableList<ProviderInfo>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(providerListResponse: ProviderListResponse) = apply {
+            data = providerListResponse.data.map { it.toMutableList() }
             additionalProperties = providerListResponse.additionalProperties.toMutableMap()
+        }
+
+        fun data(data: List<ProviderInfo>) = data(JsonField.of(data))
+
+        fun data(data: JsonField<List<ProviderInfo>>) = apply {
+            this.data = data.map { it.toMutableList() }
+        }
+
+        fun addData(data: ProviderInfo) = apply {
+            this.data =
+                (this.data ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(data)
+                }
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -67,7 +97,12 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ProviderListResponse = ProviderListResponse(additionalProperties.toImmutable())
+        fun build(): ProviderListResponse =
+            ProviderListResponse(
+                checkNotNull(data) { "`data` is required but was not set" }
+                    .map { it.toImmutable() },
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -75,14 +110,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ProviderListResponse && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ProviderListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(data, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
-    override fun toString() = "ProviderListResponse{additionalProperties=$additionalProperties}"
+    override fun toString() =
+        "ProviderListResponse{data=$data, additionalProperties=$additionalProperties}"
 }

@@ -160,29 +160,29 @@ private constructor(
 
         companion object {
 
-            val IPYTHON = of("ipython")
+            val TOOL = of("tool")
 
             fun of(value: String) = Role(JsonField.of(value))
         }
 
         enum class Known {
-            IPYTHON,
+            TOOL,
         }
 
         enum class Value {
-            IPYTHON,
+            TOOL,
             _UNKNOWN,
         }
 
         fun value(): Value =
             when (this) {
-                IPYTHON -> Value.IPYTHON
+                TOOL -> Value.TOOL
                 else -> Value._UNKNOWN
             }
 
         fun known(): Known =
             when (this) {
-                IPYTHON -> Known.IPYTHON
+                TOOL -> Known.TOOL
                 else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
             }
 

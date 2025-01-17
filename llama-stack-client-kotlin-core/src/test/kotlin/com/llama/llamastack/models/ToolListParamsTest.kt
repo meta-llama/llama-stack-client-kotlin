@@ -11,7 +11,7 @@ class ToolListParamsTest {
     @Test
     fun createToolListParams() {
         ToolListParams.builder()
-            .toolGroupId("tool_group_id")
+            .toolgroupId("toolgroup_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
@@ -21,12 +21,12 @@ class ToolListParamsTest {
     fun getQueryParams() {
         val params =
             ToolListParams.builder()
-                .toolGroupId("tool_group_id")
+                .toolgroupId("toolgroup_id")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
-        expected.put("tool_group_id", "tool_group_id")
+        expected.put("toolgroup_id", "toolgroup_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 

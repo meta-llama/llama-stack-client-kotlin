@@ -15,6 +15,7 @@ import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
+import com.llama.llamastack.models.EvalTaskListResponse
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
@@ -36,7 +37,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "eval-tasks", "get")
+                .addPathSegments("v1", "eval-tasks", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -53,17 +54,17 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<EvalTask> =
-        jsonHandler<EvalTask>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<EvalTaskListResponse> =
+        jsonHandler<EvalTaskListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: EvalTaskListParams,
         requestOptions: RequestOptions
-    ): EvalTask {
+    ): EvalTaskListResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "eval-tasks", "list")
+                .addPathSegments("v1", "eval-tasks")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -86,7 +87,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "eval-tasks", "register")
+                .addPathSegments("v1", "eval-tasks")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

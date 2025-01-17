@@ -14,6 +14,7 @@ import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.Tool
 import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
+import com.llama.llamastack.models.ToolListResponse
 
 class ToolServiceAsyncImpl
 constructor(
@@ -23,15 +24,18 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<Tool> =
-        jsonHandler<Tool>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<ToolListResponse> =
+        jsonHandler<ToolListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
     /** List tools with optional tool group */
-    override suspend fun list(params: ToolListParams, requestOptions: RequestOptions): Tool {
+    override suspend fun list(
+        params: ToolListParams,
+        requestOptions: RequestOptions
+    ): ToolListResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "tools", "list")
+                .addPathSegments("v1", "tools")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -55,7 +59,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "tools", "get")
+                .addPathSegments("v1", "tools", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

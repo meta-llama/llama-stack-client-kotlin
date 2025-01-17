@@ -13,13 +13,13 @@ class ToolResponseMessageTest {
             ToolResponseMessage.builder()
                 .callId("call_id")
                 .content(InterleavedContent.ofString("string"))
-                .role(ToolResponseMessage.Role.IPYTHON)
+                .role(ToolResponseMessage.Role.TOOL)
                 .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
                 .build()
         assertThat(toolResponseMessage).isNotNull
         assertThat(toolResponseMessage.callId()).isEqualTo("call_id")
         assertThat(toolResponseMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
-        assertThat(toolResponseMessage.role()).isEqualTo(ToolResponseMessage.Role.IPYTHON)
+        assertThat(toolResponseMessage.role()).isEqualTo(ToolResponseMessage.Role.TOOL)
         assertThat(toolResponseMessage.toolName())
             .isEqualTo(ToolResponseMessage.ToolName.BRAVE_SEARCH)
     }

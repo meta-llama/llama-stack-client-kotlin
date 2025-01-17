@@ -28,6 +28,11 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     .dataConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
+                            .dataFormat(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
+                                    .DataFormat
+                                    .INSTRUCT
+                            )
                             .datasetId("dataset_id")
                             .shuffle(true)
                             .packed(true)
@@ -111,6 +116,11 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .dataConfig(
                             PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                                 .batchSize(0L)
+                                .dataFormat(
+                                    PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
+                                        .DataFormat
+                                        .INSTRUCT
+                                )
                                 .datasetId("dataset_id")
                                 .shuffle(true)
                                 .packed(true)
@@ -194,6 +204,11 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     .dataConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
+                            .dataFormat(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
+                                    .DataFormat
+                                    .INSTRUCT
+                            )
                             .datasetId("dataset_id")
                             .shuffle(true)
                             .packed(true)
@@ -275,6 +290,11 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .dataConfig(
                             PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                                 .batchSize(0L)
+                                .dataFormat(
+                                    PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
+                                        .DataFormat
+                                        .INSTRUCT
+                                )
                                 .datasetId("dataset_id")
                                 .shuffle(true)
                                 .build()
@@ -322,6 +342,11 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     .dataConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
+                            .dataFormat(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
+                                    .DataFormat
+                                    .INSTRUCT
+                            )
                             .datasetId("dataset_id")
                             .shuffle(true)
                             .build()

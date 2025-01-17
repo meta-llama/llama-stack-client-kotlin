@@ -16,6 +16,7 @@ import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.ToolGroup
 import com.llama.llamastack.models.ToolgroupGetParams
 import com.llama.llamastack.models.ToolgroupListParams
+import com.llama.llamastack.models.ToolgroupListResponse
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 
@@ -27,15 +28,18 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<ToolGroup> =
-        jsonHandler<ToolGroup>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<ToolgroupListResponse> =
+        jsonHandler<ToolgroupListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
     /** List tool groups with optional provider */
-    override fun list(params: ToolgroupListParams, requestOptions: RequestOptions): ToolGroup {
+    override fun list(
+        params: ToolgroupListParams,
+        requestOptions: RequestOptions
+    ): ToolgroupListResponse {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "toolgroups", "list")
+                .addPathSegments("v1", "toolgroups")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -59,7 +63,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "toolgroups", "get")
+                .addPathSegments("v1", "toolgroups", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -83,7 +87,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "toolgroups", "register")
+                .addPathSegments("v1", "toolgroups")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -101,13 +105,13 @@ constructor(
     override fun unregister(params: ToolgroupUnregisterParams, requestOptions: RequestOptions) {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("alpha", "toolgroups", "unregister")
+                .method(HttpMethod.DELETE)
+                .addPathSegments("v1", "toolgroups", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
         clientOptions.httpClient.execute(request, requestOptions).let { response ->
             response.use { unregisterHandler.handle(it) }

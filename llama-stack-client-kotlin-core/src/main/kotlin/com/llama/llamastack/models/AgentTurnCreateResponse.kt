@@ -1068,6 +1068,9 @@ private constructor(
                 class AgentTurnResponseStepProgressPayload
                 @JsonCreator
                 private constructor(
+                    @JsonProperty("delta")
+                    @ExcludeMissing
+                    private val delta: JsonField<ContentDelta> = JsonMissing.of(),
                     @JsonProperty("event_type")
                     @ExcludeMissing
                     private val eventType: JsonField<EventType> = JsonMissing.of(),
@@ -1077,15 +1080,11 @@ private constructor(
                     @JsonProperty("step_type")
                     @ExcludeMissing
                     private val stepType: JsonField<StepType> = JsonMissing.of(),
-                    @JsonProperty("text_delta")
-                    @ExcludeMissing
-                    private val textDelta: JsonField<String> = JsonMissing.of(),
-                    @JsonProperty("tool_call_delta")
-                    @ExcludeMissing
-                    private val toolCallDelta: JsonField<ToolCallDelta> = JsonMissing.of(),
                     @JsonAnySetter
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
+
+                    fun delta(): ContentDelta = delta.getRequired("delta")
 
                     fun eventType(): EventType = eventType.getRequired("event_type")
 
@@ -1093,10 +1092,9 @@ private constructor(
 
                     fun stepType(): StepType = stepType.getRequired("step_type")
 
-                    fun textDelta(): String? = textDelta.getNullable("text_delta")
-
-                    fun toolCallDelta(): ToolCallDelta? =
-                        toolCallDelta.getNullable("tool_call_delta")
+                    @JsonProperty("delta")
+                    @ExcludeMissing
+                    fun _delta(): JsonField<ContentDelta> = delta
 
                     @JsonProperty("event_type")
                     @ExcludeMissing
@@ -1110,14 +1108,6 @@ private constructor(
                     @ExcludeMissing
                     fun _stepType(): JsonField<StepType> = stepType
 
-                    @JsonProperty("text_delta")
-                    @ExcludeMissing
-                    fun _textDelta(): JsonField<String> = textDelta
-
-                    @JsonProperty("tool_call_delta")
-                    @ExcludeMissing
-                    fun _toolCallDelta(): JsonField<ToolCallDelta> = toolCallDelta
-
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
@@ -1129,11 +1119,10 @@ private constructor(
                             return@apply
                         }
 
+                        delta().validate()
                         eventType()
                         stepId()
                         stepType()
-                        textDelta()
-                        toolCallDelta()?.validate()
                         validated = true
                     }
 
@@ -1146,11 +1135,10 @@ private constructor(
 
                     class Builder {
 
+                        private var delta: JsonField<ContentDelta>? = null
                         private var eventType: JsonField<EventType>? = null
                         private var stepId: JsonField<String>? = null
                         private var stepType: JsonField<StepType>? = null
-                        private var textDelta: JsonField<String> = JsonMissing.of()
-                        private var toolCallDelta: JsonField<ToolCallDelta> = JsonMissing.of()
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -1158,15 +1146,27 @@ private constructor(
                             agentTurnResponseStepProgressPayload:
                                 AgentTurnResponseStepProgressPayload
                         ) = apply {
+                            delta = agentTurnResponseStepProgressPayload.delta
                             eventType = agentTurnResponseStepProgressPayload.eventType
                             stepId = agentTurnResponseStepProgressPayload.stepId
                             stepType = agentTurnResponseStepProgressPayload.stepType
-                            textDelta = agentTurnResponseStepProgressPayload.textDelta
-                            toolCallDelta = agentTurnResponseStepProgressPayload.toolCallDelta
                             additionalProperties =
                                 agentTurnResponseStepProgressPayload.additionalProperties
                                     .toMutableMap()
                         }
+
+                        fun delta(delta: ContentDelta) = delta(JsonField.of(delta))
+
+                        fun delta(delta: JsonField<ContentDelta>) = apply { this.delta = delta }
+
+                        fun delta(textDelta: ContentDelta.TextDelta) =
+                            delta(ContentDelta.ofTextDelta(textDelta))
+
+                        fun delta(imageDelta: ContentDelta.ImageDelta) =
+                            delta(ContentDelta.ofImageDelta(imageDelta))
+
+                        fun delta(toolCallDelta: ContentDelta.ToolCallDelta) =
+                            delta(ContentDelta.ofToolCallDelta(toolCallDelta))
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
@@ -1182,19 +1182,6 @@ private constructor(
 
                         fun stepType(stepType: JsonField<StepType>) = apply {
                             this.stepType = stepType
-                        }
-
-                        fun textDelta(textDelta: String) = textDelta(JsonField.of(textDelta))
-
-                        fun textDelta(textDelta: JsonField<String>) = apply {
-                            this.textDelta = textDelta
-                        }
-
-                        fun toolCallDelta(toolCallDelta: ToolCallDelta) =
-                            toolCallDelta(JsonField.of(toolCallDelta))
-
-                        fun toolCallDelta(toolCallDelta: JsonField<ToolCallDelta>) = apply {
-                            this.toolCallDelta = toolCallDelta
                         }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -1221,13 +1208,12 @@ private constructor(
 
                         fun build(): AgentTurnResponseStepProgressPayload =
                             AgentTurnResponseStepProgressPayload(
+                                checkNotNull(delta) { "`delta` is required but was not set" },
                                 checkNotNull(eventType) {
                                     "`eventType` is required but was not set"
                                 },
                                 checkNotNull(stepId) { "`stepId` is required but was not set" },
                                 checkNotNull(stepType) { "`stepType` is required but was not set" },
-                                textDelta,
-                                toolCallDelta,
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1360,353 +1346,22 @@ private constructor(
                         override fun toString() = value.toString()
                     }
 
-                    @NoAutoDetect
-                    class ToolCallDelta
-                    @JsonCreator
-                    private constructor(
-                        @JsonProperty("content")
-                        @ExcludeMissing
-                        private val content: JsonField<Content> = JsonMissing.of(),
-                        @JsonProperty("parse_status")
-                        @ExcludeMissing
-                        private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
-                        @JsonAnySetter
-                        private val additionalProperties: Map<String, JsonValue> =
-                            immutableEmptyMap(),
-                    ) {
-
-                        fun content(): Content = content.getRequired("content")
-
-                        fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
-
-                        @JsonProperty("content")
-                        @ExcludeMissing
-                        fun _content(): JsonField<Content> = content
-
-                        @JsonProperty("parse_status")
-                        @ExcludeMissing
-                        fun _parseStatus(): JsonField<ParseStatus> = parseStatus
-
-                        @JsonAnyGetter
-                        @ExcludeMissing
-                        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                        private var validated: Boolean = false
-
-                        fun validate(): ToolCallDelta = apply {
-                            if (validated) {
-                                return@apply
-                            }
-
-                            content().validate()
-                            parseStatus()
-                            validated = true
-                        }
-
-                        fun toBuilder() = Builder().from(this)
-
-                        companion object {
-
-                            fun builder() = Builder()
-                        }
-
-                        class Builder {
-
-                            private var content: JsonField<Content>? = null
-                            private var parseStatus: JsonField<ParseStatus>? = null
-                            private var additionalProperties: MutableMap<String, JsonValue> =
-                                mutableMapOf()
-
-                            internal fun from(toolCallDelta: ToolCallDelta) = apply {
-                                content = toolCallDelta.content
-                                parseStatus = toolCallDelta.parseStatus
-                                additionalProperties =
-                                    toolCallDelta.additionalProperties.toMutableMap()
-                            }
-
-                            fun content(content: Content) = content(JsonField.of(content))
-
-                            fun content(content: JsonField<Content>) = apply {
-                                this.content = content
-                            }
-
-                            fun content(string: String) = content(Content.ofString(string))
-
-                            fun content(toolCall: ToolCall) = content(Content.ofToolCall(toolCall))
-
-                            fun parseStatus(parseStatus: ParseStatus) =
-                                parseStatus(JsonField.of(parseStatus))
-
-                            fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
-                                this.parseStatus = parseStatus
-                            }
-
-                            fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
-                                apply {
-                                    this.additionalProperties.clear()
-                                    putAllAdditionalProperties(additionalProperties)
-                                }
-
-                            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                                additionalProperties.put(key, value)
-                            }
-
-                            fun putAllAdditionalProperties(
-                                additionalProperties: Map<String, JsonValue>
-                            ) = apply { this.additionalProperties.putAll(additionalProperties) }
-
-                            fun removeAdditionalProperty(key: String) = apply {
-                                additionalProperties.remove(key)
-                            }
-
-                            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                                keys.forEach(::removeAdditionalProperty)
-                            }
-
-                            fun build(): ToolCallDelta =
-                                ToolCallDelta(
-                                    checkNotNull(content) {
-                                        "`content` is required but was not set"
-                                    },
-                                    checkNotNull(parseStatus) {
-                                        "`parseStatus` is required but was not set"
-                                    },
-                                    additionalProperties.toImmutable(),
-                                )
-                        }
-
-                        @JsonDeserialize(using = Content.Deserializer::class)
-                        @JsonSerialize(using = Content.Serializer::class)
-                        class Content
-                        private constructor(
-                            private val string: String? = null,
-                            private val toolCall: ToolCall? = null,
-                            private val _json: JsonValue? = null,
-                        ) {
-
-                            fun string(): String? = string
-
-                            fun toolCall(): ToolCall? = toolCall
-
-                            fun isString(): Boolean = string != null
-
-                            fun isToolCall(): Boolean = toolCall != null
-
-                            fun asString(): String = string.getOrThrow("string")
-
-                            fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
-
-                            fun _json(): JsonValue? = _json
-
-                            fun <T> accept(visitor: Visitor<T>): T {
-                                return when {
-                                    string != null -> visitor.visitString(string)
-                                    toolCall != null -> visitor.visitToolCall(toolCall)
-                                    else -> visitor.unknown(_json)
-                                }
-                            }
-
-                            private var validated: Boolean = false
-
-                            fun validate(): Content = apply {
-                                if (validated) {
-                                    return@apply
-                                }
-
-                                accept(
-                                    object : Visitor<Unit> {
-                                        override fun visitString(string: String) {}
-
-                                        override fun visitToolCall(toolCall: ToolCall) {
-                                            toolCall.validate()
-                                        }
-                                    }
-                                )
-                                validated = true
-                            }
-
-                            override fun equals(other: Any?): Boolean {
-                                if (this === other) {
-                                    return true
-                                }
-
-                                return /* spotless:off */ other is Content && string == other.string && toolCall == other.toolCall /* spotless:on */
-                            }
-
-                            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
-
-                            override fun toString(): String =
-                                when {
-                                    string != null -> "Content{string=$string}"
-                                    toolCall != null -> "Content{toolCall=$toolCall}"
-                                    _json != null -> "Content{_unknown=$_json}"
-                                    else -> throw IllegalStateException("Invalid Content")
-                                }
-
-                            companion object {
-
-                                fun ofString(string: String) = Content(string = string)
-
-                                fun ofToolCall(toolCall: ToolCall) = Content(toolCall = toolCall)
-                            }
-
-                            interface Visitor<out T> {
-
-                                fun visitString(string: String): T
-
-                                fun visitToolCall(toolCall: ToolCall): T
-
-                                fun unknown(json: JsonValue?): T {
-                                    throw LlamaStackClientInvalidDataException(
-                                        "Unknown Content: $json"
-                                    )
-                                }
-                            }
-
-                            class Deserializer : BaseDeserializer<Content>(Content::class) {
-
-                                override fun ObjectCodec.deserialize(node: JsonNode): Content {
-                                    val json = JsonValue.fromJsonNode(node)
-
-                                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                                        return Content(string = it, _json = json)
-                                    }
-                                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) {
-                                            it.validate()
-                                        }
-                                        ?.let {
-                                            return Content(toolCall = it, _json = json)
-                                        }
-
-                                    return Content(_json = json)
-                                }
-                            }
-
-                            class Serializer : BaseSerializer<Content>(Content::class) {
-
-                                override fun serialize(
-                                    value: Content,
-                                    generator: JsonGenerator,
-                                    provider: SerializerProvider
-                                ) {
-                                    when {
-                                        value.string != null -> generator.writeObject(value.string)
-                                        value.toolCall != null ->
-                                            generator.writeObject(value.toolCall)
-                                        value._json != null -> generator.writeObject(value._json)
-                                        else -> throw IllegalStateException("Invalid Content")
-                                    }
-                                }
-                            }
-                        }
-
-                        class ParseStatus
-                        @JsonCreator
-                        private constructor(
-                            private val value: JsonField<String>,
-                        ) : Enum {
-
-                            @com.fasterxml.jackson.annotation.JsonValue
-                            fun _value(): JsonField<String> = value
-
-                            companion object {
-
-                                val STARTED = of("started")
-
-                                val IN_PROGRESS = of("in_progress")
-
-                                val FAILURE = of("failure")
-
-                                val SUCCESS = of("success")
-
-                                fun of(value: String) = ParseStatus(JsonField.of(value))
-                            }
-
-                            enum class Known {
-                                STARTED,
-                                IN_PROGRESS,
-                                FAILURE,
-                                SUCCESS,
-                            }
-
-                            enum class Value {
-                                STARTED,
-                                IN_PROGRESS,
-                                FAILURE,
-                                SUCCESS,
-                                _UNKNOWN,
-                            }
-
-                            fun value(): Value =
-                                when (this) {
-                                    STARTED -> Value.STARTED
-                                    IN_PROGRESS -> Value.IN_PROGRESS
-                                    FAILURE -> Value.FAILURE
-                                    SUCCESS -> Value.SUCCESS
-                                    else -> Value._UNKNOWN
-                                }
-
-                            fun known(): Known =
-                                when (this) {
-                                    STARTED -> Known.STARTED
-                                    IN_PROGRESS -> Known.IN_PROGRESS
-                                    FAILURE -> Known.FAILURE
-                                    SUCCESS -> Known.SUCCESS
-                                    else ->
-                                        throw LlamaStackClientInvalidDataException(
-                                            "Unknown ParseStatus: $value"
-                                        )
-                                }
-
-                            fun asString(): String = _value().asStringOrThrow()
-
-                            override fun equals(other: Any?): Boolean {
-                                if (this === other) {
-                                    return true
-                                }
-
-                                return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
-                            }
-
-                            override fun hashCode() = value.hashCode()
-
-                            override fun toString() = value.toString()
-                        }
-
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is ToolCallDelta && content == other.content && parseStatus == other.parseStatus && additionalProperties == other.additionalProperties /* spotless:on */
-                        }
-
-                        /* spotless:off */
-                        private val hashCode: Int by lazy { Objects.hash(content, parseStatus, additionalProperties) }
-                        /* spotless:on */
-
-                        override fun hashCode(): Int = hashCode
-
-                        override fun toString() =
-                            "ToolCallDelta{content=$content, parseStatus=$parseStatus, additionalProperties=$additionalProperties}"
-                    }
-
                     override fun equals(other: Any?): Boolean {
                         if (this === other) {
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && textDelta == other.textDelta && toolCallDelta == other.toolCallDelta && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && delta == other.delta && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(eventType, stepId, stepType, textDelta, toolCallDelta, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(delta, eventType, stepId, stepType, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "AgentTurnResponseStepProgressPayload{eventType=$eventType, stepId=$stepId, stepType=$stepType, textDelta=$textDelta, toolCallDelta=$toolCallDelta, additionalProperties=$additionalProperties}"
+                        "AgentTurnResponseStepProgressPayload{delta=$delta, eventType=$eventType, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect

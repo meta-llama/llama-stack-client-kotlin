@@ -4,5 +4,5 @@ plugins {
 
 allprojects {
     group = "com.llama.llamastack"
-    version = "0.0.64.rc1"
+    version = "0.1.0.rc2"
 }

@@ -18,27 +18,15 @@ class AgentSessionDeleteParamsTest {
     }
 
     @Test
-    fun getBody() {
-        val params =
-            AgentSessionDeleteParams.builder()
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
-        assertThat(body.sessionId()).isEqualTo("session_id")
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getPathParam() {
         val params =
             AgentSessionDeleteParams.builder().agentId("agent_id").sessionId("session_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
-        assertThat(body.sessionId()).isEqualTo("session_id")
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // path param "sessionId"
+        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

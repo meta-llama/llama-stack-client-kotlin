@@ -28,7 +28,6 @@ class EvalJobRetrieveParamsTest {
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
-        expected.put("job_id", "job_id")
         expected.put("task_id", "task_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
@@ -37,8 +36,17 @@ class EvalJobRetrieveParamsTest {
     fun getQueryParamsWithoutOptionalFields() {
         val params = EvalJobRetrieveParams.builder().jobId("job_id").taskId("task_id").build()
         val expected = QueryParams.builder()
-        expected.put("job_id", "job_id")
         expected.put("task_id", "task_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
+    }
+
+    @Test
+    fun getPathParam() {
+        val params = EvalJobRetrieveParams.builder().jobId("job_id").taskId("task_id").build()
+        assertThat(params).isNotNull
+        // path param "jobId"
+        assertThat(params.getPathParam(0)).isEqualTo("job_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

@@ -11,6 +11,7 @@ class AgentTurnCreateParamsTest {
     fun createAgentTurnCreateParams() {
         AgentTurnCreateParams.builder()
             .agentId("agent_id")
+            .sessionId("session_id")
             .messages(
                 listOf(
                     AgentTurnCreateParams.Message.ofUserMessage(
@@ -22,7 +23,6 @@ class AgentTurnCreateParamsTest {
                     )
                 )
             )
-            .sessionId("session_id")
             .documents(
                 listOf(
                     AgentTurnCreateParams.Document.builder()
@@ -42,6 +42,7 @@ class AgentTurnCreateParamsTest {
         val params =
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
+                .sessionId("session_id")
                 .messages(
                     listOf(
                         AgentTurnCreateParams.Message.ofUserMessage(
@@ -53,7 +54,6 @@ class AgentTurnCreateParamsTest {
                         )
                     )
                 )
-                .sessionId("session_id")
                 .documents(
                     listOf(
                         AgentTurnCreateParams.Document.builder()
@@ -68,7 +68,6 @@ class AgentTurnCreateParamsTest {
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
@@ -81,7 +80,6 @@ class AgentTurnCreateParamsTest {
                     )
                 )
             )
-        assertThat(body.sessionId()).isEqualTo("session_id")
         assertThat(body.documents())
             .isEqualTo(
                 listOf(
@@ -100,6 +98,7 @@ class AgentTurnCreateParamsTest {
         val params =
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
+                .sessionId("session_id")
                 .messages(
                     listOf(
                         AgentTurnCreateParams.Message.ofUserMessage(
@@ -110,11 +109,9 @@ class AgentTurnCreateParamsTest {
                         )
                     )
                 )
-                .sessionId("session_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
@@ -126,6 +123,31 @@ class AgentTurnCreateParamsTest {
                     )
                 )
             )
-        assertThat(body.sessionId()).isEqualTo("session_id")
+    }
+
+    @Test
+    fun getPathParam() {
+        val params =
+            AgentTurnCreateParams.builder()
+                .agentId("agent_id")
+                .sessionId("session_id")
+                .messages(
+                    listOf(
+                        AgentTurnCreateParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(InterleavedContent.ofString("string"))
+                                .role(UserMessage.Role.USER)
+                                .build()
+                        )
+                    )
+                )
+                .build()
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // path param "sessionId"
+        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

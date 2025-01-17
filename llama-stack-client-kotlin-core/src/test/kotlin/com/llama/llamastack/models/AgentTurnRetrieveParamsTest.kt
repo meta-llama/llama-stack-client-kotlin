@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -20,34 +19,21 @@ class AgentTurnRetrieveParamsTest {
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            AgentTurnRetrieveParams.builder()
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .turnId("turn_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val expected = QueryParams.builder()
-        expected.put("agent_id", "agent_id")
-        expected.put("session_id", "session_id")
-        expected.put("turn_id", "turn_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun getPathParam() {
         val params =
             AgentTurnRetrieveParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .turnId("turn_id")
                 .build()
-        val expected = QueryParams.builder()
-        expected.put("agent_id", "agent_id")
-        expected.put("session_id", "session_id")
-        expected.put("turn_id", "turn_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // path param "sessionId"
+        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+        // path param "turnId"
+        assertThat(params.getPathParam(2)).isEqualTo("turn_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(3)).isEqualTo("")
     }
 }

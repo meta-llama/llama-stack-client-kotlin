@@ -17,23 +17,12 @@ class MemoryBankUnregisterParamsTest {
     }
 
     @Test
-    fun getBody() {
-        val params =
-            MemoryBankUnregisterParams.builder()
-                .memoryBankId("memory_bank_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.memoryBankId()).isEqualTo("memory_bank_id")
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getPathParam() {
         val params = MemoryBankUnregisterParams.builder().memoryBankId("memory_bank_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.memoryBankId()).isEqualTo("memory_bank_id")
+        assertThat(params).isNotNull
+        // path param "memoryBankId"
+        assertThat(params.getPathParam(0)).isEqualTo("memory_bank_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }
