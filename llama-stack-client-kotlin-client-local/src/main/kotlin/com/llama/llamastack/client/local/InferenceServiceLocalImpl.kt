@@ -32,6 +32,8 @@ constructor(
     private val streamingResponseList = mutableListOf<InferenceChatCompletionResponse>()
     private var isStreaming: Boolean = false
 
+    private val waitTime: Long = 100;
+
     override fun onResult(p0: String?) {
         if (PromptFormatLocal.getStopTokens(modelName).any { it == p0 }) {
             stopToken = p0!!
@@ -66,6 +68,7 @@ constructor(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
     ): InferenceChatCompletionResponse {
+        isStreaming = false
         clearElements()
         val mModule = clientOptions.llamaModule
         modelName = params.modelId()
@@ -85,7 +88,7 @@ constructor(
         mModule.generate(formattedPrompt, seqLength, this, false)
 
         while (!onResultComplete && !onStatsComplete) {
-            Thread.sleep(100)
+            Thread.sleep(waitTime)
         }
         onResultComplete = false
         onStatsComplete = false
@@ -96,8 +99,15 @@ constructor(
     private val streamResponse =
         object : StreamResponse<InferenceChatCompletionResponse> {
             override fun asSequence(): Sequence<InferenceChatCompletionResponse> {
-                println("streamResponse local")
-                return streamingResponseList.asSequence()
+                return sequence {
+                    while (!onResultComplete || streamingResponseList.isNotEmpty()) {
+                        if (streamingResponseList.isNotEmpty()) {
+                            yield(streamingResponseList.removeAt(0))
+                        } else {
+                            Thread.sleep(waitTime)
+                        }
+                    }
+                }
             }
 
             override fun close() {
@@ -117,6 +127,11 @@ constructor(
                             InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
                                 .Delta
                                 .ofString(response)
+                        )
+                        .eventType(
+                            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                                .EventType
+                                .PROGRESS
                         )
                         .build()
                 )
@@ -142,7 +157,8 @@ constructor(
 
         println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
         onResultComplete = false
-        mModule.generate(formattedPrompt, seqLength, this, false)
+        val thread = Thread { mModule.generate(formattedPrompt, seqLength, this, false) }
+        thread.start()
 
         return streamResponse
     }
