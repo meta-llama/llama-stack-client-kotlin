@@ -4,8 +4,8 @@ package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
-import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStreaming
-import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponseFromStreaming
+import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStream
+import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponsesFromStream
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.EmbeddingsResponse
@@ -47,13 +47,13 @@ constructor(
             if (resultMessage.isNotEmpty()) {
                 resultMessage += p0
                 if (p0 != null && isStreaming) {
-                    streamingResponseList.add(buildInferenceChatCompletionResponseFromStreaming(p0))
+                    streamingResponseList.add(buildInferenceChatCompletionResponseFromStream(p0))
                 }
             }
         } else {
             resultMessage += p0
             if (p0 != null && isStreaming) {
-                streamingResponseList.add(buildInferenceChatCompletionResponseFromStreaming(p0))
+                streamingResponseList.add(buildInferenceChatCompletionResponseFromStream(p0))
             }
         }
     }
@@ -112,13 +112,15 @@ constructor(
                     while (!onStatsComplete) {
                         Thread.sleep(waitTime)
                     }
-                    yield(
-                        buildLastInferenceChatCompletionResponseFromStreaming(
+                    val chatCompletionResponses =
+                        buildLastInferenceChatCompletionResponsesFromStream(
                             resultMessage,
                             statsMetric,
                             stopToken,
                         )
-                    )
+                    for (ccr in chatCompletionResponses) {
+                        yield(ccr)
+                    }
                 }
             }
 
