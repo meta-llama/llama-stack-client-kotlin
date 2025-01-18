@@ -3,13 +3,13 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.models.RouteInfo
 import com.llama.llamastack.models.RouteListParams
-import com.llama.llamastack.models.RouteListResponse
 
 interface RouteService {
 
     fun list(
         params: RouteListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): RouteListResponse
+    ): List<RouteInfo>
 }

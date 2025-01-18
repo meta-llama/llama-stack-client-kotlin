@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.ReturnType
+import com.llama.llamastack.models.ScoringFn
 import com.llama.llamastack.models.ScoringFunctionListParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
@@ -36,15 +37,17 @@ class ScoringFunctionServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val scoringFunctionService = client.scoringFunctions()
-        val scoringFunctionListResponse =
+        val listScoringFunctionsResponse =
             scoringFunctionService.list(
                 ScoringFunctionListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(scoringFunctionListResponse)
-        scoringFunctionListResponse.validate()
+        println(listScoringFunctionsResponse)
+        for (scoringFn: ScoringFn in listScoringFunctionsResponse) {
+            scoringFn.validate()
+        }
     }
 
     @Test

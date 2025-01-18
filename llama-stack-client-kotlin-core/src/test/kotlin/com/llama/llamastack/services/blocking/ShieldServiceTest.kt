@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.Shield
 import com.llama.llamastack.models.ShieldListParams
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
@@ -36,15 +37,17 @@ class ShieldServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
-        val shieldListResponse =
+        val listShieldsResponse =
             shieldService.list(
                 ShieldListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(shieldListResponse)
-        shieldListResponse.validate()
+        println(listShieldsResponse)
+        for (shield: Shield in listShieldsResponse) {
+            shield.validate()
+        }
     }
 
     @Test

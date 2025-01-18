@@ -7,19 +7,19 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
-class EvalJobRetrieveParams
+class TelemetryGetSpanParams
 constructor(
-    private val taskId: String,
-    private val jobId: String,
+    private val traceId: String,
+    private val spanId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
-    fun taskId(): String = taskId
+    fun traceId(): String = traceId
 
-    fun jobId(): String = jobId
+    fun spanId(): String = spanId
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
@@ -45,8 +45,8 @@ constructor(
 
     fun getPathParam(index: Int): String {
         return when (index) {
-            0 -> taskId
-            1 -> jobId
+            0 -> traceId
+            1 -> spanId
             else -> ""
         }
     }
@@ -61,25 +61,25 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var taskId: String? = null
-        private var jobId: String? = null
+        private var traceId: String? = null
+        private var spanId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
-        internal fun from(evalJobRetrieveParams: EvalJobRetrieveParams) = apply {
-            taskId = evalJobRetrieveParams.taskId
-            jobId = evalJobRetrieveParams.jobId
-            xLlamaStackClientVersion = evalJobRetrieveParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = evalJobRetrieveParams.xLlamaStackProviderData
-            additionalHeaders = evalJobRetrieveParams.additionalHeaders.toBuilder()
-            additionalQueryParams = evalJobRetrieveParams.additionalQueryParams.toBuilder()
+        internal fun from(telemetryGetSpanParams: TelemetryGetSpanParams) = apply {
+            traceId = telemetryGetSpanParams.traceId
+            spanId = telemetryGetSpanParams.spanId
+            xLlamaStackClientVersion = telemetryGetSpanParams.xLlamaStackClientVersion
+            xLlamaStackProviderData = telemetryGetSpanParams.xLlamaStackProviderData
+            additionalHeaders = telemetryGetSpanParams.additionalHeaders.toBuilder()
+            additionalQueryParams = telemetryGetSpanParams.additionalQueryParams.toBuilder()
         }
 
-        fun taskId(taskId: String) = apply { this.taskId = taskId }
+        fun traceId(traceId: String) = apply { this.traceId = traceId }
 
-        fun jobId(jobId: String) = apply { this.jobId = jobId }
+        fun spanId(spanId: String) = apply { this.spanId = spanId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -187,10 +187,10 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun build(): EvalJobRetrieveParams =
-            EvalJobRetrieveParams(
-                checkNotNull(taskId) { "`taskId` is required but was not set" },
-                checkNotNull(jobId) { "`jobId` is required but was not set" },
+        fun build(): TelemetryGetSpanParams =
+            TelemetryGetSpanParams(
+                checkNotNull(traceId) { "`traceId` is required but was not set" },
+                checkNotNull(spanId) { "`spanId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
@@ -203,11 +203,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobRetrieveParams && taskId == other.taskId && jobId == other.jobId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryGetSpanParams && traceId == other.traceId && spanId == other.spanId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(traceId, spanId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalJobRetrieveParams{taskId=$taskId, jobId=$jobId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryGetSpanParams{traceId=$traceId, spanId=$spanId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

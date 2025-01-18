@@ -5,26 +5,28 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class MemoryBankListResponseTest {
+class ListMemoryBanksResponseTest {
 
     @Test
-    fun createMemoryBankListResponse() {
-        val memoryBankListResponse =
-            MemoryBankListResponse.builder()
+    fun createListMemoryBanksResponse() {
+        val listMemoryBanksResponse =
+            ListMemoryBanksResponse.builder()
                 .data(
                     listOf(
-                        MemoryBankListResponse.Data.ofVectorMemoryBank(
-                            MemoryBankListResponse.Data.VectorMemoryBank.builder()
+                        ListMemoryBanksResponse.Data.ofVectorMemoryBank(
+                            ListMemoryBanksResponse.Data.VectorMemoryBank.builder()
                                 .chunkSizeInTokens(0L)
                                 .embeddingModel("embedding_model")
                                 .identifier("identifier")
                                 .memoryBankType(
-                                    MemoryBankListResponse.Data.VectorMemoryBank.MemoryBankType
+                                    ListMemoryBanksResponse.Data.VectorMemoryBank.MemoryBankType
                                         .VECTOR
                                 )
                                 .providerId("provider_id")
                                 .providerResourceId("provider_resource_id")
-                                .type(MemoryBankListResponse.Data.VectorMemoryBank.Type.MEMORY_BANK)
+                                .type(
+                                    ListMemoryBanksResponse.Data.VectorMemoryBank.Type.MEMORY_BANK
+                                )
                                 .embeddingDimension(0L)
                                 .overlapSizeInTokens(0L)
                                 .build()
@@ -32,20 +34,20 @@ class MemoryBankListResponseTest {
                     )
                 )
                 .build()
-        assertThat(memoryBankListResponse).isNotNull
-        assertThat(memoryBankListResponse.data())
+        assertThat(listMemoryBanksResponse).isNotNull
+        assertThat(listMemoryBanksResponse.data())
             .containsExactly(
-                MemoryBankListResponse.Data.ofVectorMemoryBank(
-                    MemoryBankListResponse.Data.VectorMemoryBank.builder()
+                ListMemoryBanksResponse.Data.ofVectorMemoryBank(
+                    ListMemoryBanksResponse.Data.VectorMemoryBank.builder()
                         .chunkSizeInTokens(0L)
                         .embeddingModel("embedding_model")
                         .identifier("identifier")
                         .memoryBankType(
-                            MemoryBankListResponse.Data.VectorMemoryBank.MemoryBankType.VECTOR
+                            ListMemoryBanksResponse.Data.VectorMemoryBank.MemoryBankType.VECTOR
                         )
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
-                        .type(MemoryBankListResponse.Data.VectorMemoryBank.Type.MEMORY_BANK)
+                        .type(ListMemoryBanksResponse.Data.VectorMemoryBank.Type.MEMORY_BANK)
                         .embeddingDimension(0L)
                         .overlapSizeInTokens(0L)
                         .build()

@@ -16,18 +16,18 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 @NoAutoDetect
-class ProviderListResponse
+class ListModelsResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
     @ExcludeMissing
-    private val data: JsonField<List<ProviderInfo>> = JsonMissing.of(),
+    private val data: JsonField<List<Model>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun data(): List<ProviderInfo> = data.getRequired("data")
+    fun data(): List<Model> = data.getRequired("data")
 
-    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<ProviderInfo>> = data
+    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<Model>> = data
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -35,7 +35,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): ProviderListResponse = apply {
+    fun validate(): ListModelsResponse = apply {
         if (validated) {
             return@apply
         }
@@ -53,21 +53,21 @@ private constructor(
 
     class Builder {
 
-        private var data: JsonField<MutableList<ProviderInfo>>? = null
+        private var data: JsonField<MutableList<Model>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(providerListResponse: ProviderListResponse) = apply {
-            data = providerListResponse.data.map { it.toMutableList() }
-            additionalProperties = providerListResponse.additionalProperties.toMutableMap()
+        internal fun from(listModelsResponse: ListModelsResponse) = apply {
+            data = listModelsResponse.data.map { it.toMutableList() }
+            additionalProperties = listModelsResponse.additionalProperties.toMutableMap()
         }
 
-        fun data(data: List<ProviderInfo>) = data(JsonField.of(data))
+        fun data(data: List<Model>) = data(JsonField.of(data))
 
-        fun data(data: JsonField<List<ProviderInfo>>) = apply {
+        fun data(data: JsonField<List<Model>>) = apply {
             this.data = data.map { it.toMutableList() }
         }
 
-        fun addData(data: ProviderInfo) = apply {
+        fun addData(data: Model) = apply {
             this.data =
                 (this.data ?: JsonField.of(mutableListOf())).apply {
                     (asKnown()
@@ -97,8 +97,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ProviderListResponse =
-            ProviderListResponse(
+        fun build(): ListModelsResponse =
+            ListModelsResponse(
                 checkNotNull(data) { "`data` is required but was not set" }
                     .map { it.toImmutable() },
                 additionalProperties.toImmutable()
@@ -110,7 +110,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ProviderListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListModelsResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -120,5 +120,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ProviderListResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListModelsResponse{data=$data, additionalProperties=$additionalProperties}"
 }

@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -28,7 +29,8 @@ class TelemetryQueryTracesParamsTest {
     }
 
     @Test
-    fun getBody() {
+    //    @Disabled
+    fun getQueryParams() {
         val params =
             TelemetryQueryTracesParams.builder()
                 .attributeFilters(
@@ -46,27 +48,26 @@ class TelemetryQueryTracesParamsTest {
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.attributeFilters())
-            .isEqualTo(
-                listOf(
-                    TelemetryQueryTracesParams.AttributeFilter.builder()
-                        .key("key")
-                        .op(TelemetryQueryTracesParams.AttributeFilter.Op.EQ)
-                        .value(TelemetryQueryTracesParams.AttributeFilter.Value.ofBoolean(true))
-                        .build()
-                )
-            )
-        assertThat(body.limit()).isEqualTo(0L)
-        assertThat(body.offset()).isEqualTo(0L)
-        assertThat(body.orderBy()).isEqualTo(listOf("string"))
+        val expected = QueryParams.builder()
+        expected.put(
+            "attribute_filters",
+            TelemetryQueryTracesParams.AttributeFilter.builder()
+                .key("key")
+                .op(TelemetryQueryTracesParams.AttributeFilter.Op.EQ)
+                .value(TelemetryQueryTracesParams.AttributeFilter.Value.ofBoolean(true).toString())
+                .build()
+                .toString()
+        )
+        expected.put("limit", "0")
+        expected.put("offset", "0")
+        expected.put("order_by", "string")
+        assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getQueryParamsWithoutOptionalFields() {
         val params = TelemetryQueryTracesParams.builder().build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
+        val expected = QueryParams.builder()
+        assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 }

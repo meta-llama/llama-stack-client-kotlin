@@ -6,7 +6,6 @@ import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.Tool
 import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
-import com.llama.llamastack.models.ToolListResponse
 
 interface ToolServiceAsync {
 
@@ -14,7 +13,7 @@ interface ToolServiceAsync {
     suspend fun list(
         params: ToolListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): ToolListResponse
+    ): List<Tool>
 
     suspend fun get(
         params: ToolGetParams,

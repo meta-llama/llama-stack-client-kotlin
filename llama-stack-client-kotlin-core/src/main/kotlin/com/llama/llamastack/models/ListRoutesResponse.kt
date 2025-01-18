@@ -16,18 +16,18 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 @NoAutoDetect
-class ShieldListResponse
+class ListRoutesResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
     @ExcludeMissing
-    private val data: JsonField<List<Shield>> = JsonMissing.of(),
+    private val data: JsonField<List<RouteInfo>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun data(): List<Shield> = data.getRequired("data")
+    fun data(): List<RouteInfo> = data.getRequired("data")
 
-    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<Shield>> = data
+    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<RouteInfo>> = data
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -35,7 +35,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): ShieldListResponse = apply {
+    fun validate(): ListRoutesResponse = apply {
         if (validated) {
             return@apply
         }
@@ -53,21 +53,21 @@ private constructor(
 
     class Builder {
 
-        private var data: JsonField<MutableList<Shield>>? = null
+        private var data: JsonField<MutableList<RouteInfo>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(shieldListResponse: ShieldListResponse) = apply {
-            data = shieldListResponse.data.map { it.toMutableList() }
-            additionalProperties = shieldListResponse.additionalProperties.toMutableMap()
+        internal fun from(listRoutesResponse: ListRoutesResponse) = apply {
+            data = listRoutesResponse.data.map { it.toMutableList() }
+            additionalProperties = listRoutesResponse.additionalProperties.toMutableMap()
         }
 
-        fun data(data: List<Shield>) = data(JsonField.of(data))
+        fun data(data: List<RouteInfo>) = data(JsonField.of(data))
 
-        fun data(data: JsonField<List<Shield>>) = apply {
+        fun data(data: JsonField<List<RouteInfo>>) = apply {
             this.data = data.map { it.toMutableList() }
         }
 
-        fun addData(data: Shield) = apply {
+        fun addData(data: RouteInfo) = apply {
             this.data =
                 (this.data ?: JsonField.of(mutableListOf())).apply {
                     (asKnown()
@@ -97,8 +97,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ShieldListResponse =
-            ShieldListResponse(
+        fun build(): ListRoutesResponse =
+            ListRoutesResponse(
                 checkNotNull(data) { "`data` is required but was not set" }
                     .map { it.toImmutable() },
                 additionalProperties.toImmutable()
@@ -110,7 +110,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ShieldListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListRoutesResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -120,5 +120,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ShieldListResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListRoutesResponse{data=$data, additionalProperties=$additionalProperties}"
 }

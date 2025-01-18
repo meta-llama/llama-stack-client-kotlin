@@ -3,8 +3,8 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.models.ListMemoryBanksResponse
 import com.llama.llamastack.models.MemoryBankListParams
-import com.llama.llamastack.models.MemoryBankListResponse
 import com.llama.llamastack.models.MemoryBankRegisterParams
 import com.llama.llamastack.models.MemoryBankRegisterResponse
 import com.llama.llamastack.models.MemoryBankRetrieveParams
@@ -21,7 +21,7 @@ interface MemoryBankServiceAsync {
     suspend fun list(
         params: MemoryBankListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): MemoryBankListResponse
+    ): List<ListMemoryBanksResponse.Data>
 
     suspend fun register(
         params: MemoryBankRegisterParams,

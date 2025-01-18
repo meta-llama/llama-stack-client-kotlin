@@ -13,11 +13,12 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
+import com.llama.llamastack.models.ListPostTrainingJobsResponse
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobArtifactsResponse
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
-import com.llama.llamastack.models.PostTrainingJobListResponse
 import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
@@ -29,14 +30,14 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<PostTrainingJobListResponse> =
-        jsonHandler<PostTrainingJobListResponse>(clientOptions.jsonMapper)
+    private val listHandler: Handler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>> =
+        jsonHandler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: PostTrainingJobListParams,
         requestOptions: RequestOptions
-    ): PostTrainingJobListResponse {
+    ): List<ListPostTrainingJobsResponse.Data> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -54,6 +55,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

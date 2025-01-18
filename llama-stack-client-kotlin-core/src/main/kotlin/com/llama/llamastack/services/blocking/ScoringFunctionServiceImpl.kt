@@ -13,9 +13,9 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ScoringFn
 import com.llama.llamastack.models.ScoringFunctionListParams
-import com.llama.llamastack.models.ScoringFunctionListResponse
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
 
@@ -54,14 +54,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<ScoringFunctionListResponse> =
-        jsonHandler<ScoringFunctionListResponse>(clientOptions.jsonMapper)
+    private val listHandler: Handler<DataEnvelope<List<ScoringFn>>> =
+        jsonHandler<DataEnvelope<List<ScoringFn>>>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override fun list(
         params: ScoringFunctionListParams,
         requestOptions: RequestOptions
-    ): ScoringFunctionListResponse {
+    ): List<ScoringFn> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -79,6 +79,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

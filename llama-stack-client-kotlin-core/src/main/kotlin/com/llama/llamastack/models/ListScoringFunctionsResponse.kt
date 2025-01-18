@@ -16,18 +16,18 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 @NoAutoDetect
-class ModelListResponse
+class ListScoringFunctionsResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
     @ExcludeMissing
-    private val data: JsonField<List<Model>> = JsonMissing.of(),
+    private val data: JsonField<List<ScoringFn>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun data(): List<Model> = data.getRequired("data")
+    fun data(): List<ScoringFn> = data.getRequired("data")
 
-    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<Model>> = data
+    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<ScoringFn>> = data
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -35,7 +35,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): ModelListResponse = apply {
+    fun validate(): ListScoringFunctionsResponse = apply {
         if (validated) {
             return@apply
         }
@@ -53,21 +53,21 @@ private constructor(
 
     class Builder {
 
-        private var data: JsonField<MutableList<Model>>? = null
+        private var data: JsonField<MutableList<ScoringFn>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(modelListResponse: ModelListResponse) = apply {
-            data = modelListResponse.data.map { it.toMutableList() }
-            additionalProperties = modelListResponse.additionalProperties.toMutableMap()
+        internal fun from(listScoringFunctionsResponse: ListScoringFunctionsResponse) = apply {
+            data = listScoringFunctionsResponse.data.map { it.toMutableList() }
+            additionalProperties = listScoringFunctionsResponse.additionalProperties.toMutableMap()
         }
 
-        fun data(data: List<Model>) = data(JsonField.of(data))
+        fun data(data: List<ScoringFn>) = data(JsonField.of(data))
 
-        fun data(data: JsonField<List<Model>>) = apply {
+        fun data(data: JsonField<List<ScoringFn>>) = apply {
             this.data = data.map { it.toMutableList() }
         }
 
-        fun addData(data: Model) = apply {
+        fun addData(data: ScoringFn) = apply {
             this.data =
                 (this.data ?: JsonField.of(mutableListOf())).apply {
                     (asKnown()
@@ -97,8 +97,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ModelListResponse =
-            ModelListResponse(
+        fun build(): ListScoringFunctionsResponse =
+            ListScoringFunctionsResponse(
                 checkNotNull(data) { "`data` is required but was not set" }
                     .map { it.toImmutable() },
                 additionalProperties.toImmutable()
@@ -110,7 +110,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ModelListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListScoringFunctionsResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -120,5 +120,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ModelListResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListScoringFunctionsResponse{data=$data, additionalProperties=$additionalProperties}"
 }

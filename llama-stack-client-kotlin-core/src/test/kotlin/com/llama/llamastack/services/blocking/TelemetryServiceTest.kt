@@ -5,13 +5,16 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.QuerySpansResponse
+import com.llama.llamastack.models.TelemetryGetSpanParams
 import com.llama.llamastack.models.TelemetryGetSpanTreeParams
+import com.llama.llamastack.models.TelemetryGetTraceParams
 import com.llama.llamastack.models.TelemetryLogEventParams
 import com.llama.llamastack.models.TelemetryQuerySpansParams
 import com.llama.llamastack.models.TelemetryQueryTracesParams
 import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
+import com.llama.llamastack.models.Trace
 import java.time.OffsetDateTime
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,11 +22,29 @@ import org.junit.jupiter.api.extension.ExtendWith
 class TelemetryServiceTest {
 
     @Test
+    fun callGetSpan() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val telemetryService = client.telemetry()
+        val telemetryGetSpanResponse =
+            telemetryService.getSpan(
+                TelemetryGetSpanParams.builder()
+                    .traceId("trace_id")
+                    .spanId("span_id")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+                    .build()
+            )
+        println(telemetryGetSpanResponse)
+        telemetryGetSpanResponse.validate()
+    }
+
+    @Test
     fun callGetSpanTree() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val telemetryGetSpanTreeResponse =
+        val querySpanTreeResponse =
             telemetryService.getSpanTree(
                 TelemetryGetSpanTreeParams.builder()
                     .spanId("span_id")
@@ -33,8 +54,25 @@ class TelemetryServiceTest {
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(telemetryGetSpanTreeResponse)
-        telemetryGetSpanTreeResponse.validate()
+        println(querySpanTreeResponse)
+        querySpanTreeResponse.validate()
+    }
+
+    @Test
+    fun callGetTrace() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val telemetryService = client.telemetry()
+        val trace =
+            telemetryService.getTrace(
+                TelemetryGetTraceParams.builder()
+                    .traceId("trace_id")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+                    .build()
+            )
+        println(trace)
+        trace.validate()
     }
 
     @Test
@@ -74,15 +112,12 @@ class TelemetryServiceTest {
         )
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callQuerySpans() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val telemetryQuerySpansResponse =
+        val querySpansResponse =
             telemetryService.querySpans(
                 TelemetryQuerySpansParams.builder()
                     .attributeFilters(
@@ -102,19 +137,18 @@ class TelemetryServiceTest {
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(telemetryQuerySpansResponse)
-        telemetryQuerySpansResponse.validate()
+        println(querySpansResponse)
+        for (span: QuerySpansResponse.Data in querySpansResponse) {
+            span.validate()
+        }
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callQueryTraces() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val trace =
+        val queryTracesResponse =
             telemetryService.queryTraces(
                 TelemetryQueryTracesParams.builder()
                     .attributeFilters(
@@ -135,8 +169,10 @@ class TelemetryServiceTest {
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(trace)
-        trace.validate()
+        println(queryTracesResponse)
+        for (trace: Trace in queryTracesResponse) {
+            trace.validate()
+        }
     }
 
     @Test

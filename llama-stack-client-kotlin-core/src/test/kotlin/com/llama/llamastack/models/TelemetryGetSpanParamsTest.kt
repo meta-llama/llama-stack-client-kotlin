@@ -5,13 +5,13 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class EvalJobCancelParamsTest {
+class TelemetryGetSpanParamsTest {
 
     @Test
-    fun createEvalJobCancelParams() {
-        EvalJobCancelParams.builder()
-            .taskId("task_id")
-            .jobId("job_id")
+    fun createTelemetryGetSpanParams() {
+        TelemetryGetSpanParams.builder()
+            .traceId("trace_id")
+            .spanId("span_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
@@ -19,12 +19,12 @@ class EvalJobCancelParamsTest {
 
     @Test
     fun getPathParam() {
-        val params = EvalJobCancelParams.builder().taskId("task_id").jobId("job_id").build()
+        val params = TelemetryGetSpanParams.builder().traceId("trace_id").spanId("span_id").build()
         assertThat(params).isNotNull
-        // path param "taskId"
-        assertThat(params.getPathParam(0)).isEqualTo("task_id")
-        // path param "jobId"
-        assertThat(params.getPathParam(1)).isEqualTo("job_id")
+        // path param "traceId"
+        assertThat(params.getPathParam(0)).isEqualTo("trace_id")
+        // path param "spanId"
+        assertThat(params.getPathParam(1)).isEqualTo("span_id")
         // out-of-bound path param
         assertThat(params.getPathParam(2)).isEqualTo("")
     }

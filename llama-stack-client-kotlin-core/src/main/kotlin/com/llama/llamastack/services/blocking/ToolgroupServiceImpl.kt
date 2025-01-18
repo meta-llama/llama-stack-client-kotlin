@@ -13,10 +13,10 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ToolGroup
 import com.llama.llamastack.models.ToolgroupGetParams
 import com.llama.llamastack.models.ToolgroupListParams
-import com.llama.llamastack.models.ToolgroupListResponse
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 
@@ -28,14 +28,15 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<ToolgroupListResponse> =
-        jsonHandler<ToolgroupListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ToolGroup>>> =
+        jsonHandler<DataEnvelope<List<ToolGroup>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     /** List tool groups with optional provider */
     override fun list(
         params: ToolgroupListParams,
         requestOptions: RequestOptions
-    ): ToolgroupListResponse {
+    ): List<ToolGroup> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -53,6 +54,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

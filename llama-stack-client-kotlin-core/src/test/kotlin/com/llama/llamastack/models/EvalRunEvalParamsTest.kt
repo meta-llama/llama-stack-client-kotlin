@@ -10,6 +10,7 @@ class EvalRunEvalParamsTest {
     @Test
     fun createEvalRunEvalParams() {
         EvalRunEvalParams.builder()
+            .taskId("task_id")
             .taskConfig(
                 EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
                     EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
@@ -63,7 +64,6 @@ class EvalRunEvalParamsTest {
                         .build()
                 )
             )
-            .taskId("task_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
@@ -73,6 +73,7 @@ class EvalRunEvalParamsTest {
     fun getBody() {
         val params =
             EvalRunEvalParams.builder()
+                .taskId("task_id")
                 .taskConfig(
                     EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
                         EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
@@ -128,7 +129,6 @@ class EvalRunEvalParamsTest {
                             .build()
                     )
                 )
-                .taskId("task_id")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
@@ -188,13 +188,13 @@ class EvalRunEvalParamsTest {
                         .build()
                 )
             )
-        assertThat(body.taskId()).isEqualTo("task_id")
     }
 
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
             EvalRunEvalParams.builder()
+                .taskId("task_id")
                 .taskConfig(
                     EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
                         EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
@@ -241,7 +241,6 @@ class EvalRunEvalParamsTest {
                             .build()
                     )
                 )
-                .taskId("task_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -290,6 +289,64 @@ class EvalRunEvalParamsTest {
                         .build()
                 )
             )
-        assertThat(body.taskId()).isEqualTo("task_id")
+    }
+
+    @Test
+    fun getPathParam() {
+        val params =
+            EvalRunEvalParams.builder()
+                .taskId("task_id")
+                .taskConfig(
+                    EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
+                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                            .evalCandidate(
+                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                    .ofModelCandidate(
+                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
+                                            .EvalCandidate
+                                            .ModelCandidate
+                                            .builder()
+                                            .model("model")
+                                            .samplingParams(
+                                                SamplingParams.builder()
+                                                    .strategy(
+                                                        SamplingParams.Strategy
+                                                            .ofGreedySamplingStrategy(
+                                                                SamplingParams.Strategy
+                                                                    .GreedySamplingStrategy
+                                                                    .builder()
+                                                                    .type(
+                                                                        SamplingParams.Strategy
+                                                                            .GreedySamplingStrategy
+                                                                            .Type
+                                                                            .GREEDY
+                                                                    )
+                                                                    .build()
+                                                            )
+                                                    )
+                                                    .build()
+                                            )
+                                            .type(
+                                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
+                                                    .EvalCandidate
+                                                    .ModelCandidate
+                                                    .Type
+                                                    .MODEL
+                                            )
+                                            .build()
+                                    )
+                            )
+                            .type(
+                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
+                            )
+                            .build()
+                    )
+                )
+                .build()
+        assertThat(params).isNotNull
+        // path param "taskId"
+        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

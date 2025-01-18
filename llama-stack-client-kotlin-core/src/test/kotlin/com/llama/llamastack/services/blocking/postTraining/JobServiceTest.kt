@@ -4,6 +4,7 @@ package com.llama.llamastack.services.blocking.postTraining
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
+import com.llama.llamastack.models.ListPostTrainingJobsResponse
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
@@ -19,15 +20,17 @@ class JobServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.postTraining().job()
-        val postTrainingJobListResponse =
+        val listPostTrainingJobsResponse =
             jobService.list(
                 PostTrainingJobListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(postTrainingJobListResponse)
-        postTrainingJobListResponse.validate()
+        println(listPostTrainingJobsResponse)
+        for (element: ListPostTrainingJobsResponse.Data in listPostTrainingJobsResponse) {
+            element.validate()
+        }
     }
 
     @Test

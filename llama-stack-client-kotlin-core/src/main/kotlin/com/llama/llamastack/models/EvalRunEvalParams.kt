@@ -31,6 +31,7 @@ import java.util.Objects
 
 class EvalRunEvalParams
 constructor(
+    private val taskId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val body: EvalRunEvalBody,
@@ -38,17 +39,15 @@ constructor(
     private val additionalQueryParams: QueryParams,
 ) {
 
+    fun taskId(): String = taskId
+
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun taskConfig(): TaskConfig = body.taskConfig()
 
-    fun taskId(): String = body.taskId()
-
     fun _taskConfig(): JsonField<TaskConfig> = body._taskConfig()
-
-    fun _taskId(): JsonField<String> = body._taskId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -72,6 +71,13 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> taskId
+            else -> ""
+        }
+    }
+
     @NoAutoDetect
     class EvalRunEvalBody
     @JsonCreator
@@ -79,22 +85,15 @@ constructor(
         @JsonProperty("task_config")
         @ExcludeMissing
         private val taskConfig: JsonField<TaskConfig> = JsonMissing.of(),
-        @JsonProperty("task_id")
-        @ExcludeMissing
-        private val taskId: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         fun taskConfig(): TaskConfig = taskConfig.getRequired("task_config")
 
-        fun taskId(): String = taskId.getRequired("task_id")
-
         @JsonProperty("task_config")
         @ExcludeMissing
         fun _taskConfig(): JsonField<TaskConfig> = taskConfig
-
-        @JsonProperty("task_id") @ExcludeMissing fun _taskId(): JsonField<String> = taskId
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -108,7 +107,6 @@ constructor(
             }
 
             taskConfig().validate()
-            taskId()
             validated = true
         }
 
@@ -122,12 +120,10 @@ constructor(
         class Builder {
 
             private var taskConfig: JsonField<TaskConfig>? = null
-            private var taskId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(evalRunEvalBody: EvalRunEvalBody) = apply {
                 taskConfig = evalRunEvalBody.taskConfig
-                taskId = evalRunEvalBody.taskId
                 additionalProperties = evalRunEvalBody.additionalProperties.toMutableMap()
             }
 
@@ -142,10 +138,6 @@ constructor(
 
             fun taskConfig(appEvalTaskConfig: TaskConfig.AppEvalTaskConfig) =
                 taskConfig(TaskConfig.ofAppEvalTaskConfig(appEvalTaskConfig))
-
-            fun taskId(taskId: String) = taskId(JsonField.of(taskId))
-
-            fun taskId(taskId: JsonField<String>) = apply { this.taskId = taskId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -169,8 +161,7 @@ constructor(
             fun build(): EvalRunEvalBody =
                 EvalRunEvalBody(
                     checkNotNull(taskConfig) { "`taskConfig` is required but was not set" },
-                    checkNotNull(taskId) { "`taskId` is required but was not set" },
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toImmutable()
                 )
         }
 
@@ -179,17 +170,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is EvalRunEvalBody && taskConfig == other.taskConfig && taskId == other.taskId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is EvalRunEvalBody && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(taskConfig, taskId, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(taskConfig, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "EvalRunEvalBody{taskConfig=$taskConfig, taskId=$taskId, additionalProperties=$additionalProperties}"
+            "EvalRunEvalBody{taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -202,6 +193,7 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var taskId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var body: EvalRunEvalBody.Builder = EvalRunEvalBody.builder()
@@ -209,12 +201,15 @@ constructor(
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalRunEvalParams: EvalRunEvalParams) = apply {
+            taskId = evalRunEvalParams.taskId
             xLlamaStackClientVersion = evalRunEvalParams.xLlamaStackClientVersion
             xLlamaStackProviderData = evalRunEvalParams.xLlamaStackProviderData
             body = evalRunEvalParams.body.toBuilder()
             additionalHeaders = evalRunEvalParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalRunEvalParams.additionalQueryParams.toBuilder()
         }
+
+        fun taskId(taskId: String) = apply { this.taskId = taskId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -235,10 +230,6 @@ constructor(
         fun taskConfig(appEvalTaskConfig: TaskConfig.AppEvalTaskConfig) = apply {
             body.taskConfig(appEvalTaskConfig)
         }
-
-        fun taskId(taskId: String) = apply { body.taskId(taskId) }
-
-        fun taskId(taskId: JsonField<String>) = apply { body.taskId(taskId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -359,6 +350,7 @@ constructor(
 
         fun build(): EvalRunEvalParams =
             EvalRunEvalParams(
+                checkNotNull(taskId) { "`taskId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
@@ -2026,11 +2018,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalRunEvalParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalRunEvalParams && taskId == other.taskId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalRunEvalParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalRunEvalParams{taskId=$taskId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

@@ -11,8 +11,9 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
+import com.llama.llamastack.models.ProviderInfo
 import com.llama.llamastack.models.ProviderListParams
-import com.llama.llamastack.models.ProviderListResponse
 
 class ProviderServiceAsyncImpl
 constructor(
@@ -22,17 +23,18 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<ProviderListResponse> =
-        jsonHandler<ProviderListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ProviderInfo>>> =
+        jsonHandler<DataEnvelope<List<ProviderInfo>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: ProviderListParams,
         requestOptions: RequestOptions
-    ): ProviderListResponse {
+    ): List<ProviderInfo> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("v1", "providers", "list")
+                .addPathSegments("v1", "inspect", "providers")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -46,6 +48,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 }

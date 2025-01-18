@@ -41,7 +41,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("v1", "eval", "evaluate-rows")
+                .addPathSegments("v1", "eval", "tasks", params.getPathParam(0), "evaluations")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -66,7 +66,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("v1", "eval", "run")
+                .addPathSegments("v1", "eval", "tasks", params.getPathParam(0), "jobs")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

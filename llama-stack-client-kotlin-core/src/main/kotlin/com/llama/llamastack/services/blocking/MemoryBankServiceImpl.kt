@@ -13,8 +13,9 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
+import com.llama.llamastack.models.ListMemoryBanksResponse
 import com.llama.llamastack.models.MemoryBankListParams
-import com.llama.llamastack.models.MemoryBankListResponse
 import com.llama.llamastack.models.MemoryBankRegisterParams
 import com.llama.llamastack.models.MemoryBankRegisterResponse
 import com.llama.llamastack.models.MemoryBankRetrieveParams
@@ -57,13 +58,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<MemoryBankListResponse> =
-        jsonHandler<MemoryBankListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ListMemoryBanksResponse.Data>>> =
+        jsonHandler<DataEnvelope<List<ListMemoryBanksResponse.Data>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override fun list(
         params: MemoryBankListParams,
         requestOptions: RequestOptions
-    ): MemoryBankListResponse {
+    ): List<ListMemoryBanksResponse.Data> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -81,6 +83,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

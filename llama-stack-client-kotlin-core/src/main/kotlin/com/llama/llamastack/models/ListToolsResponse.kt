@@ -16,7 +16,7 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 @NoAutoDetect
-class ToolListResponse
+class ListToolsResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
@@ -35,7 +35,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): ToolListResponse = apply {
+    fun validate(): ListToolsResponse = apply {
         if (validated) {
             return@apply
         }
@@ -56,9 +56,9 @@ private constructor(
         private var data: JsonField<MutableList<Tool>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(toolListResponse: ToolListResponse) = apply {
-            data = toolListResponse.data.map { it.toMutableList() }
-            additionalProperties = toolListResponse.additionalProperties.toMutableMap()
+        internal fun from(listToolsResponse: ListToolsResponse) = apply {
+            data = listToolsResponse.data.map { it.toMutableList() }
+            additionalProperties = listToolsResponse.additionalProperties.toMutableMap()
         }
 
         fun data(data: List<Tool>) = data(JsonField.of(data))
@@ -97,8 +97,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ToolListResponse =
-            ToolListResponse(
+        fun build(): ListToolsResponse =
+            ListToolsResponse(
                 checkNotNull(data) { "`data` is required but was not set" }
                     .map { it.toImmutable() },
                 additionalProperties.toImmutable()
@@ -110,7 +110,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListToolsResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -120,5 +120,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ToolListResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListToolsResponse{data=$data, additionalProperties=$additionalProperties}"
 }

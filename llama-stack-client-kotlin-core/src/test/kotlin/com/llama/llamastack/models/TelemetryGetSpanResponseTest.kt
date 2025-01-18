@@ -7,38 +7,38 @@ import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TelemetryQuerySpansResponseTest {
+class TelemetryGetSpanResponseTest {
 
     @Test
-    fun createTelemetryQuerySpansResponse() {
-        val telemetryQuerySpansResponse =
-            TelemetryQuerySpansResponse.builder()
+    fun createTelemetryGetSpanResponse() {
+        val telemetryGetSpanResponse =
+            TelemetryGetSpanResponse.builder()
                 .name("name")
                 .spanId("span_id")
                 .startTime(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .traceId("trace_id")
                 .attributes(
-                    TelemetryQuerySpansResponse.Attributes.builder()
+                    TelemetryGetSpanResponse.Attributes.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .endTime(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .parentSpanId("parent_span_id")
                 .build()
-        assertThat(telemetryQuerySpansResponse).isNotNull
-        assertThat(telemetryQuerySpansResponse.name()).isEqualTo("name")
-        assertThat(telemetryQuerySpansResponse.spanId()).isEqualTo("span_id")
-        assertThat(telemetryQuerySpansResponse.startTime())
+        assertThat(telemetryGetSpanResponse).isNotNull
+        assertThat(telemetryGetSpanResponse.name()).isEqualTo("name")
+        assertThat(telemetryGetSpanResponse.spanId()).isEqualTo("span_id")
+        assertThat(telemetryGetSpanResponse.startTime())
             .isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-        assertThat(telemetryQuerySpansResponse.traceId()).isEqualTo("trace_id")
-        assertThat(telemetryQuerySpansResponse.attributes())
+        assertThat(telemetryGetSpanResponse.traceId()).isEqualTo("trace_id")
+        assertThat(telemetryGetSpanResponse.attributes())
             .isEqualTo(
-                TelemetryQuerySpansResponse.Attributes.builder()
+                TelemetryGetSpanResponse.Attributes.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(telemetryQuerySpansResponse.endTime())
+        assertThat(telemetryGetSpanResponse.endTime())
             .isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-        assertThat(telemetryQuerySpansResponse.parentSpanId()).isEqualTo("parent_span_id")
+        assertThat(telemetryGetSpanResponse.parentSpanId()).isEqualTo("parent_span_id")
     }
 }

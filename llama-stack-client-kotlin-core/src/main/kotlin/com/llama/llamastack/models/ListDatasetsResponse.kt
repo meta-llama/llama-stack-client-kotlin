@@ -18,7 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
-class DatasetListResponse
+class ListDatasetsResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
@@ -37,7 +37,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): DatasetListResponse = apply {
+    fun validate(): ListDatasetsResponse = apply {
         if (validated) {
             return@apply
         }
@@ -58,9 +58,9 @@ private constructor(
         private var data: JsonField<MutableList<Data>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(datasetListResponse: DatasetListResponse) = apply {
-            data = datasetListResponse.data.map { it.toMutableList() }
-            additionalProperties = datasetListResponse.additionalProperties.toMutableMap()
+        internal fun from(listDatasetsResponse: ListDatasetsResponse) = apply {
+            data = listDatasetsResponse.data.map { it.toMutableList() }
+            additionalProperties = listDatasetsResponse.additionalProperties.toMutableMap()
         }
 
         fun data(data: List<Data>) = data(JsonField.of(data))
@@ -99,8 +99,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): DatasetListResponse =
-            DatasetListResponse(
+        fun build(): ListDatasetsResponse =
+            ListDatasetsResponse(
                 checkNotNull(data) { "`data` is required but was not set" }
                     .map { it.toImmutable() },
                 additionalProperties.toImmutable()
@@ -518,7 +518,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListDatasetsResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -528,5 +528,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "DatasetListResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListDatasetsResponse{data=$data, additionalProperties=$additionalProperties}"
 }

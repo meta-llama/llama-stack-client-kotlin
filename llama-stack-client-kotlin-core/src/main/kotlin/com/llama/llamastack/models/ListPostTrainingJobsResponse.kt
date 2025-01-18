@@ -16,7 +16,7 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 @NoAutoDetect
-class PostTrainingJobListResponse
+class ListPostTrainingJobsResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
@@ -35,7 +35,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): PostTrainingJobListResponse = apply {
+    fun validate(): ListPostTrainingJobsResponse = apply {
         if (validated) {
             return@apply
         }
@@ -56,9 +56,9 @@ private constructor(
         private var data: JsonField<MutableList<Data>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(postTrainingJobListResponse: PostTrainingJobListResponse) = apply {
-            data = postTrainingJobListResponse.data.map { it.toMutableList() }
-            additionalProperties = postTrainingJobListResponse.additionalProperties.toMutableMap()
+        internal fun from(listPostTrainingJobsResponse: ListPostTrainingJobsResponse) = apply {
+            data = listPostTrainingJobsResponse.data.map { it.toMutableList() }
+            additionalProperties = listPostTrainingJobsResponse.additionalProperties.toMutableMap()
         }
 
         fun data(data: List<Data>) = data(JsonField.of(data))
@@ -97,8 +97,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): PostTrainingJobListResponse =
-            PostTrainingJobListResponse(
+        fun build(): ListPostTrainingJobsResponse =
+            ListPostTrainingJobsResponse(
                 checkNotNull(data) { "`data` is required but was not set" }
                     .map { it.toImmutable() },
                 additionalProperties.toImmutable()
@@ -205,7 +205,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingJobListResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListPostTrainingJobsResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -215,5 +215,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "PostTrainingJobListResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListPostTrainingJobsResponse{data=$data, additionalProperties=$additionalProperties}"
 }

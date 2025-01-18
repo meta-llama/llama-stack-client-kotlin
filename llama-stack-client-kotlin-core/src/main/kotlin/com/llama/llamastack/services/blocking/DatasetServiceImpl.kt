@@ -13,12 +13,13 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.DatasetListParams
-import com.llama.llamastack.models.DatasetListResponse
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetRetrieveResponse
 import com.llama.llamastack.models.DatasetUnregisterParams
+import com.llama.llamastack.models.ListDatasetsResponse
 
 class DatasetServiceImpl
 constructor(
@@ -56,13 +57,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<DatasetListResponse> =
-        jsonHandler<DatasetListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ListDatasetsResponse.Data>>> =
+        jsonHandler<DataEnvelope<List<ListDatasetsResponse.Data>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override fun list(
         params: DatasetListParams,
         requestOptions: RequestOptions
-    ): DatasetListResponse {
+    ): List<ListDatasetsResponse.Data> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -80,6 +82,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

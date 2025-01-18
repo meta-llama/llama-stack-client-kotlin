@@ -46,7 +46,6 @@ constructor(
         this.mcpEndpoint?._additionalProperties()?.forEach { (key, values) ->
             queryParams.put("mcp_endpoint[$key]", values.toString())
         }
-        this.mcpEndpoint
         this.toolGroupId?.let { queryParams.put("tool_group_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)
         return queryParams.build()

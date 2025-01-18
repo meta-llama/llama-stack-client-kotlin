@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -19,7 +20,7 @@ class TelemetryGetSpanTreeParamsTest {
     }
 
     @Test
-    fun getBody() {
+    fun getQueryParams() {
         val params =
             TelemetryGetSpanTreeParams.builder()
                 .spanId("span_id")
@@ -28,18 +29,26 @@ class TelemetryGetSpanTreeParamsTest {
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.spanId()).isEqualTo("span_id")
-        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
-        assertThat(body.maxDepth()).isEqualTo(0L)
+        val expected = QueryParams.builder()
+        expected.put("attributes_to_return", "string")
+        expected.put("max_depth", "0")
+        assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getQueryParamsWithoutOptionalFields() {
         val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.spanId()).isEqualTo("span_id")
+        val expected = QueryParams.builder()
+        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+    }
+
+    @Test
+    fun getPathParam() {
+        val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
+        assertThat(params).isNotNull
+        // path param "spanId"
+        assertThat(params.getPathParam(0)).isEqualTo("span_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

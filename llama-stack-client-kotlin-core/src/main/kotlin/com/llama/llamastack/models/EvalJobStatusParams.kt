@@ -9,17 +9,17 @@ import java.util.Objects
 
 class EvalJobStatusParams
 constructor(
-    private val jobId: String,
     private val taskId: String,
+    private val jobId: String,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
 
-    fun jobId(): String = jobId
-
     fun taskId(): String = taskId
+
+    fun jobId(): String = jobId
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
@@ -41,16 +41,12 @@ constructor(
         return headers.build()
     }
 
-    internal fun getQueryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.taskId.let { queryParams.put("task_id", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
-    }
+    internal fun getQueryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
-            0 -> jobId
+            0 -> taskId
+            1 -> jobId
             else -> ""
         }
     }
@@ -65,25 +61,25 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var jobId: String? = null
         private var taskId: String? = null
+        private var jobId: String? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalJobStatusParams: EvalJobStatusParams) = apply {
-            jobId = evalJobStatusParams.jobId
             taskId = evalJobStatusParams.taskId
+            jobId = evalJobStatusParams.jobId
             xLlamaStackClientVersion = evalJobStatusParams.xLlamaStackClientVersion
             xLlamaStackProviderData = evalJobStatusParams.xLlamaStackProviderData
             additionalHeaders = evalJobStatusParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalJobStatusParams.additionalQueryParams.toBuilder()
         }
 
-        fun jobId(jobId: String) = apply { this.jobId = jobId }
-
         fun taskId(taskId: String) = apply { this.taskId = taskId }
+
+        fun jobId(jobId: String) = apply { this.jobId = jobId }
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -193,8 +189,8 @@ constructor(
 
         fun build(): EvalJobStatusParams =
             EvalJobStatusParams(
-                checkNotNull(jobId) { "`jobId` is required but was not set" },
                 checkNotNull(taskId) { "`taskId` is required but was not set" },
+                checkNotNull(jobId) { "`jobId` is required but was not set" },
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
@@ -207,11 +203,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobStatusParams && jobId == other.jobId && taskId == other.taskId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalJobStatusParams && taskId == other.taskId && jobId == other.jobId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobId, taskId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalJobStatusParams{jobId=$jobId, taskId=$taskId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalJobStatusParams{taskId=$taskId, jobId=$jobId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

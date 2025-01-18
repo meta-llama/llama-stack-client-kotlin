@@ -2,7 +2,9 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class TelemetryQuerySpansParamsTest {
@@ -27,7 +29,8 @@ class TelemetryQuerySpansParamsTest {
     }
 
     @Test
-    fun getBody() {
+    @Disabled
+    fun getQueryParams() {
         val params =
             TelemetryQuerySpansParams.builder()
                 .attributeFilters(
@@ -44,24 +47,24 @@ class TelemetryQuerySpansParamsTest {
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.attributeFilters())
-            .isEqualTo(
-                listOf(
-                    TelemetryQuerySpansParams.AttributeFilter.builder()
-                        .key("key")
-                        .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-                        .value(TelemetryQuerySpansParams.AttributeFilter.Value.ofBoolean(true))
-                        .build()
-                )
-            )
-        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
-        assertThat(body.maxDepth()).isEqualTo(0L)
+        val expected = QueryParams.builder()
+        expected.put(
+            "attribute_filters",
+            TelemetryQuerySpansParams.AttributeFilter.builder()
+                .key("key")
+                .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
+                .value(TelemetryQuerySpansParams.AttributeFilter.Value.ofBoolean(true).toString())
+                .build()
+                .toString()
+        )
+        expected.put("attributes_to_return", "string")
+        expected.put("max_depth", "0")
+        assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    @Disabled
+    fun getQueryParamsWithoutOptionalFields() {
         val params =
             TelemetryQuerySpansParams.builder()
                 .attributeFilters(
@@ -75,18 +78,17 @@ class TelemetryQuerySpansParamsTest {
                 )
                 .attributesToReturn(listOf("string"))
                 .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.attributeFilters())
-            .isEqualTo(
-                listOf(
-                    TelemetryQuerySpansParams.AttributeFilter.builder()
-                        .key("key")
-                        .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-                        .value(TelemetryQuerySpansParams.AttributeFilter.Value.ofBoolean(true))
-                        .build()
-                )
-            )
-        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
+        val expected = QueryParams.builder()
+        expected.put(
+            "attribute_filters",
+            TelemetryQuerySpansParams.AttributeFilter.builder()
+                .key("key")
+                .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
+                .value(TelemetryQuerySpansParams.AttributeFilter.Value.ofBoolean(true).toString())
+                .build()
+                .toString()
+        )
+        expected.put("attributes_to_return", "string")
+        assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 }

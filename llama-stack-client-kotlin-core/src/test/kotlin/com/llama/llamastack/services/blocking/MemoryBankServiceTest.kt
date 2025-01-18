@@ -35,15 +35,14 @@ class MemoryBankServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val memoryBankService = client.memoryBanks()
-        val memoryBankListResponse =
+        val listMemoryBanksResponse =
             memoryBankService.list(
                 MemoryBankListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(memoryBankListResponse)
-        memoryBankListResponse.validate()
+        println(listMemoryBanksResponse)
     }
 
     @Test

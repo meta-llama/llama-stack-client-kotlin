@@ -12,9 +12,9 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.Shield
 import com.llama.llamastack.models.ShieldListParams
-import com.llama.llamastack.models.ShieldListResponse
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
 
@@ -53,13 +53,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<ShieldListResponse> =
-        jsonHandler<ShieldListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<Shield>>> =
+        jsonHandler<DataEnvelope<List<Shield>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: ShieldListParams,
         requestOptions: RequestOptions
-    ): ShieldListResponse {
+    ): List<Shield> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -77,6 +78,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
@@ -37,15 +38,17 @@ class ModelServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        val modelListResponse =
+        val listModelsResponse =
             modelService.list(
                 ModelListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(modelListResponse)
-        modelListResponse.validate()
+        println(listModelsResponse)
+        for (model: Model in listModelsResponse) {
+            model.validate()
+        }
     }
 
     @Test

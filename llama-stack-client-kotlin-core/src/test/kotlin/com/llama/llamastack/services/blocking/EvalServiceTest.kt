@@ -24,6 +24,7 @@ class EvalServiceTest {
         val evaluateResponse =
             evalService.evaluateRows(
                 EvalEvaluateRowsParams.builder()
+                    .taskId("task_id")
                     .inputRows(
                         listOf(
                             EvalEvaluateRowsParams.InputRow.builder()
@@ -93,7 +94,6 @@ class EvalServiceTest {
                                 .build()
                         )
                     )
-                    .taskId("task_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
@@ -110,6 +110,7 @@ class EvalServiceTest {
         val job =
             evalService.runEval(
                 EvalRunEvalParams.builder()
+                    .taskId("task_id")
                     .taskConfig(
                         EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
                             EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
@@ -170,7 +171,6 @@ class EvalServiceTest {
                                 .build()
                         )
                     )
-                    .taskId("task_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()

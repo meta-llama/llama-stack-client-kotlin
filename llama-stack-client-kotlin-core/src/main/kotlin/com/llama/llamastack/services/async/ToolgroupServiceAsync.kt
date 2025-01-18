@@ -6,7 +6,6 @@ import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.ToolGroup
 import com.llama.llamastack.models.ToolgroupGetParams
 import com.llama.llamastack.models.ToolgroupListParams
-import com.llama.llamastack.models.ToolgroupListResponse
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 
@@ -16,7 +15,7 @@ interface ToolgroupServiceAsync {
     suspend fun list(
         params: ToolgroupListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): ToolgroupListResponse
+    ): List<ToolGroup>
 
     suspend fun get(
         params: ToolgroupGetParams,

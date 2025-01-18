@@ -2,10 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
 import com.fasterxml.jackson.databind.JsonNode
@@ -16,51 +13,40 @@ import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.BaseDeserializer
 import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
-import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
-import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class TelemetryQuerySpansParams
 constructor(
+    private val attributeFilters: List<AttributeFilter>,
+    private val attributesToReturn: List<String>,
+    private val maxDepth: Long?,
     private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
-    private val body: TelemetryQuerySpansBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) {
+
+    fun attributeFilters(): List<AttributeFilter> = attributeFilters
+
+    fun attributesToReturn(): List<String> = attributesToReturn
+
+    fun maxDepth(): Long? = maxDepth
 
     fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun attributeFilters(): List<AttributeFilter> = body.attributeFilters()
-
-    fun attributesToReturn(): List<String> = body.attributesToReturn()
-
-    fun maxDepth(): Long? = body.maxDepth()
-
-    fun _attributeFilters(): JsonField<List<AttributeFilter>> = body._attributeFilters()
-
-    fun _attributesToReturn(): JsonField<List<String>> = body._attributesToReturn()
-
-    fun _maxDepth(): JsonField<Long> = body._maxDepth()
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    internal fun getBody(): TelemetryQuerySpansBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
@@ -74,173 +60,17 @@ constructor(
         return headers.build()
     }
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class TelemetryQuerySpansBody
-    @JsonCreator
-    internal constructor(
-        @JsonProperty("attribute_filters")
-        @ExcludeMissing
-        private val attributeFilters: JsonField<List<AttributeFilter>> = JsonMissing.of(),
-        @JsonProperty("attributes_to_return")
-        @ExcludeMissing
-        private val attributesToReturn: JsonField<List<String>> = JsonMissing.of(),
-        @JsonProperty("max_depth")
-        @ExcludeMissing
-        private val maxDepth: JsonField<Long> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun attributeFilters(): List<AttributeFilter> =
-            attributeFilters.getRequired("attribute_filters")
-
-        fun attributesToReturn(): List<String> =
-            attributesToReturn.getRequired("attributes_to_return")
-
-        fun maxDepth(): Long? = maxDepth.getNullable("max_depth")
-
-        @JsonProperty("attribute_filters")
-        @ExcludeMissing
-        fun _attributeFilters(): JsonField<List<AttributeFilter>> = attributeFilters
-
-        @JsonProperty("attributes_to_return")
-        @ExcludeMissing
-        fun _attributesToReturn(): JsonField<List<String>> = attributesToReturn
-
-        @JsonProperty("max_depth") @ExcludeMissing fun _maxDepth(): JsonField<Long> = maxDepth
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): TelemetryQuerySpansBody = apply {
-            if (validated) {
-                return@apply
-            }
-
-            attributeFilters().forEach { it.validate() }
-            attributesToReturn()
-            maxDepth()
-            validated = true
+    internal fun getQueryParams(): QueryParams {
+        val queryParams = QueryParams.builder()
+        this.attributeFilters.let {
+            queryParams.put("attribute_filters", listOf(it.joinToString(separator = ",")))
         }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
+        this.attributesToReturn.let {
+            queryParams.put("attributes_to_return", listOf(it.joinToString(separator = ",")))
         }
-
-        class Builder {
-
-            private var attributeFilters: JsonField<MutableList<AttributeFilter>>? = null
-            private var attributesToReturn: JsonField<MutableList<String>>? = null
-            private var maxDepth: JsonField<Long> = JsonMissing.of()
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(telemetryQuerySpansBody: TelemetryQuerySpansBody) = apply {
-                attributeFilters =
-                    telemetryQuerySpansBody.attributeFilters.map { it.toMutableList() }
-                attributesToReturn =
-                    telemetryQuerySpansBody.attributesToReturn.map { it.toMutableList() }
-                maxDepth = telemetryQuerySpansBody.maxDepth
-                additionalProperties = telemetryQuerySpansBody.additionalProperties.toMutableMap()
-            }
-
-            fun attributeFilters(attributeFilters: List<AttributeFilter>) =
-                attributeFilters(JsonField.of(attributeFilters))
-
-            fun attributeFilters(attributeFilters: JsonField<List<AttributeFilter>>) = apply {
-                this.attributeFilters = attributeFilters.map { it.toMutableList() }
-            }
-
-            fun addAttributeFilter(attributeFilter: AttributeFilter) = apply {
-                attributeFilters =
-                    (attributeFilters ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributeFilter)
-                    }
-            }
-
-            fun attributesToReturn(attributesToReturn: List<String>) =
-                attributesToReturn(JsonField.of(attributesToReturn))
-
-            fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
-                this.attributesToReturn = attributesToReturn.map { it.toMutableList() }
-            }
-
-            fun addAttributesToReturn(attributesToReturn: String) = apply {
-                this.attributesToReturn =
-                    (this.attributesToReturn ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributesToReturn)
-                    }
-            }
-
-            fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
-
-            fun maxDepth(maxDepth: JsonField<Long>) = apply { this.maxDepth = maxDepth }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): TelemetryQuerySpansBody =
-                TelemetryQuerySpansBody(
-                    checkNotNull(attributeFilters) {
-                            "`attributeFilters` is required but was not set"
-                        }
-                        .map { it.toImmutable() },
-                    checkNotNull(attributesToReturn) {
-                            "`attributesToReturn` is required but was not set"
-                        }
-                        .map { it.toImmutable() },
-                    maxDepth,
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is TelemetryQuerySpansBody && attributeFilters == other.attributeFilters && attributesToReturn == other.attributesToReturn && maxDepth == other.maxDepth && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(attributeFilters, attributesToReturn, maxDepth, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "TelemetryQuerySpansBody{attributeFilters=$attributeFilters, attributesToReturn=$attributesToReturn, maxDepth=$maxDepth, additionalProperties=$additionalProperties}"
+        this.maxDepth?.let { queryParams.put("max_depth", listOf(it.toString())) }
+        queryParams.putAll(additionalQueryParams)
+        return queryParams.build()
     }
 
     fun toBuilder() = Builder().from(this)
@@ -253,19 +83,44 @@ constructor(
     @NoAutoDetect
     class Builder {
 
+        private var attributeFilters: MutableList<AttributeFilter>? = null
+        private var attributesToReturn: MutableList<String>? = null
+        private var maxDepth: Long? = null
         private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
-        private var body: TelemetryQuerySpansBody.Builder = TelemetryQuerySpansBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(telemetryQuerySpansParams: TelemetryQuerySpansParams) = apply {
+            attributeFilters = telemetryQuerySpansParams.attributeFilters.toMutableList()
+            attributesToReturn = telemetryQuerySpansParams.attributesToReturn.toMutableList()
+            maxDepth = telemetryQuerySpansParams.maxDepth
             xLlamaStackClientVersion = telemetryQuerySpansParams.xLlamaStackClientVersion
             xLlamaStackProviderData = telemetryQuerySpansParams.xLlamaStackProviderData
-            body = telemetryQuerySpansParams.body.toBuilder()
             additionalHeaders = telemetryQuerySpansParams.additionalHeaders.toBuilder()
             additionalQueryParams = telemetryQuerySpansParams.additionalQueryParams.toBuilder()
         }
+
+        fun attributeFilters(attributeFilters: List<AttributeFilter>) = apply {
+            this.attributeFilters = attributeFilters.toMutableList()
+        }
+
+        fun addAttributeFilter(attributeFilter: AttributeFilter) = apply {
+            attributeFilters = (attributeFilters ?: mutableListOf()).apply { add(attributeFilter) }
+        }
+
+        fun attributesToReturn(attributesToReturn: List<String>) = apply {
+            this.attributesToReturn = attributesToReturn.toMutableList()
+        }
+
+        fun addAttributesToReturn(attributesToReturn: String) = apply {
+            this.attributesToReturn =
+                (this.attributesToReturn ?: mutableListOf()).apply { add(attributesToReturn) }
+        }
+
+        fun maxDepth(maxDepth: Long?) = apply { this.maxDepth = maxDepth }
+
+        fun maxDepth(maxDepth: Long) = maxDepth(maxDepth as Long?)
 
         fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
             this.xLlamaStackClientVersion = xLlamaStackClientVersion
@@ -273,53 +128,6 @@ constructor(
 
         fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
-        fun attributeFilters(attributeFilters: List<AttributeFilter>) = apply {
-            body.attributeFilters(attributeFilters)
-        }
-
-        fun attributeFilters(attributeFilters: JsonField<List<AttributeFilter>>) = apply {
-            body.attributeFilters(attributeFilters)
-        }
-
-        fun addAttributeFilter(attributeFilter: AttributeFilter) = apply {
-            body.addAttributeFilter(attributeFilter)
-        }
-
-        fun attributesToReturn(attributesToReturn: List<String>) = apply {
-            body.attributesToReturn(attributesToReturn)
-        }
-
-        fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
-            body.attributesToReturn(attributesToReturn)
-        }
-
-        fun addAttributesToReturn(attributesToReturn: String) = apply {
-            body.addAttributesToReturn(attributesToReturn)
-        }
-
-        fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
-
-        fun maxDepth(maxDepth: JsonField<Long>) = apply { body.maxDepth(maxDepth) }
-
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -422,54 +230,41 @@ constructor(
 
         fun build(): TelemetryQuerySpansParams =
             TelemetryQuerySpansParams(
+                checkNotNull(attributeFilters) { "`attributeFilters` is required but was not set" }
+                    .toImmutable(),
+                checkNotNull(attributesToReturn) {
+                        "`attributesToReturn` is required but was not set"
+                    }
+                    .toImmutable(),
+                maxDepth,
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
-                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
 
-    @NoAutoDetect
     class AttributeFilter
-    @JsonCreator
     private constructor(
-        @JsonProperty("key") @ExcludeMissing private val key: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("op") @ExcludeMissing private val op: JsonField<Op> = JsonMissing.of(),
-        @JsonProperty("value")
-        @ExcludeMissing
-        private val value: JsonField<Value> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val key: String,
+        private val op: Op,
+        private val value: Value?,
+        private val additionalProperties: QueryParams,
     ) {
 
-        fun key(): String = key.getRequired("key")
+        fun key(): String = key
 
-        fun op(): Op = op.getRequired("op")
+        fun op(): Op = op
 
-        fun value(): Value? = value.getNullable("value")
+        fun value(): Value? = value
 
-        @JsonProperty("key") @ExcludeMissing fun _key(): JsonField<String> = key
+        fun _additionalProperties(): QueryParams = additionalProperties
 
-        @JsonProperty("op") @ExcludeMissing fun _op(): JsonField<Op> = op
-
-        @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Value> = value
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AttributeFilter = apply {
-            if (validated) {
-                return@apply
-            }
-
-            key()
-            op()
-            value()?.validate()
-            validated = true
+        internal fun forEachQueryParam(putParam: (String, List<String>) -> Unit) {
+            this.key.let { putParam("key", listOf(it.toString())) }
+            this.op.let { putParam("op", listOf(it.toString())) }
+            this.value.let { putParam("value", listOf(it.toString())) }
+            additionalProperties.keys().forEach { putParam(it, additionalProperties.values(it)) }
         }
 
         fun toBuilder() = Builder().from(this)
@@ -481,29 +276,23 @@ constructor(
 
         class Builder {
 
-            private var key: JsonField<String>? = null
-            private var op: JsonField<Op>? = null
-            private var value: JsonField<Value>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+            private var key: String? = null
+            private var op: Op? = null
+            private var value: Value? = null
+            private var additionalProperties: QueryParams.Builder = QueryParams.builder()
 
             internal fun from(attributeFilter: AttributeFilter) = apply {
                 key = attributeFilter.key
                 op = attributeFilter.op
                 value = attributeFilter.value
-                additionalProperties = attributeFilter.additionalProperties.toMutableMap()
+                additionalProperties = attributeFilter.additionalProperties.toBuilder()
             }
 
-            fun key(key: String) = key(JsonField.of(key))
+            fun key(key: String) = apply { this.key = key }
 
-            fun key(key: JsonField<String>) = apply { this.key = key }
+            fun op(op: Op) = apply { this.op = op }
 
-            fun op(op: Op) = op(JsonField.of(op))
-
-            fun op(op: JsonField<Op>) = apply { this.op = op }
-
-            fun value(value: Value?) = value(JsonField.ofNullable(value))
-
-            fun value(value: JsonField<Value>) = apply { this.value = value }
+            fun value(value: Value?) = apply { this.value = value }
 
             fun value(boolean: Boolean) = value(Value.ofBoolean(boolean))
 
@@ -516,31 +305,61 @@ constructor(
 
             fun value(jsonValue: JsonValue) = value(Value.ofJsonValue(jsonValue))
 
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+            fun additionalProperties(additionalProperties: QueryParams) = apply {
                 this.additionalProperties.clear()
                 putAllAdditionalProperties(additionalProperties)
             }
 
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+            fun additionalProperties(additionalProperties: Map<String, Iterable<String>>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: String) = apply {
                 additionalProperties.put(key, value)
             }
 
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+            fun putAdditionalProperties(key: String, values: Iterable<String>) = apply {
+                additionalProperties.put(key, values)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: QueryParams) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+            fun putAllAdditionalProperties(additionalProperties: Map<String, Iterable<String>>) =
+                apply {
+                    this.additionalProperties.putAll(additionalProperties)
+                }
+
+            fun replaceAdditionalProperties(key: String, value: String) = apply {
+                additionalProperties.replace(key, value)
+            }
+
+            fun replaceAdditionalProperties(key: String, values: Iterable<String>) = apply {
+                additionalProperties.replace(key, values)
+            }
+
+            fun replaceAllAdditionalProperties(additionalProperties: QueryParams) = apply {
+                this.additionalProperties.replaceAll(additionalProperties)
+            }
+
+            fun replaceAllAdditionalProperties(
+                additionalProperties: Map<String, Iterable<String>>
+            ) = apply { this.additionalProperties.replaceAll(additionalProperties) }
+
+            fun removeAdditionalProperties(key: String) = apply { additionalProperties.remove(key) }
 
             fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
+                additionalProperties.removeAll(keys)
             }
 
             fun build(): AttributeFilter =
                 AttributeFilter(
                     checkNotNull(key) { "`key` is required but was not set" },
                     checkNotNull(op) { "`op` is required but was not set" },
-                    checkNotNull(value) { "`value` is required but was not set" },
-                    additionalProperties.toImmutable(),
+                    value,
+                    additionalProperties.build(),
                 )
         }
 
@@ -668,29 +487,6 @@ constructor(
                 }
             }
 
-            private var validated: Boolean = false
-
-            fun validate(): Value = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                accept(
-                    object : Visitor<Unit> {
-                        override fun visitBoolean(boolean: Boolean) {}
-
-                        override fun visitDouble(double: Double) {}
-
-                        override fun visitString(string: String) {}
-
-                        override fun visitJsonValues(jsonValues: List<JsonValue>) {}
-
-                        override fun visitJsonValue(jsonValue: JsonValue) {}
-                    }
-                )
-                validated = true
-            }
-
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -810,11 +606,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryQuerySpansParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryQuerySpansParams && attributeFilters == other.attributeFilters && attributesToReturn == other.attributesToReturn && maxDepth == other.maxDepth && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(attributeFilters, attributesToReturn, maxDepth, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryQuerySpansParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryQuerySpansParams{attributeFilters=$attributeFilters, attributesToReturn=$attributesToReturn, maxDepth=$maxDepth, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

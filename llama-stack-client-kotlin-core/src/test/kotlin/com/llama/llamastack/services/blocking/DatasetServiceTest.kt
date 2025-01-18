@@ -9,6 +9,7 @@ import com.llama.llamastack.models.DatasetListParams
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetUnregisterParams
+import com.llama.llamastack.models.ListDatasetsResponse
 import com.llama.llamastack.models.Url
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -38,15 +39,17 @@ class DatasetServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
-        val datasetListResponse =
+        val listDatasetsResponse =
             datasetService.list(
                 DatasetListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(datasetListResponse)
-        datasetListResponse.validate()
+        println(listDatasetsResponse)
+        for (dataset: ListDatasetsResponse.Data in listDatasetsResponse) {
+            dataset.validate()
+        }
     }
 
     @Test

@@ -11,10 +11,10 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.Tool
 import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
-import com.llama.llamastack.models.ToolListResponse
 
 class ToolServiceImpl
 constructor(
@@ -24,11 +24,12 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<ToolListResponse> =
-        jsonHandler<ToolListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<Tool>>> =
+        jsonHandler<DataEnvelope<List<Tool>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     /** List tools with optional tool group */
-    override fun list(params: ToolListParams, requestOptions: RequestOptions): ToolListResponse {
+    override fun list(params: ToolListParams, requestOptions: RequestOptions): List<Tool> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -46,6 +47,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

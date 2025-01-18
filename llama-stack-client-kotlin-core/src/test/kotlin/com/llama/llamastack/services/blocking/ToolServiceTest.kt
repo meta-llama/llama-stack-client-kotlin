@@ -4,6 +4,7 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
+import com.llama.llamastack.models.Tool
 import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
 import org.junit.jupiter.api.Test
@@ -17,7 +18,7 @@ class ToolServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolService = client.tools()
-        val toolListResponse =
+        val listToolsResponse =
             toolService.list(
                 ToolListParams.builder()
                     .toolgroupId("toolgroup_id")
@@ -25,8 +26,10 @@ class ToolServiceTest {
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(toolListResponse)
-        toolListResponse.validate()
+        println(listToolsResponse)
+        for (tool: Tool in listToolsResponse) {
+            tool.validate()
+        }
     }
 
     @Test

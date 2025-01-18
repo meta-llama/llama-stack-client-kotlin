@@ -17,7 +17,7 @@ import java.time.OffsetDateTime
 import java.util.Objects
 
 @NoAutoDetect
-class TelemetryQuerySpansResponse
+class TelemetryGetSpanResponse
 @JsonCreator
 private constructor(
     @JsonProperty("name") @ExcludeMissing private val name: JsonField<String> = JsonMissing.of(),
@@ -82,7 +82,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): TelemetryQuerySpansResponse = apply {
+    fun validate(): TelemetryGetSpanResponse = apply {
         if (validated) {
             return@apply
         }
@@ -115,15 +115,15 @@ private constructor(
         private var parentSpanId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(telemetryQuerySpansResponse: TelemetryQuerySpansResponse) = apply {
-            name = telemetryQuerySpansResponse.name
-            spanId = telemetryQuerySpansResponse.spanId
-            startTime = telemetryQuerySpansResponse.startTime
-            traceId = telemetryQuerySpansResponse.traceId
-            attributes = telemetryQuerySpansResponse.attributes
-            endTime = telemetryQuerySpansResponse.endTime
-            parentSpanId = telemetryQuerySpansResponse.parentSpanId
-            additionalProperties = telemetryQuerySpansResponse.additionalProperties.toMutableMap()
+        internal fun from(telemetryGetSpanResponse: TelemetryGetSpanResponse) = apply {
+            name = telemetryGetSpanResponse.name
+            spanId = telemetryGetSpanResponse.spanId
+            startTime = telemetryGetSpanResponse.startTime
+            traceId = telemetryGetSpanResponse.traceId
+            attributes = telemetryGetSpanResponse.attributes
+            endTime = telemetryGetSpanResponse.endTime
+            parentSpanId = telemetryGetSpanResponse.parentSpanId
+            additionalProperties = telemetryGetSpanResponse.additionalProperties.toMutableMap()
         }
 
         fun name(name: String) = name(JsonField.of(name))
@@ -175,8 +175,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): TelemetryQuerySpansResponse =
-            TelemetryQuerySpansResponse(
+        fun build(): TelemetryGetSpanResponse =
+            TelemetryGetSpanResponse(
                 checkNotNull(name) { "`name` is required but was not set" },
                 checkNotNull(spanId) { "`spanId` is required but was not set" },
                 checkNotNull(startTime) { "`startTime` is required but was not set" },
@@ -269,7 +269,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryQuerySpansResponse && name == other.name && spanId == other.spanId && startTime == other.startTime && traceId == other.traceId && attributes == other.attributes && endTime == other.endTime && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is TelemetryGetSpanResponse && name == other.name && spanId == other.spanId && startTime == other.startTime && traceId == other.traceId && attributes == other.attributes && endTime == other.endTime && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -279,5 +279,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "TelemetryQuerySpansResponse{name=$name, spanId=$spanId, startTime=$startTime, traceId=$traceId, attributes=$attributes, endTime=$endTime, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
+        "TelemetryGetSpanResponse{name=$name, spanId=$spanId, startTime=$startTime, traceId=$traceId, attributes=$attributes, endTime=$endTime, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
 }

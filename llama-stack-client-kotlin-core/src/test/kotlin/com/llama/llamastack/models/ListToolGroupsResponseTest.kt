@@ -6,12 +6,12 @@ import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToolgroupListResponseTest {
+class ListToolGroupsResponseTest {
 
     @Test
-    fun createToolgroupListResponse() {
-        val toolgroupListResponse =
-            ToolgroupListResponse.builder()
+    fun createListToolGroupsResponse() {
+        val listToolGroupsResponse =
+            ListToolGroupsResponse.builder()
                 .data(
                     listOf(
                         ToolGroup.builder()
@@ -29,8 +29,8 @@ class ToolgroupListResponseTest {
                     )
                 )
                 .build()
-        assertThat(toolgroupListResponse).isNotNull
-        assertThat(toolgroupListResponse.data())
+        assertThat(listToolGroupsResponse).isNotNull
+        assertThat(listToolGroupsResponse.data())
             .containsExactly(
                 ToolGroup.builder()
                     .identifier("identifier")

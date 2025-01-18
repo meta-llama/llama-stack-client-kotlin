@@ -37,7 +37,15 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("v1", "eval", "jobs", params.getPathParam(0), "result")
+                .addPathSegments(
+                    "v1",
+                    "eval",
+                    "tasks",
+                    params.getPathParam(0),
+                    "jobs",
+                    params.getPathParam(1),
+                    "result"
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -59,13 +67,20 @@ constructor(
     override suspend fun cancel(params: EvalJobCancelParams, requestOptions: RequestOptions) {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("v1", "eval", "jobs", "cancel")
+                .method(HttpMethod.DELETE)
+                .addPathSegments(
+                    "v1",
+                    "eval",
+                    "tasks",
+                    params.getPathParam(0),
+                    "jobs",
+                    params.getPathParam(1)
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response.use { cancelHandler.handle(it) }
@@ -82,7 +97,14 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("v1", "eval", "jobs", params.getPathParam(0))
+                .addPathSegments(
+                    "v1",
+                    "eval",
+                    "tasks",
+                    params.getPathParam(0),
+                    "jobs",
+                    params.getPathParam(1)
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

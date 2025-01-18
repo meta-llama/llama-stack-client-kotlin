@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.ToolGroup
 import com.llama.llamastack.models.ToolgroupGetParams
 import com.llama.llamastack.models.ToolgroupListParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
@@ -21,15 +22,17 @@ class ToolgroupServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
-        val toolgroupListResponse =
+        val listToolGroupsResponse =
             toolgroupService.list(
                 ToolgroupListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(toolgroupListResponse)
-        toolgroupListResponse.validate()
+        println(listToolGroupsResponse)
+        for (toolGroup: ToolGroup in listToolGroupsResponse) {
+            toolGroup.validate()
+        }
     }
 
     @Test

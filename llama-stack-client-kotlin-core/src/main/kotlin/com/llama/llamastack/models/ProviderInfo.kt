@@ -19,6 +19,7 @@ import java.util.Objects
 class ProviderInfo
 @JsonCreator
 private constructor(
+    @JsonProperty("api") @ExcludeMissing private val api: JsonField<String> = JsonMissing.of(),
     @JsonProperty("provider_id")
     @ExcludeMissing
     private val providerId: JsonField<String> = JsonMissing.of(),
@@ -28,9 +29,13 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    fun api(): String = api.getRequired("api")
+
     fun providerId(): String = providerId.getRequired("provider_id")
 
     fun providerType(): String = providerType.getRequired("provider_type")
+
+    @JsonProperty("api") @ExcludeMissing fun _api(): JsonField<String> = api
 
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
@@ -49,6 +54,7 @@ private constructor(
             return@apply
         }
 
+        api()
         providerId()
         providerType()
         validated = true
@@ -63,15 +69,21 @@ private constructor(
 
     class Builder {
 
+        private var api: JsonField<String>? = null
         private var providerId: JsonField<String>? = null
         private var providerType: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(providerInfo: ProviderInfo) = apply {
+            api = providerInfo.api
             providerId = providerInfo.providerId
             providerType = providerInfo.providerType
             additionalProperties = providerInfo.additionalProperties.toMutableMap()
         }
+
+        fun api(api: String) = api(JsonField.of(api))
+
+        fun api(api: JsonField<String>) = apply { this.api = api }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
@@ -104,6 +116,7 @@ private constructor(
 
         fun build(): ProviderInfo =
             ProviderInfo(
+                checkNotNull(api) { "`api` is required but was not set" },
                 checkNotNull(providerId) { "`providerId` is required but was not set" },
                 checkNotNull(providerType) { "`providerType` is required but was not set" },
                 additionalProperties.toImmutable(),
@@ -115,15 +128,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ProviderInfo && providerId == other.providerId && providerType == other.providerType && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ProviderInfo && api == other.api && providerId == other.providerId && providerType == other.providerType && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(providerId, providerType, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(api, providerId, providerType, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ProviderInfo{providerId=$providerId, providerType=$providerType, additionalProperties=$additionalProperties}"
+        "ProviderInfo{api=$api, providerId=$providerId, providerType=$providerType, additionalProperties=$additionalProperties}"
 }

@@ -6,17 +6,17 @@ import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class DatasetListResponseTest {
+class ListDatasetsResponseTest {
 
     @Test
-    fun createDatasetListResponse() {
-        val datasetListResponse =
-            DatasetListResponse.builder()
+    fun createListDatasetsResponse() {
+        val listDatasetsResponse =
+            ListDatasetsResponse.builder()
                 .data(
                     listOf(
-                        DatasetListResponse.Data.builder()
+                        ListDatasetsResponse.Data.builder()
                             .datasetSchema(
-                                DatasetListResponse.Data.DatasetSchema.builder()
+                                ListDatasetsResponse.Data.DatasetSchema.builder()
                                     .putAdditionalProperty(
                                         "foo",
                                         JsonValue.from(mapOf("type" to "string"))
@@ -25,36 +25,36 @@ class DatasetListResponseTest {
                             )
                             .identifier("identifier")
                             .metadata(
-                                DatasetListResponse.Data.Metadata.builder()
+                                ListDatasetsResponse.Data.Metadata.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .providerId("provider_id")
                             .providerResourceId("provider_resource_id")
-                            .type(DatasetListResponse.Data.Type.DATASET)
+                            .type(ListDatasetsResponse.Data.Type.DATASET)
                             .url(Url.builder().uri("uri").build())
                             .build()
                     )
                 )
                 .build()
-        assertThat(datasetListResponse).isNotNull
-        assertThat(datasetListResponse.data())
+        assertThat(listDatasetsResponse).isNotNull
+        assertThat(listDatasetsResponse.data())
             .containsExactly(
-                DatasetListResponse.Data.builder()
+                ListDatasetsResponse.Data.builder()
                     .datasetSchema(
-                        DatasetListResponse.Data.DatasetSchema.builder()
+                        ListDatasetsResponse.Data.DatasetSchema.builder()
                             .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
                             .build()
                     )
                     .identifier("identifier")
                     .metadata(
-                        DatasetListResponse.Data.Metadata.builder()
+                        ListDatasetsResponse.Data.Metadata.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .type(DatasetListResponse.Data.Type.DATASET)
+                    .type(ListDatasetsResponse.Data.Type.DATASET)
                     .url(Url.builder().uri("uri").build())
                     .build()
             )

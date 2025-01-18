@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
@@ -36,15 +37,17 @@ class EvalTaskServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
-        val evalTaskListResponse =
+        val listEvalTasksResponse =
             evalTaskService.list(
                 EvalTaskListParams.builder()
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(evalTaskListResponse)
-        evalTaskListResponse.validate()
+        println(listEvalTasksResponse)
+        for (evalTask: EvalTask in listEvalTasksResponse) {
+            evalTask.validate()
+        }
     }
 
     @Test

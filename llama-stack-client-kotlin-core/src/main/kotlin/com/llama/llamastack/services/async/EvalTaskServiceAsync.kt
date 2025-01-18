@@ -5,7 +5,6 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
-import com.llama.llamastack.models.EvalTaskListResponse
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
@@ -19,7 +18,7 @@ interface EvalTaskServiceAsync {
     suspend fun list(
         params: EvalTaskListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): EvalTaskListResponse
+    ): List<EvalTask>
 
     suspend fun register(
         params: EvalTaskRegisterParams,

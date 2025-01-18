@@ -11,8 +11,9 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
+import com.llama.llamastack.models.RouteInfo
 import com.llama.llamastack.models.RouteListParams
-import com.llama.llamastack.models.RouteListResponse
 
 class RouteServiceImpl
 constructor(
@@ -22,14 +23,15 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<RouteListResponse> =
-        jsonHandler<RouteListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<RouteInfo>>> =
+        jsonHandler<DataEnvelope<List<RouteInfo>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
-    override fun list(params: RouteListParams, requestOptions: RequestOptions): RouteListResponse {
+    override fun list(params: RouteListParams, requestOptions: RequestOptions): List<RouteInfo> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("v1", "routes", "list")
+                .addPathSegments("v1", "inspect", "routes")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -43,6 +45,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 }

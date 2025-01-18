@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,42 +10,22 @@ class EvalJobStatusParamsTest {
     @Test
     fun createEvalJobStatusParams() {
         EvalJobStatusParams.builder()
-            .jobId("job_id")
             .taskId("task_id")
+            .jobId("job_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            EvalJobStatusParams.builder()
-                .jobId("job_id")
-                .taskId("task_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val expected = QueryParams.builder()
-        expected.put("task_id", "task_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getQueryParamsWithoutOptionalFields() {
-        val params = EvalJobStatusParams.builder().jobId("job_id").taskId("task_id").build()
-        val expected = QueryParams.builder()
-        expected.put("task_id", "task_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
     fun getPathParam() {
-        val params = EvalJobStatusParams.builder().jobId("job_id").taskId("task_id").build()
+        val params = EvalJobStatusParams.builder().taskId("task_id").jobId("job_id").build()
         assertThat(params).isNotNull
+        // path param "taskId"
+        assertThat(params.getPathParam(0)).isEqualTo("task_id")
         // path param "jobId"
-        assertThat(params.getPathParam(0)).isEqualTo("job_id")
+        assertThat(params.getPathParam(1)).isEqualTo("job_id")
         // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
+        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

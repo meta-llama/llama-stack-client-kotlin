@@ -6,12 +6,12 @@ import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ScoringFunctionListResponseTest {
+class ListScoringFunctionsResponseTest {
 
     @Test
-    fun createScoringFunctionListResponse() {
-        val scoringFunctionListResponse =
-            ScoringFunctionListResponse.builder()
+    fun createListScoringFunctionsResponse() {
+        val listScoringFunctionsResponse =
+            ListScoringFunctionsResponse.builder()
                 .data(
                     listOf(
                         ScoringFn.builder()
@@ -50,8 +50,8 @@ class ScoringFunctionListResponseTest {
                     )
                 )
                 .build()
-        assertThat(scoringFunctionListResponse).isNotNull
-        assertThat(scoringFunctionListResponse.data())
+        assertThat(listScoringFunctionsResponse).isNotNull
+        assertThat(listScoringFunctionsResponse.data())
             .containsExactly(
                 ScoringFn.builder()
                     .identifier("identifier")

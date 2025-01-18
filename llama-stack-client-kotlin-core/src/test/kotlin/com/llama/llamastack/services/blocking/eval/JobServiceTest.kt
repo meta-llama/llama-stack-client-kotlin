@@ -21,8 +21,8 @@ class JobServiceTest {
         val evaluateResponse =
             jobService.retrieve(
                 EvalJobRetrieveParams.builder()
-                    .jobId("job_id")
                     .taskId("task_id")
+                    .jobId("job_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
@@ -38,8 +38,8 @@ class JobServiceTest {
         val jobService = client.eval().jobs()
         jobService.cancel(
             EvalJobCancelParams.builder()
-                .jobId("job_id")
                 .taskId("task_id")
+                .jobId("job_id")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
@@ -54,8 +54,8 @@ class JobServiceTest {
         val evalJobStatusResponse =
             jobService.status(
                 EvalJobStatusParams.builder()
-                    .jobId("job_id")
                     .taskId("task_id")
+                    .jobId("job_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()

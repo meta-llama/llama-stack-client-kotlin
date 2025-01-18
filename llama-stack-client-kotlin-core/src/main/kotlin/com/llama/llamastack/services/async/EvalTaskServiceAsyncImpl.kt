@@ -13,9 +13,9 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
-import com.llama.llamastack.models.EvalTaskListResponse
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
@@ -54,13 +54,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<EvalTaskListResponse> =
-        jsonHandler<EvalTaskListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<EvalTask>>> =
+        jsonHandler<DataEnvelope<List<EvalTask>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: EvalTaskListParams,
         requestOptions: RequestOptions
-    ): EvalTaskListResponse {
+    ): List<EvalTask> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -78,6 +79,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 

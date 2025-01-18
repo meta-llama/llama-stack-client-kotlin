@@ -13,9 +13,9 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
-import com.llama.llamastack.models.ModelListResponse
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
@@ -55,13 +55,14 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<ModelListResponse> =
-        jsonHandler<ModelListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<Model>>> =
+        jsonHandler<DataEnvelope<List<Model>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: ModelListParams,
         requestOptions: RequestOptions
-    ): ModelListResponse {
+    ): List<Model> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -79,6 +80,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
