@@ -106,18 +106,8 @@ fun buildInferenceChatCompletionResponseForCustomToolCallStream(
         ContentDelta.ToolCallDelta.builder()
             .content(toolCall)
             .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED)
+            .type(ContentDelta.ToolCallDelta.Type.TOOL_CALL)
             .build()
-    //        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
-    //            .ofToolCallDelta(
-    //                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
-    //                    .ToolCallDelta
-    //                    .builder()
-    //                    .content(toolCall)
-    //                    .parseStatus(
-    //                        ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED
-    //                    )
-    //                    .build()
-    //            )
     return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
