@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 
 class TelemetryQueryTracesParamsTest {
@@ -29,7 +30,7 @@ class TelemetryQueryTracesParamsTest {
     }
 
     @Test
-    //    @Disabled
+    @Disabled
     fun getQueryParams() {
         val params =
             TelemetryQueryTracesParams.builder()

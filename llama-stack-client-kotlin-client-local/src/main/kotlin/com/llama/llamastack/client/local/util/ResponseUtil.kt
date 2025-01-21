@@ -1,6 +1,7 @@
 package com.llama.llamastack.client.local.util
 
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.ContentDelta
 import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.ToolCall
@@ -55,9 +56,12 @@ fun buildInferenceChatCompletionResponseFromStream(
             .event(
                 InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
                     .delta(
-                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
-                            .Delta
-                            .ofString(response)
+                        ContentDelta.ofTextDelta(
+                            ContentDelta.TextDelta.builder()
+                                .type(ContentDelta.TextDelta.Type.TEXT)
+                                .text(response)
+                                .build()
+                        )
                     )
                     .eventType(
                         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
@@ -99,21 +103,21 @@ fun buildInferenceChatCompletionResponseForCustomToolCallStream(
     stats: Float
 ): InferenceChatCompletionResponse {
     val delta =
-        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
-            .ofToolCallDelta(
-                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
-                    .ToolCallDelta
-                    .builder()
-                    .content(toolCall)
-                    .parseStatus(
-                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
-                            .Delta
-                            .ToolCallDelta
-                            .ParseStatus
-                            .SUCCESS
-                    )
-                    .build()
-            )
+        ContentDelta.ToolCallDelta.builder()
+            .content(toolCall)
+            .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED)
+            .build()
+    //        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
+    //            .ofToolCallDelta(
+    //                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.Delta
+    //                    .ToolCallDelta
+    //                    .builder()
+    //                    .content(toolCall)
+    //                    .parseStatus(
+    //                        ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED
+    //                    )
+    //                    .build()
+    //            )
     return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
@@ -142,9 +146,12 @@ fun buildInferenceChatCompletionResponseForStringStream(
             .event(
                 InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
                     .delta(
-                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
-                            .Delta
-                            .ofString(str)
+                        ContentDelta.ofTextDelta(
+                            ContentDelta.TextDelta.builder()
+                                .type(ContentDelta.TextDelta.Type.TEXT)
+                                .text(str)
+                                .build()
+                        )
                     )
                     .stopReason(mapStopTokenToReasonForStream(stopToken))
                     .eventType(
