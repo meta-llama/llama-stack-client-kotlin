@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -13,7 +14,11 @@ class EvalTaskTest {
             EvalTask.builder()
                 .datasetId("dataset_id")
                 .identifier("identifier")
-                .metadata(EvalTask.Metadata.builder().build())
+                .metadata(
+                    EvalTask.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
                 .scoringFunctions(listOf("string"))
@@ -22,7 +27,12 @@ class EvalTaskTest {
         assertThat(evalTask).isNotNull
         assertThat(evalTask.datasetId()).isEqualTo("dataset_id")
         assertThat(evalTask.identifier()).isEqualTo("identifier")
-        assertThat(evalTask.metadata()).isEqualTo(EvalTask.Metadata.builder().build())
+        assertThat(evalTask.metadata())
+            .isEqualTo(
+                EvalTask.Metadata.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
         assertThat(evalTask.providerId()).isEqualTo("provider_id")
         assertThat(evalTask.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(evalTask.scoringFunctions()).containsExactly("string")

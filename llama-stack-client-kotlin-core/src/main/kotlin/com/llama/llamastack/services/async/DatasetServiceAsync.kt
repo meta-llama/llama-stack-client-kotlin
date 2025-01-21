@@ -8,6 +8,7 @@ import com.llama.llamastack.models.DatasetListResponse
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetRetrieveResponse
+import com.llama.llamastack.models.DatasetUnregisterParams
 
 interface DatasetServiceAsync {
 
@@ -23,6 +24,11 @@ interface DatasetServiceAsync {
 
     suspend fun register(
         params: DatasetRegisterParams,
+        requestOptions: RequestOptions = RequestOptions.none()
+    )
+
+    suspend fun unregister(
+        params: DatasetUnregisterParams,
         requestOptions: RequestOptions = RequestOptions.none()
     )
 }

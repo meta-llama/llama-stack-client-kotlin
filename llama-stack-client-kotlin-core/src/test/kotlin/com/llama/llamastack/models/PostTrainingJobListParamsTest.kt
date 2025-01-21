@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.junit.jupiter.api.Test
 
 class PostTrainingJobListParamsTest {
@@ -10,7 +9,8 @@ class PostTrainingJobListParamsTest {
     @Test
     fun createPostTrainingJobListParams() {
         PostTrainingJobListParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 }

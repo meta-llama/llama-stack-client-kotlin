@@ -18,6 +18,7 @@ import com.llama.llamastack.models.DatasetListResponse
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetRetrieveResponse
+import com.llama.llamastack.models.DatasetUnregisterParams
 
 class DatasetServiceAsyncImpl
 constructor(
@@ -97,6 +98,27 @@ constructor(
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response.use { registerHandler.handle(it) }
+        }
+    }
+
+    private val unregisterHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+
+    override suspend fun unregister(
+        params: DatasetUnregisterParams,
+        requestOptions: RequestOptions
+    ) {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "datasets", "unregister")
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .build()
+        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
+            response.use { unregisterHandler.handle(it) }
         }
     }
 }

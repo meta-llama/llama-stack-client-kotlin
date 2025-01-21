@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,20 +11,20 @@ class InferenceCompletionParamsTest {
     @Test
     fun createInferenceCompletionParams() {
         InferenceCompletionParams.builder()
-            .content(InferenceCompletionParams.Content.ofString("string"))
+            .content(InterleavedContent.ofString("string"))
             .modelId("model_id")
             .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
-                InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                InferenceCompletionParams.ResponseFormat.ofUnionMember0(
+                    InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
                         .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.JsonSchema
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                 .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
-                                .JSON_SCHEMA
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
                         )
                         .build()
                 )
@@ -39,7 +39,8 @@ class InferenceCompletionParamsTest {
                     .topP(0.0)
                     .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -47,19 +48,20 @@ class InferenceCompletionParamsTest {
     fun getBody() {
         val params =
             InferenceCompletionParams.builder()
-                .content(InferenceCompletionParams.Content.ofString("string"))
+                .content(InterleavedContent.ofString("string"))
                 .modelId("model_id")
                 .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.JsonSchema
+                                InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -75,26 +77,27 @@ class InferenceCompletionParamsTest {
                         .topP(0.0)
                         .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
+        assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
             .isEqualTo(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
         assertThat(body.responseFormat())
             .isEqualTo(
-                InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                InferenceCompletionParams.ResponseFormat.ofUnionMember0(
+                    InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
                         .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.JsonSchema
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                 .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
-                                .JSON_SCHEMA
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
                         )
                         .build()
                 )
@@ -116,12 +119,12 @@ class InferenceCompletionParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             InferenceCompletionParams.builder()
-                .content(InferenceCompletionParams.Content.ofString("string"))
+                .content(InterleavedContent.ofString("string"))
                 .modelId("model_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
+        assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

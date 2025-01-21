@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,10 +12,16 @@ class ModelRegisterParamsTest {
     fun createModelRegisterParams() {
         ModelRegisterParams.builder()
             .modelId("model_id")
-            .metadata(ModelRegisterParams.Metadata.builder().build())
+            .metadata(
+                ModelRegisterParams.Metadata.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+            .modelType(ModelRegisterParams.ModelType.LLM)
             .providerId("provider_id")
             .providerModelId("provider_model_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -24,15 +30,27 @@ class ModelRegisterParamsTest {
         val params =
             ModelRegisterParams.builder()
                 .modelId("model_id")
-                .metadata(ModelRegisterParams.Metadata.builder().build())
+                .metadata(
+                    ModelRegisterParams.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .modelType(ModelRegisterParams.ModelType.LLM)
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.modelId()).isEqualTo("model_id")
-        assertThat(body.metadata()).isEqualTo(ModelRegisterParams.Metadata.builder().build())
+        assertThat(body.metadata())
+            .isEqualTo(
+                ModelRegisterParams.Metadata.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+        assertThat(body.modelType()).isEqualTo(ModelRegisterParams.ModelType.LLM)
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.providerModelId()).isEqualTo("provider_model_id")
     }

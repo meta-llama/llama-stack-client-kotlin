@@ -11,11 +11,11 @@ class SystemMessageTest {
     fun createSystemMessage() {
         val systemMessage =
             SystemMessage.builder()
-                .content(SystemMessage.Content.ofString("string"))
+                .content(InterleavedContent.ofString("string"))
                 .role(SystemMessage.Role.SYSTEM)
                 .build()
         assertThat(systemMessage).isNotNull
-        assertThat(systemMessage.content()).isEqualTo(SystemMessage.Content.ofString("string"))
+        assertThat(systemMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(systemMessage.role()).isEqualTo(SystemMessage.Role.SYSTEM)
     }
 }

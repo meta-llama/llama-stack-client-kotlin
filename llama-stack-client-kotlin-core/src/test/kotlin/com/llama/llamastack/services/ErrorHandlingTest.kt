@@ -4,17 +4,15 @@ package com.llama.llamastack.services
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.github.tomakehurst.wiremock.client.WireMock.anyUrl
-import com.github.tomakehurst.wiremock.client.WireMock.get
 import com.github.tomakehurst.wiremock.client.WireMock.ok
 import com.github.tomakehurst.wiremock.client.WireMock.post
-import com.github.tomakehurst.wiremock.client.WireMock.put
 import com.github.tomakehurst.wiremock.client.WireMock.status
 import com.github.tomakehurst.wiremock.client.WireMock.stubFor
 import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.core.JsonString
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.jsonMapper
 import com.llama.llamastack.errors.BadRequestException
@@ -27,7 +25,13 @@ import com.llama.llamastack.errors.RateLimitException
 import com.llama.llamastack.errors.UnauthorizedException
 import com.llama.llamastack.errors.UnexpectedStatusCodeException
 import com.llama.llamastack.errors.UnprocessableEntityException
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.InferenceChatCompletionParams
+import com.llama.llamastack.models.InferenceChatCompletionResponse
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SamplingParams
+import com.llama.llamastack.models.TokenLogProbs
+import com.llama.llamastack.models.ToolCall
+import com.llama.llamastack.models.UserMessage
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.InstanceOfAssertFactories
@@ -40,7 +44,9 @@ class ErrorHandlingTest {
     private val JSON_MAPPER: JsonMapper = jsonMapper()
 
     private val LLAMA_STACK_CLIENT_ERROR: LlamaStackClientError =
-        LlamaStackClientError.builder().putAdditionalProperty("key", JsonString.of("value")).build()
+        LlamaStackClientError.builder()
+            .putAdditionalProperty("key", JsonValue.from("value"))
+            .build()
 
     private lateinit var client: LlamaStackClientClient
 
@@ -58,9 +64,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -68,16 +74,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -101,26 +107,57 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         val expected =
             InferenceChatCompletionResponse.ofChatCompletionResponse(
                 InferenceChatCompletionResponse.ChatCompletionResponse.builder()
                     .completionMessage(
-                        CompletionMessage.builder()
-                            .content(CompletionMessage.Content.ofString("string"))
-                            .role(CompletionMessage.Role.ASSISTANT)
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                        InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage
+                            .builder()
+                            .content(InterleavedContent.ofString("string"))
+                            .role(
+                                InferenceChatCompletionResponse.ChatCompletionResponse
+                                    .CompletionMessage
+                                    .Role
+                                    .ASSISTANT
+                            )
+                            .stopReason(
+                                InferenceChatCompletionResponse.ChatCompletionResponse
+                                    .CompletionMessage
+                                    .StopReason
+                                    .END_OF_TURN
+                            )
                             .toolCalls(
                                 listOf(
                                     ToolCall.builder()
-                                        .arguments(ToolCall.Arguments.builder().build())
+                                        .arguments(
+                                            ToolCall.Arguments.builder()
+                                                .putAdditionalProperty(
+                                                    "foo",
+                                                    JsonValue.from("string")
+                                                )
+                                                .build()
+                                        )
                                         .callId("call_id")
                                         .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
@@ -131,7 +168,11 @@ class ErrorHandlingTest {
                     .logprobs(
                         listOf(
                             TokenLogProbs.builder()
-                                .logprobsByToken(TokenLogProbs.LogprobsByToken.builder().build())
+                                .logprobsByToken(
+                                    TokenLogProbs.LogprobsByToken.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(0))
+                                        .build()
+                                )
                                 .build()
                         )
                     )
@@ -151,9 +192,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -161,16 +202,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -194,12 +235,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -227,9 +281,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -237,16 +291,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -270,12 +324,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -303,9 +370,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -313,16 +380,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -346,12 +413,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -379,9 +459,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -389,16 +469,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -422,12 +502,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -455,9 +548,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -465,16 +558,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -498,12 +591,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -531,9 +637,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -541,16 +647,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -574,12 +680,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -607,9 +726,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -617,16 +736,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -650,12 +769,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -683,9 +815,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -693,16 +825,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -726,12 +858,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(
@@ -760,9 +905,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -770,16 +915,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -803,12 +948,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(post(anyUrl()).willReturn(status(200).withBody("Not JSON")))
@@ -829,9 +987,9 @@ class ErrorHandlingTest {
                     listOf(
                         InferenceChatCompletionParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
@@ -839,16 +997,16 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat
-                                    .JsonSchema
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchemaFormat.Type
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
                                     .JSON_SCHEMA
                             )
                             .build()
@@ -872,12 +1030,25 @@ class ErrorHandlingTest {
                             .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                             .description("description")
                             .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder().build()
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
+                                            )
+                                        )
+                                    )
+                                    .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
 
         stubFor(post(anyUrl()).willReturn(status(400).withBody("Not JSON")))

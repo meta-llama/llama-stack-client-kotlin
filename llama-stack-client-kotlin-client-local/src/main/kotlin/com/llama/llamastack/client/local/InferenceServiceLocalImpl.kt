@@ -4,6 +4,8 @@ package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
+import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStream
+import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponsesFromStream
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.EmbeddingsResponse
@@ -27,9 +29,16 @@ constructor(
     private var modelName: String = ""
 
     private var sequenceLengthKey: String = "seq_len"
+    private var stopToken: String = ""
+
+    private val streamingResponseList = mutableListOf<InferenceChatCompletionResponse>()
+    private var isStreaming: Boolean = false
+
+    private val waitTime: Long = 100
 
     override fun onResult(p0: String?) {
         if (PromptFormatLocal.getStopTokens(modelName).any { it == p0 }) {
+            stopToken = p0!!
             onResultComplete = true
             return
         }
@@ -37,9 +46,15 @@ constructor(
         if (p0.equals("\n\n") || p0.equals("\n")) {
             if (resultMessage.isNotEmpty()) {
                 resultMessage += p0
+                if (p0 != null && isStreaming) {
+                    streamingResponseList.add(buildInferenceChatCompletionResponseFromStream(p0))
+                }
             }
         } else {
             resultMessage += p0
+            if (p0 != null && isStreaming) {
+                streamingResponseList.add(buildInferenceChatCompletionResponseFromStream(p0))
+            }
         }
     }
 
@@ -55,7 +70,8 @@ constructor(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
     ): InferenceChatCompletionResponse {
-        resultMessage = ""
+        isStreaming = false
+        clearElements()
         val mModule = clientOptions.llamaModule
         modelName = params.modelId()
         val formattedPrompt =
@@ -74,19 +90,67 @@ constructor(
         mModule.generate(formattedPrompt, seqLength, this, false)
 
         while (!onResultComplete && !onStatsComplete) {
-            Thread.sleep(100)
+            Thread.sleep(waitTime)
         }
         onResultComplete = false
         onStatsComplete = false
 
-        return buildInferenceChatCompletionResponse(resultMessage, statsMetric)
+        return buildInferenceChatCompletionResponse(resultMessage, statsMetric, stopToken)
     }
+
+    private val streamResponse =
+        object : StreamResponse<InferenceChatCompletionResponse> {
+            override fun asSequence(): Sequence<InferenceChatCompletionResponse> {
+                return sequence {
+                    while (!onResultComplete || streamingResponseList.isNotEmpty()) {
+                        if (streamingResponseList.isNotEmpty()) {
+                            yield(streamingResponseList.removeAt(0))
+                        } else {
+                            Thread.sleep(waitTime)
+                        }
+                    }
+                    while (!onStatsComplete) {
+                        Thread.sleep(waitTime)
+                    }
+                    val chatCompletionResponses =
+                        buildLastInferenceChatCompletionResponsesFromStream(
+                            resultMessage,
+                            statsMetric,
+                            stopToken,
+                        )
+                    for (ccr in chatCompletionResponses) {
+                        yield(ccr)
+                    }
+                }
+            }
+
+            override fun close() {
+                isStreaming = false
+            }
+        }
 
     override fun chatCompletionStreaming(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
     ): StreamResponse<InferenceChatCompletionResponse> {
-        TODO("Not yet implemented")
+        isStreaming = true
+        streamingResponseList.clear()
+        resultMessage = ""
+        val mModule = clientOptions.llamaModule
+        modelName = params.modelId()
+        val formattedPrompt =
+            PromptFormatLocal.getTotalFormattedPrompt(params.messages(), modelName)
+
+        val seqLength =
+            params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
+                ?: ((formattedPrompt.length * 0.75) + 64).toInt()
+
+        println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
+        onResultComplete = false
+        val thread = Thread { mModule.generate(formattedPrompt, seqLength, this, false) }
+        thread.start()
+
+        return streamResponse
     }
 
     override fun completion(
@@ -108,5 +172,10 @@ constructor(
         requestOptions: RequestOptions
     ): EmbeddingsResponse {
         TODO("Not yet implemented")
+    }
+
+    fun clearElements() {
+        resultMessage = ""
+        stopToken = ""
     }
 }

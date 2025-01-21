@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,11 +11,12 @@ class DatasetioGetRowsPaginatedParamsTest {
     @Test
     fun createDatasetioGetRowsPaginatedParams() {
         DatasetioGetRowsPaginatedParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .datasetId("dataset_id")
             .rowsInPage(0L)
             .filterCondition("filter_condition")
             .pageToken("page_token")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -24,11 +24,12 @@ class DatasetioGetRowsPaginatedParamsTest {
     fun getQueryParams() {
         val params =
             DatasetioGetRowsPaginatedParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .datasetId("dataset_id")
                 .rowsInPage(0L)
                 .filterCondition("filter_condition")
                 .pageToken("page_token")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("dataset_id", "dataset_id")

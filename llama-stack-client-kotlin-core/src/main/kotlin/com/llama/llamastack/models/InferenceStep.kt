@@ -6,38 +6,44 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
-@JsonDeserialize(builder = InferenceStep.Builder::class)
 @NoAutoDetect
 class InferenceStep
+@JsonCreator
 private constructor(
-    private val completedAt: JsonField<OffsetDateTime>,
-    private val modelResponse: JsonField<CompletionMessage>,
-    private val startedAt: JsonField<OffsetDateTime>,
-    private val stepId: JsonField<String>,
-    private val stepType: JsonField<StepType>,
-    private val turnId: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("model_response")
+    @ExcludeMissing
+    private val modelResponse: JsonField<ModelResponse> = JsonMissing.of(),
+    @JsonProperty("step_id")
+    @ExcludeMissing
+    private val stepId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("step_type")
+    @ExcludeMissing
+    private val stepType: JsonField<StepType> = JsonMissing.of(),
+    @JsonProperty("turn_id")
+    @ExcludeMissing
+    private val turnId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    private var validated: Boolean = false
-
-    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
-
-    fun modelResponse(): CompletionMessage = modelResponse.getRequired("model_response")
-
-    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
+    fun modelResponse(): ModelResponse = modelResponse.getRequired("model_response")
 
     fun stepId(): String = stepId.getRequired("step_id")
 
@@ -45,32 +51,46 @@ private constructor(
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
-    @JsonProperty("completed_at") @ExcludeMissing fun _completedAt() = completedAt
+    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
-    @JsonProperty("model_response") @ExcludeMissing fun _modelResponse() = modelResponse
+    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
-    @JsonProperty("started_at") @ExcludeMissing fun _startedAt() = startedAt
+    @JsonProperty("model_response")
+    @ExcludeMissing
+    fun _modelResponse(): JsonField<ModelResponse> = modelResponse
 
-    @JsonProperty("step_id") @ExcludeMissing fun _stepId() = stepId
+    @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
-    @JsonProperty("turn_id") @ExcludeMissing fun _turnId() = turnId
+    @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
+
+    @JsonProperty("completed_at")
+    @ExcludeMissing
+    fun _completedAt(): JsonField<OffsetDateTime> = completedAt
+
+    @JsonProperty("started_at")
+    @ExcludeMissing
+    fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): InferenceStep = apply {
-        if (!validated) {
-            completedAt()
-            modelResponse().validate()
-            startedAt()
-            stepId()
-            stepType()
-            turnId()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        modelResponse().validate()
+        stepId()
+        stepType()
+        turnId()
+        completedAt()
+        startedAt()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -82,89 +102,367 @@ private constructor(
 
     class Builder {
 
+        private var modelResponse: JsonField<ModelResponse>? = null
+        private var stepId: JsonField<String>? = null
+        private var stepType: JsonField<StepType>? = null
+        private var turnId: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var modelResponse: JsonField<CompletionMessage> = JsonMissing.of()
         private var startedAt: JsonField<OffsetDateTime> = JsonMissing.of()
-        private var stepId: JsonField<String> = JsonMissing.of()
-        private var stepType: JsonField<StepType> = JsonMissing.of()
-        private var turnId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(inferenceStep: InferenceStep) = apply {
-            this.completedAt = inferenceStep.completedAt
-            this.modelResponse = inferenceStep.modelResponse
-            this.startedAt = inferenceStep.startedAt
-            this.stepId = inferenceStep.stepId
-            this.stepType = inferenceStep.stepType
-            this.turnId = inferenceStep.turnId
-            additionalProperties(inferenceStep.additionalProperties)
+            modelResponse = inferenceStep.modelResponse
+            stepId = inferenceStep.stepId
+            stepType = inferenceStep.stepType
+            turnId = inferenceStep.turnId
+            completedAt = inferenceStep.completedAt
+            startedAt = inferenceStep.startedAt
+            additionalProperties = inferenceStep.additionalProperties.toMutableMap()
         }
 
-        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
+        fun modelResponse(modelResponse: ModelResponse) = modelResponse(JsonField.of(modelResponse))
 
-        @JsonProperty("completed_at")
-        @ExcludeMissing
-        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
-            this.completedAt = completedAt
-        }
-
-        fun modelResponse(modelResponse: CompletionMessage) =
-            modelResponse(JsonField.of(modelResponse))
-
-        @JsonProperty("model_response")
-        @ExcludeMissing
-        fun modelResponse(modelResponse: JsonField<CompletionMessage>) = apply {
+        fun modelResponse(modelResponse: JsonField<ModelResponse>) = apply {
             this.modelResponse = modelResponse
         }
 
-        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
-
-        @JsonProperty("started_at")
-        @ExcludeMissing
-        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
-
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
-        @JsonProperty("step_id")
-        @ExcludeMissing
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
         fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
-        @JsonProperty("step_type")
-        @ExcludeMissing
         fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
-        @JsonProperty("turn_id")
-        @ExcludeMissing
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
+
+        fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
+
+        fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
+            this.completedAt = completedAt
+        }
+
+        fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
+
+        fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): InferenceStep =
             InferenceStep(
+                checkNotNull(modelResponse) { "`modelResponse` is required but was not set" },
+                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                checkNotNull(turnId) { "`turnId` is required but was not set" },
                 completedAt,
-                modelResponse,
                 startedAt,
-                stepId,
-                stepType,
-                turnId,
                 additionalProperties.toImmutable(),
             )
+    }
+
+    @NoAutoDetect
+    class ModelResponse
+    @JsonCreator
+    private constructor(
+        @JsonProperty("content")
+        @ExcludeMissing
+        private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+        @JsonProperty("role") @ExcludeMissing private val role: JsonField<Role> = JsonMissing.of(),
+        @JsonProperty("stop_reason")
+        @ExcludeMissing
+        private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+        @JsonProperty("tool_calls")
+        @ExcludeMissing
+        private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        fun content(): InterleavedContent = content.getRequired("content")
+
+        fun role(): Role = role.getRequired("role")
+
+        fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
+
+        fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
+
+        @JsonProperty("content")
+        @ExcludeMissing
+        fun _content(): JsonField<InterleavedContent> = content
+
+        @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
+
+        @JsonProperty("stop_reason")
+        @ExcludeMissing
+        fun _stopReason(): JsonField<StopReason> = stopReason
+
+        @JsonProperty("tool_calls")
+        @ExcludeMissing
+        fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ModelResponse = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            role()
+            stopReason()
+            toolCalls().forEach { it.validate() }
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        class Builder {
+
+            private var content: JsonField<InterleavedContent>? = null
+            private var role: JsonField<Role>? = null
+            private var stopReason: JsonField<StopReason>? = null
+            private var toolCalls: JsonField<MutableList<ToolCall>>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(modelResponse: ModelResponse) = apply {
+                content = modelResponse.content
+                role = modelResponse.role
+                stopReason = modelResponse.stopReason
+                toolCalls = modelResponse.toolCalls.map { it.toMutableList() }
+                additionalProperties = modelResponse.additionalProperties.toMutableMap()
+            }
+
+            fun content(content: InterleavedContent) = content(JsonField.of(content))
+
+            fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
+
+            fun content(string: String) = content(InterleavedContent.ofString(string))
+
+            fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+                content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            fun content(textContentItem: InterleavedContent.TextContentItem) =
+                content(InterleavedContent.ofTextContentItem(textContentItem))
+
+            fun contentOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+
+            fun role(role: Role) = role(JsonField.of(role))
+
+            fun role(role: JsonField<Role>) = apply { this.role = role }
+
+            fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
+
+            fun stopReason(stopReason: JsonField<StopReason>) = apply {
+                this.stopReason = stopReason
+            }
+
+            fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
+
+            fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
+                this.toolCalls = toolCalls.map { it.toMutableList() }
+            }
+
+            fun addToolCall(toolCall: ToolCall) = apply {
+                toolCalls =
+                    (toolCalls ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(toolCall)
+                    }
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): ModelResponse =
+                ModelResponse(
+                    checkNotNull(content) { "`content` is required but was not set" },
+                    checkNotNull(role) { "`role` is required but was not set" },
+                    checkNotNull(stopReason) { "`stopReason` is required but was not set" },
+                    checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
+                        .map { it.toImmutable() },
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        class Role
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val ASSISTANT = of("assistant")
+
+                fun of(value: String) = Role(JsonField.of(value))
+            }
+
+            enum class Known {
+                ASSISTANT,
+            }
+
+            enum class Value {
+                ASSISTANT,
+                _UNKNOWN,
+            }
+
+            fun value(): Value =
+                when (this) {
+                    ASSISTANT -> Value.ASSISTANT
+                    else -> Value._UNKNOWN
+                }
+
+            fun known(): Known =
+                when (this) {
+                    ASSISTANT -> Known.ASSISTANT
+                    else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is Role && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        class StopReason
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val END_OF_TURN = of("end_of_turn")
+
+                val END_OF_MESSAGE = of("end_of_message")
+
+                val OUT_OF_TOKENS = of("out_of_tokens")
+
+                fun of(value: String) = StopReason(JsonField.of(value))
+            }
+
+            enum class Known {
+                END_OF_TURN,
+                END_OF_MESSAGE,
+                OUT_OF_TOKENS,
+            }
+
+            enum class Value {
+                END_OF_TURN,
+                END_OF_MESSAGE,
+                OUT_OF_TOKENS,
+                _UNKNOWN,
+            }
+
+            fun value(): Value =
+                when (this) {
+                    END_OF_TURN -> Value.END_OF_TURN
+                    END_OF_MESSAGE -> Value.END_OF_MESSAGE
+                    OUT_OF_TOKENS -> Value.OUT_OF_TOKENS
+                    else -> Value._UNKNOWN
+                }
+
+            fun known(): Known =
+                when (this) {
+                    END_OF_TURN -> Known.END_OF_TURN
+                    END_OF_MESSAGE -> Known.END_OF_MESSAGE
+                    OUT_OF_TOKENS -> Known.OUT_OF_TOKENS
+                    else -> throw LlamaStackClientInvalidDataException("Unknown StopReason: $value")
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ModelResponse && content == other.content && role == other.role && stopReason == other.stopReason && toolCalls == other.toolCalls && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(content, role, stopReason, toolCalls, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "ModelResponse{content=$content, role=$role, stopReason=$stopReason, toolCalls=$toolCalls, additionalProperties=$additionalProperties}"
     }
 
     class StepType
@@ -175,21 +473,9 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val INFERENCE = StepType(JsonField.of("inference"))
+            val INFERENCE = of("inference")
 
             fun of(value: String) = StepType(JsonField.of(value))
         }
@@ -216,6 +502,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -223,15 +521,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceStep && completedAt == other.completedAt && modelResponse == other.modelResponse && startedAt == other.startedAt && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is InferenceStep && modelResponse == other.modelResponse && stepId == other.stepId && stepType == other.stepType && turnId == other.turnId && completedAt == other.completedAt && startedAt == other.startedAt && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(completedAt, modelResponse, startedAt, stepId, stepType, turnId, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(modelResponse, stepId, stepType, turnId, completedAt, startedAt, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "InferenceStep{completedAt=$completedAt, modelResponse=$modelResponse, startedAt=$startedAt, stepId=$stepId, stepType=$stepType, turnId=$turnId, additionalProperties=$additionalProperties}"
+        "InferenceStep{modelResponse=$modelResponse, stepId=$stepId, stepType=$stepType, turnId=$turnId, completedAt=$completedAt, startedAt=$startedAt, additionalProperties=$additionalProperties}"
 }

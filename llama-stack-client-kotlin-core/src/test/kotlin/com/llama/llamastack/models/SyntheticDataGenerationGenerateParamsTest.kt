@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,16 +14,17 @@ class SyntheticDataGenerationGenerateParamsTest {
                 listOf(
                     SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
+                            .context(InterleavedContent.ofString("string"))
                             .build()
                     )
                 )
             )
             .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
             .model("model")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -36,16 +36,17 @@ class SyntheticDataGenerationGenerateParamsTest {
                     listOf(
                         SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
                 )
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .model("model")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -54,9 +55,9 @@ class SyntheticDataGenerationGenerateParamsTest {
                 listOf(
                     SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
+                            .context(InterleavedContent.ofString("string"))
                             .build()
                     )
                 )
@@ -74,7 +75,7 @@ class SyntheticDataGenerationGenerateParamsTest {
                     listOf(
                         SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
                                 .build()
                         )
@@ -89,7 +90,7 @@ class SyntheticDataGenerationGenerateParamsTest {
                 listOf(
                     SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
                             .build()
                     )

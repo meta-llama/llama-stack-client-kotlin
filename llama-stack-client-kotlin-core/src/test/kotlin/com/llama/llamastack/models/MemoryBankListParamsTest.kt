@@ -2,13 +2,15 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.junit.jupiter.api.Test
 
 class MemoryBankListParamsTest {
 
     @Test
     fun createMemoryBankListParams() {
-        MemoryBankListParams.builder().xLlamaStackProviderData("X-LlamaStack-ProviderData").build()
+        MemoryBankListParams.builder()
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
     }
 }

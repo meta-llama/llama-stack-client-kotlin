@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -15,16 +15,21 @@ class SafetyRunShieldParamsTest {
                 listOf(
                     SafetyRunShieldParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
+                            .context(InterleavedContent.ofString("string"))
                             .build()
                     )
                 )
             )
-            .params(SafetyRunShieldParams.Params.builder().build())
+            .params(
+                SafetyRunShieldParams.Params.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
             .shieldId("shield_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -36,16 +41,21 @@ class SafetyRunShieldParamsTest {
                     listOf(
                         SafetyRunShieldParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
                 )
-                .params(SafetyRunShieldParams.Params.builder().build())
+                .params(
+                    SafetyRunShieldParams.Params.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .shieldId("shield_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -54,14 +64,19 @@ class SafetyRunShieldParamsTest {
                 listOf(
                     SafetyRunShieldParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
+                            .context(InterleavedContent.ofString("string"))
                             .build()
                     )
                 )
             )
-        assertThat(body.params()).isEqualTo(SafetyRunShieldParams.Params.builder().build())
+        assertThat(body.params())
+            .isEqualTo(
+                SafetyRunShieldParams.Params.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
         assertThat(body.shieldId()).isEqualTo("shield_id")
     }
 
@@ -73,13 +88,17 @@ class SafetyRunShieldParamsTest {
                     listOf(
                         SafetyRunShieldParams.Message.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
                                 .build()
                         )
                     )
                 )
-                .params(SafetyRunShieldParams.Params.builder().build())
+                .params(
+                    SafetyRunShieldParams.Params.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .shieldId("shield_id")
                 .build()
         val body = params.getBody()
@@ -89,13 +108,18 @@ class SafetyRunShieldParamsTest {
                 listOf(
                     SafetyRunShieldParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .role(UserMessage.Role.USER)
                             .build()
                     )
                 )
             )
-        assertThat(body.params()).isEqualTo(SafetyRunShieldParams.Params.builder().build())
+        assertThat(body.params())
+            .isEqualTo(
+                SafetyRunShieldParams.Params.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
         assertThat(body.shieldId()).isEqualTo("shield_id")
     }
 }

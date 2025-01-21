@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,8 +11,9 @@ class ScoringFunctionRetrieveParamsTest {
     @Test
     fun createScoringFunctionRetrieveParams() {
         ScoringFunctionRetrieveParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .scoringFnId("scoring_fn_id")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,8 +21,9 @@ class ScoringFunctionRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             ScoringFunctionRetrieveParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .scoringFnId("scoring_fn_id")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("scoring_fn_id", "scoring_fn_id")

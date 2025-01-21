@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -20,33 +21,36 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = AgentStepRetrieveResponse.Builder::class)
 @NoAutoDetect
 class AgentStepRetrieveResponse
+@JsonCreator
 private constructor(
-    private val step: JsonField<Step>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("step") @ExcludeMissing private val step: JsonField<Step> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun step(): Step = step.getRequired("step")
 
-    @JsonProperty("step") @ExcludeMissing fun _step() = step
+    @JsonProperty("step") @ExcludeMissing fun _step(): JsonField<Step> = step
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): AgentStepRetrieveResponse = apply {
-        if (!validated) {
-            step()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        step().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -58,36 +62,52 @@ private constructor(
 
     class Builder {
 
-        private var step: JsonField<Step> = JsonMissing.of()
+        private var step: JsonField<Step>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentStepRetrieveResponse: AgentStepRetrieveResponse) = apply {
-            this.step = agentStepRetrieveResponse.step
-            additionalProperties(agentStepRetrieveResponse.additionalProperties)
+            step = agentStepRetrieveResponse.step
+            additionalProperties = agentStepRetrieveResponse.additionalProperties.toMutableMap()
         }
 
         fun step(step: Step) = step(JsonField.of(step))
 
-        @JsonProperty("step")
-        @ExcludeMissing
         fun step(step: JsonField<Step>) = apply { this.step = step }
+
+        fun step(inferenceStep: InferenceStep) = step(Step.ofInferenceStep(inferenceStep))
+
+        fun step(toolExecutionStep: ToolExecutionStep) =
+            step(Step.ofToolExecutionStep(toolExecutionStep))
+
+        fun step(shieldCallStep: ShieldCallStep) = step(Step.ofShieldCallStep(shieldCallStep))
+
+        fun step(memoryRetrievalStep: MemoryRetrievalStep) =
+            step(Step.ofMemoryRetrievalStep(memoryRetrievalStep))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): AgentStepRetrieveResponse =
-            AgentStepRetrieveResponse(step, additionalProperties.toImmutable())
+            AgentStepRetrieveResponse(
+                checkNotNull(step) { "`step` is required but was not set" },
+                additionalProperties.toImmutable()
+            )
     }
 
     @JsonDeserialize(using = Step.Deserializer::class)
@@ -100,8 +120,6 @@ private constructor(
         private val memoryRetrievalStep: MemoryRetrievalStep? = null,
         private val _json: JsonValue? = null,
     ) {
-
-        private var validated: Boolean = false
 
         fun inferenceStep(): InferenceStep? = inferenceStep
 
@@ -141,22 +159,35 @@ private constructor(
             }
         }
 
+        private var validated: Boolean = false
+
         fun validate(): Step = apply {
-            if (!validated) {
-                if (
-                    inferenceStep == null &&
-                        toolExecutionStep == null &&
-                        shieldCallStep == null &&
-                        memoryRetrievalStep == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Step: $_json")
-                }
-                inferenceStep?.validate()
-                toolExecutionStep?.validate()
-                shieldCallStep?.validate()
-                memoryRetrievalStep?.validate()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitInferenceStep(inferenceStep: InferenceStep) {
+                        inferenceStep.validate()
+                    }
+
+                    override fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep) {
+                        toolExecutionStep.validate()
+                    }
+
+                    override fun visitShieldCallStep(shieldCallStep: ShieldCallStep) {
+                        shieldCallStep.validate()
+                    }
+
+                    override fun visitMemoryRetrievalStep(
+                        memoryRetrievalStep: MemoryRetrievalStep
+                    ) {
+                        memoryRetrievalStep.validate()
+                    }
+                }
+            )
+            validated = true
         }
 
         override fun equals(other: Any?): Boolean {

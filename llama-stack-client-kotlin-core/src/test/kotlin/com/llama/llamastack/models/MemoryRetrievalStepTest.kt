@@ -12,7 +12,7 @@ class MemoryRetrievalStepTest {
     fun createMemoryRetrievalStep() {
         val memoryRetrievalStep =
             MemoryRetrievalStep.builder()
-                .insertedContext(MemoryRetrievalStep.InsertedContext.ofString("string"))
+                .insertedContext(InterleavedContent.ofString("string"))
                 .memoryBankIds(listOf("string"))
                 .stepId("step_id")
                 .stepType(MemoryRetrievalStep.StepType.MEMORY_RETRIEVAL)
@@ -22,7 +22,7 @@ class MemoryRetrievalStepTest {
                 .build()
         assertThat(memoryRetrievalStep).isNotNull
         assertThat(memoryRetrievalStep.insertedContext())
-            .isEqualTo(MemoryRetrievalStep.InsertedContext.ofString("string"))
+            .isEqualTo(InterleavedContent.ofString("string"))
         assertThat(memoryRetrievalStep.memoryBankIds()).containsExactly("string")
         assertThat(memoryRetrievalStep.stepId()).isEqualTo("step_id")
         assertThat(memoryRetrievalStep.stepType())

@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,8 +11,9 @@ class PostTrainingJobStatusParamsTest {
     @Test
     fun createPostTrainingJobStatusParams() {
         PostTrainingJobStatusParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .jobUuid("job_uuid")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,8 +21,9 @@ class PostTrainingJobStatusParamsTest {
     fun getQueryParams() {
         val params =
             PostTrainingJobStatusParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .jobUuid("job_uuid")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("job_uuid", "job_uuid")

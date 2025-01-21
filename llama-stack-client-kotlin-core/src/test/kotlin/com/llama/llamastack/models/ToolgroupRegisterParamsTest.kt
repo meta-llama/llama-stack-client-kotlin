@@ -1,0 +1,67 @@
+// File generated from our OpenAPI spec by Stainless.
+
+package com.llama.llamastack.models
+
+import com.llama.llamastack.core.JsonValue
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+class ToolgroupRegisterParamsTest {
+
+    @Test
+    fun createToolgroupRegisterParams() {
+        ToolgroupRegisterParams.builder()
+            .providerId("provider_id")
+            .toolgroupId("toolgroup_id")
+            .args(
+                ToolgroupRegisterParams.Args.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+            .mcpEndpoint(Url.builder().uri("uri").build())
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
+    }
+
+    @Test
+    fun getBody() {
+        val params =
+            ToolgroupRegisterParams.builder()
+                .providerId("provider_id")
+                .toolgroupId("toolgroup_id")
+                .args(
+                    ToolgroupRegisterParams.Args.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .mcpEndpoint(Url.builder().uri("uri").build())
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+                .build()
+        val body = params.getBody()
+        assertThat(body).isNotNull
+        assertThat(body.providerId()).isEqualTo("provider_id")
+        assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")
+        assertThat(body.args())
+            .isEqualTo(
+                ToolgroupRegisterParams.Args.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+        assertThat(body.mcpEndpoint()).isEqualTo(Url.builder().uri("uri").build())
+    }
+
+    @Test
+    fun getBodyWithoutOptionalFields() {
+        val params =
+            ToolgroupRegisterParams.builder()
+                .providerId("provider_id")
+                .toolgroupId("toolgroup_id")
+                .build()
+        val body = params.getBody()
+        assertThat(body).isNotNull
+        assertThat(body.providerId()).isEqualTo("provider_id")
+        assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")
+    }
+}

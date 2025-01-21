@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,7 +10,7 @@ class BatchInferenceCompletionParamsTest {
     @Test
     fun createBatchInferenceCompletionParams() {
         BatchInferenceCompletionParams.builder()
-            .contentBatch(listOf(BatchInferenceCompletionParams.ContentBatch.ofString("string")))
+            .contentBatch(listOf(InterleavedContent.ofString("string")))
             .model("model")
             .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .samplingParams(
@@ -24,7 +23,8 @@ class BatchInferenceCompletionParamsTest {
                     .topP(0.0)
                     .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -32,9 +32,7 @@ class BatchInferenceCompletionParamsTest {
     fun getBody() {
         val params =
             BatchInferenceCompletionParams.builder()
-                .contentBatch(
-                    listOf(BatchInferenceCompletionParams.ContentBatch.ofString("string"))
-                )
+                .contentBatch(listOf(InterleavedContent.ofString("string")))
                 .model("model")
                 .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .samplingParams(
@@ -47,12 +45,12 @@ class BatchInferenceCompletionParamsTest {
                         .topP(0.0)
                         .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.contentBatch())
-            .isEqualTo(listOf(BatchInferenceCompletionParams.ContentBatch.ofString("string")))
+        assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.model()).isEqualTo("model")
         assertThat(body.logprobs())
             .isEqualTo(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
@@ -73,15 +71,12 @@ class BatchInferenceCompletionParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             BatchInferenceCompletionParams.builder()
-                .contentBatch(
-                    listOf(BatchInferenceCompletionParams.ContentBatch.ofString("string"))
-                )
+                .contentBatch(listOf(InterleavedContent.ofString("string")))
                 .model("model")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.contentBatch())
-            .isEqualTo(listOf(BatchInferenceCompletionParams.ContentBatch.ofString("string")))
+        assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.model()).isEqualTo("model")
     }
 }

@@ -14,7 +14,7 @@ class QueryDocumentsResponseTest {
                 .chunks(
                     listOf(
                         QueryDocumentsResponse.Chunk.builder()
-                            .content(QueryDocumentsResponse.Chunk.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .documentId("document_id")
                             .tokenCount(0L)
                             .build()
@@ -26,7 +26,7 @@ class QueryDocumentsResponseTest {
         assertThat(queryDocumentsResponse.chunks())
             .containsExactly(
                 QueryDocumentsResponse.Chunk.builder()
-                    .content(QueryDocumentsResponse.Chunk.Content.ofString("string"))
+                    .content(InterleavedContent.ofString("string"))
                     .documentId("document_id")
                     .tokenCount(0L)
                     .build()

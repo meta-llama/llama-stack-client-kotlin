@@ -12,12 +12,12 @@ class ToolResponseTest {
         val toolResponse =
             ToolResponse.builder()
                 .callId("call_id")
-                .content(ToolResponse.Content.ofString("string"))
+                .content(InterleavedContent.ofString("string"))
                 .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                 .build()
         assertThat(toolResponse).isNotNull
         assertThat(toolResponse.callId()).isEqualTo("call_id")
-        assertThat(toolResponse.content()).isEqualTo(ToolResponse.Content.ofString("string"))
+        assertThat(toolResponse.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(toolResponse.toolName()).isEqualTo(ToolResponse.ToolName.BRAVE_SEARCH)
     }
 }

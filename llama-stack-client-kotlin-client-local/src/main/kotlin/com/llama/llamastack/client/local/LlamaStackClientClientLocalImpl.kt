@@ -20,6 +20,18 @@ constructor(
         TODO("Not yet implemented")
     }
 
+    override fun toolgroups(): ToolgroupService {
+        TODO("Not yet implemented")
+    }
+
+    override fun tools(): ToolService {
+        TODO("Not yet implemented")
+    }
+
+    override fun toolRuntime(): ToolRuntimeService {
+        TODO("Not yet implemented")
+    }
+
     override fun telemetry(): TelemetryService {
         TODO("Not yet implemented")
     }

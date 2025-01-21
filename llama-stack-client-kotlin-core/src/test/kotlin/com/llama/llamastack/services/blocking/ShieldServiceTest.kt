@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.ShieldListParams
+import com.llama.llamastack.models.ShieldRegisterParams
+import com.llama.llamastack.models.ShieldRetrieveParams
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,8 +23,9 @@ class ShieldServiceTest {
         val shield =
             shieldService.retrieve(
                 ShieldRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .identifier("identifier")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)
@@ -39,7 +43,8 @@ class ShieldServiceTest {
         val shield =
             shieldService.list(
                 ShieldListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)
@@ -55,10 +60,15 @@ class ShieldServiceTest {
             shieldService.register(
                 ShieldRegisterParams.builder()
                     .shieldId("shield_id")
-                    .params(ShieldRegisterParams.Params.builder().build())
+                    .params(
+                        ShieldRegisterParams.Params.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .providerId("provider_id")
                     .providerShieldId("provider_shield_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)

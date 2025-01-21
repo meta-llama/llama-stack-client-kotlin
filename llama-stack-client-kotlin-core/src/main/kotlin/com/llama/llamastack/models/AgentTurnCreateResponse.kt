@@ -22,6 +22,7 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
@@ -34,8 +35,6 @@ private constructor(
     private val agentTurnResponseStreamChunk: AgentTurnResponseStreamChunk? = null,
     private val _json: JsonValue? = null,
 ) {
-
-    private var validated: Boolean = false
 
     fun turn(): Turn? = turn
 
@@ -61,17 +60,27 @@ private constructor(
         }
     }
 
+    private var validated: Boolean = false
+
     fun validate(): AgentTurnCreateResponse = apply {
-        if (!validated) {
-            if (turn == null && agentTurnResponseStreamChunk == null) {
-                throw LlamaStackClientInvalidDataException(
-                    "Unknown AgentTurnCreateResponse: $_json"
-                )
-            }
-            turn?.validate()
-            agentTurnResponseStreamChunk?.validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        accept(
+            object : Visitor<Unit> {
+                override fun visitTurn(turn: Turn) {
+                    turn.validate()
+                }
+
+                override fun visitAgentTurnResponseStreamChunk(
+                    agentTurnResponseStreamChunk: AgentTurnResponseStreamChunk
+                ) {
+                    agentTurnResponseStreamChunk.validate()
+                }
+            }
+        )
+        validated = true
     }
 
     override fun equals(other: Any?): Boolean {
@@ -150,29 +159,34 @@ private constructor(
         }
     }
 
-    @JsonDeserialize(builder = AgentTurnResponseStreamChunk.Builder::class)
     @NoAutoDetect
     class AgentTurnResponseStreamChunk
+    @JsonCreator
     private constructor(
-        private val event: JsonField<Event>,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("event")
+        @ExcludeMissing
+        private val event: JsonField<Event> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         fun event(): Event = event.getRequired("event")
 
-        @JsonProperty("event") @ExcludeMissing fun _event() = event
+        @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<Event> = event
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
         fun validate(): AgentTurnResponseStreamChunk = apply {
-            if (!validated) {
-                event().validate()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            event().validate()
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -184,61 +198,73 @@ private constructor(
 
         class Builder {
 
-            private var event: JsonField<Event> = JsonMissing.of()
+            private var event: JsonField<Event>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentTurnResponseStreamChunk: AgentTurnResponseStreamChunk) = apply {
-                this.event = agentTurnResponseStreamChunk.event
-                additionalProperties(agentTurnResponseStreamChunk.additionalProperties)
+                event = agentTurnResponseStreamChunk.event
+                additionalProperties =
+                    agentTurnResponseStreamChunk.additionalProperties.toMutableMap()
             }
 
             fun event(event: Event) = event(JsonField.of(event))
 
-            @JsonProperty("event")
-            @ExcludeMissing
             fun event(event: JsonField<Event>) = apply { this.event = event }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
             fun build(): AgentTurnResponseStreamChunk =
-                AgentTurnResponseStreamChunk(event, additionalProperties.toImmutable())
+                AgentTurnResponseStreamChunk(
+                    checkNotNull(event) { "`event` is required but was not set" },
+                    additionalProperties.toImmutable()
+                )
         }
 
-        @JsonDeserialize(builder = Event.Builder::class)
         @NoAutoDetect
         class Event
+        @JsonCreator
         private constructor(
-            private val payload: JsonField<Payload>,
-            private val additionalProperties: Map<String, JsonValue>,
+            @JsonProperty("payload")
+            @ExcludeMissing
+            private val payload: JsonField<Payload> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
-
-            private var validated: Boolean = false
 
             fun payload(): Payload = payload.getRequired("payload")
 
-            @JsonProperty("payload") @ExcludeMissing fun _payload() = payload
+            @JsonProperty("payload") @ExcludeMissing fun _payload(): JsonField<Payload> = payload
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+            private var validated: Boolean = false
+
             fun validate(): Event = apply {
-                if (!validated) {
-                    payload()
-                    validated = true
+                if (validated) {
+                    return@apply
                 }
+
+                payload().validate()
+                validated = true
             }
 
             fun toBuilder() = Builder().from(this)
@@ -250,28 +276,73 @@ private constructor(
 
             class Builder {
 
-                private var payload: JsonField<Payload> = JsonMissing.of()
+                private var payload: JsonField<Payload>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                 internal fun from(event: Event) = apply {
-                    this.payload = event.payload
-                    additionalProperties(event.additionalProperties)
+                    payload = event.payload
+                    additionalProperties = event.additionalProperties.toMutableMap()
                 }
 
                 fun payload(payload: Payload) = payload(JsonField.of(payload))
 
-                @JsonProperty("payload")
-                @ExcludeMissing
                 fun payload(payload: JsonField<Payload>) = apply { this.payload = payload }
+
+                fun payload(
+                    agentTurnResponseStepStartPayload: Payload.AgentTurnResponseStepStartPayload
+                ) =
+                    payload(
+                        Payload.ofAgentTurnResponseStepStartPayload(
+                            agentTurnResponseStepStartPayload
+                        )
+                    )
+
+                fun payload(
+                    agentTurnResponseStepProgressPayload:
+                        Payload.AgentTurnResponseStepProgressPayload
+                ) =
+                    payload(
+                        Payload.ofAgentTurnResponseStepProgressPayload(
+                            agentTurnResponseStepProgressPayload
+                        )
+                    )
+
+                fun payload(
+                    agentTurnResponseStepCompletePayload:
+                        Payload.AgentTurnResponseStepCompletePayload
+                ) =
+                    payload(
+                        Payload.ofAgentTurnResponseStepCompletePayload(
+                            agentTurnResponseStepCompletePayload
+                        )
+                    )
+
+                fun payload(
+                    agentTurnResponseTurnStartPayload: Payload.AgentTurnResponseTurnStartPayload
+                ) =
+                    payload(
+                        Payload.ofAgentTurnResponseTurnStartPayload(
+                            agentTurnResponseTurnStartPayload
+                        )
+                    )
+
+                fun payload(
+                    agentTurnResponseTurnCompletePayload:
+                        Payload.AgentTurnResponseTurnCompletePayload
+                ) =
+                    payload(
+                        Payload.ofAgentTurnResponseTurnCompletePayload(
+                            agentTurnResponseTurnCompletePayload
+                        )
+                    )
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                     this.additionalProperties.clear()
-                    this.additionalProperties.putAll(additionalProperties)
+                    putAllAdditionalProperties(additionalProperties)
                 }
 
-                @JsonAnySetter
                 fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    this.additionalProperties.put(key, value)
+                    additionalProperties.put(key, value)
                 }
 
                 fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -279,7 +350,19 @@ private constructor(
                         this.additionalProperties.putAll(additionalProperties)
                     }
 
-                fun build(): Event = Event(payload, additionalProperties.toImmutable())
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): Event =
+                    Event(
+                        checkNotNull(payload) { "`payload` is required but was not set" },
+                        additionalProperties.toImmutable()
+                    )
             }
 
             @JsonDeserialize(using = Payload.Deserializer::class)
@@ -301,8 +384,6 @@ private constructor(
                     null,
                 private val _json: JsonValue? = null,
             ) {
-
-                private var validated: Boolean = false
 
                 fun agentTurnResponseStepStartPayload(): AgentTurnResponseStepStartPayload? =
                     agentTurnResponseStepStartPayload
@@ -387,24 +468,50 @@ private constructor(
                     }
                 }
 
+                private var validated: Boolean = false
+
                 fun validate(): Payload = apply {
-                    if (!validated) {
-                        if (
-                            agentTurnResponseStepStartPayload == null &&
-                                agentTurnResponseStepProgressPayload == null &&
-                                agentTurnResponseStepCompletePayload == null &&
-                                agentTurnResponseTurnStartPayload == null &&
-                                agentTurnResponseTurnCompletePayload == null
-                        ) {
-                            throw LlamaStackClientInvalidDataException("Unknown Payload: $_json")
-                        }
-                        agentTurnResponseStepStartPayload?.validate()
-                        agentTurnResponseStepProgressPayload?.validate()
-                        agentTurnResponseStepCompletePayload?.validate()
-                        agentTurnResponseTurnStartPayload?.validate()
-                        agentTurnResponseTurnCompletePayload?.validate()
-                        validated = true
+                    if (validated) {
+                        return@apply
                     }
+
+                    accept(
+                        object : Visitor<Unit> {
+                            override fun visitAgentTurnResponseStepStartPayload(
+                                agentTurnResponseStepStartPayload: AgentTurnResponseStepStartPayload
+                            ) {
+                                agentTurnResponseStepStartPayload.validate()
+                            }
+
+                            override fun visitAgentTurnResponseStepProgressPayload(
+                                agentTurnResponseStepProgressPayload:
+                                    AgentTurnResponseStepProgressPayload
+                            ) {
+                                agentTurnResponseStepProgressPayload.validate()
+                            }
+
+                            override fun visitAgentTurnResponseStepCompletePayload(
+                                agentTurnResponseStepCompletePayload:
+                                    AgentTurnResponseStepCompletePayload
+                            ) {
+                                agentTurnResponseStepCompletePayload.validate()
+                            }
+
+                            override fun visitAgentTurnResponseTurnStartPayload(
+                                agentTurnResponseTurnStartPayload: AgentTurnResponseTurnStartPayload
+                            ) {
+                                agentTurnResponseTurnStartPayload.validate()
+                            }
+
+                            override fun visitAgentTurnResponseTurnCompletePayload(
+                                agentTurnResponseTurnCompletePayload:
+                                    AgentTurnResponseTurnCompletePayload
+                            ) {
+                                agentTurnResponseTurnCompletePayload.validate()
+                            }
+                        }
+                    )
+                    validated = true
                 }
 
                 override fun equals(other: Any?): Boolean {
@@ -583,47 +690,66 @@ private constructor(
                     }
                 }
 
-                @JsonDeserialize(builder = AgentTurnResponseStepStartPayload.Builder::class)
                 @NoAutoDetect
                 class AgentTurnResponseStepStartPayload
+                @JsonCreator
                 private constructor(
-                    private val eventType: JsonField<EventType>,
-                    private val metadata: JsonField<Metadata>,
-                    private val stepId: JsonField<String>,
-                    private val stepType: JsonField<StepType>,
-                    private val additionalProperties: Map<String, JsonValue>,
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    private val eventType: JsonField<EventType> = JsonMissing.of(),
+                    @JsonProperty("step_id")
+                    @ExcludeMissing
+                    private val stepId: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("step_type")
+                    @ExcludeMissing
+                    private val stepType: JsonField<StepType> = JsonMissing.of(),
+                    @JsonProperty("metadata")
+                    @ExcludeMissing
+                    private val metadata: JsonField<Metadata> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    private var validated: Boolean = false
-
                     fun eventType(): EventType = eventType.getRequired("event_type")
-
-                    fun metadata(): Metadata? = metadata.getNullable("metadata")
 
                     fun stepId(): String = stepId.getRequired("step_id")
 
                     fun stepType(): StepType = stepType.getRequired("step_type")
 
-                    @JsonProperty("event_type") @ExcludeMissing fun _eventType() = eventType
+                    fun metadata(): Metadata? = metadata.getNullable("metadata")
 
-                    @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    fun _eventType(): JsonField<EventType> = eventType
 
-                    @JsonProperty("step_id") @ExcludeMissing fun _stepId() = stepId
+                    @JsonProperty("step_id")
+                    @ExcludeMissing
+                    fun _stepId(): JsonField<String> = stepId
 
-                    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+                    @JsonProperty("step_type")
+                    @ExcludeMissing
+                    fun _stepType(): JsonField<StepType> = stepType
+
+                    @JsonProperty("metadata")
+                    @ExcludeMissing
+                    fun _metadata(): JsonField<Metadata> = metadata
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                    private var validated: Boolean = false
+
                     fun validate(): AgentTurnResponseStepStartPayload = apply {
-                        if (!validated) {
-                            eventType()
-                            metadata()?.validate()
-                            stepId()
-                            stepType()
-                            validated = true
+                        if (validated) {
+                            return@apply
                         }
+
+                        eventType()
+                        stepId()
+                        stepType()
+                        metadata()?.validate()
+                        validated = true
                     }
 
                     fun toBuilder() = Builder().from(this)
@@ -635,76 +761,77 @@ private constructor(
 
                     class Builder {
 
-                        private var eventType: JsonField<EventType> = JsonMissing.of()
+                        private var eventType: JsonField<EventType>? = null
+                        private var stepId: JsonField<String>? = null
+                        private var stepType: JsonField<StepType>? = null
                         private var metadata: JsonField<Metadata> = JsonMissing.of()
-                        private var stepId: JsonField<String> = JsonMissing.of()
-                        private var stepType: JsonField<StepType> = JsonMissing.of()
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
                         internal fun from(
                             agentTurnResponseStepStartPayload: AgentTurnResponseStepStartPayload
                         ) = apply {
-                            this.eventType = agentTurnResponseStepStartPayload.eventType
-                            this.metadata = agentTurnResponseStepStartPayload.metadata
-                            this.stepId = agentTurnResponseStepStartPayload.stepId
-                            this.stepType = agentTurnResponseStepStartPayload.stepType
-                            additionalProperties(
+                            eventType = agentTurnResponseStepStartPayload.eventType
+                            stepId = agentTurnResponseStepStartPayload.stepId
+                            stepType = agentTurnResponseStepStartPayload.stepType
+                            metadata = agentTurnResponseStepStartPayload.metadata
+                            additionalProperties =
                                 agentTurnResponseStepStartPayload.additionalProperties
-                            )
+                                    .toMutableMap()
                         }
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-                        @JsonProperty("event_type")
-                        @ExcludeMissing
                         fun eventType(eventType: JsonField<EventType>) = apply {
                             this.eventType = eventType
                         }
 
-                        fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
-
-                        @JsonProperty("metadata")
-                        @ExcludeMissing
-                        fun metadata(metadata: JsonField<Metadata>) = apply {
-                            this.metadata = metadata
-                        }
-
                         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
-                        @JsonProperty("step_id")
-                        @ExcludeMissing
                         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
                         fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
-                        @JsonProperty("step_type")
-                        @ExcludeMissing
                         fun stepType(stepType: JsonField<StepType>) = apply {
                             this.stepType = stepType
+                        }
+
+                        fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
+
+                        fun metadata(metadata: JsonField<Metadata>) = apply {
+                            this.metadata = metadata
                         }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
                                 this.additionalProperties.clear()
-                                this.additionalProperties.putAll(additionalProperties)
+                                putAllAdditionalProperties(additionalProperties)
                             }
 
-                        @JsonAnySetter
                         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            this.additionalProperties.put(key, value)
+                            additionalProperties.put(key, value)
                         }
 
                         fun putAllAdditionalProperties(
                             additionalProperties: Map<String, JsonValue>
                         ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
                         fun build(): AgentTurnResponseStepStartPayload =
                             AgentTurnResponseStepStartPayload(
-                                eventType,
+                                checkNotNull(eventType) {
+                                    "`eventType` is required but was not set"
+                                },
+                                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                                checkNotNull(stepType) { "`stepType` is required but was not set" },
                                 metadata,
-                                stepId,
-                                stepType,
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -718,21 +845,9 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val STEP_START = EventType(JsonField.of("step_start"))
+                            val STEP_START = of("step_start")
 
                             fun of(value: String) = EventType(JsonField.of(value))
                         }
@@ -762,6 +877,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     class StepType
@@ -773,27 +900,15 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val INFERENCE = StepType(JsonField.of("inference"))
+                            val INFERENCE = of("inference")
 
-                            val TOOL_EXECUTION = StepType(JsonField.of("tool_execution"))
+                            val TOOL_EXECUTION = of("tool_execution")
 
-                            val SHIELD_CALL = StepType(JsonField.of("shield_call"))
+                            val SHIELD_CALL = of("shield_call")
 
-                            val MEMORY_RETRIEVAL = StepType(JsonField.of("memory_retrieval"))
+                            val MEMORY_RETRIEVAL = of("memory_retrieval")
 
                             fun of(value: String) = StepType(JsonField.of(value))
                         }
@@ -835,25 +950,41 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
-                    @JsonDeserialize(builder = Metadata.Builder::class)
                     @NoAutoDetect
                     class Metadata
+                    @JsonCreator
                     private constructor(
-                        private val additionalProperties: Map<String, JsonValue>,
+                        @JsonAnySetter
+                        private val additionalProperties: Map<String, JsonValue> =
+                            immutableEmptyMap(),
                     ) {
-
-                        private var validated: Boolean = false
 
                         @JsonAnyGetter
                         @ExcludeMissing
                         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                        private var validated: Boolean = false
+
                         fun validate(): Metadata = apply {
-                            if (!validated) {
-                                validated = true
+                            if (validated) {
+                                return@apply
                             }
+
+                            validated = true
                         }
 
                         fun toBuilder() = Builder().from(this)
@@ -869,23 +1000,30 @@ private constructor(
                                 mutableMapOf()
 
                             internal fun from(metadata: Metadata) = apply {
-                                additionalProperties(metadata.additionalProperties)
+                                additionalProperties = metadata.additionalProperties.toMutableMap()
                             }
 
                             fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                                 apply {
                                     this.additionalProperties.clear()
-                                    this.additionalProperties.putAll(additionalProperties)
+                                    putAllAdditionalProperties(additionalProperties)
                                 }
 
-                            @JsonAnySetter
                             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                                this.additionalProperties.put(key, value)
+                                additionalProperties.put(key, value)
                             }
 
                             fun putAllAdditionalProperties(
                                 additionalProperties: Map<String, JsonValue>
                             ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                            fun removeAdditionalProperty(key: String) = apply {
+                                additionalProperties.remove(key)
+                            }
+
+                            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                                keys.forEach(::removeAdditionalProperty)
+                            }
 
                             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
                         }
@@ -913,81 +1051,90 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepStartPayload && eventType == other.eventType && metadata == other.metadata && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepStartPayload && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && metadata == other.metadata && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(eventType, metadata, stepId, stepType, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(eventType, stepId, stepType, metadata, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "AgentTurnResponseStepStartPayload{eventType=$eventType, metadata=$metadata, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
+                        "AgentTurnResponseStepStartPayload{eventType=$eventType, stepId=$stepId, stepType=$stepType, metadata=$metadata, additionalProperties=$additionalProperties}"
                 }
 
-                @JsonDeserialize(builder = AgentTurnResponseStepProgressPayload.Builder::class)
                 @NoAutoDetect
                 class AgentTurnResponseStepProgressPayload
+                @JsonCreator
                 private constructor(
-                    private val eventType: JsonField<EventType>,
-                    private val modelResponseTextDelta: JsonField<String>,
-                    private val stepId: JsonField<String>,
-                    private val stepType: JsonField<StepType>,
-                    private val toolCallDelta: JsonField<ToolCallDelta>,
-                    private val toolResponseTextDelta: JsonField<String>,
-                    private val additionalProperties: Map<String, JsonValue>,
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    private val eventType: JsonField<EventType> = JsonMissing.of(),
+                    @JsonProperty("step_id")
+                    @ExcludeMissing
+                    private val stepId: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("step_type")
+                    @ExcludeMissing
+                    private val stepType: JsonField<StepType> = JsonMissing.of(),
+                    @JsonProperty("text_delta")
+                    @ExcludeMissing
+                    private val textDelta: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("tool_call_delta")
+                    @ExcludeMissing
+                    private val toolCallDelta: JsonField<ToolCallDelta> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    private var validated: Boolean = false
-
                     fun eventType(): EventType = eventType.getRequired("event_type")
-
-                    fun modelResponseTextDelta(): String? =
-                        modelResponseTextDelta.getNullable("model_response_text_delta")
 
                     fun stepId(): String = stepId.getRequired("step_id")
 
                     fun stepType(): StepType = stepType.getRequired("step_type")
 
+                    fun textDelta(): String? = textDelta.getNullable("text_delta")
+
                     fun toolCallDelta(): ToolCallDelta? =
                         toolCallDelta.getNullable("tool_call_delta")
 
-                    fun toolResponseTextDelta(): String? =
-                        toolResponseTextDelta.getNullable("tool_response_text_delta")
-
-                    @JsonProperty("event_type") @ExcludeMissing fun _eventType() = eventType
-
-                    @JsonProperty("model_response_text_delta")
+                    @JsonProperty("event_type")
                     @ExcludeMissing
-                    fun _modelResponseTextDelta() = modelResponseTextDelta
+                    fun _eventType(): JsonField<EventType> = eventType
 
-                    @JsonProperty("step_id") @ExcludeMissing fun _stepId() = stepId
+                    @JsonProperty("step_id")
+                    @ExcludeMissing
+                    fun _stepId(): JsonField<String> = stepId
 
-                    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+                    @JsonProperty("step_type")
+                    @ExcludeMissing
+                    fun _stepType(): JsonField<StepType> = stepType
+
+                    @JsonProperty("text_delta")
+                    @ExcludeMissing
+                    fun _textDelta(): JsonField<String> = textDelta
 
                     @JsonProperty("tool_call_delta")
                     @ExcludeMissing
-                    fun _toolCallDelta() = toolCallDelta
-
-                    @JsonProperty("tool_response_text_delta")
-                    @ExcludeMissing
-                    fun _toolResponseTextDelta() = toolResponseTextDelta
+                    fun _toolCallDelta(): JsonField<ToolCallDelta> = toolCallDelta
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                    private var validated: Boolean = false
+
                     fun validate(): AgentTurnResponseStepProgressPayload = apply {
-                        if (!validated) {
-                            eventType()
-                            modelResponseTextDelta()
-                            stepId()
-                            stepType()
-                            toolCallDelta()?.validate()
-                            toolResponseTextDelta()
-                            validated = true
+                        if (validated) {
+                            return@apply
                         }
+
+                        eventType()
+                        stepId()
+                        stepType()
+                        textDelta()
+                        toolCallDelta()?.validate()
+                        validated = true
                     }
 
                     fun toBuilder() = Builder().from(this)
@@ -999,12 +1146,11 @@ private constructor(
 
                     class Builder {
 
-                        private var eventType: JsonField<EventType> = JsonMissing.of()
-                        private var modelResponseTextDelta: JsonField<String> = JsonMissing.of()
-                        private var stepId: JsonField<String> = JsonMissing.of()
-                        private var stepType: JsonField<StepType> = JsonMissing.of()
+                        private var eventType: JsonField<EventType>? = null
+                        private var stepId: JsonField<String>? = null
+                        private var stepType: JsonField<StepType>? = null
+                        private var textDelta: JsonField<String> = JsonMissing.of()
                         private var toolCallDelta: JsonField<ToolCallDelta> = JsonMissing.of()
-                        private var toolResponseTextDelta: JsonField<String> = JsonMissing.of()
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -1012,93 +1158,76 @@ private constructor(
                             agentTurnResponseStepProgressPayload:
                                 AgentTurnResponseStepProgressPayload
                         ) = apply {
-                            this.eventType = agentTurnResponseStepProgressPayload.eventType
-                            this.modelResponseTextDelta =
-                                agentTurnResponseStepProgressPayload.modelResponseTextDelta
-                            this.stepId = agentTurnResponseStepProgressPayload.stepId
-                            this.stepType = agentTurnResponseStepProgressPayload.stepType
-                            this.toolCallDelta = agentTurnResponseStepProgressPayload.toolCallDelta
-                            this.toolResponseTextDelta =
-                                agentTurnResponseStepProgressPayload.toolResponseTextDelta
-                            additionalProperties(
+                            eventType = agentTurnResponseStepProgressPayload.eventType
+                            stepId = agentTurnResponseStepProgressPayload.stepId
+                            stepType = agentTurnResponseStepProgressPayload.stepType
+                            textDelta = agentTurnResponseStepProgressPayload.textDelta
+                            toolCallDelta = agentTurnResponseStepProgressPayload.toolCallDelta
+                            additionalProperties =
                                 agentTurnResponseStepProgressPayload.additionalProperties
-                            )
+                                    .toMutableMap()
                         }
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-                        @JsonProperty("event_type")
-                        @ExcludeMissing
                         fun eventType(eventType: JsonField<EventType>) = apply {
                             this.eventType = eventType
                         }
 
-                        fun modelResponseTextDelta(modelResponseTextDelta: String) =
-                            modelResponseTextDelta(JsonField.of(modelResponseTextDelta))
-
-                        @JsonProperty("model_response_text_delta")
-                        @ExcludeMissing
-                        fun modelResponseTextDelta(modelResponseTextDelta: JsonField<String>) =
-                            apply {
-                                this.modelResponseTextDelta = modelResponseTextDelta
-                            }
-
                         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
-                        @JsonProperty("step_id")
-                        @ExcludeMissing
                         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
                         fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
-                        @JsonProperty("step_type")
-                        @ExcludeMissing
                         fun stepType(stepType: JsonField<StepType>) = apply {
                             this.stepType = stepType
+                        }
+
+                        fun textDelta(textDelta: String) = textDelta(JsonField.of(textDelta))
+
+                        fun textDelta(textDelta: JsonField<String>) = apply {
+                            this.textDelta = textDelta
                         }
 
                         fun toolCallDelta(toolCallDelta: ToolCallDelta) =
                             toolCallDelta(JsonField.of(toolCallDelta))
 
-                        @JsonProperty("tool_call_delta")
-                        @ExcludeMissing
                         fun toolCallDelta(toolCallDelta: JsonField<ToolCallDelta>) = apply {
                             this.toolCallDelta = toolCallDelta
                         }
 
-                        fun toolResponseTextDelta(toolResponseTextDelta: String) =
-                            toolResponseTextDelta(JsonField.of(toolResponseTextDelta))
-
-                        @JsonProperty("tool_response_text_delta")
-                        @ExcludeMissing
-                        fun toolResponseTextDelta(toolResponseTextDelta: JsonField<String>) =
-                            apply {
-                                this.toolResponseTextDelta = toolResponseTextDelta
-                            }
-
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
                                 this.additionalProperties.clear()
-                                this.additionalProperties.putAll(additionalProperties)
+                                putAllAdditionalProperties(additionalProperties)
                             }
 
-                        @JsonAnySetter
                         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            this.additionalProperties.put(key, value)
+                            additionalProperties.put(key, value)
                         }
 
                         fun putAllAdditionalProperties(
                             additionalProperties: Map<String, JsonValue>
                         ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
                         fun build(): AgentTurnResponseStepProgressPayload =
                             AgentTurnResponseStepProgressPayload(
-                                eventType,
-                                modelResponseTextDelta,
-                                stepId,
-                                stepType,
+                                checkNotNull(eventType) {
+                                    "`eventType` is required but was not set"
+                                },
+                                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                                textDelta,
                                 toolCallDelta,
-                                toolResponseTextDelta,
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1112,21 +1241,9 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val STEP_PROGRESS = EventType(JsonField.of("step_progress"))
+                            val STEP_PROGRESS = of("step_progress")
 
                             fun of(value: String) = EventType(JsonField.of(value))
                         }
@@ -1156,6 +1273,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     class StepType
@@ -1167,27 +1296,15 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val INFERENCE = StepType(JsonField.of("inference"))
+                            val INFERENCE = of("inference")
 
-                            val TOOL_EXECUTION = StepType(JsonField.of("tool_execution"))
+                            val TOOL_EXECUTION = of("tool_execution")
 
-                            val SHIELD_CALL = StepType(JsonField.of("shield_call"))
+                            val SHIELD_CALL = of("shield_call")
 
-                            val MEMORY_RETRIEVAL = StepType(JsonField.of("memory_retrieval"))
+                            val MEMORY_RETRIEVAL = of("memory_retrieval")
 
                             fun of(value: String) = StepType(JsonField.of(value))
                         }
@@ -1229,39 +1346,61 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
-                    @JsonDeserialize(builder = ToolCallDelta.Builder::class)
                     @NoAutoDetect
                     class ToolCallDelta
+                    @JsonCreator
                     private constructor(
-                        private val content: JsonField<Content>,
-                        private val parseStatus: JsonField<ParseStatus>,
-                        private val additionalProperties: Map<String, JsonValue>,
+                        @JsonProperty("content")
+                        @ExcludeMissing
+                        private val content: JsonField<Content> = JsonMissing.of(),
+                        @JsonProperty("parse_status")
+                        @ExcludeMissing
+                        private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
+                        @JsonAnySetter
+                        private val additionalProperties: Map<String, JsonValue> =
+                            immutableEmptyMap(),
                     ) {
-
-                        private var validated: Boolean = false
 
                         fun content(): Content = content.getRequired("content")
 
                         fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
 
-                        @JsonProperty("content") @ExcludeMissing fun _content() = content
+                        @JsonProperty("content")
+                        @ExcludeMissing
+                        fun _content(): JsonField<Content> = content
 
                         @JsonProperty("parse_status")
                         @ExcludeMissing
-                        fun _parseStatus() = parseStatus
+                        fun _parseStatus(): JsonField<ParseStatus> = parseStatus
 
                         @JsonAnyGetter
                         @ExcludeMissing
                         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                        private var validated: Boolean = false
+
                         fun validate(): ToolCallDelta = apply {
-                            if (!validated) {
-                                content()
-                                parseStatus()
-                                validated = true
+                            if (validated) {
+                                return@apply
                             }
+
+                            content().validate()
+                            parseStatus()
+                            validated = true
                         }
 
                         fun toBuilder() = Builder().from(this)
@@ -1273,30 +1412,31 @@ private constructor(
 
                         class Builder {
 
-                            private var content: JsonField<Content> = JsonMissing.of()
-                            private var parseStatus: JsonField<ParseStatus> = JsonMissing.of()
+                            private var content: JsonField<Content>? = null
+                            private var parseStatus: JsonField<ParseStatus>? = null
                             private var additionalProperties: MutableMap<String, JsonValue> =
                                 mutableMapOf()
 
                             internal fun from(toolCallDelta: ToolCallDelta) = apply {
-                                this.content = toolCallDelta.content
-                                this.parseStatus = toolCallDelta.parseStatus
-                                additionalProperties(toolCallDelta.additionalProperties)
+                                content = toolCallDelta.content
+                                parseStatus = toolCallDelta.parseStatus
+                                additionalProperties =
+                                    toolCallDelta.additionalProperties.toMutableMap()
                             }
 
                             fun content(content: Content) = content(JsonField.of(content))
 
-                            @JsonProperty("content")
-                            @ExcludeMissing
                             fun content(content: JsonField<Content>) = apply {
                                 this.content = content
                             }
 
+                            fun content(string: String) = content(Content.ofString(string))
+
+                            fun content(toolCall: ToolCall) = content(Content.ofToolCall(toolCall))
+
                             fun parseStatus(parseStatus: ParseStatus) =
                                 parseStatus(JsonField.of(parseStatus))
 
-                            @JsonProperty("parse_status")
-                            @ExcludeMissing
                             fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
                                 this.parseStatus = parseStatus
                             }
@@ -1304,22 +1444,33 @@ private constructor(
                             fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                                 apply {
                                     this.additionalProperties.clear()
-                                    this.additionalProperties.putAll(additionalProperties)
+                                    putAllAdditionalProperties(additionalProperties)
                                 }
 
-                            @JsonAnySetter
                             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                                this.additionalProperties.put(key, value)
+                                additionalProperties.put(key, value)
                             }
 
                             fun putAllAdditionalProperties(
                                 additionalProperties: Map<String, JsonValue>
                             ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
+                            fun removeAdditionalProperty(key: String) = apply {
+                                additionalProperties.remove(key)
+                            }
+
+                            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                                keys.forEach(::removeAdditionalProperty)
+                            }
+
                             fun build(): ToolCallDelta =
                                 ToolCallDelta(
-                                    content,
-                                    parseStatus,
+                                    checkNotNull(content) {
+                                        "`content` is required but was not set"
+                                    },
+                                    checkNotNull(parseStatus) {
+                                        "`parseStatus` is required but was not set"
+                                    },
                                     additionalProperties.toImmutable(),
                                 )
                         }
@@ -1332,8 +1483,6 @@ private constructor(
                             private val toolCall: ToolCall? = null,
                             private val _json: JsonValue? = null,
                         ) {
-
-                            private var validated: Boolean = false
 
                             fun string(): String? = string
 
@@ -1357,16 +1506,23 @@ private constructor(
                                 }
                             }
 
+                            private var validated: Boolean = false
+
                             fun validate(): Content = apply {
-                                if (!validated) {
-                                    if (string == null && toolCall == null) {
-                                        throw LlamaStackClientInvalidDataException(
-                                            "Unknown Content: $_json"
-                                        )
-                                    }
-                                    toolCall?.validate()
-                                    validated = true
+                                if (validated) {
+                                    return@apply
                                 }
+
+                                accept(
+                                    object : Visitor<Unit> {
+                                        override fun visitString(string: String) {}
+
+                                        override fun visitToolCall(toolCall: ToolCall) {
+                                            toolCall.validate()
+                                        }
+                                    }
+                                )
+                                validated = true
                             }
 
                             override fun equals(other: Any?): Boolean {
@@ -1453,27 +1609,15 @@ private constructor(
                             @com.fasterxml.jackson.annotation.JsonValue
                             fun _value(): JsonField<String> = value
 
-                            override fun equals(other: Any?): Boolean {
-                                if (this === other) {
-                                    return true
-                                }
-
-                                return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
-                            }
-
-                            override fun hashCode() = value.hashCode()
-
-                            override fun toString() = value.toString()
-
                             companion object {
 
-                                val STARTED = ParseStatus(JsonField.of("started"))
+                                val STARTED = of("started")
 
-                                val IN_PROGRESS = ParseStatus(JsonField.of("in_progress"))
+                                val IN_PROGRESS = of("in_progress")
 
-                                val FAILURE = ParseStatus(JsonField.of("failure"))
+                                val FAILURE = of("failure")
 
-                                val SUCCESS = ParseStatus(JsonField.of("success"))
+                                val SUCCESS = of("success")
 
                                 fun of(value: String) = ParseStatus(JsonField.of(value))
                             }
@@ -1515,6 +1659,18 @@ private constructor(
                                 }
 
                             fun asString(): String = _value().asStringOrThrow()
+
+                            override fun equals(other: Any?): Boolean {
+                                if (this === other) {
+                                    return true
+                                }
+
+                                return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
+                            }
+
+                            override fun hashCode() = value.hashCode()
+
+                            override fun toString() = value.toString()
                         }
 
                         override fun equals(other: Any?): Boolean {
@@ -1540,54 +1696,79 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && eventType == other.eventType && modelResponseTextDelta == other.modelResponseTextDelta && stepId == other.stepId && stepType == other.stepType && toolCallDelta == other.toolCallDelta && toolResponseTextDelta == other.toolResponseTextDelta && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && textDelta == other.textDelta && toolCallDelta == other.toolCallDelta && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(eventType, modelResponseTextDelta, stepId, stepType, toolCallDelta, toolResponseTextDelta, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(eventType, stepId, stepType, textDelta, toolCallDelta, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "AgentTurnResponseStepProgressPayload{eventType=$eventType, modelResponseTextDelta=$modelResponseTextDelta, stepId=$stepId, stepType=$stepType, toolCallDelta=$toolCallDelta, toolResponseTextDelta=$toolResponseTextDelta, additionalProperties=$additionalProperties}"
+                        "AgentTurnResponseStepProgressPayload{eventType=$eventType, stepId=$stepId, stepType=$stepType, textDelta=$textDelta, toolCallDelta=$toolCallDelta, additionalProperties=$additionalProperties}"
                 }
 
-                @JsonDeserialize(builder = AgentTurnResponseStepCompletePayload.Builder::class)
                 @NoAutoDetect
                 class AgentTurnResponseStepCompletePayload
+                @JsonCreator
                 private constructor(
-                    private val eventType: JsonField<EventType>,
-                    private val stepDetails: JsonField<StepDetails>,
-                    private val stepType: JsonField<StepType>,
-                    private val additionalProperties: Map<String, JsonValue>,
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    private val eventType: JsonField<EventType> = JsonMissing.of(),
+                    @JsonProperty("step_details")
+                    @ExcludeMissing
+                    private val stepDetails: JsonField<StepDetails> = JsonMissing.of(),
+                    @JsonProperty("step_id")
+                    @ExcludeMissing
+                    private val stepId: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("step_type")
+                    @ExcludeMissing
+                    private val stepType: JsonField<StepType> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
-
-                    private var validated: Boolean = false
 
                     fun eventType(): EventType = eventType.getRequired("event_type")
 
                     fun stepDetails(): StepDetails = stepDetails.getRequired("step_details")
 
+                    fun stepId(): String = stepId.getRequired("step_id")
+
                     fun stepType(): StepType = stepType.getRequired("step_type")
 
-                    @JsonProperty("event_type") @ExcludeMissing fun _eventType() = eventType
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    fun _eventType(): JsonField<EventType> = eventType
 
-                    @JsonProperty("step_details") @ExcludeMissing fun _stepDetails() = stepDetails
+                    @JsonProperty("step_details")
+                    @ExcludeMissing
+                    fun _stepDetails(): JsonField<StepDetails> = stepDetails
 
-                    @JsonProperty("step_type") @ExcludeMissing fun _stepType() = stepType
+                    @JsonProperty("step_id")
+                    @ExcludeMissing
+                    fun _stepId(): JsonField<String> = stepId
+
+                    @JsonProperty("step_type")
+                    @ExcludeMissing
+                    fun _stepType(): JsonField<StepType> = stepType
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                    private var validated: Boolean = false
+
                     fun validate(): AgentTurnResponseStepCompletePayload = apply {
-                        if (!validated) {
-                            eventType()
-                            stepDetails()
-                            stepType()
-                            validated = true
+                        if (validated) {
+                            return@apply
                         }
+
+                        eventType()
+                        stepDetails().validate()
+                        stepId()
+                        stepType()
+                        validated = true
                     }
 
                     fun toBuilder() = Builder().from(this)
@@ -1599,9 +1780,10 @@ private constructor(
 
                     class Builder {
 
-                        private var eventType: JsonField<EventType> = JsonMissing.of()
-                        private var stepDetails: JsonField<StepDetails> = JsonMissing.of()
-                        private var stepType: JsonField<StepType> = JsonMissing.of()
+                        private var eventType: JsonField<EventType>? = null
+                        private var stepDetails: JsonField<StepDetails>? = null
+                        private var stepId: JsonField<String>? = null
+                        private var stepType: JsonField<StepType>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -1609,18 +1791,17 @@ private constructor(
                             agentTurnResponseStepCompletePayload:
                                 AgentTurnResponseStepCompletePayload
                         ) = apply {
-                            this.eventType = agentTurnResponseStepCompletePayload.eventType
-                            this.stepDetails = agentTurnResponseStepCompletePayload.stepDetails
-                            this.stepType = agentTurnResponseStepCompletePayload.stepType
-                            additionalProperties(
+                            eventType = agentTurnResponseStepCompletePayload.eventType
+                            stepDetails = agentTurnResponseStepCompletePayload.stepDetails
+                            stepId = agentTurnResponseStepCompletePayload.stepId
+                            stepType = agentTurnResponseStepCompletePayload.stepType
+                            additionalProperties =
                                 agentTurnResponseStepCompletePayload.additionalProperties
-                            )
+                                    .toMutableMap()
                         }
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-                        @JsonProperty("event_type")
-                        @ExcludeMissing
                         fun eventType(eventType: JsonField<EventType>) = apply {
                             this.eventType = eventType
                         }
@@ -1628,16 +1809,28 @@ private constructor(
                         fun stepDetails(stepDetails: StepDetails) =
                             stepDetails(JsonField.of(stepDetails))
 
-                        @JsonProperty("step_details")
-                        @ExcludeMissing
                         fun stepDetails(stepDetails: JsonField<StepDetails>) = apply {
                             this.stepDetails = stepDetails
                         }
 
+                        fun stepDetails(inferenceStep: InferenceStep) =
+                            stepDetails(StepDetails.ofInferenceStep(inferenceStep))
+
+                        fun stepDetails(toolExecutionStep: ToolExecutionStep) =
+                            stepDetails(StepDetails.ofToolExecutionStep(toolExecutionStep))
+
+                        fun stepDetails(shieldCallStep: ShieldCallStep) =
+                            stepDetails(StepDetails.ofShieldCallStep(shieldCallStep))
+
+                        fun stepDetails(memoryRetrievalStep: MemoryRetrievalStep) =
+                            stepDetails(StepDetails.ofMemoryRetrievalStep(memoryRetrievalStep))
+
+                        fun stepId(stepId: String) = stepId(JsonField.of(stepId))
+
+                        fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
+
                         fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
-                        @JsonProperty("step_type")
-                        @ExcludeMissing
                         fun stepType(stepType: JsonField<StepType>) = apply {
                             this.stepType = stepType
                         }
@@ -1645,23 +1838,35 @@ private constructor(
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
                                 this.additionalProperties.clear()
-                                this.additionalProperties.putAll(additionalProperties)
+                                putAllAdditionalProperties(additionalProperties)
                             }
 
-                        @JsonAnySetter
                         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            this.additionalProperties.put(key, value)
+                            additionalProperties.put(key, value)
                         }
 
                         fun putAllAdditionalProperties(
                             additionalProperties: Map<String, JsonValue>
                         ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
                         fun build(): AgentTurnResponseStepCompletePayload =
                             AgentTurnResponseStepCompletePayload(
-                                eventType,
-                                stepDetails,
-                                stepType,
+                                checkNotNull(eventType) {
+                                    "`eventType` is required but was not set"
+                                },
+                                checkNotNull(stepDetails) {
+                                    "`stepDetails` is required but was not set"
+                                },
+                                checkNotNull(stepId) { "`stepId` is required but was not set" },
+                                checkNotNull(stepType) { "`stepType` is required but was not set" },
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1675,21 +1880,9 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val STEP_COMPLETE = EventType(JsonField.of("step_complete"))
+                            val STEP_COMPLETE = of("step_complete")
 
                             fun of(value: String) = EventType(JsonField.of(value))
                         }
@@ -1719,6 +1912,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     @JsonDeserialize(using = StepDetails.Deserializer::class)
@@ -1731,8 +1936,6 @@ private constructor(
                         private val memoryRetrievalStep: MemoryRetrievalStep? = null,
                         private val _json: JsonValue? = null,
                     ) {
-
-                        private var validated: Boolean = false
 
                         fun inferenceStep(): InferenceStep? = inferenceStep
 
@@ -1777,24 +1980,39 @@ private constructor(
                             }
                         }
 
+                        private var validated: Boolean = false
+
                         fun validate(): StepDetails = apply {
-                            if (!validated) {
-                                if (
-                                    inferenceStep == null &&
-                                        toolExecutionStep == null &&
-                                        shieldCallStep == null &&
-                                        memoryRetrievalStep == null
-                                ) {
-                                    throw LlamaStackClientInvalidDataException(
-                                        "Unknown StepDetails: $_json"
-                                    )
-                                }
-                                inferenceStep?.validate()
-                                toolExecutionStep?.validate()
-                                shieldCallStep?.validate()
-                                memoryRetrievalStep?.validate()
-                                validated = true
+                            if (validated) {
+                                return@apply
                             }
+
+                            accept(
+                                object : Visitor<Unit> {
+                                    override fun visitInferenceStep(inferenceStep: InferenceStep) {
+                                        inferenceStep.validate()
+                                    }
+
+                                    override fun visitToolExecutionStep(
+                                        toolExecutionStep: ToolExecutionStep
+                                    ) {
+                                        toolExecutionStep.validate()
+                                    }
+
+                                    override fun visitShieldCallStep(
+                                        shieldCallStep: ShieldCallStep
+                                    ) {
+                                        shieldCallStep.validate()
+                                    }
+
+                                    override fun visitMemoryRetrievalStep(
+                                        memoryRetrievalStep: MemoryRetrievalStep
+                                    ) {
+                                        memoryRetrievalStep.validate()
+                                    }
+                                }
+                            )
+                            validated = true
                         }
 
                         override fun equals(other: Any?): Boolean {
@@ -1920,27 +2138,15 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val INFERENCE = StepType(JsonField.of("inference"))
+                            val INFERENCE = of("inference")
 
-                            val TOOL_EXECUTION = StepType(JsonField.of("tool_execution"))
+                            val TOOL_EXECUTION = of("tool_execution")
 
-                            val SHIELD_CALL = StepType(JsonField.of("shield_call"))
+                            val SHIELD_CALL = of("shield_call")
 
-                            val MEMORY_RETRIEVAL = StepType(JsonField.of("memory_retrieval"))
+                            val MEMORY_RETRIEVAL = of("memory_retrieval")
 
                             fun of(value: String) = StepType(JsonField.of(value))
                         }
@@ -1982,6 +2188,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     override fun equals(other: Any?): Boolean {
@@ -1989,48 +2207,59 @@ private constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentTurnResponseStepCompletePayload && eventType == other.eventType && stepDetails == other.stepDetails && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is AgentTurnResponseStepCompletePayload && eventType == other.eventType && stepDetails == other.stepDetails && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(eventType, stepDetails, stepType, additionalProperties) }
+                    private val hashCode: Int by lazy { Objects.hash(eventType, stepDetails, stepId, stepType, additionalProperties) }
                     /* spotless:on */
 
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "AgentTurnResponseStepCompletePayload{eventType=$eventType, stepDetails=$stepDetails, stepType=$stepType, additionalProperties=$additionalProperties}"
+                        "AgentTurnResponseStepCompletePayload{eventType=$eventType, stepDetails=$stepDetails, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
                 }
 
-                @JsonDeserialize(builder = AgentTurnResponseTurnStartPayload.Builder::class)
                 @NoAutoDetect
                 class AgentTurnResponseTurnStartPayload
+                @JsonCreator
                 private constructor(
-                    private val eventType: JsonField<EventType>,
-                    private val turnId: JsonField<String>,
-                    private val additionalProperties: Map<String, JsonValue>,
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    private val eventType: JsonField<EventType> = JsonMissing.of(),
+                    @JsonProperty("turn_id")
+                    @ExcludeMissing
+                    private val turnId: JsonField<String> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
-
-                    private var validated: Boolean = false
 
                     fun eventType(): EventType = eventType.getRequired("event_type")
 
                     fun turnId(): String = turnId.getRequired("turn_id")
 
-                    @JsonProperty("event_type") @ExcludeMissing fun _eventType() = eventType
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    fun _eventType(): JsonField<EventType> = eventType
 
-                    @JsonProperty("turn_id") @ExcludeMissing fun _turnId() = turnId
+                    @JsonProperty("turn_id")
+                    @ExcludeMissing
+                    fun _turnId(): JsonField<String> = turnId
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                    private var validated: Boolean = false
+
                     fun validate(): AgentTurnResponseTurnStartPayload = apply {
-                        if (!validated) {
-                            eventType()
-                            turnId()
-                            validated = true
+                        if (validated) {
+                            return@apply
                         }
+
+                        eventType()
+                        turnId()
+                        validated = true
                     }
 
                     fun toBuilder() = Builder().from(this)
@@ -2042,54 +2271,59 @@ private constructor(
 
                     class Builder {
 
-                        private var eventType: JsonField<EventType> = JsonMissing.of()
-                        private var turnId: JsonField<String> = JsonMissing.of()
+                        private var eventType: JsonField<EventType>? = null
+                        private var turnId: JsonField<String>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
                         internal fun from(
                             agentTurnResponseTurnStartPayload: AgentTurnResponseTurnStartPayload
                         ) = apply {
-                            this.eventType = agentTurnResponseTurnStartPayload.eventType
-                            this.turnId = agentTurnResponseTurnStartPayload.turnId
-                            additionalProperties(
+                            eventType = agentTurnResponseTurnStartPayload.eventType
+                            turnId = agentTurnResponseTurnStartPayload.turnId
+                            additionalProperties =
                                 agentTurnResponseTurnStartPayload.additionalProperties
-                            )
+                                    .toMutableMap()
                         }
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-                        @JsonProperty("event_type")
-                        @ExcludeMissing
                         fun eventType(eventType: JsonField<EventType>) = apply {
                             this.eventType = eventType
                         }
 
                         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
-                        @JsonProperty("turn_id")
-                        @ExcludeMissing
                         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
                                 this.additionalProperties.clear()
-                                this.additionalProperties.putAll(additionalProperties)
+                                putAllAdditionalProperties(additionalProperties)
                             }
 
-                        @JsonAnySetter
                         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            this.additionalProperties.put(key, value)
+                            additionalProperties.put(key, value)
                         }
 
                         fun putAllAdditionalProperties(
                             additionalProperties: Map<String, JsonValue>
                         ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
                         fun build(): AgentTurnResponseTurnStartPayload =
                             AgentTurnResponseTurnStartPayload(
-                                eventType,
-                                turnId,
+                                checkNotNull(eventType) {
+                                    "`eventType` is required but was not set"
+                                },
+                                checkNotNull(turnId) { "`turnId` is required but was not set" },
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -2103,21 +2337,9 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val TURN_START = EventType(JsonField.of("turn_start"))
+                            val TURN_START = of("turn_start")
 
                             fun of(value: String) = EventType(JsonField.of(value))
                         }
@@ -2147,6 +2369,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     override fun equals(other: Any?): Boolean {
@@ -2167,35 +2401,44 @@ private constructor(
                         "AgentTurnResponseTurnStartPayload{eventType=$eventType, turnId=$turnId, additionalProperties=$additionalProperties}"
                 }
 
-                @JsonDeserialize(builder = AgentTurnResponseTurnCompletePayload.Builder::class)
                 @NoAutoDetect
                 class AgentTurnResponseTurnCompletePayload
+                @JsonCreator
                 private constructor(
-                    private val eventType: JsonField<EventType>,
-                    private val turn: JsonField<Turn>,
-                    private val additionalProperties: Map<String, JsonValue>,
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    private val eventType: JsonField<EventType> = JsonMissing.of(),
+                    @JsonProperty("turn")
+                    @ExcludeMissing
+                    private val turn: JsonField<Turn> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
-
-                    private var validated: Boolean = false
 
                     fun eventType(): EventType = eventType.getRequired("event_type")
 
                     fun turn(): Turn = turn.getRequired("turn")
 
-                    @JsonProperty("event_type") @ExcludeMissing fun _eventType() = eventType
+                    @JsonProperty("event_type")
+                    @ExcludeMissing
+                    fun _eventType(): JsonField<EventType> = eventType
 
-                    @JsonProperty("turn") @ExcludeMissing fun _turn() = turn
+                    @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
 
                     @JsonAnyGetter
                     @ExcludeMissing
                     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+                    private var validated: Boolean = false
+
                     fun validate(): AgentTurnResponseTurnCompletePayload = apply {
-                        if (!validated) {
-                            eventType()
-                            turn().validate()
-                            validated = true
+                        if (validated) {
+                            return@apply
                         }
+
+                        eventType()
+                        turn().validate()
+                        validated = true
                     }
 
                     fun toBuilder() = Builder().from(this)
@@ -2207,8 +2450,8 @@ private constructor(
 
                     class Builder {
 
-                        private var eventType: JsonField<EventType> = JsonMissing.of()
-                        private var turn: JsonField<Turn> = JsonMissing.of()
+                        private var eventType: JsonField<EventType>? = null
+                        private var turn: JsonField<Turn>? = null
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
@@ -2216,46 +2459,51 @@ private constructor(
                             agentTurnResponseTurnCompletePayload:
                                 AgentTurnResponseTurnCompletePayload
                         ) = apply {
-                            this.eventType = agentTurnResponseTurnCompletePayload.eventType
-                            this.turn = agentTurnResponseTurnCompletePayload.turn
-                            additionalProperties(
+                            eventType = agentTurnResponseTurnCompletePayload.eventType
+                            turn = agentTurnResponseTurnCompletePayload.turn
+                            additionalProperties =
                                 agentTurnResponseTurnCompletePayload.additionalProperties
-                            )
+                                    .toMutableMap()
                         }
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-                        @JsonProperty("event_type")
-                        @ExcludeMissing
                         fun eventType(eventType: JsonField<EventType>) = apply {
                             this.eventType = eventType
                         }
 
                         fun turn(turn: Turn) = turn(JsonField.of(turn))
 
-                        @JsonProperty("turn")
-                        @ExcludeMissing
                         fun turn(turn: JsonField<Turn>) = apply { this.turn = turn }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
                             apply {
                                 this.additionalProperties.clear()
-                                this.additionalProperties.putAll(additionalProperties)
+                                putAllAdditionalProperties(additionalProperties)
                             }
 
-                        @JsonAnySetter
                         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            this.additionalProperties.put(key, value)
+                            additionalProperties.put(key, value)
                         }
 
                         fun putAllAdditionalProperties(
                             additionalProperties: Map<String, JsonValue>
                         ) = apply { this.additionalProperties.putAll(additionalProperties) }
 
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
                         fun build(): AgentTurnResponseTurnCompletePayload =
                             AgentTurnResponseTurnCompletePayload(
-                                eventType,
-                                turn,
+                                checkNotNull(eventType) {
+                                    "`eventType` is required but was not set"
+                                },
+                                checkNotNull(turn) { "`turn` is required but was not set" },
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -2269,21 +2517,9 @@ private constructor(
                         @com.fasterxml.jackson.annotation.JsonValue
                         fun _value(): JsonField<String> = value
 
-                        override fun equals(other: Any?): Boolean {
-                            if (this === other) {
-                                return true
-                            }
-
-                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
-                        }
-
-                        override fun hashCode() = value.hashCode()
-
-                        override fun toString() = value.toString()
-
                         companion object {
 
-                            val TURN_COMPLETE = EventType(JsonField.of("turn_complete"))
+                            val TURN_COMPLETE = of("turn_complete")
 
                             fun of(value: String) = EventType(JsonField.of(value))
                         }
@@ -2313,6 +2549,18 @@ private constructor(
                             }
 
                         fun asString(): String = _value().asStringOrThrow()
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is EventType && value == other.value /* spotless:on */
+                        }
+
+                        override fun hashCode() = value.hashCode()
+
+                        override fun toString() = value.toString()
                     }
 
                     override fun equals(other: Any?): Boolean {

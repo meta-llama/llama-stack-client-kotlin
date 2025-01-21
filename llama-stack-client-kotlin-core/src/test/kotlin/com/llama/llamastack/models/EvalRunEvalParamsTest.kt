@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -41,7 +40,7 @@ class EvalRunEvalParamsTest {
                                         )
                                         .systemMessage(
                                             SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
+                                                .content(InterleavedContent.ofString("string"))
                                                 .role(SystemMessage.Role.SYSTEM)
                                                 .build()
                                         )
@@ -54,7 +53,8 @@ class EvalRunEvalParamsTest {
                 )
             )
             .taskId("task_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -92,9 +92,7 @@ class EvalRunEvalParamsTest {
                                             )
                                             .systemMessage(
                                                 SystemMessage.builder()
-                                                    .content(
-                                                        SystemMessage.Content.ofString("string")
-                                                    )
+                                                    .content(InterleavedContent.ofString("string"))
                                                     .role(SystemMessage.Role.SYSTEM)
                                                     .build()
                                             )
@@ -109,7 +107,8 @@ class EvalRunEvalParamsTest {
                     )
                 )
                 .taskId("task_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -144,7 +143,7 @@ class EvalRunEvalParamsTest {
                                         )
                                         .systemMessage(
                                             SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
+                                                .content(InterleavedContent.ofString("string"))
                                                 .role(SystemMessage.Role.SYSTEM)
                                                 .build()
                                         )

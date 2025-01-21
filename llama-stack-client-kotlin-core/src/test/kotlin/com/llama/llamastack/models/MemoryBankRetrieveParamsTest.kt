@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,8 +11,9 @@ class MemoryBankRetrieveParamsTest {
     @Test
     fun createMemoryBankRetrieveParams() {
         MemoryBankRetrieveParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .memoryBankId("memory_bank_id")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,8 +21,9 @@ class MemoryBankRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             MemoryBankRetrieveParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .memoryBankId("memory_bank_id")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("memory_bank_id", "memory_bank_id")

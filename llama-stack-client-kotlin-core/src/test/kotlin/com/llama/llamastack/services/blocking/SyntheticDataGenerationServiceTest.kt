@@ -4,7 +4,9 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SyntheticDataGenerationGenerateParams
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -23,16 +25,17 @@ class SyntheticDataGenerationServiceTest {
                         listOf(
                             SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
                     )
                     .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                     .model("model")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(syntheticDataGenerationResponse)

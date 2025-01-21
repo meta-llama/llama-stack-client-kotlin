@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -16,30 +17,34 @@ class TurnTest {
                     listOf(
                         Turn.InputMessage.ofUserMessage(
                             UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
+                                .content(InterleavedContent.ofString("string"))
                                 .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
+                                .context(InterleavedContent.ofString("string"))
                                 .build()
                         )
                     )
                 )
                 .outputAttachments(
                     listOf(
-                        Attachment.builder()
-                            .content(Attachment.Content.ofString("string"))
+                        Turn.OutputAttachment.builder()
+                            .content(Turn.OutputAttachment.Content.ofString("string"))
                             .mimeType("mime_type")
                             .build()
                     )
                 )
                 .outputMessage(
-                    CompletionMessage.builder()
-                        .content(CompletionMessage.Content.ofString("string"))
-                        .role(CompletionMessage.Role.ASSISTANT)
-                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                    Turn.OutputMessage.builder()
+                        .content(InterleavedContent.ofString("string"))
+                        .role(Turn.OutputMessage.Role.ASSISTANT)
+                        .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
                         .toolCalls(
                             listOf(
                                 ToolCall.builder()
-                                    .arguments(ToolCall.Arguments.builder().build())
+                                    .arguments(
+                                        ToolCall.Arguments.builder()
+                                            .putAdditionalProperty("foo", JsonValue.from("string"))
+                                            .build()
+                                    )
                                     .callId("call_id")
                                     .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                     .build()
@@ -54,14 +59,23 @@ class TurnTest {
                         Turn.Step.ofInferenceStep(
                             InferenceStep.builder()
                                 .modelResponse(
-                                    CompletionMessage.builder()
-                                        .content(CompletionMessage.Content.ofString("string"))
-                                        .role(CompletionMessage.Role.ASSISTANT)
-                                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                    InferenceStep.ModelResponse.builder()
+                                        .content(InterleavedContent.ofString("string"))
+                                        .role(InferenceStep.ModelResponse.Role.ASSISTANT)
+                                        .stopReason(
+                                            InferenceStep.ModelResponse.StopReason.END_OF_TURN
+                                        )
                                         .toolCalls(
                                             listOf(
                                                 ToolCall.builder()
-                                                    .arguments(ToolCall.Arguments.builder().build())
+                                                    .arguments(
+                                                        ToolCall.Arguments.builder()
+                                                            .putAdditionalProperty(
+                                                                "foo",
+                                                                JsonValue.from("string")
+                                                            )
+                                                            .build()
+                                                    )
                                                     .callId("call_id")
                                                     .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                                     .build()
@@ -86,29 +100,33 @@ class TurnTest {
             .containsExactly(
                 Turn.InputMessage.ofUserMessage(
                     UserMessage.builder()
-                        .content(UserMessage.Content.ofString("string"))
+                        .content(InterleavedContent.ofString("string"))
                         .role(UserMessage.Role.USER)
-                        .context(UserMessage.Context.ofString("string"))
+                        .context(InterleavedContent.ofString("string"))
                         .build()
                 )
             )
         assertThat(turn.outputAttachments())
             .containsExactly(
-                Attachment.builder()
-                    .content(Attachment.Content.ofString("string"))
+                Turn.OutputAttachment.builder()
+                    .content(Turn.OutputAttachment.Content.ofString("string"))
                     .mimeType("mime_type")
                     .build()
             )
         assertThat(turn.outputMessage())
             .isEqualTo(
-                CompletionMessage.builder()
-                    .content(CompletionMessage.Content.ofString("string"))
-                    .role(CompletionMessage.Role.ASSISTANT)
-                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                Turn.OutputMessage.builder()
+                    .content(InterleavedContent.ofString("string"))
+                    .role(Turn.OutputMessage.Role.ASSISTANT)
+                    .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
                     .toolCalls(
                         listOf(
                             ToolCall.builder()
-                                .arguments(ToolCall.Arguments.builder().build())
+                                .arguments(
+                                    ToolCall.Arguments.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from("string"))
+                                        .build()
+                                )
                                 .callId("call_id")
                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                 .build()
@@ -123,14 +141,21 @@ class TurnTest {
                 Turn.Step.ofInferenceStep(
                     InferenceStep.builder()
                         .modelResponse(
-                            CompletionMessage.builder()
-                                .content(CompletionMessage.Content.ofString("string"))
-                                .role(CompletionMessage.Role.ASSISTANT)
-                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            InferenceStep.ModelResponse.builder()
+                                .content(InterleavedContent.ofString("string"))
+                                .role(InferenceStep.ModelResponse.Role.ASSISTANT)
+                                .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
                                 .toolCalls(
                                     listOf(
                                         ToolCall.builder()
-                                            .arguments(ToolCall.Arguments.builder().build())
+                                            .arguments(
+                                                ToolCall.Arguments.builder()
+                                                    .putAdditionalProperty(
+                                                        "foo",
+                                                        JsonValue.from("string")
+                                                    )
+                                                    .build()
+                                            )
                                             .callId("call_id")
                                             .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                             .build()

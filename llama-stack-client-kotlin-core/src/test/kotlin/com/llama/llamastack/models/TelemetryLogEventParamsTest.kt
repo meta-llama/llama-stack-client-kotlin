@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -27,12 +27,15 @@ class TelemetryLogEventParamsTest {
                         )
                         .attributes(
                             TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .build()
                 )
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .ttlSeconds(0L)
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -57,12 +60,15 @@ class TelemetryLogEventParamsTest {
                             .attributes(
                                 TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes
                                     .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .build()
                     )
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .ttlSeconds(0L)
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -82,11 +88,13 @@ class TelemetryLogEventParamsTest {
                         )
                         .attributes(
                             TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .build()
                 )
             )
+        assertThat(body.ttlSeconds()).isEqualTo(0L)
     }
 
     @Test
@@ -110,6 +118,7 @@ class TelemetryLogEventParamsTest {
                             .build()
                     )
                 )
+                .ttlSeconds(0L)
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -130,5 +139,6 @@ class TelemetryLogEventParamsTest {
                         .build()
                 )
             )
+        assertThat(body.ttlSeconds()).isEqualTo(0L)
     }
 }

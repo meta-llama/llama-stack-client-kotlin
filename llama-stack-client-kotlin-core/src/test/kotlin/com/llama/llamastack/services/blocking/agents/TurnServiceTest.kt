@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking.agents
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.AgentTurnCreateParams
+import com.llama.llamastack.models.AgentTurnRetrieveParams
+import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -28,23 +31,25 @@ class TurnServiceTest {
                         listOf(
                             AgentTurnCreateParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
                     )
                     .sessionId("session_id")
-                    .attachments(
+                    .documents(
                         listOf(
-                            Attachment.builder()
-                                .content(Attachment.Content.ofString("string"))
+                            AgentTurnCreateParams.Document.builder()
+                                .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                                 .mimeType("mime_type")
                                 .build()
                         )
                     )
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentTurnCreateResponse)
@@ -67,23 +72,25 @@ class TurnServiceTest {
                         listOf(
                             AgentTurnCreateParams.Message.ofUserMessage(
                                 UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
+                                    .content(InterleavedContent.ofString("string"))
                                     .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
+                                    .context(InterleavedContent.ofString("string"))
                                     .build()
                             )
                         )
                     )
                     .sessionId("session_id")
-                    .attachments(
+                    .documents(
                         listOf(
-                            Attachment.builder()
-                                .content(Attachment.Content.ofString("string"))
+                            AgentTurnCreateParams.Document.builder()
+                                .content(AgentTurnCreateParams.Document.Content.ofString("string"))
                                 .mimeType("mime_type")
                                 .build()
                         )
                     )
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
 
@@ -100,10 +107,11 @@ class TurnServiceTest {
         val turn =
             turnService.retrieve(
                 AgentTurnRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .turnId("turn_id")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(turn)

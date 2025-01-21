@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -17,13 +17,18 @@ class MemoryInsertParamsTest {
                     MemoryInsertParams.Document.builder()
                         .content(MemoryInsertParams.Document.Content.ofString("string"))
                         .documentId("document_id")
-                        .metadata(MemoryInsertParams.Document.Metadata.builder().build())
+                        .metadata(
+                            MemoryInsertParams.Document.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .mimeType("mime_type")
                         .build()
                 )
             )
             .ttlSeconds(0L)
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -37,13 +42,18 @@ class MemoryInsertParamsTest {
                         MemoryInsertParams.Document.builder()
                             .content(MemoryInsertParams.Document.Content.ofString("string"))
                             .documentId("document_id")
-                            .metadata(MemoryInsertParams.Document.Metadata.builder().build())
+                            .metadata(
+                                MemoryInsertParams.Document.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
                             .mimeType("mime_type")
                             .build()
                     )
                 )
                 .ttlSeconds(0L)
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -54,7 +64,11 @@ class MemoryInsertParamsTest {
                     MemoryInsertParams.Document.builder()
                         .content(MemoryInsertParams.Document.Content.ofString("string"))
                         .documentId("document_id")
-                        .metadata(MemoryInsertParams.Document.Metadata.builder().build())
+                        .metadata(
+                            MemoryInsertParams.Document.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .mimeType("mime_type")
                         .build()
                 )
@@ -72,7 +86,11 @@ class MemoryInsertParamsTest {
                         MemoryInsertParams.Document.builder()
                             .content(MemoryInsertParams.Document.Content.ofString("string"))
                             .documentId("document_id")
-                            .metadata(MemoryInsertParams.Document.Metadata.builder().build())
+                            .metadata(
+                                MemoryInsertParams.Document.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
                             .build()
                     )
                 )
@@ -86,7 +104,11 @@ class MemoryInsertParamsTest {
                     MemoryInsertParams.Document.builder()
                         .content(MemoryInsertParams.Document.Content.ofString("string"))
                         .documentId("document_id")
-                        .metadata(MemoryInsertParams.Document.Metadata.builder().build())
+                        .metadata(
+                            MemoryInsertParams.Document.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .build()
                 )
             )

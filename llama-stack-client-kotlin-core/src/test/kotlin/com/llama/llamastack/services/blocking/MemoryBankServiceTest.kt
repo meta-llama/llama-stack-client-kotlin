@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.MemoryBankListParams
+import com.llama.llamastack.models.MemoryBankRegisterParams
+import com.llama.llamastack.models.MemoryBankRetrieveParams
+import com.llama.llamastack.models.MemoryBankUnregisterParams
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -20,8 +23,9 @@ class MemoryBankServiceTest {
         val memoryBankRetrieveResponse =
             memoryBankService.retrieve(
                 MemoryBankRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .memoryBankId("memory_bank_id")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(memoryBankRetrieveResponse)
@@ -38,7 +42,8 @@ class MemoryBankServiceTest {
         val memoryBankListResponse =
             memoryBankService.list(
                 MemoryBankListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(memoryBankListResponse)
@@ -68,7 +73,8 @@ class MemoryBankServiceTest {
                 )
                 .providerId("provider_id")
                 .providerMemoryBankId("provider_memory_bank_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -81,7 +87,8 @@ class MemoryBankServiceTest {
         memoryBankService.unregister(
             MemoryBankUnregisterParams.builder()
                 .memoryBankId("memory_bank_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

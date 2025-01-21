@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -17,7 +18,11 @@ class ToolExecutionStepTest {
                 .toolCalls(
                     listOf(
                         ToolCall.builder()
-                            .arguments(ToolCall.Arguments.builder().build())
+                            .arguments(
+                                ToolCall.Arguments.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                                    .build()
+                            )
                             .callId("call_id")
                             .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                             .build()
@@ -27,7 +32,7 @@ class ToolExecutionStepTest {
                     listOf(
                         ToolResponse.builder()
                             .callId("call_id")
-                            .content(ToolResponse.Content.ofString("string"))
+                            .content(InterleavedContent.ofString("string"))
                             .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                             .build()
                     )
@@ -43,7 +48,11 @@ class ToolExecutionStepTest {
         assertThat(toolExecutionStep.toolCalls())
             .containsExactly(
                 ToolCall.builder()
-                    .arguments(ToolCall.Arguments.builder().build())
+                    .arguments(
+                        ToolCall.Arguments.builder()
+                            .putAdditionalProperty("foo", JsonValue.from("string"))
+                            .build()
+                    )
                     .callId("call_id")
                     .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                     .build()
@@ -52,7 +61,7 @@ class ToolExecutionStepTest {
             .containsExactly(
                 ToolResponse.builder()
                     .callId("call_id")
-                    .content(ToolResponse.Content.ofString("string"))
+                    .content(InterleavedContent.ofString("string"))
                     .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                     .build()
             )

@@ -13,7 +13,9 @@ internal fun <T> List<T>.toImmutable(): List<T> =
     if (isEmpty()) Collections.emptyList() else Collections.unmodifiableList(toList())
 
 internal fun <K, V> Map<K, V>.toImmutable(): Map<K, V> =
-    if (isEmpty()) Collections.emptyMap() else Collections.unmodifiableMap(toMap())
+    if (isEmpty()) immutableEmptyMap() else Collections.unmodifiableMap(toMap())
+
+internal fun <K, V> immutableEmptyMap(): Map<K, V> = Collections.emptyMap()
 
 internal fun <K : Comparable<K>, V> SortedMap<K, V>.toImmutable(): SortedMap<K, V> =
     if (isEmpty()) Collections.emptySortedMap()

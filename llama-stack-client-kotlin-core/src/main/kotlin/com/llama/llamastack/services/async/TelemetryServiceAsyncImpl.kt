@@ -13,8 +13,13 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
-import com.llama.llamastack.models.TelemetryGetTraceParams
+import com.llama.llamastack.models.TelemetryGetSpanTreeParams
+import com.llama.llamastack.models.TelemetryGetSpanTreeResponse
 import com.llama.llamastack.models.TelemetryLogEventParams
+import com.llama.llamastack.models.TelemetryQuerySpansParams
+import com.llama.llamastack.models.TelemetryQuerySpansResponse
+import com.llama.llamastack.models.TelemetryQueryTracesParams
+import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
 import com.llama.llamastack.models.Trace
 
 class TelemetryServiceAsyncImpl
@@ -25,25 +30,27 @@ constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val getTraceHandler: Handler<Trace> =
-        jsonHandler<Trace>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val getSpanTreeHandler: Handler<TelemetryGetSpanTreeResponse> =
+        jsonHandler<TelemetryGetSpanTreeResponse>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
-    override suspend fun getTrace(
-        params: TelemetryGetTraceParams,
+    override suspend fun getSpanTree(
+        params: TelemetryGetSpanTreeParams,
         requestOptions: RequestOptions
-    ): Trace {
+    ): TelemetryGetSpanTreeResponse {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .addPathSegments("alpha", "telemetry", "get-trace")
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "telemetry", "get-span-tree")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response
-                .use { getTraceHandler.handle(it) }
+                .use { getSpanTreeHandler.handle(it) }
                 .apply {
                     if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
                         validate()
@@ -67,6 +74,85 @@ constructor(
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response.use { logEventHandler.handle(it) }
+        }
+    }
+
+    private val querySpansHandler: Handler<TelemetryQuerySpansResponse> =
+        jsonHandler<TelemetryQuerySpansResponse>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
+
+    override suspend fun querySpans(
+        params: TelemetryQuerySpansParams,
+        requestOptions: RequestOptions
+    ): TelemetryQuerySpansResponse {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "telemetry", "query-spans")
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .build()
+        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
+            response
+                .use { querySpansHandler.handle(it) }
+                .apply {
+                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                        validate()
+                    }
+                }
+        }
+    }
+
+    private val queryTracesHandler: Handler<Trace> =
+        jsonHandler<Trace>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+
+    override suspend fun queryTraces(
+        params: TelemetryQueryTracesParams,
+        requestOptions: RequestOptions
+    ): Trace {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "telemetry", "query-traces")
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .build()
+        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
+            response
+                .use { queryTracesHandler.handle(it) }
+                .apply {
+                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                        validate()
+                    }
+                }
+        }
+    }
+
+    private val saveSpansToDatasetHandler: Handler<Void?> =
+        emptyHandler().withErrorHandler(errorHandler)
+
+    override suspend fun saveSpansToDataset(
+        params: TelemetrySaveSpansToDatasetParams,
+        requestOptions: RequestOptions
+    ) {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments("alpha", "telemetry", "save-spans-to-dataset")
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .build()
+        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
+            response.use { saveSpansToDatasetHandler.handle(it) }
         }
     }
 }
