@@ -61,24 +61,20 @@ class ScoringFunctionServiceTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .params(
-                    ScoringFunctionRegisterParams.Params.ofLlmAsJudgeScoringFnParams(
-                        ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams.builder()
-                            .judgeModel("judge_model")
-                            .type(
-                                ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams.Type
-                                    .LLM_AS_JUDGE
-                            )
-                            .aggregationFunctions(
-                                listOf(
-                                    ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams
-                                        .AggregationFunction
-                                        .AVERAGE
-                                )
-                            )
-                            .judgeScoreRegexes(listOf("string"))
-                            .promptTemplate("prompt_template")
-                            .build()
-                    )
+                    ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams.builder()
+                        .judgeModel("judge_model")
+                        .type(
+                            ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams.Type
+                                .LLM_AS_JUDGE
+                        )
+                        .addAggregationFunction(
+                            ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams
+                                .AggregationFunction
+                                .AVERAGE
+                        )
+                        .addJudgeScoreRegex("string")
+                        .promptTemplate("prompt_template")
+                        .build()
                 )
                 .providerId("provider_id")
                 .providerScoringFnId("provider_scoring_fn_id")

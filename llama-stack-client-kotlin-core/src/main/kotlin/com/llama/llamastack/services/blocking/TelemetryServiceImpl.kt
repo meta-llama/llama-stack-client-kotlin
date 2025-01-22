@@ -27,7 +27,7 @@ import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
 import com.llama.llamastack.models.Trace
 
 class TelemetryServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : TelemetryService {
 

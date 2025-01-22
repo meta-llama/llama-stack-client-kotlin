@@ -16,7 +16,7 @@ import com.llama.llamastack.models.RunShieldResponse
 import com.llama.llamastack.models.SafetyRunShieldParams
 
 class SafetyServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : SafetyService {
 

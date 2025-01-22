@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -361,9 +362,8 @@ constructor(
 
             fun build(): BatchInferenceChatCompletionBody =
                 BatchInferenceChatCompletionBody(
-                    checkNotNull(messagesBatch) { "`messagesBatch` is required but was not set" }
-                        .map { it.toImmutable() },
-                    checkNotNull(model) { "`model` is required but was not set" },
+                    checkRequired("messagesBatch", messagesBatch).map { it.toImmutable() },
+                    checkRequired("model", model),
                     logprobs,
                     samplingParams,
                     toolChoice,
@@ -950,11 +950,10 @@ constructor(
 
                 fun build(): CompletionMessage =
                     CompletionMessage(
-                        checkNotNull(content) { "`content` is required but was not set" },
-                        checkNotNull(role) { "`role` is required but was not set" },
-                        checkNotNull(stopReason) { "`stopReason` is required but was not set" },
-                        checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                            .map { it.toImmutable() },
+                        checkRequired("content", content),
+                        checkRequired("role", role),
+                        checkRequired("stopReason", stopReason),
+                        checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1238,6 +1237,17 @@ constructor(
         override fun toString() = value.toString()
     }
 
+    /**
+     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
+     * "type": "function", "function" : { "name": "function_name", "description":
+     * "function_description", "parameters": {...} } }
+     *
+     * `function_tag` -- This is an example of how you could define your own user defined format for
+     * making tool calls. The function_tag format looks like this,
+     * <function=function_name>(parameters)</function>
+     *
+     * The detailed prompts for each of these formats are added to llama cli
+     */
     class ToolPromptFormat
     @JsonCreator
     private constructor(
@@ -1412,7 +1422,7 @@ constructor(
 
             fun build(): Tool =
                 Tool(
-                    checkNotNull(toolName) { "`toolName` is required but was not set" },
+                    checkRequired("toolName", toolName),
                     description,
                     parameters,
                     additionalProperties.toImmutable(),

@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -289,9 +290,7 @@ private constructor(
 
             fun build(): ChatCompletionResponse =
                 ChatCompletionResponse(
-                    checkNotNull(completionMessage) {
-                        "`completionMessage` is required but was not set"
-                    },
+                    checkRequired("completionMessage", completionMessage),
                     (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
@@ -449,11 +448,10 @@ private constructor(
 
                 fun build(): CompletionMessage =
                     CompletionMessage(
-                        checkNotNull(content) { "`content` is required but was not set" },
-                        checkNotNull(role) { "`role` is required but was not set" },
-                        checkNotNull(stopReason) { "`stopReason` is required but was not set" },
-                        checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                            .map { it.toImmutable() },
+                        checkRequired("content", content),
+                        checkRequired("role", role),
+                        checkRequired("stopReason", stopReason),
+                        checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
                     )
             }
@@ -684,7 +682,7 @@ private constructor(
 
             fun build(): ChatCompletionResponseStreamChunk =
                 ChatCompletionResponseStreamChunk(
-                    checkNotNull(event) { "`event` is required but was not set" },
+                    checkRequired("event", event),
                     additionalProperties.toImmutable()
                 )
         }
@@ -838,8 +836,8 @@ private constructor(
 
                 fun build(): Event =
                     Event(
-                        checkNotNull(delta) { "`delta` is required but was not set" },
-                        checkNotNull(eventType) { "`eventType` is required but was not set" },
+                        checkRequired("delta", delta),
+                        checkRequired("eventType", eventType),
                         (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                         stopReason,
                         additionalProperties.toImmutable(),

@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -167,9 +168,9 @@ private constructor(
 
         fun build(): ShieldCallStep =
             ShieldCallStep(
-                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                checkNotNull(stepType) { "`stepType` is required but was not set" },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("stepId", stepId),
+                checkRequired("stepType", stepType),
+                checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
                 violation,

@@ -22,7 +22,7 @@ import com.llama.llamastack.models.DatasetUnregisterParams
 import com.llama.llamastack.models.ListDatasetsResponse
 
 class DatasetServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : DatasetServiceAsync {
 

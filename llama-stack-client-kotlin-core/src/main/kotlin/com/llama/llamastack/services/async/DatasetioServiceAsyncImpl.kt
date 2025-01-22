@@ -18,7 +18,7 @@ import com.llama.llamastack.models.DatasetioGetRowsPaginatedParams
 import com.llama.llamastack.models.PaginatedRowsResult
 
 class DatasetioServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : DatasetioServiceAsync {
 

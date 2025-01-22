@@ -11,22 +11,20 @@ class QueryDocumentsResponseTest {
     fun createQueryDocumentsResponse() {
         val queryDocumentsResponse =
             QueryDocumentsResponse.builder()
-                .chunks(
-                    listOf(
-                        QueryDocumentsResponse.Chunk.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .documentId("document_id")
-                            .tokenCount(0L)
-                            .build()
-                    )
+                .addChunk(
+                    QueryDocumentsResponse.Chunk.builder()
+                        .content("string")
+                        .documentId("document_id")
+                        .tokenCount(0L)
+                        .build()
                 )
-                .scores(listOf(0.0))
+                .addScore(0.0)
                 .build()
         assertThat(queryDocumentsResponse).isNotNull
         assertThat(queryDocumentsResponse.chunks())
             .containsExactly(
                 QueryDocumentsResponse.Chunk.builder()
-                    .content(InterleavedContent.ofString("string"))
+                    .content("string")
                     .documentId("document_id")
                     .tokenCount(0L)
                     .build()

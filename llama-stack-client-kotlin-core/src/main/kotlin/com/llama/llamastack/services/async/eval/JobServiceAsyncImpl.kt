@@ -20,7 +20,7 @@ import com.llama.llamastack.models.EvalJobStatusResponse
 import com.llama.llamastack.models.EvaluateResponse
 
 class JobServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : JobServiceAsync {
 

@@ -48,7 +48,7 @@ class TelemetryServiceTest {
             telemetryService.getSpanTree(
                 TelemetryGetSpanTreeParams.builder()
                     .spanId("span_id")
-                    .attributesToReturn(listOf("string"))
+                    .addAttributesToReturn("string")
                     .maxDepth(0L)
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -83,27 +83,23 @@ class TelemetryServiceTest {
         telemetryService.logEvent(
             TelemetryLogEventParams.builder()
                 .event(
-                    TelemetryLogEventParams.Event.ofUnstructuredLogEvent(
-                        TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
-                            .message("message")
-                            .severity(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Severity.VERBOSE
-                            )
-                            .spanId("span_id")
-                            .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                            .traceId("trace_id")
-                            .type(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Type
-                                    .UNSTRUCTURED_LOG
-                            )
-                            .attributes(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .build()
-                    )
+                    TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
+                        .message("message")
+                        .severity(
+                            TelemetryLogEventParams.Event.UnstructuredLogEvent.Severity.VERBOSE
+                        )
+                        .spanId("span_id")
+                        .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .traceId("trace_id")
+                        .type(
+                            TelemetryLogEventParams.Event.UnstructuredLogEvent.Type.UNSTRUCTURED_LOG
+                        )
+                        .attributes(
+                            TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
                 )
                 .ttlSeconds(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -120,18 +116,14 @@ class TelemetryServiceTest {
         val querySpansResponse =
             telemetryService.querySpans(
                 TelemetryQuerySpansParams.builder()
-                    .attributeFilters(
-                        listOf(
-                            TelemetryQuerySpansParams.AttributeFilter.builder()
-                                .key("key")
-                                .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-                                .value(
-                                    TelemetryQuerySpansParams.AttributeFilter.Value.ofBoolean(true)
-                                )
-                                .build()
-                        )
+                    .addAttributeFilter(
+                        TelemetryQuerySpansParams.AttributeFilter.builder()
+                            .key("key")
+                            .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
+                            .value(true)
+                            .build()
                     )
-                    .attributesToReturn(listOf("string"))
+                    .addAttributesToReturn("string")
                     .maxDepth(0L)
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -151,20 +143,16 @@ class TelemetryServiceTest {
         val queryTracesResponse =
             telemetryService.queryTraces(
                 TelemetryQueryTracesParams.builder()
-                    .attributeFilters(
-                        listOf(
-                            TelemetryQueryTracesParams.AttributeFilter.builder()
-                                .key("key")
-                                .op(TelemetryQueryTracesParams.AttributeFilter.Op.EQ)
-                                .value(
-                                    TelemetryQueryTracesParams.AttributeFilter.Value.ofBoolean(true)
-                                )
-                                .build()
-                        )
+                    .addAttributeFilter(
+                        TelemetryQueryTracesParams.AttributeFilter.builder()
+                            .key("key")
+                            .op(TelemetryQueryTracesParams.AttributeFilter.Op.EQ)
+                            .value(true)
+                            .build()
                     )
                     .limit(0L)
                     .offset(0L)
-                    .orderBy(listOf("string"))
+                    .addOrderBy("string")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
@@ -182,20 +170,14 @@ class TelemetryServiceTest {
         val telemetryService = client.telemetry()
         telemetryService.saveSpansToDataset(
             TelemetrySaveSpansToDatasetParams.builder()
-                .attributeFilters(
-                    listOf(
-                        TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
-                            .key("key")
-                            .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                            .value(
-                                TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(
-                                    true
-                                )
-                            )
-                            .build()
-                    )
+                .addAttributeFilter(
+                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                        .key("key")
+                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
+                        .value(true)
+                        .build()
                 )
-                .attributesToSave(listOf("string"))
+                .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .maxDepth(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")

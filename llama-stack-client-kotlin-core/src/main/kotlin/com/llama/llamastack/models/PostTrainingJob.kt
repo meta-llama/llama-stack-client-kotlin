@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
@@ -85,10 +86,7 @@ private constructor(
         }
 
         fun build(): PostTrainingJob =
-            PostTrainingJob(
-                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
-                additionalProperties.toImmutable()
-            )
+            PostTrainingJob(checkRequired("jobUuid", jobUuid), additionalProperties.toImmutable())
     }
 
     override fun equals(other: Any?): Boolean {

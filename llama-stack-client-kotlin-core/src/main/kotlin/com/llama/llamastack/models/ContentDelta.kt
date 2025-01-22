@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -256,8 +257,8 @@ private constructor(
 
             fun build(): TextDelta =
                 TextDelta(
-                    checkNotNull(text) { "`text` is required but was not set" },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("text", text),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -415,8 +416,8 @@ private constructor(
 
             fun build(): ImageDelta =
                 ImageDelta(
-                    checkNotNull(data) { "`data` is required but was not set" },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("data", data),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -596,9 +597,9 @@ private constructor(
 
             fun build(): ToolCallDelta =
                 ToolCallDelta(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(parseStatus) { "`parseStatus` is required but was not set" },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("content", content),
+                    checkRequired("parseStatus", parseStatus),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }

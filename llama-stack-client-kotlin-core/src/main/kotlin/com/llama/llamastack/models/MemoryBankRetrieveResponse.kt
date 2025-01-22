@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -420,17 +421,13 @@ private constructor(
 
             fun build(): VectorMemoryBank =
                 VectorMemoryBank(
-                    checkNotNull(chunkSizeInTokens) {
-                        "`chunkSizeInTokens` is required but was not set"
-                    },
-                    checkNotNull(embeddingModel) { "`embeddingModel` is required but was not set" },
-                    checkNotNull(identifier) { "`identifier` is required but was not set" },
-                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
-                    checkNotNull(providerId) { "`providerId` is required but was not set" },
-                    checkNotNull(providerResourceId) {
-                        "`providerResourceId` is required but was not set"
-                    },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("chunkSizeInTokens", chunkSizeInTokens),
+                    checkRequired("embeddingModel", embeddingModel),
+                    checkRequired("identifier", identifier),
+                    checkRequired("memoryBankType", memoryBankType),
+                    checkRequired("providerId", providerId),
+                    checkRequired("providerResourceId", providerResourceId),
+                    checkRequired("type", type),
                     embeddingDimension,
                     overlapSizeInTokens,
                     additionalProperties.toImmutable(),
@@ -698,13 +695,11 @@ private constructor(
 
             fun build(): KeyValueMemoryBank =
                 KeyValueMemoryBank(
-                    checkNotNull(identifier) { "`identifier` is required but was not set" },
-                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
-                    checkNotNull(providerId) { "`providerId` is required but was not set" },
-                    checkNotNull(providerResourceId) {
-                        "`providerResourceId` is required but was not set"
-                    },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("identifier", identifier),
+                    checkRequired("memoryBankType", memoryBankType),
+                    checkRequired("providerId", providerId),
+                    checkRequired("providerResourceId", providerResourceId),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -970,13 +965,11 @@ private constructor(
 
             fun build(): KeywordMemoryBank =
                 KeywordMemoryBank(
-                    checkNotNull(identifier) { "`identifier` is required but was not set" },
-                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
-                    checkNotNull(providerId) { "`providerId` is required but was not set" },
-                    checkNotNull(providerResourceId) {
-                        "`providerResourceId` is required but was not set"
-                    },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("identifier", identifier),
+                    checkRequired("memoryBankType", memoryBankType),
+                    checkRequired("providerId", providerId),
+                    checkRequired("providerResourceId", providerResourceId),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -1242,13 +1235,11 @@ private constructor(
 
             fun build(): GraphMemoryBank =
                 GraphMemoryBank(
-                    checkNotNull(identifier) { "`identifier` is required but was not set" },
-                    checkNotNull(memoryBankType) { "`memoryBankType` is required but was not set" },
-                    checkNotNull(providerId) { "`providerId` is required but was not set" },
-                    checkNotNull(providerResourceId) {
-                        "`providerResourceId` is required but was not set"
-                    },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("identifier", identifier),
+                    checkRequired("memoryBankType", memoryBankType),
+                    checkRequired("providerId", providerId),
+                    checkRequired("providerResourceId", providerResourceId),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }

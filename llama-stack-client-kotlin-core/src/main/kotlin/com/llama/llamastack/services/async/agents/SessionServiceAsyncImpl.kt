@@ -20,7 +20,7 @@ import com.llama.llamastack.models.AgentSessionRetrieveParams
 import com.llama.llamastack.models.Session
 
 class SessionServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : SessionServiceAsync {
 

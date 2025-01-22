@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
@@ -82,11 +83,7 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): Url =
-            Url(
-                checkNotNull(uri) { "`uri` is required but was not set" },
-                additionalProperties.toImmutable()
-            )
+        fun build(): Url = Url(checkRequired("uri", uri), additionalProperties.toImmutable())
     }
 
     override fun equals(other: Any?): Boolean {

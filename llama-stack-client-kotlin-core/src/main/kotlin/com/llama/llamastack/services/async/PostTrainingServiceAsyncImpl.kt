@@ -19,7 +19,7 @@ import com.llama.llamastack.services.async.postTraining.JobServiceAsync
 import com.llama.llamastack.services.async.postTraining.JobServiceAsyncImpl
 
 class PostTrainingServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : PostTrainingServiceAsync {
 

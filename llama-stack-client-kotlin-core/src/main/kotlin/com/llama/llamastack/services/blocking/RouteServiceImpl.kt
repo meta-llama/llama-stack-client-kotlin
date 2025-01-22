@@ -16,7 +16,7 @@ import com.llama.llamastack.models.RouteInfo
 import com.llama.llamastack.models.RouteListParams
 
 class RouteServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : RouteService {
 

@@ -15,27 +15,23 @@ class ToolExecutionStepTest {
             ToolExecutionStep.builder()
                 .stepId("step_id")
                 .stepType(ToolExecutionStep.StepType.TOOL_EXECUTION)
-                .toolCalls(
-                    listOf(
-                        ToolCall.builder()
-                            .arguments(
-                                ToolCall.Arguments.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from("string"))
-                                    .build()
-                            )
-                            .callId("call_id")
-                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                            .build()
-                    )
+                .addToolCall(
+                    ToolCall.builder()
+                        .arguments(
+                            ToolCall.Arguments.builder()
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
+                                .build()
+                        )
+                        .callId("call_id")
+                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                        .build()
                 )
-                .toolResponses(
-                    listOf(
-                        ToolResponse.builder()
-                            .callId("call_id")
-                            .content(InterleavedContent.ofString("string"))
-                            .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
-                            .build()
-                    )
+                .addToolResponse(
+                    ToolResponse.builder()
+                        .callId("call_id")
+                        .content("string")
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                        .build()
                 )
                 .turnId("turn_id")
                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -61,7 +57,7 @@ class ToolExecutionStepTest {
             .containsExactly(
                 ToolResponse.builder()
                     .callId("call_id")
-                    .content(InterleavedContent.ofString("string"))
+                    .content("string")
                     .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                     .build()
             )

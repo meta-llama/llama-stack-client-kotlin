@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -231,15 +232,9 @@ constructor(
 
             fun build(): TelemetrySaveSpansToDatasetBody =
                 TelemetrySaveSpansToDatasetBody(
-                    checkNotNull(attributeFilters) {
-                            "`attributeFilters` is required but was not set"
-                        }
-                        .map { it.toImmutable() },
-                    checkNotNull(attributesToSave) {
-                            "`attributesToSave` is required but was not set"
-                        }
-                        .map { it.toImmutable() },
-                    checkNotNull(datasetId) { "`datasetId` is required but was not set" },
+                    checkRequired("attributeFilters", attributeFilters).map { it.toImmutable() },
+                    checkRequired("attributesToSave", attributesToSave).map { it.toImmutable() },
+                    checkRequired("datasetId", datasetId),
                     maxDepth,
                     additionalProperties.toImmutable(),
                 )
@@ -565,9 +560,9 @@ constructor(
 
             fun build(): AttributeFilter =
                 AttributeFilter(
-                    checkNotNull(key) { "`key` is required but was not set" },
-                    checkNotNull(op) { "`op` is required but was not set" },
-                    checkNotNull(value) { "`value` is required but was not set" },
+                    checkRequired("key", key),
+                    checkRequired("op", op),
+                    checkRequired("value", value),
                     additionalProperties.toImmutable(),
                 )
         }

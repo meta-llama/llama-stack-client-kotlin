@@ -12,11 +12,9 @@ class SamplingParamsTest {
         val samplingParams =
             SamplingParams.builder()
                 .strategy(
-                    SamplingParams.Strategy.ofGreedySamplingStrategy(
-                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                            .build()
-                    )
+                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                        .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                        .build()
                 )
                 .maxTokens(0L)
                 .repetitionPenalty(0.0)

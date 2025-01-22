@@ -12,12 +12,10 @@ class EvaluateResponseTest {
     fun createEvaluateResponse() {
         val evaluateResponse =
             EvaluateResponse.builder()
-                .generations(
-                    listOf(
-                        EvaluateResponse.Generation.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addGeneration(
+                    EvaluateResponse.Generation.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .scores(
                     EvaluateResponse.Scores.builder()

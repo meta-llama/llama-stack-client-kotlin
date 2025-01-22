@@ -10,16 +10,12 @@ class SyntheticDataGenerationGenerateParamsTest {
     @Test
     fun createSyntheticDataGenerationGenerateParams() {
         SyntheticDataGenerationGenerateParams.builder()
-            .dialogs(
-                listOf(
-                    SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .context(InterleavedContent.ofString("string"))
-                            .build()
-                    )
-                )
+            .addDialog(
+                UserMessage.builder()
+                    .content("string")
+                    .role(UserMessage.Role.USER)
+                    .context("string")
+                    .build()
             )
             .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
             .model("model")
@@ -32,16 +28,12 @@ class SyntheticDataGenerationGenerateParamsTest {
     fun getBody() {
         val params =
             SyntheticDataGenerationGenerateParams.builder()
-                .dialogs(
-                    listOf(
-                        SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addDialog(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .model("model")
@@ -55,9 +47,9 @@ class SyntheticDataGenerationGenerateParamsTest {
                 listOf(
                     SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
                         UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
+                            .content("string")
                             .role(UserMessage.Role.USER)
-                            .context(InterleavedContent.ofString("string"))
+                            .context("string")
                             .build()
                     )
                 )
@@ -71,15 +63,8 @@ class SyntheticDataGenerationGenerateParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             SyntheticDataGenerationGenerateParams.builder()
-                .dialogs(
-                    listOf(
-                        SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
+                .addDialog(
+                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                 )
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .build()
@@ -89,10 +74,7 @@ class SyntheticDataGenerationGenerateParamsTest {
             .isEqualTo(
                 listOf(
                     SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .build()
+                        UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                     )
                 )
             )

@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
@@ -221,8 +222,8 @@ constructor(
 
         fun build(): AgentSessionDeleteParams =
             AgentSessionDeleteParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
+                checkRequired("agentId", agentId),
+                checkRequired("sessionId", sessionId),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),

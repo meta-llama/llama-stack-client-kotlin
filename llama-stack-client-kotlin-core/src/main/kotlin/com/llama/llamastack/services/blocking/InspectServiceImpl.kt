@@ -17,7 +17,7 @@ import com.llama.llamastack.models.InspectVersionParams
 import com.llama.llamastack.models.VersionInfo
 
 class InspectServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : InspectService {
 

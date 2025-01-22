@@ -18,7 +18,7 @@ import com.llama.llamastack.models.ScoringScoreParams
 import com.llama.llamastack.models.ScoringScoreResponse
 
 class ScoringServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ScoringServiceAsync {
 

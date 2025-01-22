@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -230,17 +231,14 @@ private constructor(
 
         fun build(): Tool =
             Tool(
-                checkNotNull(description) { "`description` is required but was not set" },
-                checkNotNull(identifier) { "`identifier` is required but was not set" },
-                checkNotNull(parameters) { "`parameters` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(providerId) { "`providerId` is required but was not set" },
-                checkNotNull(providerResourceId) {
-                    "`providerResourceId` is required but was not set"
-                },
-                checkNotNull(toolHost) { "`toolHost` is required but was not set" },
-                checkNotNull(toolgroupId) { "`toolgroupId` is required but was not set" },
-                checkNotNull(type) { "`type` is required but was not set" },
+                checkRequired("description", description),
+                checkRequired("identifier", identifier),
+                checkRequired("parameters", parameters).map { it.toImmutable() },
+                checkRequired("providerId", providerId),
+                checkRequired("providerResourceId", providerResourceId),
+                checkRequired("toolHost", toolHost),
+                checkRequired("toolgroupId", toolgroupId),
+                checkRequired("type", type),
                 metadata,
                 additionalProperties.toImmutable(),
             )
@@ -393,10 +391,10 @@ private constructor(
 
             fun build(): Parameter =
                 Parameter(
-                    checkNotNull(description) { "`description` is required but was not set" },
-                    checkNotNull(name) { "`name` is required but was not set" },
-                    checkNotNull(parameterType) { "`parameterType` is required but was not set" },
-                    checkNotNull(required) { "`required` is required but was not set" },
+                    checkRequired("description", description),
+                    checkRequired("name", name),
+                    checkRequired("parameterType", parameterType),
+                    checkRequired("required", required),
                     default,
                     additionalProperties.toImmutable(),
                 )

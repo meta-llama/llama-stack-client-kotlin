@@ -15,21 +15,19 @@ class InferenceStepTest {
             InferenceStep.builder()
                 .modelResponse(
                     InferenceStep.ModelResponse.builder()
-                        .content(InterleavedContent.ofString("string"))
+                        .content("string")
                         .role(InferenceStep.ModelResponse.Role.ASSISTANT)
                         .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
-                        .toolCalls(
-                            listOf(
-                                ToolCall.builder()
-                                    .arguments(
-                                        ToolCall.Arguments.builder()
-                                            .putAdditionalProperty("foo", JsonValue.from("string"))
-                                            .build()
-                                    )
-                                    .callId("call_id")
-                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                    .build()
-                            )
+                        .addToolCall(
+                            ToolCall.builder()
+                                .arguments(
+                                    ToolCall.Arguments.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from("string"))
+                                        .build()
+                                )
+                                .callId("call_id")
+                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                .build()
                         )
                         .build()
                 )
@@ -43,21 +41,19 @@ class InferenceStepTest {
         assertThat(inferenceStep.modelResponse())
             .isEqualTo(
                 InferenceStep.ModelResponse.builder()
-                    .content(InterleavedContent.ofString("string"))
+                    .content("string")
                     .role(InferenceStep.ModelResponse.Role.ASSISTANT)
                     .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
-                    .toolCalls(
-                        listOf(
-                            ToolCall.builder()
-                                .arguments(
-                                    ToolCall.Arguments.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from("string"))
-                                        .build()
-                                )
-                                .callId("call_id")
-                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                .build()
-                        )
+                    .addToolCall(
+                        ToolCall.builder()
+                            .arguments(
+                                ToolCall.Arguments.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                                    .build()
+                            )
+                            .callId("call_id")
+                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                            .build()
                     )
                     .build()
             )

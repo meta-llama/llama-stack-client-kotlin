@@ -8,7 +8,6 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceCompletionParams
 import com.llama.llamastack.models.InferenceEmbeddingsParams
-import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
@@ -29,47 +28,37 @@ class InferenceServiceTest {
         val inferenceChatCompletionResponse =
             inferenceService.chatCompletion(
                 InferenceChatCompletionParams.builder()
-                    .messages(
-                        listOf(
-                            InferenceChatCompletionParams.Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(InterleavedContent.ofString("string"))
-                                    .build()
-                            )
-                        )
+                    .addMessage(
+                        UserMessage.builder()
+                            .content("string")
+                            .role(UserMessage.Role.USER)
+                            .context("string")
+                            .build()
                     )
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                                .jsonSchema(
-                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0
-                                        .JsonSchema
-                                        .builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .type(
-                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                        .JSON_SCHEMA
-                                )
-                                .build()
-                        )
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                    .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -77,28 +66,26 @@ class InferenceServiceTest {
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                     .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                    .tools(
-                        listOf(
-                            InferenceChatCompletionParams.Tool.builder()
-                                .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                                .description("description")
-                                .parameters(
-                                    InferenceChatCompletionParams.Tool.Parameters.builder()
-                                        .putAdditionalProperty(
-                                            "foo",
-                                            JsonValue.from(
-                                                mapOf(
-                                                    "param_type" to "param_type",
-                                                    "default" to true,
-                                                    "description" to "description",
-                                                    "required" to true,
-                                                )
+                    .addTool(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
                                             )
                                         )
-                                        .build()
-                                )
-                                .build()
-                        )
+                                    )
+                                    .build()
+                            )
+                            .build()
                     )
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -119,47 +106,37 @@ class InferenceServiceTest {
         val inferenceChatCompletionResponseStream =
             inferenceService.chatCompletionStreaming(
                 InferenceChatCompletionParams.builder()
-                    .messages(
-                        listOf(
-                            InferenceChatCompletionParams.Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(InterleavedContent.ofString("string"))
-                                    .build()
-                            )
-                        )
+                    .addMessage(
+                        UserMessage.builder()
+                            .content("string")
+                            .role(UserMessage.Role.USER)
+                            .context("string")
+                            .build()
                     )
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                                .jsonSchema(
-                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0
-                                        .JsonSchema
-                                        .builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .type(
-                                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                        .JSON_SCHEMA
-                                )
-                                .build()
-                        )
+                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                            .jsonSchema(
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                    .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .type(
+                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -167,28 +144,26 @@ class InferenceServiceTest {
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                     .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                    .tools(
-                        listOf(
-                            InferenceChatCompletionParams.Tool.builder()
-                                .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                                .description("description")
-                                .parameters(
-                                    InferenceChatCompletionParams.Tool.Parameters.builder()
-                                        .putAdditionalProperty(
-                                            "foo",
-                                            JsonValue.from(
-                                                mapOf(
-                                                    "param_type" to "param_type",
-                                                    "default" to true,
-                                                    "description" to "description",
-                                                    "required" to true,
-                                                )
+                    .addTool(
+                        InferenceChatCompletionParams.Tool.builder()
+                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                InferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
                                             )
                                         )
-                                        .build()
-                                )
-                                .build()
-                        )
+                                    )
+                                    .build()
+                            )
+                            .build()
                     )
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -211,36 +186,31 @@ class InferenceServiceTest {
         val inferenceCompletionResponse =
             inferenceService.completion(
                 InferenceCompletionParams.builder()
-                    .content(InterleavedContent.ofString("string"))
+                    .content("string")
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceCompletionParams.ResponseFormat.ofUnionMember0(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
-                                .jsonSchema(
-                                    InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                        .builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .type(
-                                    InferenceCompletionParams.ResponseFormat.UnionMember0.Type
-                                        .JSON_SCHEMA
-                                )
-                                .build()
-                        )
+                        InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                            .jsonSchema(
+                                InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                    .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .type(
+                                InferenceCompletionParams.ResponseFormat.UnionMember0.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -265,36 +235,31 @@ class InferenceServiceTest {
         val inferenceCompletionResponseStream =
             inferenceService.completionStreaming(
                 InferenceCompletionParams.builder()
-                    .content(InterleavedContent.ofString("string"))
+                    .content("string")
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceCompletionParams.ResponseFormat.ofUnionMember0(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
-                                .jsonSchema(
-                                    InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                        .builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .type(
-                                    InferenceCompletionParams.ResponseFormat.UnionMember0.Type
-                                        .JSON_SCHEMA
-                                )
-                                .build()
-                        )
+                        InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                            .jsonSchema(
+                                InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                    .builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .type(
+                                InferenceCompletionParams.ResponseFormat.UnionMember0.Type
+                                    .JSON_SCHEMA
+                            )
+                            .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -318,7 +283,7 @@ class InferenceServiceTest {
         val embeddingsResponse =
             inferenceService.embeddings(
                 InferenceEmbeddingsParams.builder()
-                    .contents(listOf(InterleavedContent.ofString("string")))
+                    .addContent("string")
                     .modelId("model_id")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")

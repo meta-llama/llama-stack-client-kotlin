@@ -16,7 +16,7 @@ import com.llama.llamastack.models.SyntheticDataGenerationGenerateParams
 import com.llama.llamastack.models.SyntheticDataGenerationResponse
 
 class SyntheticDataGenerationServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : SyntheticDataGenerationService {
 

@@ -12,12 +12,10 @@ class SyntheticDataGenerationResponseTest {
     fun createSyntheticDataGenerationResponse() {
         val syntheticDataGenerationResponse =
             SyntheticDataGenerationResponse.builder()
-                .syntheticData(
-                    listOf(
-                        SyntheticDataGenerationResponse.SyntheticData.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addSyntheticData(
+                    SyntheticDataGenerationResponse.SyntheticData.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .statistics(
                     SyntheticDataGenerationResponse.Statistics.builder()

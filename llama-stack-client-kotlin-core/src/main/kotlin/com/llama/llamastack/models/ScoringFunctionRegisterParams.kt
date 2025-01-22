@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -260,9 +261,9 @@ constructor(
 
             fun build(): ScoringFunctionRegisterBody =
                 ScoringFunctionRegisterBody(
-                    checkNotNull(description) { "`description` is required but was not set" },
-                    checkNotNull(returnType) { "`returnType` is required but was not set" },
-                    checkNotNull(scoringFnId) { "`scoringFnId` is required but was not set" },
+                    checkRequired("description", description),
+                    checkRequired("returnType", returnType),
+                    checkRequired("scoringFnId", scoringFnId),
                     params,
                     providerId,
                     providerScoringFnId,
@@ -838,8 +839,8 @@ constructor(
 
                 fun build(): LlmAsJudgeScoringFnParams =
                     LlmAsJudgeScoringFnParams(
-                        checkNotNull(judgeModel) { "`judgeModel` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("judgeModel", judgeModel),
+                        checkRequired("type", type),
                         (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                         (judgeScoreRegexes ?: JsonMissing.of()).map { it.toImmutable() },
                         promptTemplate,
@@ -1131,7 +1132,7 @@ constructor(
 
                 fun build(): RegexParserScoringFnParams =
                     RegexParserScoringFnParams(
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("type", type),
                         (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                         (parsingRegexes ?: JsonMissing.of()).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
@@ -1390,7 +1391,7 @@ constructor(
 
                 fun build(): BasicScoringFnParams =
                     BasicScoringFnParams(
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("type", type),
                         (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
                     )

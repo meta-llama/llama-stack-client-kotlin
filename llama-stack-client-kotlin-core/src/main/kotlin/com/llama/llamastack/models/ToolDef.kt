@@ -20,6 +20,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -152,7 +153,7 @@ private constructor(
 
         fun build(): ToolDef =
             ToolDef(
-                checkNotNull(name) { "`name` is required but was not set" },
+                checkRequired("name", name),
                 description,
                 metadata,
                 (parameters ?: JsonMissing.of()).map { it.toImmutable() },
@@ -383,10 +384,10 @@ private constructor(
 
             fun build(): Parameter =
                 Parameter(
-                    checkNotNull(description) { "`description` is required but was not set" },
-                    checkNotNull(name) { "`name` is required but was not set" },
-                    checkNotNull(parameterType) { "`parameterType` is required but was not set" },
-                    checkNotNull(required) { "`required` is required but was not set" },
+                    checkRequired("description", description),
+                    checkRequired("name", name),
+                    checkRequired("parameterType", parameterType),
+                    checkRequired("required", required),
                     default,
                     additionalProperties.toImmutable(),
                 )

@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
@@ -127,10 +128,9 @@ private constructor(
 
         fun build(): RouteInfo =
             RouteInfo(
-                checkNotNull(method) { "`method` is required but was not set" },
-                checkNotNull(providerTypes) { "`providerTypes` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(route) { "`route` is required but was not set" },
+                checkRequired("method", method),
+                checkRequired("providerTypes", providerTypes).map { it.toImmutable() },
+                checkRequired("route", route),
                 additionalProperties.toImmutable(),
             )
     }

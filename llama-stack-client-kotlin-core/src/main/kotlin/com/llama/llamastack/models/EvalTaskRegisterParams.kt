@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
@@ -243,12 +244,9 @@ constructor(
 
             fun build(): EvalTaskRegisterBody =
                 EvalTaskRegisterBody(
-                    checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                    checkNotNull(evalTaskId) { "`evalTaskId` is required but was not set" },
-                    checkNotNull(scoringFunctions) {
-                            "`scoringFunctions` is required but was not set"
-                        }
-                        .map { it.toImmutable() },
+                    checkRequired("datasetId", datasetId),
+                    checkRequired("evalTaskId", evalTaskId),
+                    checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
                     metadata,
                     providerEvalTaskId,
                     providerId,

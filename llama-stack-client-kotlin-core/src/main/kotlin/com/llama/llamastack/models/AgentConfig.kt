@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -371,12 +372,10 @@ private constructor(
 
         fun build(): AgentConfig =
             AgentConfig(
-                checkNotNull(enableSessionPersistence) {
-                    "`enableSessionPersistence` is required but was not set"
-                },
-                checkNotNull(instructions) { "`instructions` is required but was not set" },
-                checkNotNull(maxInferIters) { "`maxInferIters` is required but was not set" },
-                checkNotNull(model) { "`model` is required but was not set" },
+                checkRequired("enableSessionPersistence", enableSessionPersistence),
+                checkRequired("instructions", instructions),
+                checkRequired("maxInferIters", maxInferIters),
+                checkRequired("model", model),
                 (clientTools ?: JsonMissing.of()).map { it.toImmutable() },
                 (inputShields ?: JsonMissing.of()).map { it.toImmutable() },
                 (outputShields ?: JsonMissing.of()).map { it.toImmutable() },
@@ -445,6 +444,17 @@ private constructor(
         override fun toString() = value.toString()
     }
 
+    /**
+     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
+     * "type": "function", "function" : { "name": "function_name", "description":
+     * "function_description", "parameters": {...} } }
+     *
+     * `function_tag` -- This is an example of how you could define your own user defined format for
+     * making tool calls. The function_tag format looks like this,
+     * <function=function_name>(parameters)</function>
+     *
+     * The detailed prompts for each of these formats are added to llama cli
+     */
     class ToolPromptFormat
     @JsonCreator
     private constructor(
@@ -717,8 +727,8 @@ private constructor(
 
                 fun build(): UnionMember1 =
                     UnionMember1(
-                        checkNotNull(args) { "`args` is required but was not set" },
-                        checkNotNull(name) { "`name` is required but was not set" },
+                        checkRequired("args", args),
+                        checkRequired("name", name),
                         additionalProperties.toImmutable(),
                     )
             }

@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -160,7 +161,7 @@ constructor(
 
             fun build(): EvalRunEvalBody =
                 EvalRunEvalBody(
-                    checkNotNull(taskConfig) { "`taskConfig` is required but was not set" },
+                    checkRequired("taskConfig", taskConfig),
                     additionalProperties.toImmutable()
                 )
         }
@@ -350,7 +351,7 @@ constructor(
 
         fun build(): EvalRunEvalParams =
             EvalRunEvalParams(
-                checkNotNull(taskId) { "`taskId` is required but was not set" },
+                checkRequired("taskId", taskId),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
@@ -610,10 +611,8 @@ constructor(
 
                 fun build(): BenchmarkEvalTaskConfig =
                     BenchmarkEvalTaskConfig(
-                        checkNotNull(evalCandidate) {
-                            "`evalCandidate` is required but was not set"
-                        },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("evalCandidate", evalCandidate),
+                        checkRequired("type", type),
                         numExamples,
                         additionalProperties.toImmutable(),
                     )
@@ -876,11 +875,9 @@ constructor(
 
                         fun build(): ModelCandidate =
                             ModelCandidate(
-                                checkNotNull(model) { "`model` is required but was not set" },
-                                checkNotNull(samplingParams) {
-                                    "`samplingParams` is required but was not set"
-                                },
-                                checkNotNull(type) { "`type` is required but was not set" },
+                                checkRequired("model", model),
+                                checkRequired("samplingParams", samplingParams),
+                                checkRequired("type", type),
                                 systemMessage,
                                 additionalProperties.toImmutable(),
                             )
@@ -1052,8 +1049,8 @@ constructor(
 
                         fun build(): AgentCandidate =
                             AgentCandidate(
-                                checkNotNull(config) { "`config` is required but was not set" },
-                                checkNotNull(type) { "`type` is required but was not set" },
+                                checkRequired("config", config),
+                                checkRequired("type", type),
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1338,13 +1335,9 @@ constructor(
 
                 fun build(): AppEvalTaskConfig =
                     AppEvalTaskConfig(
-                        checkNotNull(evalCandidate) {
-                            "`evalCandidate` is required but was not set"
-                        },
-                        checkNotNull(scoringParams) {
-                            "`scoringParams` is required but was not set"
-                        },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("evalCandidate", evalCandidate),
+                        checkRequired("scoringParams", scoringParams),
+                        checkRequired("type", type),
                         numExamples,
                         additionalProperties.toImmutable(),
                     )
@@ -1607,11 +1600,9 @@ constructor(
 
                         fun build(): ModelCandidate =
                             ModelCandidate(
-                                checkNotNull(model) { "`model` is required but was not set" },
-                                checkNotNull(samplingParams) {
-                                    "`samplingParams` is required but was not set"
-                                },
-                                checkNotNull(type) { "`type` is required but was not set" },
+                                checkRequired("model", model),
+                                checkRequired("samplingParams", samplingParams),
+                                checkRequired("type", type),
                                 systemMessage,
                                 additionalProperties.toImmutable(),
                             )
@@ -1783,8 +1774,8 @@ constructor(
 
                         fun build(): AgentCandidate =
                             AgentCandidate(
-                                checkNotNull(config) { "`config` is required but was not set" },
-                                checkNotNull(type) { "`type` is required but was not set" },
+                                checkRequired("config", config),
+                                checkRequired("type", type),
                                 additionalProperties.toImmutable(),
                             )
                     }

@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
@@ -179,7 +180,7 @@ constructor(
 
         fun build(): PostTrainingJobStatusParams =
             PostTrainingJobStatusParams(
-                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
+                checkRequired("jobUuid", jobUuid),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),

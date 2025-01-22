@@ -21,7 +21,7 @@ import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
 
 class ModelServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ModelService {
 

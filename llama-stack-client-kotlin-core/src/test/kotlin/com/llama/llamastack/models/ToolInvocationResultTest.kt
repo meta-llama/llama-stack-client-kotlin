@@ -11,7 +11,7 @@ class ToolInvocationResultTest {
     fun createToolInvocationResult() {
         val toolInvocationResult =
             ToolInvocationResult.builder()
-                .content(InterleavedContent.ofString("string"))
+                .content("string")
                 .errorCode(0L)
                 .errorMessage("error_message")
                 .build()

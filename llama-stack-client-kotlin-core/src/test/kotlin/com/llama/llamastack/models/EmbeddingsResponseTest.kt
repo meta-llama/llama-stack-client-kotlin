@@ -9,8 +9,7 @@ class EmbeddingsResponseTest {
 
     @Test
     fun createEmbeddingsResponse() {
-        val embeddingsResponse =
-            EmbeddingsResponse.builder().embeddings(listOf(listOf(0.0))).build()
+        val embeddingsResponse = EmbeddingsResponse.builder().addEmbedding(listOf(0.0)).build()
         assertThat(embeddingsResponse).isNotNull
         assertThat(embeddingsResponse.embeddings()).containsExactly(listOf(0.0))
     }

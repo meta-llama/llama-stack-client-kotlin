@@ -23,7 +23,7 @@ import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
 class JobServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : JobService {
 

@@ -21,7 +21,7 @@ class EvalTaskTest {
                 )
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .scoringFunctions(listOf("string"))
+                .addScoringFunction("string")
                 .type(EvalTask.Type.EVAL_TASK)
                 .build()
         assertThat(evalTask).isNotNull

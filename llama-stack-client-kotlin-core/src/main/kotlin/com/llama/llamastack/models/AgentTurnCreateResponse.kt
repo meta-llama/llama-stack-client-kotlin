@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -232,7 +233,7 @@ private constructor(
 
             fun build(): AgentTurnResponseStreamChunk =
                 AgentTurnResponseStreamChunk(
-                    checkNotNull(event) { "`event` is required but was not set" },
+                    checkRequired("event", event),
                     additionalProperties.toImmutable()
                 )
         }
@@ -359,10 +360,7 @@ private constructor(
                 }
 
                 fun build(): Event =
-                    Event(
-                        checkNotNull(payload) { "`payload` is required but was not set" },
-                        additionalProperties.toImmutable()
-                    )
+                    Event(checkRequired("payload", payload), additionalProperties.toImmutable())
             }
 
             @JsonDeserialize(using = Payload.Deserializer::class)
@@ -826,11 +824,9 @@ private constructor(
 
                         fun build(): AgentTurnResponseStepStartPayload =
                             AgentTurnResponseStepStartPayload(
-                                checkNotNull(eventType) {
-                                    "`eventType` is required but was not set"
-                                },
-                                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                                checkRequired("eventType", eventType),
+                                checkRequired("stepId", stepId),
+                                checkRequired("stepType", stepType),
                                 metadata,
                                 additionalProperties.toImmutable(),
                             )
@@ -1208,12 +1204,10 @@ private constructor(
 
                         fun build(): AgentTurnResponseStepProgressPayload =
                             AgentTurnResponseStepProgressPayload(
-                                checkNotNull(delta) { "`delta` is required but was not set" },
-                                checkNotNull(eventType) {
-                                    "`eventType` is required but was not set"
-                                },
-                                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                                checkRequired("delta", delta),
+                                checkRequired("eventType", eventType),
+                                checkRequired("stepId", stepId),
+                                checkRequired("stepType", stepType),
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1514,14 +1508,10 @@ private constructor(
 
                         fun build(): AgentTurnResponseStepCompletePayload =
                             AgentTurnResponseStepCompletePayload(
-                                checkNotNull(eventType) {
-                                    "`eventType` is required but was not set"
-                                },
-                                checkNotNull(stepDetails) {
-                                    "`stepDetails` is required but was not set"
-                                },
-                                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                                checkNotNull(stepType) { "`stepType` is required but was not set" },
+                                checkRequired("eventType", eventType),
+                                checkRequired("stepDetails", stepDetails),
+                                checkRequired("stepId", stepId),
+                                checkRequired("stepType", stepType),
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -1975,10 +1965,8 @@ private constructor(
 
                         fun build(): AgentTurnResponseTurnStartPayload =
                             AgentTurnResponseTurnStartPayload(
-                                checkNotNull(eventType) {
-                                    "`eventType` is required but was not set"
-                                },
-                                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                                checkRequired("eventType", eventType),
+                                checkRequired("turnId", turnId),
                                 additionalProperties.toImmutable(),
                             )
                     }
@@ -2155,10 +2143,8 @@ private constructor(
 
                         fun build(): AgentTurnResponseTurnCompletePayload =
                             AgentTurnResponseTurnCompletePayload(
-                                checkNotNull(eventType) {
-                                    "`eventType` is required but was not set"
-                                },
-                                checkNotNull(turn) { "`turn` is required but was not set" },
+                                checkRequired("eventType", eventType),
+                                checkRequired("turn", turn),
                                 additionalProperties.toImmutable(),
                             )
                     }

@@ -12,7 +12,7 @@ class MemoryQueryParamsTest {
     fun createMemoryQueryParams() {
         MemoryQueryParams.builder()
             .bankId("bank_id")
-            .query(InterleavedContent.ofString("string"))
+            .query("string")
             .params(
                 MemoryQueryParams.Params.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
@@ -28,7 +28,7 @@ class MemoryQueryParamsTest {
         val params =
             MemoryQueryParams.builder()
                 .bankId("bank_id")
-                .query(InterleavedContent.ofString("string"))
+                .query("string")
                 .params(
                     MemoryQueryParams.Params.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -51,11 +51,7 @@ class MemoryQueryParamsTest {
 
     @Test
     fun getBodyWithoutOptionalFields() {
-        val params =
-            MemoryQueryParams.builder()
-                .bankId("bank_id")
-                .query(InterleavedContent.ofString("string"))
-                .build()
+        val params = MemoryQueryParams.builder().bankId("bank_id").query("string").build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.bankId()).isEqualTo("bank_id")

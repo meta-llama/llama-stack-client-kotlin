@@ -10,18 +10,14 @@ class TelemetrySaveSpansToDatasetParamsTest {
     @Test
     fun createTelemetrySaveSpansToDatasetParams() {
         TelemetrySaveSpansToDatasetParams.builder()
-            .attributeFilters(
-                listOf(
-                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
-                        .key("key")
-                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(
-                            TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(true)
-                        )
-                        .build()
-                )
+            .addAttributeFilter(
+                TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                    .key("key")
+                    .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
+                    .value(true)
+                    .build()
             )
-            .attributesToSave(listOf("string"))
+            .addAttributesToSave("string")
             .datasetId("dataset_id")
             .maxDepth(0L)
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -33,20 +29,14 @@ class TelemetrySaveSpansToDatasetParamsTest {
     fun getBody() {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
-                .attributeFilters(
-                    listOf(
-                        TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
-                            .key("key")
-                            .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                            .value(
-                                TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(
-                                    true
-                                )
-                            )
-                            .build()
-                    )
+                .addAttributeFilter(
+                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                        .key("key")
+                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
+                        .value(true)
+                        .build()
                 )
-                .attributesToSave(listOf("string"))
+                .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .maxDepth(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -60,9 +50,7 @@ class TelemetrySaveSpansToDatasetParamsTest {
                     TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
                         .key("key")
                         .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(
-                            TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(true)
-                        )
+                        .value(true)
                         .build()
                 )
             )
@@ -75,20 +63,14 @@ class TelemetrySaveSpansToDatasetParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
-                .attributeFilters(
-                    listOf(
-                        TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
-                            .key("key")
-                            .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                            .value(
-                                TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(
-                                    true
-                                )
-                            )
-                            .build()
-                    )
+                .addAttributeFilter(
+                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                        .key("key")
+                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
+                        .value(true)
+                        .build()
                 )
-                .attributesToSave(listOf("string"))
+                .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .build()
         val body = params.getBody()
@@ -99,9 +81,7 @@ class TelemetrySaveSpansToDatasetParamsTest {
                     TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
                         .key("key")
                         .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(
-                            TelemetrySaveSpansToDatasetParams.AttributeFilter.Value.ofBoolean(true)
-                        )
+                        .value(true)
                         .build()
                 )
             )

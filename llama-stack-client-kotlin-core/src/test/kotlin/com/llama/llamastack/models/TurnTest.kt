@@ -13,114 +13,22 @@ class TurnTest {
     fun createTurn() {
         val turn =
             Turn.builder()
-                .inputMessages(
-                    listOf(
-                        Turn.InputMessage.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addInputMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
-                .outputAttachments(
-                    listOf(
-                        Turn.OutputAttachment.builder()
-                            .content(Turn.OutputAttachment.Content.ofString("string"))
-                            .mimeType("mime_type")
-                            .build()
-                    )
+                .addOutputAttachment(
+                    Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
                 )
                 .outputMessage(
                     Turn.OutputMessage.builder()
-                        .content(InterleavedContent.ofString("string"))
+                        .content("string")
                         .role(Turn.OutputMessage.Role.ASSISTANT)
                         .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
-                        .toolCalls(
-                            listOf(
-                                ToolCall.builder()
-                                    .arguments(
-                                        ToolCall.Arguments.builder()
-                                            .putAdditionalProperty("foo", JsonValue.from("string"))
-                                            .build()
-                                    )
-                                    .callId("call_id")
-                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                    .build()
-                            )
-                        )
-                        .build()
-                )
-                .sessionId("session_id")
-                .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                .steps(
-                    listOf(
-                        Turn.Step.ofInferenceStep(
-                            InferenceStep.builder()
-                                .modelResponse(
-                                    InferenceStep.ModelResponse.builder()
-                                        .content(InterleavedContent.ofString("string"))
-                                        .role(InferenceStep.ModelResponse.Role.ASSISTANT)
-                                        .stopReason(
-                                            InferenceStep.ModelResponse.StopReason.END_OF_TURN
-                                        )
-                                        .toolCalls(
-                                            listOf(
-                                                ToolCall.builder()
-                                                    .arguments(
-                                                        ToolCall.Arguments.builder()
-                                                            .putAdditionalProperty(
-                                                                "foo",
-                                                                JsonValue.from("string")
-                                                            )
-                                                            .build()
-                                                    )
-                                                    .callId("call_id")
-                                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                                    .build()
-                                            )
-                                        )
-                                        .build()
-                                )
-                                .stepId("step_id")
-                                .stepType(InferenceStep.StepType.INFERENCE)
-                                .turnId("turn_id")
-                                .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                                .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                                .build()
-                        )
-                    )
-                )
-                .turnId("turn_id")
-                .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                .build()
-        assertThat(turn).isNotNull
-        assertThat(turn.inputMessages())
-            .containsExactly(
-                Turn.InputMessage.ofUserMessage(
-                    UserMessage.builder()
-                        .content(InterleavedContent.ofString("string"))
-                        .role(UserMessage.Role.USER)
-                        .context(InterleavedContent.ofString("string"))
-                        .build()
-                )
-            )
-        assertThat(turn.outputAttachments())
-            .containsExactly(
-                Turn.OutputAttachment.builder()
-                    .content(Turn.OutputAttachment.Content.ofString("string"))
-                    .mimeType("mime_type")
-                    .build()
-            )
-        assertThat(turn.outputMessage())
-            .isEqualTo(
-                Turn.OutputMessage.builder()
-                    .content(InterleavedContent.ofString("string"))
-                    .role(Turn.OutputMessage.Role.ASSISTANT)
-                    .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
-                    .toolCalls(
-                        listOf(
+                        .addToolCall(
                             ToolCall.builder()
                                 .arguments(
                                     ToolCall.Arguments.builder()
@@ -131,6 +39,74 @@ class TurnTest {
                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                 .build()
                         )
+                        .build()
+                )
+                .sessionId("session_id")
+                .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .addStep(
+                    InferenceStep.builder()
+                        .modelResponse(
+                            InferenceStep.ModelResponse.builder()
+                                .content("string")
+                                .role(InferenceStep.ModelResponse.Role.ASSISTANT)
+                                .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
+                                .addToolCall(
+                                    ToolCall.builder()
+                                        .arguments(
+                                            ToolCall.Arguments.builder()
+                                                .putAdditionalProperty(
+                                                    "foo",
+                                                    JsonValue.from("string")
+                                                )
+                                                .build()
+                                        )
+                                        .callId("call_id")
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .stepId("step_id")
+                        .stepType(InferenceStep.StepType.INFERENCE)
+                        .turnId("turn_id")
+                        .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .build()
+                )
+                .turnId("turn_id")
+                .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .build()
+        assertThat(turn).isNotNull
+        assertThat(turn.inputMessages())
+            .containsExactly(
+                Turn.InputMessage.ofUserMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
+                )
+            )
+        assertThat(turn.outputAttachments())
+            .containsExactly(
+                Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
+            )
+        assertThat(turn.outputMessage())
+            .isEqualTo(
+                Turn.OutputMessage.builder()
+                    .content("string")
+                    .role(Turn.OutputMessage.Role.ASSISTANT)
+                    .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
+                    .addToolCall(
+                        ToolCall.builder()
+                            .arguments(
+                                ToolCall.Arguments.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                                    .build()
+                            )
+                            .callId("call_id")
+                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                            .build()
                     )
                     .build()
             )
@@ -142,24 +118,22 @@ class TurnTest {
                     InferenceStep.builder()
                         .modelResponse(
                             InferenceStep.ModelResponse.builder()
-                                .content(InterleavedContent.ofString("string"))
+                                .content("string")
                                 .role(InferenceStep.ModelResponse.Role.ASSISTANT)
                                 .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
-                                .toolCalls(
-                                    listOf(
-                                        ToolCall.builder()
-                                            .arguments(
-                                                ToolCall.Arguments.builder()
-                                                    .putAdditionalProperty(
-                                                        "foo",
-                                                        JsonValue.from("string")
-                                                    )
-                                                    .build()
-                                            )
-                                            .callId("call_id")
-                                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                            .build()
-                                    )
+                                .addToolCall(
+                                    ToolCall.builder()
+                                        .arguments(
+                                            ToolCall.Arguments.builder()
+                                                .putAdditionalProperty(
+                                                    "foo",
+                                                    JsonValue.from("string")
+                                                )
+                                                .build()
+                                        )
+                                        .callId("call_id")
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .build()
                                 )
                                 .build()
                         )

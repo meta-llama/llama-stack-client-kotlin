@@ -13,7 +13,31 @@ class TelemetryLogEventParamsTest {
     fun createTelemetryLogEventParams() {
         TelemetryLogEventParams.builder()
             .event(
-                TelemetryLogEventParams.Event.ofUnstructuredLogEvent(
+                TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
+                    .message("message")
+                    .severity(TelemetryLogEventParams.Event.UnstructuredLogEvent.Severity.VERBOSE)
+                    .spanId("span_id")
+                    .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                    .traceId("trace_id")
+                    .type(TelemetryLogEventParams.Event.UnstructuredLogEvent.Type.UNSTRUCTURED_LOG)
+                    .attributes(
+                        TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
+            )
+            .ttlSeconds(0L)
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .build()
+    }
+
+    @Test
+    fun getBody() {
+        val params =
+            TelemetryLogEventParams.builder()
+                .event(
                     TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
                         .message("message")
                         .severity(
@@ -31,40 +55,6 @@ class TelemetryLogEventParamsTest {
                                 .build()
                         )
                         .build()
-                )
-            )
-            .ttlSeconds(0L)
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
-    }
-
-    @Test
-    fun getBody() {
-        val params =
-            TelemetryLogEventParams.builder()
-                .event(
-                    TelemetryLogEventParams.Event.ofUnstructuredLogEvent(
-                        TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
-                            .message("message")
-                            .severity(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Severity.VERBOSE
-                            )
-                            .spanId("span_id")
-                            .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                            .traceId("trace_id")
-                            .type(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Type
-                                    .UNSTRUCTURED_LOG
-                            )
-                            .attributes(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Attributes
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .build()
-                    )
                 )
                 .ttlSeconds(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -102,21 +92,18 @@ class TelemetryLogEventParamsTest {
         val params =
             TelemetryLogEventParams.builder()
                 .event(
-                    TelemetryLogEventParams.Event.ofUnstructuredLogEvent(
-                        TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
-                            .message("message")
-                            .severity(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Severity.VERBOSE
-                            )
-                            .spanId("span_id")
-                            .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                            .traceId("trace_id")
-                            .type(
-                                TelemetryLogEventParams.Event.UnstructuredLogEvent.Type
-                                    .UNSTRUCTURED_LOG
-                            )
-                            .build()
-                    )
+                    TelemetryLogEventParams.Event.UnstructuredLogEvent.builder()
+                        .message("message")
+                        .severity(
+                            TelemetryLogEventParams.Event.UnstructuredLogEvent.Severity.VERBOSE
+                        )
+                        .spanId("span_id")
+                        .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .traceId("trace_id")
+                        .type(
+                            TelemetryLogEventParams.Event.UnstructuredLogEvent.Type.UNSTRUCTURED_LOG
+                        )
+                        .build()
                 )
                 .ttlSeconds(0L)
                 .build()

@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
@@ -116,9 +117,9 @@ private constructor(
 
         fun build(): ProviderInfo =
             ProviderInfo(
-                checkNotNull(api) { "`api` is required but was not set" },
-                checkNotNull(providerId) { "`providerId` is required but was not set" },
-                checkNotNull(providerType) { "`providerType` is required but was not set" },
+                checkRequired("api", api),
+                checkRequired("providerId", providerId),
+                checkRequired("providerType", providerType),
                 additionalProperties.toImmutable(),
             )
     }

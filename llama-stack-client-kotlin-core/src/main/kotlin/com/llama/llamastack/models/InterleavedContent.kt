@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -297,7 +298,7 @@ private constructor(
 
             fun build(): ImageContentItem =
                 ImageContentItem(
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("type", type),
                     data,
                     url,
                     additionalProperties.toImmutable(),
@@ -457,8 +458,8 @@ private constructor(
 
             fun build(): TextContentItem =
                 TextContentItem(
-                    checkNotNull(text) { "`text` is required but was not set" },
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("text", text),
+                    checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
         }

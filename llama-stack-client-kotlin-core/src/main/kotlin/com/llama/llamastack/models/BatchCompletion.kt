@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -108,10 +109,9 @@ private constructor(
 
         fun build(): BatchCompletion =
             BatchCompletion(
-                checkNotNull(completionMessageBatch) {
-                        "`completionMessageBatch` is required but was not set"
-                    }
-                    .map { it.toImmutable() },
+                checkRequired("completionMessageBatch", completionMessageBatch).map {
+                    it.toImmutable()
+                },
                 additionalProperties.toImmutable()
             )
     }
@@ -261,11 +261,10 @@ private constructor(
 
             fun build(): CompletionMessageBatch =
                 CompletionMessageBatch(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(role) { "`role` is required but was not set" },
-                    checkNotNull(stopReason) { "`stopReason` is required but was not set" },
-                    checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                        .map { it.toImmutable() },
+                    checkRequired("content", content),
+                    checkRequired("role", role),
+                    checkRequired("stopReason", stopReason),
+                    checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }

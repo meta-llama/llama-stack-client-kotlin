@@ -5,7 +5,6 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.SafetyRunShieldParams
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
@@ -22,16 +21,12 @@ class SafetyServiceTest {
         val runShieldResponse =
             safetyService.runShield(
                 SafetyRunShieldParams.builder()
-                    .messages(
-                        listOf(
-                            SafetyRunShieldParams.Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(InterleavedContent.ofString("string"))
-                                    .build()
-                            )
-                        )
+                    .addMessage(
+                        UserMessage.builder()
+                            .content("string")
+                            .role(UserMessage.Role.USER)
+                            .context("string")
+                            .build()
                     )
                     .params(
                         SafetyRunShieldParams.Params.builder()

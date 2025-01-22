@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -147,12 +148,10 @@ private constructor(
 
         fun build(): Shield =
             Shield(
-                checkNotNull(identifier) { "`identifier` is required but was not set" },
-                checkNotNull(providerId) { "`providerId` is required but was not set" },
-                checkNotNull(providerResourceId) {
-                    "`providerResourceId` is required but was not set"
-                },
-                checkNotNull(type) { "`type` is required but was not set" },
+                checkRequired("identifier", identifier),
+                checkRequired("providerId", providerId),
+                checkRequired("providerResourceId", providerResourceId),
+                checkRequired("type", type),
                 params,
                 additionalProperties.toImmutable(),
             )

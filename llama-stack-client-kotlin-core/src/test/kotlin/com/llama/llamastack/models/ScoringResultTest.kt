@@ -17,12 +17,10 @@ class ScoringResultTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .scoreRows(
-                    listOf(
-                        ScoringResult.ScoreRow.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addScoreRow(
+                    ScoringResult.ScoreRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .build()
         assertThat(scoringResult).isNotNull

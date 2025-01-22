@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
@@ -250,16 +251,12 @@ constructor(
 
             fun build(): PostTrainingPreferenceOptimizeBody =
                 PostTrainingPreferenceOptimizeBody(
-                    checkNotNull(algorithmConfig) {
-                        "`algorithmConfig` is required but was not set"
-                    },
-                    checkNotNull(finetunedModel) { "`finetunedModel` is required but was not set" },
-                    checkNotNull(hyperparamSearchConfig) {
-                        "`hyperparamSearchConfig` is required but was not set"
-                    },
-                    checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
-                    checkNotNull(loggerConfig) { "`loggerConfig` is required but was not set" },
-                    checkNotNull(trainingConfig) { "`trainingConfig` is required but was not set" },
+                    checkRequired("algorithmConfig", algorithmConfig),
+                    checkRequired("finetunedModel", finetunedModel),
+                    checkRequired("hyperparamSearchConfig", hyperparamSearchConfig),
+                    checkRequired("jobUuid", jobUuid),
+                    checkRequired("loggerConfig", loggerConfig),
+                    checkRequired("trainingConfig", trainingConfig),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -606,10 +603,10 @@ constructor(
 
             fun build(): AlgorithmConfig =
                 AlgorithmConfig(
-                    checkNotNull(epsilon) { "`epsilon` is required but was not set" },
-                    checkNotNull(gamma) { "`gamma` is required but was not set" },
-                    checkNotNull(rewardClip) { "`rewardClip` is required but was not set" },
-                    checkNotNull(rewardScale) { "`rewardScale` is required but was not set" },
+                    checkRequired("epsilon", epsilon),
+                    checkRequired("gamma", gamma),
+                    checkRequired("rewardClip", rewardClip),
+                    checkRequired("rewardScale", rewardScale),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -987,20 +984,12 @@ constructor(
 
             fun build(): TrainingConfig =
                 TrainingConfig(
-                    checkNotNull(dataConfig) { "`dataConfig` is required but was not set" },
-                    checkNotNull(gradientAccumulationSteps) {
-                        "`gradientAccumulationSteps` is required but was not set"
-                    },
-                    checkNotNull(maxStepsPerEpoch) {
-                        "`maxStepsPerEpoch` is required but was not set"
-                    },
-                    checkNotNull(maxValidationSteps) {
-                        "`maxValidationSteps` is required but was not set"
-                    },
-                    checkNotNull(nEpochs) { "`nEpochs` is required but was not set" },
-                    checkNotNull(optimizerConfig) {
-                        "`optimizerConfig` is required but was not set"
-                    },
+                    checkRequired("dataConfig", dataConfig),
+                    checkRequired("gradientAccumulationSteps", gradientAccumulationSteps),
+                    checkRequired("maxStepsPerEpoch", maxStepsPerEpoch),
+                    checkRequired("maxValidationSteps", maxValidationSteps),
+                    checkRequired("nEpochs", nEpochs),
+                    checkRequired("optimizerConfig", optimizerConfig),
                     dtype,
                     efficiencyConfig,
                     additionalProperties.toImmutable(),
@@ -1184,10 +1173,10 @@ constructor(
 
                 fun build(): DataConfig =
                     DataConfig(
-                        checkNotNull(batchSize) { "`batchSize` is required but was not set" },
-                        checkNotNull(dataFormat) { "`dataFormat` is required but was not set" },
-                        checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                        checkNotNull(shuffle) { "`shuffle` is required but was not set" },
+                        checkRequired("batchSize", batchSize),
+                        checkRequired("dataFormat", dataFormat),
+                        checkRequired("datasetId", datasetId),
+                        checkRequired("shuffle", shuffle),
                         packed,
                         trainOnInput,
                         validationDatasetId,
@@ -1402,14 +1391,10 @@ constructor(
 
                 fun build(): OptimizerConfig =
                     OptimizerConfig(
-                        checkNotNull(lr) { "`lr` is required but was not set" },
-                        checkNotNull(numWarmupSteps) {
-                            "`numWarmupSteps` is required but was not set"
-                        },
-                        checkNotNull(optimizerType) {
-                            "`optimizerType` is required but was not set"
-                        },
-                        checkNotNull(weightDecay) { "`weightDecay` is required but was not set" },
+                        checkRequired("lr", lr),
+                        checkRequired("numWarmupSteps", numWarmupSteps),
+                        checkRequired("optimizerType", optimizerType),
+                        checkRequired("weightDecay", weightDecay),
                         additionalProperties.toImmutable(),
                     )
             }

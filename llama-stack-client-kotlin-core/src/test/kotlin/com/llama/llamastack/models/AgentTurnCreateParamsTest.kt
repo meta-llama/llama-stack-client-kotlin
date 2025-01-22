@@ -12,26 +12,20 @@ class AgentTurnCreateParamsTest {
         AgentTurnCreateParams.builder()
             .agentId("agent_id")
             .sessionId("session_id")
-            .messages(
-                listOf(
-                    AgentTurnCreateParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .context(InterleavedContent.ofString("string"))
-                            .build()
-                    )
-                )
+            .addMessage(
+                UserMessage.builder()
+                    .content("string")
+                    .role(UserMessage.Role.USER)
+                    .context("string")
+                    .build()
             )
-            .documents(
-                listOf(
-                    AgentTurnCreateParams.Document.builder()
-                        .content(AgentTurnCreateParams.Document.Content.ofString("string"))
-                        .mimeType("mime_type")
-                        .build()
-                )
+            .addDocument(
+                AgentTurnCreateParams.Document.builder()
+                    .content("string")
+                    .mimeType("mime_type")
+                    .build()
             )
-            .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+            .addToolgroup("string")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
@@ -43,26 +37,20 @@ class AgentTurnCreateParamsTest {
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
-                .documents(
-                    listOf(
-                        AgentTurnCreateParams.Document.builder()
-                            .content(AgentTurnCreateParams.Document.Content.ofString("string"))
-                            .mimeType("mime_type")
-                            .build()
-                    )
+                .addDocument(
+                    AgentTurnCreateParams.Document.builder()
+                        .content("string")
+                        .mimeType("mime_type")
+                        .build()
                 )
-                .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                .addToolgroup("string")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
@@ -73,9 +61,9 @@ class AgentTurnCreateParamsTest {
                 listOf(
                     AgentTurnCreateParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
+                            .content("string")
                             .role(UserMessage.Role.USER)
-                            .context(InterleavedContent.ofString("string"))
+                            .context("string")
                             .build()
                     )
                 )
@@ -84,7 +72,7 @@ class AgentTurnCreateParamsTest {
             .isEqualTo(
                 listOf(
                     AgentTurnCreateParams.Document.builder()
-                        .content(AgentTurnCreateParams.Document.Content.ofString("string"))
+                        .content("string")
                         .mimeType("mime_type")
                         .build()
                 )
@@ -99,15 +87,8 @@ class AgentTurnCreateParamsTest {
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                 )
                 .build()
         val body = params.getBody()
@@ -116,10 +97,7 @@ class AgentTurnCreateParamsTest {
             .isEqualTo(
                 listOf(
                     AgentTurnCreateParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .build()
+                        UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                     )
                 )
             )
@@ -131,15 +109,8 @@ class AgentTurnCreateParamsTest {
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                 )
                 .build()
         assertThat(params).isNotNull

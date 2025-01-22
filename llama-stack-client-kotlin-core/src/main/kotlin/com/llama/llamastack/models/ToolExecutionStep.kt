@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -210,13 +211,11 @@ private constructor(
 
         fun build(): ToolExecutionStep =
             ToolExecutionStep(
-                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                checkNotNull(stepType) { "`stepType` is required but was not set" },
-                checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(toolResponses) { "`toolResponses` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("stepId", stepId),
+                checkRequired("stepType", stepType),
+                checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
+                checkRequired("toolResponses", toolResponses).map { it.toImmutable() },
+                checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
                 additionalProperties.toImmutable(),

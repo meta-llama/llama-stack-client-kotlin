@@ -24,20 +24,15 @@ class ScoringFnTest {
                 .type(ScoringFn.Type.SCORING_FUNCTION)
                 .description("description")
                 .params(
-                    ScoringFn.Params.ofLlmAsJudgeScoringFnParams(
-                        ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
-                            .judgeModel("judge_model")
-                            .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
-                            .aggregationFunctions(
-                                listOf(
-                                    ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction
-                                        .AVERAGE
-                                )
-                            )
-                            .judgeScoreRegexes(listOf("string"))
-                            .promptTemplate("prompt_template")
-                            .build()
-                    )
+                    ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
+                        .judgeModel("judge_model")
+                        .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
+                        .addAggregationFunction(
+                            ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
+                        )
+                        .addJudgeScoreRegex("string")
+                        .promptTemplate("prompt_template")
+                        .build()
                 )
                 .build()
         assertThat(scoringFn).isNotNull
@@ -60,13 +55,10 @@ class ScoringFnTest {
                     ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
                         .judgeModel("judge_model")
                         .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
-                        .aggregationFunctions(
-                            listOf(
-                                ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction
-                                    .AVERAGE
-                            )
+                        .addAggregationFunction(
+                            ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                         )
-                        .judgeScoreRegexes(listOf("string"))
+                        .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
                         .build()
                 )

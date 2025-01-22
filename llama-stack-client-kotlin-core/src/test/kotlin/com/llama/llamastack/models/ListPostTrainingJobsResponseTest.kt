@@ -11,9 +11,7 @@ class ListPostTrainingJobsResponseTest {
     fun createListPostTrainingJobsResponse() {
         val listPostTrainingJobsResponse =
             ListPostTrainingJobsResponse.builder()
-                .data(
-                    listOf(ListPostTrainingJobsResponse.Data.builder().jobUuid("job_uuid").build())
-                )
+                .addData(ListPostTrainingJobsResponse.Data.builder().jobUuid("job_uuid").build())
                 .build()
         assertThat(listPostTrainingJobsResponse).isNotNull
         assertThat(listPostTrainingJobsResponse.data())

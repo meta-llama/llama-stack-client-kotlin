@@ -23,7 +23,7 @@ import com.llama.llamastack.models.MemoryBankRetrieveResponse
 import com.llama.llamastack.models.MemoryBankUnregisterParams
 
 class MemoryBankServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : MemoryBankService {
 

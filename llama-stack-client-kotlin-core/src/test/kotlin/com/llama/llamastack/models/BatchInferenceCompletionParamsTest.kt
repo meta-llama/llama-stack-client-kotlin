@@ -10,17 +10,15 @@ class BatchInferenceCompletionParamsTest {
     @Test
     fun createBatchInferenceCompletionParams() {
         BatchInferenceCompletionParams.builder()
-            .contentBatch(listOf(InterleavedContent.ofString("string")))
+            .addContentBatch("string")
             .model("model")
             .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .samplingParams(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.ofGreedySamplingStrategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                                .build()
-                        )
+                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            .build()
                     )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
@@ -35,19 +33,15 @@ class BatchInferenceCompletionParamsTest {
     fun getBody() {
         val params =
             BatchInferenceCompletionParams.builder()
-                .contentBatch(listOf(InterleavedContent.ofString("string")))
+                .addContentBatch("string")
                 .model("model")
                 .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -66,11 +60,9 @@ class BatchInferenceCompletionParamsTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.ofGreedySamplingStrategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                                .build()
-                        )
+                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            .build()
                     )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
@@ -82,7 +74,7 @@ class BatchInferenceCompletionParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             BatchInferenceCompletionParams.builder()
-                .contentBatch(listOf(InterleavedContent.ofString("string")))
+                .addContentBatch("string")
                 .model("model")
                 .build()
         val body = params.getBody()

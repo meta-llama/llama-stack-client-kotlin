@@ -16,7 +16,7 @@ import com.llama.llamastack.models.ProviderInfo
 import com.llama.llamastack.models.ProviderListParams
 
 class ProviderServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ProviderServiceAsync {
 

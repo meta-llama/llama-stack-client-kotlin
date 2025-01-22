@@ -12,57 +12,43 @@ class EvalRunEvalParamsTest {
         EvalRunEvalParams.builder()
             .taskId("task_id")
             .taskConfig(
-                EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(
-                                                    SamplingParams.Strategy
-                                                        .ofGreedySamplingStrategy(
-                                                            SamplingParams.Strategy
-                                                                .GreedySamplingStrategy
-                                                                .builder()
-                                                                .type(
-                                                                    SamplingParams.Strategy
-                                                                        .GreedySamplingStrategy
-                                                                        .Type
-                                                                        .GREEDY
-                                                                )
-                                                                .build()
-                                                        )
-                                                )
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(InterleavedContent.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                        )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
-                        .numExamples(0L)
-                        .build()
-                )
+                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    .evalCandidate(
+                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                            .ModelCandidate
+                            .builder()
+                            .model("model")
+                            .samplingParams(
+                                SamplingParams.builder()
+                                    .strategy(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                            .type(
+                                                SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                    .GREEDY
+                                            )
+                                            .build()
+                                    )
+                                    .maxTokens(0L)
+                                    .repetitionPenalty(0.0)
+                                    .build()
+                            )
+                            .type(
+                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                    .ModelCandidate
+                                    .Type
+                                    .MODEL
+                            )
+                            .systemMessage(
+                                SystemMessage.builder()
+                                    .content("string")
+                                    .role(SystemMessage.Role.SYSTEM)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                    .numExamples(0L)
+                    .build()
             )
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -75,59 +61,45 @@ class EvalRunEvalParamsTest {
             EvalRunEvalParams.builder()
                 .taskId("task_id")
                 .taskConfig(
-                    EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(
-                                                        SamplingParams.Strategy
-                                                            .ofGreedySamplingStrategy(
-                                                                SamplingParams.Strategy
-                                                                    .GreedySamplingStrategy
-                                                                    .builder()
-                                                                    .type(
-                                                                        SamplingParams.Strategy
-                                                                            .GreedySamplingStrategy
-                                                                            .Type
-                                                                            .GREEDY
-                                                                    )
-                                                                    .build()
-                                                            )
-                                                    )
-                                                    .maxTokens(0L)
-                                                    .repetitionPenalty(0.0)
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .systemMessage(
-                                                SystemMessage.builder()
-                                                    .content(InterleavedContent.ofString("string"))
-                                                    .role(SystemMessage.Role.SYSTEM)
-                                                    .build()
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                            )
-                            .numExamples(0L)
-                            .build()
-                    )
+                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
+                                        .build()
+                                )
+                                .type(
+                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .systemMessage(
+                                    SystemMessage.builder()
+                                        .content("string")
+                                        .role(SystemMessage.Role.SYSTEM)
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .numExamples(0L)
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -140,48 +112,38 @@ class EvalRunEvalParamsTest {
                     EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
                             EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
+                                        .build()
+                                )
+                                .type(
                                     EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
                                         .EvalCandidate
                                         .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(
-                                                    SamplingParams.Strategy
-                                                        .ofGreedySamplingStrategy(
-                                                            SamplingParams.Strategy
-                                                                .GreedySamplingStrategy
-                                                                .builder()
-                                                                .type(
-                                                                    SamplingParams.Strategy
-                                                                        .GreedySamplingStrategy
-                                                                        .Type
-                                                                        .GREEDY
-                                                                )
-                                                                .build()
-                                                        )
-                                                )
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(InterleavedContent.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
+                                        .Type
+                                        .MODEL
+                                )
+                                .systemMessage(
+                                    SystemMessage.builder()
+                                        .content("string")
+                                        .role(SystemMessage.Role.SYSTEM)
                                         .build()
                                 )
+                                .build()
                         )
                         .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
                         .numExamples(0L)
@@ -196,50 +158,36 @@ class EvalRunEvalParamsTest {
             EvalRunEvalParams.builder()
                 .taskId("task_id")
                 .taskConfig(
-                    EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(
-                                                        SamplingParams.Strategy
-                                                            .ofGreedySamplingStrategy(
-                                                                SamplingParams.Strategy
-                                                                    .GreedySamplingStrategy
-                                                                    .builder()
-                                                                    .type(
-                                                                        SamplingParams.Strategy
-                                                                            .GreedySamplingStrategy
-                                                                            .Type
-                                                                            .GREEDY
-                                                                    )
-                                                                    .build()
-                                                            )
-                                                    )
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                            )
-                            .build()
-                    )
+                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .build()
+                                )
+                                .type(
+                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .build()
+                        )
+                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .build()
                 )
                 .build()
         val body = params.getBody()
@@ -250,40 +198,30 @@ class EvalRunEvalParamsTest {
                     EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
                             EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(
-                                                    SamplingParams.Strategy
-                                                        .ofGreedySamplingStrategy(
-                                                            SamplingParams.Strategy
-                                                                .GreedySamplingStrategy
-                                                                .builder()
-                                                                .type(
-                                                                    SamplingParams.Strategy
-                                                                        .GreedySamplingStrategy
-                                                                        .Type
-                                                                        .GREEDY
-                                                                )
-                                                                .build()
-                                                        )
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
                                                 )
                                                 .build()
                                         )
-                                        .type(
-                                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
                                         .build()
                                 )
+                                .type(
+                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .build()
                         )
                         .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
                         .build()
@@ -297,50 +235,36 @@ class EvalRunEvalParamsTest {
             EvalRunEvalParams.builder()
                 .taskId("task_id")
                 .taskConfig(
-                    EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(
-                                                        SamplingParams.Strategy
-                                                            .ofGreedySamplingStrategy(
-                                                                SamplingParams.Strategy
-                                                                    .GreedySamplingStrategy
-                                                                    .builder()
-                                                                    .type(
-                                                                        SamplingParams.Strategy
-                                                                            .GreedySamplingStrategy
-                                                                            .Type
-                                                                            .GREEDY
-                                                                    )
-                                                                    .build()
-                                                            )
-                                                    )
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                            )
-                            .build()
-                    )
+                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .build()
+                                )
+                                .type(
+                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .build()
+                        )
+                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .build()
                 )
                 .build()
         assertThat(params).isNotNull

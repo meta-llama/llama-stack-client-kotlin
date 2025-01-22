@@ -12,43 +12,12 @@ class BatchCompletionTest {
     fun createBatchCompletion() {
         val batchCompletion =
             BatchCompletion.builder()
-                .completionMessageBatch(
-                    listOf(
-                        BatchCompletion.CompletionMessageBatch.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
-                            .stopReason(
-                                BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN
-                            )
-                            .toolCalls(
-                                listOf(
-                                    ToolCall.builder()
-                                        .arguments(
-                                            ToolCall.Arguments.builder()
-                                                .putAdditionalProperty(
-                                                    "foo",
-                                                    JsonValue.from("string")
-                                                )
-                                                .build()
-                                        )
-                                        .callId("call_id")
-                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                        .build()
-                                )
-                            )
-                            .build()
-                    )
-                )
-                .build()
-        assertThat(batchCompletion).isNotNull
-        assertThat(batchCompletion.completionMessageBatch())
-            .containsExactly(
-                BatchCompletion.CompletionMessageBatch.builder()
-                    .content(InterleavedContent.ofString("string"))
-                    .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
-                    .stopReason(BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN)
-                    .toolCalls(
-                        listOf(
+                .addCompletionMessageBatch(
+                    BatchCompletion.CompletionMessageBatch.builder()
+                        .content("string")
+                        .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
+                        .stopReason(BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN)
+                        .addToolCall(
                             ToolCall.builder()
                                 .arguments(
                                     ToolCall.Arguments.builder()
@@ -59,6 +28,26 @@ class BatchCompletionTest {
                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                 .build()
                         )
+                        .build()
+                )
+                .build()
+        assertThat(batchCompletion).isNotNull
+        assertThat(batchCompletion.completionMessageBatch())
+            .containsExactly(
+                BatchCompletion.CompletionMessageBatch.builder()
+                    .content("string")
+                    .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
+                    .stopReason(BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN)
+                    .addToolCall(
+                        ToolCall.builder()
+                            .arguments(
+                                ToolCall.Arguments.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                                    .build()
+                            )
+                            .callId("call_id")
+                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                            .build()
                     )
                     .build()
             )

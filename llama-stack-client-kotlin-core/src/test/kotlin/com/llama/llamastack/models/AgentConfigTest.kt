@@ -16,42 +16,34 @@ class AgentConfigTest {
                 .instructions("instructions")
                 .maxInferIters(0L)
                 .model("model")
-                .clientTools(
-                    listOf(
-                        ToolDef.builder()
-                            .name("name")
-                            .description("description")
-                            .metadata(
-                                ToolDef.Metadata.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .parameters(
-                                listOf(
-                                    ToolDef.Parameter.builder()
-                                        .description("description")
-                                        .name("name")
-                                        .parameterType("parameter_type")
-                                        .required(true)
-                                        .default(ToolDef.Parameter.Default.ofBoolean(true))
-                                        .build()
-                                )
-                            )
-                            .build()
-                    )
+                .addClientTool(
+                    ToolDef.builder()
+                        .name("name")
+                        .description("description")
+                        .metadata(
+                            ToolDef.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .addParameter(
+                            ToolDef.Parameter.builder()
+                                .description("description")
+                                .name("name")
+                                .parameterType("parameter_type")
+                                .required(true)
+                                .default(true)
+                                .build()
+                        )
+                        .build()
                 )
-                .inputShields(listOf("string"))
-                .outputShields(listOf("string"))
+                .addInputShield("string")
+                .addOutputShield("string")
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -59,7 +51,7 @@ class AgentConfigTest {
                 )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
                 .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                .toolgroups(listOf(AgentConfig.Toolgroup.ofString("string")))
+                .addToolgroup("string")
                 .build()
         assertThat(agentConfig).isNotNull
         assertThat(agentConfig.enableSessionPersistence()).isEqualTo(true)
@@ -76,16 +68,14 @@ class AgentConfigTest {
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .parameters(
-                        listOf(
-                            ToolDef.Parameter.builder()
-                                .description("description")
-                                .name("name")
-                                .parameterType("parameter_type")
-                                .required(true)
-                                .default(ToolDef.Parameter.Default.ofBoolean(true))
-                                .build()
-                        )
+                    .addParameter(
+                        ToolDef.Parameter.builder()
+                            .description("description")
+                            .name("name")
+                            .parameterType("parameter_type")
+                            .required(true)
+                            .default(true)
+                            .build()
                     )
                     .build()
             )
@@ -95,11 +85,9 @@ class AgentConfigTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.ofGreedySamplingStrategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                                .build()
-                        )
+                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            .build()
                     )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)

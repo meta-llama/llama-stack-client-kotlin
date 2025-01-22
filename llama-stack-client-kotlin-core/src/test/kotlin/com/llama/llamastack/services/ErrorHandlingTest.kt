@@ -27,7 +27,6 @@ import com.llama.llamastack.errors.UnexpectedStatusCodeException
 import com.llama.llamastack.errors.UnprocessableEntityException
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionResponse
-import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.TokenLogProbs
 import com.llama.llamastack.models.ToolCall
@@ -60,45 +59,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion200() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -106,28 +95,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -139,7 +126,7 @@ class ErrorHandlingTest {
                     .completionMessage(
                         InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage
                             .builder()
-                            .content(InterleavedContent.ofString("string"))
+                            .content("string")
                             .role(
                                 InferenceChatCompletionResponse.ChatCompletionResponse
                                     .CompletionMessage
@@ -152,34 +139,27 @@ class ErrorHandlingTest {
                                     .StopReason
                                     .END_OF_TURN
                             )
-                            .toolCalls(
-                                listOf(
-                                    ToolCall.builder()
-                                        .arguments(
-                                            ToolCall.Arguments.builder()
-                                                .putAdditionalProperty(
-                                                    "foo",
-                                                    JsonValue.from("string")
-                                                )
-                                                .build()
-                                        )
-                                        .callId("call_id")
-                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                        .build()
-                                )
+                            .addToolCall(
+                                ToolCall.builder()
+                                    .arguments(
+                                        ToolCall.Arguments.builder()
+                                            .putAdditionalProperty("foo", JsonValue.from("string"))
+                                            .build()
+                                    )
+                                    .callId("call_id")
+                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                    .build()
                             )
                             .build()
                     )
-                    .logprobs(
-                        listOf(
-                            TokenLogProbs.builder()
-                                .logprobsByToken(
-                                    TokenLogProbs.LogprobsByToken.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(0))
-                                        .build()
-                                )
-                                .build()
-                        )
+                    .addLogprob(
+                        TokenLogProbs.builder()
+                            .logprobsByToken(
+                                TokenLogProbs.LogprobsByToken.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(0))
+                                    .build()
+                            )
+                            .build()
                     )
                     .build()
             )
@@ -193,45 +173,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion400() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -239,28 +209,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -287,45 +255,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion401() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -333,28 +291,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -381,45 +337,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion403() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -427,28 +373,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -475,45 +419,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion404() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -521,28 +455,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -569,45 +501,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion422() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -615,28 +537,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -663,45 +583,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion429() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -709,28 +619,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -757,45 +665,35 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion500() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -803,28 +701,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -851,45 +747,35 @@ class ErrorHandlingTest {
     fun unexpectedStatusCode() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -897,28 +783,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -946,45 +830,35 @@ class ErrorHandlingTest {
     fun invalidBody() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -992,28 +866,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -1033,45 +905,35 @@ class ErrorHandlingTest {
     fun invalidErrorBody() {
         val params =
             InferenceChatCompletionParams.builder()
-                .messages(
-                    listOf(
-                        InferenceChatCompletionParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
+                                .JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -1079,28 +941,26 @@ class ErrorHandlingTest {
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        InferenceChatCompletionParams.Tool.builder()
-                            .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                InferenceChatCompletionParams.Tool.Parameters.builder()
-                                    .putAdditionalProperty(
-                                        "foo",
-                                        JsonValue.from(
-                                            mapOf(
-                                                "param_type" to "param_type",
-                                                "default" to true,
-                                                "description" to "description",
-                                                "required" to true,
-                                            )
+                .addTool(
+                    InferenceChatCompletionParams.Tool.builder()
+                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            InferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
                                         )
                                     )
-                                    .build()
-                            )
-                            .build()
-                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")

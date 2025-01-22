@@ -15,7 +15,7 @@ import com.llama.llamastack.models.AgentStepRetrieveParams
 import com.llama.llamastack.models.AgentStepRetrieveResponse
 
 class StepServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : StepServiceAsync {
 

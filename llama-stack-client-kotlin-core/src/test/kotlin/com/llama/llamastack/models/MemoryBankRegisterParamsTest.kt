@@ -12,17 +12,14 @@ class MemoryBankRegisterParamsTest {
         MemoryBankRegisterParams.builder()
             .memoryBankId("memory_bank_id")
             .params(
-                MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
-                    MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                        .chunkSizeInTokens(0L)
-                        .embeddingModel("embedding_model")
-                        .memoryBankType(
-                            MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType
-                                .VECTOR
-                        )
-                        .overlapSizeInTokens(0L)
-                        .build()
-                )
+                MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
+                    .chunkSizeInTokens(0L)
+                    .embeddingModel("embedding_model")
+                    .memoryBankType(
+                        MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType.VECTOR
+                    )
+                    .overlapSizeInTokens(0L)
+                    .build()
             )
             .providerId("provider_id")
             .providerMemoryBankId("provider_memory_bank_id")
@@ -37,18 +34,15 @@ class MemoryBankRegisterParamsTest {
             MemoryBankRegisterParams.builder()
                 .memoryBankId("memory_bank_id")
                 .params(
-                    MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
-                        MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                            .chunkSizeInTokens(0L)
-                            .embeddingModel("embedding_model")
-                            .memoryBankType(
-                                MemoryBankRegisterParams.Params.VectorMemoryBankParams
-                                    .MemoryBankType
-                                    .VECTOR
-                            )
-                            .overlapSizeInTokens(0L)
-                            .build()
-                    )
+                    MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
+                        .chunkSizeInTokens(0L)
+                        .embeddingModel("embedding_model")
+                        .memoryBankType(
+                            MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType
+                                .VECTOR
+                        )
+                        .overlapSizeInTokens(0L)
+                        .build()
                 )
                 .providerId("provider_id")
                 .providerMemoryBankId("provider_memory_bank_id")
@@ -82,17 +76,14 @@ class MemoryBankRegisterParamsTest {
             MemoryBankRegisterParams.builder()
                 .memoryBankId("memory_bank_id")
                 .params(
-                    MemoryBankRegisterParams.Params.ofVectorMemoryBankParams(
-                        MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
-                            .chunkSizeInTokens(0L)
-                            .embeddingModel("embedding_model")
-                            .memoryBankType(
-                                MemoryBankRegisterParams.Params.VectorMemoryBankParams
-                                    .MemoryBankType
-                                    .VECTOR
-                            )
-                            .build()
-                    )
+                    MemoryBankRegisterParams.Params.VectorMemoryBankParams.builder()
+                        .chunkSizeInTokens(0L)
+                        .embeddingModel("embedding_model")
+                        .memoryBankType(
+                            MemoryBankRegisterParams.Params.VectorMemoryBankParams.MemoryBankType
+                                .VECTOR
+                        )
+                        .build()
                 )
                 .build()
         val body = params.getBody()

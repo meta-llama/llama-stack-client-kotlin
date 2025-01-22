@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
@@ -181,7 +182,7 @@ constructor(
 
         fun build(): ToolGetParams =
             ToolGetParams(
-                checkNotNull(toolName) { "`toolName` is required but was not set" },
+                checkRequired("toolName", toolName),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),

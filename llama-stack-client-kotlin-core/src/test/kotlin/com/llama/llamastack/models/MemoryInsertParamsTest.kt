@@ -12,19 +12,17 @@ class MemoryInsertParamsTest {
     fun createMemoryInsertParams() {
         MemoryInsertParams.builder()
             .bankId("bank_id")
-            .documents(
-                listOf(
-                    MemoryInsertParams.Document.builder()
-                        .content(MemoryInsertParams.Document.Content.ofString("string"))
-                        .documentId("document_id")
-                        .metadata(
-                            MemoryInsertParams.Document.Metadata.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
-                        .mimeType("mime_type")
-                        .build()
-                )
+            .addDocument(
+                MemoryInsertParams.Document.builder()
+                    .content("string")
+                    .documentId("document_id")
+                    .metadata(
+                        MemoryInsertParams.Document.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .mimeType("mime_type")
+                    .build()
             )
             .ttlSeconds(0L)
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -37,19 +35,17 @@ class MemoryInsertParamsTest {
         val params =
             MemoryInsertParams.builder()
                 .bankId("bank_id")
-                .documents(
-                    listOf(
-                        MemoryInsertParams.Document.builder()
-                            .content(MemoryInsertParams.Document.Content.ofString("string"))
-                            .documentId("document_id")
-                            .metadata(
-                                MemoryInsertParams.Document.Metadata.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .mimeType("mime_type")
-                            .build()
-                    )
+                .addDocument(
+                    MemoryInsertParams.Document.builder()
+                        .content("string")
+                        .documentId("document_id")
+                        .metadata(
+                            MemoryInsertParams.Document.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .mimeType("mime_type")
+                        .build()
                 )
                 .ttlSeconds(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -62,7 +58,7 @@ class MemoryInsertParamsTest {
             .isEqualTo(
                 listOf(
                     MemoryInsertParams.Document.builder()
-                        .content(MemoryInsertParams.Document.Content.ofString("string"))
+                        .content("string")
                         .documentId("document_id")
                         .metadata(
                             MemoryInsertParams.Document.Metadata.builder()
@@ -81,18 +77,16 @@ class MemoryInsertParamsTest {
         val params =
             MemoryInsertParams.builder()
                 .bankId("bank_id")
-                .documents(
-                    listOf(
-                        MemoryInsertParams.Document.builder()
-                            .content(MemoryInsertParams.Document.Content.ofString("string"))
-                            .documentId("document_id")
-                            .metadata(
-                                MemoryInsertParams.Document.Metadata.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .build()
-                    )
+                .addDocument(
+                    MemoryInsertParams.Document.builder()
+                        .content("string")
+                        .documentId("document_id")
+                        .metadata(
+                            MemoryInsertParams.Document.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
                 )
                 .build()
         val body = params.getBody()
@@ -102,7 +96,7 @@ class MemoryInsertParamsTest {
             .isEqualTo(
                 listOf(
                     MemoryInsertParams.Document.builder()
-                        .content(MemoryInsertParams.Document.Content.ofString("string"))
+                        .content("string")
                         .documentId("document_id")
                         .metadata(
                             MemoryInsertParams.Document.Metadata.builder()

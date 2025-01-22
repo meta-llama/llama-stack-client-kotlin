@@ -12,12 +12,10 @@ class DatasetioAppendRowsParamsTest {
     fun createDatasetioAppendRowsParams() {
         DatasetioAppendRowsParams.builder()
             .datasetId("dataset_id")
-            .rows(
-                listOf(
-                    DatasetioAppendRowsParams.Row.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
+            .addRow(
+                DatasetioAppendRowsParams.Row.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
             )
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -29,12 +27,10 @@ class DatasetioAppendRowsParamsTest {
         val params =
             DatasetioAppendRowsParams.builder()
                 .datasetId("dataset_id")
-                .rows(
-                    listOf(
-                        DatasetioAppendRowsParams.Row.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addRow(
+                    DatasetioAppendRowsParams.Row.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -57,12 +53,10 @@ class DatasetioAppendRowsParamsTest {
         val params =
             DatasetioAppendRowsParams.builder()
                 .datasetId("dataset_id")
-                .rows(
-                    listOf(
-                        DatasetioAppendRowsParams.Row.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addRow(
+                    DatasetioAppendRowsParams.Row.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .build()
         val body = params.getBody()

@@ -20,7 +20,7 @@ import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
 class EvalTaskServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : EvalTaskService {
 

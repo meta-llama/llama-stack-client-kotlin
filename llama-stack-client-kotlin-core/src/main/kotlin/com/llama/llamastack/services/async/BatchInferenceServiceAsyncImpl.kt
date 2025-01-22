@@ -18,7 +18,7 @@ import com.llama.llamastack.models.BatchInferenceChatCompletionResponse
 import com.llama.llamastack.models.BatchInferenceCompletionParams
 
 class BatchInferenceServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : BatchInferenceServiceAsync {
 

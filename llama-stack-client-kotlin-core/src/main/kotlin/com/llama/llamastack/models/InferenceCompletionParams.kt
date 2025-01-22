@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -242,8 +243,8 @@ constructor(
 
             fun build(): InferenceCompletionBody =
                 InferenceCompletionBody(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(modelId) { "`modelId` is required but was not set" },
+                    checkRequired("content", content),
+                    checkRequired("modelId", modelId),
                     logprobs,
                     responseFormat,
                     samplingParams,
@@ -783,8 +784,8 @@ constructor(
 
                 fun build(): UnionMember0 =
                     UnionMember0(
-                        checkNotNull(jsonSchema) { "`jsonSchema` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("jsonSchema", jsonSchema),
+                        checkRequired("type", type),
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1024,8 +1025,8 @@ constructor(
 
                 fun build(): UnionMember1 =
                     UnionMember1(
-                        checkNotNull(bnf) { "`bnf` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("bnf", bnf),
+                        checkRequired("type", type),
                         additionalProperties.toImmutable(),
                     )
             }

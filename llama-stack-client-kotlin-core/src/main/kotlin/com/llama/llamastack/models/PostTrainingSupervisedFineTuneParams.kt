@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -283,13 +284,11 @@ constructor(
 
             fun build(): PostTrainingSupervisedFineTuneBody =
                 PostTrainingSupervisedFineTuneBody(
-                    checkNotNull(hyperparamSearchConfig) {
-                        "`hyperparamSearchConfig` is required but was not set"
-                    },
-                    checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
-                    checkNotNull(loggerConfig) { "`loggerConfig` is required but was not set" },
-                    checkNotNull(model) { "`model` is required but was not set" },
-                    checkNotNull(trainingConfig) { "`trainingConfig` is required but was not set" },
+                    checkRequired("hyperparamSearchConfig", hyperparamSearchConfig),
+                    checkRequired("jobUuid", jobUuid),
+                    checkRequired("loggerConfig", loggerConfig),
+                    checkRequired("model", model),
+                    checkRequired("trainingConfig", trainingConfig),
                     algorithmConfig,
                     checkpointDir,
                     additionalProperties.toImmutable(),
@@ -885,20 +884,12 @@ constructor(
 
             fun build(): TrainingConfig =
                 TrainingConfig(
-                    checkNotNull(dataConfig) { "`dataConfig` is required but was not set" },
-                    checkNotNull(gradientAccumulationSteps) {
-                        "`gradientAccumulationSteps` is required but was not set"
-                    },
-                    checkNotNull(maxStepsPerEpoch) {
-                        "`maxStepsPerEpoch` is required but was not set"
-                    },
-                    checkNotNull(maxValidationSteps) {
-                        "`maxValidationSteps` is required but was not set"
-                    },
-                    checkNotNull(nEpochs) { "`nEpochs` is required but was not set" },
-                    checkNotNull(optimizerConfig) {
-                        "`optimizerConfig` is required but was not set"
-                    },
+                    checkRequired("dataConfig", dataConfig),
+                    checkRequired("gradientAccumulationSteps", gradientAccumulationSteps),
+                    checkRequired("maxStepsPerEpoch", maxStepsPerEpoch),
+                    checkRequired("maxValidationSteps", maxValidationSteps),
+                    checkRequired("nEpochs", nEpochs),
+                    checkRequired("optimizerConfig", optimizerConfig),
                     dtype,
                     efficiencyConfig,
                     additionalProperties.toImmutable(),
@@ -1082,10 +1073,10 @@ constructor(
 
                 fun build(): DataConfig =
                     DataConfig(
-                        checkNotNull(batchSize) { "`batchSize` is required but was not set" },
-                        checkNotNull(dataFormat) { "`dataFormat` is required but was not set" },
-                        checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                        checkNotNull(shuffle) { "`shuffle` is required but was not set" },
+                        checkRequired("batchSize", batchSize),
+                        checkRequired("dataFormat", dataFormat),
+                        checkRequired("datasetId", datasetId),
+                        checkRequired("shuffle", shuffle),
                         packed,
                         trainOnInput,
                         validationDatasetId,
@@ -1300,14 +1291,10 @@ constructor(
 
                 fun build(): OptimizerConfig =
                     OptimizerConfig(
-                        checkNotNull(lr) { "`lr` is required but was not set" },
-                        checkNotNull(numWarmupSteps) {
-                            "`numWarmupSteps` is required but was not set"
-                        },
-                        checkNotNull(optimizerType) {
-                            "`optimizerType` is required but was not set"
-                        },
-                        checkNotNull(weightDecay) { "`weightDecay` is required but was not set" },
+                        checkRequired("lr", lr),
+                        checkRequired("numWarmupSteps", numWarmupSteps),
+                        checkRequired("optimizerType", optimizerType),
+                        checkRequired("weightDecay", weightDecay),
                         additionalProperties.toImmutable(),
                     )
             }
@@ -1920,19 +1907,12 @@ constructor(
 
                 fun build(): LoraFinetuningConfig =
                     LoraFinetuningConfig(
-                        checkNotNull(alpha) { "`alpha` is required but was not set" },
-                        checkNotNull(applyLoraToMlp) {
-                            "`applyLoraToMlp` is required but was not set"
-                        },
-                        checkNotNull(applyLoraToOutput) {
-                            "`applyLoraToOutput` is required but was not set"
-                        },
-                        checkNotNull(loraAttnModules) {
-                                "`loraAttnModules` is required but was not set"
-                            }
-                            .map { it.toImmutable() },
-                        checkNotNull(rank) { "`rank` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("alpha", alpha),
+                        checkRequired("applyLoraToMlp", applyLoraToMlp),
+                        checkRequired("applyLoraToOutput", applyLoraToOutput),
+                        checkRequired("loraAttnModules", loraAttnModules).map { it.toImmutable() },
+                        checkRequired("rank", rank),
+                        checkRequired("type", type),
                         quantizeBase,
                         useDora,
                         additionalProperties.toImmutable(),
@@ -2118,11 +2098,9 @@ constructor(
 
                 fun build(): QatFinetuningConfig =
                     QatFinetuningConfig(
-                        checkNotNull(groupSize) { "`groupSize` is required but was not set" },
-                        checkNotNull(quantizerName) {
-                            "`quantizerName` is required but was not set"
-                        },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("groupSize", groupSize),
+                        checkRequired("quantizerName", quantizerName),
+                        checkRequired("type", type),
                         additionalProperties.toImmutable(),
                     )
             }

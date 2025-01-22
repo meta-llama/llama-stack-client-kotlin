@@ -21,12 +21,10 @@ class ScoringServiceTest {
         val scoringScoreResponse =
             scoringService.score(
                 ScoringScoreParams.builder()
-                    .inputRows(
-                        listOf(
-                            ScoringScoreParams.InputRow.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
+                    .addInputRow(
+                        ScoringScoreParams.InputRow.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
                     )
                     .scoringFunctions(
                         ScoringScoreParams.ScoringFunctions.builder()

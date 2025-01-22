@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
@@ -189,8 +190,8 @@ constructor(
 
         fun build(): TelemetryGetSpanParams =
             TelemetryGetSpanParams(
-                checkNotNull(traceId) { "`traceId` is required but was not set" },
-                checkNotNull(spanId) { "`spanId` is required but was not set" },
+                checkRequired("traceId", traceId),
+                checkRequired("spanId", spanId),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),

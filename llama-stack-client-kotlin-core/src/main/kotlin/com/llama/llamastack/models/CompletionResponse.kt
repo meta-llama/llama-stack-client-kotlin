@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -133,8 +134,8 @@ private constructor(
 
         fun build(): CompletionResponse =
             CompletionResponse(
-                checkNotNull(content) { "`content` is required but was not set" },
-                checkNotNull(stopReason) { "`stopReason` is required but was not set" },
+                checkRequired("content", content),
+                checkRequired("stopReason", stopReason),
                 (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )

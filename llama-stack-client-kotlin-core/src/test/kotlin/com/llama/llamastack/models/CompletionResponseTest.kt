@@ -14,16 +14,14 @@ class CompletionResponseTest {
             CompletionResponse.builder()
                 .content("content")
                 .stopReason(CompletionResponse.StopReason.END_OF_TURN)
-                .logprobs(
-                    listOf(
-                        TokenLogProbs.builder()
-                            .logprobsByToken(
-                                TokenLogProbs.LogprobsByToken.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(0))
-                                    .build()
-                            )
-                            .build()
-                    )
+                .addLogprob(
+                    TokenLogProbs.builder()
+                        .logprobsByToken(
+                            TokenLogProbs.LogprobsByToken.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(0))
+                                .build()
+                        )
+                        .build()
                 )
                 .build()
         assertThat(completionResponse).isNotNull

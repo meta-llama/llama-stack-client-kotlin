@@ -12,69 +12,51 @@ class EvalEvaluateRowsParamsTest {
     fun createEvalEvaluateRowsParams() {
         EvalEvaluateRowsParams.builder()
             .taskId("task_id")
-            .inputRows(
-                listOf(
-                    EvalEvaluateRowsParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
+            .addInputRow(
+                EvalEvaluateRowsParams.InputRow.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
             )
-            .scoringFunctions(listOf("string"))
+            .addScoringFunction("string")
             .taskConfig(
-                EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(
-                                                    SamplingParams.Strategy
-                                                        .ofGreedySamplingStrategy(
-                                                            SamplingParams.Strategy
-                                                                .GreedySamplingStrategy
-                                                                .builder()
-                                                                .type(
-                                                                    SamplingParams.Strategy
-                                                                        .GreedySamplingStrategy
-                                                                        .Type
-                                                                        .GREEDY
-                                                                )
-                                                                .build()
-                                                        )
-                                                )
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalEvaluateRowsParams.TaskConfig
-                                                .BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(InterleavedContent.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                        )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
-                        .numExamples(0L)
-                        .build()
-                )
+                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    .evalCandidate(
+                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                            .ModelCandidate
+                            .builder()
+                            .model("model")
+                            .samplingParams(
+                                SamplingParams.builder()
+                                    .strategy(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                            .type(
+                                                SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                    .GREEDY
+                                            )
+                                            .build()
+                                    )
+                                    .maxTokens(0L)
+                                    .repetitionPenalty(0.0)
+                                    .build()
+                            )
+                            .type(
+                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
+                                    .EvalCandidate
+                                    .ModelCandidate
+                                    .Type
+                                    .MODEL
+                            )
+                            .systemMessage(
+                                SystemMessage.builder()
+                                    .content("string")
+                                    .role(SystemMessage.Role.SYSTEM)
+                                    .build()
+                            )
+                            .build()
+                    )
+                    .type(EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                    .numExamples(0L)
+                    .build()
             )
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -86,71 +68,54 @@ class EvalEvaluateRowsParamsTest {
         val params =
             EvalEvaluateRowsParams.builder()
                 .taskId("task_id")
-                .inputRows(
-                    listOf(
-                        EvalEvaluateRowsParams.InputRow.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addInputRow(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
-                .scoringFunctions(listOf("string"))
+                .addScoringFunction("string")
                 .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(
-                                                        SamplingParams.Strategy
-                                                            .ofGreedySamplingStrategy(
-                                                                SamplingParams.Strategy
-                                                                    .GreedySamplingStrategy
-                                                                    .builder()
-                                                                    .type(
-                                                                        SamplingParams.Strategy
-                                                                            .GreedySamplingStrategy
-                                                                            .Type
-                                                                            .GREEDY
-                                                                    )
-                                                                    .build()
-                                                            )
-                                                    )
-                                                    .maxTokens(0L)
-                                                    .repetitionPenalty(0.0)
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalEvaluateRowsParams.TaskConfig
-                                                    .BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .systemMessage(
-                                                SystemMessage.builder()
-                                                    .content(InterleavedContent.ofString("string"))
-                                                    .role(SystemMessage.Role.SYSTEM)
-                                                    .build()
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
-                                    .BENCHMARK
-                            )
-                            .numExamples(0L)
-                            .build()
-                    )
+                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
+                                        .build()
+                                )
+                                .type(
+                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .systemMessage(
+                                    SystemMessage.builder()
+                                        .content("string")
+                                        .role(SystemMessage.Role.SYSTEM)
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .type(
+                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
+                        )
+                        .numExamples(0L)
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -172,49 +137,38 @@ class EvalEvaluateRowsParamsTest {
                     EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
                             EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
+                                        .build()
+                                )
+                                .type(
                                     EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
                                         .EvalCandidate
                                         .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(
-                                                    SamplingParams.Strategy
-                                                        .ofGreedySamplingStrategy(
-                                                            SamplingParams.Strategy
-                                                                .GreedySamplingStrategy
-                                                                .builder()
-                                                                .type(
-                                                                    SamplingParams.Strategy
-                                                                        .GreedySamplingStrategy
-                                                                        .Type
-                                                                        .GREEDY
-                                                                )
-                                                                .build()
-                                                        )
-                                                )
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalEvaluateRowsParams.TaskConfig
-                                                .BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(InterleavedContent.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
+                                        .Type
+                                        .MODEL
+                                )
+                                .systemMessage(
+                                    SystemMessage.builder()
+                                        .content("string")
+                                        .role(SystemMessage.Role.SYSTEM)
                                         .build()
                                 )
+                                .build()
                         )
                         .type(
                             EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
@@ -230,62 +184,45 @@ class EvalEvaluateRowsParamsTest {
         val params =
             EvalEvaluateRowsParams.builder()
                 .taskId("task_id")
-                .inputRows(
-                    listOf(
-                        EvalEvaluateRowsParams.InputRow.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addInputRow(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
-                .scoringFunctions(listOf("string"))
+                .addScoringFunction("string")
                 .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(
-                                                        SamplingParams.Strategy
-                                                            .ofGreedySamplingStrategy(
-                                                                SamplingParams.Strategy
-                                                                    .GreedySamplingStrategy
-                                                                    .builder()
-                                                                    .type(
-                                                                        SamplingParams.Strategy
-                                                                            .GreedySamplingStrategy
-                                                                            .Type
-                                                                            .GREEDY
-                                                                    )
-                                                                    .build()
-                                                            )
-                                                    )
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalEvaluateRowsParams.TaskConfig
-                                                    .BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
-                                    .BENCHMARK
-                            )
-                            .build()
-                    )
+                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .build()
+                                )
+                                .type(
+                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .build()
+                        )
+                        .type(
+                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
+                        )
+                        .build()
                 )
                 .build()
         val body = params.getBody()
@@ -305,41 +242,30 @@ class EvalEvaluateRowsParamsTest {
                     EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
                             EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(
-                                                    SamplingParams.Strategy
-                                                        .ofGreedySamplingStrategy(
-                                                            SamplingParams.Strategy
-                                                                .GreedySamplingStrategy
-                                                                .builder()
-                                                                .type(
-                                                                    SamplingParams.Strategy
-                                                                        .GreedySamplingStrategy
-                                                                        .Type
-                                                                        .GREEDY
-                                                                )
-                                                                .build()
-                                                        )
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
                                                 )
                                                 .build()
                                         )
-                                        .type(
-                                            EvalEvaluateRowsParams.TaskConfig
-                                                .BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
                                         .build()
                                 )
+                                .type(
+                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .build()
                         )
                         .type(
                             EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
@@ -354,62 +280,45 @@ class EvalEvaluateRowsParamsTest {
         val params =
             EvalEvaluateRowsParams.builder()
                 .taskId("task_id")
-                .inputRows(
-                    listOf(
-                        EvalEvaluateRowsParams.InputRow.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addInputRow(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
-                .scoringFunctions(listOf("string"))
+                .addScoringFunction("string")
                 .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(
-                                                        SamplingParams.Strategy
-                                                            .ofGreedySamplingStrategy(
-                                                                SamplingParams.Strategy
-                                                                    .GreedySamplingStrategy
-                                                                    .builder()
-                                                                    .type(
-                                                                        SamplingParams.Strategy
-                                                                            .GreedySamplingStrategy
-                                                                            .Type
-                                                                            .GREEDY
-                                                                    )
-                                                                    .build()
-                                                            )
-                                                    )
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalEvaluateRowsParams.TaskConfig
-                                                    .BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
-                                    .BENCHMARK
-                            )
-                            .build()
-                    )
+                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
+                                .ModelCandidate
+                                .builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategy(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                                .type(
+                                                    SamplingParams.Strategy.GreedySamplingStrategy
+                                                        .Type
+                                                        .GREEDY
+                                                )
+                                                .build()
+                                        )
+                                        .build()
+                                )
+                                .type(
+                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
+                                        .EvalCandidate
+                                        .ModelCandidate
+                                        .Type
+                                        .MODEL
+                                )
+                                .build()
+                        )
+                        .type(
+                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
+                        )
+                        .build()
                 )
                 .build()
         assertThat(params).isNotNull

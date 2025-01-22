@@ -17,43 +17,36 @@ class AgentCreateParamsTest {
                     .instructions("instructions")
                     .maxInferIters(0L)
                     .model("model")
-                    .clientTools(
-                        listOf(
-                            ToolDef.builder()
-                                .name("name")
-                                .description("description")
-                                .metadata(
-                                    ToolDef.Metadata.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .parameters(
-                                    listOf(
-                                        ToolDef.Parameter.builder()
-                                            .description("description")
-                                            .name("name")
-                                            .parameterType("parameter_type")
-                                            .required(true)
-                                            .default(ToolDef.Parameter.Default.ofBoolean(true))
-                                            .build()
-                                    )
-                                )
-                                .build()
-                        )
+                    .addClientTool(
+                        ToolDef.builder()
+                            .name("name")
+                            .description("description")
+                            .metadata(
+                                ToolDef.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .addParameter(
+                                ToolDef.Parameter.builder()
+                                    .description("description")
+                                    .name("name")
+                                    .parameterType("parameter_type")
+                                    .required(true)
+                                    .default(true)
+                                    .build()
+                            )
+                            .build()
                     )
-                    .inputShields(listOf("string"))
-                    .outputShields(listOf("string"))
+                    .addInputShield("string")
+                    .addOutputShield("string")
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -61,7 +54,7 @@ class AgentCreateParamsTest {
                     )
                     .toolChoice(AgentConfig.ToolChoice.AUTO)
                     .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                    .toolgroups(listOf(AgentConfig.Toolgroup.ofString("string")))
+                    .addToolgroup("string")
                     .build()
             )
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -79,43 +72,37 @@ class AgentCreateParamsTest {
                         .instructions("instructions")
                         .maxInferIters(0L)
                         .model("model")
-                        .clientTools(
-                            listOf(
-                                ToolDef.builder()
-                                    .name("name")
-                                    .description("description")
-                                    .metadata(
-                                        ToolDef.Metadata.builder()
-                                            .putAdditionalProperty("foo", JsonValue.from(true))
-                                            .build()
-                                    )
-                                    .parameters(
-                                        listOf(
-                                            ToolDef.Parameter.builder()
-                                                .description("description")
-                                                .name("name")
-                                                .parameterType("parameter_type")
-                                                .required(true)
-                                                .default(ToolDef.Parameter.Default.ofBoolean(true))
-                                                .build()
-                                        )
-                                    )
-                                    .build()
-                            )
+                        .addClientTool(
+                            ToolDef.builder()
+                                .name("name")
+                                .description("description")
+                                .metadata(
+                                    ToolDef.Metadata.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(true))
+                                        .build()
+                                )
+                                .addParameter(
+                                    ToolDef.Parameter.builder()
+                                        .description("description")
+                                        .name("name")
+                                        .parameterType("parameter_type")
+                                        .required(true)
+                                        .default(true)
+                                        .build()
+                                )
+                                .build()
                         )
-                        .inputShields(listOf("string"))
-                        .outputShields(listOf("string"))
+                        .addInputShield("string")
+                        .addOutputShield("string")
                         .samplingParams(
                             SamplingParams.builder()
                                 .strategy(
-                                    SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                            .type(
-                                                SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                    .GREEDY
-                                            )
-                                            .build()
-                                    )
+                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                        .type(
+                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
+                                                .GREEDY
+                                        )
+                                        .build()
                                 )
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
@@ -123,7 +110,7 @@ class AgentCreateParamsTest {
                         )
                         .toolChoice(AgentConfig.ToolChoice.AUTO)
                         .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                        .toolgroups(listOf(AgentConfig.Toolgroup.ofString("string")))
+                        .addToolgroup("string")
                         .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -138,43 +125,36 @@ class AgentCreateParamsTest {
                     .instructions("instructions")
                     .maxInferIters(0L)
                     .model("model")
-                    .clientTools(
-                        listOf(
-                            ToolDef.builder()
-                                .name("name")
-                                .description("description")
-                                .metadata(
-                                    ToolDef.Metadata.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from(true))
-                                        .build()
-                                )
-                                .parameters(
-                                    listOf(
-                                        ToolDef.Parameter.builder()
-                                            .description("description")
-                                            .name("name")
-                                            .parameterType("parameter_type")
-                                            .required(true)
-                                            .default(ToolDef.Parameter.Default.ofBoolean(true))
-                                            .build()
-                                    )
-                                )
-                                .build()
-                        )
+                    .addClientTool(
+                        ToolDef.builder()
+                            .name("name")
+                            .description("description")
+                            .metadata(
+                                ToolDef.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
+                            .addParameter(
+                                ToolDef.Parameter.builder()
+                                    .description("description")
+                                    .name("name")
+                                    .parameterType("parameter_type")
+                                    .required(true)
+                                    .default(true)
+                                    .build()
+                            )
+                            .build()
                     )
-                    .inputShields(listOf("string"))
-                    .outputShields(listOf("string"))
+                    .addInputShield("string")
+                    .addOutputShield("string")
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -182,7 +162,7 @@ class AgentCreateParamsTest {
                     )
                     .toolChoice(AgentConfig.ToolChoice.AUTO)
                     .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                    .toolgroups(listOf(AgentConfig.Toolgroup.ofString("string")))
+                    .addToolgroup("string")
                     .build()
             )
     }

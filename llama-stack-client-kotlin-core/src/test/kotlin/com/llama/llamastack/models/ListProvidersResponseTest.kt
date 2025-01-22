@@ -11,14 +11,12 @@ class ListProvidersResponseTest {
     fun createListProvidersResponse() {
         val listProvidersResponse =
             ListProvidersResponse.builder()
-                .data(
-                    listOf(
-                        ProviderInfo.builder()
-                            .api("api")
-                            .providerId("provider_id")
-                            .providerType("provider_type")
-                            .build()
-                    )
+                .addData(
+                    ProviderInfo.builder()
+                        .api("api")
+                        .providerId("provider_id")
+                        .providerType("provider_type")
+                        .build()
                 )
                 .build()
         assertThat(listProvidersResponse).isNotNull

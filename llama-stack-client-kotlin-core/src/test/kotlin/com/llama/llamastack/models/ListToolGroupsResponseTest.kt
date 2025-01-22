@@ -12,21 +12,19 @@ class ListToolGroupsResponseTest {
     fun createListToolGroupsResponse() {
         val listToolGroupsResponse =
             ListToolGroupsResponse.builder()
-                .data(
-                    listOf(
-                        ToolGroup.builder()
-                            .identifier("identifier")
-                            .providerId("provider_id")
-                            .providerResourceId("provider_resource_id")
-                            .type(ToolGroup.Type.TOOL_GROUP)
-                            .args(
-                                ToolGroup.Args.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .mcpEndpoint(Url.builder().uri("uri").build())
-                            .build()
-                    )
+                .addData(
+                    ToolGroup.builder()
+                        .identifier("identifier")
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .type(ToolGroup.Type.TOOL_GROUP)
+                        .args(
+                            ToolGroup.Args.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .mcpEndpoint(Url.builder().uri("uri").build())
+                        .build()
                 )
                 .build()
         assertThat(listToolGroupsResponse).isNotNull

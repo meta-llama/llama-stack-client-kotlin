@@ -11,12 +11,10 @@ class ScoringScoreParamsTest {
     @Test
     fun createScoringScoreParams() {
         ScoringScoreParams.builder()
-            .inputRows(
-                listOf(
-                    ScoringScoreParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
+            .addInputRow(
+                ScoringScoreParams.InputRow.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
             )
             .scoringFunctions(
                 ScoringScoreParams.ScoringFunctions.builder()
@@ -43,12 +41,10 @@ class ScoringScoreParamsTest {
     fun getBody() {
         val params =
             ScoringScoreParams.builder()
-                .inputRows(
-                    listOf(
-                        ScoringScoreParams.InputRow.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addInputRow(
+                    ScoringScoreParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .scoringFunctions(
                     ScoringScoreParams.ScoringFunctions.builder()
@@ -102,12 +98,10 @@ class ScoringScoreParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             ScoringScoreParams.builder()
-                .inputRows(
-                    listOf(
-                        ScoringScoreParams.InputRow.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addInputRow(
+                    ScoringScoreParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .scoringFunctions(
                     ScoringScoreParams.ScoringFunctions.builder()

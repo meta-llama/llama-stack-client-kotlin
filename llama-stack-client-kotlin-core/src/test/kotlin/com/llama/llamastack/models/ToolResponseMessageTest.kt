@@ -12,7 +12,7 @@ class ToolResponseMessageTest {
         val toolResponseMessage =
             ToolResponseMessage.builder()
                 .callId("call_id")
-                .content(InterleavedContent.ofString("string"))
+                .content("string")
                 .role(ToolResponseMessage.Role.TOOL)
                 .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
                 .build()

@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
@@ -220,8 +221,8 @@ constructor(
 
         fun build(): EvalJobCancelParams =
             EvalJobCancelParams(
-                checkNotNull(taskId) { "`taskId` is required but was not set" },
-                checkNotNull(jobId) { "`jobId` is required but was not set" },
+                checkRequired("taskId", taskId),
+                checkRequired("jobId", jobId),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),

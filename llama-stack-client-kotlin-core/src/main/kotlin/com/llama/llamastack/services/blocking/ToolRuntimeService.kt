@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
@@ -16,8 +17,8 @@ interface ToolRuntimeService {
         requestOptions: RequestOptions = RequestOptions.none()
     ): ToolInvocationResult
 
-    fun listTools(
+    fun listToolsStreaming(
         params: ToolRuntimeListToolsParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): ToolDef
+    ): StreamResponse<ToolDef>
 }

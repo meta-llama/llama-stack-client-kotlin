@@ -5,38 +5,17 @@ package com.llama.llamastack.core.handlers
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponse.Handler
-import com.llama.llamastack.core.http.PhantomReachableClosingStreamResponse
 import com.llama.llamastack.core.http.SseMessage
 import com.llama.llamastack.core.http.StreamResponse
+import com.llama.llamastack.core.http.map
 import com.llama.llamastack.errors.LlamaStackClientException
 
 internal fun sseHandler(jsonMapper: JsonMapper): Handler<StreamResponse<SseMessage>> =
-    object : Handler<StreamResponse<SseMessage>> {
-
-        override fun handle(response: HttpResponse): StreamResponse<SseMessage> {
-            val reader = response.body().bufferedReader()
-            val sequence =
-                sequence {
-                        reader.useLines { lines ->
-                            val state = SseState(jsonMapper)
-                            for (line in lines) {
-                                val message = state.decode(line) ?: continue
-                                yield(message)
-                            }
-                        }
-                    }
-                    .constrainOnce()
-
-            return PhantomReachableClosingStreamResponse(
-                object : StreamResponse<SseMessage> {
-                    override fun asSequence(): Sequence<SseMessage> = sequence
-
-                    override fun close() {
-                        reader.close()
-                        response.close()
-                    }
-                }
-            )
+    streamHandler { lines ->
+        val state = SseState(jsonMapper)
+        for (line in lines) {
+            val message = state.decode(line) ?: continue
+            yield(message)
         }
     }
 
@@ -124,11 +103,4 @@ internal inline fun <reified T> Handler<StreamResponse<SseMessage>>.mapJson():
                     throw LlamaStackClientException("Error reading response", e)
                 }
             }
-    }
-
-internal fun <T, R> StreamResponse<T>.map(transform: (T) -> R): StreamResponse<R> =
-    object : StreamResponse<R> {
-        override fun asSequence(): Sequence<R> = this@map.asSequence().map(transform)
-
-        override fun close() = this@map.close()
     }

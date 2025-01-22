@@ -16,7 +16,7 @@ import com.llama.llamastack.models.RouteInfo
 import com.llama.llamastack.models.RouteListParams
 
 class RouteServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : RouteServiceAsync {
 

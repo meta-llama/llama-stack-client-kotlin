@@ -7,7 +7,6 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.BatchInferenceChatCompletionParams
 import com.llama.llamastack.models.BatchInferenceCompletionParams
-import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
@@ -24,16 +23,14 @@ class BatchInferenceServiceTest {
         val batchInferenceChatCompletionResponse =
             batchInferenceService.chatCompletion(
                 BatchInferenceChatCompletionParams.builder()
-                    .messagesBatch(
+                    .addMessagesBatch(
                         listOf(
-                            listOf(
-                                BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
-                                    UserMessage.builder()
-                                        .content(InterleavedContent.ofString("string"))
-                                        .role(UserMessage.Role.USER)
-                                        .context(InterleavedContent.ofString("string"))
-                                        .build()
-                                )
+                            BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                                UserMessage.builder()
+                                    .content("string")
+                                    .role(UserMessage.Role.USER)
+                                    .context("string")
+                                    .build()
                             )
                         )
                     )
@@ -44,14 +41,11 @@ class BatchInferenceServiceTest {
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
@@ -59,30 +53,26 @@ class BatchInferenceServiceTest {
                     )
                     .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
                     .toolPromptFormat(BatchInferenceChatCompletionParams.ToolPromptFormat.JSON)
-                    .tools(
-                        listOf(
-                            BatchInferenceChatCompletionParams.Tool.builder()
-                                .toolName(
-                                    BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH
-                                )
-                                .description("description")
-                                .parameters(
-                                    BatchInferenceChatCompletionParams.Tool.Parameters.builder()
-                                        .putAdditionalProperty(
-                                            "foo",
-                                            JsonValue.from(
-                                                mapOf(
-                                                    "param_type" to "param_type",
-                                                    "default" to true,
-                                                    "description" to "description",
-                                                    "required" to true,
-                                                )
+                    .addTool(
+                        BatchInferenceChatCompletionParams.Tool.builder()
+                            .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                            .description("description")
+                            .parameters(
+                                BatchInferenceChatCompletionParams.Tool.Parameters.builder()
+                                    .putAdditionalProperty(
+                                        "foo",
+                                        JsonValue.from(
+                                            mapOf(
+                                                "param_type" to "param_type",
+                                                "default" to true,
+                                                "description" to "description",
+                                                "required" to true,
                                             )
                                         )
-                                        .build()
-                                )
-                                .build()
-                        )
+                                    )
+                                    .build()
+                            )
+                            .build()
                     )
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -100,20 +90,17 @@ class BatchInferenceServiceTest {
         val batchCompletion =
             batchInferenceService.completion(
                 BatchInferenceCompletionParams.builder()
-                    .contentBatch(listOf(InterleavedContent.ofString("string")))
+                    .addContentBatch("string")
                     .model("model")
                     .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                        .type(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                .GREEDY
-                                        )
-                                        .build()
-                                )
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(
+                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
+                                    )
+                                    .build()
                             )
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)

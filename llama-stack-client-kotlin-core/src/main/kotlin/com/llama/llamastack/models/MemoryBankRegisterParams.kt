@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -218,8 +219,8 @@ constructor(
 
             fun build(): MemoryBankRegisterBody =
                 MemoryBankRegisterBody(
-                    checkNotNull(memoryBankId) { "`memoryBankId` is required but was not set" },
-                    checkNotNull(params) { "`params` is required but was not set" },
+                    checkRequired("memoryBankId", memoryBankId),
+                    checkRequired("params", params),
                     providerId,
                     providerMemoryBankId,
                     additionalProperties.toImmutable(),
@@ -774,15 +775,9 @@ constructor(
 
                 fun build(): VectorMemoryBankParams =
                     VectorMemoryBankParams(
-                        checkNotNull(chunkSizeInTokens) {
-                            "`chunkSizeInTokens` is required but was not set"
-                        },
-                        checkNotNull(embeddingModel) {
-                            "`embeddingModel` is required but was not set"
-                        },
-                        checkNotNull(memoryBankType) {
-                            "`memoryBankType` is required but was not set"
-                        },
+                        checkRequired("chunkSizeInTokens", chunkSizeInTokens),
+                        checkRequired("embeddingModel", embeddingModel),
+                        checkRequired("memoryBankType", memoryBankType),
                         overlapSizeInTokens,
                         additionalProperties.toImmutable(),
                     )
@@ -941,9 +936,7 @@ constructor(
 
                 fun build(): KeyValueMemoryBankParams =
                     KeyValueMemoryBankParams(
-                        checkNotNull(memoryBankType) {
-                            "`memoryBankType` is required but was not set"
-                        },
+                        checkRequired("memoryBankType", memoryBankType),
                         additionalProperties.toImmutable()
                     )
             }
@@ -1101,9 +1094,7 @@ constructor(
 
                 fun build(): KeywordMemoryBankParams =
                     KeywordMemoryBankParams(
-                        checkNotNull(memoryBankType) {
-                            "`memoryBankType` is required but was not set"
-                        },
+                        checkRequired("memoryBankType", memoryBankType),
                         additionalProperties.toImmutable()
                     )
             }
@@ -1260,9 +1251,7 @@ constructor(
 
                 fun build(): GraphMemoryBankParams =
                     GraphMemoryBankParams(
-                        checkNotNull(memoryBankType) {
-                            "`memoryBankType` is required but was not set"
-                        },
+                        checkRequired("memoryBankType", memoryBankType),
                         additionalProperties.toImmutable()
                     )
             }

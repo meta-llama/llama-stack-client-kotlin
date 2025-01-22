@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -112,8 +113,8 @@ private constructor(
 
         fun build(): SystemMessage =
             SystemMessage(
-                checkNotNull(content) { "`content` is required but was not set" },
-                checkNotNull(role) { "`role` is required but was not set" },
+                checkRequired("content", content),
+                checkRequired("role", role),
                 additionalProperties.toImmutable(),
             )
     }

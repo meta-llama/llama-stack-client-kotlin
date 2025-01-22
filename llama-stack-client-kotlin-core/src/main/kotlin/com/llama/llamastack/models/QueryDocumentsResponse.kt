@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
@@ -126,10 +127,8 @@ private constructor(
 
         fun build(): QueryDocumentsResponse =
             QueryDocumentsResponse(
-                checkNotNull(chunks) { "`chunks` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(scores) { "`scores` is required but was not set" }
-                    .map { it.toImmutable() },
+                checkRequired("chunks", chunks).map { it.toImmutable() },
+                checkRequired("scores", scores).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -250,9 +249,9 @@ private constructor(
 
             fun build(): Chunk =
                 Chunk(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(documentId) { "`documentId` is required but was not set" },
-                    checkNotNull(tokenCount) { "`tokenCount` is required but was not set" },
+                    checkRequired("content", content),
+                    checkRequired("documentId", documentId),
+                    checkRequired("tokenCount", tokenCount),
                     additionalProperties.toImmutable(),
                 )
         }

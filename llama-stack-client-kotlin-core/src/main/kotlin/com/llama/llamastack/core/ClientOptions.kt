@@ -153,7 +153,7 @@ private constructor(
         fun fromEnv() = apply {}
 
         fun build(): ClientOptions {
-            checkNotNull(httpClient) { "`httpClient` is required but was not set" }
+            val httpClient = checkRequired("httpClient", httpClient)
 
             val headers = Headers.builder()
             val queryParams = QueryParams.builder()
@@ -168,10 +168,10 @@ private constructor(
             queryParams.replaceAll(this.queryParams.build())
 
             return ClientOptions(
-                httpClient!!,
+                httpClient,
                 PhantomReachableClosingHttpClient(
                     RetryingHttpClient.builder()
-                        .httpClient(httpClient!!)
+                        .httpClient(httpClient)
                         .clock(clock)
                         .maxRetries(maxRetries)
                         .build()

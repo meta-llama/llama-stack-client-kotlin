@@ -59,7 +59,7 @@ class EvalTaskServiceTest {
             EvalTaskRegisterParams.builder()
                 .datasetId("dataset_id")
                 .evalTaskId("eval_task_id")
-                .scoringFunctions(listOf("string"))
+                .addScoringFunction("string")
                 .metadata(
                     EvalTaskRegisterParams.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))

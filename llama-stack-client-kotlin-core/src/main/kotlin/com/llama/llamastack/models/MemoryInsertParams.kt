@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -191,9 +192,8 @@ constructor(
 
             fun build(): MemoryInsertBody =
                 MemoryInsertBody(
-                    checkNotNull(bankId) { "`bankId` is required but was not set" },
-                    checkNotNull(documents) { "`documents` is required but was not set" }
-                        .map { it.toImmutable() },
+                    checkRequired("bankId", bankId),
+                    checkRequired("documents", documents).map { it.toImmutable() },
                     ttlSeconds,
                     additionalProperties.toImmutable(),
                 )
@@ -520,9 +520,9 @@ constructor(
 
             fun build(): Document =
                 Document(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(documentId) { "`documentId` is required but was not set" },
-                    checkNotNull(metadata) { "`metadata` is required but was not set" },
+                    checkRequired("content", content),
+                    checkRequired("documentId", documentId),
+                    checkRequired("metadata", metadata),
                     mimeType,
                     additionalProperties.toImmutable(),
                 )
@@ -833,7 +833,7 @@ constructor(
 
                     fun build(): ImageContentItem =
                         ImageContentItem(
-                            checkNotNull(type) { "`type` is required but was not set" },
+                            checkRequired("type", type),
                             data,
                             url,
                             additionalProperties.toImmutable(),
@@ -1000,8 +1000,8 @@ constructor(
 
                     fun build(): TextContentItem =
                         TextContentItem(
-                            checkNotNull(text) { "`text` is required but was not set" },
-                            checkNotNull(type) { "`type` is required but was not set" },
+                            checkRequired("text", text),
+                            checkRequired("type", type),
                             additionalProperties.toImmutable(),
                         )
                 }

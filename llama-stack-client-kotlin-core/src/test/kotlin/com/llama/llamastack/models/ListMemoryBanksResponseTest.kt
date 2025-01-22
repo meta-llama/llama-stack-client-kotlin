@@ -11,27 +11,20 @@ class ListMemoryBanksResponseTest {
     fun createListMemoryBanksResponse() {
         val listMemoryBanksResponse =
             ListMemoryBanksResponse.builder()
-                .data(
-                    listOf(
-                        ListMemoryBanksResponse.Data.ofVectorMemoryBank(
-                            ListMemoryBanksResponse.Data.VectorMemoryBank.builder()
-                                .chunkSizeInTokens(0L)
-                                .embeddingModel("embedding_model")
-                                .identifier("identifier")
-                                .memoryBankType(
-                                    ListMemoryBanksResponse.Data.VectorMemoryBank.MemoryBankType
-                                        .VECTOR
-                                )
-                                .providerId("provider_id")
-                                .providerResourceId("provider_resource_id")
-                                .type(
-                                    ListMemoryBanksResponse.Data.VectorMemoryBank.Type.MEMORY_BANK
-                                )
-                                .embeddingDimension(0L)
-                                .overlapSizeInTokens(0L)
-                                .build()
+                .addData(
+                    ListMemoryBanksResponse.Data.VectorMemoryBank.builder()
+                        .chunkSizeInTokens(0L)
+                        .embeddingModel("embedding_model")
+                        .identifier("identifier")
+                        .memoryBankType(
+                            ListMemoryBanksResponse.Data.VectorMemoryBank.MemoryBankType.VECTOR
                         )
-                    )
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .type(ListMemoryBanksResponse.Data.VectorMemoryBank.Type.MEMORY_BANK)
+                        .embeddingDimension(0L)
+                        .overlapSizeInTokens(0L)
+                        .build()
                 )
                 .build()
         assertThat(listMemoryBanksResponse).isNotNull

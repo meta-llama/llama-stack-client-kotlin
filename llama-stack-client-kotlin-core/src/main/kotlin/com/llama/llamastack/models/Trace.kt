@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.time.OffsetDateTime
@@ -131,9 +132,9 @@ private constructor(
 
         fun build(): Trace =
             Trace(
-                checkNotNull(rootSpanId) { "`rootSpanId` is required but was not set" },
-                checkNotNull(startTime) { "`startTime` is required but was not set" },
-                checkNotNull(traceId) { "`traceId` is required but was not set" },
+                checkRequired("rootSpanId", rootSpanId),
+                checkRequired("startTime", startTime),
+                checkRequired("traceId", traceId),
                 endTime,
                 additionalProperties.toImmutable(),
             )

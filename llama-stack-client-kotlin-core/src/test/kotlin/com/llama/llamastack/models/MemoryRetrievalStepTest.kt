@@ -12,8 +12,8 @@ class MemoryRetrievalStepTest {
     fun createMemoryRetrievalStep() {
         val memoryRetrievalStep =
             MemoryRetrievalStep.builder()
-                .insertedContext(InterleavedContent.ofString("string"))
-                .memoryBankIds(listOf("string"))
+                .insertedContext("string")
+                .addMemoryBankId("string")
                 .stepId("step_id")
                 .stepType(MemoryRetrievalStep.StepType.MEMORY_RETRIEVAL)
                 .turnId("turn_id")

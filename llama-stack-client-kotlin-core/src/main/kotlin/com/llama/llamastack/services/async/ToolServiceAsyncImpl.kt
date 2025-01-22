@@ -17,7 +17,7 @@ import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
 
 class ToolServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ToolServiceAsync {
 

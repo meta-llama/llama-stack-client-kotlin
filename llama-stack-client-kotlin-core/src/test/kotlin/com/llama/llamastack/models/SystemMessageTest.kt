@@ -10,10 +10,7 @@ class SystemMessageTest {
     @Test
     fun createSystemMessage() {
         val systemMessage =
-            SystemMessage.builder()
-                .content(InterleavedContent.ofString("string"))
-                .role(SystemMessage.Role.SYSTEM)
-                .build()
+            SystemMessage.builder().content("string").role(SystemMessage.Role.SYSTEM).build()
         assertThat(systemMessage).isNotNull
         assertThat(systemMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(systemMessage.role()).isEqualTo(SystemMessage.Role.SYSTEM)

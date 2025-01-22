@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -204,10 +205,9 @@ private constructor(
 
         fun build(): PostTrainingJobStatusResponse =
             PostTrainingJobStatusResponse(
-                checkNotNull(checkpoints) { "`checkpoints` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(jobUuid) { "`jobUuid` is required but was not set" },
-                checkNotNull(status) { "`status` is required but was not set" },
+                checkRequired("checkpoints", checkpoints).map { it.toImmutable() },
+                checkRequired("jobUuid", jobUuid),
+                checkRequired("status", status),
                 completedAt,
                 resourcesAllocated,
                 scheduledAt,

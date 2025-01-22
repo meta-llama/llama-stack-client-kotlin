@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -101,8 +102,7 @@ private constructor(
 
         fun build(): ListDatasetsResponse =
             ListDatasetsResponse(
-                checkNotNull(data) { "`data` is required but was not set" }
-                    .map { it.toImmutable() },
+                checkRequired("data", data).map { it.toImmutable() },
                 additionalProperties.toImmutable()
             )
     }
@@ -273,15 +273,13 @@ private constructor(
 
             fun build(): Data =
                 Data(
-                    checkNotNull(datasetSchema) { "`datasetSchema` is required but was not set" },
-                    checkNotNull(identifier) { "`identifier` is required but was not set" },
-                    checkNotNull(metadata) { "`metadata` is required but was not set" },
-                    checkNotNull(providerId) { "`providerId` is required but was not set" },
-                    checkNotNull(providerResourceId) {
-                        "`providerResourceId` is required but was not set"
-                    },
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    checkNotNull(url) { "`url` is required but was not set" },
+                    checkRequired("datasetSchema", datasetSchema),
+                    checkRequired("identifier", identifier),
+                    checkRequired("metadata", metadata),
+                    checkRequired("providerId", providerId),
+                    checkRequired("providerResourceId", providerResourceId),
+                    checkRequired("type", type),
+                    checkRequired("url", url),
                     additionalProperties.toImmutable(),
                 )
         }

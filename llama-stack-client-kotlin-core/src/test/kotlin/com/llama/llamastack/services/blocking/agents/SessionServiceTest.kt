@@ -41,7 +41,7 @@ class SessionServiceTest {
                 AgentSessionRetrieveParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
-                    .turnIds(listOf("string"))
+                    .addTurnId("string")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()

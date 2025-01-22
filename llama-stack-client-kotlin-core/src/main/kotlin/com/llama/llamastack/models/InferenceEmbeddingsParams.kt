@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
@@ -173,9 +174,8 @@ constructor(
 
             fun build(): InferenceEmbeddingsBody =
                 InferenceEmbeddingsBody(
-                    checkNotNull(contents) { "`contents` is required but was not set" }
-                        .map { it.toImmutable() },
-                    checkNotNull(modelId) { "`modelId` is required but was not set" },
+                    checkRequired("contents", contents).map { it.toImmutable() },
+                    checkRequired("modelId", modelId),
                     additionalProperties.toImmutable(),
                 )
         }

@@ -24,7 +24,7 @@ import com.llama.llamastack.services.async.agents.TurnServiceAsync
 import com.llama.llamastack.services.async.agents.TurnServiceAsyncImpl
 
 class AgentServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : AgentServiceAsync {
 

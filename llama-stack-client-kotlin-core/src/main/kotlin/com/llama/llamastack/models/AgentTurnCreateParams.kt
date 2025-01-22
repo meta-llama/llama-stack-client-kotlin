@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -246,8 +247,7 @@ constructor(
 
             fun build(): AgentTurnCreateBody =
                 AgentTurnCreateBody(
-                    checkNotNull(messages) { "`messages` is required but was not set" }
-                        .map { it.toImmutable() },
+                    checkRequired("messages", messages).map { it.toImmutable() },
                     (documents ?: JsonMissing.of()).map { it.toImmutable() },
                     (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
@@ -463,8 +463,8 @@ constructor(
 
         fun build(): AgentTurnCreateParams =
             AgentTurnCreateParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
+                checkRequired("agentId", agentId),
+                checkRequired("sessionId", sessionId),
                 xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 body.build(),
@@ -701,8 +701,8 @@ constructor(
 
             fun build(): Document =
                 Document(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(mimeType) { "`mimeType` is required but was not set" },
+                    checkRequired("content", content),
+                    checkRequired("mimeType", mimeType),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -1012,7 +1012,7 @@ constructor(
 
                     fun build(): ImageContentItem =
                         ImageContentItem(
-                            checkNotNull(type) { "`type` is required but was not set" },
+                            checkRequired("type", type),
                             data,
                             url,
                             additionalProperties.toImmutable(),
@@ -1179,8 +1179,8 @@ constructor(
 
                     fun build(): TextContentItem =
                         TextContentItem(
-                            checkNotNull(text) { "`text` is required but was not set" },
-                            checkNotNull(type) { "`type` is required but was not set" },
+                            checkRequired("text", text),
+                            checkRequired("type", type),
                             additionalProperties.toImmutable(),
                         )
                 }
@@ -1483,8 +1483,8 @@ constructor(
 
                 fun build(): UnionMember1 =
                     UnionMember1(
-                        checkNotNull(args) { "`args` is required but was not set" },
-                        checkNotNull(name) { "`name` is required but was not set" },
+                        checkRequired("args", args),
+                        checkRequired("name", name),
                         additionalProperties.toImmutable(),
                     )
             }

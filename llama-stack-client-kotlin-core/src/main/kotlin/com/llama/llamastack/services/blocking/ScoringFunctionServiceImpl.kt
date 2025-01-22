@@ -20,7 +20,7 @@ import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
 
 class ScoringFunctionServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ScoringFunctionService {
 

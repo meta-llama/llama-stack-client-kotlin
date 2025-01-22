@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
@@ -207,8 +208,8 @@ constructor(
 
         fun build(): DatasetioGetRowsPaginatedParams =
             DatasetioGetRowsPaginatedParams(
-                checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                checkNotNull(rowsInPage) { "`rowsInPage` is required but was not set" },
+                checkRequired("datasetId", datasetId),
+                checkRequired("rowsInPage", rowsInPage),
                 filterCondition,
                 pageToken,
                 xLlamaStackClientVersion,

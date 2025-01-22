@@ -24,7 +24,7 @@ import com.llama.llamastack.services.blocking.agents.TurnService
 import com.llama.llamastack.services.blocking.agents.TurnServiceImpl
 
 class AgentServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : AgentService {
 

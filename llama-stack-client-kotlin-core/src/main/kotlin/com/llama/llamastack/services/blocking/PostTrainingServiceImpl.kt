@@ -19,7 +19,7 @@ import com.llama.llamastack.services.blocking.postTraining.JobService
 import com.llama.llamastack.services.blocking.postTraining.JobServiceImpl
 
 class PostTrainingServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : PostTrainingService {
 

@@ -20,7 +20,7 @@ import com.llama.llamastack.models.InferenceCompletionResponse
 import com.llama.llamastack.models.InferenceEmbeddingsParams
 
 class InferenceServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : InferenceServiceAsync {
 

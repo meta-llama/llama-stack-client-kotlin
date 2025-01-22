@@ -20,7 +20,7 @@ import com.llama.llamastack.services.blocking.eval.JobService
 import com.llama.llamastack.services.blocking.eval.JobServiceImpl
 
 class EvalServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : EvalService {
 

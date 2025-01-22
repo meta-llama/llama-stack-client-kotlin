@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -140,7 +141,7 @@ private constructor(
 
         fun build(): SamplingParams =
             SamplingParams(
-                checkNotNull(strategy) { "`strategy` is required but was not set" },
+                checkRequired("strategy", strategy),
                 maxTokens,
                 repetitionPenalty,
                 additionalProperties.toImmutable(),
@@ -388,7 +389,7 @@ private constructor(
 
                 fun build(): GreedySamplingStrategy =
                     GreedySamplingStrategy(
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("type", type),
                         additionalProperties.toImmutable()
                     )
             }
@@ -569,7 +570,7 @@ private constructor(
 
                 fun build(): TopPSamplingStrategy =
                     TopPSamplingStrategy(
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("type", type),
                         temperature,
                         topP,
                         additionalProperties.toImmutable(),
@@ -734,8 +735,8 @@ private constructor(
 
                 fun build(): TopKSamplingStrategy =
                     TopKSamplingStrategy(
-                        checkNotNull(topK) { "`topK` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("topK", topK),
+                        checkRequired("type", type),
                         additionalProperties.toImmutable(),
                     )
             }

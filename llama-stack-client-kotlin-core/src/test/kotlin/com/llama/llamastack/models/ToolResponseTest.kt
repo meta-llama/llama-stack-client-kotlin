@@ -12,7 +12,7 @@ class ToolResponseTest {
         val toolResponse =
             ToolResponse.builder()
                 .callId("call_id")
-                .content(InterleavedContent.ofString("string"))
+                .content("string")
                 .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                 .build()
         assertThat(toolResponse).isNotNull

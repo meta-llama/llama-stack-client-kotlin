@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
@@ -101,8 +102,7 @@ private constructor(
 
         fun build(): EmbeddingsResponse =
             EmbeddingsResponse(
-                checkNotNull(embeddings) { "`embeddings` is required but was not set" }
-                    .map { it.toImmutable() },
+                checkRequired("embeddings", embeddings).map { it.toImmutable() },
                 additionalProperties.toImmutable()
             )
     }

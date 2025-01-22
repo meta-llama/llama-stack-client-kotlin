@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -167,8 +168,8 @@ constructor(
 
             fun build(): TelemetryLogEventBody =
                 TelemetryLogEventBody(
-                    checkNotNull(event) { "`event` is required but was not set" },
-                    checkNotNull(ttlSeconds) { "`ttlSeconds` is required but was not set" },
+                    checkRequired("event", event),
+                    checkRequired("ttlSeconds", ttlSeconds),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -690,12 +691,12 @@ constructor(
 
                 fun build(): UnstructuredLogEvent =
                     UnstructuredLogEvent(
-                        checkNotNull(message) { "`message` is required but was not set" },
-                        checkNotNull(severity) { "`severity` is required but was not set" },
-                        checkNotNull(spanId) { "`spanId` is required but was not set" },
-                        checkNotNull(timestamp) { "`timestamp` is required but was not set" },
-                        checkNotNull(traceId) { "`traceId` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("message", message),
+                        checkRequired("severity", severity),
+                        checkRequired("spanId", spanId),
+                        checkRequired("timestamp", timestamp),
+                        checkRequired("traceId", traceId),
+                        checkRequired("type", type),
                         attributes,
                         additionalProperties.toImmutable(),
                     )
@@ -1112,13 +1113,13 @@ constructor(
 
                 fun build(): MetricEvent =
                     MetricEvent(
-                        checkNotNull(metric) { "`metric` is required but was not set" },
-                        checkNotNull(spanId) { "`spanId` is required but was not set" },
-                        checkNotNull(timestamp) { "`timestamp` is required but was not set" },
-                        checkNotNull(traceId) { "`traceId` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
-                        checkNotNull(unit) { "`unit` is required but was not set" },
-                        checkNotNull(value) { "`value` is required but was not set" },
+                        checkRequired("metric", metric),
+                        checkRequired("spanId", spanId),
+                        checkRequired("timestamp", timestamp),
+                        checkRequired("traceId", traceId),
+                        checkRequired("type", type),
+                        checkRequired("unit", unit),
+                        checkRequired("value", value),
                         attributes,
                         additionalProperties.toImmutable(),
                     )
@@ -1431,11 +1432,11 @@ constructor(
 
                 fun build(): StructuredLogEvent =
                     StructuredLogEvent(
-                        checkNotNull(payload) { "`payload` is required but was not set" },
-                        checkNotNull(spanId) { "`spanId` is required but was not set" },
-                        checkNotNull(timestamp) { "`timestamp` is required but was not set" },
-                        checkNotNull(traceId) { "`traceId` is required but was not set" },
-                        checkNotNull(type) { "`type` is required but was not set" },
+                        checkRequired("payload", payload),
+                        checkRequired("spanId", spanId),
+                        checkRequired("timestamp", timestamp),
+                        checkRequired("traceId", traceId),
+                        checkRequired("type", type),
                         attributes,
                         additionalProperties.toImmutable(),
                     )
@@ -1678,8 +1679,8 @@ constructor(
 
                         fun build(): SpanStartPayload =
                             SpanStartPayload(
-                                checkNotNull(name) { "`name` is required but was not set" },
-                                checkNotNull(type) { "`type` is required but was not set" },
+                                checkRequired("name", name),
+                                checkRequired("type", type),
                                 parentSpanId,
                                 additionalProperties.toImmutable(),
                             )
@@ -1851,8 +1852,8 @@ constructor(
 
                         fun build(): SpanEndPayload =
                             SpanEndPayload(
-                                checkNotNull(status) { "`status` is required but was not set" },
-                                checkNotNull(type) { "`type` is required but was not set" },
+                                checkRequired("status", status),
+                                checkRequired("type", type),
                                 additionalProperties.toImmutable(),
                             )
                     }

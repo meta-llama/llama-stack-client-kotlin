@@ -11,14 +11,12 @@ class ListRoutesResponseTest {
     fun createListRoutesResponse() {
         val listRoutesResponse =
             ListRoutesResponse.builder()
-                .data(
-                    listOf(
-                        RouteInfo.builder()
-                            .method("method")
-                            .providerTypes(listOf("string"))
-                            .route("route")
-                            .build()
-                    )
+                .addData(
+                    RouteInfo.builder()
+                        .method("method")
+                        .addProviderType("string")
+                        .route("route")
+                        .build()
                 )
                 .build()
         assertThat(listRoutesResponse).isNotNull
@@ -26,7 +24,7 @@ class ListRoutesResponseTest {
             .containsExactly(
                 RouteInfo.builder()
                     .method("method")
-                    .providerTypes(listOf("string"))
+                    .addProviderType("string")
                     .route("route")
                     .build()
             )

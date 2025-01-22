@@ -12,7 +12,7 @@ class PostTrainingJobArtifactsResponseTest {
     fun createPostTrainingJobArtifactsResponse() {
         val postTrainingJobArtifactsResponse =
             PostTrainingJobArtifactsResponse.builder()
-                .checkpoints(listOf(JsonValue.from(mapOf<String, Any>())))
+                .addCheckpoint(JsonValue.from(mapOf<String, Any>()))
                 .jobUuid("job_uuid")
                 .build()
         assertThat(postTrainingJobArtifactsResponse).isNotNull

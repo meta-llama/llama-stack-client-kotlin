@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -269,18 +270,13 @@ private constructor(
 
         fun build(): Turn =
             Turn(
-                checkNotNull(inputMessages) { "`inputMessages` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(outputAttachments) {
-                        "`outputAttachments` is required but was not set"
-                    }
-                    .map { it.toImmutable() },
-                checkNotNull(outputMessage) { "`outputMessage` is required but was not set" },
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
-                checkNotNull(startedAt) { "`startedAt` is required but was not set" },
-                checkNotNull(steps) { "`steps` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("inputMessages", inputMessages).map { it.toImmutable() },
+                checkRequired("outputAttachments", outputAttachments).map { it.toImmutable() },
+                checkRequired("outputMessage", outputMessage),
+                checkRequired("sessionId", sessionId),
+                checkRequired("startedAt", startedAt),
+                checkRequired("steps", steps).map { it.toImmutable() },
+                checkRequired("turnId", turnId),
                 completedAt,
                 additionalProperties.toImmutable(),
             )
@@ -515,8 +511,8 @@ private constructor(
 
             fun build(): OutputAttachment =
                 OutputAttachment(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(mimeType) { "`mimeType` is required but was not set" },
+                    checkRequired("content", content),
+                    checkRequired("mimeType", mimeType),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -826,7 +822,7 @@ private constructor(
 
                     fun build(): ImageContentItem =
                         ImageContentItem(
-                            checkNotNull(type) { "`type` is required but was not set" },
+                            checkRequired("type", type),
                             data,
                             url,
                             additionalProperties.toImmutable(),
@@ -993,8 +989,8 @@ private constructor(
 
                     fun build(): TextContentItem =
                         TextContentItem(
-                            checkNotNull(text) { "`text` is required but was not set" },
-                            checkNotNull(type) { "`type` is required but was not set" },
+                            checkRequired("text", text),
+                            checkRequired("type", type),
                             additionalProperties.toImmutable(),
                         )
                 }
@@ -1234,11 +1230,10 @@ private constructor(
 
             fun build(): OutputMessage =
                 OutputMessage(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(role) { "`role` is required but was not set" },
-                    checkNotNull(stopReason) { "`stopReason` is required but was not set" },
-                    checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                        .map { it.toImmutable() },
+                    checkRequired("content", content),
+                    checkRequired("role", role),
+                    checkRequired("stopReason", stopReason),
+                    checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }

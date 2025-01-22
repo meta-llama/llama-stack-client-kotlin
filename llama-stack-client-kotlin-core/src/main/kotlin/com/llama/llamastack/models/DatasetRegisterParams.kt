@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
@@ -228,9 +229,9 @@ constructor(
 
             fun build(): DatasetRegisterBody =
                 DatasetRegisterBody(
-                    checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                    checkNotNull(datasetSchema) { "`datasetSchema` is required but was not set" },
-                    checkNotNull(url) { "`url` is required but was not set" },
+                    checkRequired("datasetId", datasetId),
+                    checkRequired("datasetSchema", datasetSchema),
+                    checkRequired("url", url),
                     metadata,
                     providerDatasetId,
                     providerId,

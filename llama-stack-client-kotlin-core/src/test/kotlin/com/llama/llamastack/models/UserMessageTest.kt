@@ -11,9 +11,9 @@ class UserMessageTest {
     fun createUserMessage() {
         val userMessage =
             UserMessage.builder()
-                .content(InterleavedContent.ofString("string"))
+                .content("string")
                 .role(UserMessage.Role.USER)
-                .context(InterleavedContent.ofString("string"))
+                .context("string")
                 .build()
         assertThat(userMessage).isNotNull
         assertThat(userMessage.content()).isEqualTo(InterleavedContent.ofString("string"))

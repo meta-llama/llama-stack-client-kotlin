@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -191,16 +192,13 @@ private constructor(
 
         fun build(): EvalTask =
             EvalTask(
-                checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                checkNotNull(identifier) { "`identifier` is required but was not set" },
-                checkNotNull(metadata) { "`metadata` is required but was not set" },
-                checkNotNull(providerId) { "`providerId` is required but was not set" },
-                checkNotNull(providerResourceId) {
-                    "`providerResourceId` is required but was not set"
-                },
-                checkNotNull(scoringFunctions) { "`scoringFunctions` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(type) { "`type` is required but was not set" },
+                checkRequired("datasetId", datasetId),
+                checkRequired("identifier", identifier),
+                checkRequired("metadata", metadata),
+                checkRequired("providerId", providerId),
+                checkRequired("providerResourceId", providerResourceId),
+                checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
+                checkRequired("type", type),
                 additionalProperties.toImmutable(),
             )
     }

@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -193,10 +194,10 @@ private constructor(
 
         fun build(): SpanWithStatus =
             SpanWithStatus(
-                checkNotNull(name) { "`name` is required but was not set" },
-                checkNotNull(spanId) { "`spanId` is required but was not set" },
-                checkNotNull(startTime) { "`startTime` is required but was not set" },
-                checkNotNull(traceId) { "`traceId` is required but was not set" },
+                checkRequired("name", name),
+                checkRequired("spanId", spanId),
+                checkRequired("startTime", startTime),
+                checkRequired("traceId", traceId),
                 attributes,
                 endTime,
                 parentSpanId,

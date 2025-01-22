@@ -21,12 +21,10 @@ class DatasetioServiceTest {
         datasetioService.appendRows(
             DatasetioAppendRowsParams.builder()
                 .datasetId("dataset_id")
-                .rows(
-                    listOf(
-                        DatasetioAppendRowsParams.Row.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addRow(
+                    DatasetioAppendRowsParams.Row.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")

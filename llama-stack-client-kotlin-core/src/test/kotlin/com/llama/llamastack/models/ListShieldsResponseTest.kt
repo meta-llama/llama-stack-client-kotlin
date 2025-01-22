@@ -12,20 +12,18 @@ class ListShieldsResponseTest {
     fun createListShieldsResponse() {
         val listShieldsResponse =
             ListShieldsResponse.builder()
-                .data(
-                    listOf(
-                        Shield.builder()
-                            .identifier("identifier")
-                            .providerId("provider_id")
-                            .providerResourceId("provider_resource_id")
-                            .type(Shield.Type.SHIELD)
-                            .params(
-                                Shield.Params.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .build()
-                    )
+                .addData(
+                    Shield.builder()
+                        .identifier("identifier")
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .type(Shield.Type.SHIELD)
+                        .params(
+                            Shield.Params.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
                 )
                 .build()
         assertThat(listShieldsResponse).isNotNull

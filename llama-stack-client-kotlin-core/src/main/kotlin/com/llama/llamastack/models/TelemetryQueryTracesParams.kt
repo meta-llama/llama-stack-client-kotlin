@@ -16,6 +16,7 @@ import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -358,8 +359,8 @@ constructor(
 
             fun build(): AttributeFilter =
                 AttributeFilter(
-                    checkNotNull(key) { "`key` is required but was not set" },
-                    checkNotNull(op) { "`op` is required but was not set" },
+                    checkRequired("key", key),
+                    checkRequired("op", op),
                     value,
                     additionalProperties.build(),
                 )

@@ -12,53 +12,18 @@ class BatchInferenceChatCompletionResponseTest {
     fun createBatchInferenceChatCompletionResponse() {
         val batchInferenceChatCompletionResponse =
             BatchInferenceChatCompletionResponse.builder()
-                .completionMessageBatch(
-                    listOf(
-                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(
-                                BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role
-                                    .ASSISTANT
-                            )
-                            .stopReason(
-                                BatchInferenceChatCompletionResponse.CompletionMessageBatch
-                                    .StopReason
-                                    .END_OF_TURN
-                            )
-                            .toolCalls(
-                                listOf(
-                                    ToolCall.builder()
-                                        .arguments(
-                                            ToolCall.Arguments.builder()
-                                                .putAdditionalProperty(
-                                                    "foo",
-                                                    JsonValue.from("string")
-                                                )
-                                                .build()
-                                        )
-                                        .callId("call_id")
-                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                        .build()
-                                )
-                            )
-                            .build()
-                    )
-                )
-                .build()
-        assertThat(batchInferenceChatCompletionResponse).isNotNull
-        assertThat(batchInferenceChatCompletionResponse.completionMessageBatch())
-            .containsExactly(
-                BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
-                    .content(InterleavedContent.ofString("string"))
-                    .role(
-                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role.ASSISTANT
-                    )
-                    .stopReason(
-                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.StopReason
-                            .END_OF_TURN
-                    )
-                    .toolCalls(
-                        listOf(
+                .addCompletionMessageBatch(
+                    BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
+                        .content("string")
+                        .role(
+                            BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role
+                                .ASSISTANT
+                        )
+                        .stopReason(
+                            BatchInferenceChatCompletionResponse.CompletionMessageBatch.StopReason
+                                .END_OF_TURN
+                        )
+                        .addToolCall(
                             ToolCall.builder()
                                 .arguments(
                                     ToolCall.Arguments.builder()
@@ -69,6 +34,31 @@ class BatchInferenceChatCompletionResponseTest {
                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                 .build()
                         )
+                        .build()
+                )
+                .build()
+        assertThat(batchInferenceChatCompletionResponse).isNotNull
+        assertThat(batchInferenceChatCompletionResponse.completionMessageBatch())
+            .containsExactly(
+                BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
+                    .content("string")
+                    .role(
+                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role.ASSISTANT
+                    )
+                    .stopReason(
+                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.StopReason
+                            .END_OF_TURN
+                    )
+                    .addToolCall(
+                        ToolCall.builder()
+                            .arguments(
+                                ToolCall.Arguments.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                                    .build()
+                            )
+                            .callId("call_id")
+                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                            .build()
                     )
                     .build()
             )

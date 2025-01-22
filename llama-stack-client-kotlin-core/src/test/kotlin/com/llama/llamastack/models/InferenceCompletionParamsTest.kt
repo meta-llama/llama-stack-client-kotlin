@@ -11,32 +11,25 @@ class InferenceCompletionParamsTest {
     @Test
     fun createInferenceCompletionParams() {
         InferenceCompletionParams.builder()
-            .content(InterleavedContent.ofString("string"))
+            .content("string")
             .modelId("model_id")
             .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
-                InferenceCompletionParams.ResponseFormat.ofUnionMember0(
-                    InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
-                        .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                .builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
-                        .type(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
-                        )
-                        .build()
-                )
+                InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                    .jsonSchema(
+                        InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .type(InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA)
+                    .build()
             )
             .samplingParams(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.ofGreedySamplingStrategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                                .build()
-                        )
+                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            .build()
                     )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
@@ -51,35 +44,28 @@ class InferenceCompletionParamsTest {
     fun getBody() {
         val params =
             InferenceCompletionParams.builder()
-                .content(InterleavedContent.ofString("string"))
+                .content("string")
                 .modelId("model_id")
                 .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceCompletionParams.ResponseFormat.ofUnionMember0(
-                        InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
-                            .jsonSchema(
-                                InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                    .builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .type(
-                                InferenceCompletionParams.ResponseFormat.UnionMember0.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                        .jsonSchema(
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                                .builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .type(
+                            InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
-                                    .build()
-                            )
+                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                .build()
                         )
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
@@ -114,11 +100,9 @@ class InferenceCompletionParamsTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.ofGreedySamplingStrategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                                .build()
-                        )
+                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            .build()
                     )
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
@@ -129,10 +113,7 @@ class InferenceCompletionParamsTest {
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
-            InferenceCompletionParams.builder()
-                .content(InterleavedContent.ofString("string"))
-                .modelId("model_id")
-                .build()
+            InferenceCompletionParams.builder().content("string").modelId("model_id").build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))

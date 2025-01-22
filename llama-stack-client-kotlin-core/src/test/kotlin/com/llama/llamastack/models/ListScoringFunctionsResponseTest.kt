@@ -12,42 +12,32 @@ class ListScoringFunctionsResponseTest {
     fun createListScoringFunctionsResponse() {
         val listScoringFunctionsResponse =
             ListScoringFunctionsResponse.builder()
-                .data(
-                    listOf(
-                        ScoringFn.builder()
-                            .identifier("identifier")
-                            .metadata(
-                                ScoringFn.Metadata.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .providerId("provider_id")
-                            .providerResourceId("provider_resource_id")
-                            .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
-                            .type(ScoringFn.Type.SCORING_FUNCTION)
-                            .description("description")
-                            .params(
-                                ScoringFn.Params.ofLlmAsJudgeScoringFnParams(
-                                    ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
-                                        .judgeModel("judge_model")
-                                        .type(
-                                            ScoringFn.Params.LlmAsJudgeScoringFnParams.Type
-                                                .LLM_AS_JUDGE
-                                        )
-                                        .aggregationFunctions(
-                                            listOf(
-                                                ScoringFn.Params.LlmAsJudgeScoringFnParams
-                                                    .AggregationFunction
-                                                    .AVERAGE
-                                            )
-                                        )
-                                        .judgeScoreRegexes(listOf("string"))
-                                        .promptTemplate("prompt_template")
-                                        .build()
+                .addData(
+                    ScoringFn.builder()
+                        .identifier("identifier")
+                        .metadata(
+                            ScoringFn.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
+                        .type(ScoringFn.Type.SCORING_FUNCTION)
+                        .description("description")
+                        .params(
+                            ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
+                                .judgeModel("judge_model")
+                                .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
+                                .addAggregationFunction(
+                                    ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction
+                                        .AVERAGE
                                 )
-                            )
-                            .build()
-                    )
+                                .addJudgeScoreRegex("string")
+                                .promptTemplate("prompt_template")
+                                .build()
+                        )
+                        .build()
                 )
                 .build()
         assertThat(listScoringFunctionsResponse).isNotNull
@@ -66,21 +56,16 @@ class ListScoringFunctionsResponseTest {
                     .type(ScoringFn.Type.SCORING_FUNCTION)
                     .description("description")
                     .params(
-                        ScoringFn.Params.ofLlmAsJudgeScoringFnParams(
-                            ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
-                                .judgeModel("judge_model")
-                                .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
-                                .aggregationFunctions(
-                                    listOf(
-                                        ScoringFn.Params.LlmAsJudgeScoringFnParams
-                                            .AggregationFunction
-                                            .AVERAGE
-                                    )
-                                )
-                                .judgeScoreRegexes(listOf("string"))
-                                .promptTemplate("prompt_template")
-                                .build()
-                        )
+                        ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
+                            .judgeModel("judge_model")
+                            .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
+                            .addAggregationFunction(
+                                ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction
+                                    .AVERAGE
+                            )
+                            .addJudgeScoreRegex("string")
+                            .promptTemplate("prompt_template")
+                            .build()
                     )
                     .build()
             )

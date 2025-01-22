@@ -12,22 +12,20 @@ class ListEvalTasksResponseTest {
     fun createListEvalTasksResponse() {
         val listEvalTasksResponse =
             ListEvalTasksResponse.builder()
-                .data(
-                    listOf(
-                        EvalTask.builder()
-                            .datasetId("dataset_id")
-                            .identifier("identifier")
-                            .metadata(
-                                EvalTask.Metadata.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .providerId("provider_id")
-                            .providerResourceId("provider_resource_id")
-                            .scoringFunctions(listOf("string"))
-                            .type(EvalTask.Type.EVAL_TASK)
-                            .build()
-                    )
+                .addData(
+                    EvalTask.builder()
+                        .datasetId("dataset_id")
+                        .identifier("identifier")
+                        .metadata(
+                            EvalTask.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .addScoringFunction("string")
+                        .type(EvalTask.Type.EVAL_TASK)
+                        .build()
                 )
                 .build()
         assertThat(listEvalTasksResponse).isNotNull
@@ -43,7 +41,7 @@ class ListEvalTasksResponseTest {
                     )
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .scoringFunctions(listOf("string"))
+                    .addScoringFunction("string")
                     .type(EvalTask.Type.EVAL_TASK)
                     .build()
             )

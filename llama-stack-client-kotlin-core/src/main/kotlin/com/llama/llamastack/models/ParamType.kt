@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -406,10 +407,7 @@ private constructor(
             }
 
             fun build(): StringType =
-                StringType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                StringType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -550,10 +548,7 @@ private constructor(
             }
 
             fun build(): NumberType =
-                NumberType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                NumberType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -694,10 +689,7 @@ private constructor(
             }
 
             fun build(): BooleanType =
-                BooleanType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                BooleanType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -838,10 +830,7 @@ private constructor(
             }
 
             fun build(): ArrayType =
-                ArrayType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                ArrayType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -982,10 +971,7 @@ private constructor(
             }
 
             fun build(): ObjectType =
-                ObjectType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                ObjectType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1126,10 +1112,7 @@ private constructor(
             }
 
             fun build(): JsonType =
-                JsonType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                JsonType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1269,10 +1252,7 @@ private constructor(
             }
 
             fun build(): UnionType =
-                UnionType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                UnionType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1414,7 +1394,7 @@ private constructor(
 
             fun build(): ChatCompletionInputType =
                 ChatCompletionInputType(
-                    checkNotNull(type) { "`type` is required but was not set" },
+                    checkRequired("type", type),
                     additionalProperties.toImmutable()
                 )
         }
@@ -1557,10 +1537,7 @@ private constructor(
             }
 
             fun build(): CompletionInputType =
-                CompletionInputType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                CompletionInputType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1701,10 +1678,7 @@ private constructor(
             }
 
             fun build(): AgentTurnInputType =
-                AgentTurnInputType(
-                    checkNotNull(type) { "`type` is required but was not set" },
-                    additionalProperties.toImmutable()
-                )
+                AgentTurnInputType(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type

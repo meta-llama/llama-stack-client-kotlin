@@ -12,7 +12,7 @@ class ToolParamDefinitionTest {
         val toolParamDefinition =
             ToolParamDefinition.builder()
                 .paramType("param_type")
-                .default(ToolParamDefinition.Default.ofBoolean(true))
+                .default(true)
                 .description("description")
                 .required(true)
                 .build()

@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -169,10 +170,10 @@ private constructor(
 
         fun build(): InferenceStep =
             InferenceStep(
-                checkNotNull(modelResponse) { "`modelResponse` is required but was not set" },
-                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                checkNotNull(stepType) { "`stepType` is required but was not set" },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("modelResponse", modelResponse),
+                checkRequired("stepId", stepId),
+                checkRequired("stepType", stepType),
+                checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
                 additionalProperties.toImmutable(),
@@ -324,11 +325,10 @@ private constructor(
 
             fun build(): ModelResponse =
                 ModelResponse(
-                    checkNotNull(content) { "`content` is required but was not set" },
-                    checkNotNull(role) { "`role` is required but was not set" },
-                    checkNotNull(stopReason) { "`stopReason` is required but was not set" },
-                    checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                        .map { it.toImmutable() },
+                    checkRequired("content", content),
+                    checkRequired("role", role),
+                    checkRequired("stopReason", stopReason),
+                    checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }

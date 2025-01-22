@@ -13,22 +13,20 @@ class QuerySpansResponseTest {
     fun createQuerySpansResponse() {
         val querySpansResponse =
             QuerySpansResponse.builder()
-                .data(
-                    listOf(
-                        QuerySpansResponse.Data.builder()
-                            .name("name")
-                            .spanId("span_id")
-                            .startTime(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                            .traceId("trace_id")
-                            .attributes(
-                                QuerySpansResponse.Data.Attributes.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .endTime(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                            .parentSpanId("parent_span_id")
-                            .build()
-                    )
+                .addData(
+                    QuerySpansResponse.Data.builder()
+                        .name("name")
+                        .spanId("span_id")
+                        .startTime(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .traceId("trace_id")
+                        .attributes(
+                            QuerySpansResponse.Data.Attributes.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .endTime(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .parentSpanId("parent_span_id")
+                        .build()
                 )
                 .build()
         assertThat(querySpansResponse).isNotNull

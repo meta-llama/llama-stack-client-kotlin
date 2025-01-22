@@ -19,16 +19,14 @@ class ToolDefTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .parameters(
-                    listOf(
-                        ToolDef.Parameter.builder()
-                            .description("description")
-                            .name("name")
-                            .parameterType("parameter_type")
-                            .required(true)
-                            .default(ToolDef.Parameter.Default.ofBoolean(true))
-                            .build()
-                    )
+                .addParameter(
+                    ToolDef.Parameter.builder()
+                        .description("description")
+                        .name("name")
+                        .parameterType("parameter_type")
+                        .required(true)
+                        .default(true)
+                        .build()
                 )
                 .build()
         assertThat(toolDef).isNotNull
@@ -47,7 +45,7 @@ class ToolDefTest {
                     .name("name")
                     .parameterType("parameter_type")
                     .required(true)
-                    .default(ToolDef.Parameter.Default.ofBoolean(true))
+                    .default(true)
                     .build()
             )
     }

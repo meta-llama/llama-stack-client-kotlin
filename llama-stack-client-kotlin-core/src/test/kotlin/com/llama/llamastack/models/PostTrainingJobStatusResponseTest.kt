@@ -13,7 +13,7 @@ class PostTrainingJobStatusResponseTest {
     fun createPostTrainingJobStatusResponse() {
         val postTrainingJobStatusResponse =
             PostTrainingJobStatusResponse.builder()
-                .checkpoints(listOf(JsonValue.from(mapOf<String, Any>())))
+                .addCheckpoint(JsonValue.from(mapOf<String, Any>()))
                 .jobUuid("job_uuid")
                 .status(PostTrainingJobStatusResponse.Status.COMPLETED)
                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))

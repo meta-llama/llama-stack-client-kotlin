@@ -12,7 +12,7 @@ class TelemetryGetSpanTreeParamsTest {
     fun createTelemetryGetSpanTreeParams() {
         TelemetryGetSpanTreeParams.builder()
             .spanId("span_id")
-            .attributesToReturn(listOf("string"))
+            .addAttributesToReturn("string")
             .maxDepth(0L)
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -24,7 +24,7 @@ class TelemetryGetSpanTreeParamsTest {
         val params =
             TelemetryGetSpanTreeParams.builder()
                 .spanId("span_id")
-                .attributesToReturn(listOf("string"))
+                .addAttributesToReturn("string")
                 .maxDepth(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")

@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
@@ -220,9 +221,8 @@ constructor(
 
             fun build(): BatchInferenceCompletionBody =
                 BatchInferenceCompletionBody(
-                    checkNotNull(contentBatch) { "`contentBatch` is required but was not set" }
-                        .map { it.toImmutable() },
-                    checkNotNull(model) { "`model` is required but was not set" },
+                    checkRequired("contentBatch", contentBatch).map { it.toImmutable() },
+                    checkRequired("model", model),
                     logprobs,
                     samplingParams,
                     additionalProperties.toImmutable(),

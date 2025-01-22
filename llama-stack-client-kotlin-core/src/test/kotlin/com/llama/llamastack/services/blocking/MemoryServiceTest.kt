@@ -5,7 +5,6 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.MemoryInsertParams
 import com.llama.llamastack.models.MemoryQueryParams
 import org.junit.jupiter.api.Test
@@ -22,19 +21,17 @@ class MemoryServiceTest {
         memoryService.insert(
             MemoryInsertParams.builder()
                 .bankId("bank_id")
-                .documents(
-                    listOf(
-                        MemoryInsertParams.Document.builder()
-                            .content(MemoryInsertParams.Document.Content.ofString("string"))
-                            .documentId("document_id")
-                            .metadata(
-                                MemoryInsertParams.Document.Metadata.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
-                            .mimeType("mime_type")
-                            .build()
-                    )
+                .addDocument(
+                    MemoryInsertParams.Document.builder()
+                        .content("string")
+                        .documentId("document_id")
+                        .metadata(
+                            MemoryInsertParams.Document.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .mimeType("mime_type")
+                        .build()
                 )
                 .ttlSeconds(0L)
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -52,7 +49,7 @@ class MemoryServiceTest {
             memoryService.query(
                 MemoryQueryParams.builder()
                     .bankId("bank_id")
-                    .query(InterleavedContent.ofString("string"))
+                    .query("string")
                     .params(
                         MemoryQueryParams.Params.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))

@@ -6,7 +6,6 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
-import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -28,26 +27,20 @@ class TurnServiceTest {
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
-                    .messages(
-                        listOf(
-                            AgentTurnCreateParams.Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(InterleavedContent.ofString("string"))
-                                    .build()
-                            )
-                        )
+                    .addMessage(
+                        UserMessage.builder()
+                            .content("string")
+                            .role(UserMessage.Role.USER)
+                            .context("string")
+                            .build()
                     )
-                    .documents(
-                        listOf(
-                            AgentTurnCreateParams.Document.builder()
-                                .content(AgentTurnCreateParams.Document.Content.ofString("string"))
-                                .mimeType("mime_type")
-                                .build()
-                        )
+                    .addDocument(
+                        AgentTurnCreateParams.Document.builder()
+                            .content("string")
+                            .mimeType("mime_type")
+                            .build()
                     )
-                    .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                    .addToolgroup("string")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
@@ -69,26 +62,20 @@ class TurnServiceTest {
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
-                    .messages(
-                        listOf(
-                            AgentTurnCreateParams.Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(InterleavedContent.ofString("string"))
-                                    .build()
-                            )
-                        )
+                    .addMessage(
+                        UserMessage.builder()
+                            .content("string")
+                            .role(UserMessage.Role.USER)
+                            .context("string")
+                            .build()
                     )
-                    .documents(
-                        listOf(
-                            AgentTurnCreateParams.Document.builder()
-                                .content(AgentTurnCreateParams.Document.Content.ofString("string"))
-                                .mimeType("mime_type")
-                                .build()
-                        )
+                    .addDocument(
+                        AgentTurnCreateParams.Document.builder()
+                            .content("string")
+                            .mimeType("mime_type")
+                            .build()
                     )
-                    .toolgroups(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+                    .addToolgroup("string")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                     .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()

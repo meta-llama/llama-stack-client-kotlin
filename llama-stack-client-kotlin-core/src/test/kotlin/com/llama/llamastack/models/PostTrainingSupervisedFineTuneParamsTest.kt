@@ -70,24 +70,20 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     .build()
             )
             .algorithmConfig(
-                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.ofLoraFinetuningConfig(
-                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
-                        .builder()
-                        .alpha(0L)
-                        .applyLoraToMlp(true)
-                        .applyLoraToOutput(true)
-                        .loraAttnModules(listOf("string"))
-                        .rank(0L)
-                        .type(
-                            PostTrainingSupervisedFineTuneParams.AlgorithmConfig
-                                .LoraFinetuningConfig
-                                .Type
-                                .LO_RA
-                        )
-                        .quantizeBase(true)
-                        .useDora(true)
-                        .build()
-                )
+                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig.builder()
+                    .alpha(0L)
+                    .applyLoraToMlp(true)
+                    .applyLoraToOutput(true)
+                    .addLoraAttnModule("string")
+                    .rank(0L)
+                    .type(
+                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
+                            .Type
+                            .LO_RA
+                    )
+                    .quantizeBase(true)
+                    .useDora(true)
+                    .build()
             )
             .checkpointDir("checkpoint_dir")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -159,24 +155,22 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .algorithmConfig(
-                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.ofLoraFinetuningConfig(
-                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
-                            .builder()
-                            .alpha(0L)
-                            .applyLoraToMlp(true)
-                            .applyLoraToOutput(true)
-                            .loraAttnModules(listOf("string"))
-                            .rank(0L)
-                            .type(
-                                PostTrainingSupervisedFineTuneParams.AlgorithmConfig
-                                    .LoraFinetuningConfig
-                                    .Type
-                                    .LO_RA
-                            )
-                            .quantizeBase(true)
-                            .useDora(true)
-                            .build()
-                    )
+                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
+                        .builder()
+                        .alpha(0L)
+                        .applyLoraToMlp(true)
+                        .applyLoraToOutput(true)
+                        .addLoraAttnModule("string")
+                        .rank(0L)
+                        .type(
+                            PostTrainingSupervisedFineTuneParams.AlgorithmConfig
+                                .LoraFinetuningConfig
+                                .Type
+                                .LO_RA
+                        )
+                        .quantizeBase(true)
+                        .useDora(true)
+                        .build()
                 )
                 .checkpointDir("checkpoint_dir")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -253,7 +247,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .alpha(0L)
                         .applyLoraToMlp(true)
                         .applyLoraToOutput(true)
-                        .loraAttnModules(listOf("string"))
+                        .addLoraAttnModule("string")
                         .rank(0L)
                         .type(
                             PostTrainingSupervisedFineTuneParams.AlgorithmConfig

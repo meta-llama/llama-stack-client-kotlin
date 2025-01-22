@@ -12,12 +12,10 @@ class PaginatedRowsResultTest {
     fun createPaginatedRowsResult() {
         val paginatedRowsResult =
             PaginatedRowsResult.builder()
-                .rows(
-                    listOf(
-                        PaginatedRowsResult.Row.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+                .addRow(
+                    PaginatedRowsResult.Row.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
                 )
                 .totalCount(0L)
                 .nextPageToken("next_page_token")

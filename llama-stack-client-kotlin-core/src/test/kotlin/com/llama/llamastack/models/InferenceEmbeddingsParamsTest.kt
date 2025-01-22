@@ -10,7 +10,7 @@ class InferenceEmbeddingsParamsTest {
     @Test
     fun createInferenceEmbeddingsParams() {
         InferenceEmbeddingsParams.builder()
-            .contents(listOf(InterleavedContent.ofString("string")))
+            .addContent("string")
             .modelId("model_id")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
             .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -21,7 +21,7 @@ class InferenceEmbeddingsParamsTest {
     fun getBody() {
         val params =
             InferenceEmbeddingsParams.builder()
-                .contents(listOf(InterleavedContent.ofString("string")))
+                .addContent("string")
                 .modelId("model_id")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
@@ -35,10 +35,7 @@ class InferenceEmbeddingsParamsTest {
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
-            InferenceEmbeddingsParams.builder()
-                .contents(listOf(InterleavedContent.ofString("string")))
-                .modelId("model_id")
-                .build()
+            InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))

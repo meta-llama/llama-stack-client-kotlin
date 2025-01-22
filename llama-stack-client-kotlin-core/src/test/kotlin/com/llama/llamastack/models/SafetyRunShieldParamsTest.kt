@@ -11,16 +11,12 @@ class SafetyRunShieldParamsTest {
     @Test
     fun createSafetyRunShieldParams() {
         SafetyRunShieldParams.builder()
-            .messages(
-                listOf(
-                    SafetyRunShieldParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .context(InterleavedContent.ofString("string"))
-                            .build()
-                    )
-                )
+            .addMessage(
+                UserMessage.builder()
+                    .content("string")
+                    .role(UserMessage.Role.USER)
+                    .context("string")
+                    .build()
             )
             .params(
                 SafetyRunShieldParams.Params.builder()
@@ -37,16 +33,12 @@ class SafetyRunShieldParamsTest {
     fun getBody() {
         val params =
             SafetyRunShieldParams.builder()
-                .messages(
-                    listOf(
-                        SafetyRunShieldParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(InterleavedContent.ofString("string"))
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder()
+                        .content("string")
+                        .role(UserMessage.Role.USER)
+                        .context("string")
+                        .build()
                 )
                 .params(
                     SafetyRunShieldParams.Params.builder()
@@ -64,9 +56,9 @@ class SafetyRunShieldParamsTest {
                 listOf(
                     SafetyRunShieldParams.Message.ofUserMessage(
                         UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
+                            .content("string")
                             .role(UserMessage.Role.USER)
-                            .context(InterleavedContent.ofString("string"))
+                            .context("string")
                             .build()
                     )
                 )
@@ -84,15 +76,8 @@ class SafetyRunShieldParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             SafetyRunShieldParams.builder()
-                .messages(
-                    listOf(
-                        SafetyRunShieldParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
+                .addMessage(
+                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                 )
                 .params(
                     SafetyRunShieldParams.Params.builder()
@@ -107,10 +92,7 @@ class SafetyRunShieldParamsTest {
             .isEqualTo(
                 listOf(
                     SafetyRunShieldParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .build()
+                        UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                     )
                 )
             )

@@ -21,7 +21,7 @@ import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 
 class ToolgroupServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ToolgroupService {
 

@@ -18,7 +18,7 @@ import com.llama.llamastack.models.MemoryQueryParams
 import com.llama.llamastack.models.QueryDocumentsResponse
 
 class MemoryServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : MemoryService {
 

@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -209,11 +210,8 @@ constructor(
 
             fun build(): SyntheticDataGenerationGenerateBody =
                 SyntheticDataGenerationGenerateBody(
-                    checkNotNull(dialogs) { "`dialogs` is required but was not set" }
-                        .map { it.toImmutable() },
-                    checkNotNull(filteringFunction) {
-                        "`filteringFunction` is required but was not set"
-                    },
+                    checkRequired("dialogs", dialogs).map { it.toImmutable() },
+                    checkRequired("filteringFunction", filteringFunction),
                     model,
                     additionalProperties.toImmutable(),
                 )
@@ -758,11 +756,10 @@ constructor(
 
                 fun build(): CompletionMessage =
                     CompletionMessage(
-                        checkNotNull(content) { "`content` is required but was not set" },
-                        checkNotNull(role) { "`role` is required but was not set" },
-                        checkNotNull(stopReason) { "`stopReason` is required but was not set" },
-                        checkNotNull(toolCalls) { "`toolCalls` is required but was not set" }
-                            .map { it.toImmutable() },
+                        checkRequired("content", content),
+                        checkRequired("role", role),
+                        checkRequired("stopReason", stopReason),
+                        checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
                     )
             }

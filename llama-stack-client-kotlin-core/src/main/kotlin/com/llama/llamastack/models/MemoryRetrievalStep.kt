@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
@@ -211,12 +212,11 @@ private constructor(
 
         fun build(): MemoryRetrievalStep =
             MemoryRetrievalStep(
-                checkNotNull(insertedContext) { "`insertedContext` is required but was not set" },
-                checkNotNull(memoryBankIds) { "`memoryBankIds` is required but was not set" }
-                    .map { it.toImmutable() },
-                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                checkNotNull(stepType) { "`stepType` is required but was not set" },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("insertedContext", insertedContext),
+                checkRequired("memoryBankIds", memoryBankIds).map { it.toImmutable() },
+                checkRequired("stepId", stepId),
+                checkRequired("stepType", stepType),
+                checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
                 additionalProperties.toImmutable(),
