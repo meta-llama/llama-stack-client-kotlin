@@ -996,14 +996,12 @@ private constructor(
 
                         fun delta(delta: JsonField<ContentDelta>) = apply { this.delta = delta }
 
-                        fun delta(textDelta: ContentDelta.TextDelta) =
-                            delta(ContentDelta.ofTextDelta(textDelta))
+                        fun delta(text: ContentDelta.Text) = delta(ContentDelta.ofText(text))
 
-                        fun delta(imageDelta: ContentDelta.ImageDelta) =
-                            delta(ContentDelta.ofImageDelta(imageDelta))
+                        fun delta(image: ContentDelta.Image) = delta(ContentDelta.ofImage(image))
 
-                        fun delta(toolCallDelta: ContentDelta.ToolCallDelta) =
-                            delta(ContentDelta.ofToolCallDelta(toolCallDelta))
+                        fun delta(toolCall: ContentDelta.ToolCall) =
+                            delta(ContentDelta.ofToolCall(toolCall))
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 

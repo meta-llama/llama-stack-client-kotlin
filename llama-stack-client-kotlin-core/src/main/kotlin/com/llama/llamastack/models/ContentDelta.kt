@@ -32,37 +32,37 @@ import java.util.Objects
 @JsonSerialize(using = ContentDelta.Serializer::class)
 class ContentDelta
 private constructor(
-    private val textDelta: TextDelta? = null,
-    private val imageDelta: ImageDelta? = null,
-    private val toolCallDelta: ToolCallDelta? = null,
+    private val text: Text? = null,
+    private val image: Image? = null,
+    private val toolCall: ToolCall? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun textDelta(): TextDelta? = textDelta
+    fun text(): Text? = text
 
-    fun imageDelta(): ImageDelta? = imageDelta
+    fun image(): Image? = image
 
-    fun toolCallDelta(): ToolCallDelta? = toolCallDelta
+    fun toolCall(): ToolCall? = toolCall
 
-    fun isTextDelta(): Boolean = textDelta != null
+    fun isText(): Boolean = text != null
 
-    fun isImageDelta(): Boolean = imageDelta != null
+    fun isImage(): Boolean = image != null
 
-    fun isToolCallDelta(): Boolean = toolCallDelta != null
+    fun isToolCall(): Boolean = toolCall != null
 
-    fun asTextDelta(): TextDelta = textDelta.getOrThrow("textDelta")
+    fun asText(): Text = text.getOrThrow("text")
 
-    fun asImageDelta(): ImageDelta = imageDelta.getOrThrow("imageDelta")
+    fun asImage(): Image = image.getOrThrow("image")
 
-    fun asToolCallDelta(): ToolCallDelta = toolCallDelta.getOrThrow("toolCallDelta")
+    fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
 
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T {
         return when {
-            textDelta != null -> visitor.visitTextDelta(textDelta)
-            imageDelta != null -> visitor.visitImageDelta(imageDelta)
-            toolCallDelta != null -> visitor.visitToolCallDelta(toolCallDelta)
+            text != null -> visitor.visitText(text)
+            image != null -> visitor.visitImage(image)
+            toolCall != null -> visitor.visitToolCall(toolCall)
             else -> visitor.unknown(_json)
         }
     }
@@ -76,16 +76,16 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitTextDelta(textDelta: TextDelta) {
-                    textDelta.validate()
+                override fun visitText(text: Text) {
+                    text.validate()
                 }
 
-                override fun visitImageDelta(imageDelta: ImageDelta) {
-                    imageDelta.validate()
+                override fun visitImage(image: Image) {
+                    image.validate()
                 }
 
-                override fun visitToolCallDelta(toolCallDelta: ToolCallDelta) {
-                    toolCallDelta.validate()
+                override fun visitToolCall(toolCall: ToolCall) {
+                    toolCall.validate()
                 }
             }
         )
@@ -97,37 +97,36 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ContentDelta && textDelta == other.textDelta && imageDelta == other.imageDelta && toolCallDelta == other.toolCallDelta /* spotless:on */
+        return /* spotless:off */ other is ContentDelta && text == other.text && image == other.image && toolCall == other.toolCall /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(textDelta, imageDelta, toolCallDelta) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(text, image, toolCall) /* spotless:on */
 
     override fun toString(): String =
         when {
-            textDelta != null -> "ContentDelta{textDelta=$textDelta}"
-            imageDelta != null -> "ContentDelta{imageDelta=$imageDelta}"
-            toolCallDelta != null -> "ContentDelta{toolCallDelta=$toolCallDelta}"
+            text != null -> "ContentDelta{text=$text}"
+            image != null -> "ContentDelta{image=$image}"
+            toolCall != null -> "ContentDelta{toolCall=$toolCall}"
             _json != null -> "ContentDelta{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid ContentDelta")
         }
 
     companion object {
 
-        fun ofTextDelta(textDelta: TextDelta) = ContentDelta(textDelta = textDelta)
+        fun ofText(text: Text) = ContentDelta(text = text)
 
-        fun ofImageDelta(imageDelta: ImageDelta) = ContentDelta(imageDelta = imageDelta)
+        fun ofImage(image: Image) = ContentDelta(image = image)
 
-        fun ofToolCallDelta(toolCallDelta: ToolCallDelta) =
-            ContentDelta(toolCallDelta = toolCallDelta)
+        fun ofToolCall(toolCall: ToolCall) = ContentDelta(toolCall = toolCall)
     }
 
     interface Visitor<out T> {
 
-        fun visitTextDelta(textDelta: TextDelta): T
+        fun visitText(text: Text): T
 
-        fun visitImageDelta(imageDelta: ImageDelta): T
+        fun visitImage(image: Image): T
 
-        fun visitToolCallDelta(toolCallDelta: ToolCallDelta): T
+        fun visitToolCall(toolCall: ToolCall): T
 
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown ContentDelta: $json")
@@ -138,19 +137,28 @@ private constructor(
 
         override fun ObjectCodec.deserialize(node: JsonNode): ContentDelta {
             val json = JsonValue.fromJsonNode(node)
+            val type = json.asObject()?.get("type")?.asString()
 
-            tryDeserialize(node, jacksonTypeRef<TextDelta>()) { it.validate() }
-                ?.let {
-                    return ContentDelta(textDelta = it, _json = json)
+            when (type) {
+                "text" -> {
+                    tryDeserialize(node, jacksonTypeRef<Text>()) { it.validate() }
+                        ?.let {
+                            return ContentDelta(text = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<ImageDelta>()) { it.validate() }
-                ?.let {
-                    return ContentDelta(imageDelta = it, _json = json)
+                "image" -> {
+                    tryDeserialize(node, jacksonTypeRef<Image>()) { it.validate() }
+                        ?.let {
+                            return ContentDelta(image = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<ToolCallDelta>()) { it.validate() }
-                ?.let {
-                    return ContentDelta(toolCallDelta = it, _json = json)
+                "tool_call" -> {
+                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) { it.validate() }
+                        ?.let {
+                            return ContentDelta(toolCall = it, _json = json)
+                        }
                 }
+            }
 
             return ContentDelta(_json = json)
         }
@@ -164,9 +172,9 @@ private constructor(
             provider: SerializerProvider
         ) {
             when {
-                value.textDelta != null -> generator.writeObject(value.textDelta)
-                value.imageDelta != null -> generator.writeObject(value.imageDelta)
-                value.toolCallDelta != null -> generator.writeObject(value.toolCallDelta)
+                value.text != null -> generator.writeObject(value.text)
+                value.image != null -> generator.writeObject(value.image)
+                value.toolCall != null -> generator.writeObject(value.toolCall)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid ContentDelta")
             }
@@ -174,7 +182,7 @@ private constructor(
     }
 
     @NoAutoDetect
-    class TextDelta
+    class Text
     @JsonCreator
     private constructor(
         @JsonProperty("text")
@@ -199,7 +207,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): TextDelta = apply {
+        fun validate(): Text = apply {
             if (validated) {
                 return@apply
             }
@@ -222,10 +230,10 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(textDelta: TextDelta) = apply {
-                text = textDelta.text
-                type = textDelta.type
-                additionalProperties = textDelta.additionalProperties.toMutableMap()
+            internal fun from(text: Text) = apply {
+                this.text = text.text
+                type = text.type
+                additionalProperties = text.additionalProperties.toMutableMap()
             }
 
             fun text(text: String) = text(JsonField.of(text))
@@ -255,8 +263,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): TextDelta =
-                TextDelta(
+            fun build(): Text =
+                Text(
                     checkRequired("text", text),
                     checkRequired("type", type),
                     additionalProperties.toImmutable(),
@@ -319,7 +327,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TextDelta && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Text && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -329,11 +337,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TextDelta{text=$text, type=$type, additionalProperties=$additionalProperties}"
+            "Text{text=$text, type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class ImageDelta
+    class Image
     @JsonCreator
     private constructor(
         @JsonProperty("image")
@@ -358,7 +366,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ImageDelta = apply {
+        fun validate(): Image = apply {
             if (validated) {
                 return@apply
             }
@@ -381,10 +389,10 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(imageDelta: ImageDelta) = apply {
-                image = imageDelta.image
-                type = imageDelta.type
-                additionalProperties = imageDelta.additionalProperties.toMutableMap()
+            internal fun from(image: Image) = apply {
+                this.image = image.image
+                type = image.type
+                additionalProperties = image.additionalProperties.toMutableMap()
             }
 
             fun image(image: String) = image(JsonField.of(image))
@@ -414,8 +422,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ImageDelta =
-                ImageDelta(
+            fun build(): Image =
+                Image(
                     checkRequired("image", image),
                     checkRequired("type", type),
                     additionalProperties.toImmutable(),
@@ -478,7 +486,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageDelta && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Image && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -488,11 +496,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageDelta{image=$image, type=$type, additionalProperties=$additionalProperties}"
+            "Image{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class ToolCallDelta
+    class ToolCall
     @JsonCreator
     private constructor(
         @JsonProperty("parse_status")
@@ -526,7 +534,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ToolCallDelta = apply {
+        fun validate(): ToolCall = apply {
             if (validated) {
                 return@apply
             }
@@ -551,11 +559,11 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(toolCallDelta: ToolCallDelta) = apply {
-                parseStatus = toolCallDelta.parseStatus
-                toolCall = toolCallDelta.toolCall
-                type = toolCallDelta.type
-                additionalProperties = toolCallDelta.additionalProperties.toMutableMap()
+            internal fun from(toolCall: ToolCall) = apply {
+                parseStatus = toolCall.parseStatus
+                this.toolCall = toolCall.toolCall
+                type = toolCall.type
+                additionalProperties = toolCall.additionalProperties.toMutableMap()
             }
 
             fun parseStatus(parseStatus: ParseStatus) = parseStatus(JsonField.of(parseStatus))
@@ -563,14 +571,13 @@ private constructor(
             fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
                 this.parseStatus = parseStatus
             }
-            // MANUAL PATCH
+
             fun toolCall(toolCall: ToolCall) = toolCall(JsonField.of(toolCall))
 
             fun toolCall(toolCall: JsonField<ToolCall>) = apply { this.toolCall = toolCall }
 
-            //            fun toolCall(string: String) = ToolCall(string)
+            fun toolCall(string: String) = ToolCall.ofString(string)
 
-            // MANUAL PATCH
             //            fun toolCall(toolCall: ToolCall) = toolCall(ToolCall.ofToolCall(toolCall))
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -596,8 +603,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ToolCallDelta =
-                ToolCallDelta(
+            fun build(): ToolCall =
+                ToolCall(
                     checkRequired("parseStatus", parseStatus),
                     checkRequired("toolCall", toolCall),
                     checkRequired("type", type),
@@ -851,7 +858,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolCallDelta && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ToolCall && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -861,6 +868,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolCallDelta{parseStatus=$parseStatus, toolCall=$toolCall, type=$type, additionalProperties=$additionalProperties}"
+            "ToolCall{parseStatus=$parseStatus, toolCall=$toolCall, type=$type, additionalProperties=$additionalProperties}"
     }
 }

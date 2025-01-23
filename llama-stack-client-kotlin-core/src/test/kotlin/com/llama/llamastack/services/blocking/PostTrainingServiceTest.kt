@@ -168,18 +168,14 @@ class PostTrainingServiceTest {
                             .build()
                     )
                     .algorithmConfig(
-                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
-                            .builder()
+                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.builder()
                             .alpha(0L)
                             .applyLoraToMlp(true)
                             .applyLoraToOutput(true)
                             .addLoraAttnModule("string")
                             .rank(0L)
                             .type(
-                                PostTrainingSupervisedFineTuneParams.AlgorithmConfig
-                                    .LoraFinetuningConfig
-                                    .Type
-                                    .LO_RA
+                                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.Type.LO_RA
                             )
                             .quantizeBase(true)
                             .useDora(true)

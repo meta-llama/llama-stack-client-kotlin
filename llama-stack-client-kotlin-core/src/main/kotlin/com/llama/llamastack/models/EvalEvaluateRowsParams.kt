@@ -201,11 +201,10 @@ constructor(
                 this.taskConfig = taskConfig
             }
 
-            fun taskConfig(benchmarkEvalTaskConfig: TaskConfig.BenchmarkEvalTaskConfig) =
-                taskConfig(TaskConfig.ofBenchmarkEvalTaskConfig(benchmarkEvalTaskConfig))
+            fun taskConfig(benchmark: TaskConfig.Benchmark) =
+                taskConfig(TaskConfig.ofBenchmark(benchmark))
 
-            fun taskConfig(appEvalTaskConfig: TaskConfig.AppEvalTaskConfig) =
-                taskConfig(TaskConfig.ofAppEvalTaskConfig(appEvalTaskConfig))
+            fun taskConfig(app: TaskConfig.App) = taskConfig(TaskConfig.ofApp(app))
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -311,13 +310,9 @@ constructor(
 
         fun taskConfig(taskConfig: JsonField<TaskConfig>) = apply { body.taskConfig(taskConfig) }
 
-        fun taskConfig(benchmarkEvalTaskConfig: TaskConfig.BenchmarkEvalTaskConfig) = apply {
-            body.taskConfig(benchmarkEvalTaskConfig)
-        }
+        fun taskConfig(benchmark: TaskConfig.Benchmark) = apply { body.taskConfig(benchmark) }
 
-        fun taskConfig(appEvalTaskConfig: TaskConfig.AppEvalTaskConfig) = apply {
-            body.taskConfig(appEvalTaskConfig)
-        }
+        fun taskConfig(app: TaskConfig.App) = apply { body.taskConfig(app) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -527,32 +522,29 @@ constructor(
     @JsonSerialize(using = TaskConfig.Serializer::class)
     class TaskConfig
     private constructor(
-        private val benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig? = null,
-        private val appEvalTaskConfig: AppEvalTaskConfig? = null,
+        private val benchmark: Benchmark? = null,
+        private val app: App? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun benchmarkEvalTaskConfig(): BenchmarkEvalTaskConfig? = benchmarkEvalTaskConfig
+        fun benchmark(): Benchmark? = benchmark
 
-        fun appEvalTaskConfig(): AppEvalTaskConfig? = appEvalTaskConfig
+        fun app(): App? = app
 
-        fun isBenchmarkEvalTaskConfig(): Boolean = benchmarkEvalTaskConfig != null
+        fun isBenchmark(): Boolean = benchmark != null
 
-        fun isAppEvalTaskConfig(): Boolean = appEvalTaskConfig != null
+        fun isApp(): Boolean = app != null
 
-        fun asBenchmarkEvalTaskConfig(): BenchmarkEvalTaskConfig =
-            benchmarkEvalTaskConfig.getOrThrow("benchmarkEvalTaskConfig")
+        fun asBenchmark(): Benchmark = benchmark.getOrThrow("benchmark")
 
-        fun asAppEvalTaskConfig(): AppEvalTaskConfig =
-            appEvalTaskConfig.getOrThrow("appEvalTaskConfig")
+        fun asApp(): App = app.getOrThrow("app")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                benchmarkEvalTaskConfig != null ->
-                    visitor.visitBenchmarkEvalTaskConfig(benchmarkEvalTaskConfig)
-                appEvalTaskConfig != null -> visitor.visitAppEvalTaskConfig(appEvalTaskConfig)
+                benchmark != null -> visitor.visitBenchmark(benchmark)
+                app != null -> visitor.visitApp(app)
                 else -> visitor.unknown(_json)
             }
         }
@@ -566,14 +558,12 @@ constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitBenchmarkEvalTaskConfig(
-                        benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig
-                    ) {
-                        benchmarkEvalTaskConfig.validate()
+                    override fun visitBenchmark(benchmark: Benchmark) {
+                        benchmark.validate()
                     }
 
-                    override fun visitAppEvalTaskConfig(appEvalTaskConfig: AppEvalTaskConfig) {
-                        appEvalTaskConfig.validate()
+                    override fun visitApp(app: App) {
+                        app.validate()
                     }
                 }
             )
@@ -585,34 +575,31 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TaskConfig && benchmarkEvalTaskConfig == other.benchmarkEvalTaskConfig && appEvalTaskConfig == other.appEvalTaskConfig /* spotless:on */
+            return /* spotless:off */ other is TaskConfig && benchmark == other.benchmark && app == other.app /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmarkEvalTaskConfig, appEvalTaskConfig) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmark, app) /* spotless:on */
 
         override fun toString(): String =
             when {
-                benchmarkEvalTaskConfig != null ->
-                    "TaskConfig{benchmarkEvalTaskConfig=$benchmarkEvalTaskConfig}"
-                appEvalTaskConfig != null -> "TaskConfig{appEvalTaskConfig=$appEvalTaskConfig}"
+                benchmark != null -> "TaskConfig{benchmark=$benchmark}"
+                app != null -> "TaskConfig{app=$app}"
                 _json != null -> "TaskConfig{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid TaskConfig")
             }
 
         companion object {
 
-            fun ofBenchmarkEvalTaskConfig(benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig) =
-                TaskConfig(benchmarkEvalTaskConfig = benchmarkEvalTaskConfig)
+            fun ofBenchmark(benchmark: Benchmark) = TaskConfig(benchmark = benchmark)
 
-            fun ofAppEvalTaskConfig(appEvalTaskConfig: AppEvalTaskConfig) =
-                TaskConfig(appEvalTaskConfig = appEvalTaskConfig)
+            fun ofApp(app: App) = TaskConfig(app = app)
         }
 
         interface Visitor<out T> {
 
-            fun visitBenchmarkEvalTaskConfig(benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig): T
+            fun visitBenchmark(benchmark: Benchmark): T
 
-            fun visitAppEvalTaskConfig(appEvalTaskConfig: AppEvalTaskConfig): T
+            fun visitApp(app: App): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown TaskConfig: $json")
@@ -623,15 +610,22 @@ constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): TaskConfig {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<BenchmarkEvalTaskConfig>()) { it.validate() }
-                    ?.let {
-                        return TaskConfig(benchmarkEvalTaskConfig = it, _json = json)
+                when (type) {
+                    "benchmark" -> {
+                        tryDeserialize(node, jacksonTypeRef<Benchmark>()) { it.validate() }
+                            ?.let {
+                                return TaskConfig(benchmark = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<AppEvalTaskConfig>()) { it.validate() }
-                    ?.let {
-                        return TaskConfig(appEvalTaskConfig = it, _json = json)
+                    "app" -> {
+                        tryDeserialize(node, jacksonTypeRef<App>()) { it.validate() }
+                            ?.let {
+                                return TaskConfig(app = it, _json = json)
+                            }
                     }
+                }
 
                 return TaskConfig(_json = json)
             }
@@ -645,10 +639,8 @@ constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.benchmarkEvalTaskConfig != null ->
-                        generator.writeObject(value.benchmarkEvalTaskConfig)
-                    value.appEvalTaskConfig != null ->
-                        generator.writeObject(value.appEvalTaskConfig)
+                    value.benchmark != null -> generator.writeObject(value.benchmark)
+                    value.app != null -> generator.writeObject(value.app)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid TaskConfig")
                 }
@@ -656,7 +648,7 @@ constructor(
         }
 
         @NoAutoDetect
-        class BenchmarkEvalTaskConfig
+        class Benchmark
         @JsonCreator
         private constructor(
             @JsonProperty("eval_candidate")
@@ -694,7 +686,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): BenchmarkEvalTaskConfig = apply {
+            fun validate(): Benchmark = apply {
                 if (validated) {
                     return@apply
                 }
@@ -719,12 +711,11 @@ constructor(
                 private var numExamples: JsonField<Long> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(benchmarkEvalTaskConfig: BenchmarkEvalTaskConfig) = apply {
-                    evalCandidate = benchmarkEvalTaskConfig.evalCandidate
-                    type = benchmarkEvalTaskConfig.type
-                    numExamples = benchmarkEvalTaskConfig.numExamples
-                    additionalProperties =
-                        benchmarkEvalTaskConfig.additionalProperties.toMutableMap()
+                internal fun from(benchmark: Benchmark) = apply {
+                    evalCandidate = benchmark.evalCandidate
+                    type = benchmark.type
+                    numExamples = benchmark.numExamples
+                    additionalProperties = benchmark.additionalProperties.toMutableMap()
                 }
 
                 fun evalCandidate(evalCandidate: EvalCandidate) =
@@ -734,11 +725,11 @@ constructor(
                     this.evalCandidate = evalCandidate
                 }
 
-                fun evalCandidate(modelCandidate: EvalCandidate.ModelCandidate) =
-                    evalCandidate(EvalCandidate.ofModelCandidate(modelCandidate))
+                fun evalCandidate(model: EvalCandidate.Model) =
+                    evalCandidate(EvalCandidate.ofModel(model))
 
-                fun evalCandidate(agentCandidate: EvalCandidate.AgentCandidate) =
-                    evalCandidate(EvalCandidate.ofAgentCandidate(agentCandidate))
+                fun evalCandidate(agent: EvalCandidate.Agent) =
+                    evalCandidate(EvalCandidate.ofAgent(agent))
 
                 fun type(type: Type) = type(JsonField.of(type))
 
@@ -772,8 +763,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): BenchmarkEvalTaskConfig =
-                    BenchmarkEvalTaskConfig(
+                fun build(): Benchmark =
+                    Benchmark(
                         checkRequired("evalCandidate", evalCandidate),
                         checkRequired("type", type),
                         numExamples,
@@ -785,29 +776,29 @@ constructor(
             @JsonSerialize(using = EvalCandidate.Serializer::class)
             class EvalCandidate
             private constructor(
-                private val modelCandidate: ModelCandidate? = null,
-                private val agentCandidate: AgentCandidate? = null,
+                private val model: Model? = null,
+                private val agent: Agent? = null,
                 private val _json: JsonValue? = null,
             ) {
 
-                fun modelCandidate(): ModelCandidate? = modelCandidate
+                fun model(): Model? = model
 
-                fun agentCandidate(): AgentCandidate? = agentCandidate
+                fun agent(): Agent? = agent
 
-                fun isModelCandidate(): Boolean = modelCandidate != null
+                fun isModel(): Boolean = model != null
 
-                fun isAgentCandidate(): Boolean = agentCandidate != null
+                fun isAgent(): Boolean = agent != null
 
-                fun asModelCandidate(): ModelCandidate = modelCandidate.getOrThrow("modelCandidate")
+                fun asModel(): Model = model.getOrThrow("model")
 
-                fun asAgentCandidate(): AgentCandidate = agentCandidate.getOrThrow("agentCandidate")
+                fun asAgent(): Agent = agent.getOrThrow("agent")
 
                 fun _json(): JsonValue? = _json
 
                 fun <T> accept(visitor: Visitor<T>): T {
                     return when {
-                        modelCandidate != null -> visitor.visitModelCandidate(modelCandidate)
-                        agentCandidate != null -> visitor.visitAgentCandidate(agentCandidate)
+                        model != null -> visitor.visitModel(model)
+                        agent != null -> visitor.visitAgent(agent)
                         else -> visitor.unknown(_json)
                     }
                 }
@@ -821,12 +812,12 @@ constructor(
 
                     accept(
                         object : Visitor<Unit> {
-                            override fun visitModelCandidate(modelCandidate: ModelCandidate) {
-                                modelCandidate.validate()
+                            override fun visitModel(model: Model) {
+                                model.validate()
                             }
 
-                            override fun visitAgentCandidate(agentCandidate: AgentCandidate) {
-                                agentCandidate.validate()
+                            override fun visitAgent(agent: Agent) {
+                                agent.validate()
                             }
                         }
                     )
@@ -838,33 +829,31 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is EvalCandidate && modelCandidate == other.modelCandidate && agentCandidate == other.agentCandidate /* spotless:on */
+                    return /* spotless:off */ other is EvalCandidate && model == other.model && agent == other.agent /* spotless:on */
                 }
 
-                override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelCandidate, agentCandidate) /* spotless:on */
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(model, agent) /* spotless:on */
 
                 override fun toString(): String =
                     when {
-                        modelCandidate != null -> "EvalCandidate{modelCandidate=$modelCandidate}"
-                        agentCandidate != null -> "EvalCandidate{agentCandidate=$agentCandidate}"
+                        model != null -> "EvalCandidate{model=$model}"
+                        agent != null -> "EvalCandidate{agent=$agent}"
                         _json != null -> "EvalCandidate{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid EvalCandidate")
                     }
 
                 companion object {
 
-                    fun ofModelCandidate(modelCandidate: ModelCandidate) =
-                        EvalCandidate(modelCandidate = modelCandidate)
+                    fun ofModel(model: Model) = EvalCandidate(model = model)
 
-                    fun ofAgentCandidate(agentCandidate: AgentCandidate) =
-                        EvalCandidate(agentCandidate = agentCandidate)
+                    fun ofAgent(agent: Agent) = EvalCandidate(agent = agent)
                 }
 
                 interface Visitor<out T> {
 
-                    fun visitModelCandidate(modelCandidate: ModelCandidate): T
+                    fun visitModel(model: Model): T
 
-                    fun visitAgentCandidate(agentCandidate: AgentCandidate): T
+                    fun visitAgent(agent: Agent): T
 
                     fun unknown(json: JsonValue?): T {
                         throw LlamaStackClientInvalidDataException("Unknown EvalCandidate: $json")
@@ -875,15 +864,22 @@ constructor(
 
                     override fun ObjectCodec.deserialize(node: JsonNode): EvalCandidate {
                         val json = JsonValue.fromJsonNode(node)
+                        val type = json.asObject()?.get("type")?.asString()
 
-                        tryDeserialize(node, jacksonTypeRef<ModelCandidate>()) { it.validate() }
-                            ?.let {
-                                return EvalCandidate(modelCandidate = it, _json = json)
+                        when (type) {
+                            "model" -> {
+                                tryDeserialize(node, jacksonTypeRef<Model>()) { it.validate() }
+                                    ?.let {
+                                        return EvalCandidate(model = it, _json = json)
+                                    }
                             }
-                        tryDeserialize(node, jacksonTypeRef<AgentCandidate>()) { it.validate() }
-                            ?.let {
-                                return EvalCandidate(agentCandidate = it, _json = json)
+                            "agent" -> {
+                                tryDeserialize(node, jacksonTypeRef<Agent>()) { it.validate() }
+                                    ?.let {
+                                        return EvalCandidate(agent = it, _json = json)
+                                    }
                             }
+                        }
 
                         return EvalCandidate(_json = json)
                     }
@@ -897,10 +893,8 @@ constructor(
                         provider: SerializerProvider
                     ) {
                         when {
-                            value.modelCandidate != null ->
-                                generator.writeObject(value.modelCandidate)
-                            value.agentCandidate != null ->
-                                generator.writeObject(value.agentCandidate)
+                            value.model != null -> generator.writeObject(value.model)
+                            value.agent != null -> generator.writeObject(value.agent)
                             value._json != null -> generator.writeObject(value._json)
                             else -> throw IllegalStateException("Invalid EvalCandidate")
                         }
@@ -908,7 +902,7 @@ constructor(
                 }
 
                 @NoAutoDetect
-                class ModelCandidate
+                class Model
                 @JsonCreator
                 private constructor(
                     @JsonProperty("model")
@@ -955,7 +949,7 @@ constructor(
 
                     private var validated: Boolean = false
 
-                    fun validate(): ModelCandidate = apply {
+                    fun validate(): Model = apply {
                         if (validated) {
                             return@apply
                         }
@@ -983,13 +977,12 @@ constructor(
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
-                        internal fun from(modelCandidate: ModelCandidate) = apply {
-                            model = modelCandidate.model
-                            samplingParams = modelCandidate.samplingParams
-                            type = modelCandidate.type
-                            systemMessage = modelCandidate.systemMessage
-                            additionalProperties =
-                                modelCandidate.additionalProperties.toMutableMap()
+                        internal fun from(model: Model) = apply {
+                            this.model = model.model
+                            samplingParams = model.samplingParams
+                            type = model.type
+                            systemMessage = model.systemMessage
+                            additionalProperties = model.additionalProperties.toMutableMap()
                         }
 
                         fun model(model: String) = model(JsonField.of(model))
@@ -1036,8 +1029,8 @@ constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): ModelCandidate =
-                            ModelCandidate(
+                        fun build(): Model =
+                            Model(
                                 checkRequired("model", model),
                                 checkRequired("samplingParams", samplingParams),
                                 checkRequired("type", type),
@@ -1106,7 +1099,7 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is Model && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
@@ -1116,11 +1109,11 @@ constructor(
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "ModelCandidate{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
+                        "Model{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect
-                class AgentCandidate
+                class Agent
                 @JsonCreator
                 private constructor(
                     @JsonProperty("config")
@@ -1149,7 +1142,7 @@ constructor(
 
                     private var validated: Boolean = false
 
-                    fun validate(): AgentCandidate = apply {
+                    fun validate(): Agent = apply {
                         if (validated) {
                             return@apply
                         }
@@ -1173,11 +1166,10 @@ constructor(
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
-                        internal fun from(agentCandidate: AgentCandidate) = apply {
-                            config = agentCandidate.config
-                            type = agentCandidate.type
-                            additionalProperties =
-                                agentCandidate.additionalProperties.toMutableMap()
+                        internal fun from(agent: Agent) = apply {
+                            config = agent.config
+                            type = agent.type
+                            additionalProperties = agent.additionalProperties.toMutableMap()
                         }
 
                         fun config(config: AgentConfig) = config(JsonField.of(config))
@@ -1210,8 +1202,8 @@ constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): AgentCandidate =
-                            AgentCandidate(
+                        fun build(): Agent =
+                            Agent(
                                 checkRequired("config", config),
                                 checkRequired("type", type),
                                 additionalProperties.toImmutable(),
@@ -1278,7 +1270,7 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentCandidate && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is Agent && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
@@ -1288,7 +1280,7 @@ constructor(
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "AgentCandidate{config=$config, type=$type, additionalProperties=$additionalProperties}"
+                        "Agent{config=$config, type=$type, additionalProperties=$additionalProperties}"
                 }
             }
 
@@ -1348,7 +1340,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is BenchmarkEvalTaskConfig && evalCandidate == other.evalCandidate && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Benchmark && evalCandidate == other.evalCandidate && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1358,11 +1350,11 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "BenchmarkEvalTaskConfig{evalCandidate=$evalCandidate, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
+                "Benchmark{evalCandidate=$evalCandidate, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class AppEvalTaskConfig
+        class App
         @JsonCreator
         private constructor(
             @JsonProperty("eval_candidate")
@@ -1409,7 +1401,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): AppEvalTaskConfig = apply {
+            fun validate(): App = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1436,12 +1428,12 @@ constructor(
                 private var numExamples: JsonField<Long> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(appEvalTaskConfig: AppEvalTaskConfig) = apply {
-                    evalCandidate = appEvalTaskConfig.evalCandidate
-                    scoringParams = appEvalTaskConfig.scoringParams
-                    type = appEvalTaskConfig.type
-                    numExamples = appEvalTaskConfig.numExamples
-                    additionalProperties = appEvalTaskConfig.additionalProperties.toMutableMap()
+                internal fun from(app: App) = apply {
+                    evalCandidate = app.evalCandidate
+                    scoringParams = app.scoringParams
+                    type = app.type
+                    numExamples = app.numExamples
+                    additionalProperties = app.additionalProperties.toMutableMap()
                 }
 
                 fun evalCandidate(evalCandidate: EvalCandidate) =
@@ -1451,11 +1443,11 @@ constructor(
                     this.evalCandidate = evalCandidate
                 }
 
-                fun evalCandidate(modelCandidate: EvalCandidate.ModelCandidate) =
-                    evalCandidate(EvalCandidate.ofModelCandidate(modelCandidate))
+                fun evalCandidate(model: EvalCandidate.Model) =
+                    evalCandidate(EvalCandidate.ofModel(model))
 
-                fun evalCandidate(agentCandidate: EvalCandidate.AgentCandidate) =
-                    evalCandidate(EvalCandidate.ofAgentCandidate(agentCandidate))
+                fun evalCandidate(agent: EvalCandidate.Agent) =
+                    evalCandidate(EvalCandidate.ofAgent(agent))
 
                 fun scoringParams(scoringParams: ScoringParams) =
                     scoringParams(JsonField.of(scoringParams))
@@ -1496,8 +1488,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): AppEvalTaskConfig =
-                    AppEvalTaskConfig(
+                fun build(): App =
+                    App(
                         checkRequired("evalCandidate", evalCandidate),
                         checkRequired("scoringParams", scoringParams),
                         checkRequired("type", type),
@@ -1510,29 +1502,29 @@ constructor(
             @JsonSerialize(using = EvalCandidate.Serializer::class)
             class EvalCandidate
             private constructor(
-                private val modelCandidate: ModelCandidate? = null,
-                private val agentCandidate: AgentCandidate? = null,
+                private val model: Model? = null,
+                private val agent: Agent? = null,
                 private val _json: JsonValue? = null,
             ) {
 
-                fun modelCandidate(): ModelCandidate? = modelCandidate
+                fun model(): Model? = model
 
-                fun agentCandidate(): AgentCandidate? = agentCandidate
+                fun agent(): Agent? = agent
 
-                fun isModelCandidate(): Boolean = modelCandidate != null
+                fun isModel(): Boolean = model != null
 
-                fun isAgentCandidate(): Boolean = agentCandidate != null
+                fun isAgent(): Boolean = agent != null
 
-                fun asModelCandidate(): ModelCandidate = modelCandidate.getOrThrow("modelCandidate")
+                fun asModel(): Model = model.getOrThrow("model")
 
-                fun asAgentCandidate(): AgentCandidate = agentCandidate.getOrThrow("agentCandidate")
+                fun asAgent(): Agent = agent.getOrThrow("agent")
 
                 fun _json(): JsonValue? = _json
 
                 fun <T> accept(visitor: Visitor<T>): T {
                     return when {
-                        modelCandidate != null -> visitor.visitModelCandidate(modelCandidate)
-                        agentCandidate != null -> visitor.visitAgentCandidate(agentCandidate)
+                        model != null -> visitor.visitModel(model)
+                        agent != null -> visitor.visitAgent(agent)
                         else -> visitor.unknown(_json)
                     }
                 }
@@ -1546,12 +1538,12 @@ constructor(
 
                     accept(
                         object : Visitor<Unit> {
-                            override fun visitModelCandidate(modelCandidate: ModelCandidate) {
-                                modelCandidate.validate()
+                            override fun visitModel(model: Model) {
+                                model.validate()
                             }
 
-                            override fun visitAgentCandidate(agentCandidate: AgentCandidate) {
-                                agentCandidate.validate()
+                            override fun visitAgent(agent: Agent) {
+                                agent.validate()
                             }
                         }
                     )
@@ -1563,33 +1555,31 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is EvalCandidate && modelCandidate == other.modelCandidate && agentCandidate == other.agentCandidate /* spotless:on */
+                    return /* spotless:off */ other is EvalCandidate && model == other.model && agent == other.agent /* spotless:on */
                 }
 
-                override fun hashCode(): Int = /* spotless:off */ Objects.hash(modelCandidate, agentCandidate) /* spotless:on */
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(model, agent) /* spotless:on */
 
                 override fun toString(): String =
                     when {
-                        modelCandidate != null -> "EvalCandidate{modelCandidate=$modelCandidate}"
-                        agentCandidate != null -> "EvalCandidate{agentCandidate=$agentCandidate}"
+                        model != null -> "EvalCandidate{model=$model}"
+                        agent != null -> "EvalCandidate{agent=$agent}"
                         _json != null -> "EvalCandidate{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid EvalCandidate")
                     }
 
                 companion object {
 
-                    fun ofModelCandidate(modelCandidate: ModelCandidate) =
-                        EvalCandidate(modelCandidate = modelCandidate)
+                    fun ofModel(model: Model) = EvalCandidate(model = model)
 
-                    fun ofAgentCandidate(agentCandidate: AgentCandidate) =
-                        EvalCandidate(agentCandidate = agentCandidate)
+                    fun ofAgent(agent: Agent) = EvalCandidate(agent = agent)
                 }
 
                 interface Visitor<out T> {
 
-                    fun visitModelCandidate(modelCandidate: ModelCandidate): T
+                    fun visitModel(model: Model): T
 
-                    fun visitAgentCandidate(agentCandidate: AgentCandidate): T
+                    fun visitAgent(agent: Agent): T
 
                     fun unknown(json: JsonValue?): T {
                         throw LlamaStackClientInvalidDataException("Unknown EvalCandidate: $json")
@@ -1600,15 +1590,22 @@ constructor(
 
                     override fun ObjectCodec.deserialize(node: JsonNode): EvalCandidate {
                         val json = JsonValue.fromJsonNode(node)
+                        val type = json.asObject()?.get("type")?.asString()
 
-                        tryDeserialize(node, jacksonTypeRef<ModelCandidate>()) { it.validate() }
-                            ?.let {
-                                return EvalCandidate(modelCandidate = it, _json = json)
+                        when (type) {
+                            "model" -> {
+                                tryDeserialize(node, jacksonTypeRef<Model>()) { it.validate() }
+                                    ?.let {
+                                        return EvalCandidate(model = it, _json = json)
+                                    }
                             }
-                        tryDeserialize(node, jacksonTypeRef<AgentCandidate>()) { it.validate() }
-                            ?.let {
-                                return EvalCandidate(agentCandidate = it, _json = json)
+                            "agent" -> {
+                                tryDeserialize(node, jacksonTypeRef<Agent>()) { it.validate() }
+                                    ?.let {
+                                        return EvalCandidate(agent = it, _json = json)
+                                    }
                             }
+                        }
 
                         return EvalCandidate(_json = json)
                     }
@@ -1622,10 +1619,8 @@ constructor(
                         provider: SerializerProvider
                     ) {
                         when {
-                            value.modelCandidate != null ->
-                                generator.writeObject(value.modelCandidate)
-                            value.agentCandidate != null ->
-                                generator.writeObject(value.agentCandidate)
+                            value.model != null -> generator.writeObject(value.model)
+                            value.agent != null -> generator.writeObject(value.agent)
                             value._json != null -> generator.writeObject(value._json)
                             else -> throw IllegalStateException("Invalid EvalCandidate")
                         }
@@ -1633,7 +1628,7 @@ constructor(
                 }
 
                 @NoAutoDetect
-                class ModelCandidate
+                class Model
                 @JsonCreator
                 private constructor(
                     @JsonProperty("model")
@@ -1680,7 +1675,7 @@ constructor(
 
                     private var validated: Boolean = false
 
-                    fun validate(): ModelCandidate = apply {
+                    fun validate(): Model = apply {
                         if (validated) {
                             return@apply
                         }
@@ -1708,13 +1703,12 @@ constructor(
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
-                        internal fun from(modelCandidate: ModelCandidate) = apply {
-                            model = modelCandidate.model
-                            samplingParams = modelCandidate.samplingParams
-                            type = modelCandidate.type
-                            systemMessage = modelCandidate.systemMessage
-                            additionalProperties =
-                                modelCandidate.additionalProperties.toMutableMap()
+                        internal fun from(model: Model) = apply {
+                            this.model = model.model
+                            samplingParams = model.samplingParams
+                            type = model.type
+                            systemMessage = model.systemMessage
+                            additionalProperties = model.additionalProperties.toMutableMap()
                         }
 
                         fun model(model: String) = model(JsonField.of(model))
@@ -1761,8 +1755,8 @@ constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): ModelCandidate =
-                            ModelCandidate(
+                        fun build(): Model =
+                            Model(
                                 checkRequired("model", model),
                                 checkRequired("samplingParams", samplingParams),
                                 checkRequired("type", type),
@@ -1831,7 +1825,7 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is Model && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
@@ -1841,11 +1835,11 @@ constructor(
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "ModelCandidate{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
+                        "Model{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect
-                class AgentCandidate
+                class Agent
                 @JsonCreator
                 private constructor(
                     @JsonProperty("config")
@@ -1874,7 +1868,7 @@ constructor(
 
                     private var validated: Boolean = false
 
-                    fun validate(): AgentCandidate = apply {
+                    fun validate(): Agent = apply {
                         if (validated) {
                             return@apply
                         }
@@ -1898,11 +1892,10 @@ constructor(
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
-                        internal fun from(agentCandidate: AgentCandidate) = apply {
-                            config = agentCandidate.config
-                            type = agentCandidate.type
-                            additionalProperties =
-                                agentCandidate.additionalProperties.toMutableMap()
+                        internal fun from(agent: Agent) = apply {
+                            config = agent.config
+                            type = agent.type
+                            additionalProperties = agent.additionalProperties.toMutableMap()
                         }
 
                         fun config(config: AgentConfig) = config(JsonField.of(config))
@@ -1935,8 +1928,8 @@ constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): AgentCandidate =
-                            AgentCandidate(
+                        fun build(): Agent =
+                            Agent(
                                 checkRequired("config", config),
                                 checkRequired("type", type),
                                 additionalProperties.toImmutable(),
@@ -2003,7 +1996,7 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is AgentCandidate && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is Agent && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
@@ -2013,7 +2006,7 @@ constructor(
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "AgentCandidate{config=$config, type=$type, additionalProperties=$additionalProperties}"
+                        "Agent{config=$config, type=$type, additionalProperties=$additionalProperties}"
                 }
             }
 
@@ -2153,7 +2146,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is AppEvalTaskConfig && evalCandidate == other.evalCandidate && scoringParams == other.scoringParams && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is App && evalCandidate == other.evalCandidate && scoringParams == other.scoringParams && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -2163,7 +2156,7 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "AppEvalTaskConfig{evalCandidate=$evalCandidate, scoringParams=$scoringParams, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
+                "App{evalCandidate=$evalCandidate, scoringParams=$scoringParams, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
         }
     }
 

@@ -181,14 +181,11 @@ private constructor(
 
         fun params(params: JsonField<Params>) = apply { this.params = params }
 
-        fun params(llmAsJudgeScoringFnParams: Params.LlmAsJudgeScoringFnParams) =
-            params(Params.ofLlmAsJudgeScoringFnParams(llmAsJudgeScoringFnParams))
+        fun params(llmAsJudge: Params.LlmAsJudge) = params(Params.ofLlmAsJudge(llmAsJudge))
 
-        fun params(regexParserScoringFnParams: Params.RegexParserScoringFnParams) =
-            params(Params.ofRegexParserScoringFnParams(regexParserScoringFnParams))
+        fun params(regexParser: Params.RegexParser) = params(Params.ofRegexParser(regexParser))
 
-        fun params(basicScoringFnParams: Params.BasicScoringFnParams) =
-            params(Params.ofBasicScoringFnParams(basicScoringFnParams))
+        fun params(basic: Params.Basic) = params(Params.ofBasic(basic))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -354,43 +351,37 @@ private constructor(
     @JsonSerialize(using = Params.Serializer::class)
     class Params
     private constructor(
-        private val llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams? = null,
-        private val regexParserScoringFnParams: RegexParserScoringFnParams? = null,
-        private val basicScoringFnParams: BasicScoringFnParams? = null,
+        private val llmAsJudge: LlmAsJudge? = null,
+        private val regexParser: RegexParser? = null,
+        private val basic: Basic? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun llmAsJudgeScoringFnParams(): LlmAsJudgeScoringFnParams? = llmAsJudgeScoringFnParams
+        fun llmAsJudge(): LlmAsJudge? = llmAsJudge
 
-        fun regexParserScoringFnParams(): RegexParserScoringFnParams? = regexParserScoringFnParams
+        fun regexParser(): RegexParser? = regexParser
 
-        fun basicScoringFnParams(): BasicScoringFnParams? = basicScoringFnParams
+        fun basic(): Basic? = basic
 
-        fun isLlmAsJudgeScoringFnParams(): Boolean = llmAsJudgeScoringFnParams != null
+        fun isLlmAsJudge(): Boolean = llmAsJudge != null
 
-        fun isRegexParserScoringFnParams(): Boolean = regexParserScoringFnParams != null
+        fun isRegexParser(): Boolean = regexParser != null
 
-        fun isBasicScoringFnParams(): Boolean = basicScoringFnParams != null
+        fun isBasic(): Boolean = basic != null
 
-        fun asLlmAsJudgeScoringFnParams(): LlmAsJudgeScoringFnParams =
-            llmAsJudgeScoringFnParams.getOrThrow("llmAsJudgeScoringFnParams")
+        fun asLlmAsJudge(): LlmAsJudge = llmAsJudge.getOrThrow("llmAsJudge")
 
-        fun asRegexParserScoringFnParams(): RegexParserScoringFnParams =
-            regexParserScoringFnParams.getOrThrow("regexParserScoringFnParams")
+        fun asRegexParser(): RegexParser = regexParser.getOrThrow("regexParser")
 
-        fun asBasicScoringFnParams(): BasicScoringFnParams =
-            basicScoringFnParams.getOrThrow("basicScoringFnParams")
+        fun asBasic(): Basic = basic.getOrThrow("basic")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                llmAsJudgeScoringFnParams != null ->
-                    visitor.visitLlmAsJudgeScoringFnParams(llmAsJudgeScoringFnParams)
-                regexParserScoringFnParams != null ->
-                    visitor.visitRegexParserScoringFnParams(regexParserScoringFnParams)
-                basicScoringFnParams != null ->
-                    visitor.visitBasicScoringFnParams(basicScoringFnParams)
+                llmAsJudge != null -> visitor.visitLlmAsJudge(llmAsJudge)
+                regexParser != null -> visitor.visitRegexParser(regexParser)
+                basic != null -> visitor.visitBasic(basic)
                 else -> visitor.unknown(_json)
             }
         }
@@ -404,22 +395,16 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitLlmAsJudgeScoringFnParams(
-                        llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams
-                    ) {
-                        llmAsJudgeScoringFnParams.validate()
+                    override fun visitLlmAsJudge(llmAsJudge: LlmAsJudge) {
+                        llmAsJudge.validate()
                     }
 
-                    override fun visitRegexParserScoringFnParams(
-                        regexParserScoringFnParams: RegexParserScoringFnParams
-                    ) {
-                        regexParserScoringFnParams.validate()
+                    override fun visitRegexParser(regexParser: RegexParser) {
+                        regexParser.validate()
                     }
 
-                    override fun visitBasicScoringFnParams(
-                        basicScoringFnParams: BasicScoringFnParams
-                    ) {
-                        basicScoringFnParams.validate()
+                    override fun visitBasic(basic: Basic) {
+                        basic.validate()
                     }
                 }
             )
@@ -431,46 +416,36 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Params && llmAsJudgeScoringFnParams == other.llmAsJudgeScoringFnParams && regexParserScoringFnParams == other.regexParserScoringFnParams && basicScoringFnParams == other.basicScoringFnParams /* spotless:on */
+            return /* spotless:off */ other is Params && llmAsJudge == other.llmAsJudge && regexParser == other.regexParser && basic == other.basic /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(llmAsJudgeScoringFnParams, regexParserScoringFnParams, basicScoringFnParams) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(llmAsJudge, regexParser, basic) /* spotless:on */
 
         override fun toString(): String =
             when {
-                llmAsJudgeScoringFnParams != null ->
-                    "Params{llmAsJudgeScoringFnParams=$llmAsJudgeScoringFnParams}"
-                regexParserScoringFnParams != null ->
-                    "Params{regexParserScoringFnParams=$regexParserScoringFnParams}"
-                basicScoringFnParams != null -> "Params{basicScoringFnParams=$basicScoringFnParams}"
+                llmAsJudge != null -> "Params{llmAsJudge=$llmAsJudge}"
+                regexParser != null -> "Params{regexParser=$regexParser}"
+                basic != null -> "Params{basic=$basic}"
                 _json != null -> "Params{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Params")
             }
 
         companion object {
 
-            fun ofLlmAsJudgeScoringFnParams(llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams) =
-                Params(llmAsJudgeScoringFnParams = llmAsJudgeScoringFnParams)
+            fun ofLlmAsJudge(llmAsJudge: LlmAsJudge) = Params(llmAsJudge = llmAsJudge)
 
-            fun ofRegexParserScoringFnParams(
-                regexParserScoringFnParams: RegexParserScoringFnParams
-            ) = Params(regexParserScoringFnParams = regexParserScoringFnParams)
+            fun ofRegexParser(regexParser: RegexParser) = Params(regexParser = regexParser)
 
-            fun ofBasicScoringFnParams(basicScoringFnParams: BasicScoringFnParams) =
-                Params(basicScoringFnParams = basicScoringFnParams)
+            fun ofBasic(basic: Basic) = Params(basic = basic)
         }
 
         interface Visitor<out T> {
 
-            fun visitLlmAsJudgeScoringFnParams(
-                llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams
-            ): T
+            fun visitLlmAsJudge(llmAsJudge: LlmAsJudge): T
 
-            fun visitRegexParserScoringFnParams(
-                regexParserScoringFnParams: RegexParserScoringFnParams
-            ): T
+            fun visitRegexParser(regexParser: RegexParser): T
 
-            fun visitBasicScoringFnParams(basicScoringFnParams: BasicScoringFnParams): T
+            fun visitBasic(basic: Basic): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Params: $json")
@@ -481,19 +456,28 @@ private constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): Params {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<LlmAsJudgeScoringFnParams>()) { it.validate() }
-                    ?.let {
-                        return Params(llmAsJudgeScoringFnParams = it, _json = json)
+                when (type) {
+                    "llm_as_judge" -> {
+                        tryDeserialize(node, jacksonTypeRef<LlmAsJudge>()) { it.validate() }
+                            ?.let {
+                                return Params(llmAsJudge = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<RegexParserScoringFnParams>()) { it.validate() }
-                    ?.let {
-                        return Params(regexParserScoringFnParams = it, _json = json)
+                    "regex_parser" -> {
+                        tryDeserialize(node, jacksonTypeRef<RegexParser>()) { it.validate() }
+                            ?.let {
+                                return Params(regexParser = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<BasicScoringFnParams>()) { it.validate() }
-                    ?.let {
-                        return Params(basicScoringFnParams = it, _json = json)
+                    "basic" -> {
+                        tryDeserialize(node, jacksonTypeRef<Basic>()) { it.validate() }
+                            ?.let {
+                                return Params(basic = it, _json = json)
+                            }
                     }
+                }
 
                 return Params(_json = json)
             }
@@ -507,12 +491,9 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.llmAsJudgeScoringFnParams != null ->
-                        generator.writeObject(value.llmAsJudgeScoringFnParams)
-                    value.regexParserScoringFnParams != null ->
-                        generator.writeObject(value.regexParserScoringFnParams)
-                    value.basicScoringFnParams != null ->
-                        generator.writeObject(value.basicScoringFnParams)
+                    value.llmAsJudge != null -> generator.writeObject(value.llmAsJudge)
+                    value.regexParser != null -> generator.writeObject(value.regexParser)
+                    value.basic != null -> generator.writeObject(value.basic)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Params")
                 }
@@ -520,7 +501,7 @@ private constructor(
         }
 
         @NoAutoDetect
-        class LlmAsJudgeScoringFnParams
+        class LlmAsJudge
         @JsonCreator
         private constructor(
             @JsonProperty("judge_model")
@@ -579,7 +560,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): LlmAsJudgeScoringFnParams = apply {
+            fun validate(): LlmAsJudge = apply {
                 if (validated) {
                     return@apply
                 }
@@ -609,16 +590,14 @@ private constructor(
                 private var promptTemplate: JsonField<String> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(llmAsJudgeScoringFnParams: LlmAsJudgeScoringFnParams) = apply {
-                    judgeModel = llmAsJudgeScoringFnParams.judgeModel
-                    type = llmAsJudgeScoringFnParams.type
+                internal fun from(llmAsJudge: LlmAsJudge) = apply {
+                    judgeModel = llmAsJudge.judgeModel
+                    type = llmAsJudge.type
                     aggregationFunctions =
-                        llmAsJudgeScoringFnParams.aggregationFunctions.map { it.toMutableList() }
-                    judgeScoreRegexes =
-                        llmAsJudgeScoringFnParams.judgeScoreRegexes.map { it.toMutableList() }
-                    promptTemplate = llmAsJudgeScoringFnParams.promptTemplate
-                    additionalProperties =
-                        llmAsJudgeScoringFnParams.additionalProperties.toMutableMap()
+                        llmAsJudge.aggregationFunctions.map { it.toMutableList() }
+                    judgeScoreRegexes = llmAsJudge.judgeScoreRegexes.map { it.toMutableList() }
+                    promptTemplate = llmAsJudge.promptTemplate
+                    additionalProperties = llmAsJudge.additionalProperties.toMutableMap()
                 }
 
                 fun judgeModel(judgeModel: String) = judgeModel(JsonField.of(judgeModel))
@@ -698,8 +677,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): LlmAsJudgeScoringFnParams =
-                    LlmAsJudgeScoringFnParams(
+                fun build(): LlmAsJudge =
+                    LlmAsJudge(
                         checkRequired("judgeModel", judgeModel),
                         checkRequired("type", type),
                         (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
@@ -837,7 +816,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is LlmAsJudgeScoringFnParams && judgeModel == other.judgeModel && type == other.type && aggregationFunctions == other.aggregationFunctions && judgeScoreRegexes == other.judgeScoreRegexes && promptTemplate == other.promptTemplate && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is LlmAsJudge && judgeModel == other.judgeModel && type == other.type && aggregationFunctions == other.aggregationFunctions && judgeScoreRegexes == other.judgeScoreRegexes && promptTemplate == other.promptTemplate && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -847,11 +826,11 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "LlmAsJudgeScoringFnParams{judgeModel=$judgeModel, type=$type, aggregationFunctions=$aggregationFunctions, judgeScoreRegexes=$judgeScoreRegexes, promptTemplate=$promptTemplate, additionalProperties=$additionalProperties}"
+                "LlmAsJudge{judgeModel=$judgeModel, type=$type, aggregationFunctions=$aggregationFunctions, judgeScoreRegexes=$judgeScoreRegexes, promptTemplate=$promptTemplate, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class RegexParserScoringFnParams
+        class RegexParser
         @JsonCreator
         private constructor(
             @JsonProperty("type")
@@ -891,7 +870,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): RegexParserScoringFnParams = apply {
+            fun validate(): RegexParser = apply {
                 if (validated) {
                     return@apply
                 }
@@ -917,14 +896,12 @@ private constructor(
                 private var parsingRegexes: JsonField<MutableList<String>>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(regexParserScoringFnParams: RegexParserScoringFnParams) = apply {
-                    type = regexParserScoringFnParams.type
+                internal fun from(regexParser: RegexParser) = apply {
+                    type = regexParser.type
                     aggregationFunctions =
-                        regexParserScoringFnParams.aggregationFunctions.map { it.toMutableList() }
-                    parsingRegexes =
-                        regexParserScoringFnParams.parsingRegexes.map { it.toMutableList() }
-                    additionalProperties =
-                        regexParserScoringFnParams.additionalProperties.toMutableMap()
+                        regexParser.aggregationFunctions.map { it.toMutableList() }
+                    parsingRegexes = regexParser.parsingRegexes.map { it.toMutableList() }
+                    additionalProperties = regexParser.additionalProperties.toMutableMap()
                 }
 
                 fun type(type: Type) = type(JsonField.of(type))
@@ -991,8 +968,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): RegexParserScoringFnParams =
-                    RegexParserScoringFnParams(
+                fun build(): RegexParser =
+                    RegexParser(
                         checkRequired("type", type),
                         (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                         (parsingRegexes ?: JsonMissing.of()).map { it.toImmutable() },
@@ -1128,7 +1105,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is RegexParserScoringFnParams && type == other.type && aggregationFunctions == other.aggregationFunctions && parsingRegexes == other.parsingRegexes && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is RegexParser && type == other.type && aggregationFunctions == other.aggregationFunctions && parsingRegexes == other.parsingRegexes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1138,11 +1115,11 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "RegexParserScoringFnParams{type=$type, aggregationFunctions=$aggregationFunctions, parsingRegexes=$parsingRegexes, additionalProperties=$additionalProperties}"
+                "RegexParser{type=$type, aggregationFunctions=$aggregationFunctions, parsingRegexes=$parsingRegexes, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class BasicScoringFnParams
+        class Basic
         @JsonCreator
         private constructor(
             @JsonProperty("type")
@@ -1173,7 +1150,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): BasicScoringFnParams = apply {
+            fun validate(): Basic = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1197,11 +1174,10 @@ private constructor(
                     null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(basicScoringFnParams: BasicScoringFnParams) = apply {
-                    type = basicScoringFnParams.type
-                    aggregationFunctions =
-                        basicScoringFnParams.aggregationFunctions.map { it.toMutableList() }
-                    additionalProperties = basicScoringFnParams.additionalProperties.toMutableMap()
+                internal fun from(basic: Basic) = apply {
+                    type = basic.type
+                    aggregationFunctions = basic.aggregationFunctions.map { it.toMutableList() }
+                    additionalProperties = basic.additionalProperties.toMutableMap()
                 }
 
                 fun type(type: Type) = type(JsonField.of(type))
@@ -1250,8 +1226,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): BasicScoringFnParams =
-                    BasicScoringFnParams(
+                fun build(): Basic =
+                    Basic(
                         checkRequired("type", type),
                         (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                         additionalProperties.toImmutable(),
@@ -1386,7 +1362,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is BasicScoringFnParams && type == other.type && aggregationFunctions == other.aggregationFunctions && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Basic && type == other.type && aggregationFunctions == other.aggregationFunctions && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1396,7 +1372,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "BasicScoringFnParams{type=$type, aggregationFunctions=$aggregationFunctions, additionalProperties=$additionalProperties}"
+                "Basic{type=$type, aggregationFunctions=$aggregationFunctions, additionalProperties=$additionalProperties}"
         }
     }
 

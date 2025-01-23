@@ -100,14 +100,11 @@ private constructor(
 
         fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
-        fun strategy(greedySamplingStrategy: Strategy.GreedySamplingStrategy) =
-            strategy(Strategy.ofGreedySamplingStrategy(greedySamplingStrategy))
+        fun strategy(greedy: Strategy.Greedy) = strategy(Strategy.ofGreedy(greedy))
 
-        fun strategy(topPSamplingStrategy: Strategy.TopPSamplingStrategy) =
-            strategy(Strategy.ofTopPSamplingStrategy(topPSamplingStrategy))
+        fun strategy(topP: Strategy.TopP) = strategy(Strategy.ofTopP(topP))
 
-        fun strategy(topKSamplingStrategy: Strategy.TopKSamplingStrategy) =
-            strategy(Strategy.ofTopKSamplingStrategy(topKSamplingStrategy))
+        fun strategy(topK: Strategy.TopK) = strategy(Strategy.ofTopK(topK))
 
         fun maxTokens(maxTokens: Long) = maxTokens(JsonField.of(maxTokens))
 
@@ -152,43 +149,37 @@ private constructor(
     @JsonSerialize(using = Strategy.Serializer::class)
     class Strategy
     private constructor(
-        private val greedySamplingStrategy: GreedySamplingStrategy? = null,
-        private val topPSamplingStrategy: TopPSamplingStrategy? = null,
-        private val topKSamplingStrategy: TopKSamplingStrategy? = null,
+        private val greedy: Greedy? = null,
+        private val topP: TopP? = null,
+        private val topK: TopK? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun greedySamplingStrategy(): GreedySamplingStrategy? = greedySamplingStrategy
+        fun greedy(): Greedy? = greedy
 
-        fun topPSamplingStrategy(): TopPSamplingStrategy? = topPSamplingStrategy
+        fun topP(): TopP? = topP
 
-        fun topKSamplingStrategy(): TopKSamplingStrategy? = topKSamplingStrategy
+        fun topK(): TopK? = topK
 
-        fun isGreedySamplingStrategy(): Boolean = greedySamplingStrategy != null
+        fun isGreedy(): Boolean = greedy != null
 
-        fun isTopPSamplingStrategy(): Boolean = topPSamplingStrategy != null
+        fun isTopP(): Boolean = topP != null
 
-        fun isTopKSamplingStrategy(): Boolean = topKSamplingStrategy != null
+        fun isTopK(): Boolean = topK != null
 
-        fun asGreedySamplingStrategy(): GreedySamplingStrategy =
-            greedySamplingStrategy.getOrThrow("greedySamplingStrategy")
+        fun asGreedy(): Greedy = greedy.getOrThrow("greedy")
 
-        fun asTopPSamplingStrategy(): TopPSamplingStrategy =
-            topPSamplingStrategy.getOrThrow("topPSamplingStrategy")
+        fun asTopP(): TopP = topP.getOrThrow("topP")
 
-        fun asTopKSamplingStrategy(): TopKSamplingStrategy =
-            topKSamplingStrategy.getOrThrow("topKSamplingStrategy")
+        fun asTopK(): TopK = topK.getOrThrow("topK")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                greedySamplingStrategy != null ->
-                    visitor.visitGreedySamplingStrategy(greedySamplingStrategy)
-                topPSamplingStrategy != null ->
-                    visitor.visitTopPSamplingStrategy(topPSamplingStrategy)
-                topKSamplingStrategy != null ->
-                    visitor.visitTopKSamplingStrategy(topKSamplingStrategy)
+                greedy != null -> visitor.visitGreedy(greedy)
+                topP != null -> visitor.visitTopP(topP)
+                topK != null -> visitor.visitTopK(topK)
                 else -> visitor.unknown(_json)
             }
         }
@@ -202,22 +193,16 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitGreedySamplingStrategy(
-                        greedySamplingStrategy: GreedySamplingStrategy
-                    ) {
-                        greedySamplingStrategy.validate()
+                    override fun visitGreedy(greedy: Greedy) {
+                        greedy.validate()
                     }
 
-                    override fun visitTopPSamplingStrategy(
-                        topPSamplingStrategy: TopPSamplingStrategy
-                    ) {
-                        topPSamplingStrategy.validate()
+                    override fun visitTopP(topP: TopP) {
+                        topP.validate()
                     }
 
-                    override fun visitTopKSamplingStrategy(
-                        topKSamplingStrategy: TopKSamplingStrategy
-                    ) {
-                        topKSamplingStrategy.validate()
+                    override fun visitTopK(topK: TopK) {
+                        topK.validate()
                     }
                 }
             )
@@ -229,42 +214,36 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Strategy && greedySamplingStrategy == other.greedySamplingStrategy && topPSamplingStrategy == other.topPSamplingStrategy && topKSamplingStrategy == other.topKSamplingStrategy /* spotless:on */
+            return /* spotless:off */ other is Strategy && greedy == other.greedy && topP == other.topP && topK == other.topK /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(greedySamplingStrategy, topPSamplingStrategy, topKSamplingStrategy) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(greedy, topP, topK) /* spotless:on */
 
         override fun toString(): String =
             when {
-                greedySamplingStrategy != null ->
-                    "Strategy{greedySamplingStrategy=$greedySamplingStrategy}"
-                topPSamplingStrategy != null ->
-                    "Strategy{topPSamplingStrategy=$topPSamplingStrategy}"
-                topKSamplingStrategy != null ->
-                    "Strategy{topKSamplingStrategy=$topKSamplingStrategy}"
+                greedy != null -> "Strategy{greedy=$greedy}"
+                topP != null -> "Strategy{topP=$topP}"
+                topK != null -> "Strategy{topK=$topK}"
                 _json != null -> "Strategy{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Strategy")
             }
 
         companion object {
 
-            fun ofGreedySamplingStrategy(greedySamplingStrategy: GreedySamplingStrategy) =
-                Strategy(greedySamplingStrategy = greedySamplingStrategy)
+            fun ofGreedy(greedy: Greedy) = Strategy(greedy = greedy)
 
-            fun ofTopPSamplingStrategy(topPSamplingStrategy: TopPSamplingStrategy) =
-                Strategy(topPSamplingStrategy = topPSamplingStrategy)
+            fun ofTopP(topP: TopP) = Strategy(topP = topP)
 
-            fun ofTopKSamplingStrategy(topKSamplingStrategy: TopKSamplingStrategy) =
-                Strategy(topKSamplingStrategy = topKSamplingStrategy)
+            fun ofTopK(topK: TopK) = Strategy(topK = topK)
         }
 
         interface Visitor<out T> {
 
-            fun visitGreedySamplingStrategy(greedySamplingStrategy: GreedySamplingStrategy): T
+            fun visitGreedy(greedy: Greedy): T
 
-            fun visitTopPSamplingStrategy(topPSamplingStrategy: TopPSamplingStrategy): T
+            fun visitTopP(topP: TopP): T
 
-            fun visitTopKSamplingStrategy(topKSamplingStrategy: TopKSamplingStrategy): T
+            fun visitTopK(topK: TopK): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Strategy: $json")
@@ -275,19 +254,28 @@ private constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): Strategy {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<GreedySamplingStrategy>()) { it.validate() }
-                    ?.let {
-                        return Strategy(greedySamplingStrategy = it, _json = json)
+                when (type) {
+                    "greedy" -> {
+                        tryDeserialize(node, jacksonTypeRef<Greedy>()) { it.validate() }
+                            ?.let {
+                                return Strategy(greedy = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<TopPSamplingStrategy>()) { it.validate() }
-                    ?.let {
-                        return Strategy(topPSamplingStrategy = it, _json = json)
+                    "top_p" -> {
+                        tryDeserialize(node, jacksonTypeRef<TopP>()) { it.validate() }
+                            ?.let {
+                                return Strategy(topP = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<TopKSamplingStrategy>()) { it.validate() }
-                    ?.let {
-                        return Strategy(topKSamplingStrategy = it, _json = json)
+                    "top_k" -> {
+                        tryDeserialize(node, jacksonTypeRef<TopK>()) { it.validate() }
+                            ?.let {
+                                return Strategy(topK = it, _json = json)
+                            }
                     }
+                }
 
                 return Strategy(_json = json)
             }
@@ -301,12 +289,9 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.greedySamplingStrategy != null ->
-                        generator.writeObject(value.greedySamplingStrategy)
-                    value.topPSamplingStrategy != null ->
-                        generator.writeObject(value.topPSamplingStrategy)
-                    value.topKSamplingStrategy != null ->
-                        generator.writeObject(value.topKSamplingStrategy)
+                    value.greedy != null -> generator.writeObject(value.greedy)
+                    value.topP != null -> generator.writeObject(value.topP)
+                    value.topK != null -> generator.writeObject(value.topK)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Strategy")
                 }
@@ -314,7 +299,7 @@ private constructor(
         }
 
         @NoAutoDetect
-        class GreedySamplingStrategy
+        class Greedy
         @JsonCreator
         private constructor(
             @JsonProperty("type")
@@ -334,7 +319,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): GreedySamplingStrategy = apply {
+            fun validate(): Greedy = apply {
                 if (validated) {
                     return@apply
                 }
@@ -355,10 +340,9 @@ private constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(greedySamplingStrategy: GreedySamplingStrategy) = apply {
-                    type = greedySamplingStrategy.type
-                    additionalProperties =
-                        greedySamplingStrategy.additionalProperties.toMutableMap()
+                internal fun from(greedy: Greedy) = apply {
+                    type = greedy.type
+                    additionalProperties = greedy.additionalProperties.toMutableMap()
                 }
 
                 fun type(type: Type) = type(JsonField.of(type))
@@ -387,11 +371,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): GreedySamplingStrategy =
-                    GreedySamplingStrategy(
-                        checkRequired("type", type),
-                        additionalProperties.toImmutable()
-                    )
+                fun build(): Greedy =
+                    Greedy(checkRequired("type", type), additionalProperties.toImmutable())
             }
 
             class Type
@@ -450,7 +431,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is GreedySamplingStrategy && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Greedy && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -460,11 +441,11 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "GreedySamplingStrategy{type=$type, additionalProperties=$additionalProperties}"
+                "Greedy{type=$type, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class TopPSamplingStrategy
+        class TopP
         @JsonCreator
         private constructor(
             @JsonProperty("type")
@@ -500,7 +481,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): TopPSamplingStrategy = apply {
+            fun validate(): TopP = apply {
                 if (validated) {
                     return@apply
                 }
@@ -525,11 +506,11 @@ private constructor(
                 private var topP: JsonField<Double> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(topPSamplingStrategy: TopPSamplingStrategy) = apply {
-                    type = topPSamplingStrategy.type
-                    temperature = topPSamplingStrategy.temperature
-                    topP = topPSamplingStrategy.topP
-                    additionalProperties = topPSamplingStrategy.additionalProperties.toMutableMap()
+                internal fun from(topP: TopP) = apply {
+                    type = topP.type
+                    temperature = topP.temperature
+                    this.topP = topP.topP
+                    additionalProperties = topP.additionalProperties.toMutableMap()
                 }
 
                 fun type(type: Type) = type(JsonField.of(type))
@@ -568,8 +549,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): TopPSamplingStrategy =
-                    TopPSamplingStrategy(
+                fun build(): TopP =
+                    TopP(
                         checkRequired("type", type),
                         temperature,
                         topP,
@@ -633,7 +614,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is TopPSamplingStrategy && type == other.type && temperature == other.temperature && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is TopP && type == other.type && temperature == other.temperature && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -643,11 +624,11 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "TopPSamplingStrategy{type=$type, temperature=$temperature, topP=$topP, additionalProperties=$additionalProperties}"
+                "TopP{type=$type, temperature=$temperature, topP=$topP, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class TopKSamplingStrategy
+        class TopK
         @JsonCreator
         private constructor(
             @JsonProperty("top_k")
@@ -674,7 +655,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): TopKSamplingStrategy = apply {
+            fun validate(): TopK = apply {
                 if (validated) {
                     return@apply
                 }
@@ -697,10 +678,10 @@ private constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(topKSamplingStrategy: TopKSamplingStrategy) = apply {
-                    topK = topKSamplingStrategy.topK
-                    type = topKSamplingStrategy.type
-                    additionalProperties = topKSamplingStrategy.additionalProperties.toMutableMap()
+                internal fun from(topK: TopK) = apply {
+                    this.topK = topK.topK
+                    type = topK.type
+                    additionalProperties = topK.additionalProperties.toMutableMap()
                 }
 
                 fun topK(topK: Long) = topK(JsonField.of(topK))
@@ -733,8 +714,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): TopKSamplingStrategy =
-                    TopKSamplingStrategy(
+                fun build(): TopK =
+                    TopK(
                         checkRequired("topK", topK),
                         checkRequired("type", type),
                         additionalProperties.toImmutable(),
@@ -797,7 +778,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is TopKSamplingStrategy && topK == other.topK && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is TopK && topK == other.topK && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -807,7 +788,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "TopKSamplingStrategy{topK=$topK, type=$type, additionalProperties=$additionalProperties}"
+                "TopK{topK=$topK, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 

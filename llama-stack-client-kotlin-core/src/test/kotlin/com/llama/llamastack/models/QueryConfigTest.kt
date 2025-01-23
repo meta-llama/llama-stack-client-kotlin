@@ -14,12 +14,9 @@ class QueryConfigTest {
                 .maxChunks(0L)
                 .maxTokensInContext(0L)
                 .queryGeneratorConfig(
-                    QueryConfig.QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
+                    QueryConfig.QueryGeneratorConfig.Default.builder()
                         .separator("separator")
-                        .type(
-                            QueryConfig.QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.Type
-                                .DEFAULT
-                        )
+                        .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                         .build()
                 )
                 .build()
@@ -28,13 +25,10 @@ class QueryConfigTest {
         assertThat(queryConfig.maxTokensInContext()).isEqualTo(0L)
         assertThat(queryConfig.queryGeneratorConfig())
             .isEqualTo(
-                QueryConfig.QueryGeneratorConfig.ofDefaultRagQueryGeneratorConfig(
-                    QueryConfig.QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
+                QueryConfig.QueryGeneratorConfig.ofDefault(
+                    QueryConfig.QueryGeneratorConfig.Default.builder()
                         .separator("separator")
-                        .type(
-                            QueryConfig.QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.Type
-                                .DEFAULT
-                        )
+                        .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                         .build()
                 )
             )

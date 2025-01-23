@@ -61,15 +61,11 @@ class ScoringFunctionServiceTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .params(
-                    ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams.builder()
+                    ScoringFunctionRegisterParams.Params.LlmAsJudge.builder()
                         .judgeModel("judge_model")
-                        .type(
-                            ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams.Type
-                                .LLM_AS_JUDGE
-                        )
+                        .type(ScoringFunctionRegisterParams.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                         .addAggregationFunction(
-                            ScoringFunctionRegisterParams.Params.LlmAsJudgeScoringFnParams
-                                .AggregationFunction
+                            ScoringFunctionRegisterParams.Params.LlmAsJudge.AggregationFunction
                                 .AVERAGE
                         )
                         .addJudgeScoreRegex("string")

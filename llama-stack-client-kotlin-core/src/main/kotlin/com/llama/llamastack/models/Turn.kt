@@ -1318,23 +1318,36 @@ private constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): Step {
                 val json = JsonValue.fromJsonNode(node)
+                val stepType = json.asObject()?.get("step_type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
-                    ?.let {
-                        return Step(inferenceStep = it, _json = json)
+                when (stepType) {
+                    "inference" -> {
+                        tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
+                            ?.let {
+                                return Step(inferenceStep = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
-                    ?.let {
-                        return Step(toolExecutionStep = it, _json = json)
+                    "tool_execution" -> {
+                        tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
+                            ?.let {
+                                return Step(toolExecutionStep = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
-                    ?.let {
-                        return Step(shieldCallStep = it, _json = json)
+                    "shield_call" -> {
+                        tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
+                            ?.let {
+                                return Step(shieldCallStep = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) { it.validate() }
-                    ?.let {
-                        return Step(memoryRetrievalStep = it, _json = json)
+                    "memory_retrieval" -> {
+                        tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) {
+                                it.validate()
+                            }
+                            ?.let {
+                                return Step(memoryRetrievalStep = it, _json = json)
+                            }
                     }
+                }
 
                 return Step(_json = json)
             }

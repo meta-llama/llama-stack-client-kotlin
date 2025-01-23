@@ -31,23 +31,17 @@ class EvalServiceTest {
                     )
                     .addScoringFunction("string")
                     .taskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                             .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ModelCandidate
+                                EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                     .builder()
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
                                             .strategy(
-                                                SamplingParams.Strategy.GreedySamplingStrategy
-                                                    .builder()
+                                                SamplingParams.Strategy.Greedy.builder()
                                                     .type(
-                                                        SamplingParams.Strategy
-                                                            .GreedySamplingStrategy
-                                                            .Type
-                                                            .GREEDY
+                                                        SamplingParams.Strategy.Greedy.Type.GREEDY
                                                     )
                                                     .build()
                                             )
@@ -56,9 +50,8 @@ class EvalServiceTest {
                                             .build()
                                     )
                                     .type(
-                                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
+                                        EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate
+                                            .Model
                                             .Type
                                             .MODEL
                                     )
@@ -70,10 +63,7 @@ class EvalServiceTest {
                                     )
                                     .build()
                             )
-                            .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
-                                    .BENCHMARK
-                            )
+                            .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                             .numExamples(0L)
                             .build()
                     )
@@ -95,22 +85,16 @@ class EvalServiceTest {
                 EvalRunEvalParams.builder()
                     .taskId("task_id")
                     .taskConfig(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                        EvalRunEvalParams.TaskConfig.Benchmark.builder()
                             .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ModelCandidate
-                                    .builder()
+                                EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
                                             .strategy(
-                                                SamplingParams.Strategy.GreedySamplingStrategy
-                                                    .builder()
+                                                SamplingParams.Strategy.Greedy.builder()
                                                     .type(
-                                                        SamplingParams.Strategy
-                                                            .GreedySamplingStrategy
-                                                            .Type
-                                                            .GREEDY
+                                                        SamplingParams.Strategy.Greedy.Type.GREEDY
                                                     )
                                                     .build()
                                             )
@@ -119,9 +103,7 @@ class EvalServiceTest {
                                             .build()
                                     )
                                     .type(
-                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
+                                        EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model
                                             .Type
                                             .MODEL
                                     )
@@ -133,9 +115,7 @@ class EvalServiceTest {
                                     )
                                     .build()
                             )
-                            .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                            )
+                            .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                             .numExamples(0L)
                             .build()
                     )

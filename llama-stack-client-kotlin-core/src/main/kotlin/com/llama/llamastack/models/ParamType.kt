@@ -32,97 +32,94 @@ import java.util.Objects
 @JsonSerialize(using = ParamType.Serializer::class)
 class ParamType
 private constructor(
-    private val stringType: StringType? = null,
-    private val numberType: NumberType? = null,
-    private val booleanType: BooleanType? = null,
-    private val arrayType: ArrayType? = null,
-    private val objectType: ObjectType? = null,
-    private val jsonType: JsonType? = null,
-    private val unionType: UnionType? = null,
-    private val chatCompletionInputType: ChatCompletionInputType? = null,
-    private val completionInputType: CompletionInputType? = null,
-    private val agentTurnInputType: AgentTurnInputType? = null,
+    private val string: String? = null,
+    private val number: Number? = null,
+    private val boolean: Boolean? = null,
+    private val array: Array? = null,
+    private val object_: Object? = null,
+    private val json: Json? = null,
+    private val union: Union? = null,
+    private val chatCompletionInput: ChatCompletionInput? = null,
+    private val completionInput: CompletionInput? = null,
+    private val agentTurnInput: AgentTurnInput? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun stringType(): StringType? = stringType
+    fun string(): String? = string
 
-    fun numberType(): NumberType? = numberType
+    fun number(): Number? = number
 
-    fun booleanType(): BooleanType? = booleanType
+    fun boolean(): Boolean? = boolean
 
-    fun arrayType(): ArrayType? = arrayType
+    fun array(): Array? = array
 
-    fun objectType(): ObjectType? = objectType
+    fun object_(): Object? = object_
 
-    fun jsonType(): JsonType? = jsonType
+    fun json(): Json? = json
 
-    fun unionType(): UnionType? = unionType
+    fun union(): Union? = union
 
-    fun chatCompletionInputType(): ChatCompletionInputType? = chatCompletionInputType
+    fun chatCompletionInput(): ChatCompletionInput? = chatCompletionInput
 
-    fun completionInputType(): CompletionInputType? = completionInputType
+    fun completionInput(): CompletionInput? = completionInput
 
-    fun agentTurnInputType(): AgentTurnInputType? = agentTurnInputType
+    fun agentTurnInput(): AgentTurnInput? = agentTurnInput
 
-    fun isStringType(): Boolean = stringType != null
+    fun isString(): Boolean = string != null
 
-    fun isNumberType(): Boolean = numberType != null
+    fun isNumber(): Boolean = number != null
 
-    fun isBooleanType(): Boolean = booleanType != null
+    fun isBoolean(): Boolean = boolean != null
 
-    fun isArrayType(): Boolean = arrayType != null
+    fun isArray(): Boolean = array != null
 
-    fun isObjectType(): Boolean = objectType != null
+    fun isObject(): Boolean = object_ != null
 
-    fun isJsonType(): Boolean = jsonType != null
+    fun isJson(): Boolean = json != null
 
-    fun isUnionType(): Boolean = unionType != null
+    fun isUnion(): Boolean = union != null
 
-    fun isChatCompletionInputType(): Boolean = chatCompletionInputType != null
+    fun isChatCompletionInput(): Boolean = chatCompletionInput != null
 
-    fun isCompletionInputType(): Boolean = completionInputType != null
+    fun isCompletionInput(): Boolean = completionInput != null
 
-    fun isAgentTurnInputType(): Boolean = agentTurnInputType != null
+    fun isAgentTurnInput(): Boolean = agentTurnInput != null
 
-    fun asStringType(): StringType = stringType.getOrThrow("stringType")
+    fun asString(): String = string.getOrThrow("string")
 
-    fun asNumberType(): NumberType = numberType.getOrThrow("numberType")
+    fun asNumber(): Number = number.getOrThrow("number")
 
-    fun asBooleanType(): BooleanType = booleanType.getOrThrow("booleanType")
+    fun asBoolean(): Boolean = boolean.getOrThrow("boolean")
 
-    fun asArrayType(): ArrayType = arrayType.getOrThrow("arrayType")
+    fun asArray(): Array = array.getOrThrow("array")
 
-    fun asObjectType(): ObjectType = objectType.getOrThrow("objectType")
+    fun asObject(): Object = object_.getOrThrow("object_")
 
-    fun asJsonType(): JsonType = jsonType.getOrThrow("jsonType")
+    fun asJson(): Json = json.getOrThrow("json")
 
-    fun asUnionType(): UnionType = unionType.getOrThrow("unionType")
+    fun asUnion(): Union = union.getOrThrow("union")
 
-    fun asChatCompletionInputType(): ChatCompletionInputType =
-        chatCompletionInputType.getOrThrow("chatCompletionInputType")
+    fun asChatCompletionInput(): ChatCompletionInput =
+        chatCompletionInput.getOrThrow("chatCompletionInput")
 
-    fun asCompletionInputType(): CompletionInputType =
-        completionInputType.getOrThrow("completionInputType")
+    fun asCompletionInput(): CompletionInput = completionInput.getOrThrow("completionInput")
 
-    fun asAgentTurnInputType(): AgentTurnInputType =
-        agentTurnInputType.getOrThrow("agentTurnInputType")
+    fun asAgentTurnInput(): AgentTurnInput = agentTurnInput.getOrThrow("agentTurnInput")
 
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T {
         return when {
-            stringType != null -> visitor.visitStringType(stringType)
-            numberType != null -> visitor.visitNumberType(numberType)
-            booleanType != null -> visitor.visitBooleanType(booleanType)
-            arrayType != null -> visitor.visitArrayType(arrayType)
-            objectType != null -> visitor.visitObjectType(objectType)
-            jsonType != null -> visitor.visitJsonType(jsonType)
-            unionType != null -> visitor.visitUnionType(unionType)
-            chatCompletionInputType != null ->
-                visitor.visitChatCompletionInputType(chatCompletionInputType)
-            completionInputType != null -> visitor.visitCompletionInputType(completionInputType)
-            agentTurnInputType != null -> visitor.visitAgentTurnInputType(agentTurnInputType)
+            string != null -> visitor.visitString(string)
+            number != null -> visitor.visitNumber(number)
+            boolean != null -> visitor.visitBoolean(boolean)
+            array != null -> visitor.visitArray(array)
+            object_ != null -> visitor.visitObject(object_)
+            json != null -> visitor.visitJson(json)
+            union != null -> visitor.visitUnion(union)
+            chatCompletionInput != null -> visitor.visitChatCompletionInput(chatCompletionInput)
+            completionInput != null -> visitor.visitCompletionInput(completionInput)
+            agentTurnInput != null -> visitor.visitAgentTurnInput(agentTurnInput)
             else -> visitor.unknown(_json)
         }
     }
@@ -136,46 +133,44 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitStringType(stringType: StringType) {
-                    stringType.validate()
+                override fun visitString(string: String) {
+                    string.validate()
                 }
 
-                override fun visitNumberType(numberType: NumberType) {
-                    numberType.validate()
+                override fun visitNumber(number: Number) {
+                    number.validate()
                 }
 
-                override fun visitBooleanType(booleanType: BooleanType) {
-                    booleanType.validate()
+                override fun visitBoolean(boolean: Boolean) {
+                    boolean.validate()
                 }
 
-                override fun visitArrayType(arrayType: ArrayType) {
-                    arrayType.validate()
+                override fun visitArray(array: Array) {
+                    array.validate()
                 }
 
-                override fun visitObjectType(objectType: ObjectType) {
-                    objectType.validate()
+                override fun visitObject(object_: Object) {
+                    object_.validate()
                 }
 
-                override fun visitJsonType(jsonType: JsonType) {
-                    jsonType.validate()
+                override fun visitJson(json: Json) {
+                    json.validate()
                 }
 
-                override fun visitUnionType(unionType: UnionType) {
-                    unionType.validate()
+                override fun visitUnion(union: Union) {
+                    union.validate()
                 }
 
-                override fun visitChatCompletionInputType(
-                    chatCompletionInputType: ChatCompletionInputType
-                ) {
-                    chatCompletionInputType.validate()
+                override fun visitChatCompletionInput(chatCompletionInput: ChatCompletionInput) {
+                    chatCompletionInput.validate()
                 }
 
-                override fun visitCompletionInputType(completionInputType: CompletionInputType) {
-                    completionInputType.validate()
+                override fun visitCompletionInput(completionInput: CompletionInput) {
+                    completionInput.validate()
                 }
 
-                override fun visitAgentTurnInputType(agentTurnInputType: AgentTurnInputType) {
-                    agentTurnInputType.validate()
+                override fun visitAgentTurnInput(agentTurnInput: AgentTurnInput) {
+                    agentTurnInput.validate()
                 }
             }
         )
@@ -187,75 +182,74 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ParamType && stringType == other.stringType && numberType == other.numberType && booleanType == other.booleanType && arrayType == other.arrayType && objectType == other.objectType && jsonType == other.jsonType && unionType == other.unionType && chatCompletionInputType == other.chatCompletionInputType && completionInputType == other.completionInputType && agentTurnInputType == other.agentTurnInputType /* spotless:on */
+        return /* spotless:off */ other is ParamType && string == other.string && number == other.number && boolean == other.boolean && array == other.array && object_ == other.object_ && json == other.json && union == other.union && chatCompletionInput == other.chatCompletionInput && completionInput == other.completionInput && agentTurnInput == other.agentTurnInput /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(stringType, numberType, booleanType, arrayType, objectType, jsonType, unionType, chatCompletionInputType, completionInputType, agentTurnInputType) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, number, boolean, array, object_, json, union, chatCompletionInput, completionInput, agentTurnInput) /* spotless:on */
 
     override fun toString(): String =
         when {
-            stringType != null -> "ParamType{stringType=$stringType}"
-            numberType != null -> "ParamType{numberType=$numberType}"
-            booleanType != null -> "ParamType{booleanType=$booleanType}"
-            arrayType != null -> "ParamType{arrayType=$arrayType}"
-            objectType != null -> "ParamType{objectType=$objectType}"
-            jsonType != null -> "ParamType{jsonType=$jsonType}"
-            unionType != null -> "ParamType{unionType=$unionType}"
-            chatCompletionInputType != null ->
-                "ParamType{chatCompletionInputType=$chatCompletionInputType}"
-            completionInputType != null -> "ParamType{completionInputType=$completionInputType}"
-            agentTurnInputType != null -> "ParamType{agentTurnInputType=$agentTurnInputType}"
+            string != null -> "ParamType{string=$string}"
+            number != null -> "ParamType{number=$number}"
+            boolean != null -> "ParamType{boolean=$boolean}"
+            array != null -> "ParamType{array=$array}"
+            object_ != null -> "ParamType{object_=$object_}"
+            json != null -> "ParamType{json=$json}"
+            union != null -> "ParamType{union=$union}"
+            chatCompletionInput != null -> "ParamType{chatCompletionInput=$chatCompletionInput}"
+            completionInput != null -> "ParamType{completionInput=$completionInput}"
+            agentTurnInput != null -> "ParamType{agentTurnInput=$agentTurnInput}"
             _json != null -> "ParamType{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid ParamType")
         }
 
     companion object {
 
-        fun ofStringType(stringType: StringType) = ParamType(stringType = stringType)
+        fun ofString(string: String) = ParamType(string = string)
 
-        fun ofNumberType(numberType: NumberType) = ParamType(numberType = numberType)
+        fun ofNumber(number: Number) = ParamType(number = number)
 
-        fun ofBooleanType(booleanType: BooleanType) = ParamType(booleanType = booleanType)
+        fun ofBoolean(boolean: Boolean) = ParamType(boolean = boolean)
 
-        fun ofArrayType(arrayType: ArrayType) = ParamType(arrayType = arrayType)
+        fun ofArray(array: Array) = ParamType(array = array)
 
-        fun ofObjectType(objectType: ObjectType) = ParamType(objectType = objectType)
+        fun ofObject(object_: Object) = ParamType(object_ = object_)
 
-        fun ofJsonType(jsonType: JsonType) = ParamType(jsonType = jsonType)
+        fun ofJson(json: Json) = ParamType(json = json)
 
-        fun ofUnionType(unionType: UnionType) = ParamType(unionType = unionType)
+        fun ofUnion(union: Union) = ParamType(union = union)
 
-        fun ofChatCompletionInputType(chatCompletionInputType: ChatCompletionInputType) =
-            ParamType(chatCompletionInputType = chatCompletionInputType)
+        fun ofChatCompletionInput(chatCompletionInput: ChatCompletionInput) =
+            ParamType(chatCompletionInput = chatCompletionInput)
 
-        fun ofCompletionInputType(completionInputType: CompletionInputType) =
-            ParamType(completionInputType = completionInputType)
+        fun ofCompletionInput(completionInput: CompletionInput) =
+            ParamType(completionInput = completionInput)
 
-        fun ofAgentTurnInputType(agentTurnInputType: AgentTurnInputType) =
-            ParamType(agentTurnInputType = agentTurnInputType)
+        fun ofAgentTurnInput(agentTurnInput: AgentTurnInput) =
+            ParamType(agentTurnInput = agentTurnInput)
     }
 
     interface Visitor<out T> {
 
-        fun visitStringType(stringType: StringType): T
+        fun visitString(string: String): T
 
-        fun visitNumberType(numberType: NumberType): T
+        fun visitNumber(number: Number): T
 
-        fun visitBooleanType(booleanType: BooleanType): T
+        fun visitBoolean(boolean: Boolean): T
 
-        fun visitArrayType(arrayType: ArrayType): T
+        fun visitArray(array: Array): T
 
-        fun visitObjectType(objectType: ObjectType): T
+        fun visitObject(object_: Object): T
 
-        fun visitJsonType(jsonType: JsonType): T
+        fun visitJson(json: Json): T
 
-        fun visitUnionType(unionType: UnionType): T
+        fun visitUnion(union: Union): T
 
-        fun visitChatCompletionInputType(chatCompletionInputType: ChatCompletionInputType): T
+        fun visitChatCompletionInput(chatCompletionInput: ChatCompletionInput): T
 
-        fun visitCompletionInputType(completionInputType: CompletionInputType): T
+        fun visitCompletionInput(completionInput: CompletionInput): T
 
-        fun visitAgentTurnInputType(agentTurnInputType: AgentTurnInputType): T
+        fun visitAgentTurnInput(agentTurnInput: AgentTurnInput): T
 
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown ParamType: $json")
@@ -266,47 +260,70 @@ private constructor(
 
         override fun ObjectCodec.deserialize(node: JsonNode): ParamType {
             val json = JsonValue.fromJsonNode(node)
+            val type = json.asObject()?.get("type")?.asString()
 
-            tryDeserialize(node, jacksonTypeRef<StringType>()) { it.validate() }
-                ?.let {
-                    return ParamType(stringType = it, _json = json)
+            when (type) {
+                "string" -> {
+                    tryDeserialize(node, jacksonTypeRef<String>()) { it.validate() }
+                        ?.let {
+                            return ParamType(string = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<NumberType>()) { it.validate() }
-                ?.let {
-                    return ParamType(numberType = it, _json = json)
+                "number" -> {
+                    tryDeserialize(node, jacksonTypeRef<Number>()) { it.validate() }
+                        ?.let {
+                            return ParamType(number = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<BooleanType>()) { it.validate() }
-                ?.let {
-                    return ParamType(booleanType = it, _json = json)
+                "boolean" -> {
+                    tryDeserialize(node, jacksonTypeRef<Boolean>()) { it.validate() }
+                        ?.let {
+                            return ParamType(boolean = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<ArrayType>()) { it.validate() }
-                ?.let {
-                    return ParamType(arrayType = it, _json = json)
+                "array" -> {
+                    tryDeserialize(node, jacksonTypeRef<Array>()) { it.validate() }
+                        ?.let {
+                            return ParamType(array = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<ObjectType>()) { it.validate() }
-                ?.let {
-                    return ParamType(objectType = it, _json = json)
+                "object" -> {
+                    tryDeserialize(node, jacksonTypeRef<Object>()) { it.validate() }
+                        ?.let {
+                            return ParamType(object_ = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<JsonType>()) { it.validate() }
-                ?.let {
-                    return ParamType(jsonType = it, _json = json)
+                "json" -> {
+                    tryDeserialize(node, jacksonTypeRef<Json>()) { it.validate() }
+                        ?.let {
+                            return ParamType(json = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<UnionType>()) { it.validate() }
-                ?.let {
-                    return ParamType(unionType = it, _json = json)
+                "union" -> {
+                    tryDeserialize(node, jacksonTypeRef<Union>()) { it.validate() }
+                        ?.let {
+                            return ParamType(union = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<ChatCompletionInputType>()) { it.validate() }
-                ?.let {
-                    return ParamType(chatCompletionInputType = it, _json = json)
+                "chat_completion_input" -> {
+                    tryDeserialize(node, jacksonTypeRef<ChatCompletionInput>()) { it.validate() }
+                        ?.let {
+                            return ParamType(chatCompletionInput = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<CompletionInputType>()) { it.validate() }
-                ?.let {
-                    return ParamType(completionInputType = it, _json = json)
+                "completion_input" -> {
+                    tryDeserialize(node, jacksonTypeRef<CompletionInput>()) { it.validate() }
+                        ?.let {
+                            return ParamType(completionInput = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<AgentTurnInputType>()) { it.validate() }
-                ?.let {
-                    return ParamType(agentTurnInputType = it, _json = json)
+                "agent_turn_input" -> {
+                    tryDeserialize(node, jacksonTypeRef<AgentTurnInput>()) { it.validate() }
+                        ?.let {
+                            return ParamType(agentTurnInput = it, _json = json)
+                        }
                 }
+            }
 
             return ParamType(_json = json)
         }
@@ -320,18 +337,17 @@ private constructor(
             provider: SerializerProvider
         ) {
             when {
-                value.stringType != null -> generator.writeObject(value.stringType)
-                value.numberType != null -> generator.writeObject(value.numberType)
-                value.booleanType != null -> generator.writeObject(value.booleanType)
-                value.arrayType != null -> generator.writeObject(value.arrayType)
-                value.objectType != null -> generator.writeObject(value.objectType)
-                value.jsonType != null -> generator.writeObject(value.jsonType)
-                value.unionType != null -> generator.writeObject(value.unionType)
-                value.chatCompletionInputType != null ->
-                    generator.writeObject(value.chatCompletionInputType)
-                value.completionInputType != null ->
-                    generator.writeObject(value.completionInputType)
-                value.agentTurnInputType != null -> generator.writeObject(value.agentTurnInputType)
+                value.string != null -> generator.writeObject(value.string)
+                value.number != null -> generator.writeObject(value.number)
+                value.boolean != null -> generator.writeObject(value.boolean)
+                value.array != null -> generator.writeObject(value.array)
+                value.object_ != null -> generator.writeObject(value.object_)
+                value.json != null -> generator.writeObject(value.json)
+                value.union != null -> generator.writeObject(value.union)
+                value.chatCompletionInput != null ->
+                    generator.writeObject(value.chatCompletionInput)
+                value.completionInput != null -> generator.writeObject(value.completionInput)
+                value.agentTurnInput != null -> generator.writeObject(value.agentTurnInput)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid ParamType")
             }
@@ -339,7 +355,7 @@ private constructor(
     }
 
     @NoAutoDetect
-    class StringType
+    class String
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -357,7 +373,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): StringType = apply {
+        fun validate(): String = apply {
             if (validated) {
                 return@apply
             }
@@ -378,9 +394,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(stringType: StringType) = apply {
-                type = stringType.type
-                additionalProperties = stringType.additionalProperties.toMutableMap()
+            internal fun from(string: String) = apply {
+                type = string.type
+                additionalProperties = string.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -406,8 +422,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): StringType =
-                StringType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): String =
+                String(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -466,7 +482,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is StringType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is String && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -475,12 +491,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() =
-            "StringType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "String{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class NumberType
+    class Number
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -498,7 +513,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): NumberType = apply {
+        fun validate(): Number = apply {
             if (validated) {
                 return@apply
             }
@@ -519,9 +534,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(numberType: NumberType) = apply {
-                type = numberType.type
-                additionalProperties = numberType.additionalProperties.toMutableMap()
+            internal fun from(number: Number) = apply {
+                type = number.type
+                additionalProperties = number.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -547,8 +562,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): NumberType =
-                NumberType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): Number =
+                Number(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -607,7 +622,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is NumberType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Number && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -616,12 +631,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() =
-            "NumberType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "Number{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class BooleanType
+    class Boolean
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -639,7 +653,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): BooleanType = apply {
+        fun validate(): Boolean = apply {
             if (validated) {
                 return@apply
             }
@@ -660,9 +674,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(booleanType: BooleanType) = apply {
-                type = booleanType.type
-                additionalProperties = booleanType.additionalProperties.toMutableMap()
+            internal fun from(boolean: Boolean) = apply {
+                type = boolean.type
+                additionalProperties = boolean.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -688,8 +702,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): BooleanType =
-                BooleanType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): Boolean =
+                Boolean(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -748,7 +762,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is BooleanType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Boolean && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -757,12 +771,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() =
-            "BooleanType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "Boolean{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class ArrayType
+    class Array
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -780,7 +793,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ArrayType = apply {
+        fun validate(): Array = apply {
             if (validated) {
                 return@apply
             }
@@ -801,9 +814,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(arrayType: ArrayType) = apply {
-                type = arrayType.type
-                additionalProperties = arrayType.additionalProperties.toMutableMap()
+            internal fun from(array: Array) = apply {
+                type = array.type
+                additionalProperties = array.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -829,8 +842,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ArrayType =
-                ArrayType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): Array =
+                Array(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -889,7 +902,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ArrayType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Array && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -898,12 +911,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() =
-            "ArrayType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "Array{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class ObjectType
+    class Object
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -921,7 +933,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ObjectType = apply {
+        fun validate(): Object = apply {
             if (validated) {
                 return@apply
             }
@@ -942,9 +954,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(objectType: ObjectType) = apply {
-                type = objectType.type
-                additionalProperties = objectType.additionalProperties.toMutableMap()
+            internal fun from(object_: Object) = apply {
+                type = object_.type
+                additionalProperties = object_.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -970,8 +982,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ObjectType =
-                ObjectType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): Object =
+                Object(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1030,7 +1042,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ObjectType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Object && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1039,12 +1051,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() =
-            "ObjectType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "Object{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class JsonType
+    class Json
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -1062,7 +1073,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): JsonType = apply {
+        fun validate(): Json = apply {
             if (validated) {
                 return@apply
             }
@@ -1083,9 +1094,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(jsonType: JsonType) = apply {
-                type = jsonType.type
-                additionalProperties = jsonType.additionalProperties.toMutableMap()
+            internal fun from(json: Json) = apply {
+                type = json.type
+                additionalProperties = json.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -1111,8 +1122,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): JsonType =
-                JsonType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): Json =
+                Json(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1171,7 +1182,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is JsonType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Json && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1180,11 +1191,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() = "JsonType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "Json{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class UnionType
+    class Union
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -1202,7 +1213,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): UnionType = apply {
+        fun validate(): Union = apply {
             if (validated) {
                 return@apply
             }
@@ -1223,9 +1234,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(unionType: UnionType) = apply {
-                type = unionType.type
-                additionalProperties = unionType.additionalProperties.toMutableMap()
+            internal fun from(union: Union) = apply {
+                type = union.type
+                additionalProperties = union.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -1251,8 +1262,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): UnionType =
-                UnionType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): Union =
+                Union(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1311,7 +1322,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is UnionType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Union && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1320,12 +1331,11 @@ private constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() =
-            "UnionType{type=$type, additionalProperties=$additionalProperties}"
+        override fun toString() = "Union{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class ChatCompletionInputType
+    class ChatCompletionInput
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -1343,7 +1353,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ChatCompletionInputType = apply {
+        fun validate(): ChatCompletionInput = apply {
             if (validated) {
                 return@apply
             }
@@ -1364,9 +1374,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(chatCompletionInputType: ChatCompletionInputType) = apply {
-                type = chatCompletionInputType.type
-                additionalProperties = chatCompletionInputType.additionalProperties.toMutableMap()
+            internal fun from(chatCompletionInput: ChatCompletionInput) = apply {
+                type = chatCompletionInput.type
+                additionalProperties = chatCompletionInput.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -1392,11 +1402,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ChatCompletionInputType =
-                ChatCompletionInputType(
-                    checkRequired("type", type),
-                    additionalProperties.toImmutable()
-                )
+            fun build(): ChatCompletionInput =
+                ChatCompletionInput(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1455,7 +1462,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ChatCompletionInputType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ChatCompletionInput && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1465,11 +1472,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ChatCompletionInputType{type=$type, additionalProperties=$additionalProperties}"
+            "ChatCompletionInput{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class CompletionInputType
+    class CompletionInput
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -1487,7 +1494,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): CompletionInputType = apply {
+        fun validate(): CompletionInput = apply {
             if (validated) {
                 return@apply
             }
@@ -1508,9 +1515,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(completionInputType: CompletionInputType) = apply {
-                type = completionInputType.type
-                additionalProperties = completionInputType.additionalProperties.toMutableMap()
+            internal fun from(completionInput: CompletionInput) = apply {
+                type = completionInput.type
+                additionalProperties = completionInput.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -1536,8 +1543,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): CompletionInputType =
-                CompletionInputType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): CompletionInput =
+                CompletionInput(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1596,7 +1603,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is CompletionInputType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is CompletionInput && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1606,11 +1613,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "CompletionInputType{type=$type, additionalProperties=$additionalProperties}"
+            "CompletionInput{type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class AgentTurnInputType
+    class AgentTurnInput
     @JsonCreator
     private constructor(
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
@@ -1628,7 +1635,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnInputType = apply {
+        fun validate(): AgentTurnInput = apply {
             if (validated) {
                 return@apply
             }
@@ -1649,9 +1656,9 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(agentTurnInputType: AgentTurnInputType) = apply {
-                type = agentTurnInputType.type
-                additionalProperties = agentTurnInputType.additionalProperties.toMutableMap()
+            internal fun from(agentTurnInput: AgentTurnInput) = apply {
+                type = agentTurnInput.type
+                additionalProperties = agentTurnInput.additionalProperties.toMutableMap()
             }
 
             fun type(type: Type) = type(JsonField.of(type))
@@ -1677,8 +1684,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): AgentTurnInputType =
-                AgentTurnInputType(checkRequired("type", type), additionalProperties.toImmutable())
+            fun build(): AgentTurnInput =
+                AgentTurnInput(checkRequired("type", type), additionalProperties.toImmutable())
         }
 
         class Type
@@ -1737,7 +1744,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnInputType && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentTurnInput && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1747,6 +1754,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnInputType{type=$type, additionalProperties=$additionalProperties}"
+            "AgentTurnInput{type=$type, additionalProperties=$additionalProperties}"
     }
 }

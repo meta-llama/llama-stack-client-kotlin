@@ -12,20 +12,15 @@ class EvalRunEvalParamsTest {
         EvalRunEvalParams.builder()
             .taskId("task_id")
             .taskConfig(
-                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalRunEvalParams.TaskConfig.Benchmark.builder()
                     .evalCandidate(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                            .ModelCandidate
-                            .builder()
+                        EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
                                     .strategy(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                            .type(
-                                                SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                    .GREEDY
-                                            )
+                                        SamplingParams.Strategy.Greedy.builder()
+                                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                             .build()
                                     )
                                     .maxTokens(0L)
@@ -33,9 +28,7 @@ class EvalRunEvalParamsTest {
                                     .build()
                             )
                             .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ModelCandidate
-                                    .Type
+                                EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                     .MODEL
                             )
                             .systemMessage(
@@ -46,7 +39,7 @@ class EvalRunEvalParamsTest {
                             )
                             .build()
                     )
-                    .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                    .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                     .numExamples(0L)
                     .build()
             )
@@ -61,21 +54,15 @@ class EvalRunEvalParamsTest {
             EvalRunEvalParams.builder()
                 .taskId("task_id")
                 .taskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    EvalRunEvalParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
-                                .builder()
+                            EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .maxTokens(0L)
@@ -83,10 +70,7 @@ class EvalRunEvalParamsTest {
                                         .build()
                                 )
                                 .type(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .Type
+                                    EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                         .MODEL
                                 )
                                 .systemMessage(
@@ -97,7 +81,7 @@ class EvalRunEvalParamsTest {
                                 )
                                 .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .numExamples(0L)
                         .build()
                 )
@@ -108,22 +92,16 @@ class EvalRunEvalParamsTest {
         assertThat(body).isNotNull
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalRunEvalParams.TaskConfig.ofBenchmark(
+                    EvalRunEvalParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
-                                .builder()
+                            EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .maxTokens(0L)
@@ -131,10 +109,7 @@ class EvalRunEvalParamsTest {
                                         .build()
                                 )
                                 .type(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .Type
+                                    EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                         .MODEL
                                 )
                                 .systemMessage(
@@ -145,7 +120,7 @@ class EvalRunEvalParamsTest {
                                 )
                                 .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .numExamples(0L)
                         .build()
                 )
@@ -158,35 +133,26 @@ class EvalRunEvalParamsTest {
             EvalRunEvalParams.builder()
                 .taskId("task_id")
                 .taskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    EvalRunEvalParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
-                                .builder()
+                            EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .build()
                                 )
                                 .type(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .Type
+                                    EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                         .MODEL
                                 )
                                 .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .build()
                 )
                 .build()
@@ -194,36 +160,27 @@ class EvalRunEvalParamsTest {
         assertThat(body).isNotNull
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalRunEvalParams.TaskConfig.ofBenchmark(
+                    EvalRunEvalParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
-                                .builder()
+                            EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .build()
                                 )
                                 .type(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .Type
+                                    EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                         .MODEL
                                 )
                                 .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .build()
                 )
             )
@@ -235,35 +192,26 @@ class EvalRunEvalParamsTest {
             EvalRunEvalParams.builder()
                 .taskId("task_id")
                 .taskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    EvalRunEvalParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
-                                .builder()
+                            EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .build()
                                 )
                                 .type(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .Type
+                                    EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                         .MODEL
                                 )
                                 .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                        .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .build()
                 )
                 .build()

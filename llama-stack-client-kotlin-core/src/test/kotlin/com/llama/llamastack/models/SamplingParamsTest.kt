@@ -12,8 +12,8 @@ class SamplingParamsTest {
         val samplingParams =
             SamplingParams.builder()
                 .strategy(
-                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                        .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                    SamplingParams.Strategy.Greedy.builder()
+                        .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                         .build()
                 )
                 .maxTokens(0L)
@@ -22,9 +22,9 @@ class SamplingParamsTest {
         assertThat(samplingParams).isNotNull
         assertThat(samplingParams.strategy())
             .isEqualTo(
-                SamplingParams.Strategy.ofGreedySamplingStrategy(
-                    SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                        .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                SamplingParams.Strategy.ofGreedy(
+                    SamplingParams.Strategy.Greedy.builder()
+                        .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                         .build()
                 )
             )

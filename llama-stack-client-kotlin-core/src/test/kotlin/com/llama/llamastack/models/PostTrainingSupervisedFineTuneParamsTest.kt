@@ -70,17 +70,13 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     .build()
             )
             .algorithmConfig(
-                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig.builder()
+                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.builder()
                     .alpha(0L)
                     .applyLoraToMlp(true)
                     .applyLoraToOutput(true)
                     .addLoraAttnModule("string")
                     .rank(0L)
-                    .type(
-                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
-                            .Type
-                            .LO_RA
-                    )
+                    .type(PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.Type.LO_RA)
                     .quantizeBase(true)
                     .useDora(true)
                     .build()
@@ -155,19 +151,13 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .algorithmConfig(
-                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
-                        .builder()
+                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.builder()
                         .alpha(0L)
                         .applyLoraToMlp(true)
                         .applyLoraToOutput(true)
                         .addLoraAttnModule("string")
                         .rank(0L)
-                        .type(
-                            PostTrainingSupervisedFineTuneParams.AlgorithmConfig
-                                .LoraFinetuningConfig
-                                .Type
-                                .LO_RA
-                        )
+                        .type(PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.Type.LO_RA)
                         .quantizeBase(true)
                         .useDora(true)
                         .build()
@@ -241,20 +231,14 @@ class PostTrainingSupervisedFineTuneParamsTest {
             )
         assertThat(body.algorithmConfig())
             .isEqualTo(
-                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.ofLoraFinetuningConfig(
-                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoraFinetuningConfig
-                        .builder()
+                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.ofLoRa(
+                    PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.builder()
                         .alpha(0L)
                         .applyLoraToMlp(true)
                         .applyLoraToOutput(true)
                         .addLoraAttnModule("string")
                         .rank(0L)
-                        .type(
-                            PostTrainingSupervisedFineTuneParams.AlgorithmConfig
-                                .LoraFinetuningConfig
-                                .Type
-                                .LO_RA
-                        )
+                        .type(PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.Type.LO_RA)
                         .quantizeBase(true)
                         .useDora(true)
                         .build()

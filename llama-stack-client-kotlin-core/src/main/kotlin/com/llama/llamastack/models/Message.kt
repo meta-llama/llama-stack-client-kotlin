@@ -145,23 +145,34 @@ private constructor(
 
         override fun ObjectCodec.deserialize(node: JsonNode): Message {
             val json = JsonValue.fromJsonNode(node)
+            val role = json.asObject()?.get("role")?.asString()
 
-            tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                ?.let {
-                    return Message(userMessage = it, _json = json)
+            when (role) {
+                "user" -> {
+                    tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
+                        ?.let {
+                            return Message(userMessage = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
-                ?.let {
-                    return Message(systemMessage = it, _json = json)
+                "system" -> {
+                    tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
+                        ?.let {
+                            return Message(systemMessage = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                ?.let {
-                    return Message(toolResponseMessage = it, _json = json)
+                "tool" -> {
+                    tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
+                        ?.let {
+                            return Message(toolResponseMessage = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
-                ?.let {
-                    return Message(completionMessage = it, _json = json)
+                "assistant" -> {
+                    tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
+                        ?.let {
+                            return Message(completionMessage = it, _json = json)
+                        }
                 }
+            }
 
             return Message(_json = json)
         }

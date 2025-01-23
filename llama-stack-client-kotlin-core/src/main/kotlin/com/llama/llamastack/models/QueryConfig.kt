@@ -117,21 +117,11 @@ private constructor(
             this.queryGeneratorConfig = queryGeneratorConfig
         }
 
-        fun queryGeneratorConfig(
-            defaultRagQueryGeneratorConfig: QueryGeneratorConfig.DefaultRagQueryGeneratorConfig
-        ) =
-            queryGeneratorConfig(
-                QueryGeneratorConfig.ofDefaultRagQueryGeneratorConfig(
-                    defaultRagQueryGeneratorConfig
-                )
-            )
+        fun queryGeneratorConfig(default: QueryGeneratorConfig.Default) =
+            queryGeneratorConfig(QueryGeneratorConfig.ofDefault(default))
 
-        fun queryGeneratorConfig(
-            llmragQueryGeneratorConfig: QueryGeneratorConfig.LlmragQueryGeneratorConfig
-        ) =
-            queryGeneratorConfig(
-                QueryGeneratorConfig.ofLlmragQueryGeneratorConfig(llmragQueryGeneratorConfig)
-            )
+        fun queryGeneratorConfig(llm: QueryGeneratorConfig.Llm) =
+            queryGeneratorConfig(QueryGeneratorConfig.ofLlm(llm))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -165,34 +155,29 @@ private constructor(
     @JsonSerialize(using = QueryGeneratorConfig.Serializer::class)
     class QueryGeneratorConfig
     private constructor(
-        private val defaultRagQueryGeneratorConfig: DefaultRagQueryGeneratorConfig? = null,
-        private val llmragQueryGeneratorConfig: LlmragQueryGeneratorConfig? = null,
+        private val default: Default? = null,
+        private val llm: Llm? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun defaultRagQueryGeneratorConfig(): DefaultRagQueryGeneratorConfig? =
-            defaultRagQueryGeneratorConfig
+        fun default(): Default? = default
 
-        fun llmragQueryGeneratorConfig(): LlmragQueryGeneratorConfig? = llmragQueryGeneratorConfig
+        fun llm(): Llm? = llm
 
-        fun isDefaultRagQueryGeneratorConfig(): Boolean = defaultRagQueryGeneratorConfig != null
+        fun isDefault(): Boolean = default != null
 
-        fun isLlmragQueryGeneratorConfig(): Boolean = llmragQueryGeneratorConfig != null
+        fun isLlm(): Boolean = llm != null
 
-        fun asDefaultRagQueryGeneratorConfig(): DefaultRagQueryGeneratorConfig =
-            defaultRagQueryGeneratorConfig.getOrThrow("defaultRagQueryGeneratorConfig")
+        fun asDefault(): Default = default.getOrThrow("default")
 
-        fun asLlmragQueryGeneratorConfig(): LlmragQueryGeneratorConfig =
-            llmragQueryGeneratorConfig.getOrThrow("llmragQueryGeneratorConfig")
+        fun asLlm(): Llm = llm.getOrThrow("llm")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                defaultRagQueryGeneratorConfig != null ->
-                    visitor.visitDefaultRagQueryGeneratorConfig(defaultRagQueryGeneratorConfig)
-                llmragQueryGeneratorConfig != null ->
-                    visitor.visitLlmragQueryGeneratorConfig(llmragQueryGeneratorConfig)
+                default != null -> visitor.visitDefault(default)
+                llm != null -> visitor.visitLlm(llm)
                 else -> visitor.unknown(_json)
             }
         }
@@ -206,16 +191,12 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitDefaultRagQueryGeneratorConfig(
-                        defaultRagQueryGeneratorConfig: DefaultRagQueryGeneratorConfig
-                    ) {
-                        defaultRagQueryGeneratorConfig.validate()
+                    override fun visitDefault(default: Default) {
+                        default.validate()
                     }
 
-                    override fun visitLlmragQueryGeneratorConfig(
-                        llmragQueryGeneratorConfig: LlmragQueryGeneratorConfig
-                    ) {
-                        llmragQueryGeneratorConfig.validate()
+                    override fun visitLlm(llm: Llm) {
+                        llm.validate()
                     }
                 }
             )
@@ -227,44 +208,31 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is QueryGeneratorConfig && defaultRagQueryGeneratorConfig == other.defaultRagQueryGeneratorConfig && llmragQueryGeneratorConfig == other.llmragQueryGeneratorConfig /* spotless:on */
+            return /* spotless:off */ other is QueryGeneratorConfig && default == other.default && llm == other.llm /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(defaultRagQueryGeneratorConfig, llmragQueryGeneratorConfig) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(default, llm) /* spotless:on */
 
         override fun toString(): String =
             when {
-                defaultRagQueryGeneratorConfig != null ->
-                    "QueryGeneratorConfig{defaultRagQueryGeneratorConfig=$defaultRagQueryGeneratorConfig}"
-                llmragQueryGeneratorConfig != null ->
-                    "QueryGeneratorConfig{llmragQueryGeneratorConfig=$llmragQueryGeneratorConfig}"
+                default != null -> "QueryGeneratorConfig{default=$default}"
+                llm != null -> "QueryGeneratorConfig{llm=$llm}"
                 _json != null -> "QueryGeneratorConfig{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid QueryGeneratorConfig")
             }
 
         companion object {
 
-            fun ofDefaultRagQueryGeneratorConfig(
-                defaultRagQueryGeneratorConfig: DefaultRagQueryGeneratorConfig
-            ) =
-                QueryGeneratorConfig(
-                    defaultRagQueryGeneratorConfig = defaultRagQueryGeneratorConfig
-                )
+            fun ofDefault(default: Default) = QueryGeneratorConfig(default = default)
 
-            fun ofLlmragQueryGeneratorConfig(
-                llmragQueryGeneratorConfig: LlmragQueryGeneratorConfig
-            ) = QueryGeneratorConfig(llmragQueryGeneratorConfig = llmragQueryGeneratorConfig)
+            fun ofLlm(llm: Llm) = QueryGeneratorConfig(llm = llm)
         }
 
         interface Visitor<out T> {
 
-            fun visitDefaultRagQueryGeneratorConfig(
-                defaultRagQueryGeneratorConfig: DefaultRagQueryGeneratorConfig
-            ): T
+            fun visitDefault(default: Default): T
 
-            fun visitLlmragQueryGeneratorConfig(
-                llmragQueryGeneratorConfig: LlmragQueryGeneratorConfig
-            ): T
+            fun visitLlm(llm: Llm): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown QueryGeneratorConfig: $json")
@@ -275,20 +243,22 @@ private constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): QueryGeneratorConfig {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<DefaultRagQueryGeneratorConfig>()) {
-                        it.validate()
+                when (type) {
+                    "default" -> {
+                        tryDeserialize(node, jacksonTypeRef<Default>()) { it.validate() }
+                            ?.let {
+                                return QueryGeneratorConfig(default = it, _json = json)
+                            }
                     }
-                    ?.let {
-                        return QueryGeneratorConfig(
-                            defaultRagQueryGeneratorConfig = it,
-                            _json = json
-                        )
+                    "llm" -> {
+                        tryDeserialize(node, jacksonTypeRef<Llm>()) { it.validate() }
+                            ?.let {
+                                return QueryGeneratorConfig(llm = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<LlmragQueryGeneratorConfig>()) { it.validate() }
-                    ?.let {
-                        return QueryGeneratorConfig(llmragQueryGeneratorConfig = it, _json = json)
-                    }
+                }
 
                 return QueryGeneratorConfig(_json = json)
             }
@@ -302,10 +272,8 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.defaultRagQueryGeneratorConfig != null ->
-                        generator.writeObject(value.defaultRagQueryGeneratorConfig)
-                    value.llmragQueryGeneratorConfig != null ->
-                        generator.writeObject(value.llmragQueryGeneratorConfig)
+                    value.default != null -> generator.writeObject(value.default)
+                    value.llm != null -> generator.writeObject(value.llm)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid QueryGeneratorConfig")
                 }
@@ -313,7 +281,7 @@ private constructor(
         }
 
         @NoAutoDetect
-        class DefaultRagQueryGeneratorConfig
+        class Default
         @JsonCreator
         private constructor(
             @JsonProperty("separator")
@@ -342,7 +310,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): DefaultRagQueryGeneratorConfig = apply {
+            fun validate(): Default = apply {
                 if (validated) {
                     return@apply
                 }
@@ -365,13 +333,11 @@ private constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(defaultRagQueryGeneratorConfig: DefaultRagQueryGeneratorConfig) =
-                    apply {
-                        separator = defaultRagQueryGeneratorConfig.separator
-                        type = defaultRagQueryGeneratorConfig.type
-                        additionalProperties =
-                            defaultRagQueryGeneratorConfig.additionalProperties.toMutableMap()
-                    }
+                internal fun from(default: Default) = apply {
+                    separator = default.separator
+                    type = default.type
+                    additionalProperties = default.additionalProperties.toMutableMap()
+                }
 
                 fun separator(separator: String) = separator(JsonField.of(separator))
 
@@ -403,8 +369,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): DefaultRagQueryGeneratorConfig =
-                    DefaultRagQueryGeneratorConfig(
+                fun build(): Default =
+                    Default(
                         checkRequired("separator", separator),
                         checkRequired("type", type),
                         additionalProperties.toImmutable(),
@@ -467,7 +433,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is DefaultRagQueryGeneratorConfig && separator == other.separator && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Default && separator == other.separator && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -477,11 +443,11 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "DefaultRagQueryGeneratorConfig{separator=$separator, type=$type, additionalProperties=$additionalProperties}"
+                "Default{separator=$separator, type=$type, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class LlmragQueryGeneratorConfig
+        class Llm
         @JsonCreator
         private constructor(
             @JsonProperty("model")
@@ -515,7 +481,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): LlmragQueryGeneratorConfig = apply {
+            fun validate(): Llm = apply {
                 if (validated) {
                     return@apply
                 }
@@ -540,12 +506,11 @@ private constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(llmragQueryGeneratorConfig: LlmragQueryGeneratorConfig) = apply {
-                    model = llmragQueryGeneratorConfig.model
-                    template = llmragQueryGeneratorConfig.template
-                    type = llmragQueryGeneratorConfig.type
-                    additionalProperties =
-                        llmragQueryGeneratorConfig.additionalProperties.toMutableMap()
+                internal fun from(llm: Llm) = apply {
+                    model = llm.model
+                    template = llm.template
+                    type = llm.type
+                    additionalProperties = llm.additionalProperties.toMutableMap()
                 }
 
                 fun model(model: String) = model(JsonField.of(model))
@@ -582,8 +547,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): LlmragQueryGeneratorConfig =
-                    LlmragQueryGeneratorConfig(
+                fun build(): Llm =
+                    Llm(
                         checkRequired("model", model),
                         checkRequired("template", template),
                         checkRequired("type", type),
@@ -647,7 +612,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is LlmragQueryGeneratorConfig && model == other.model && template == other.template && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Llm && model == other.model && template == other.template && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -657,7 +622,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "LlmragQueryGeneratorConfig{model=$model, template=$template, type=$type, additionalProperties=$additionalProperties}"
+                "Llm{model=$model, template=$template, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 

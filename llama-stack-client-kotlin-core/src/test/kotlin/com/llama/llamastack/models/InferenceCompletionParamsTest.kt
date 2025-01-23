@@ -15,20 +15,20 @@ class InferenceCompletionParamsTest {
             .modelId("model_id")
             .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
-                InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                InferenceCompletionParams.ResponseFormat.JsonSchema.builder()
                     .jsonSchema(
-                        InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema.builder()
+                        InferenceCompletionParams.ResponseFormat.JsonSchema.JsonSchema.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .type(InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA)
+                    .type(InferenceCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA)
                     .build()
             )
             .samplingParams(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                        SamplingParams.Strategy.Greedy.builder()
+                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                             .build()
                     )
                     .maxTokens(0L)
@@ -48,23 +48,20 @@ class InferenceCompletionParamsTest {
                 .modelId("model_id")
                 .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                .builder()
+                            InferenceCompletionParams.ResponseFormat.JsonSchema.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
-                        .type(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
-                        )
+                        .type(InferenceCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA)
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -82,17 +79,14 @@ class InferenceCompletionParamsTest {
             .isEqualTo(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
         assertThat(body.responseFormat())
             .isEqualTo(
-                InferenceCompletionParams.ResponseFormat.ofUnionMember0(
-                    InferenceCompletionParams.ResponseFormat.UnionMember0.builder()
+                InferenceCompletionParams.ResponseFormat.ofJsonSchema(
+                    InferenceCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                                .builder()
+                            InferenceCompletionParams.ResponseFormat.JsonSchema.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
-                        .type(
-                            InferenceCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
-                        )
+                        .type(InferenceCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA)
                         .build()
                 )
             )
@@ -100,8 +94,8 @@ class InferenceCompletionParamsTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                        SamplingParams.Strategy.Greedy.builder()
+                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                             .build()
                     )
                     .maxTokens(0L)

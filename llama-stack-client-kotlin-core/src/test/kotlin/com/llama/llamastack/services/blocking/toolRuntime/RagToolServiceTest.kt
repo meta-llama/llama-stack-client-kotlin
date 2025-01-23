@@ -57,15 +57,9 @@ class RagToolServiceTest {
                             .maxChunks(0L)
                             .maxTokensInContext(0L)
                             .queryGeneratorConfig(
-                                QueryConfig.QueryGeneratorConfig.DefaultRagQueryGeneratorConfig
-                                    .builder()
+                                QueryConfig.QueryGeneratorConfig.Default.builder()
                                     .separator("separator")
-                                    .type(
-                                        QueryConfig.QueryGeneratorConfig
-                                            .DefaultRagQueryGeneratorConfig
-                                            .Type
-                                            .DEFAULT
-                                    )
+                                    .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                                     .build()
                             )
                             .build()

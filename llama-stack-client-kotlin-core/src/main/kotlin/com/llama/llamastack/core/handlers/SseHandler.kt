@@ -1,4 +1,4 @@
-@file:JvmName("SseHandler")
+// File generated from our OpenAPI spec by Stainless.
 
 package com.llama.llamastack.core.handlers
 

@@ -19,20 +19,15 @@ class EvalEvaluateRowsParamsTest {
             )
             .addScoringFunction("string")
             .taskConfig(
-                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                     .evalCandidate(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                            .ModelCandidate
-                            .builder()
+                        EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
                                     .strategy(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                            .type(
-                                                SamplingParams.Strategy.GreedySamplingStrategy.Type
-                                                    .GREEDY
-                                            )
+                                        SamplingParams.Strategy.Greedy.builder()
+                                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                             .build()
                                     )
                                     .maxTokens(0L)
@@ -40,10 +35,7 @@ class EvalEvaluateRowsParamsTest {
                                     .build()
                             )
                             .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ModelCandidate
-                                    .Type
+                                EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model.Type
                                     .MODEL
                             )
                             .systemMessage(
@@ -54,7 +46,7 @@ class EvalEvaluateRowsParamsTest {
                             )
                             .build()
                     )
-                    .type(EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
+                    .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                     .numExamples(0L)
                     .build()
             )
@@ -75,21 +67,16 @@ class EvalEvaluateRowsParamsTest {
                 )
                 .addScoringFunction("string")
                 .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
+                            EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                 .builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .maxTokens(0L)
@@ -97,9 +84,7 @@ class EvalEvaluateRowsParamsTest {
                                         .build()
                                 )
                                 .type(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
+                                    EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                         .Type
                                         .MODEL
                                 )
@@ -111,9 +96,7 @@ class EvalEvaluateRowsParamsTest {
                                 )
                                 .build()
                         )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
+                        .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .numExamples(0L)
                         .build()
                 )
@@ -133,22 +116,17 @@ class EvalEvaluateRowsParamsTest {
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalEvaluateRowsParams.TaskConfig.ofBenchmark(
+                    EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
+                            EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                 .builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .maxTokens(0L)
@@ -156,9 +134,7 @@ class EvalEvaluateRowsParamsTest {
                                         .build()
                                 )
                                 .type(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
+                                    EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                         .Type
                                         .MODEL
                                 )
@@ -170,9 +146,7 @@ class EvalEvaluateRowsParamsTest {
                                 )
                                 .build()
                         )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
+                        .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .numExamples(0L)
                         .build()
                 )
@@ -191,37 +165,28 @@ class EvalEvaluateRowsParamsTest {
                 )
                 .addScoringFunction("string")
                 .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
+                            EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                 .builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .build()
                                 )
                                 .type(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
+                                    EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                         .Type
                                         .MODEL
                                 )
                                 .build()
                         )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
+                        .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .build()
                 )
                 .build()
@@ -238,38 +203,29 @@ class EvalEvaluateRowsParamsTest {
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalEvaluateRowsParams.TaskConfig.ofBenchmark(
+                    EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
+                            EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                 .builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .build()
                                 )
                                 .type(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
+                                    EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                         .Type
                                         .MODEL
                                 )
                                 .build()
                         )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
+                        .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .build()
                 )
             )
@@ -287,37 +243,28 @@ class EvalEvaluateRowsParamsTest {
                 )
                 .addScoringFunction("string")
                 .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                    EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ModelCandidate
+                            EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                 .builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
                                         .strategy(
-                                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                                .type(
-                                                    SamplingParams.Strategy.GreedySamplingStrategy
-                                                        .Type
-                                                        .GREEDY
-                                                )
+                                            SamplingParams.Strategy.Greedy.builder()
+                                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                                 .build()
                                         )
                                         .build()
                                 )
                                 .type(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
+                                    EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
                                         .Type
                                         .MODEL
                                 )
                                 .build()
                         )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
+                        .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                         .build()
                 )
                 .build()

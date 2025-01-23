@@ -32,29 +32,29 @@ import java.util.Objects
 @JsonSerialize(using = InterleavedContentItem.Serializer::class)
 class InterleavedContentItem
 private constructor(
-    private val imageContentItem: ImageContentItem? = null,
-    private val textContentItem: TextContentItem? = null,
+    private val image: Image? = null,
+    private val text: Text? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun imageContentItem(): ImageContentItem? = imageContentItem
+    fun image(): Image? = image
 
-    fun textContentItem(): TextContentItem? = textContentItem
+    fun text(): Text? = text
 
-    fun isImageContentItem(): Boolean = imageContentItem != null
+    fun isImage(): Boolean = image != null
 
-    fun isTextContentItem(): Boolean = textContentItem != null
+    fun isText(): Boolean = text != null
 
-    fun asImageContentItem(): ImageContentItem = imageContentItem.getOrThrow("imageContentItem")
+    fun asImage(): Image = image.getOrThrow("image")
 
-    fun asTextContentItem(): TextContentItem = textContentItem.getOrThrow("textContentItem")
+    fun asText(): Text = text.getOrThrow("text")
 
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T {
         return when {
-            imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
-            textContentItem != null -> visitor.visitTextContentItem(textContentItem)
+            image != null -> visitor.visitImage(image)
+            text != null -> visitor.visitText(text)
             else -> visitor.unknown(_json)
         }
     }
@@ -68,12 +68,12 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitImageContentItem(imageContentItem: ImageContentItem) {
-                    imageContentItem.validate()
+                override fun visitImage(image: Image) {
+                    image.validate()
                 }
 
-                override fun visitTextContentItem(textContentItem: TextContentItem) {
-                    textContentItem.validate()
+                override fun visitText(text: Text) {
+                    text.validate()
                 }
             }
         )
@@ -85,33 +85,31 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is InterleavedContentItem && imageContentItem == other.imageContentItem && textContentItem == other.textContentItem /* spotless:on */
+        return /* spotless:off */ other is InterleavedContentItem && image == other.image && text == other.text /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(imageContentItem, textContentItem) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(image, text) /* spotless:on */
 
     override fun toString(): String =
         when {
-            imageContentItem != null -> "InterleavedContentItem{imageContentItem=$imageContentItem}"
-            textContentItem != null -> "InterleavedContentItem{textContentItem=$textContentItem}"
+            image != null -> "InterleavedContentItem{image=$image}"
+            text != null -> "InterleavedContentItem{text=$text}"
             _json != null -> "InterleavedContentItem{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid InterleavedContentItem")
         }
 
     companion object {
 
-        fun ofImageContentItem(imageContentItem: ImageContentItem) =
-            InterleavedContentItem(imageContentItem = imageContentItem)
+        fun ofImage(image: Image) = InterleavedContentItem(image = image)
 
-        fun ofTextContentItem(textContentItem: TextContentItem) =
-            InterleavedContentItem(textContentItem = textContentItem)
+        fun ofText(text: Text) = InterleavedContentItem(text = text)
     }
 
     interface Visitor<out T> {
 
-        fun visitImageContentItem(imageContentItem: ImageContentItem): T
+        fun visitImage(image: Image): T
 
-        fun visitTextContentItem(textContentItem: TextContentItem): T
+        fun visitText(text: Text): T
 
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown InterleavedContentItem: $json")
@@ -122,15 +120,22 @@ private constructor(
 
         override fun ObjectCodec.deserialize(node: JsonNode): InterleavedContentItem {
             val json = JsonValue.fromJsonNode(node)
+            val type = json.asObject()?.get("type")?.asString()
 
-            tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
-                ?.let {
-                    return InterleavedContentItem(imageContentItem = it, _json = json)
+            when (type) {
+                "image" -> {
+                    tryDeserialize(node, jacksonTypeRef<Image>()) { it.validate() }
+                        ?.let {
+                            return InterleavedContentItem(image = it, _json = json)
+                        }
                 }
-            tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
-                ?.let {
-                    return InterleavedContentItem(textContentItem = it, _json = json)
+                "text" -> {
+                    tryDeserialize(node, jacksonTypeRef<Text>()) { it.validate() }
+                        ?.let {
+                            return InterleavedContentItem(text = it, _json = json)
+                        }
                 }
+            }
 
             return InterleavedContentItem(_json = json)
         }
@@ -144,8 +149,8 @@ private constructor(
             provider: SerializerProvider
         ) {
             when {
-                value.imageContentItem != null -> generator.writeObject(value.imageContentItem)
-                value.textContentItem != null -> generator.writeObject(value.textContentItem)
+                value.image != null -> generator.writeObject(value.image)
+                value.text != null -> generator.writeObject(value.text)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid InterleavedContentItem")
             }
@@ -153,7 +158,7 @@ private constructor(
     }
 
     @NoAutoDetect
-    class ImageContentItem
+    class Image
     @JsonCreator
     private constructor(
         @JsonProperty("image")
@@ -178,7 +183,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ImageContentItem = apply {
+        fun validate(): Image = apply {
             if (validated) {
                 return@apply
             }
@@ -201,10 +206,10 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(imageContentItem: ImageContentItem) = apply {
-                image = imageContentItem.image
-                type = imageContentItem.type
-                additionalProperties = imageContentItem.additionalProperties.toMutableMap()
+            internal fun from(image: Image) = apply {
+                this.image = image.image
+                type = image.type
+                additionalProperties = image.additionalProperties.toMutableMap()
             }
 
             fun image(image: Image) = image(JsonField.of(image))
@@ -234,8 +239,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ImageContentItem =
-                ImageContentItem(
+            fun build(): Image =
+                Image(
                     checkRequired("image", image),
                     checkRequired("type", type),
                     additionalProperties.toImmutable(),
@@ -409,7 +414,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageContentItem && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Image && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -419,11 +424,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
+            "Image{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
-    class TextContentItem
+    class Text
     @JsonCreator
     private constructor(
         @JsonProperty("text")
@@ -448,7 +453,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): TextContentItem = apply {
+        fun validate(): Text = apply {
             if (validated) {
                 return@apply
             }
@@ -471,10 +476,10 @@ private constructor(
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(textContentItem: TextContentItem) = apply {
-                text = textContentItem.text
-                type = textContentItem.type
-                additionalProperties = textContentItem.additionalProperties.toMutableMap()
+            internal fun from(text: Text) = apply {
+                this.text = text.text
+                type = text.type
+                additionalProperties = text.additionalProperties.toMutableMap()
             }
 
             fun text(text: String) = text(JsonField.of(text))
@@ -504,8 +509,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): TextContentItem =
-                TextContentItem(
+            fun build(): Text =
+                Text(
                     checkRequired("text", text),
                     checkRequired("type", type),
                     additionalProperties.toImmutable(),
@@ -568,7 +573,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TextContentItem && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Text && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -578,6 +583,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
+            "Text{text=$text, type=$type, additionalProperties=$additionalProperties}"
     }
 }

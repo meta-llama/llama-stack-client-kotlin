@@ -21,23 +21,20 @@ class InferenceChatCompletionParamsTest {
             .modelId("model_id")
             .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
-                InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                     .jsonSchema(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
-                            .builder()
+                        InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .type(
-                        InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type.JSON_SCHEMA
-                    )
+                    .type(InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA)
                     .build()
             )
             .samplingParams(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                        SamplingParams.Strategy.Greedy.builder()
+                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                             .build()
                     )
                     .maxTokens(0L)
@@ -86,24 +83,23 @@ class InferenceChatCompletionParamsTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -155,17 +151,16 @@ class InferenceChatCompletionParamsTest {
             .isEqualTo(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
         assertThat(body.responseFormat())
             .isEqualTo(
-                InferenceChatCompletionParams.ResponseFormat.ofUnionMember0(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                InferenceChatCompletionParams.ResponseFormat.ofJsonSchema(
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
@@ -174,8 +169,8 @@ class InferenceChatCompletionParamsTest {
             .isEqualTo(
                 SamplingParams.builder()
                     .strategy(
-                        SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                            .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                        SamplingParams.Strategy.Greedy.builder()
+                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                             .build()
                     )
                     .maxTokens(0L)

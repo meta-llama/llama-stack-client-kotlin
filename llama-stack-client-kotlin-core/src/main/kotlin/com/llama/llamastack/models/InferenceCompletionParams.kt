@@ -209,11 +209,11 @@ constructor(
                 this.responseFormat = responseFormat
             }
 
-            fun responseFormat(unionMember0: ResponseFormat.UnionMember0) =
-                responseFormat(ResponseFormat.ofUnionMember0(unionMember0))
+            fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) =
+                responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
-            fun responseFormat(unionMember1: ResponseFormat.UnionMember1) =
-                responseFormat(ResponseFormat.ofUnionMember1(unionMember1))
+            fun responseFormat(grammar: ResponseFormat.Grammar) =
+                responseFormat(ResponseFormat.ofGrammar(grammar))
 
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
@@ -336,13 +336,11 @@ constructor(
             body.responseFormat(responseFormat)
         }
 
-        fun responseFormat(unionMember0: ResponseFormat.UnionMember0) = apply {
-            body.responseFormat(unionMember0)
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) = apply {
+            body.responseFormat(jsonSchema)
         }
 
-        fun responseFormat(unionMember1: ResponseFormat.UnionMember1) = apply {
-            body.responseFormat(unionMember1)
-        }
+        fun responseFormat(grammar: ResponseFormat.Grammar) = apply { body.responseFormat(grammar) }
 
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
@@ -571,29 +569,29 @@ constructor(
     @JsonSerialize(using = ResponseFormat.Serializer::class)
     class ResponseFormat
     private constructor(
-        private val unionMember0: UnionMember0? = null,
-        private val unionMember1: UnionMember1? = null,
+        private val jsonSchema: JsonSchema? = null,
+        private val grammar: Grammar? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun unionMember0(): UnionMember0? = unionMember0
+        fun jsonSchema(): JsonSchema? = jsonSchema
 
-        fun unionMember1(): UnionMember1? = unionMember1
+        fun grammar(): Grammar? = grammar
 
-        fun isUnionMember0(): Boolean = unionMember0 != null
+        fun isJsonSchema(): Boolean = jsonSchema != null
 
-        fun isUnionMember1(): Boolean = unionMember1 != null
+        fun isGrammar(): Boolean = grammar != null
 
-        fun asUnionMember0(): UnionMember0 = unionMember0.getOrThrow("unionMember0")
+        fun asJsonSchema(): JsonSchema = jsonSchema.getOrThrow("jsonSchema")
 
-        fun asUnionMember1(): UnionMember1 = unionMember1.getOrThrow("unionMember1")
+        fun asGrammar(): Grammar = grammar.getOrThrow("grammar")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                unionMember0 != null -> visitor.visitUnionMember0(unionMember0)
-                unionMember1 != null -> visitor.visitUnionMember1(unionMember1)
+                jsonSchema != null -> visitor.visitJsonSchema(jsonSchema)
+                grammar != null -> visitor.visitGrammar(grammar)
                 else -> visitor.unknown(_json)
             }
         }
@@ -607,12 +605,12 @@ constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitUnionMember0(unionMember0: UnionMember0) {
-                        unionMember0.validate()
+                    override fun visitJsonSchema(jsonSchema: JsonSchema) {
+                        jsonSchema.validate()
                     }
 
-                    override fun visitUnionMember1(unionMember1: UnionMember1) {
-                        unionMember1.validate()
+                    override fun visitGrammar(grammar: Grammar) {
+                        grammar.validate()
                     }
                 }
             )
@@ -624,33 +622,31 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ResponseFormat && unionMember0 == other.unionMember0 && unionMember1 == other.unionMember1 /* spotless:on */
+            return /* spotless:off */ other is ResponseFormat && jsonSchema == other.jsonSchema && grammar == other.grammar /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(unionMember0, unionMember1) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(jsonSchema, grammar) /* spotless:on */
 
         override fun toString(): String =
             when {
-                unionMember0 != null -> "ResponseFormat{unionMember0=$unionMember0}"
-                unionMember1 != null -> "ResponseFormat{unionMember1=$unionMember1}"
+                jsonSchema != null -> "ResponseFormat{jsonSchema=$jsonSchema}"
+                grammar != null -> "ResponseFormat{grammar=$grammar}"
                 _json != null -> "ResponseFormat{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid ResponseFormat")
             }
 
         companion object {
 
-            fun ofUnionMember0(unionMember0: UnionMember0) =
-                ResponseFormat(unionMember0 = unionMember0)
+            fun ofJsonSchema(jsonSchema: JsonSchema) = ResponseFormat(jsonSchema = jsonSchema)
 
-            fun ofUnionMember1(unionMember1: UnionMember1) =
-                ResponseFormat(unionMember1 = unionMember1)
+            fun ofGrammar(grammar: Grammar) = ResponseFormat(grammar = grammar)
         }
 
         interface Visitor<out T> {
 
-            fun visitUnionMember0(unionMember0: UnionMember0): T
+            fun visitJsonSchema(jsonSchema: JsonSchema): T
 
-            fun visitUnionMember1(unionMember1: UnionMember1): T
+            fun visitGrammar(grammar: Grammar): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown ResponseFormat: $json")
@@ -661,15 +657,22 @@ constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): ResponseFormat {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<UnionMember0>()) { it.validate() }
-                    ?.let {
-                        return ResponseFormat(unionMember0 = it, _json = json)
+                when (type) {
+                    "json_schema" -> {
+                        tryDeserialize(node, jacksonTypeRef<JsonSchema>()) { it.validate() }
+                            ?.let {
+                                return ResponseFormat(jsonSchema = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<UnionMember1>()) { it.validate() }
-                    ?.let {
-                        return ResponseFormat(unionMember1 = it, _json = json)
+                    "grammar" -> {
+                        tryDeserialize(node, jacksonTypeRef<Grammar>()) { it.validate() }
+                            ?.let {
+                                return ResponseFormat(grammar = it, _json = json)
+                            }
                     }
+                }
 
                 return ResponseFormat(_json = json)
             }
@@ -683,8 +686,8 @@ constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.unionMember0 != null -> generator.writeObject(value.unionMember0)
-                    value.unionMember1 != null -> generator.writeObject(value.unionMember1)
+                    value.jsonSchema != null -> generator.writeObject(value.jsonSchema)
+                    value.grammar != null -> generator.writeObject(value.grammar)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid ResponseFormat")
                 }
@@ -692,7 +695,7 @@ constructor(
         }
 
         @NoAutoDetect
-        class UnionMember0
+        class JsonSchema
         @JsonCreator
         private constructor(
             @JsonProperty("json_schema")
@@ -721,7 +724,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): UnionMember0 = apply {
+            fun validate(): JsonSchema = apply {
                 if (validated) {
                     return@apply
                 }
@@ -744,10 +747,10 @@ constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(unionMember0: UnionMember0) = apply {
-                    jsonSchema = unionMember0.jsonSchema
-                    type = unionMember0.type
-                    additionalProperties = unionMember0.additionalProperties.toMutableMap()
+                internal fun from(jsonSchema: JsonSchema) = apply {
+                    this.jsonSchema = jsonSchema.jsonSchema
+                    type = jsonSchema.type
+                    additionalProperties = jsonSchema.additionalProperties.toMutableMap()
                 }
 
                 fun jsonSchema(jsonSchema: JsonSchema) = jsonSchema(JsonField.of(jsonSchema))
@@ -782,8 +785,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): UnionMember0 =
-                    UnionMember0(
+                fun build(): JsonSchema =
+                    JsonSchema(
                         checkRequired("jsonSchema", jsonSchema),
                         checkRequired("type", type),
                         additionalProperties.toImmutable(),
@@ -925,7 +928,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UnionMember0 && jsonSchema == other.jsonSchema && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is JsonSchema && jsonSchema == other.jsonSchema && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -935,11 +938,11 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "UnionMember0{jsonSchema=$jsonSchema, type=$type, additionalProperties=$additionalProperties}"
+                "JsonSchema{jsonSchema=$jsonSchema, type=$type, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class UnionMember1
+        class Grammar
         @JsonCreator
         private constructor(
             @JsonProperty("bnf") @ExcludeMissing private val bnf: JsonField<Bnf> = JsonMissing.of(),
@@ -964,7 +967,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): UnionMember1 = apply {
+            fun validate(): Grammar = apply {
                 if (validated) {
                     return@apply
                 }
@@ -987,10 +990,10 @@ constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(unionMember1: UnionMember1) = apply {
-                    bnf = unionMember1.bnf
-                    type = unionMember1.type
-                    additionalProperties = unionMember1.additionalProperties.toMutableMap()
+                internal fun from(grammar: Grammar) = apply {
+                    bnf = grammar.bnf
+                    type = grammar.type
+                    additionalProperties = grammar.additionalProperties.toMutableMap()
                 }
 
                 fun bnf(bnf: Bnf) = bnf(JsonField.of(bnf))
@@ -1023,8 +1026,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): UnionMember1 =
-                    UnionMember1(
+                fun build(): Grammar =
+                    Grammar(
                         checkRequired("bnf", bnf),
                         checkRequired("type", type),
                         additionalProperties.toImmutable(),
@@ -1166,7 +1169,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UnionMember1 && bnf == other.bnf && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Grammar && bnf == other.bnf && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1176,7 +1179,7 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "UnionMember1{bnf=$bnf, type=$type, additionalProperties=$additionalProperties}"
+                "Grammar{bnf=$bnf, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 

@@ -251,11 +251,11 @@ constructor(
                 this.algorithmConfig = algorithmConfig
             }
 
-            fun algorithmConfig(loraFinetuningConfig: AlgorithmConfig.LoraFinetuningConfig) =
-                algorithmConfig(AlgorithmConfig.ofLoraFinetuningConfig(loraFinetuningConfig))
+            fun algorithmConfig(loRa: AlgorithmConfig.LoRa) =
+                algorithmConfig(AlgorithmConfig.ofLoRa(loRa))
 
-            fun algorithmConfig(qatFinetuningConfig: AlgorithmConfig.QatFinetuningConfig) =
-                algorithmConfig(AlgorithmConfig.ofQatFinetuningConfig(qatFinetuningConfig))
+            fun algorithmConfig(qat: AlgorithmConfig.Qat) =
+                algorithmConfig(AlgorithmConfig.ofQat(qat))
 
             fun checkpointDir(checkpointDir: String) = checkpointDir(JsonField.of(checkpointDir))
 
@@ -388,13 +388,9 @@ constructor(
             body.algorithmConfig(algorithmConfig)
         }
 
-        fun algorithmConfig(loraFinetuningConfig: AlgorithmConfig.LoraFinetuningConfig) = apply {
-            body.algorithmConfig(loraFinetuningConfig)
-        }
+        fun algorithmConfig(loRa: AlgorithmConfig.LoRa) = apply { body.algorithmConfig(loRa) }
 
-        fun algorithmConfig(qatFinetuningConfig: AlgorithmConfig.QatFinetuningConfig) = apply {
-            body.algorithmConfig(qatFinetuningConfig)
-        }
+        fun algorithmConfig(qat: AlgorithmConfig.Qat) = apply { body.algorithmConfig(qat) }
 
         fun checkpointDir(checkpointDir: String) = apply { body.checkpointDir(checkpointDir) }
 
@@ -1572,32 +1568,29 @@ constructor(
     @JsonSerialize(using = AlgorithmConfig.Serializer::class)
     class AlgorithmConfig
     private constructor(
-        private val loraFinetuningConfig: LoraFinetuningConfig? = null,
-        private val qatFinetuningConfig: QatFinetuningConfig? = null,
+        private val loRa: LoRa? = null,
+        private val qat: Qat? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun loraFinetuningConfig(): LoraFinetuningConfig? = loraFinetuningConfig
+        fun loRa(): LoRa? = loRa
 
-        fun qatFinetuningConfig(): QatFinetuningConfig? = qatFinetuningConfig
+        fun qat(): Qat? = qat
 
-        fun isLoraFinetuningConfig(): Boolean = loraFinetuningConfig != null
+        fun isLoRa(): Boolean = loRa != null
 
-        fun isQatFinetuningConfig(): Boolean = qatFinetuningConfig != null
+        fun isQat(): Boolean = qat != null
 
-        fun asLoraFinetuningConfig(): LoraFinetuningConfig =
-            loraFinetuningConfig.getOrThrow("loraFinetuningConfig")
+        fun asLoRa(): LoRa = loRa.getOrThrow("loRa")
 
-        fun asQatFinetuningConfig(): QatFinetuningConfig =
-            qatFinetuningConfig.getOrThrow("qatFinetuningConfig")
+        fun asQat(): Qat = qat.getOrThrow("qat")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                loraFinetuningConfig != null ->
-                    visitor.visitLoraFinetuningConfig(loraFinetuningConfig)
-                qatFinetuningConfig != null -> visitor.visitQatFinetuningConfig(qatFinetuningConfig)
+                loRa != null -> visitor.visitLoRa(loRa)
+                qat != null -> visitor.visitQat(qat)
                 else -> visitor.unknown(_json)
             }
         }
@@ -1611,16 +1604,12 @@ constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitLoraFinetuningConfig(
-                        loraFinetuningConfig: LoraFinetuningConfig
-                    ) {
-                        loraFinetuningConfig.validate()
+                    override fun visitLoRa(loRa: LoRa) {
+                        loRa.validate()
                     }
 
-                    override fun visitQatFinetuningConfig(
-                        qatFinetuningConfig: QatFinetuningConfig
-                    ) {
-                        qatFinetuningConfig.validate()
+                    override fun visitQat(qat: Qat) {
+                        qat.validate()
                     }
                 }
             )
@@ -1632,35 +1621,31 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AlgorithmConfig && loraFinetuningConfig == other.loraFinetuningConfig && qatFinetuningConfig == other.qatFinetuningConfig /* spotless:on */
+            return /* spotless:off */ other is AlgorithmConfig && loRa == other.loRa && qat == other.qat /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(loraFinetuningConfig, qatFinetuningConfig) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(loRa, qat) /* spotless:on */
 
         override fun toString(): String =
             when {
-                loraFinetuningConfig != null ->
-                    "AlgorithmConfig{loraFinetuningConfig=$loraFinetuningConfig}"
-                qatFinetuningConfig != null ->
-                    "AlgorithmConfig{qatFinetuningConfig=$qatFinetuningConfig}"
+                loRa != null -> "AlgorithmConfig{loRa=$loRa}"
+                qat != null -> "AlgorithmConfig{qat=$qat}"
                 _json != null -> "AlgorithmConfig{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid AlgorithmConfig")
             }
 
         companion object {
 
-            fun ofLoraFinetuningConfig(loraFinetuningConfig: LoraFinetuningConfig) =
-                AlgorithmConfig(loraFinetuningConfig = loraFinetuningConfig)
+            fun ofLoRa(loRa: LoRa) = AlgorithmConfig(loRa = loRa)
 
-            fun ofQatFinetuningConfig(qatFinetuningConfig: QatFinetuningConfig) =
-                AlgorithmConfig(qatFinetuningConfig = qatFinetuningConfig)
+            fun ofQat(qat: Qat) = AlgorithmConfig(qat = qat)
         }
 
         interface Visitor<out T> {
 
-            fun visitLoraFinetuningConfig(loraFinetuningConfig: LoraFinetuningConfig): T
+            fun visitLoRa(loRa: LoRa): T
 
-            fun visitQatFinetuningConfig(qatFinetuningConfig: QatFinetuningConfig): T
+            fun visitQat(qat: Qat): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown AlgorithmConfig: $json")
@@ -1671,15 +1656,22 @@ constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): AlgorithmConfig {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<LoraFinetuningConfig>()) { it.validate() }
-                    ?.let {
-                        return AlgorithmConfig(loraFinetuningConfig = it, _json = json)
+                when (type) {
+                    "LoRA" -> {
+                        tryDeserialize(node, jacksonTypeRef<LoRa>()) { it.validate() }
+                            ?.let {
+                                return AlgorithmConfig(loRa = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<QatFinetuningConfig>()) { it.validate() }
-                    ?.let {
-                        return AlgorithmConfig(qatFinetuningConfig = it, _json = json)
+                    "QAT" -> {
+                        tryDeserialize(node, jacksonTypeRef<Qat>()) { it.validate() }
+                            ?.let {
+                                return AlgorithmConfig(qat = it, _json = json)
+                            }
                     }
+                }
 
                 return AlgorithmConfig(_json = json)
             }
@@ -1693,10 +1685,8 @@ constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.loraFinetuningConfig != null ->
-                        generator.writeObject(value.loraFinetuningConfig)
-                    value.qatFinetuningConfig != null ->
-                        generator.writeObject(value.qatFinetuningConfig)
+                    value.loRa != null -> generator.writeObject(value.loRa)
+                    value.qat != null -> generator.writeObject(value.qat)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid AlgorithmConfig")
                 }
@@ -1704,7 +1694,7 @@ constructor(
         }
 
         @NoAutoDetect
-        class LoraFinetuningConfig
+        class LoRa
         @JsonCreator
         private constructor(
             @JsonProperty("alpha")
@@ -1781,7 +1771,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): LoraFinetuningConfig = apply {
+            fun validate(): LoRa = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1816,17 +1806,16 @@ constructor(
                 private var useDora: JsonField<Boolean> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(loraFinetuningConfig: LoraFinetuningConfig) = apply {
-                    alpha = loraFinetuningConfig.alpha
-                    applyLoraToMlp = loraFinetuningConfig.applyLoraToMlp
-                    applyLoraToOutput = loraFinetuningConfig.applyLoraToOutput
-                    loraAttnModules =
-                        loraFinetuningConfig.loraAttnModules.map { it.toMutableList() }
-                    rank = loraFinetuningConfig.rank
-                    type = loraFinetuningConfig.type
-                    quantizeBase = loraFinetuningConfig.quantizeBase
-                    useDora = loraFinetuningConfig.useDora
-                    additionalProperties = loraFinetuningConfig.additionalProperties.toMutableMap()
+                internal fun from(loRa: LoRa) = apply {
+                    alpha = loRa.alpha
+                    applyLoraToMlp = loRa.applyLoraToMlp
+                    applyLoraToOutput = loRa.applyLoraToOutput
+                    loraAttnModules = loRa.loraAttnModules.map { it.toMutableList() }
+                    rank = loRa.rank
+                    type = loRa.type
+                    quantizeBase = loRa.quantizeBase
+                    useDora = loRa.useDora
+                    additionalProperties = loRa.additionalProperties.toMutableMap()
                 }
 
                 fun alpha(alpha: Long) = alpha(JsonField.of(alpha))
@@ -1905,8 +1894,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): LoraFinetuningConfig =
-                    LoraFinetuningConfig(
+                fun build(): LoRa =
+                    LoRa(
                         checkRequired("alpha", alpha),
                         checkRequired("applyLoraToMlp", applyLoraToMlp),
                         checkRequired("applyLoraToOutput", applyLoraToOutput),
@@ -1975,7 +1964,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is LoraFinetuningConfig && alpha == other.alpha && applyLoraToMlp == other.applyLoraToMlp && applyLoraToOutput == other.applyLoraToOutput && loraAttnModules == other.loraAttnModules && rank == other.rank && type == other.type && quantizeBase == other.quantizeBase && useDora == other.useDora && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is LoRa && alpha == other.alpha && applyLoraToMlp == other.applyLoraToMlp && applyLoraToOutput == other.applyLoraToOutput && loraAttnModules == other.loraAttnModules && rank == other.rank && type == other.type && quantizeBase == other.quantizeBase && useDora == other.useDora && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1985,11 +1974,11 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "LoraFinetuningConfig{alpha=$alpha, applyLoraToMlp=$applyLoraToMlp, applyLoraToOutput=$applyLoraToOutput, loraAttnModules=$loraAttnModules, rank=$rank, type=$type, quantizeBase=$quantizeBase, useDora=$useDora, additionalProperties=$additionalProperties}"
+                "LoRa{alpha=$alpha, applyLoraToMlp=$applyLoraToMlp, applyLoraToOutput=$applyLoraToOutput, loraAttnModules=$loraAttnModules, rank=$rank, type=$type, quantizeBase=$quantizeBase, useDora=$useDora, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class QatFinetuningConfig
+        class Qat
         @JsonCreator
         private constructor(
             @JsonProperty("group_size")
@@ -2027,7 +2016,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): QatFinetuningConfig = apply {
+            fun validate(): Qat = apply {
                 if (validated) {
                     return@apply
                 }
@@ -2052,11 +2041,11 @@ constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(qatFinetuningConfig: QatFinetuningConfig) = apply {
-                    groupSize = qatFinetuningConfig.groupSize
-                    quantizerName = qatFinetuningConfig.quantizerName
-                    type = qatFinetuningConfig.type
-                    additionalProperties = qatFinetuningConfig.additionalProperties.toMutableMap()
+                internal fun from(qat: Qat) = apply {
+                    groupSize = qat.groupSize
+                    quantizerName = qat.quantizerName
+                    type = qat.type
+                    additionalProperties = qat.additionalProperties.toMutableMap()
                 }
 
                 fun groupSize(groupSize: Long) = groupSize(JsonField.of(groupSize))
@@ -2096,8 +2085,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): QatFinetuningConfig =
-                    QatFinetuningConfig(
+                fun build(): Qat =
+                    Qat(
                         checkRequired("groupSize", groupSize),
                         checkRequired("quantizerName", quantizerName),
                         checkRequired("type", type),
@@ -2161,7 +2150,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is QatFinetuningConfig && groupSize == other.groupSize && quantizerName == other.quantizerName && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Qat && groupSize == other.groupSize && quantizerName == other.quantizerName && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -2171,7 +2160,7 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "QatFinetuningConfig{groupSize=$groupSize, quantizerName=$quantizerName, type=$type, additionalProperties=$additionalProperties}"
+                "Qat{groupSize=$groupSize, quantizerName=$quantizerName, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 

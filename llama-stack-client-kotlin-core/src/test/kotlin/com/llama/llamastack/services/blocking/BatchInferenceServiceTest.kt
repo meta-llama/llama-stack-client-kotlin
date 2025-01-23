@@ -42,10 +42,8 @@ class BatchInferenceServiceTest {
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
+                                SamplingParams.Strategy.Greedy.builder()
+                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                     .build()
                             )
                             .maxTokens(0L)
@@ -97,10 +95,8 @@ class BatchInferenceServiceTest {
                     .samplingParams(
                         SamplingParams.builder()
                             .strategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(
-                                        SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY
-                                    )
+                                SamplingParams.Strategy.Greedy.builder()
+                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                     .build()
                             )
                             .maxTokens(0L)

@@ -135,13 +135,13 @@ constructor(
 
             fun event(event: JsonField<Event>) = apply { this.event = event }
 
-            fun event(unstructuredLogEvent: Event.UnstructuredLogEvent) =
-                event(Event.ofUnstructuredLogEvent(unstructuredLogEvent))
+            fun event(unstructuredLog: Event.UnstructuredLog) =
+                event(Event.ofUnstructuredLog(unstructuredLog))
 
-            fun event(metricEvent: Event.MetricEvent) = event(Event.ofMetricEvent(metricEvent))
+            fun event(metric: Event.Metric) = event(Event.ofMetric(metric))
 
-            fun event(structuredLogEvent: Event.StructuredLogEvent) =
-                event(Event.ofStructuredLogEvent(structuredLogEvent))
+            fun event(structuredLog: Event.StructuredLog) =
+                event(Event.ofStructuredLog(structuredLog))
 
             fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
 
@@ -228,15 +228,11 @@ constructor(
 
         fun event(event: JsonField<Event>) = apply { body.event(event) }
 
-        fun event(unstructuredLogEvent: Event.UnstructuredLogEvent) = apply {
-            body.event(unstructuredLogEvent)
-        }
+        fun event(unstructuredLog: Event.UnstructuredLog) = apply { body.event(unstructuredLog) }
 
-        fun event(metricEvent: Event.MetricEvent) = apply { body.event(metricEvent) }
+        fun event(metric: Event.Metric) = apply { body.event(metric) }
 
-        fun event(structuredLogEvent: Event.StructuredLogEvent) = apply {
-            body.event(structuredLogEvent)
-        }
+        fun event(structuredLog: Event.StructuredLog) = apply { body.event(structuredLog) }
 
         fun ttlSeconds(ttlSeconds: Long) = apply { body.ttlSeconds(ttlSeconds) }
 
@@ -373,40 +369,37 @@ constructor(
     @JsonSerialize(using = Event.Serializer::class)
     class Event
     private constructor(
-        private val unstructuredLogEvent: UnstructuredLogEvent? = null,
-        private val metricEvent: MetricEvent? = null,
-        private val structuredLogEvent: StructuredLogEvent? = null,
+        private val unstructuredLog: UnstructuredLog? = null,
+        private val metric: Metric? = null,
+        private val structuredLog: StructuredLog? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun unstructuredLogEvent(): UnstructuredLogEvent? = unstructuredLogEvent
+        fun unstructuredLog(): UnstructuredLog? = unstructuredLog
 
-        fun metricEvent(): MetricEvent? = metricEvent
+        fun metric(): Metric? = metric
 
-        fun structuredLogEvent(): StructuredLogEvent? = structuredLogEvent
+        fun structuredLog(): StructuredLog? = structuredLog
 
-        fun isUnstructuredLogEvent(): Boolean = unstructuredLogEvent != null
+        fun isUnstructuredLog(): Boolean = unstructuredLog != null
 
-        fun isMetricEvent(): Boolean = metricEvent != null
+        fun isMetric(): Boolean = metric != null
 
-        fun isStructuredLogEvent(): Boolean = structuredLogEvent != null
+        fun isStructuredLog(): Boolean = structuredLog != null
 
-        fun asUnstructuredLogEvent(): UnstructuredLogEvent =
-            unstructuredLogEvent.getOrThrow("unstructuredLogEvent")
+        fun asUnstructuredLog(): UnstructuredLog = unstructuredLog.getOrThrow("unstructuredLog")
 
-        fun asMetricEvent(): MetricEvent = metricEvent.getOrThrow("metricEvent")
+        fun asMetric(): Metric = metric.getOrThrow("metric")
 
-        fun asStructuredLogEvent(): StructuredLogEvent =
-            structuredLogEvent.getOrThrow("structuredLogEvent")
+        fun asStructuredLog(): StructuredLog = structuredLog.getOrThrow("structuredLog")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                unstructuredLogEvent != null ->
-                    visitor.visitUnstructuredLogEvent(unstructuredLogEvent)
-                metricEvent != null -> visitor.visitMetricEvent(metricEvent)
-                structuredLogEvent != null -> visitor.visitStructuredLogEvent(structuredLogEvent)
+                unstructuredLog != null -> visitor.visitUnstructuredLog(unstructuredLog)
+                metric != null -> visitor.visitMetric(metric)
+                structuredLog != null -> visitor.visitStructuredLog(structuredLog)
                 else -> visitor.unknown(_json)
             }
         }
@@ -420,18 +413,16 @@ constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitUnstructuredLogEvent(
-                        unstructuredLogEvent: UnstructuredLogEvent
-                    ) {
-                        unstructuredLogEvent.validate()
+                    override fun visitUnstructuredLog(unstructuredLog: UnstructuredLog) {
+                        unstructuredLog.validate()
                     }
 
-                    override fun visitMetricEvent(metricEvent: MetricEvent) {
-                        metricEvent.validate()
+                    override fun visitMetric(metric: Metric) {
+                        metric.validate()
                     }
 
-                    override fun visitStructuredLogEvent(structuredLogEvent: StructuredLogEvent) {
-                        structuredLogEvent.validate()
+                    override fun visitStructuredLog(structuredLog: StructuredLog) {
+                        structuredLog.validate()
                     }
                 }
             )
@@ -443,38 +434,37 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Event && unstructuredLogEvent == other.unstructuredLogEvent && metricEvent == other.metricEvent && structuredLogEvent == other.structuredLogEvent /* spotless:on */
+            return /* spotless:off */ other is Event && unstructuredLog == other.unstructuredLog && metric == other.metric && structuredLog == other.structuredLog /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(unstructuredLogEvent, metricEvent, structuredLogEvent) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(unstructuredLog, metric, structuredLog) /* spotless:on */
 
         override fun toString(): String =
             when {
-                unstructuredLogEvent != null -> "Event{unstructuredLogEvent=$unstructuredLogEvent}"
-                metricEvent != null -> "Event{metricEvent=$metricEvent}"
-                structuredLogEvent != null -> "Event{structuredLogEvent=$structuredLogEvent}"
+                unstructuredLog != null -> "Event{unstructuredLog=$unstructuredLog}"
+                metric != null -> "Event{metric=$metric}"
+                structuredLog != null -> "Event{structuredLog=$structuredLog}"
                 _json != null -> "Event{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Event")
             }
 
         companion object {
 
-            fun ofUnstructuredLogEvent(unstructuredLogEvent: UnstructuredLogEvent) =
-                Event(unstructuredLogEvent = unstructuredLogEvent)
+            fun ofUnstructuredLog(unstructuredLog: UnstructuredLog) =
+                Event(unstructuredLog = unstructuredLog)
 
-            fun ofMetricEvent(metricEvent: MetricEvent) = Event(metricEvent = metricEvent)
+            fun ofMetric(metric: Metric) = Event(metric = metric)
 
-            fun ofStructuredLogEvent(structuredLogEvent: StructuredLogEvent) =
-                Event(structuredLogEvent = structuredLogEvent)
+            fun ofStructuredLog(structuredLog: StructuredLog) = Event(structuredLog = structuredLog)
         }
 
         interface Visitor<out T> {
 
-            fun visitUnstructuredLogEvent(unstructuredLogEvent: UnstructuredLogEvent): T
+            fun visitUnstructuredLog(unstructuredLog: UnstructuredLog): T
 
-            fun visitMetricEvent(metricEvent: MetricEvent): T
+            fun visitMetric(metric: Metric): T
 
-            fun visitStructuredLogEvent(structuredLogEvent: StructuredLogEvent): T
+            fun visitStructuredLog(structuredLog: StructuredLog): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Event: $json")
@@ -485,19 +475,28 @@ constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): Event {
                 val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<UnstructuredLogEvent>()) { it.validate() }
-                    ?.let {
-                        return Event(unstructuredLogEvent = it, _json = json)
+                when (type) {
+                    "unstructured_log" -> {
+                        tryDeserialize(node, jacksonTypeRef<UnstructuredLog>()) { it.validate() }
+                            ?.let {
+                                return Event(unstructuredLog = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<MetricEvent>()) { it.validate() }
-                    ?.let {
-                        return Event(metricEvent = it, _json = json)
+                    "metric" -> {
+                        tryDeserialize(node, jacksonTypeRef<Metric>()) { it.validate() }
+                            ?.let {
+                                return Event(metric = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<StructuredLogEvent>()) { it.validate() }
-                    ?.let {
-                        return Event(structuredLogEvent = it, _json = json)
+                    "structured_log" -> {
+                        tryDeserialize(node, jacksonTypeRef<StructuredLog>()) { it.validate() }
+                            ?.let {
+                                return Event(structuredLog = it, _json = json)
+                            }
                     }
+                }
 
                 return Event(_json = json)
             }
@@ -511,11 +510,9 @@ constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.unstructuredLogEvent != null ->
-                        generator.writeObject(value.unstructuredLogEvent)
-                    value.metricEvent != null -> generator.writeObject(value.metricEvent)
-                    value.structuredLogEvent != null ->
-                        generator.writeObject(value.structuredLogEvent)
+                    value.unstructuredLog != null -> generator.writeObject(value.unstructuredLog)
+                    value.metric != null -> generator.writeObject(value.metric)
+                    value.structuredLog != null -> generator.writeObject(value.structuredLog)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Event")
                 }
@@ -523,7 +520,7 @@ constructor(
         }
 
         @NoAutoDetect
-        class UnstructuredLogEvent
+        class UnstructuredLog
         @JsonCreator
         private constructor(
             @JsonProperty("message")
@@ -591,7 +588,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): UnstructuredLogEvent = apply {
+            fun validate(): UnstructuredLog = apply {
                 if (validated) {
                     return@apply
                 }
@@ -624,15 +621,15 @@ constructor(
                 private var attributes: JsonField<Attributes> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(unstructuredLogEvent: UnstructuredLogEvent) = apply {
-                    message = unstructuredLogEvent.message
-                    severity = unstructuredLogEvent.severity
-                    spanId = unstructuredLogEvent.spanId
-                    timestamp = unstructuredLogEvent.timestamp
-                    traceId = unstructuredLogEvent.traceId
-                    type = unstructuredLogEvent.type
-                    attributes = unstructuredLogEvent.attributes
-                    additionalProperties = unstructuredLogEvent.additionalProperties.toMutableMap()
+                internal fun from(unstructuredLog: UnstructuredLog) = apply {
+                    message = unstructuredLog.message
+                    severity = unstructuredLog.severity
+                    spanId = unstructuredLog.spanId
+                    timestamp = unstructuredLog.timestamp
+                    traceId = unstructuredLog.traceId
+                    type = unstructuredLog.type
+                    attributes = unstructuredLog.attributes
+                    additionalProperties = unstructuredLog.additionalProperties.toMutableMap()
                 }
 
                 fun message(message: String) = message(JsonField.of(message))
@@ -689,8 +686,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): UnstructuredLogEvent =
-                    UnstructuredLogEvent(
+                fun build(): UnstructuredLog =
+                    UnstructuredLog(
                         checkRequired("message", message),
                         checkRequired("severity", severity),
                         checkRequired("spanId", spanId),
@@ -919,7 +916,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UnstructuredLogEvent && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is UnstructuredLog && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -929,11 +926,11 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "UnstructuredLogEvent{message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
+                "UnstructuredLog{message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class MetricEvent
+        class Metric
         @JsonCreator
         private constructor(
             @JsonProperty("metric")
@@ -1006,7 +1003,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): MetricEvent = apply {
+            fun validate(): Metric = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1041,16 +1038,16 @@ constructor(
                 private var attributes: JsonField<Attributes> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(metricEvent: MetricEvent) = apply {
-                    metric = metricEvent.metric
-                    spanId = metricEvent.spanId
-                    timestamp = metricEvent.timestamp
-                    traceId = metricEvent.traceId
-                    type = metricEvent.type
-                    unit = metricEvent.unit
-                    value = metricEvent.value
-                    attributes = metricEvent.attributes
-                    additionalProperties = metricEvent.additionalProperties.toMutableMap()
+                internal fun from(metric: Metric) = apply {
+                    this.metric = metric.metric
+                    spanId = metric.spanId
+                    timestamp = metric.timestamp
+                    traceId = metric.traceId
+                    type = metric.type
+                    unit = metric.unit
+                    value = metric.value
+                    attributes = metric.attributes
+                    additionalProperties = metric.additionalProperties.toMutableMap()
                 }
 
                 fun metric(metric: String) = metric(JsonField.of(metric))
@@ -1111,8 +1108,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): MetricEvent =
-                    MetricEvent(
+                fun build(): Metric =
+                    Metric(
                         checkRequired("metric", metric),
                         checkRequired("spanId", spanId),
                         checkRequired("timestamp", timestamp),
@@ -1260,7 +1257,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is MetricEvent && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Metric && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1270,11 +1267,11 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "MetricEvent{metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, attributes=$attributes, additionalProperties=$additionalProperties}"
+                "Metric{metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, attributes=$attributes, additionalProperties=$additionalProperties}"
         }
 
         @NoAutoDetect
-        class StructuredLogEvent
+        class StructuredLog
         @JsonCreator
         private constructor(
             @JsonProperty("payload")
@@ -1333,7 +1330,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): StructuredLogEvent = apply {
+            fun validate(): StructuredLog = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1364,25 +1361,23 @@ constructor(
                 private var attributes: JsonField<Attributes> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(structuredLogEvent: StructuredLogEvent) = apply {
-                    payload = structuredLogEvent.payload
-                    spanId = structuredLogEvent.spanId
-                    timestamp = structuredLogEvent.timestamp
-                    traceId = structuredLogEvent.traceId
-                    type = structuredLogEvent.type
-                    attributes = structuredLogEvent.attributes
-                    additionalProperties = structuredLogEvent.additionalProperties.toMutableMap()
+                internal fun from(structuredLog: StructuredLog) = apply {
+                    payload = structuredLog.payload
+                    spanId = structuredLog.spanId
+                    timestamp = structuredLog.timestamp
+                    traceId = structuredLog.traceId
+                    type = structuredLog.type
+                    attributes = structuredLog.attributes
+                    additionalProperties = structuredLog.additionalProperties.toMutableMap()
                 }
 
                 fun payload(payload: Payload) = payload(JsonField.of(payload))
 
                 fun payload(payload: JsonField<Payload>) = apply { this.payload = payload }
 
-                fun payload(spanStartPayload: Payload.SpanStartPayload) =
-                    payload(Payload.ofSpanStartPayload(spanStartPayload))
+                fun payload(spanStart: Payload.SpanStart) = payload(Payload.ofSpanStart(spanStart))
 
-                fun payload(spanEndPayload: Payload.SpanEndPayload) =
-                    payload(Payload.ofSpanEndPayload(spanEndPayload))
+                fun payload(spanEnd: Payload.SpanEnd) = payload(Payload.ofSpanEnd(spanEnd))
 
                 fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
@@ -1430,8 +1425,8 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): StructuredLogEvent =
-                    StructuredLogEvent(
+                fun build(): StructuredLog =
+                    StructuredLog(
                         checkRequired("payload", payload),
                         checkRequired("spanId", spanId),
                         checkRequired("timestamp", timestamp),
@@ -1446,30 +1441,29 @@ constructor(
             @JsonSerialize(using = Payload.Serializer::class)
             class Payload
             private constructor(
-                private val spanStartPayload: SpanStartPayload? = null,
-                private val spanEndPayload: SpanEndPayload? = null,
+                private val spanStart: SpanStart? = null,
+                private val spanEnd: SpanEnd? = null,
                 private val _json: JsonValue? = null,
             ) {
 
-                fun spanStartPayload(): SpanStartPayload? = spanStartPayload
+                fun spanStart(): SpanStart? = spanStart
 
-                fun spanEndPayload(): SpanEndPayload? = spanEndPayload
+                fun spanEnd(): SpanEnd? = spanEnd
 
-                fun isSpanStartPayload(): Boolean = spanStartPayload != null
+                fun isSpanStart(): Boolean = spanStart != null
 
-                fun isSpanEndPayload(): Boolean = spanEndPayload != null
+                fun isSpanEnd(): Boolean = spanEnd != null
 
-                fun asSpanStartPayload(): SpanStartPayload =
-                    spanStartPayload.getOrThrow("spanStartPayload")
+                fun asSpanStart(): SpanStart = spanStart.getOrThrow("spanStart")
 
-                fun asSpanEndPayload(): SpanEndPayload = spanEndPayload.getOrThrow("spanEndPayload")
+                fun asSpanEnd(): SpanEnd = spanEnd.getOrThrow("spanEnd")
 
                 fun _json(): JsonValue? = _json
 
                 fun <T> accept(visitor: Visitor<T>): T {
                     return when {
-                        spanStartPayload != null -> visitor.visitSpanStartPayload(spanStartPayload)
-                        spanEndPayload != null -> visitor.visitSpanEndPayload(spanEndPayload)
+                        spanStart != null -> visitor.visitSpanStart(spanStart)
+                        spanEnd != null -> visitor.visitSpanEnd(spanEnd)
                         else -> visitor.unknown(_json)
                     }
                 }
@@ -1483,12 +1477,12 @@ constructor(
 
                     accept(
                         object : Visitor<Unit> {
-                            override fun visitSpanStartPayload(spanStartPayload: SpanStartPayload) {
-                                spanStartPayload.validate()
+                            override fun visitSpanStart(spanStart: SpanStart) {
+                                spanStart.validate()
                             }
 
-                            override fun visitSpanEndPayload(spanEndPayload: SpanEndPayload) {
-                                spanEndPayload.validate()
+                            override fun visitSpanEnd(spanEnd: SpanEnd) {
+                                spanEnd.validate()
                             }
                         }
                     )
@@ -1500,33 +1494,31 @@ constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is Payload && spanStartPayload == other.spanStartPayload && spanEndPayload == other.spanEndPayload /* spotless:on */
+                    return /* spotless:off */ other is Payload && spanStart == other.spanStart && spanEnd == other.spanEnd /* spotless:on */
                 }
 
-                override fun hashCode(): Int = /* spotless:off */ Objects.hash(spanStartPayload, spanEndPayload) /* spotless:on */
+                override fun hashCode(): Int = /* spotless:off */ Objects.hash(spanStart, spanEnd) /* spotless:on */
 
                 override fun toString(): String =
                     when {
-                        spanStartPayload != null -> "Payload{spanStartPayload=$spanStartPayload}"
-                        spanEndPayload != null -> "Payload{spanEndPayload=$spanEndPayload}"
+                        spanStart != null -> "Payload{spanStart=$spanStart}"
+                        spanEnd != null -> "Payload{spanEnd=$spanEnd}"
                         _json != null -> "Payload{_unknown=$_json}"
                         else -> throw IllegalStateException("Invalid Payload")
                     }
 
                 companion object {
 
-                    fun ofSpanStartPayload(spanStartPayload: SpanStartPayload) =
-                        Payload(spanStartPayload = spanStartPayload)
+                    fun ofSpanStart(spanStart: SpanStart) = Payload(spanStart = spanStart)
 
-                    fun ofSpanEndPayload(spanEndPayload: SpanEndPayload) =
-                        Payload(spanEndPayload = spanEndPayload)
+                    fun ofSpanEnd(spanEnd: SpanEnd) = Payload(spanEnd = spanEnd)
                 }
 
                 interface Visitor<out T> {
 
-                    fun visitSpanStartPayload(spanStartPayload: SpanStartPayload): T
+                    fun visitSpanStart(spanStart: SpanStart): T
 
-                    fun visitSpanEndPayload(spanEndPayload: SpanEndPayload): T
+                    fun visitSpanEnd(spanEnd: SpanEnd): T
 
                     fun unknown(json: JsonValue?): T {
                         throw LlamaStackClientInvalidDataException("Unknown Payload: $json")
@@ -1537,15 +1529,22 @@ constructor(
 
                     override fun ObjectCodec.deserialize(node: JsonNode): Payload {
                         val json = JsonValue.fromJsonNode(node)
+                        val type = json.asObject()?.get("type")?.asString()
 
-                        tryDeserialize(node, jacksonTypeRef<SpanStartPayload>()) { it.validate() }
-                            ?.let {
-                                return Payload(spanStartPayload = it, _json = json)
+                        when (type) {
+                            "span_start" -> {
+                                tryDeserialize(node, jacksonTypeRef<SpanStart>()) { it.validate() }
+                                    ?.let {
+                                        return Payload(spanStart = it, _json = json)
+                                    }
                             }
-                        tryDeserialize(node, jacksonTypeRef<SpanEndPayload>()) { it.validate() }
-                            ?.let {
-                                return Payload(spanEndPayload = it, _json = json)
+                            "span_end" -> {
+                                tryDeserialize(node, jacksonTypeRef<SpanEnd>()) { it.validate() }
+                                    ?.let {
+                                        return Payload(spanEnd = it, _json = json)
+                                    }
                             }
+                        }
 
                         return Payload(_json = json)
                     }
@@ -1559,10 +1558,8 @@ constructor(
                         provider: SerializerProvider
                     ) {
                         when {
-                            value.spanStartPayload != null ->
-                                generator.writeObject(value.spanStartPayload)
-                            value.spanEndPayload != null ->
-                                generator.writeObject(value.spanEndPayload)
+                            value.spanStart != null -> generator.writeObject(value.spanStart)
+                            value.spanEnd != null -> generator.writeObject(value.spanEnd)
                             value._json != null -> generator.writeObject(value._json)
                             else -> throw IllegalStateException("Invalid Payload")
                         }
@@ -1570,7 +1567,7 @@ constructor(
                 }
 
                 @NoAutoDetect
-                class SpanStartPayload
+                class SpanStart
                 @JsonCreator
                 private constructor(
                     @JsonProperty("name")
@@ -1606,7 +1603,7 @@ constructor(
 
                     private var validated: Boolean = false
 
-                    fun validate(): SpanStartPayload = apply {
+                    fun validate(): SpanStart = apply {
                         if (validated) {
                             return@apply
                         }
@@ -1632,12 +1629,11 @@ constructor(
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
-                        internal fun from(spanStartPayload: SpanStartPayload) = apply {
-                            name = spanStartPayload.name
-                            type = spanStartPayload.type
-                            parentSpanId = spanStartPayload.parentSpanId
-                            additionalProperties =
-                                spanStartPayload.additionalProperties.toMutableMap()
+                        internal fun from(spanStart: SpanStart) = apply {
+                            name = spanStart.name
+                            type = spanStart.type
+                            parentSpanId = spanStart.parentSpanId
+                            additionalProperties = spanStart.additionalProperties.toMutableMap()
                         }
 
                         fun name(name: String) = name(JsonField.of(name))
@@ -1677,8 +1673,8 @@ constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): SpanStartPayload =
-                            SpanStartPayload(
+                        fun build(): SpanStart =
+                            SpanStart(
                                 checkRequired("name", name),
                                 checkRequired("type", type),
                                 parentSpanId,
@@ -1746,7 +1742,7 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is SpanStartPayload && name == other.name && type == other.type && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is SpanStart && name == other.name && type == other.type && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
@@ -1756,11 +1752,11 @@ constructor(
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "SpanStartPayload{name=$name, type=$type, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
+                        "SpanStart{name=$name, type=$type, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
                 }
 
                 @NoAutoDetect
-                class SpanEndPayload
+                class SpanEnd
                 @JsonCreator
                 private constructor(
                     @JsonProperty("status")
@@ -1789,7 +1785,7 @@ constructor(
 
                     private var validated: Boolean = false
 
-                    fun validate(): SpanEndPayload = apply {
+                    fun validate(): SpanEnd = apply {
                         if (validated) {
                             return@apply
                         }
@@ -1813,11 +1809,10 @@ constructor(
                         private var additionalProperties: MutableMap<String, JsonValue> =
                             mutableMapOf()
 
-                        internal fun from(spanEndPayload: SpanEndPayload) = apply {
-                            status = spanEndPayload.status
-                            type = spanEndPayload.type
-                            additionalProperties =
-                                spanEndPayload.additionalProperties.toMutableMap()
+                        internal fun from(spanEnd: SpanEnd) = apply {
+                            status = spanEnd.status
+                            type = spanEnd.type
+                            additionalProperties = spanEnd.additionalProperties.toMutableMap()
                         }
 
                         fun status(status: Status) = status(JsonField.of(status))
@@ -1850,8 +1845,8 @@ constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): SpanEndPayload =
-                            SpanEndPayload(
+                        fun build(): SpanEnd =
+                            SpanEnd(
                                 checkRequired("status", status),
                                 checkRequired("type", type),
                                 additionalProperties.toImmutable(),
@@ -1979,7 +1974,7 @@ constructor(
                             return true
                         }
 
-                        return /* spotless:off */ other is SpanEndPayload && status == other.status && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                        return /* spotless:off */ other is SpanEnd && status == other.status && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                     }
 
                     /* spotless:off */
@@ -1989,7 +1984,7 @@ constructor(
                     override fun hashCode(): Int = hashCode
 
                     override fun toString() =
-                        "SpanEndPayload{status=$status, type=$type, additionalProperties=$additionalProperties}"
+                        "SpanEnd{status=$status, type=$type, additionalProperties=$additionalProperties}"
                 }
             }
 
@@ -2128,7 +2123,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StructuredLogEvent && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is StructuredLog && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -2138,7 +2133,7 @@ constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "StructuredLogEvent{payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
+                "StructuredLog{payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
         }
     }
 

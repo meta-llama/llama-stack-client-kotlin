@@ -26,12 +26,11 @@ class ListScoringFunctionsResponseTest {
                         .type(ScoringFn.Type.SCORING_FUNCTION)
                         .description("description")
                         .params(
-                            ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
+                            ScoringFn.Params.LlmAsJudge.builder()
                                 .judgeModel("judge_model")
-                                .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
+                                .type(ScoringFn.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                                 .addAggregationFunction(
-                                    ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction
-                                        .AVERAGE
+                                    ScoringFn.Params.LlmAsJudge.AggregationFunction.AVERAGE
                                 )
                                 .addJudgeScoreRegex("string")
                                 .promptTemplate("prompt_template")
@@ -56,12 +55,11 @@ class ListScoringFunctionsResponseTest {
                     .type(ScoringFn.Type.SCORING_FUNCTION)
                     .description("description")
                     .params(
-                        ScoringFn.Params.LlmAsJudgeScoringFnParams.builder()
+                        ScoringFn.Params.LlmAsJudge.builder()
                             .judgeModel("judge_model")
-                            .type(ScoringFn.Params.LlmAsJudgeScoringFnParams.Type.LLM_AS_JUDGE)
+                            .type(ScoringFn.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                             .addAggregationFunction(
-                                ScoringFn.Params.LlmAsJudgeScoringFnParams.AggregationFunction
-                                    .AVERAGE
+                                ScoringFn.Params.LlmAsJudge.AggregationFunction.AVERAGE
                             )
                             .addJudgeScoreRegex("string")
                             .promptTemplate("prompt_template")

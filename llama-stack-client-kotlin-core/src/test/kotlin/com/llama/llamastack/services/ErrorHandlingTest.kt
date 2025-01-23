@@ -70,24 +70,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -173,24 +172,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -255,24 +253,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -337,24 +334,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -419,24 +415,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -501,24 +496,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -583,24 +577,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -665,24 +658,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -747,24 +739,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -830,24 +821,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
@@ -905,24 +895,23 @@ class ErrorHandlingTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.UnionMember0.builder()
+                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.JsonSchema
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
                                 .builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .type(
-                            InferenceChatCompletionParams.ResponseFormat.UnionMember0.Type
-                                .JSON_SCHEMA
+                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                            SamplingParams.Strategy.Greedy.builder()
+                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
                                 .build()
                         )
                         .maxTokens(0L)
