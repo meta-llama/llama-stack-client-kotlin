@@ -576,7 +576,7 @@ private constructor(
 
             fun toolCall(toolCall: JsonField<ToolCall>) = apply { this.toolCall = toolCall }
 
-            fun toolCall(string: String) = ToolCall.ofString(string)
+            //            fun toolCall(string: String) = ToolCall.ofString(string)
 
             //            fun toolCall(toolCall: ToolCall) = toolCall(ToolCall.ofToolCall(toolCall))
 
