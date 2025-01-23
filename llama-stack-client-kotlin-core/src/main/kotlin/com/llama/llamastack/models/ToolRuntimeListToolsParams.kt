@@ -43,6 +43,7 @@ constructor(
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
+        // MANUAL PATCH
         this.mcpEndpoint?._additionalProperties()?.forEach { (key, values) ->
             queryParams.put("mcp_endpoint[$key]", values.toString())
         }

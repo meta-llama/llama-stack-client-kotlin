@@ -25,6 +25,7 @@ import com.llama.llamastack.errors.RateLimitException
 import com.llama.llamastack.errors.UnauthorizedException
 import com.llama.llamastack.errors.UnexpectedStatusCodeException
 import com.llama.llamastack.errors.UnprocessableEntityException
+import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.SamplingParams
@@ -124,21 +125,10 @@ class ErrorHandlingTest {
             InferenceChatCompletionResponse.ofChatCompletionResponse(
                 InferenceChatCompletionResponse.ChatCompletionResponse.builder()
                     .completionMessage(
-                        InferenceChatCompletionResponse.ChatCompletionResponse.CompletionMessage
-                            .builder()
+                        CompletionMessage.builder()
                             .content("string")
-                            .role(
-                                InferenceChatCompletionResponse.ChatCompletionResponse
-                                    .CompletionMessage
-                                    .Role
-                                    .ASSISTANT
-                            )
-                            .stopReason(
-                                InferenceChatCompletionResponse.ChatCompletionResponse
-                                    .CompletionMessage
-                                    .StopReason
-                                    .END_OF_TURN
-                            )
+                            .role(CompletionMessage.Role.ASSISTANT)
+                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .addToolCall(
                                 ToolCall.builder()
                                     .arguments(

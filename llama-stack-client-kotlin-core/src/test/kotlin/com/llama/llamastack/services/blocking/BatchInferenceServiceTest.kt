@@ -7,6 +7,7 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.BatchInferenceChatCompletionParams
 import com.llama.llamastack.models.BatchInferenceCompletionParams
+import com.llama.llamastack.models.Message
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
@@ -25,7 +26,7 @@ class BatchInferenceServiceTest {
                 BatchInferenceChatCompletionParams.builder()
                     .addMessagesBatch(
                         listOf(
-                            BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                            Message.ofUserMessage(
                                 UserMessage.builder()
                                     .content("string")
                                     .role(UserMessage.Role.USER)

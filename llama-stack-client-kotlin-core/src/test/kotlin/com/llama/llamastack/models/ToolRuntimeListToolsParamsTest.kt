@@ -28,6 +28,7 @@ class ToolRuntimeListToolsParamsTest {
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
+        // MANUAL PATCH
         Url.builder().uri("uri").build()._additionalProperties().forEach { (key, values) ->
             expected.put("mcp_endpoint[$key]", values.toString())
         }

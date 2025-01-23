@@ -41,7 +41,7 @@ private constructor(
     private val outputAttachments: JsonField<List<OutputAttachment>> = JsonMissing.of(),
     @JsonProperty("output_message")
     @ExcludeMissing
-    private val outputMessage: JsonField<OutputMessage> = JsonMissing.of(),
+    private val outputMessage: JsonField<CompletionMessage> = JsonMissing.of(),
     @JsonProperty("session_id")
     @ExcludeMissing
     private val sessionId: JsonField<String> = JsonMissing.of(),
@@ -65,7 +65,7 @@ private constructor(
     fun outputAttachments(): List<OutputAttachment> =
         outputAttachments.getRequired("output_attachments")
 
-    fun outputMessage(): OutputMessage = outputMessage.getRequired("output_message")
+    fun outputMessage(): CompletionMessage = outputMessage.getRequired("output_message")
 
     fun sessionId(): String = sessionId.getRequired("session_id")
 
@@ -87,7 +87,7 @@ private constructor(
 
     @JsonProperty("output_message")
     @ExcludeMissing
-    fun _outputMessage(): JsonField<OutputMessage> = outputMessage
+    fun _outputMessage(): JsonField<CompletionMessage> = outputMessage
 
     @JsonProperty("session_id") @ExcludeMissing fun _sessionId(): JsonField<String> = sessionId
 
@@ -136,7 +136,7 @@ private constructor(
 
         private var inputMessages: JsonField<MutableList<InputMessage>>? = null
         private var outputAttachments: JsonField<MutableList<OutputAttachment>>? = null
-        private var outputMessage: JsonField<OutputMessage>? = null
+        private var outputMessage: JsonField<CompletionMessage>? = null
         private var sessionId: JsonField<String>? = null
         private var startedAt: JsonField<OffsetDateTime>? = null
         private var steps: JsonField<MutableList<Step>>? = null
@@ -198,9 +198,10 @@ private constructor(
                 }
         }
 
-        fun outputMessage(outputMessage: OutputMessage) = outputMessage(JsonField.of(outputMessage))
+        fun outputMessage(outputMessage: CompletionMessage) =
+            outputMessage(JsonField.of(outputMessage))
 
-        fun outputMessage(outputMessage: JsonField<OutputMessage>) = apply {
+        fun outputMessage(outputMessage: JsonField<CompletionMessage>) = apply {
             this.outputMessage = outputMessage
         }
 
@@ -723,30 +724,23 @@ private constructor(
             class ImageContentItem
             @JsonCreator
             private constructor(
+                @JsonProperty("image")
+                @ExcludeMissing
+                private val image: JsonField<Image> = JsonMissing.of(),
                 @JsonProperty("type")
                 @ExcludeMissing
                 private val type: JsonField<Type> = JsonMissing.of(),
-                @JsonProperty("data")
-                @ExcludeMissing
-                private val data: JsonField<String> = JsonMissing.of(),
-                @JsonProperty("url")
-                @ExcludeMissing
-                private val url: JsonField<Url> = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
+                fun image(): Image = image.getRequired("image")
+
                 fun type(): Type = type.getRequired("type")
 
-                fun data(): String? = data.getNullable("data")
-
-                fun url(): Url? = url.getNullable("url")
+                @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
-
-                @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
-
-                @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
                 @JsonAnyGetter
                 @ExcludeMissing
@@ -759,9 +753,8 @@ private constructor(
                         return@apply
                     }
 
+                    image().validate()
                     type()
-                    data()
-                    url()?.validate()
                     validated = true
                 }
 
@@ -774,29 +767,23 @@ private constructor(
 
                 class Builder {
 
+                    private var image: JsonField<Image>? = null
                     private var type: JsonField<Type>? = null
-                    private var data: JsonField<String> = JsonMissing.of()
-                    private var url: JsonField<Url> = JsonMissing.of()
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(imageContentItem: ImageContentItem) = apply {
+                        image = imageContentItem.image
                         type = imageContentItem.type
-                        data = imageContentItem.data
-                        url = imageContentItem.url
                         additionalProperties = imageContentItem.additionalProperties.toMutableMap()
                     }
+
+                    fun image(image: Image) = image(JsonField.of(image))
+
+                    fun image(image: JsonField<Image>) = apply { this.image = image }
 
                     fun type(type: Type) = type(JsonField.of(type))
 
                     fun type(type: JsonField<Type>) = apply { this.type = type }
-
-                    fun data(data: String) = data(JsonField.of(data))
-
-                    fun data(data: JsonField<String>) = apply { this.data = data }
-
-                    fun url(url: Url) = url(JsonField.of(url))
-
-                    fun url(url: JsonField<Url>) = apply { this.url = url }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -822,11 +809,124 @@ private constructor(
 
                     fun build(): ImageContentItem =
                         ImageContentItem(
+                            checkRequired("image", image),
                             checkRequired("type", type),
-                            data,
-                            url,
                             additionalProperties.toImmutable(),
                         )
+                }
+
+                @NoAutoDetect
+                class Image
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("data")
+                    @ExcludeMissing
+                    private val data: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("url")
+                    @ExcludeMissing
+                    private val url: JsonField<Url> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                ) {
+
+                    fun data(): String? = data.getNullable("data")
+
+                    fun url(): Url? = url.getNullable("url")
+
+                    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
+
+                    @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
+
+                    @JsonAnyGetter
+                    @ExcludeMissing
+                    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): Image = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        data()
+                        url()?.validate()
+                        validated = true
+                    }
+
+                    fun toBuilder() = Builder().from(this)
+
+                    companion object {
+
+                        fun builder() = Builder()
+                    }
+
+                    class Builder {
+
+                        private var data: JsonField<String> = JsonMissing.of()
+                        private var url: JsonField<Url> = JsonMissing.of()
+                        private var additionalProperties: MutableMap<String, JsonValue> =
+                            mutableMapOf()
+
+                        internal fun from(image: Image) = apply {
+                            data = image.data
+                            url = image.url
+                            additionalProperties = image.additionalProperties.toMutableMap()
+                        }
+
+                        fun data(data: String) = data(JsonField.of(data))
+
+                        fun data(data: JsonField<String>) = apply { this.data = data }
+
+                        fun url(url: Url) = url(JsonField.of(url))
+
+                        fun url(url: JsonField<Url>) = apply { this.url = url }
+
+                        fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
+                            apply {
+                                this.additionalProperties.clear()
+                                putAllAdditionalProperties(additionalProperties)
+                            }
+
+                        fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                            additionalProperties.put(key, value)
+                        }
+
+                        fun putAllAdditionalProperties(
+                            additionalProperties: Map<String, JsonValue>
+                        ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
+                        fun build(): Image =
+                            Image(
+                                data,
+                                url,
+                                additionalProperties.toImmutable(),
+                            )
+                    }
+
+                    override fun equals(other: Any?): Boolean {
+                        if (this === other) {
+                            return true
+                        }
+
+                        return /* spotless:off */ other is Image && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+                    }
+
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(data, url, additionalProperties) }
+                    /* spotless:on */
+
+                    override fun hashCode(): Int = hashCode
+
+                    override fun toString() =
+                        "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
                 }
 
                 class Type
@@ -887,17 +987,17 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is ImageContentItem && type == other.type && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is ImageContentItem && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
                 /* spotless:off */
-                private val hashCode: Int by lazy { Objects.hash(type, data, url, additionalProperties) }
+                private val hashCode: Int by lazy { Objects.hash(image, type, additionalProperties) }
                 /* spotless:on */
 
                 override fun hashCode(): Int = hashCode
 
                 override fun toString() =
-                    "ImageContentItem{type=$type, data=$data, url=$url, additionalProperties=$additionalProperties}"
+                    "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
             }
 
             @NoAutoDetect
@@ -1083,291 +1183,6 @@ private constructor(
 
         override fun toString() =
             "OutputAttachment{content=$content, mimeType=$mimeType, additionalProperties=$additionalProperties}"
-    }
-
-    @NoAutoDetect
-    class OutputMessage
-    @JsonCreator
-    private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-        @JsonProperty("role") @ExcludeMissing private val role: JsonField<Role> = JsonMissing.of(),
-        @JsonProperty("stop_reason")
-        @ExcludeMissing
-        private val stopReason: JsonField<StopReason> = JsonMissing.of(),
-        @JsonProperty("tool_calls")
-        @ExcludeMissing
-        private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun content(): InterleavedContent = content.getRequired("content")
-
-        fun role(): Role = role.getRequired("role")
-
-        fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
-
-        fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
-
-        @JsonProperty("content")
-        @ExcludeMissing
-        fun _content(): JsonField<InterleavedContent> = content
-
-        @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
-
-        @JsonProperty("stop_reason")
-        @ExcludeMissing
-        fun _stopReason(): JsonField<StopReason> = stopReason
-
-        @JsonProperty("tool_calls")
-        @ExcludeMissing
-        fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): OutputMessage = apply {
-            if (validated) {
-                return@apply
-            }
-
-            content().validate()
-            role()
-            stopReason()
-            toolCalls().forEach { it.validate() }
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var content: JsonField<InterleavedContent>? = null
-            private var role: JsonField<Role>? = null
-            private var stopReason: JsonField<StopReason>? = null
-            private var toolCalls: JsonField<MutableList<ToolCall>>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(outputMessage: OutputMessage) = apply {
-                content = outputMessage.content
-                role = outputMessage.role
-                stopReason = outputMessage.stopReason
-                toolCalls = outputMessage.toolCalls.map { it.toMutableList() }
-                additionalProperties = outputMessage.additionalProperties.toMutableMap()
-            }
-
-            fun content(content: InterleavedContent) = content(JsonField.of(content))
-
-            fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
-
-            fun content(string: String) = content(InterleavedContent.ofString(string))
-
-            fun content(imageContentItem: InterleavedContent.ImageContentItem) =
-                content(InterleavedContent.ofImageContentItem(imageContentItem))
-
-            fun content(textContentItem: InterleavedContent.TextContentItem) =
-                content(InterleavedContent.ofTextContentItem(textContentItem))
-
-            fun contentOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
-
-            fun role(role: Role) = role(JsonField.of(role))
-
-            fun role(role: JsonField<Role>) = apply { this.role = role }
-
-            fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
-
-            fun stopReason(stopReason: JsonField<StopReason>) = apply {
-                this.stopReason = stopReason
-            }
-
-            fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
-
-            fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
-                this.toolCalls = toolCalls.map { it.toMutableList() }
-            }
-
-            fun addToolCall(toolCall: ToolCall) = apply {
-                toolCalls =
-                    (toolCalls ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(toolCall)
-                    }
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): OutputMessage =
-                OutputMessage(
-                    checkRequired("content", content),
-                    checkRequired("role", role),
-                    checkRequired("stopReason", stopReason),
-                    checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        class Role
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val ASSISTANT = of("assistant")
-
-                fun of(value: String) = Role(JsonField.of(value))
-            }
-
-            enum class Known {
-                ASSISTANT,
-            }
-
-            enum class Value {
-                ASSISTANT,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    ASSISTANT -> Value.ASSISTANT
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    ASSISTANT -> Known.ASSISTANT
-                    else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Role && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-        }
-
-        class StopReason
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val END_OF_TURN = of("end_of_turn")
-
-                val END_OF_MESSAGE = of("end_of_message")
-
-                val OUT_OF_TOKENS = of("out_of_tokens")
-
-                fun of(value: String) = StopReason(JsonField.of(value))
-            }
-
-            enum class Known {
-                END_OF_TURN,
-                END_OF_MESSAGE,
-                OUT_OF_TOKENS,
-            }
-
-            enum class Value {
-                END_OF_TURN,
-                END_OF_MESSAGE,
-                OUT_OF_TOKENS,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    END_OF_TURN -> Value.END_OF_TURN
-                    END_OF_MESSAGE -> Value.END_OF_MESSAGE
-                    OUT_OF_TOKENS -> Value.OUT_OF_TOKENS
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    END_OF_TURN -> Known.END_OF_TURN
-                    END_OF_MESSAGE -> Known.END_OF_MESSAGE
-                    OUT_OF_TOKENS -> Known.OUT_OF_TOKENS
-                    else -> throw LlamaStackClientInvalidDataException("Unknown StopReason: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is OutputMessage && content == other.content && role == other.role && stopReason == other.stopReason && toolCalls == other.toolCalls && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(content, role, stopReason, toolCalls, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "OutputMessage{content=$content, role=$role, stopReason=$stopReason, toolCalls=$toolCalls, additionalProperties=$additionalProperties}"
     }
 
     @JsonDeserialize(using = Step.Deserializer::class)

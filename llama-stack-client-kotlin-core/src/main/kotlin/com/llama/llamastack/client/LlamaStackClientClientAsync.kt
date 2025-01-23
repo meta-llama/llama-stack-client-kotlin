@@ -10,8 +10,6 @@ import com.llama.llamastack.services.async.EvalServiceAsync
 import com.llama.llamastack.services.async.EvalTaskServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InspectServiceAsync
-import com.llama.llamastack.services.async.MemoryBankServiceAsync
-import com.llama.llamastack.services.async.MemoryServiceAsync
 import com.llama.llamastack.services.async.ModelServiceAsync
 import com.llama.llamastack.services.async.PostTrainingServiceAsync
 import com.llama.llamastack.services.async.ProviderServiceAsync
@@ -25,6 +23,8 @@ import com.llama.llamastack.services.async.TelemetryServiceAsync
 import com.llama.llamastack.services.async.ToolRuntimeServiceAsync
 import com.llama.llamastack.services.async.ToolServiceAsync
 import com.llama.llamastack.services.async.ToolgroupServiceAsync
+import com.llama.llamastack.services.async.VectorDbServiceAsync
+import com.llama.llamastack.services.async.VectorIoServiceAsync
 
 interface LlamaStackClientClientAsync {
 
@@ -48,9 +48,9 @@ interface LlamaStackClientClientAsync {
 
     fun inference(): InferenceServiceAsync
 
-    fun memory(): MemoryServiceAsync
+    fun vectorIo(): VectorIoServiceAsync
 
-    fun memoryBanks(): MemoryBankServiceAsync
+    fun vectorDbs(): VectorDbServiceAsync
 
     fun models(): ModelServiceAsync
 

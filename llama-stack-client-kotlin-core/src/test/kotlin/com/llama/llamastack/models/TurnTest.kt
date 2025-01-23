@@ -24,10 +24,10 @@ class TurnTest {
                     Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
                 )
                 .outputMessage(
-                    Turn.OutputMessage.builder()
+                    CompletionMessage.builder()
                         .content("string")
-                        .role(Turn.OutputMessage.Role.ASSISTANT)
-                        .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
+                        .role(CompletionMessage.Role.ASSISTANT)
+                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
                                 .arguments(
@@ -46,10 +46,10 @@ class TurnTest {
                 .addStep(
                     InferenceStep.builder()
                         .modelResponse(
-                            InferenceStep.ModelResponse.builder()
+                            CompletionMessage.builder()
                                 .content("string")
-                                .role(InferenceStep.ModelResponse.Role.ASSISTANT)
-                                .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
+                                .role(CompletionMessage.Role.ASSISTANT)
+                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
                                         .arguments(
@@ -93,10 +93,10 @@ class TurnTest {
             )
         assertThat(turn.outputMessage())
             .isEqualTo(
-                Turn.OutputMessage.builder()
+                CompletionMessage.builder()
                     .content("string")
-                    .role(Turn.OutputMessage.Role.ASSISTANT)
-                    .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
+                    .role(CompletionMessage.Role.ASSISTANT)
+                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
                             .arguments(
@@ -117,10 +117,10 @@ class TurnTest {
                 Turn.Step.ofInferenceStep(
                     InferenceStep.builder()
                         .modelResponse(
-                            InferenceStep.ModelResponse.builder()
+                            CompletionMessage.builder()
                                 .content("string")
-                                .role(InferenceStep.ModelResponse.Role.ASSISTANT)
-                                .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
+                                .role(CompletionMessage.Role.ASSISTANT)
+                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
                                         .arguments(

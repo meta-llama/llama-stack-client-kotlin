@@ -11,8 +11,8 @@ class ToolRuntimeInvokeToolParamsTest {
     @Test
     fun createToolRuntimeInvokeToolParams() {
         ToolRuntimeInvokeToolParams.builder()
-            .args(
-                ToolRuntimeInvokeToolParams.Args.builder()
+            .kwargs(
+                ToolRuntimeInvokeToolParams.Kwargs.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
@@ -26,8 +26,8 @@ class ToolRuntimeInvokeToolParamsTest {
     fun getBody() {
         val params =
             ToolRuntimeInvokeToolParams.builder()
-                .args(
-                    ToolRuntimeInvokeToolParams.Args.builder()
+                .kwargs(
+                    ToolRuntimeInvokeToolParams.Kwargs.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
@@ -37,9 +37,9 @@ class ToolRuntimeInvokeToolParamsTest {
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.args())
+        assertThat(body.kwargs())
             .isEqualTo(
-                ToolRuntimeInvokeToolParams.Args.builder()
+                ToolRuntimeInvokeToolParams.Kwargs.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
@@ -50,8 +50,8 @@ class ToolRuntimeInvokeToolParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             ToolRuntimeInvokeToolParams.builder()
-                .args(
-                    ToolRuntimeInvokeToolParams.Args.builder()
+                .kwargs(
+                    ToolRuntimeInvokeToolParams.Kwargs.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
@@ -59,9 +59,9 @@ class ToolRuntimeInvokeToolParamsTest {
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.args())
+        assertThat(body.kwargs())
             .isEqualTo(
-                ToolRuntimeInvokeToolParams.Args.builder()
+                ToolRuntimeInvokeToolParams.Kwargs.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )

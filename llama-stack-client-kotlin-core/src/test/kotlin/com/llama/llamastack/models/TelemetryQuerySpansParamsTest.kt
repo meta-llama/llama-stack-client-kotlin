@@ -55,7 +55,6 @@ class TelemetryQuerySpansParamsTest {
     //    }
 
     //    @Test
-    //    @Disabled
     //    fun getQueryParamsWithoutOptionalFields() {
     //        val params =
     //            TelemetryQuerySpansParams.builder()

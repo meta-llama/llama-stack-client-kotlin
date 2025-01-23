@@ -147,7 +147,9 @@ constructor(
 
             fun addContentOfInterleavedContentItems(
                 interleavedContentItems: List<InterleavedContentItem>
-            ) = addContent(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+            ) =
+                // MANUAL PATCH
+                addContent(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
 
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 

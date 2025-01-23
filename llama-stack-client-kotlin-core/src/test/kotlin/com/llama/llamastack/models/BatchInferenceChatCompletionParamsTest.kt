@@ -13,7 +13,7 @@ class BatchInferenceChatCompletionParamsTest {
         BatchInferenceChatCompletionParams.builder()
             .addMessagesBatch(
                 listOf(
-                    BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder()
                             .content("string")
                             .role(UserMessage.Role.USER)
@@ -69,7 +69,7 @@ class BatchInferenceChatCompletionParamsTest {
             BatchInferenceChatCompletionParams.builder()
                 .addMessagesBatch(
                     listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                        Message.ofUserMessage(
                             UserMessage.builder()
                                 .content("string")
                                 .role(UserMessage.Role.USER)
@@ -123,7 +123,7 @@ class BatchInferenceChatCompletionParamsTest {
             .isEqualTo(
                 listOf(
                     listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                        Message.ofUserMessage(
                             UserMessage.builder()
                                 .content("string")
                                 .role(UserMessage.Role.USER)
@@ -183,7 +183,7 @@ class BatchInferenceChatCompletionParamsTest {
             BatchInferenceChatCompletionParams.builder()
                 .addMessagesBatch(
                     listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                        Message.ofUserMessage(
                             UserMessage.builder()
                                 .content("string")
                                 .role(UserMessage.Role.USER)
@@ -199,7 +199,7 @@ class BatchInferenceChatCompletionParamsTest {
             .isEqualTo(
                 listOf(
                     listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
+                        Message.ofUserMessage(
                             UserMessage.builder()
                                 .content("string")
                                 .role(UserMessage.Role.USER)

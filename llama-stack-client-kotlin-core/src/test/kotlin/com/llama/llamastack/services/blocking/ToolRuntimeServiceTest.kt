@@ -20,8 +20,8 @@ class ToolRuntimeServiceTest {
         val toolInvocationResult =
             toolRuntimeService.invokeTool(
                 ToolRuntimeInvokeToolParams.builder()
-                    .args(
-                        ToolRuntimeInvokeToolParams.Args.builder()
+                    .kwargs(
+                        ToolRuntimeInvokeToolParams.Kwargs.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )

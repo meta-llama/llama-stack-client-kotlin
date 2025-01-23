@@ -141,7 +141,7 @@ class InferenceChatCompletionParamsTest {
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    InferenceChatCompletionParams.Message.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder()
                             .content("string")
                             .role(UserMessage.Role.USER)
@@ -225,7 +225,7 @@ class InferenceChatCompletionParamsTest {
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    InferenceChatCompletionParams.Message.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                     )
                 )

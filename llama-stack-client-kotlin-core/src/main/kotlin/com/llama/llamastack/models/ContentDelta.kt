@@ -336,19 +336,19 @@ private constructor(
     class ImageDelta
     @JsonCreator
     private constructor(
-        @JsonProperty("data")
+        @JsonProperty("image")
         @ExcludeMissing
-        private val data: JsonField<String> = JsonMissing.of(),
+        private val image: JsonField<String> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun data(): String = data.getRequired("data")
+        fun image(): String = image.getRequired("image")
 
         fun type(): Type = type.getRequired("type")
 
-        @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
+        @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<String> = image
 
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
@@ -363,7 +363,7 @@ private constructor(
                 return@apply
             }
 
-            data()
+            image()
             type()
             validated = true
         }
@@ -377,19 +377,19 @@ private constructor(
 
         class Builder {
 
-            private var data: JsonField<String>? = null
+            private var image: JsonField<String>? = null
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(imageDelta: ImageDelta) = apply {
-                data = imageDelta.data
+                image = imageDelta.image
                 type = imageDelta.type
                 additionalProperties = imageDelta.additionalProperties.toMutableMap()
             }
 
-            fun data(data: String) = data(JsonField.of(data))
+            fun image(image: String) = image(JsonField.of(image))
 
-            fun data(data: JsonField<String>) = apply { this.data = data }
+            fun image(image: JsonField<String>) = apply { this.image = image }
 
             fun type(type: Type) = type(JsonField.of(type))
 
@@ -416,7 +416,7 @@ private constructor(
 
             fun build(): ImageDelta =
                 ImageDelta(
-                    checkRequired("data", data),
+                    checkRequired("image", image),
                     checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
@@ -478,45 +478,45 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageDelta && data == other.data && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ImageDelta && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(data, type, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(image, type, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageDelta{data=$data, type=$type, additionalProperties=$additionalProperties}"
+            "ImageDelta{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect
     class ToolCallDelta
     @JsonCreator
     private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<Content> = JsonMissing.of(),
         @JsonProperty("parse_status")
         @ExcludeMissing
         private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
+        @JsonProperty("tool_call")
+        @ExcludeMissing
+        private val toolCall: JsonField<ToolCall> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun content(): Content = content.getRequired("content")
-
         fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
 
-        fun type(): Type = type.getRequired("type")
+        fun toolCall(): ToolCall = toolCall.getRequired("tool_call")
 
-        @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
+        fun type(): Type = type.getRequired("type")
 
         @JsonProperty("parse_status")
         @ExcludeMissing
         fun _parseStatus(): JsonField<ParseStatus> = parseStatus
+
+        @JsonProperty("tool_call") @ExcludeMissing fun _toolCall(): JsonField<ToolCall> = toolCall
 
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
@@ -531,8 +531,8 @@ private constructor(
                 return@apply
             }
 
-            content().validate()
             parseStatus()
+            toolCall().validate()
             type()
             validated = true
         }
@@ -546,31 +546,32 @@ private constructor(
 
         class Builder {
 
-            private var content: JsonField<Content>? = null
             private var parseStatus: JsonField<ParseStatus>? = null
+            private var toolCall: JsonField<ToolCall>? = null
             private var type: JsonField<Type>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(toolCallDelta: ToolCallDelta) = apply {
-                content = toolCallDelta.content
                 parseStatus = toolCallDelta.parseStatus
+                toolCall = toolCallDelta.toolCall
                 type = toolCallDelta.type
                 additionalProperties = toolCallDelta.additionalProperties.toMutableMap()
             }
-
-            fun content(content: Content) = content(JsonField.of(content))
-
-            fun content(content: JsonField<Content>) = apply { this.content = content }
-
-            fun content(string: String) = content(Content.ofString(string))
-
-            fun content(toolCall: ToolCall) = content(Content.ofToolCall(toolCall))
 
             fun parseStatus(parseStatus: ParseStatus) = parseStatus(JsonField.of(parseStatus))
 
             fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
                 this.parseStatus = parseStatus
             }
+            // MANUAL PATCH
+            fun toolCall(toolCall: ToolCall) = toolCall(JsonField.of(toolCall))
+
+            fun toolCall(toolCall: JsonField<ToolCall>) = apply { this.toolCall = toolCall }
+
+            //            fun toolCall(string: String) = ToolCall(string)
+
+            // MANUAL PATCH
+            //            fun toolCall(toolCall: ToolCall) = toolCall(ToolCall.ofToolCall(toolCall))
 
             fun type(type: Type) = type(JsonField.of(type))
 
@@ -597,131 +598,11 @@ private constructor(
 
             fun build(): ToolCallDelta =
                 ToolCallDelta(
-                    checkRequired("content", content),
                     checkRequired("parseStatus", parseStatus),
+                    checkRequired("toolCall", toolCall),
                     checkRequired("type", type),
                     additionalProperties.toImmutable(),
                 )
-        }
-
-        @JsonDeserialize(using = Content.Deserializer::class)
-        @JsonSerialize(using = Content.Serializer::class)
-        class Content
-        private constructor(
-            private val string: String? = null,
-            private val toolCall: ToolCall? = null,
-            private val _json: JsonValue? = null,
-        ) {
-
-            fun string(): String? = string
-
-            fun toolCall(): ToolCall? = toolCall
-
-            fun isString(): Boolean = string != null
-
-            fun isToolCall(): Boolean = toolCall != null
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    string != null -> visitor.visitString(string)
-                    toolCall != null -> visitor.visitToolCall(toolCall)
-                    else -> visitor.unknown(_json)
-                }
-            }
-
-            private var validated: Boolean = false
-
-            fun validate(): Content = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                accept(
-                    object : Visitor<Unit> {
-                        override fun visitString(string: String) {}
-
-                        override fun visitToolCall(toolCall: ToolCall) {
-                            toolCall.validate()
-                        }
-                    }
-                )
-                validated = true
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Content && string == other.string && toolCall == other.toolCall /* spotless:on */
-            }
-
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
-
-            override fun toString(): String =
-                when {
-                    string != null -> "Content{string=$string}"
-                    toolCall != null -> "Content{toolCall=$toolCall}"
-                    _json != null -> "Content{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid Content")
-                }
-
-            companion object {
-
-                fun ofString(string: String) = Content(string = string)
-
-                fun ofToolCall(toolCall: ToolCall) = Content(toolCall = toolCall)
-            }
-
-            interface Visitor<out T> {
-
-                fun visitString(string: String): T
-
-                fun visitToolCall(toolCall: ToolCall): T
-
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException("Unknown Content: $json")
-                }
-            }
-
-            class Deserializer : BaseDeserializer<Content>(Content::class) {
-
-                override fun ObjectCodec.deserialize(node: JsonNode): Content {
-                    val json = JsonValue.fromJsonNode(node)
-
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return Content(string = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) { it.validate() }
-                        ?.let {
-                            return Content(toolCall = it, _json = json)
-                        }
-
-                    return Content(_json = json)
-                }
-            }
-
-            class Serializer : BaseSerializer<Content>(Content::class) {
-
-                override fun serialize(
-                    value: Content,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.string != null -> generator.writeObject(value.string)
-                        value.toolCall != null -> generator.writeObject(value.toolCall)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid Content")
-                    }
-                }
-            }
         }
 
         class ParseStatus
@@ -794,6 +675,126 @@ private constructor(
             override fun toString() = value.toString()
         }
 
+        //        @JsonDeserialize(using = ToolCall.Deserializer::class)
+        //        @JsonSerialize(using = ToolCall.Serializer::class)
+        //        class ToolCall
+        //        private constructor(
+        //            private val string: String? = null,
+        //            private val toolCall: ToolCall? = null,
+        //            private val _json: JsonValue? = null,
+        //        ) {
+        //
+        //            fun string(): String? = string
+        //
+        //            fun toolCall(): ToolCall? = toolCall
+        //
+        //            fun isString(): Boolean = string != null
+        //
+        //            fun isToolCall(): Boolean = toolCall != null
+        //
+        //            fun asString(): String = string.getOrThrow("string")
+        //
+        //            fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
+        //
+        //            fun _json(): JsonValue? = _json
+        //
+        //            fun <T> accept(visitor: Visitor<T>): T {
+        //                return when {
+        //                    string != null -> visitor.visitString(string)
+        //                    toolCall != null -> visitor.visitToolCall(toolCall)
+        //                    else -> visitor.unknown(_json)
+        //                }
+        //            }
+        //
+        //            private var validated: Boolean = false
+        //
+        //            fun validate(): ToolCall = apply {
+        //                if (validated) {
+        //                    return@apply
+        //                }
+        //
+        //                accept(
+        //                    object : Visitor<Unit> {
+        //                        override fun visitString(string: String) {}
+        //
+        //                        override fun visitToolCall(toolCall: ToolCall) {
+        //                            toolCall.validate()
+        //                        }
+        //                    }
+        //                )
+        //                validated = true
+        //            }
+        //
+        //            override fun equals(other: Any?): Boolean {
+        //                if (this === other) {
+        //                    return true
+        //                }
+        //
+        //                return /* spotless:off */ other is ToolCall && string == other.string && toolCall == other.toolCall /* spotless:on */
+        //            }
+        //
+        //            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
+        //
+        //            override fun toString(): String =
+        //                when {
+        //                    string != null -> "ToolCall{string=$string}"
+        //                    toolCall != null -> "ToolCall{toolCall=$toolCall}"
+        //                    _json != null -> "ToolCall{_unknown=$_json}"
+        //                    else -> throw IllegalStateException("Invalid ToolCall")
+        //                }
+        //
+        //            companion object {
+        //
+        //                fun ofString(string: String) = ToolCall(string = string)
+        //
+        //                fun ofToolCall(toolCall: ToolCall) = ToolCall(toolCall = toolCall)
+        //            }
+        //
+        //            interface Visitor<out T> {
+        //
+        //                fun visitString(string: String): T
+        //
+        //                fun visitToolCall(toolCall: ToolCall): T
+        //
+        //                fun unknown(json: JsonValue?): T {
+        //                    throw LlamaStackClientInvalidDataException("Unknown ToolCall: $json")
+        //                }
+        //            }
+        //
+        //            class Deserializer : BaseDeserializer<ToolCall>(ToolCall::class) {
+        //
+        //                override fun ObjectCodec.deserialize(node: JsonNode): ToolCall {
+        //                    val json = JsonValue.fromJsonNode(node)
+        //
+        //                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
+        //                        return ToolCall(string = it, _json = json)
+        //                    }
+        //                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) { it.validate() }
+        //                        ?.let {
+        //                            return ToolCall(toolCall = it, _json = json)
+        //                        }
+        //
+        //                    return ToolCall(_json = json)
+        //                }
+        //            }
+        //
+        //            class Serializer : BaseSerializer<ToolCall>(ToolCall::class) {
+        //
+        //                override fun serialize(
+        //                    value: ToolCall,
+        //                    generator: JsonGenerator,
+        //                    provider: SerializerProvider
+        //                ) {
+        //                    when {
+        //                        value.string != null -> generator.writeObject(value.string)
+        //                        value.toolCall != null -> generator.writeObject(value.toolCall)
+        //                        value._json != null -> generator.writeObject(value._json)
+        //                        else -> throw IllegalStateException("Invalid ToolCall")
+        //                    }
+        //                }
+        //            }
+        //        }
+
         class Type
         @JsonCreator
         private constructor(
@@ -850,16 +851,16 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolCallDelta && content == other.content && parseStatus == other.parseStatus && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ToolCallDelta && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(content, parseStatus, type, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(parseStatus, toolCall, type, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolCallDelta{content=$content, parseStatus=$parseStatus, type=$type, additionalProperties=$additionalProperties}"
+            "ToolCallDelta{parseStatus=$parseStatus, toolCall=$toolCall, type=$type, additionalProperties=$additionalProperties}"
     }
 }

@@ -54,7 +54,7 @@ class SafetyRunShieldParamsTest {
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    SafetyRunShieldParams.Message.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder()
                             .content("string")
                             .role(UserMessage.Role.USER)
@@ -91,7 +91,7 @@ class SafetyRunShieldParamsTest {
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    SafetyRunShieldParams.Message.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                     )
                 )

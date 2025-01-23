@@ -45,7 +45,7 @@ class SyntheticDataGenerationGenerateParamsTest {
         assertThat(body.dialogs())
             .isEqualTo(
                 listOf(
-                    SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder()
                             .content("string")
                             .role(UserMessage.Role.USER)
@@ -73,7 +73,7 @@ class SyntheticDataGenerationGenerateParamsTest {
         assertThat(body.dialogs())
             .isEqualTo(
                 listOf(
-                    SyntheticDataGenerationGenerateParams.Dialog.ofUserMessage(
+                    Message.ofUserMessage(
                         UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
                     )
                 )

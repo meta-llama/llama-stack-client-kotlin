@@ -1,6 +1,7 @@
 package com.llama.llamastack.client.local.util
 
-import com.llama.llamastack.models.InferenceChatCompletionParams
+import com.llama.llamastack.models.CompletionMessage
+import com.llama.llamastack.models.Message
 import com.llama.llamastack.models.SystemMessage
 import com.llama.llamastack.models.UserMessage
 
@@ -49,10 +50,7 @@ object PromptFormatLocal {
         }
     }
 
-    fun getTotalFormattedPrompt(
-        messages: List<InferenceChatCompletionParams.Message>,
-        modelName: String?
-    ): String {
+    fun getTotalFormattedPrompt(messages: List<Message>, modelName: String?): String {
         var formattedPrompt: String = ""
         if (messages.isEmpty()) return formattedPrompt
 
@@ -80,9 +78,7 @@ object PromptFormatLocal {
                 }
                 message.isCompletionMessage() -> {
                     // assistant message
-                    val completionMessage:
-                        InferenceChatCompletionParams.Message.CompletionMessage? =
-                        message.completionMessage()
+                    val completionMessage: CompletionMessage? = message.completionMessage()
                     val content: String? = completionMessage?.content()?.string()
                     if (content != null) {
                         format =

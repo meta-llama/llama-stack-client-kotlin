@@ -20,10 +20,6 @@ import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsyncImpl
 import com.llama.llamastack.services.async.InspectServiceAsync
 import com.llama.llamastack.services.async.InspectServiceAsyncImpl
-import com.llama.llamastack.services.async.MemoryBankServiceAsync
-import com.llama.llamastack.services.async.MemoryBankServiceAsyncImpl
-import com.llama.llamastack.services.async.MemoryServiceAsync
-import com.llama.llamastack.services.async.MemoryServiceAsyncImpl
 import com.llama.llamastack.services.async.ModelServiceAsync
 import com.llama.llamastack.services.async.ModelServiceAsyncImpl
 import com.llama.llamastack.services.async.PostTrainingServiceAsync
@@ -50,6 +46,10 @@ import com.llama.llamastack.services.async.ToolServiceAsync
 import com.llama.llamastack.services.async.ToolServiceAsyncImpl
 import com.llama.llamastack.services.async.ToolgroupServiceAsync
 import com.llama.llamastack.services.async.ToolgroupServiceAsyncImpl
+import com.llama.llamastack.services.async.VectorDbServiceAsync
+import com.llama.llamastack.services.async.VectorDbServiceAsyncImpl
+import com.llama.llamastack.services.async.VectorIoServiceAsync
+import com.llama.llamastack.services.async.VectorIoServiceAsyncImpl
 
 class LlamaStackClientClientAsyncImpl
 constructor(
@@ -99,12 +99,12 @@ constructor(
         InferenceServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val memory: MemoryServiceAsync by lazy {
-        MemoryServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val vectorIo: VectorIoServiceAsync by lazy {
+        VectorIoServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val memoryBanks: MemoryBankServiceAsync by lazy {
-        MemoryBankServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val vectorDbs: VectorDbServiceAsync by lazy {
+        VectorDbServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
     private val models: ModelServiceAsync by lazy {
@@ -175,9 +175,9 @@ constructor(
 
     override fun inference(): InferenceServiceAsync = inference
 
-    override fun memory(): MemoryServiceAsync = memory
+    override fun vectorIo(): VectorIoServiceAsync = vectorIo
 
-    override fun memoryBanks(): MemoryBankServiceAsync = memoryBanks
+    override fun vectorDbs(): VectorDbServiceAsync = vectorDbs
 
     override fun models(): ModelServiceAsync = models
 

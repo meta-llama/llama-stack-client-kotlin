@@ -8,8 +8,11 @@ import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
 import com.llama.llamastack.models.ToolRuntimeListToolsParams
+import com.llama.llamastack.services.blocking.toolRuntime.RagToolService
 
 interface ToolRuntimeService {
+
+    fun ragTool(): RagToolService
 
     /** Run a tool with the given arguments */
     fun invokeTool(

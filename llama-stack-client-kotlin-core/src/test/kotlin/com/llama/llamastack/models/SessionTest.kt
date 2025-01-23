@@ -32,10 +32,10 @@ class SessionTest {
                                 .build()
                         )
                         .outputMessage(
-                            Turn.OutputMessage.builder()
+                            CompletionMessage.builder()
                                 .content("string")
-                                .role(Turn.OutputMessage.Role.ASSISTANT)
-                                .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
+                                .role(CompletionMessage.Role.ASSISTANT)
+                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
                                         .arguments(
@@ -57,12 +57,10 @@ class SessionTest {
                         .addStep(
                             InferenceStep.builder()
                                 .modelResponse(
-                                    InferenceStep.ModelResponse.builder()
+                                    CompletionMessage.builder()
                                         .content("string")
-                                        .role(InferenceStep.ModelResponse.Role.ASSISTANT)
-                                        .stopReason(
-                                            InferenceStep.ModelResponse.StopReason.END_OF_TURN
-                                        )
+                                        .role(CompletionMessage.Role.ASSISTANT)
+                                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                         .addToolCall(
                                             ToolCall.builder()
                                                 .arguments(
@@ -90,19 +88,6 @@ class SessionTest {
                         .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .build()
                 )
-                .memoryBank(
-                    Session.MemoryBank.VectorMemoryBank.builder()
-                        .chunkSizeInTokens(0L)
-                        .embeddingModel("embedding_model")
-                        .identifier("identifier")
-                        .memoryBankType(Session.MemoryBank.VectorMemoryBank.MemoryBankType.VECTOR)
-                        .providerId("provider_id")
-                        .providerResourceId("provider_resource_id")
-                        .type(Session.MemoryBank.VectorMemoryBank.Type.MEMORY_BANK)
-                        .embeddingDimension(0L)
-                        .overlapSizeInTokens(0L)
-                        .build()
-                )
                 .build()
         assertThat(session).isNotNull
         assertThat(session.sessionId()).isEqualTo("session_id")
@@ -125,10 +110,10 @@ class SessionTest {
                             .build()
                     )
                     .outputMessage(
-                        Turn.OutputMessage.builder()
+                        CompletionMessage.builder()
                             .content("string")
-                            .role(Turn.OutputMessage.Role.ASSISTANT)
-                            .stopReason(Turn.OutputMessage.StopReason.END_OF_TURN)
+                            .role(CompletionMessage.Role.ASSISTANT)
+                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .addToolCall(
                                 ToolCall.builder()
                                     .arguments(
@@ -147,10 +132,10 @@ class SessionTest {
                     .addStep(
                         InferenceStep.builder()
                             .modelResponse(
-                                InferenceStep.ModelResponse.builder()
+                                CompletionMessage.builder()
                                     .content("string")
-                                    .role(InferenceStep.ModelResponse.Role.ASSISTANT)
-                                    .stopReason(InferenceStep.ModelResponse.StopReason.END_OF_TURN)
+                                    .role(CompletionMessage.Role.ASSISTANT)
+                                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                     .addToolCall(
                                         ToolCall.builder()
                                             .arguments(
@@ -177,22 +162,6 @@ class SessionTest {
                     .turnId("turn_id")
                     .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                     .build()
-            )
-        assertThat(session.memoryBank())
-            .isEqualTo(
-                Session.MemoryBank.ofVectorMemoryBank(
-                    Session.MemoryBank.VectorMemoryBank.builder()
-                        .chunkSizeInTokens(0L)
-                        .embeddingModel("embedding_model")
-                        .identifier("identifier")
-                        .memoryBankType(Session.MemoryBank.VectorMemoryBank.MemoryBankType.VECTOR)
-                        .providerId("provider_id")
-                        .providerResourceId("provider_resource_id")
-                        .type(Session.MemoryBank.VectorMemoryBank.Type.MEMORY_BANK)
-                        .embeddingDimension(0L)
-                        .overlapSizeInTokens(0L)
-                        .build()
-                )
             )
     }
 }

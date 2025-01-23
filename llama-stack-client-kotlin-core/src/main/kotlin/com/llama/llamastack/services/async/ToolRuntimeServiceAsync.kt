@@ -7,8 +7,11 @@ import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
 import com.llama.llamastack.models.ToolRuntimeListToolsParams
+import com.llama.llamastack.services.async.toolRuntime.RagToolServiceAsync
 
 interface ToolRuntimeServiceAsync {
+
+    fun ragTool(): RagToolServiceAsync
 
     /** Run a tool with the given arguments */
     suspend fun invokeTool(

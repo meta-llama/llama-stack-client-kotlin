@@ -20,10 +20,6 @@ import com.llama.llamastack.services.blocking.InferenceService
 import com.llama.llamastack.services.blocking.InferenceServiceImpl
 import com.llama.llamastack.services.blocking.InspectService
 import com.llama.llamastack.services.blocking.InspectServiceImpl
-import com.llama.llamastack.services.blocking.MemoryBankService
-import com.llama.llamastack.services.blocking.MemoryBankServiceImpl
-import com.llama.llamastack.services.blocking.MemoryService
-import com.llama.llamastack.services.blocking.MemoryServiceImpl
 import com.llama.llamastack.services.blocking.ModelService
 import com.llama.llamastack.services.blocking.ModelServiceImpl
 import com.llama.llamastack.services.blocking.PostTrainingService
@@ -50,6 +46,10 @@ import com.llama.llamastack.services.blocking.ToolService
 import com.llama.llamastack.services.blocking.ToolServiceImpl
 import com.llama.llamastack.services.blocking.ToolgroupService
 import com.llama.llamastack.services.blocking.ToolgroupServiceImpl
+import com.llama.llamastack.services.blocking.VectorDbService
+import com.llama.llamastack.services.blocking.VectorDbServiceImpl
+import com.llama.llamastack.services.blocking.VectorIoService
+import com.llama.llamastack.services.blocking.VectorIoServiceImpl
 
 class LlamaStackClientClientImpl
 constructor(
@@ -95,10 +95,12 @@ constructor(
         InferenceServiceImpl(clientOptionsWithUserAgent)
     }
 
-    private val memory: MemoryService by lazy { MemoryServiceImpl(clientOptionsWithUserAgent) }
+    private val vectorIo: VectorIoService by lazy {
+        VectorIoServiceImpl(clientOptionsWithUserAgent)
+    }
 
-    private val memoryBanks: MemoryBankService by lazy {
-        MemoryBankServiceImpl(clientOptionsWithUserAgent)
+    private val vectorDbs: VectorDbService by lazy {
+        VectorDbServiceImpl(clientOptionsWithUserAgent)
     }
 
     private val models: ModelService by lazy { ModelServiceImpl(clientOptionsWithUserAgent) }
@@ -159,9 +161,9 @@ constructor(
 
     override fun inference(): InferenceService = inference
 
-    override fun memory(): MemoryService = memory
+    override fun vectorIo(): VectorIoService = vectorIo
 
-    override fun memoryBanks(): MemoryBankService = memoryBanks
+    override fun vectorDbs(): VectorDbService = vectorDbs
 
     override fun models(): ModelService = models
 

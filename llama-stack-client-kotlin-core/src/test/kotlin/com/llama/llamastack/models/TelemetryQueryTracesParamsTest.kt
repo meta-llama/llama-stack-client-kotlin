@@ -27,6 +27,7 @@ class TelemetryQueryTracesParamsTest {
     }
 
     //    @Test
+    //    @Disabled
     //    fun getQueryParams() {
     //        val params =
     //            TelemetryQueryTracesParams.builder()

@@ -32,11 +32,11 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun args(): Args = body.args()
+    fun kwargs(): Kwargs = body.kwargs()
 
     fun toolName(): String = body.toolName()
 
-    fun _args(): JsonField<Args> = body._args()
+    fun _kwargs(): JsonField<Kwargs> = body._kwargs()
 
     fun _toolName(): JsonField<String> = body._toolName()
 
@@ -66,7 +66,9 @@ constructor(
     class ToolRuntimeInvokeToolBody
     @JsonCreator
     internal constructor(
-        @JsonProperty("args") @ExcludeMissing private val args: JsonField<Args> = JsonMissing.of(),
+        @JsonProperty("kwargs")
+        @ExcludeMissing
+        private val kwargs: JsonField<Kwargs> = JsonMissing.of(),
         @JsonProperty("tool_name")
         @ExcludeMissing
         private val toolName: JsonField<String> = JsonMissing.of(),
@@ -74,11 +76,11 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun args(): Args = args.getRequired("args")
+        fun kwargs(): Kwargs = kwargs.getRequired("kwargs")
 
         fun toolName(): String = toolName.getRequired("tool_name")
 
-        @JsonProperty("args") @ExcludeMissing fun _args(): JsonField<Args> = args
+        @JsonProperty("kwargs") @ExcludeMissing fun _kwargs(): JsonField<Kwargs> = kwargs
 
         @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<String> = toolName
 
@@ -93,7 +95,7 @@ constructor(
                 return@apply
             }
 
-            args().validate()
+            kwargs().validate()
             toolName()
             validated = true
         }
@@ -107,19 +109,19 @@ constructor(
 
         class Builder {
 
-            private var args: JsonField<Args>? = null
+            private var kwargs: JsonField<Kwargs>? = null
             private var toolName: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(toolRuntimeInvokeToolBody: ToolRuntimeInvokeToolBody) = apply {
-                args = toolRuntimeInvokeToolBody.args
+                kwargs = toolRuntimeInvokeToolBody.kwargs
                 toolName = toolRuntimeInvokeToolBody.toolName
                 additionalProperties = toolRuntimeInvokeToolBody.additionalProperties.toMutableMap()
             }
 
-            fun args(args: Args) = args(JsonField.of(args))
+            fun kwargs(kwargs: Kwargs) = kwargs(JsonField.of(kwargs))
 
-            fun args(args: JsonField<Args>) = apply { this.args = args }
+            fun kwargs(kwargs: JsonField<Kwargs>) = apply { this.kwargs = kwargs }
 
             fun toolName(toolName: String) = toolName(JsonField.of(toolName))
 
@@ -146,7 +148,7 @@ constructor(
 
             fun build(): ToolRuntimeInvokeToolBody =
                 ToolRuntimeInvokeToolBody(
-                    checkRequired("args", args),
+                    checkRequired("kwargs", kwargs),
                     checkRequired("toolName", toolName),
                     additionalProperties.toImmutable(),
                 )
@@ -157,17 +159,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolRuntimeInvokeToolBody && args == other.args && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ToolRuntimeInvokeToolBody && kwargs == other.kwargs && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(args, toolName, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(kwargs, toolName, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolRuntimeInvokeToolBody{args=$args, toolName=$toolName, additionalProperties=$additionalProperties}"
+            "ToolRuntimeInvokeToolBody{kwargs=$kwargs, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -202,9 +204,9 @@ constructor(
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
-        fun args(args: Args) = apply { body.args(args) }
+        fun kwargs(kwargs: Kwargs) = apply { body.kwargs(kwargs) }
 
-        fun args(args: JsonField<Args>) = apply { body.args(args) }
+        fun kwargs(kwargs: JsonField<Kwargs>) = apply { body.kwargs(kwargs) }
 
         fun toolName(toolName: String) = apply { body.toolName(toolName) }
 
@@ -338,7 +340,7 @@ constructor(
     }
 
     @NoAutoDetect
-    class Args
+    class Kwargs
     @JsonCreator
     private constructor(
         @JsonAnySetter
@@ -351,7 +353,7 @@ constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): Args = apply {
+        fun validate(): Kwargs = apply {
             if (validated) {
                 return@apply
             }
@@ -370,8 +372,8 @@ constructor(
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(args: Args) = apply {
-                additionalProperties = args.additionalProperties.toMutableMap()
+            internal fun from(kwargs: Kwargs) = apply {
+                additionalProperties = kwargs.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -393,7 +395,7 @@ constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): Args = Args(additionalProperties.toImmutable())
+            fun build(): Kwargs = Kwargs(additionalProperties.toImmutable())
         }
 
         override fun equals(other: Any?): Boolean {
@@ -401,7 +403,7 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Args && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Kwargs && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -410,7 +412,7 @@ constructor(
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() = "Args{additionalProperties=$additionalProperties}"
+        override fun toString() = "Kwargs{additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

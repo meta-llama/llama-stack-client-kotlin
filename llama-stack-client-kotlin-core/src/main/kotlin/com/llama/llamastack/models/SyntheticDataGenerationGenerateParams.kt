@@ -6,15 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.ObjectCodec
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.llama.llamastack.core.BaseDeserializer
-import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
@@ -22,7 +13,6 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
@@ -43,13 +33,13 @@ constructor(
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
-    fun dialogs(): List<Dialog> = body.dialogs()
+    fun dialogs(): List<Message> = body.dialogs()
 
     fun filteringFunction(): FilteringFunction = body.filteringFunction()
 
     fun model(): String? = body.model()
 
-    fun _dialogs(): JsonField<List<Dialog>> = body._dialogs()
+    fun _dialogs(): JsonField<List<Message>> = body._dialogs()
 
     fun _filteringFunction(): JsonField<FilteringFunction> = body._filteringFunction()
 
@@ -83,7 +73,7 @@ constructor(
     internal constructor(
         @JsonProperty("dialogs")
         @ExcludeMissing
-        private val dialogs: JsonField<List<Dialog>> = JsonMissing.of(),
+        private val dialogs: JsonField<List<Message>> = JsonMissing.of(),
         @JsonProperty("filtering_function")
         @ExcludeMissing
         private val filteringFunction: JsonField<FilteringFunction> = JsonMissing.of(),
@@ -94,14 +84,14 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun dialogs(): List<Dialog> = dialogs.getRequired("dialogs")
+        fun dialogs(): List<Message> = dialogs.getRequired("dialogs")
 
         fun filteringFunction(): FilteringFunction =
             filteringFunction.getRequired("filtering_function")
 
         fun model(): String? = model.getNullable("model")
 
-        @JsonProperty("dialogs") @ExcludeMissing fun _dialogs(): JsonField<List<Dialog>> = dialogs
+        @JsonProperty("dialogs") @ExcludeMissing fun _dialogs(): JsonField<List<Message>> = dialogs
 
         @JsonProperty("filtering_function")
         @ExcludeMissing
@@ -135,7 +125,7 @@ constructor(
 
         class Builder {
 
-            private var dialogs: JsonField<MutableList<Dialog>>? = null
+            private var dialogs: JsonField<MutableList<Message>>? = null
             private var filteringFunction: JsonField<FilteringFunction>? = null
             private var model: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -150,13 +140,13 @@ constructor(
                     syntheticDataGenerationGenerateBody.additionalProperties.toMutableMap()
             }
 
-            fun dialogs(dialogs: List<Dialog>) = dialogs(JsonField.of(dialogs))
+            fun dialogs(dialogs: List<Message>) = dialogs(JsonField.of(dialogs))
 
-            fun dialogs(dialogs: JsonField<List<Dialog>>) = apply {
+            fun dialogs(dialogs: JsonField<List<Message>>) = apply {
                 this.dialogs = dialogs.map { it.toMutableList() }
             }
 
-            fun addDialog(dialog: Dialog) = apply {
+            fun addDialog(dialog: Message) = apply {
                 dialogs =
                     (dialogs ?: JsonField.of(mutableListOf())).apply {
                         (asKnown()
@@ -167,16 +157,16 @@ constructor(
                     }
             }
 
-            fun addDialog(userMessage: UserMessage) = addDialog(Dialog.ofUserMessage(userMessage))
+            fun addDialog(userMessage: UserMessage) = addDialog(Message.ofUserMessage(userMessage))
 
             fun addDialog(systemMessage: SystemMessage) =
-                addDialog(Dialog.ofSystemMessage(systemMessage))
+                addDialog(Message.ofSystemMessage(systemMessage))
 
             fun addDialog(toolResponseMessage: ToolResponseMessage) =
-                addDialog(Dialog.ofToolResponseMessage(toolResponseMessage))
+                addDialog(Message.ofToolResponseMessage(toolResponseMessage))
 
-            fun addDialog(completionMessage: Dialog.CompletionMessage) =
-                addDialog(Dialog.ofCompletionMessage(completionMessage))
+            fun addDialog(completionMessage: CompletionMessage) =
+                addDialog(Message.ofCompletionMessage(completionMessage))
 
             fun filteringFunction(filteringFunction: FilteringFunction) =
                 filteringFunction(JsonField.of(filteringFunction))
@@ -272,11 +262,11 @@ constructor(
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
-        fun dialogs(dialogs: List<Dialog>) = apply { body.dialogs(dialogs) }
+        fun dialogs(dialogs: List<Message>) = apply { body.dialogs(dialogs) }
 
-        fun dialogs(dialogs: JsonField<List<Dialog>>) = apply { body.dialogs(dialogs) }
+        fun dialogs(dialogs: JsonField<List<Message>>) = apply { body.dialogs(dialogs) }
 
-        fun addDialog(dialog: Dialog) = apply { body.addDialog(dialog) }
+        fun addDialog(dialog: Message) = apply { body.addDialog(dialog) }
 
         fun addDialog(userMessage: UserMessage) = apply { body.addDialog(userMessage) }
 
@@ -286,7 +276,7 @@ constructor(
             body.addDialog(toolResponseMessage)
         }
 
-        fun addDialog(completionMessage: Dialog.CompletionMessage) = apply {
+        fun addDialog(completionMessage: CompletionMessage) = apply {
             body.addDialog(completionMessage)
         }
 
@@ -427,475 +417,6 @@ constructor(
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
-    }
-
-    @JsonDeserialize(using = Dialog.Deserializer::class)
-    @JsonSerialize(using = Dialog.Serializer::class)
-    class Dialog
-    private constructor(
-        private val userMessage: UserMessage? = null,
-        private val systemMessage: SystemMessage? = null,
-        private val toolResponseMessage: ToolResponseMessage? = null,
-        private val completionMessage: CompletionMessage? = null,
-        private val _json: JsonValue? = null,
-    ) {
-
-        fun userMessage(): UserMessage? = userMessage
-
-        fun systemMessage(): SystemMessage? = systemMessage
-
-        fun toolResponseMessage(): ToolResponseMessage? = toolResponseMessage
-
-        fun completionMessage(): CompletionMessage? = completionMessage
-
-        fun isUserMessage(): Boolean = userMessage != null
-
-        fun isSystemMessage(): Boolean = systemMessage != null
-
-        fun isToolResponseMessage(): Boolean = toolResponseMessage != null
-
-        fun isCompletionMessage(): Boolean = completionMessage != null
-
-        fun asUserMessage(): UserMessage = userMessage.getOrThrow("userMessage")
-
-        fun asSystemMessage(): SystemMessage = systemMessage.getOrThrow("systemMessage")
-
-        fun asToolResponseMessage(): ToolResponseMessage =
-            toolResponseMessage.getOrThrow("toolResponseMessage")
-
-        fun asCompletionMessage(): CompletionMessage =
-            completionMessage.getOrThrow("completionMessage")
-
-        fun _json(): JsonValue? = _json
-
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
-                userMessage != null -> visitor.visitUserMessage(userMessage)
-                systemMessage != null -> visitor.visitSystemMessage(systemMessage)
-                toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
-                completionMessage != null -> visitor.visitCompletionMessage(completionMessage)
-                else -> visitor.unknown(_json)
-            }
-        }
-
-        private var validated: Boolean = false
-
-        fun validate(): Dialog = apply {
-            if (validated) {
-                return@apply
-            }
-
-            accept(
-                object : Visitor<Unit> {
-                    override fun visitUserMessage(userMessage: UserMessage) {
-                        userMessage.validate()
-                    }
-
-                    override fun visitSystemMessage(systemMessage: SystemMessage) {
-                        systemMessage.validate()
-                    }
-
-                    override fun visitToolResponseMessage(
-                        toolResponseMessage: ToolResponseMessage
-                    ) {
-                        toolResponseMessage.validate()
-                    }
-
-                    override fun visitCompletionMessage(completionMessage: CompletionMessage) {
-                        completionMessage.validate()
-                    }
-                }
-            )
-            validated = true
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Dialog && userMessage == other.userMessage && systemMessage == other.systemMessage && toolResponseMessage == other.toolResponseMessage && completionMessage == other.completionMessage /* spotless:on */
-        }
-
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
-
-        override fun toString(): String =
-            when {
-                userMessage != null -> "Dialog{userMessage=$userMessage}"
-                systemMessage != null -> "Dialog{systemMessage=$systemMessage}"
-                toolResponseMessage != null -> "Dialog{toolResponseMessage=$toolResponseMessage}"
-                completionMessage != null -> "Dialog{completionMessage=$completionMessage}"
-                _json != null -> "Dialog{_unknown=$_json}"
-                else -> throw IllegalStateException("Invalid Dialog")
-            }
-
-        companion object {
-
-            fun ofUserMessage(userMessage: UserMessage) = Dialog(userMessage = userMessage)
-
-            fun ofSystemMessage(systemMessage: SystemMessage) =
-                Dialog(systemMessage = systemMessage)
-
-            fun ofToolResponseMessage(toolResponseMessage: ToolResponseMessage) =
-                Dialog(toolResponseMessage = toolResponseMessage)
-
-            fun ofCompletionMessage(completionMessage: CompletionMessage) =
-                Dialog(completionMessage = completionMessage)
-        }
-
-        interface Visitor<out T> {
-
-            fun visitUserMessage(userMessage: UserMessage): T
-
-            fun visitSystemMessage(systemMessage: SystemMessage): T
-
-            fun visitToolResponseMessage(toolResponseMessage: ToolResponseMessage): T
-
-            fun visitCompletionMessage(completionMessage: CompletionMessage): T
-
-            fun unknown(json: JsonValue?): T {
-                throw LlamaStackClientInvalidDataException("Unknown Dialog: $json")
-            }
-        }
-
-        class Deserializer : BaseDeserializer<Dialog>(Dialog::class) {
-
-            override fun ObjectCodec.deserialize(node: JsonNode): Dialog {
-                val json = JsonValue.fromJsonNode(node)
-
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(userMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(systemMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(toolResponseMessage = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
-                    ?.let {
-                        return Dialog(completionMessage = it, _json = json)
-                    }
-
-                return Dialog(_json = json)
-            }
-        }
-
-        class Serializer : BaseSerializer<Dialog>(Dialog::class) {
-
-            override fun serialize(
-                value: Dialog,
-                generator: JsonGenerator,
-                provider: SerializerProvider
-            ) {
-                when {
-                    value.userMessage != null -> generator.writeObject(value.userMessage)
-                    value.systemMessage != null -> generator.writeObject(value.systemMessage)
-                    value.toolResponseMessage != null ->
-                        generator.writeObject(value.toolResponseMessage)
-                    value.completionMessage != null ->
-                        generator.writeObject(value.completionMessage)
-                    value._json != null -> generator.writeObject(value._json)
-                    else -> throw IllegalStateException("Invalid Dialog")
-                }
-            }
-        }
-
-        @NoAutoDetect
-        class CompletionMessage
-        @JsonCreator
-        private constructor(
-            @JsonProperty("content")
-            @ExcludeMissing
-            private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-            @JsonProperty("role")
-            @ExcludeMissing
-            private val role: JsonField<Role> = JsonMissing.of(),
-            @JsonProperty("stop_reason")
-            @ExcludeMissing
-            private val stopReason: JsonField<StopReason> = JsonMissing.of(),
-            @JsonProperty("tool_calls")
-            @ExcludeMissing
-            private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-        ) {
-
-            fun content(): InterleavedContent = content.getRequired("content")
-
-            fun role(): Role = role.getRequired("role")
-
-            fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
-
-            fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
-
-            @JsonProperty("content")
-            @ExcludeMissing
-            fun _content(): JsonField<InterleavedContent> = content
-
-            @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
-
-            @JsonProperty("stop_reason")
-            @ExcludeMissing
-            fun _stopReason(): JsonField<StopReason> = stopReason
-
-            @JsonProperty("tool_calls")
-            @ExcludeMissing
-            fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
-
-            @JsonAnyGetter
-            @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): CompletionMessage = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                content().validate()
-                role()
-                stopReason()
-                toolCalls().forEach { it.validate() }
-                validated = true
-            }
-
-            fun toBuilder() = Builder().from(this)
-
-            companion object {
-
-                fun builder() = Builder()
-            }
-
-            class Builder {
-
-                private var content: JsonField<InterleavedContent>? = null
-                private var role: JsonField<Role>? = null
-                private var stopReason: JsonField<StopReason>? = null
-                private var toolCalls: JsonField<MutableList<ToolCall>>? = null
-                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-                internal fun from(completionMessage: CompletionMessage) = apply {
-                    content = completionMessage.content
-                    role = completionMessage.role
-                    stopReason = completionMessage.stopReason
-                    toolCalls = completionMessage.toolCalls.map { it.toMutableList() }
-                    additionalProperties = completionMessage.additionalProperties.toMutableMap()
-                }
-
-                fun content(content: InterleavedContent) = content(JsonField.of(content))
-
-                fun content(content: JsonField<InterleavedContent>) = apply {
-                    this.content = content
-                }
-
-                fun content(string: String) = content(InterleavedContent.ofString(string))
-
-                fun content(imageContentItem: InterleavedContent.ImageContentItem) =
-                    content(InterleavedContent.ofImageContentItem(imageContentItem))
-
-                fun content(textContentItem: InterleavedContent.TextContentItem) =
-                    content(InterleavedContent.ofTextContentItem(textContentItem))
-
-                fun contentOfInterleavedContentItems(
-                    interleavedContentItems: List<InterleavedContentItem>
-                ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
-
-                fun role(role: Role) = role(JsonField.of(role))
-
-                fun role(role: JsonField<Role>) = apply { this.role = role }
-
-                fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
-
-                fun stopReason(stopReason: JsonField<StopReason>) = apply {
-                    this.stopReason = stopReason
-                }
-
-                fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
-
-                fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
-                    this.toolCalls = toolCalls.map { it.toMutableList() }
-                }
-
-                fun addToolCall(toolCall: ToolCall) = apply {
-                    toolCalls =
-                        (toolCalls ?: JsonField.of(mutableListOf())).apply {
-                            (asKnown()
-                                    ?: throw IllegalStateException(
-                                        "Field was set to non-list type: ${javaClass.simpleName}"
-                                    ))
-                                .add(toolCall)
-                        }
-                }
-
-                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                    this.additionalProperties.clear()
-                    putAllAdditionalProperties(additionalProperties)
-                }
-
-                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    additionalProperties.put(key, value)
-                }
-
-                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
-                    apply {
-                        this.additionalProperties.putAll(additionalProperties)
-                    }
-
-                fun removeAdditionalProperty(key: String) = apply {
-                    additionalProperties.remove(key)
-                }
-
-                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                    keys.forEach(::removeAdditionalProperty)
-                }
-
-                fun build(): CompletionMessage =
-                    CompletionMessage(
-                        checkRequired("content", content),
-                        checkRequired("role", role),
-                        checkRequired("stopReason", stopReason),
-                        checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
-                        additionalProperties.toImmutable(),
-                    )
-            }
-
-            class Role
-            @JsonCreator
-            private constructor(
-                private val value: JsonField<String>,
-            ) : Enum {
-
-                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-                companion object {
-
-                    val ASSISTANT = of("assistant")
-
-                    fun of(value: String) = Role(JsonField.of(value))
-                }
-
-                enum class Known {
-                    ASSISTANT,
-                }
-
-                enum class Value {
-                    ASSISTANT,
-                    _UNKNOWN,
-                }
-
-                fun value(): Value =
-                    when (this) {
-                        ASSISTANT -> Value.ASSISTANT
-                        else -> Value._UNKNOWN
-                    }
-
-                fun known(): Known =
-                    when (this) {
-                        ASSISTANT -> Known.ASSISTANT
-                        else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
-                    }
-
-                fun asString(): String = _value().asStringOrThrow()
-
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is Role && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-            }
-
-            class StopReason
-            @JsonCreator
-            private constructor(
-                private val value: JsonField<String>,
-            ) : Enum {
-
-                @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-                companion object {
-
-                    val END_OF_TURN = of("end_of_turn")
-
-                    val END_OF_MESSAGE = of("end_of_message")
-
-                    val OUT_OF_TOKENS = of("out_of_tokens")
-
-                    fun of(value: String) = StopReason(JsonField.of(value))
-                }
-
-                enum class Known {
-                    END_OF_TURN,
-                    END_OF_MESSAGE,
-                    OUT_OF_TOKENS,
-                }
-
-                enum class Value {
-                    END_OF_TURN,
-                    END_OF_MESSAGE,
-                    OUT_OF_TOKENS,
-                    _UNKNOWN,
-                }
-
-                fun value(): Value =
-                    when (this) {
-                        END_OF_TURN -> Value.END_OF_TURN
-                        END_OF_MESSAGE -> Value.END_OF_MESSAGE
-                        OUT_OF_TOKENS -> Value.OUT_OF_TOKENS
-                        else -> Value._UNKNOWN
-                    }
-
-                fun known(): Known =
-                    when (this) {
-                        END_OF_TURN -> Known.END_OF_TURN
-                        END_OF_MESSAGE -> Known.END_OF_MESSAGE
-                        OUT_OF_TOKENS -> Known.OUT_OF_TOKENS
-                        else ->
-                            throw LlamaStackClientInvalidDataException("Unknown StopReason: $value")
-                    }
-
-                fun asString(): String = _value().asStringOrThrow()
-
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
-                }
-
-                override fun hashCode() = value.hashCode()
-
-                override fun toString() = value.toString()
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is CompletionMessage && content == other.content && role == other.role && stopReason == other.stopReason && toolCalls == other.toolCalls && additionalProperties == other.additionalProperties /* spotless:on */
-            }
-
-            /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(content, role, stopReason, toolCalls, additionalProperties) }
-            /* spotless:on */
-
-            override fun hashCode(): Int = hashCode
-
-            override fun toString() =
-                "CompletionMessage{content=$content, role=$role, stopReason=$stopReason, toolCalls=$toolCalls, additionalProperties=$additionalProperties}"
-        }
     }
 
     class FilteringFunction

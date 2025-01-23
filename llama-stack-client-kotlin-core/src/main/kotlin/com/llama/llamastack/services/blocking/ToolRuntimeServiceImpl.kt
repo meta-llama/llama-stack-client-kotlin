@@ -19,6 +19,8 @@ import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
 import com.llama.llamastack.models.ToolRuntimeListToolsParams
+import com.llama.llamastack.services.blocking.toolRuntime.RagToolService
+import com.llama.llamastack.services.blocking.toolRuntime.RagToolServiceImpl
 
 class ToolRuntimeServiceImpl
 internal constructor(
@@ -27,6 +29,10 @@ internal constructor(
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
+
+    private val ragTool: RagToolService by lazy { RagToolServiceImpl(clientOptions) }
+
+    override fun ragTool(): RagToolService = ragTool
 
     private val invokeToolHandler: Handler<ToolInvocationResult> =
         jsonHandler<ToolInvocationResult>(clientOptions.jsonMapper).withErrorHandler(errorHandler)

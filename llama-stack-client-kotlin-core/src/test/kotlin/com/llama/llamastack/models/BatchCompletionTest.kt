@@ -13,10 +13,10 @@ class BatchCompletionTest {
         val batchCompletion =
             BatchCompletion.builder()
                 .addCompletionMessageBatch(
-                    BatchCompletion.CompletionMessageBatch.builder()
+                    CompletionMessage.builder()
                         .content("string")
-                        .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
-                        .stopReason(BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN)
+                        .role(CompletionMessage.Role.ASSISTANT)
+                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
                                 .arguments(
@@ -34,10 +34,10 @@ class BatchCompletionTest {
         assertThat(batchCompletion).isNotNull
         assertThat(batchCompletion.completionMessageBatch())
             .containsExactly(
-                BatchCompletion.CompletionMessageBatch.builder()
+                CompletionMessage.builder()
                     .content("string")
-                    .role(BatchCompletion.CompletionMessageBatch.Role.ASSISTANT)
-                    .stopReason(BatchCompletion.CompletionMessageBatch.StopReason.END_OF_TURN)
+                    .role(CompletionMessage.Role.ASSISTANT)
+                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
                             .arguments(

@@ -156,26 +156,21 @@ private constructor(
     class ImageContentItem
     @JsonCreator
     private constructor(
-        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
-        @JsonProperty("data")
+        @JsonProperty("image")
         @ExcludeMissing
-        private val data: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
+        private val image: JsonField<Image> = JsonMissing.of(),
+        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        fun image(): Image = image.getRequired("image")
+
         fun type(): Type = type.getRequired("type")
 
-        fun data(): String? = data.getNullable("data")
-
-        fun url(): Url? = url.getNullable("url")
+        @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
-
-        @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
-
-        @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -188,9 +183,8 @@ private constructor(
                 return@apply
             }
 
+            image().validate()
             type()
-            data()
-            url()?.validate()
             validated = true
         }
 
@@ -203,29 +197,23 @@ private constructor(
 
         class Builder {
 
+            private var image: JsonField<Image>? = null
             private var type: JsonField<Type>? = null
-            private var data: JsonField<String> = JsonMissing.of()
-            private var url: JsonField<Url> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(imageContentItem: ImageContentItem) = apply {
+                image = imageContentItem.image
                 type = imageContentItem.type
-                data = imageContentItem.data
-                url = imageContentItem.url
                 additionalProperties = imageContentItem.additionalProperties.toMutableMap()
             }
+
+            fun image(image: Image) = image(JsonField.of(image))
+
+            fun image(image: JsonField<Image>) = apply { this.image = image }
 
             fun type(type: Type) = type(JsonField.of(type))
 
             fun type(type: JsonField<Type>) = apply { this.type = type }
-
-            fun data(data: String) = data(JsonField.of(data))
-
-            fun data(data: JsonField<String>) = apply { this.data = data }
-
-            fun url(url: Url) = url(JsonField.of(url))
-
-            fun url(url: JsonField<Url>) = apply { this.url = url }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -248,11 +236,121 @@ private constructor(
 
             fun build(): ImageContentItem =
                 ImageContentItem(
+                    checkRequired("image", image),
                     checkRequired("type", type),
-                    data,
-                    url,
                     additionalProperties.toImmutable(),
                 )
+        }
+
+        @NoAutoDetect
+        class Image
+        @JsonCreator
+        private constructor(
+            @JsonProperty("data")
+            @ExcludeMissing
+            private val data: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            fun data(): String? = data.getNullable("data")
+
+            fun url(): Url? = url.getNullable("url")
+
+            @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
+
+            @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): Image = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                data()
+                url()?.validate()
+                validated = true
+            }
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var data: JsonField<String> = JsonMissing.of()
+                private var url: JsonField<Url> = JsonMissing.of()
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(image: Image) = apply {
+                    data = image.data
+                    url = image.url
+                    additionalProperties = image.additionalProperties.toMutableMap()
+                }
+
+                fun data(data: String) = data(JsonField.of(data))
+
+                fun data(data: JsonField<String>) = apply { this.data = data }
+
+                fun url(url: Url) = url(JsonField.of(url))
+
+                fun url(url: JsonField<Url>) = apply { this.url = url }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): Image =
+                    Image(
+                        data,
+                        url,
+                        additionalProperties.toImmutable(),
+                    )
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is Image && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(data, url, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
         }
 
         class Type
@@ -311,17 +409,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageContentItem && type == other.type && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ImageContentItem && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(type, data, url, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(image, type, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageContentItem{type=$type, data=$data, url=$url, additionalProperties=$additionalProperties}"
+            "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
     @NoAutoDetect

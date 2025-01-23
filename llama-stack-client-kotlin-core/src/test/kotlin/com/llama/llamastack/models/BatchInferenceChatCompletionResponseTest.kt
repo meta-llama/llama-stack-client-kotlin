@@ -13,16 +13,10 @@ class BatchInferenceChatCompletionResponseTest {
         val batchInferenceChatCompletionResponse =
             BatchInferenceChatCompletionResponse.builder()
                 .addCompletionMessageBatch(
-                    BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
+                    CompletionMessage.builder()
                         .content("string")
-                        .role(
-                            BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role
-                                .ASSISTANT
-                        )
-                        .stopReason(
-                            BatchInferenceChatCompletionResponse.CompletionMessageBatch.StopReason
-                                .END_OF_TURN
-                        )
+                        .role(CompletionMessage.Role.ASSISTANT)
+                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
                                 .arguments(
@@ -40,15 +34,10 @@ class BatchInferenceChatCompletionResponseTest {
         assertThat(batchInferenceChatCompletionResponse).isNotNull
         assertThat(batchInferenceChatCompletionResponse.completionMessageBatch())
             .containsExactly(
-                BatchInferenceChatCompletionResponse.CompletionMessageBatch.builder()
+                CompletionMessage.builder()
                     .content("string")
-                    .role(
-                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.Role.ASSISTANT
-                    )
-                    .stopReason(
-                        BatchInferenceChatCompletionResponse.CompletionMessageBatch.StopReason
-                            .END_OF_TURN
-                    )
+                    .role(CompletionMessage.Role.ASSISTANT)
+                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
                             .arguments(
