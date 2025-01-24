@@ -499,375 +499,388 @@ private constructor(
             "Image{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
-    class ToolCall
-    @JsonCreator
-    private constructor(
-        @JsonProperty("parse_status")
-        @ExcludeMissing
-        private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
-        @JsonProperty("tool_call")
-        @ExcludeMissing
-        private val toolCall: JsonField<ToolCall> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
-
-        fun toolCall(): ToolCall = toolCall.getRequired("tool_call")
-
-        fun type(): Type = type.getRequired("type")
-
-        @JsonProperty("parse_status")
-        @ExcludeMissing
-        fun _parseStatus(): JsonField<ParseStatus> = parseStatus
-
-        @JsonProperty("tool_call") @ExcludeMissing fun _toolCall(): JsonField<ToolCall> = toolCall
-
-        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolCall = apply {
-            if (validated) {
-                return@apply
-            }
-
-            parseStatus()
-            toolCall().validate()
-            type()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var parseStatus: JsonField<ParseStatus>? = null
-            private var toolCall: JsonField<ToolCall>? = null
-            private var type: JsonField<Type>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(toolCall: ToolCall) = apply {
-                parseStatus = toolCall.parseStatus
-                this.toolCall = toolCall.toolCall
-                type = toolCall.type
-                additionalProperties = toolCall.additionalProperties.toMutableMap()
-            }
-
-            fun parseStatus(parseStatus: ParseStatus) = parseStatus(JsonField.of(parseStatus))
-
-            fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
-                this.parseStatus = parseStatus
-            }
-
-            fun toolCall(toolCall: ToolCall) = toolCall(JsonField.of(toolCall))
-
-            fun toolCall(toolCall: JsonField<ToolCall>) = apply { this.toolCall = toolCall }
-
-            //            fun toolCall(string: String) = ToolCall.ofString(string)
-
-            //            fun toolCall(toolCall: ToolCall) = toolCall(ToolCall.ofToolCall(toolCall))
-
-            fun type(type: Type) = type(JsonField.of(type))
-
-            fun type(type: JsonField<Type>) = apply { this.type = type }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): ToolCall =
-                ToolCall(
-                    checkRequired("parseStatus", parseStatus),
-                    checkRequired("toolCall", toolCall),
-                    checkRequired("type", type),
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        class ParseStatus
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val STARTED = of("started")
-
-                val IN_PROGRESS = of("in_progress")
-
-                val FAILED = of("failed")
-
-                val SUCCEEDED = of("succeeded")
-
-                fun of(value: String) = ParseStatus(JsonField.of(value))
-            }
-
-            enum class Known {
-                STARTED,
-                IN_PROGRESS,
-                FAILED,
-                SUCCEEDED,
-            }
-
-            enum class Value {
-                STARTED,
-                IN_PROGRESS,
-                FAILED,
-                SUCCEEDED,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    STARTED -> Value.STARTED
-                    IN_PROGRESS -> Value.IN_PROGRESS
-                    FAILED -> Value.FAILED
-                    SUCCEEDED -> Value.SUCCEEDED
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    STARTED -> Known.STARTED
-                    IN_PROGRESS -> Known.IN_PROGRESS
-                    FAILED -> Known.FAILED
-                    SUCCEEDED -> Known.SUCCEEDED
-                    else ->
-                        throw LlamaStackClientInvalidDataException("Unknown ParseStatus: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-        }
-
-        //        @JsonDeserialize(using = ToolCall.Deserializer::class)
-        //        @JsonSerialize(using = ToolCall.Serializer::class)
-        //        class ToolCall
-        //        private constructor(
-        //            private val string: String? = null,
-        //            private val toolCall: ToolCall? = null,
-        //            private val _json: JsonValue? = null,
-        //        ) {
-        //
-        //            fun string(): String? = string
-        //
-        //            fun toolCall(): ToolCall? = toolCall
-        //
-        //            fun isString(): Boolean = string != null
-        //
-        //            fun isToolCall(): Boolean = toolCall != null
-        //
-        //            fun asString(): String = string.getOrThrow("string")
-        //
-        //            fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
-        //
-        //            fun _json(): JsonValue? = _json
-        //
-        //            fun <T> accept(visitor: Visitor<T>): T {
-        //                return when {
-        //                    string != null -> visitor.visitString(string)
-        //                    toolCall != null -> visitor.visitToolCall(toolCall)
-        //                    else -> visitor.unknown(_json)
-        //                }
-        //            }
-        //
-        //            private var validated: Boolean = false
-        //
-        //            fun validate(): ToolCall = apply {
-        //                if (validated) {
-        //                    return@apply
-        //                }
-        //
-        //                accept(
-        //                    object : Visitor<Unit> {
-        //                        override fun visitString(string: String) {}
-        //
-        //                        override fun visitToolCall(toolCall: ToolCall) {
-        //                            toolCall.validate()
-        //                        }
-        //                    }
-        //                )
-        //                validated = true
-        //            }
-        //
-        //            override fun equals(other: Any?): Boolean {
-        //                if (this === other) {
-        //                    return true
-        //                }
-        //
-        //                return /* spotless:off */ other is ToolCall && string == other.string && toolCall == other.toolCall /* spotless:on */
-        //            }
-        //
-        //            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
-        //
-        //            override fun toString(): String =
-        //                when {
-        //                    string != null -> "ToolCall{string=$string}"
-        //                    toolCall != null -> "ToolCall{toolCall=$toolCall}"
-        //                    _json != null -> "ToolCall{_unknown=$_json}"
-        //                    else -> throw IllegalStateException("Invalid ToolCall")
-        //                }
-        //
-        //            companion object {
-        //
-        //                fun ofString(string: String) = ToolCall(string = string)
-        //
-        //                fun ofToolCall(toolCall: ToolCall) = ToolCall(toolCall = toolCall)
-        //            }
-        //
-        //            interface Visitor<out T> {
-        //
-        //                fun visitString(string: String): T
-        //
-        //                fun visitToolCall(toolCall: ToolCall): T
-        //
-        //                fun unknown(json: JsonValue?): T {
-        //                    throw LlamaStackClientInvalidDataException("Unknown ToolCall: $json")
-        //                }
-        //            }
-        //
-        //            class Deserializer : BaseDeserializer<ToolCall>(ToolCall::class) {
-        //
-        //                override fun ObjectCodec.deserialize(node: JsonNode): ToolCall {
-        //                    val json = JsonValue.fromJsonNode(node)
-        //
-        //                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-        //                        return ToolCall(string = it, _json = json)
-        //                    }
-        //                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) { it.validate() }
-        //                        ?.let {
-        //                            return ToolCall(toolCall = it, _json = json)
-        //                        }
-        //
-        //                    return ToolCall(_json = json)
-        //                }
-        //            }
-        //
-        //            class Serializer : BaseSerializer<ToolCall>(ToolCall::class) {
-        //
-        //                override fun serialize(
-        //                    value: ToolCall,
-        //                    generator: JsonGenerator,
-        //                    provider: SerializerProvider
-        //                ) {
-        //                    when {
-        //                        value.string != null -> generator.writeObject(value.string)
-        //                        value.toolCall != null -> generator.writeObject(value.toolCall)
-        //                        value._json != null -> generator.writeObject(value._json)
-        //                        else -> throw IllegalStateException("Invalid ToolCall")
-        //                    }
-        //                }
-        //            }
-        //        }
-
-        class Type
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val TOOL_CALL = of("tool_call")
-
-                fun of(value: String) = Type(JsonField.of(value))
-            }
-
-            enum class Known {
-                TOOL_CALL,
-            }
-
-            enum class Value {
-                TOOL_CALL,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    TOOL_CALL -> Value.TOOL_CALL
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    TOOL_CALL -> Known.TOOL_CALL
-                    else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolCall && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(parseStatus, toolCall, type, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "ToolCall{parseStatus=$parseStatus, toolCall=$toolCall, type=$type, additionalProperties=$additionalProperties}"
-    }
+    //    @NoAutoDetect
+    //    class ToolCall
+    //    @JsonCreator
+    //    private constructor(
+    //        @JsonProperty("parse_status")
+    //        @ExcludeMissing
+    //        private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
+    //        @JsonProperty("tool_call")
+    //        @ExcludeMissing
+    //        private val toolCall: JsonField<ToolCall> = JsonMissing.of(),
+    //        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> =
+    // JsonMissing.of(),
+    //        @JsonAnySetter
+    //        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    //    ) {
+    //
+    //        fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
+    //
+    //        fun toolCall(): ToolCall = toolCall.getRequired("tool_call")
+    //
+    //        fun type(): Type = type.getRequired("type")
+    //
+    //        @JsonProperty("parse_status")
+    //        @ExcludeMissing
+    //        fun _parseStatus(): JsonField<ParseStatus> = parseStatus
+    //
+    //        @JsonProperty("tool_call") @ExcludeMissing fun _toolCall(): JsonField<ToolCall> =
+    // toolCall
+    //
+    //        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
+    //
+    //        @JsonAnyGetter
+    //        @ExcludeMissing
+    //        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+    //
+    //        private var validated: Boolean = false
+    //
+    //        fun validate(): ToolCall = apply {
+    //            if (validated) {
+    //                return@apply
+    //            }
+    //
+    //            parseStatus()
+    //            toolCall().validate()
+    //            type()
+    //            validated = true
+    //        }
+    //
+    //        fun toBuilder() = Builder().from(this)
+    //
+    //        companion object {
+    //
+    //            fun builder() = Builder()
+    //        }
+    //
+    //        class Builder {
+    //
+    //            private var parseStatus: JsonField<ParseStatus>? = null
+    //            private var toolCall: JsonField<ToolCall>? = null
+    //            private var type: JsonField<Type>? = null
+    //            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+    //
+    //            internal fun from(toolCall: ToolCall) = apply {
+    //                parseStatus = toolCall.parseStatus
+    //                this.toolCall = toolCall.toolCall
+    //                type = toolCall.type
+    //                additionalProperties = toolCall.additionalProperties.toMutableMap()
+    //            }
+    //
+    //            fun parseStatus(parseStatus: ParseStatus) = parseStatus(JsonField.of(parseStatus))
+    //
+    //            fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
+    //                this.parseStatus = parseStatus
+    //            }
+    //
+    //            fun toolCall(toolCall: ToolCall) = toolCall(JsonField.of(toolCall))
+    //
+    //            fun toolCall(toolCall: JsonField<ToolCall>) = apply { this.toolCall = toolCall }
+    //
+    //            //            fun toolCall(string: String) = ToolCall.ofString(string)
+    //
+    //            //            fun toolCall(toolCall: ToolCall) =
+    // toolCall(ToolCall.ofToolCall(toolCall))
+    //
+    //            fun type(type: Type) = type(JsonField.of(type))
+    //
+    //            fun type(type: JsonField<Type>) = apply { this.type = type }
+    //
+    //            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+    //                this.additionalProperties.clear()
+    //                putAllAdditionalProperties(additionalProperties)
+    //            }
+    //
+    //            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+    //                additionalProperties.put(key, value)
+    //            }
+    //
+    //            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+    // apply {
+    //                this.additionalProperties.putAll(additionalProperties)
+    //            }
+    //
+    //            fun removeAdditionalProperty(key: String) = apply {
+    // additionalProperties.remove(key) }
+    //
+    //            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+    //                keys.forEach(::removeAdditionalProperty)
+    //            }
+    //
+    //            fun build(): ToolCall =
+    //                ToolCall(
+    //                    checkRequired("parseStatus", parseStatus),
+    //                    checkRequired("toolCall", toolCall),
+    //                    checkRequired("type", type),
+    //                    additionalProperties.toImmutable(),
+    //                )
+    //        }
+    //
+    //        class ParseStatus
+    //        @JsonCreator
+    //        private constructor(
+    //            private val value: JsonField<String>,
+    //        ) : Enum {
+    //
+    //            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> =
+    // value
+    //
+    //            companion object {
+    //
+    //                val STARTED = of("started")
+    //
+    //                val IN_PROGRESS = of("in_progress")
+    //
+    //                val FAILED = of("failed")
+    //
+    //                val SUCCEEDED = of("succeeded")
+    //
+    //                fun of(value: String) = ParseStatus(JsonField.of(value))
+    //            }
+    //
+    //            enum class Known {
+    //                STARTED,
+    //                IN_PROGRESS,
+    //                FAILED,
+    //                SUCCEEDED,
+    //            }
+    //
+    //            enum class Value {
+    //                STARTED,
+    //                IN_PROGRESS,
+    //                FAILED,
+    //                SUCCEEDED,
+    //                _UNKNOWN,
+    //            }
+    //
+    //            fun value(): Value =
+    //                when (this) {
+    //                    STARTED -> Value.STARTED
+    //                    IN_PROGRESS -> Value.IN_PROGRESS
+    //                    FAILED -> Value.FAILED
+    //                    SUCCEEDED -> Value.SUCCEEDED
+    //                    else -> Value._UNKNOWN
+    //                }
+    //
+    //            fun known(): Known =
+    //                when (this) {
+    //                    STARTED -> Known.STARTED
+    //                    IN_PROGRESS -> Known.IN_PROGRESS
+    //                    FAILED -> Known.FAILED
+    //                    SUCCEEDED -> Known.SUCCEEDED
+    //                    else ->
+    //                        throw LlamaStackClientInvalidDataException("Unknown ParseStatus:
+    // $value")
+    //                }
+    //
+    //            fun asString(): String = _value().asStringOrThrow()
+    //
+    //            override fun equals(other: Any?): Boolean {
+    //                if (this === other) {
+    //                    return true
+    //                }
+    //
+    //                return /* spotless:off */ other is ParseStatus && value == other.value /* spotless:on */
+    //            }
+    //
+    //            override fun hashCode() = value.hashCode()
+    //
+    //            override fun toString() = value.toString()
+    //        }
+    //
+    //        //        @JsonDeserialize(using = ToolCall.Deserializer::class)
+    //        //        @JsonSerialize(using = ToolCall.Serializer::class)
+    //        //        class ToolCall
+    //        //        private constructor(
+    //        //            private val string: String? = null,
+    //        //            private val toolCall: ToolCall? = null,
+    //        //            private val _json: JsonValue? = null,
+    //        //        ) {
+    //        //
+    //        //            fun string(): String? = string
+    //        //
+    //        //            fun toolCall(): ToolCall? = toolCall
+    //        //
+    //        //            fun isString(): Boolean = string != null
+    //        //
+    //        //            fun isToolCall(): Boolean = toolCall != null
+    //        //
+    //        //            fun asString(): String = string.getOrThrow("string")
+    //        //
+    //        //            fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
+    //        //
+    //        //            fun _json(): JsonValue? = _json
+    //        //
+    //        //            fun <T> accept(visitor: Visitor<T>): T {
+    //        //                return when {
+    //        //                    string != null -> visitor.visitString(string)
+    //        //                    toolCall != null -> visitor.visitToolCall(toolCall)
+    //        //                    else -> visitor.unknown(_json)
+    //        //                }
+    //        //            }
+    //        //
+    //        //            private var validated: Boolean = false
+    //        //
+    //        //            fun validate(): ToolCall = apply {
+    //        //                if (validated) {
+    //        //                    return@apply
+    //        //                }
+    //        //
+    //        //                accept(
+    //        //                    object : Visitor<Unit> {
+    //        //                        override fun visitString(string: String) {}
+    //        //
+    //        //                        override fun visitToolCall(toolCall: ToolCall) {
+    //        //                            toolCall.validate()
+    //        //                        }
+    //        //                    }
+    //        //                )
+    //        //                validated = true
+    //        //            }
+    //        //
+    //        //            override fun equals(other: Any?): Boolean {
+    //        //                if (this === other) {
+    //        //                    return true
+    //        //                }
+    //        //
+    //        //                return /* spotless:off */ other is ToolCall && string == other.string && toolCall == other.toolCall /* spotless:on */
+    //        //            }
+    //        //
+    //        //            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, toolCall) /* spotless:on */
+    //        //
+    //        //            override fun toString(): String =
+    //        //                when {
+    //        //                    string != null -> "ToolCall{string=$string}"
+    //        //                    toolCall != null -> "ToolCall{toolCall=$toolCall}"
+    //        //                    _json != null -> "ToolCall{_unknown=$_json}"
+    //        //                    else -> throw IllegalStateException("Invalid ToolCall")
+    //        //                }
+    //        //
+    //        //            companion object {
+    //        //
+    //        //                fun ofString(string: String) = ToolCall(string = string)
+    //        //
+    //        //                fun ofToolCall(toolCall: ToolCall) = ToolCall(toolCall = toolCall)
+    //        //            }
+    //        //
+    //        //            interface Visitor<out T> {
+    //        //
+    //        //                fun visitString(string: String): T
+    //        //
+    //        //                fun visitToolCall(toolCall: ToolCall): T
+    //        //
+    //        //                fun unknown(json: JsonValue?): T {
+    //        //                    throw LlamaStackClientInvalidDataException("Unknown ToolCall:
+    // $json")
+    //        //                }
+    //        //            }
+    //        //
+    //        //            class Deserializer : BaseDeserializer<ToolCall>(ToolCall::class) {
+    //        //
+    //        //                override fun ObjectCodec.deserialize(node: JsonNode): ToolCall {
+    //        //                    val json = JsonValue.fromJsonNode(node)
+    //        //
+    //        //                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
+    //        //                        return ToolCall(string = it, _json = json)
+    //        //                    }
+    //        //                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) { it.validate()
+    // }
+    //        //                        ?.let {
+    //        //                            return ToolCall(toolCall = it, _json = json)
+    //        //                        }
+    //        //
+    //        //                    return ToolCall(_json = json)
+    //        //                }
+    //        //            }
+    //        //
+    //        //            class Serializer : BaseSerializer<ToolCall>(ToolCall::class) {
+    //        //
+    //        //                override fun serialize(
+    //        //                    value: ToolCall,
+    //        //                    generator: JsonGenerator,
+    //        //                    provider: SerializerProvider
+    //        //                ) {
+    //        //                    when {
+    //        //                        value.string != null -> generator.writeObject(value.string)
+    //        //                        value.toolCall != null ->
+    // generator.writeObject(value.toolCall)
+    //        //                        value._json != null -> generator.writeObject(value._json)
+    //        //                        else -> throw IllegalStateException("Invalid ToolCall")
+    //        //                    }
+    //        //                }
+    //        //            }
+    //        //        }
+    //
+    //        class Type
+    //        @JsonCreator
+    //        private constructor(
+    //            private val value: JsonField<String>,
+    //        ) : Enum {
+    //
+    //            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> =
+    // value
+    //
+    //            companion object {
+    //
+    //                val TOOL_CALL = of("tool_call")
+    //
+    //                fun of(value: String) = Type(JsonField.of(value))
+    //            }
+    //
+    //            enum class Known {
+    //                TOOL_CALL,
+    //            }
+    //
+    //            enum class Value {
+    //                TOOL_CALL,
+    //                _UNKNOWN,
+    //            }
+    //
+    //            fun value(): Value =
+    //                when (this) {
+    //                    TOOL_CALL -> Value.TOOL_CALL
+    //                    else -> Value._UNKNOWN
+    //                }
+    //
+    //            fun known(): Known =
+    //                when (this) {
+    //                    TOOL_CALL -> Known.TOOL_CALL
+    //                    else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
+    //                }
+    //
+    //            fun asString(): String = _value().asStringOrThrow()
+    //
+    //            override fun equals(other: Any?): Boolean {
+    //                if (this === other) {
+    //                    return true
+    //                }
+    //
+    //                return /* spotless:off */ other is Type && value == other.value /* spotless:on
+    // */
+    //            }
+    //
+    //            override fun hashCode() = value.hashCode()
+    //
+    //            override fun toString() = value.toString()
+    //        }
+    //
+    //        override fun equals(other: Any?): Boolean {
+    //            if (this === other) {
+    //                return true
+    //            }
+    //
+    //            return /* spotless:off */ other is ToolCall && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+    //        }
+    //
+    //        /* spotless:off */
+//        private val hashCode: Int by lazy { Objects.hash(parseStatus, toolCall, type, additionalProperties) }
+//        /* spotless:on */
+    //
+    //        override fun hashCode(): Int = hashCode
+    //
+    //        override fun toString() =
+    //            "ToolCall{parseStatus=$parseStatus, toolCall=$toolCall, type=$type,
+    // additionalProperties=$additionalProperties}"
+    //    }
 }

@@ -1000,8 +1000,8 @@ private constructor(
 
                         fun delta(image: ContentDelta.Image) = delta(ContentDelta.ofImage(image))
 
-                        fun delta(toolCall: ContentDelta.ToolCall) =
-                            delta(ContentDelta.ofToolCall(toolCall))
+                        // MANUAL PATCH
+                        fun delta(toolCall: ToolCall) = delta(ContentDelta.ofToolCall(toolCall))
 
                         fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
