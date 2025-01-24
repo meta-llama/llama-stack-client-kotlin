@@ -724,7 +724,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): JsonSchema = apply {
+            fun validate(): ResponseFormat.JsonSchema = apply {
                 if (validated) {
                     return@apply
                 }
@@ -734,7 +734,8 @@ constructor(
                 validated = true
             }
 
-            fun toBuilder() = Builder().from(this)
+            // MANUAL PATCH
+            fun toBuilder() = Builder().from(this.jsonSchema())
 
             companion object {
 
@@ -747,9 +748,10 @@ constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
+                // MANUAL PATCH
                 internal fun from(jsonSchema: JsonSchema) = apply {
-                    this.jsonSchema = jsonSchema.jsonSchema
-                    type = jsonSchema.type
+                    this.jsonSchema = JsonField.of(jsonSchema)
+                    //                    type = jsonSchema.type
                     additionalProperties = jsonSchema.additionalProperties.toMutableMap()
                 }
 
@@ -785,7 +787,7 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): JsonSchema =
+                fun build(): ResponseFormat.JsonSchema =
                     JsonSchema(
                         checkRequired("jsonSchema", jsonSchema),
                         checkRequired("type", type),
@@ -798,7 +800,7 @@ constructor(
             @JsonCreator
             private constructor(
                 @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
                 @JsonAnyGetter
@@ -928,7 +930,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is JsonSchema && jsonSchema == other.jsonSchema && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is JsonSchema && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */

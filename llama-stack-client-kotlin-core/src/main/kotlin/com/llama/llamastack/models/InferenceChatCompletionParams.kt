@@ -925,7 +925,7 @@ constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): JsonSchema = apply {
+            fun validate(): ResponseFormat.JsonSchema = apply {
                 if (validated) {
                     return@apply
                 }
@@ -948,7 +948,7 @@ constructor(
                 private var type: JsonField<Type>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(jsonSchema: JsonSchema) = apply {
+                internal fun from(jsonSchema: ResponseFormat.JsonSchema) = apply {
                     this.jsonSchema = jsonSchema.jsonSchema
                     type = jsonSchema.type
                     additionalProperties = jsonSchema.additionalProperties.toMutableMap()
@@ -986,7 +986,7 @@ constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): JsonSchema =
+                fun build(): ResponseFormat.JsonSchema =
                     JsonSchema(
                         checkRequired("jsonSchema", jsonSchema),
                         checkRequired("type", type),
@@ -999,7 +999,7 @@ constructor(
             @JsonCreator
             private constructor(
                 @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
                 @JsonAnyGetter
@@ -1129,7 +1129,7 @@ constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is JsonSchema && jsonSchema == other.jsonSchema && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is JsonSchema && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */

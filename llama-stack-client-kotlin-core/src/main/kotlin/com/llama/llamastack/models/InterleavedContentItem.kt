@@ -183,7 +183,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): Image = apply {
+        fun validate(): InterleavedContentItem.Image = apply {
             if (validated) {
                 return@apply
             }
@@ -193,7 +193,7 @@ private constructor(
             validated = true
         }
 
-        fun toBuilder() = Builder().from(this)
+        fun toBuilder() = Builder().from(this.image())
 
         companion object {
 
@@ -207,8 +207,8 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(image: Image) = apply {
-                this.image = image.image
-                type = image.type
+                this.image = JsonField.of(image)
+                //                type = JsonField.of(image.ty)
                 additionalProperties = image.additionalProperties.toMutableMap()
             }
 
@@ -239,7 +239,7 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): Image =
+            fun build(): InterleavedContentItem.Image =
                 Image(
                     checkRequired("image", image),
                     checkRequired("type", type),
@@ -255,8 +255,7 @@ private constructor(
             @ExcludeMissing
             private val data: JsonField<String> = JsonMissing.of(),
             @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            @JsonAnySetter val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
             fun data(): String? = data.getNullable("data")
@@ -414,7 +413,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Image && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Image && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */

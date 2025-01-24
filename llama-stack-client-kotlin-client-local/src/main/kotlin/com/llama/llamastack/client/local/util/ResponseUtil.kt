@@ -50,14 +50,7 @@ fun buildInferenceChatCompletionResponseFromStream(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
                 InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
-                    .delta(
-                        ContentDelta.ofTextDelta(
-                            ContentDelta.TextDelta.builder()
-                                .type(ContentDelta.TextDelta.Type.TEXT)
-                                .text(response)
-                                .build()
-                        )
-                    )
+                    .delta(ContentDelta.Text.builder().text(response).build())
                     .eventType(
                         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
                             .EventType
@@ -126,27 +119,21 @@ fun buildInferenceChatCompletionResponseForStringStream(
     stopToken: String,
     stats: Float
 ): InferenceChatCompletionResponse {
+
     return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
                 InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
-                    .delta(
-                        ContentDelta.ofTextDelta(
-                            ContentDelta.TextDelta.builder()
-                                .type(ContentDelta.TextDelta.Type.TEXT)
-                                .text(str)
-                                .build()
-                        )
-                    )
+                    .delta(ContentDelta.Text.builder().text(str).build())
                     .stopReason(mapStopTokenToReasonForStream(stopToken))
                     .eventType(
                         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
                             .EventType
                             .PROGRESS
                     )
+                    .putAdditionalProperty("tps", JsonValue.from(stats))
                     .build()
             )
-            .putAdditionalProperty("tps", JsonValue.from(stats))
             .build()
     )
 }
