@@ -74,34 +74,28 @@ fun buildLastInferenceChatCompletionResponsesFromStream(
 ): List<InferenceChatCompletionResponse> {
     val listOfResponses: MutableList<InferenceChatCompletionResponse> = mutableListOf()
     if (isResponseAToolCall(resultMessage)) {
-        //        val toolCalls = createCustomToolCalls(resultMessage)
-        //        for (toolCall in toolCalls) {
-        //            listOfResponses.add(
-        //                buildInferenceChatCompletionResponseForCustomToolCallStream(
-        //                    toolCall,
-        //                    stopToken,
-        //                    stats
-        //                )
-        //            )
-        //        }
+        val toolCalls = createCustomToolCalls(resultMessage)
+        for (toolCall in toolCalls) {
+            listOfResponses.add(
+                buildInferenceChatCompletionResponseForCustomToolCallStream(
+                    toolCall,
+                    stopToken,
+                    stats
+                )
+            )
+        }
     } else {
         buildInferenceChatCompletionResponseForStringStream("", stopToken, stats)
     }
     return listOfResponses.toList()
 }
 
- fun buildInferenceChatCompletionResponseForCustomToolCallStream(
-    toolCall:ToolCall,
+fun buildInferenceChatCompletionResponseForCustomToolCallStream(
+    toolCall: ToolCall,
     stopToken: String,
     stats: Float
- ): InferenceChatCompletionResponse {
-    val delta =
-        ContentDelta.ofToolCall(toolCall)
-        ContentDelta.ToolCallDelta.builder()
-            .toolCall(toolCall)
-            .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED)
-            .type(ContentDelta.ToolCallDelta.Type.TOOL_CALL)
-            .build()
+): InferenceChatCompletionResponse {
+    val delta = ContentDelta.ofToolCall(toolCall)
     return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
@@ -118,7 +112,7 @@ fun buildLastInferenceChatCompletionResponsesFromStream(
             .putAdditionalProperty("tps", JsonValue.from(stats))
             .build()
     )
- }
+}
 
 fun buildInferenceChatCompletionResponseForStringStream(
     str: String,
