@@ -105,8 +105,152 @@ client = LlamaStackClientOkHttpClient
 </tr>
 </table>
 
+### Agents
 
-### Run Inference
+Llama Stack agent is capable of running multi-turn inference using both customized and built-in tools.  
+
+Create the agent configuration:
+```
+        val agentConfig =
+            AgentConfig.builder()
+                .enableSessionPersistence(false)
+                .instructions("You are a helpful assistant")
+                .maxInferIters(100)
+                .model("meta-llama/Llama-3.2-3B-Instruct")
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(
+                            SamplingParams.Strategy.ofGreedySamplingStrategy(
+                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
+                                    .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
+                                    .build()
+                            )
+                        )
+                        .build()
+                )
+                .toolChoice(AgentConfig.ToolChoice.AUTO)
+                .toolPromptFormat(AgentConfig.ToolPromptFormat.PYTHON_LIST)
+                .clientTools(
+                    listOf(
+                        CustomTools.getCreateCalendarEventTool() #Custom local tools
+                    )
+                )
+                .build()
+```
+
+Create the agent:
+```
+        val agentService = client!!.agents() #LlamaStackClientLocalClient
+        val agentCreateResponse = agentService.create(
+            AgentCreateParams.builder()
+                .agentConfig(agentConfig)
+                .build(),
+        )
+        val agentId = agentCreateResponse.agentId()
+```
+
+Create the session:
+```
+        val sessionService = agentService.session()
+        val agentSessionCreateResponse = sessionService.create(
+            AgentSessionCreateParams.builder()
+                .agentId(agentId)
+                .sessionName("test-session")
+                .build()
+        )
+
+        val sessionId = agentSessionCreateResponse.sessionId()
+```
+
+Create a turn:
+```
+        val turnService = agentService.turn()
+        turnService.createStreaming(
+            AgentTurnCreateParams.builder()
+                .agentId(agentId)
+                .messages(
+                    listOf(
+                        AgentTurnCreateParams.Message.ofUserMessage(
+                            UserMessage.builder()
+                                .content(InterleavedContent.ofString("What is the capital of France?"))
+                                .role(UserMessage.Role.USER)
+                                .build()
+                            )
+                    )
+                .sessionId(sessionId)
+                .build()
+        )
+```
+
+Handle the stream chunk callback:
+```
+        agentTurnCreateResponseStream.use {
+                    agentTurnCreateResponseStream.asSequence().forEach {
+                        val agentResponsePayload = it.agentTurnResponseStreamChunk()?.event()?.payload()
+                        if (agentResponsePayload != null) {
+                            when {
+                                agentResponsePayload.isTurnStart() -> {
+                                    // Handle Turn Start Payload
+                                }
+                                agentResponsePayload.isStepStart() -> {
+                                    // Handle Step Start Payload
+                                }
+                                agentResponsePayload.isStepProgress() -> {
+                                    // Handle Step Progress Payload
+                                }
+                                agentResponsePayload.isStepComplete() -> {
+                                    // Handle Step Complete Payload
+                                }
+                                agentResponsePayload.isTurnComplete() -> {
+                                    // Handle Turn Complete Payload
+                                }
+                            }
+                        }
+```
+
+More examples can be found in our demo app (TO-ADD Agent section)  
+
+
+### Run Image Reasoning
+The Kotlin SDK also supports single image inference where the image can be a HTTP web url or captured on your local device.  
+
+Create an image inference with agent:
+
+```
+        val agentTurnCreateResponseStream =
+            turnService.createStreaming(
+                AgentTurnCreateParams.builder()
+                    .agentId(agentId)
+                    .messages(
+                        listOf(
+                            AgentTurnCreateParams.Message.ofUserMessage(
+                                UserMessage.builder()
+                                    .content(InterleavedContent.ofString("What is in the image?"))
+                                    .role(UserMessage.Role.USER)
+                                    .build()
+                            ),
+                            AgentTurnCreateParams.Message.ofUserMessage(
+                                UserMessage.builder()
+                                    .content(InterleavedContent.ofImageContentItem(
+                                        InterleavedContent.ImageContentItem.builder()
+                                            .image(imageUrl)
+                                            .type(InterleavedContent.ImageContentItem.Type.IMAGE)
+                                            .build()
+                                    ))
+                                    .role(UserMessage.Role.USER)
+                                    .build()
+                            )
+                         )
+                    )
+                    .sessionId(sessionId)
+                    .build()
+            )
+```
+
+Note that image captured on device needs to be encoded with Base64 before sending it to the model. Check out our demo app example here (TO-ADD Image Reasoning section)
+
+
+### Run Simple Inference
 With the Kotlin Library managing all the major operational logic, there are minimal to no changes when running simple chat inference for local or remote:
 
 ```
@@ -135,7 +279,7 @@ val result = client!!.inference().chatCompletionStreaming(
 // See Android demo app for a detailed implementation example.
 ```
 
-### Setup Custom Tool Calling
+### Setup Simple Inference with Custom Tool Calling
 
 Android demo app for more details: [Custom Tool Calling](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app#tool-calling)
 
