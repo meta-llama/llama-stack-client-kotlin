@@ -16,7 +16,7 @@ import com.llama.llamastack.models.SyntheticDataGenerationGenerateParams
 import com.llama.llamastack.models.SyntheticDataGenerationResponse
 
 class SyntheticDataGenerationServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : SyntheticDataGenerationService {
 
@@ -34,7 +34,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "synthetic-data-generation", "generate")
+                .addPathSegments("v1", "synthetic-data-generation", "generate")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

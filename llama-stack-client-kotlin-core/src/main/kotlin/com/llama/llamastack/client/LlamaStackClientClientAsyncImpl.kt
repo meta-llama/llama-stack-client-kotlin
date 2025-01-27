@@ -4,8 +4,52 @@ package com.llama.llamastack.client
 
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.getPackageVersion
-import com.llama.llamastack.models.*
-import com.llama.llamastack.services.async.*
+import com.llama.llamastack.services.async.AgentServiceAsync
+import com.llama.llamastack.services.async.AgentServiceAsyncImpl
+import com.llama.llamastack.services.async.BatchInferenceServiceAsync
+import com.llama.llamastack.services.async.BatchInferenceServiceAsyncImpl
+import com.llama.llamastack.services.async.DatasetServiceAsync
+import com.llama.llamastack.services.async.DatasetServiceAsyncImpl
+import com.llama.llamastack.services.async.DatasetioServiceAsync
+import com.llama.llamastack.services.async.DatasetioServiceAsyncImpl
+import com.llama.llamastack.services.async.EvalServiceAsync
+import com.llama.llamastack.services.async.EvalServiceAsyncImpl
+import com.llama.llamastack.services.async.EvalTaskServiceAsync
+import com.llama.llamastack.services.async.EvalTaskServiceAsyncImpl
+import com.llama.llamastack.services.async.InferenceServiceAsync
+import com.llama.llamastack.services.async.InferenceServiceAsyncImpl
+import com.llama.llamastack.services.async.InspectServiceAsync
+import com.llama.llamastack.services.async.InspectServiceAsyncImpl
+import com.llama.llamastack.services.async.ModelServiceAsync
+import com.llama.llamastack.services.async.ModelServiceAsyncImpl
+import com.llama.llamastack.services.async.PostTrainingServiceAsync
+import com.llama.llamastack.services.async.PostTrainingServiceAsyncImpl
+import com.llama.llamastack.services.async.ProviderServiceAsync
+import com.llama.llamastack.services.async.ProviderServiceAsyncImpl
+import com.llama.llamastack.services.async.RouteServiceAsync
+import com.llama.llamastack.services.async.RouteServiceAsyncImpl
+import com.llama.llamastack.services.async.SafetyServiceAsync
+import com.llama.llamastack.services.async.SafetyServiceAsyncImpl
+import com.llama.llamastack.services.async.ScoringFunctionServiceAsync
+import com.llama.llamastack.services.async.ScoringFunctionServiceAsyncImpl
+import com.llama.llamastack.services.async.ScoringServiceAsync
+import com.llama.llamastack.services.async.ScoringServiceAsyncImpl
+import com.llama.llamastack.services.async.ShieldServiceAsync
+import com.llama.llamastack.services.async.ShieldServiceAsyncImpl
+import com.llama.llamastack.services.async.SyntheticDataGenerationServiceAsync
+import com.llama.llamastack.services.async.SyntheticDataGenerationServiceAsyncImpl
+import com.llama.llamastack.services.async.TelemetryServiceAsync
+import com.llama.llamastack.services.async.TelemetryServiceAsyncImpl
+import com.llama.llamastack.services.async.ToolRuntimeServiceAsync
+import com.llama.llamastack.services.async.ToolRuntimeServiceAsyncImpl
+import com.llama.llamastack.services.async.ToolServiceAsync
+import com.llama.llamastack.services.async.ToolServiceAsyncImpl
+import com.llama.llamastack.services.async.ToolgroupServiceAsync
+import com.llama.llamastack.services.async.ToolgroupServiceAsyncImpl
+import com.llama.llamastack.services.async.VectorDbServiceAsync
+import com.llama.llamastack.services.async.VectorDbServiceAsyncImpl
+import com.llama.llamastack.services.async.VectorIoServiceAsync
+import com.llama.llamastack.services.async.VectorIoServiceAsyncImpl
 
 class LlamaStackClientClientAsyncImpl
 constructor(
@@ -22,6 +66,16 @@ constructor(
 
     // Pass the original clientOptions so that this client sets its own User-Agent.
     private val sync: LlamaStackClientClient by lazy { LlamaStackClientClientImpl(clientOptions) }
+
+    private val toolgroups: ToolgroupServiceAsync by lazy {
+        ToolgroupServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
+
+    private val tools: ToolServiceAsync by lazy { ToolServiceAsyncImpl(clientOptionsWithUserAgent) }
+
+    private val toolRuntime: ToolRuntimeServiceAsync by lazy {
+        ToolRuntimeServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
 
     private val agents: AgentServiceAsync by lazy {
         AgentServiceAsyncImpl(clientOptionsWithUserAgent)
@@ -45,12 +99,12 @@ constructor(
         InferenceServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val memory: MemoryServiceAsync by lazy {
-        MemoryServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val vectorIo: VectorIoServiceAsync by lazy {
+        VectorIoServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val memoryBanks: MemoryBankServiceAsync by lazy {
-        MemoryBankServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val vectorDbs: VectorDbServiceAsync by lazy {
+        VectorDbServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
     private val models: ModelServiceAsync by lazy {
@@ -103,6 +157,12 @@ constructor(
 
     override fun sync(): LlamaStackClientClient = sync
 
+    override fun toolgroups(): ToolgroupServiceAsync = toolgroups
+
+    override fun tools(): ToolServiceAsync = tools
+
+    override fun toolRuntime(): ToolRuntimeServiceAsync = toolRuntime
+
     override fun agents(): AgentServiceAsync = agents
 
     override fun batchInference(): BatchInferenceServiceAsync = batchInference
@@ -115,9 +175,9 @@ constructor(
 
     override fun inference(): InferenceServiceAsync = inference
 
-    override fun memory(): MemoryServiceAsync = memory
+    override fun vectorIo(): VectorIoServiceAsync = vectorIo
 
-    override fun memoryBanks(): MemoryBankServiceAsync = memoryBanks
+    override fun vectorDbs(): VectorDbServiceAsync = vectorDbs
 
     override fun models(): ModelServiceAsync = models
 

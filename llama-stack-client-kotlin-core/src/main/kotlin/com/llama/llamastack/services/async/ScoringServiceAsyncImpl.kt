@@ -18,7 +18,7 @@ import com.llama.llamastack.models.ScoringScoreParams
 import com.llama.llamastack.models.ScoringScoreResponse
 
 class ScoringServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ScoringServiceAsync {
 
@@ -35,7 +35,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "scoring", "score")
+                .addPathSegments("v1", "scoring", "score")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -64,7 +64,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "scoring", "score-batch")
+                .addPathSegments("v1", "scoring", "score-batch")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

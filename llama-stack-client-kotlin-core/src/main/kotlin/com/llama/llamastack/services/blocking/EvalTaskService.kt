@@ -18,7 +18,7 @@ interface EvalTaskService {
     fun list(
         params: EvalTaskListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): EvalTask
+    ): List<EvalTask>
 
     fun register(
         params: EvalTaskRegisterParams,

@@ -4,7 +4,9 @@ package com.llama.llamastack.services.blocking.agents
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.AgentSessionCreateParams
+import com.llama.llamastack.models.AgentSessionDeleteParams
+import com.llama.llamastack.models.AgentSessionRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -21,7 +23,8 @@ class SessionServiceTest {
                 AgentSessionCreateParams.builder()
                     .agentId("agent_id")
                     .sessionName("session_name")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentSessionCreateResponse)
@@ -36,10 +39,11 @@ class SessionServiceTest {
         val session =
             sessionService.retrieve(
                 AgentSessionRetrieveParams.builder()
-                    .turnIds(listOf("string"))
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                     .agentId("agent_id")
                     .sessionId("session_id")
+                    .addTurnId("string")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(session)
@@ -55,7 +59,8 @@ class SessionServiceTest {
             AgentSessionDeleteParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

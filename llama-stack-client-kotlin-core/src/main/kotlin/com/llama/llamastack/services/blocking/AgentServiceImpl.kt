@@ -24,7 +24,7 @@ import com.llama.llamastack.services.blocking.agents.TurnService
 import com.llama.llamastack.services.blocking.agents.TurnServiceImpl
 
 class AgentServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : AgentService {
 
@@ -53,7 +53,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "agents", "create")
+                .addPathSegments("v1", "agents")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -76,13 +76,13 @@ constructor(
     override fun delete(params: AgentDeleteParams, requestOptions: RequestOptions) {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("alpha", "agents", "delete")
+                .method(HttpMethod.DELETE)
+                .addPathSegments("v1", "agents", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
         clientOptions.httpClient.execute(request, requestOptions).let { response ->
             response.use { deleteHandler.handle(it) }

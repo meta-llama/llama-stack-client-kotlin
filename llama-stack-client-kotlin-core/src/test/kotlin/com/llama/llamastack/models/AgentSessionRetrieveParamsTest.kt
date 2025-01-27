@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,10 +11,11 @@ class AgentSessionRetrieveParamsTest {
     @Test
     fun createAgentSessionRetrieveParams() {
         AgentSessionRetrieveParams.builder()
-            .turnIds(listOf("string"))
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
+            .addTurnId("string")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -23,14 +23,14 @@ class AgentSessionRetrieveParamsTest {
     fun getQueryParams() {
         val params =
             AgentSessionRetrieveParams.builder()
-                .turnIds(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
                 .agentId("agent_id")
                 .sessionId("session_id")
+                .addTurnId("string")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
-        expected.put("agent_id", "agent_id")
-        expected.put("session_id", "session_id")
+        expected.put("turn_ids", "string")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 
@@ -39,30 +39,19 @@ class AgentSessionRetrieveParamsTest {
         val params =
             AgentSessionRetrieveParams.builder().agentId("agent_id").sessionId("session_id").build()
         val expected = QueryParams.builder()
-        expected.put("agent_id", "agent_id")
-        expected.put("session_id", "session_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getBody() {
-        val params =
-            AgentSessionRetrieveParams.builder()
-                .turnIds(listOf("string"))
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.turnIds()).isEqualTo(listOf("string"))
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
+    fun getPathParam() {
         val params =
             AgentSessionRetrieveParams.builder().agentId("agent_id").sessionId("session_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // path param "sessionId"
+        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

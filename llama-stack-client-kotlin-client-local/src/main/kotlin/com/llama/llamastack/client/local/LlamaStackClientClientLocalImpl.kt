@@ -16,7 +16,27 @@ constructor(
 
     override fun inference(): InferenceService = inference
 
+    override fun vectorIo(): VectorIoService {
+        TODO("Not yet implemented")
+    }
+
+    override fun vectorDbs(): VectorDbService {
+        TODO("Not yet implemented")
+    }
+
     override fun async(): LlamaStackClientClientAsync {
+        TODO("Not yet implemented")
+    }
+
+    override fun toolgroups(): ToolgroupService {
+        TODO("Not yet implemented")
+    }
+
+    override fun tools(): ToolService {
+        TODO("Not yet implemented")
+    }
+
+    override fun toolRuntime(): ToolRuntimeService {
         TODO("Not yet implemented")
     }
 
@@ -64,10 +84,6 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    override fun memory(): MemoryService {
-        TODO("Not yet implemented")
-    }
-
     override fun postTraining(): PostTrainingService {
         TODO("Not yet implemented")
     }
@@ -85,10 +101,6 @@ constructor(
     }
 
     override fun models(): ModelService {
-        TODO("Not yet implemented")
-    }
-
-    override fun memoryBanks(): MemoryBankService {
         TODO("Not yet implemented")
     }
 

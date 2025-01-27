@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,32 +10,22 @@ class EvalJobCancelParamsTest {
     @Test
     fun createEvalJobCancelParams() {
         EvalJobCancelParams.builder()
-            .jobId("job_id")
             .taskId("task_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .jobId("job_id")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
-        val params =
-            EvalJobCancelParams.builder()
-                .jobId("job_id")
-                .taskId("task_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
-                .build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.jobId()).isEqualTo("job_id")
-        assertThat(body.taskId()).isEqualTo("task_id")
-    }
-
-    @Test
-    fun getBodyWithoutOptionalFields() {
-        val params = EvalJobCancelParams.builder().jobId("job_id").taskId("task_id").build()
-        val body = params.getBody()
-        assertThat(body).isNotNull
-        assertThat(body.jobId()).isEqualTo("job_id")
-        assertThat(body.taskId()).isEqualTo("task_id")
+    fun getPathParam() {
+        val params = EvalJobCancelParams.builder().taskId("task_id").jobId("job_id").build()
+        assertThat(params).isNotNull
+        // path param "taskId"
+        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // path param "jobId"
+        assertThat(params.getPathParam(1)).isEqualTo("job_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

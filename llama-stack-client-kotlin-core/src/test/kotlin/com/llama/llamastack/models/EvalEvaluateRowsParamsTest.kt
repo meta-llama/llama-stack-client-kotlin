@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,55 +11,33 @@ class EvalEvaluateRowsParamsTest {
     @Test
     fun createEvalEvaluateRowsParams() {
         EvalEvaluateRowsParams.builder()
-            .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
-            .scoringFunctions(listOf("string"))
-            .taskConfig(
-                EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(SamplingParams.Strategy.GREEDY)
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .temperature(0.0)
-                                                .topK(0L)
-                                                .topP(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalEvaluateRowsParams.TaskConfig
-                                                .BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                        )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                        )
-                        .numExamples(0L)
-                        .build()
-                )
-            )
             .taskId("task_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .addInputRow(
+                EvalEvaluateRowsParams.InputRow.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+            .addScoringFunction("string")
+            .taskConfig(
+                EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                    .evalCandidate(
+                        EvalCandidate.ModelCandidate.builder()
+                            .model("model")
+                            .samplingParams(
+                                SamplingParams.builder()
+                                    .strategyGreedySampling()
+                                    .maxTokens(0L)
+                                    .repetitionPenalty(0.0)
+                                    .build()
+                            )
+                            .systemMessage(SystemMessage.builder().content("string").build())
+                            .build()
+                    )
+                    .numExamples(0L)
+                    .build()
+            )
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -67,196 +45,148 @@ class EvalEvaluateRowsParamsTest {
     fun getBody() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
-                .scoringFunctions(listOf("string"))
-                .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(SamplingParams.Strategy.GREEDY)
-                                                    .maxTokens(0L)
-                                                    .repetitionPenalty(0.0)
-                                                    .temperature(0.0)
-                                                    .topK(0L)
-                                                    .topP(0.0)
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalEvaluateRowsParams.TaskConfig
-                                                    .BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .systemMessage(
-                                                SystemMessage.builder()
-                                                    .content(
-                                                        SystemMessage.Content.ofString("string")
-                                                    )
-                                                    .role(SystemMessage.Role.SYSTEM)
-                                                    .build()
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
-                                    .BENCHMARK
-                            )
-                            .numExamples(0L)
-                            .build()
-                    )
-                )
                 .taskId("task_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .addInputRow(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoringFunction("string")
+                .taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategyGreedySampling()
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
+                                        .build()
+                                )
+                                .systemMessage(SystemMessage.builder().content("string").build())
+                                .build()
+                        )
+                        .numExamples(0L)
+                        .build()
+                )
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
-            .isEqualTo(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+            .isEqualTo(
+                listOf(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalTaskConfig.ofBenchmark(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(SamplingParams.Strategy.GREEDY)
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .temperature(0.0)
-                                                .topK(0L)
-                                                .topP(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalEvaluateRowsParams.TaskConfig
-                                                .BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategyGreedySampling()
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
                                         .build()
                                 )
-                        )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
+                                .systemMessage(SystemMessage.builder().content("string").build())
+                                .build()
                         )
                         .numExamples(0L)
                         .build()
                 )
             )
-        assertThat(body.taskId()).isEqualTo("task_id")
     }
 
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .inputRows(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
-                .scoringFunctions(listOf("string"))
-                .taskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                    .EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(SamplingParams.Strategy.GREEDY)
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalEvaluateRowsParams.TaskConfig
-                                                    .BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type
-                                    .BENCHMARK
-                            )
-                            .build()
-                    )
-                )
                 .taskId("task_id")
+                .addInputRow(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoringFunction("string")
+                .taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
-            .isEqualTo(listOf(EvalEvaluateRowsParams.InputRow.builder().build()))
+            .isEqualTo(
+                listOf(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalEvaluateRowsParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalTaskConfig.ofBenchmark(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(SamplingParams.Strategy.GREEDY)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalEvaluateRowsParams.TaskConfig
-                                                .BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .build()
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
                                 )
-                        )
-                        .type(
-                            EvalEvaluateRowsParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
+                                .build()
                         )
                         .build()
                 )
             )
-        assertThat(body.taskId()).isEqualTo("task_id")
+    }
+
+    @Test
+    fun getPathParam() {
+        val params =
+            EvalEvaluateRowsParams.builder()
+                .taskId("task_id")
+                .addInputRow(
+                    EvalEvaluateRowsParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoringFunction("string")
+                .taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        assertThat(params).isNotNull
+        // path param "taskId"
+        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

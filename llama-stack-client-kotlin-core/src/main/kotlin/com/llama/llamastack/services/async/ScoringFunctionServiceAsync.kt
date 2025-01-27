@@ -18,7 +18,7 @@ interface ScoringFunctionServiceAsync {
     suspend fun list(
         params: ScoringFunctionListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): ScoringFn
+    ): List<ScoringFn>
 
     suspend fun register(
         params: ScoringFunctionRegisterParams,

@@ -2,23 +2,19 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class AgentSessionDeleteParams
 constructor(
     private val agentId: String,
     private val sessionId: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -29,6 +25,8 @@ constructor(
 
     fun sessionId(): String = sessionId
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -37,18 +35,15 @@ constructor(
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
-    internal fun getBody(): AgentSessionDeleteBody {
-        return AgentSessionDeleteBody(
-            agentId,
-            sessionId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -56,86 +51,12 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = AgentSessionDeleteBody.Builder::class)
-    @NoAutoDetect
-    class AgentSessionDeleteBody
-    internal constructor(
-        private val agentId: String?,
-        private val sessionId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
-    ) {
-
-        @JsonProperty("agent_id") fun agentId(): String? = agentId
-
-        @JsonProperty("session_id") fun sessionId(): String? = sessionId
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> agentId
+            1 -> sessionId
+            else -> ""
         }
-
-        class Builder {
-
-            private var agentId: String? = null
-            private var sessionId: String? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(agentSessionDeleteBody: AgentSessionDeleteBody) = apply {
-                this.agentId = agentSessionDeleteBody.agentId
-                this.sessionId = agentSessionDeleteBody.sessionId
-                additionalProperties(agentSessionDeleteBody.additionalProperties)
-            }
-
-            @JsonProperty("agent_id")
-            fun agentId(agentId: String) = apply { this.agentId = agentId }
-
-            @JsonProperty("session_id")
-            fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            @JsonAnySetter
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun build(): AgentSessionDeleteBody =
-                AgentSessionDeleteBody(
-                    checkNotNull(agentId) { "`agentId` is required but was not set" },
-                    checkNotNull(sessionId) { "`sessionId` is required but was not set" },
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is AgentSessionDeleteBody && agentId == other.agentId && sessionId == other.sessionId && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(agentId, sessionId, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "AgentSessionDeleteBody{agentId=$agentId, sessionId=$sessionId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -150,6 +71,7 @@ constructor(
 
         private var agentId: String? = null
         private var sessionId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
@@ -158,6 +80,7 @@ constructor(
         internal fun from(agentSessionDeleteParams: AgentSessionDeleteParams) = apply {
             agentId = agentSessionDeleteParams.agentId
             sessionId = agentSessionDeleteParams.sessionId
+            xLlamaStackClientVersion = agentSessionDeleteParams.xLlamaStackClientVersion
             xLlamaStackProviderData = agentSessionDeleteParams.xLlamaStackProviderData
             additionalHeaders = agentSessionDeleteParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentSessionDeleteParams.additionalQueryParams.toBuilder()
@@ -169,7 +92,11 @@ constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -295,8 +222,9 @@ constructor(
 
         fun build(): AgentSessionDeleteParams =
             AgentSessionDeleteParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
+                checkRequired("agentId", agentId),
+                checkRequired("sessionId", sessionId),
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -309,11 +237,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentSessionDeleteParams && agentId == other.agentId && sessionId == other.sessionId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is AgentSessionDeleteParams && agentId == other.agentId && sessionId == other.sessionId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "AgentSessionDeleteParams{agentId=$agentId, sessionId=$sessionId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "AgentSessionDeleteParams{agentId=$agentId, sessionId=$sessionId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

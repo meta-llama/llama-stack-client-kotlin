@@ -4,39 +4,47 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = TokenLogProbs.Builder::class)
 @NoAutoDetect
 class TokenLogProbs
+@JsonCreator
 private constructor(
-    private val logprobsByToken: JsonField<LogprobsByToken>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("logprobs_by_token")
+    @ExcludeMissing
+    private val logprobsByToken: JsonField<LogprobsByToken> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun logprobsByToken(): LogprobsByToken = logprobsByToken.getRequired("logprobs_by_token")
 
-    @JsonProperty("logprobs_by_token") @ExcludeMissing fun _logprobsByToken() = logprobsByToken
+    @JsonProperty("logprobs_by_token")
+    @ExcludeMissing
+    fun _logprobsByToken(): JsonField<LogprobsByToken> = logprobsByToken
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): TokenLogProbs = apply {
-        if (!validated) {
-            logprobsByToken().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        logprobsByToken().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -48,58 +56,67 @@ private constructor(
 
     class Builder {
 
-        private var logprobsByToken: JsonField<LogprobsByToken> = JsonMissing.of()
+        private var logprobsByToken: JsonField<LogprobsByToken>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(tokenLogProbs: TokenLogProbs) = apply {
-            this.logprobsByToken = tokenLogProbs.logprobsByToken
-            additionalProperties(tokenLogProbs.additionalProperties)
+            logprobsByToken = tokenLogProbs.logprobsByToken
+            additionalProperties = tokenLogProbs.additionalProperties.toMutableMap()
         }
 
         fun logprobsByToken(logprobsByToken: LogprobsByToken) =
             logprobsByToken(JsonField.of(logprobsByToken))
 
-        @JsonProperty("logprobs_by_token")
-        @ExcludeMissing
         fun logprobsByToken(logprobsByToken: JsonField<LogprobsByToken>) = apply {
             this.logprobsByToken = logprobsByToken
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): TokenLogProbs =
-            TokenLogProbs(logprobsByToken, additionalProperties.toImmutable())
+            TokenLogProbs(
+                checkRequired("logprobsByToken", logprobsByToken),
+                additionalProperties.toImmutable()
+            )
     }
 
-    @JsonDeserialize(builder = LogprobsByToken.Builder::class)
     @NoAutoDetect
     class LogprobsByToken
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
         fun validate(): LogprobsByToken = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -114,21 +131,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(logprobsByToken: LogprobsByToken) = apply {
-                additionalProperties(logprobsByToken.additionalProperties)
+                additionalProperties = logprobsByToken.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): LogprobsByToken = LogprobsByToken(additionalProperties.toImmutable())

@@ -1,6 +1,7 @@
 package com.llama.llamastack.client.okhttp
 
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.HttpClient
 import com.llama.llamastack.core.http.HttpMethod
@@ -181,7 +182,7 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
                     .callTimeout(if (timeout.seconds == 0L) timeout else timeout.plusSeconds(30))
                     .proxy(proxy)
                     .build(),
-                checkNotNull(baseUrl) { "`baseUrl` is required but was not set" },
+                checkRequired("baseUrl", baseUrl),
             )
     }
 

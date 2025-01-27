@@ -4,45 +4,55 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = EvaluateResponse.Builder::class)
 @NoAutoDetect
 class EvaluateResponse
+@JsonCreator
 private constructor(
-    private val generations: JsonField<List<Generation>>,
-    private val scores: JsonField<Scores>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("generations")
+    @ExcludeMissing
+    private val generations: JsonField<List<Generation>> = JsonMissing.of(),
+    @JsonProperty("scores")
+    @ExcludeMissing
+    private val scores: JsonField<Scores> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun generations(): List<Generation> = generations.getRequired("generations")
 
     fun scores(): Scores = scores.getRequired("scores")
 
-    @JsonProperty("generations") @ExcludeMissing fun _generations() = generations
+    @JsonProperty("generations")
+    @ExcludeMissing
+    fun _generations(): JsonField<List<Generation>> = generations
 
-    @JsonProperty("scores") @ExcludeMissing fun _scores() = scores
+    @JsonProperty("scores") @ExcludeMissing fun _scores(): JsonField<Scores> = scores
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): EvaluateResponse = apply {
-        if (!validated) {
-            generations().forEach { it.validate() }
-            scores().validate()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        generations().forEach { it.validate() }
+        scores().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -54,69 +64,84 @@ private constructor(
 
     class Builder {
 
-        private var generations: JsonField<List<Generation>> = JsonMissing.of()
-        private var scores: JsonField<Scores> = JsonMissing.of()
+        private var generations: JsonField<MutableList<Generation>>? = null
+        private var scores: JsonField<Scores>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evaluateResponse: EvaluateResponse) = apply {
-            this.generations = evaluateResponse.generations
-            this.scores = evaluateResponse.scores
-            additionalProperties(evaluateResponse.additionalProperties)
+            generations = evaluateResponse.generations.map { it.toMutableList() }
+            scores = evaluateResponse.scores
+            additionalProperties = evaluateResponse.additionalProperties.toMutableMap()
         }
 
         fun generations(generations: List<Generation>) = generations(JsonField.of(generations))
 
-        @JsonProperty("generations")
-        @ExcludeMissing
         fun generations(generations: JsonField<List<Generation>>) = apply {
-            this.generations = generations
+            this.generations = generations.map { it.toMutableList() }
+        }
+
+        fun addGeneration(generation: Generation) = apply {
+            generations =
+                (generations ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(generation)
+                }
         }
 
         fun scores(scores: Scores) = scores(JsonField.of(scores))
 
-        @JsonProperty("scores")
-        @ExcludeMissing
         fun scores(scores: JsonField<Scores>) = apply { this.scores = scores }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): EvaluateResponse =
             EvaluateResponse(
-                generations.map { it.toImmutable() },
-                scores,
+                checkRequired("generations", generations).map { it.toImmutable() },
+                checkRequired("scores", scores),
                 additionalProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = Generation.Builder::class)
     @NoAutoDetect
     class Generation
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
         fun validate(): Generation = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -131,21 +156,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(generation: Generation) = apply {
-                additionalProperties(generation.additionalProperties)
+                additionalProperties = generation.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Generation = Generation(additionalProperties.toImmutable())
@@ -168,23 +198,26 @@ private constructor(
         override fun toString() = "Generation{additionalProperties=$additionalProperties}"
     }
 
-    @JsonDeserialize(builder = Scores.Builder::class)
     @NoAutoDetect
     class Scores
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
         fun validate(): Scores = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -199,21 +232,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(scores: Scores) = apply {
-                additionalProperties(scores.additionalProperties)
+                additionalProperties = scores.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Scores = Scores(additionalProperties.toImmutable())

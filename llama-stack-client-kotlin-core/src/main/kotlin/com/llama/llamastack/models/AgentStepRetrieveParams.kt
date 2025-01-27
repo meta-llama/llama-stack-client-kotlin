@@ -3,17 +3,18 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class AgentStepRetrieveParams
 constructor(
     private val agentId: String,
     private val sessionId: String,
-    private val stepId: String,
     private val turnId: String,
+    private val stepId: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -23,9 +24,11 @@ constructor(
 
     fun sessionId(): String = sessionId
 
+    fun turnId(): String = turnId
+
     fun stepId(): String = stepId
 
-    fun turnId(): String = turnId
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -35,21 +38,26 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
     }
 
-    internal fun getQueryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.agentId.let { queryParams.put("agent_id", listOf(it.toString())) }
-        this.sessionId.let { queryParams.put("session_id", listOf(it.toString())) }
-        this.stepId.let { queryParams.put("step_id", listOf(it.toString())) }
-        this.turnId.let { queryParams.put("turn_id", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
+    internal fun getQueryParams(): QueryParams = additionalQueryParams
+
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> agentId
+            1 -> sessionId
+            2 -> turnId
+            3 -> stepId
+            else -> ""
+        }
     }
 
     fun toBuilder() = Builder().from(this)
@@ -64,8 +72,9 @@ constructor(
 
         private var agentId: String? = null
         private var sessionId: String? = null
-        private var stepId: String? = null
         private var turnId: String? = null
+        private var stepId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
@@ -73,8 +82,9 @@ constructor(
         internal fun from(agentStepRetrieveParams: AgentStepRetrieveParams) = apply {
             agentId = agentStepRetrieveParams.agentId
             sessionId = agentStepRetrieveParams.sessionId
-            stepId = agentStepRetrieveParams.stepId
             turnId = agentStepRetrieveParams.turnId
+            stepId = agentStepRetrieveParams.stepId
+            xLlamaStackClientVersion = agentStepRetrieveParams.xLlamaStackClientVersion
             xLlamaStackProviderData = agentStepRetrieveParams.xLlamaStackProviderData
             additionalHeaders = agentStepRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentStepRetrieveParams.additionalQueryParams.toBuilder()
@@ -84,11 +94,15 @@ constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
-        fun stepId(stepId: String) = apply { this.stepId = stepId }
-
         fun turnId(turnId: String) = apply { this.turnId = turnId }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun stepId(stepId: String) = apply { this.stepId = stepId }
+
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -192,10 +206,11 @@ constructor(
 
         fun build(): AgentStepRetrieveParams =
             AgentStepRetrieveParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
-                checkNotNull(stepId) { "`stepId` is required but was not set" },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("agentId", agentId),
+                checkRequired("sessionId", sessionId),
+                checkRequired("turnId", turnId),
+                checkRequired("stepId", stepId),
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -207,11 +222,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentStepRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && stepId == other.stepId && turnId == other.turnId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentStepRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && stepId == other.stepId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, stepId, turnId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnId, stepId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentStepRetrieveParams{agentId=$agentId, sessionId=$sessionId, stepId=$stepId, turnId=$turnId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentStepRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnId=$turnId, stepId=$stepId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

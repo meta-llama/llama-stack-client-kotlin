@@ -3,9 +3,9 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class DatasetioGetRowsPaginatedParams
@@ -14,6 +14,7 @@ constructor(
     private val rowsInPage: Long,
     private val filterCondition: String?,
     private val pageToken: String?,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -27,6 +28,8 @@ constructor(
 
     fun pageToken(): String? = pageToken
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -35,8 +38,11 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -66,6 +72,7 @@ constructor(
         private var rowsInPage: Long? = null
         private var filterCondition: String? = null
         private var pageToken: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
@@ -76,6 +83,7 @@ constructor(
                 rowsInPage = datasetioGetRowsPaginatedParams.rowsInPage
                 filterCondition = datasetioGetRowsPaginatedParams.filterCondition
                 pageToken = datasetioGetRowsPaginatedParams.pageToken
+                xLlamaStackClientVersion = datasetioGetRowsPaginatedParams.xLlamaStackClientVersion
                 xLlamaStackProviderData = datasetioGetRowsPaginatedParams.xLlamaStackProviderData
                 additionalHeaders = datasetioGetRowsPaginatedParams.additionalHeaders.toBuilder()
                 additionalQueryParams =
@@ -86,13 +94,17 @@ constructor(
 
         fun rowsInPage(rowsInPage: Long) = apply { this.rowsInPage = rowsInPage }
 
-        fun filterCondition(filterCondition: String) = apply {
+        fun filterCondition(filterCondition: String?) = apply {
             this.filterCondition = filterCondition
         }
 
-        fun pageToken(pageToken: String) = apply { this.pageToken = pageToken }
+        fun pageToken(pageToken: String?) = apply { this.pageToken = pageToken }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -196,10 +208,11 @@ constructor(
 
         fun build(): DatasetioGetRowsPaginatedParams =
             DatasetioGetRowsPaginatedParams(
-                checkNotNull(datasetId) { "`datasetId` is required but was not set" },
-                checkNotNull(rowsInPage) { "`rowsInPage` is required but was not set" },
+                checkRequired("datasetId", datasetId),
+                checkRequired("rowsInPage", rowsInPage),
                 filterCondition,
                 pageToken,
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -211,11 +224,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

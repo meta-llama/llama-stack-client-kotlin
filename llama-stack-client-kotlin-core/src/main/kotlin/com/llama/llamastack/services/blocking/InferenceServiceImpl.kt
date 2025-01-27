@@ -7,7 +7,6 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
-import com.llama.llamastack.core.handlers.map
 import com.llama.llamastack.core.handlers.mapJson
 import com.llama.llamastack.core.handlers.sseHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -15,6 +14,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.StreamResponse
+import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.EmbeddingsResponse
@@ -25,7 +25,7 @@ import com.llama.llamastack.models.InferenceCompletionResponse
 import com.llama.llamastack.models.InferenceEmbeddingsParams
 
 class InferenceServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : InferenceService {
 
@@ -43,7 +43,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "inference", "chat-completion")
+                .addPathSegments("v1", "inference", "chat-completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -74,7 +74,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "inference", "chat-completion")
+                .addPathSegments("v1", "inference", "chat-completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -114,7 +114,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "inference", "completion")
+                .addPathSegments("v1", "inference", "completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -144,7 +144,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "inference", "completion")
+                .addPathSegments("v1", "inference", "completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -183,7 +183,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "inference", "embeddings")
+                .addPathSegments("v1", "inference", "embeddings")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

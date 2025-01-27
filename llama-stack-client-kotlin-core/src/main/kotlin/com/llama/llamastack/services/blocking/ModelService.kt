@@ -16,7 +16,10 @@ interface ModelService {
         requestOptions: RequestOptions = RequestOptions.none()
     ): Model?
 
-    fun list(params: ModelListParams, requestOptions: RequestOptions = RequestOptions.none()): Model
+    fun list(
+        params: ModelListParams,
+        requestOptions: RequestOptions = RequestOptions.none()
+    ): List<Model>
 
     fun register(
         params: ModelRegisterParams,

@@ -10,11 +10,7 @@ class RouteInfoTest {
     @Test
     fun createRouteInfo() {
         val routeInfo =
-            RouteInfo.builder()
-                .method("method")
-                .providerTypes(listOf("string"))
-                .route("route")
-                .build()
+            RouteInfo.builder().method("method").addProviderType("string").route("route").build()
         assertThat(routeInfo).isNotNull
         assertThat(routeInfo.method()).isEqualTo("method")
         assertThat(routeInfo.providerTypes()).containsExactly("string")

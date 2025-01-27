@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.core.JsonGenerator
 import com.fasterxml.jackson.core.ObjectCodec
@@ -19,34 +20,38 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = AgentStepRetrieveResponse.Builder::class)
 @NoAutoDetect
 class AgentStepRetrieveResponse
+@JsonCreator
 private constructor(
-    private val step: JsonField<Step>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("step") @ExcludeMissing private val step: JsonField<Step> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun step(): Step = step.getRequired("step")
 
-    @JsonProperty("step") @ExcludeMissing fun _step() = step
+    @JsonProperty("step") @ExcludeMissing fun _step(): JsonField<Step> = step
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): AgentStepRetrieveResponse = apply {
-        if (!validated) {
-            step()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        step().validate()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -58,105 +63,127 @@ private constructor(
 
     class Builder {
 
-        private var step: JsonField<Step> = JsonMissing.of()
+        private var step: JsonField<Step>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentStepRetrieveResponse: AgentStepRetrieveResponse) = apply {
-            this.step = agentStepRetrieveResponse.step
-            additionalProperties(agentStepRetrieveResponse.additionalProperties)
+            step = agentStepRetrieveResponse.step
+            additionalProperties = agentStepRetrieveResponse.additionalProperties.toMutableMap()
         }
 
         fun step(step: Step) = step(JsonField.of(step))
 
-        @JsonProperty("step")
-        @ExcludeMissing
         fun step(step: JsonField<Step>) = apply { this.step = step }
+
+        fun step(inference: InferenceStep) = step(Step.ofInference(inference))
+
+        fun step(toolExecution: ToolExecutionStep) = step(Step.ofToolExecution(toolExecution))
+
+        fun step(shieldCall: ShieldCallStep) = step(Step.ofShieldCall(shieldCall))
+
+        fun step(memoryRetrieval: MemoryRetrievalStep) =
+            step(Step.ofMemoryRetrieval(memoryRetrieval))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): AgentStepRetrieveResponse =
-            AgentStepRetrieveResponse(step, additionalProperties.toImmutable())
+            AgentStepRetrieveResponse(
+                checkRequired("step", step),
+                additionalProperties.toImmutable()
+            )
     }
 
     @JsonDeserialize(using = Step.Deserializer::class)
     @JsonSerialize(using = Step.Serializer::class)
     class Step
     private constructor(
-        private val inferenceStep: InferenceStep? = null,
-        private val toolExecutionStep: ToolExecutionStep? = null,
-        private val shieldCallStep: ShieldCallStep? = null,
-        private val memoryRetrievalStep: MemoryRetrievalStep? = null,
+        private val inference: InferenceStep? = null,
+        private val toolExecution: ToolExecutionStep? = null,
+        private val shieldCall: ShieldCallStep? = null,
+        private val memoryRetrieval: MemoryRetrievalStep? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        private var validated: Boolean = false
+        fun inference(): InferenceStep? = inference
 
-        fun inferenceStep(): InferenceStep? = inferenceStep
+        fun toolExecution(): ToolExecutionStep? = toolExecution
 
-        fun toolExecutionStep(): ToolExecutionStep? = toolExecutionStep
+        fun shieldCall(): ShieldCallStep? = shieldCall
 
-        fun shieldCallStep(): ShieldCallStep? = shieldCallStep
+        fun memoryRetrieval(): MemoryRetrievalStep? = memoryRetrieval
 
-        fun memoryRetrievalStep(): MemoryRetrievalStep? = memoryRetrievalStep
+        fun isInference(): Boolean = inference != null
 
-        fun isInferenceStep(): Boolean = inferenceStep != null
+        fun isToolExecution(): Boolean = toolExecution != null
 
-        fun isToolExecutionStep(): Boolean = toolExecutionStep != null
+        fun isShieldCall(): Boolean = shieldCall != null
 
-        fun isShieldCallStep(): Boolean = shieldCallStep != null
+        fun isMemoryRetrieval(): Boolean = memoryRetrieval != null
 
-        fun isMemoryRetrievalStep(): Boolean = memoryRetrievalStep != null
+        fun asInference(): InferenceStep = inference.getOrThrow("inference")
 
-        fun asInferenceStep(): InferenceStep = inferenceStep.getOrThrow("inferenceStep")
+        fun asToolExecution(): ToolExecutionStep = toolExecution.getOrThrow("toolExecution")
 
-        fun asToolExecutionStep(): ToolExecutionStep =
-            toolExecutionStep.getOrThrow("toolExecutionStep")
+        fun asShieldCall(): ShieldCallStep = shieldCall.getOrThrow("shieldCall")
 
-        fun asShieldCallStep(): ShieldCallStep = shieldCallStep.getOrThrow("shieldCallStep")
-
-        fun asMemoryRetrievalStep(): MemoryRetrievalStep =
-            memoryRetrievalStep.getOrThrow("memoryRetrievalStep")
+        fun asMemoryRetrieval(): MemoryRetrievalStep = memoryRetrieval.getOrThrow("memoryRetrieval")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                inferenceStep != null -> visitor.visitInferenceStep(inferenceStep)
-                toolExecutionStep != null -> visitor.visitToolExecutionStep(toolExecutionStep)
-                shieldCallStep != null -> visitor.visitShieldCallStep(shieldCallStep)
-                memoryRetrievalStep != null -> visitor.visitMemoryRetrievalStep(memoryRetrievalStep)
+                inference != null -> visitor.visitInference(inference)
+                toolExecution != null -> visitor.visitToolExecution(toolExecution)
+                shieldCall != null -> visitor.visitShieldCall(shieldCall)
+                memoryRetrieval != null -> visitor.visitMemoryRetrieval(memoryRetrieval)
                 else -> visitor.unknown(_json)
             }
         }
 
+        private var validated: Boolean = false
+
         fun validate(): Step = apply {
-            if (!validated) {
-                if (
-                    inferenceStep == null &&
-                        toolExecutionStep == null &&
-                        shieldCallStep == null &&
-                        memoryRetrievalStep == null
-                ) {
-                    throw LlamaStackClientInvalidDataException("Unknown Step: $_json")
-                }
-                inferenceStep?.validate()
-                toolExecutionStep?.validate()
-                shieldCallStep?.validate()
-                memoryRetrievalStep?.validate()
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitInference(inference: InferenceStep) {
+                        inference.validate()
+                    }
+
+                    override fun visitToolExecution(toolExecution: ToolExecutionStep) {
+                        toolExecution.validate()
+                    }
+
+                    override fun visitShieldCall(shieldCall: ShieldCallStep) {
+                        shieldCall.validate()
+                    }
+
+                    override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) {
+                        memoryRetrieval.validate()
+                    }
+                }
+            )
+            validated = true
         }
 
         override fun equals(other: Any?): Boolean {
@@ -164,44 +191,43 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Step && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+            return /* spotless:off */ other is Step && inference == other.inference && toolExecution == other.toolExecution && shieldCall == other.shieldCall && memoryRetrieval == other.memoryRetrieval /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inference, toolExecution, shieldCall, memoryRetrieval) /* spotless:on */
 
         override fun toString(): String =
             when {
-                inferenceStep != null -> "Step{inferenceStep=$inferenceStep}"
-                toolExecutionStep != null -> "Step{toolExecutionStep=$toolExecutionStep}"
-                shieldCallStep != null -> "Step{shieldCallStep=$shieldCallStep}"
-                memoryRetrievalStep != null -> "Step{memoryRetrievalStep=$memoryRetrievalStep}"
+                inference != null -> "Step{inference=$inference}"
+                toolExecution != null -> "Step{toolExecution=$toolExecution}"
+                shieldCall != null -> "Step{shieldCall=$shieldCall}"
+                memoryRetrieval != null -> "Step{memoryRetrieval=$memoryRetrieval}"
                 _json != null -> "Step{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Step")
             }
 
         companion object {
 
-            fun ofInferenceStep(inferenceStep: InferenceStep) = Step(inferenceStep = inferenceStep)
+            fun ofInference(inference: InferenceStep) = Step(inference = inference)
 
-            fun ofToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
-                Step(toolExecutionStep = toolExecutionStep)
+            fun ofToolExecution(toolExecution: ToolExecutionStep) =
+                Step(toolExecution = toolExecution)
 
-            fun ofShieldCallStep(shieldCallStep: ShieldCallStep) =
-                Step(shieldCallStep = shieldCallStep)
+            fun ofShieldCall(shieldCall: ShieldCallStep) = Step(shieldCall = shieldCall)
 
-            fun ofMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep) =
-                Step(memoryRetrievalStep = memoryRetrievalStep)
+            fun ofMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                Step(memoryRetrieval = memoryRetrieval)
         }
 
         interface Visitor<out T> {
 
-            fun visitInferenceStep(inferenceStep: InferenceStep): T
+            fun visitInference(inference: InferenceStep): T
 
-            fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep): T
+            fun visitToolExecution(toolExecution: ToolExecutionStep): T
 
-            fun visitShieldCallStep(shieldCallStep: ShieldCallStep): T
+            fun visitShieldCall(shieldCall: ShieldCallStep): T
 
-            fun visitMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep): T
+            fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Step: $json")
@@ -212,23 +238,36 @@ private constructor(
 
             override fun ObjectCodec.deserialize(node: JsonNode): Step {
                 val json = JsonValue.fromJsonNode(node)
+                val stepType = json.asObject()?.get("step_type")?.asString()
 
-                tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
-                    ?.let {
-                        return Step(inferenceStep = it, _json = json)
+                when (stepType) {
+                    "inference" -> {
+                        tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
+                            ?.let {
+                                return Step(inference = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
-                    ?.let {
-                        return Step(toolExecutionStep = it, _json = json)
+                    "tool_execution" -> {
+                        tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
+                            ?.let {
+                                return Step(toolExecution = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
-                    ?.let {
-                        return Step(shieldCallStep = it, _json = json)
+                    "shield_call" -> {
+                        tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
+                            ?.let {
+                                return Step(shieldCall = it, _json = json)
+                            }
                     }
-                tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) { it.validate() }
-                    ?.let {
-                        return Step(memoryRetrievalStep = it, _json = json)
+                    "memory_retrieval" -> {
+                        tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) {
+                                it.validate()
+                            }
+                            ?.let {
+                                return Step(memoryRetrieval = it, _json = json)
+                            }
                     }
+                }
 
                 return Step(_json = json)
             }
@@ -242,12 +281,10 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.inferenceStep != null -> generator.writeObject(value.inferenceStep)
-                    value.toolExecutionStep != null ->
-                        generator.writeObject(value.toolExecutionStep)
-                    value.shieldCallStep != null -> generator.writeObject(value.shieldCallStep)
-                    value.memoryRetrievalStep != null ->
-                        generator.writeObject(value.memoryRetrievalStep)
+                    value.inference != null -> generator.writeObject(value.inference)
+                    value.toolExecution != null -> generator.writeObject(value.toolExecution)
+                    value.shieldCall != null -> generator.writeObject(value.shieldCall)
+                    value.memoryRetrieval != null -> generator.writeObject(value.memoryRetrieval)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Step")
                 }

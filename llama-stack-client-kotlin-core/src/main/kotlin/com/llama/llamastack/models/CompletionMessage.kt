@@ -6,67 +6,73 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.ObjectCodec
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.llama.llamastack.core.BaseDeserializer
-import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
-import com.llama.llamastack.core.getOrThrow
+import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = CompletionMessage.Builder::class)
 @NoAutoDetect
 class CompletionMessage
+@JsonCreator
 private constructor(
-    private val content: JsonField<Content>,
-    private val role: JsonField<Role>,
-    private val stopReason: JsonField<StopReason>,
-    private val toolCalls: JsonField<List<ToolCall>>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("content")
+    @ExcludeMissing
+    private val content: JsonField<InterleavedContent> = JsonMissing.of(),
+    @JsonProperty("role") @ExcludeMissing private val role: JsonValue = JsonMissing.of(),
+    @JsonProperty("stop_reason")
+    @ExcludeMissing
+    private val stopReason: JsonField<StopReason> = JsonMissing.of(),
+    @JsonProperty("tool_calls")
+    @ExcludeMissing
+    private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    private var validated: Boolean = false
+    fun content(): InterleavedContent = content.getRequired("content")
 
-    fun content(): Content = content.getRequired("content")
-
-    fun role(): Role = role.getRequired("role")
+    @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
     fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
 
     fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
 
-    @JsonProperty("content") @ExcludeMissing fun _content() = content
+    @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
-    @JsonProperty("role") @ExcludeMissing fun _role() = role
+    @JsonProperty("stop_reason")
+    @ExcludeMissing
+    fun _stopReason(): JsonField<StopReason> = stopReason
 
-    @JsonProperty("stop_reason") @ExcludeMissing fun _stopReason() = stopReason
-
-    @JsonProperty("tool_calls") @ExcludeMissing fun _toolCalls() = toolCalls
+    @JsonProperty("tool_calls")
+    @ExcludeMissing
+    fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): CompletionMessage = apply {
-        if (!validated) {
-            content()
-            role()
-            stopReason()
-            toolCalls().forEach { it.validate() }
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        content().validate()
+        _role().let {
+            if (it != JsonValue.from("assistant")) {
+                throw LlamaStackClientInvalidDataException("'role' is invalid, received $it")
+            }
+        }
+        stopReason()
+        toolCalls().forEach { it.validate() }
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -78,369 +84,85 @@ private constructor(
 
     class Builder {
 
-        private var content: JsonField<Content> = JsonMissing.of()
-        private var role: JsonField<Role> = JsonMissing.of()
-        private var stopReason: JsonField<StopReason> = JsonMissing.of()
-        private var toolCalls: JsonField<List<ToolCall>> = JsonMissing.of()
+        private var content: JsonField<InterleavedContent>? = null
+        private var role: JsonValue = JsonValue.from("assistant")
+        private var stopReason: JsonField<StopReason>? = null
+        private var toolCalls: JsonField<MutableList<ToolCall>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(completionMessage: CompletionMessage) = apply {
-            this.content = completionMessage.content
-            this.role = completionMessage.role
-            this.stopReason = completionMessage.stopReason
-            this.toolCalls = completionMessage.toolCalls
-            additionalProperties(completionMessage.additionalProperties)
+            content = completionMessage.content
+            role = completionMessage.role
+            stopReason = completionMessage.stopReason
+            toolCalls = completionMessage.toolCalls.map { it.toMutableList() }
+            additionalProperties = completionMessage.additionalProperties.toMutableMap()
         }
 
-        fun content(content: Content) = content(JsonField.of(content))
+        fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-        @JsonProperty("content")
-        @ExcludeMissing
-        fun content(content: JsonField<Content>) = apply { this.content = content }
+        fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        fun role(role: Role) = role(JsonField.of(role))
+        fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        @JsonProperty("role")
-        @ExcludeMissing
-        fun role(role: JsonField<Role>) = apply { this.role = role }
+        fun content(imageContentItem: InterleavedContent.ImageContentItem) =
+            content(InterleavedContent.ofImageContentItem(imageContentItem))
+
+        fun content(textContentItem: InterleavedContent.TextContentItem) =
+            content(InterleavedContent.ofTextContentItem(textContentItem))
+
+        fun contentOfItems(items: List<InterleavedContentItem>) =
+            content(InterleavedContent.ofItems(items))
+
+        fun role(role: JsonValue) = apply { this.role = role }
 
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
-        @JsonProperty("stop_reason")
-        @ExcludeMissing
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
 
         fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
 
-        @JsonProperty("tool_calls")
-        @ExcludeMissing
-        fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply { this.toolCalls = toolCalls }
+        fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
+            this.toolCalls = toolCalls.map { it.toMutableList() }
+        }
+
+        fun addToolCall(toolCall: ToolCall) = apply {
+            toolCalls =
+                (toolCalls ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(toolCall)
+                }
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): CompletionMessage =
             CompletionMessage(
-                content,
+                checkRequired("content", content),
                 role,
-                stopReason,
-                toolCalls.map { it.toImmutable() },
+                checkRequired("stopReason", stopReason),
+                checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
-    }
-
-    @JsonDeserialize(using = Content.Deserializer::class)
-    @JsonSerialize(using = Content.Serializer::class)
-    class Content
-    private constructor(
-        private val string: String? = null,
-        private val imageMedia: ImageMedia? = null,
-        private val imageMediaArray: List<StringOrImageMediaUnion>? = null,
-        private val _json: JsonValue? = null,
-    ) {
-
-        private var validated: Boolean = false
-
-        fun string(): String? = string
-
-        fun imageMedia(): ImageMedia? = imageMedia
-
-        fun imageMediaArray(): List<StringOrImageMediaUnion>? = imageMediaArray
-
-        fun isString(): Boolean = string != null
-
-        fun isImageMedia(): Boolean = imageMedia != null
-
-        fun isImageMediaArray(): Boolean = imageMediaArray != null
-
-        fun asString(): String = string.getOrThrow("string")
-
-        fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-        fun asImageMediaArray(): List<StringOrImageMediaUnion> =
-            imageMediaArray.getOrThrow("imageMediaArray")
-
-        fun _json(): JsonValue? = _json
-
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
-                string != null -> visitor.visitString(string)
-                imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                imageMediaArray != null -> visitor.visitImageMediaArray(imageMediaArray)
-                else -> visitor.unknown(_json)
-            }
-        }
-
-        fun validate(): Content = apply {
-            if (!validated) {
-                if (string == null && imageMedia == null && imageMediaArray == null) {
-                    throw LlamaStackClientInvalidDataException("Unknown Content: $_json")
-                }
-                imageMedia?.validate()
-                validated = true
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Content && string == other.string && imageMedia == other.imageMedia && imageMediaArray == other.imageMediaArray /* spotless:on */
-        }
-
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia, imageMediaArray) /* spotless:on */
-
-        override fun toString(): String =
-            when {
-                string != null -> "Content{string=$string}"
-                imageMedia != null -> "Content{imageMedia=$imageMedia}"
-                imageMediaArray != null -> "Content{imageMediaArray=$imageMediaArray}"
-                _json != null -> "Content{_unknown=$_json}"
-                else -> throw IllegalStateException("Invalid Content")
-            }
-
-        companion object {
-
-            fun ofString(string: String) = Content(string = string)
-
-            fun ofImageMedia(imageMedia: ImageMedia) = Content(imageMedia = imageMedia)
-
-            fun ofImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>) =
-                Content(imageMediaArray = imageMediaArray)
-        }
-
-        interface Visitor<out T> {
-
-            fun visitString(string: String): T
-
-            fun visitImageMedia(imageMedia: ImageMedia): T
-
-            fun visitImageMediaArray(imageMediaArray: List<StringOrImageMediaUnion>): T
-
-            fun unknown(json: JsonValue?): T {
-                throw LlamaStackClientInvalidDataException("Unknown Content: $json")
-            }
-        }
-
-        class Deserializer : BaseDeserializer<Content>(Content::class) {
-
-            override fun ObjectCodec.deserialize(node: JsonNode): Content {
-                val json = JsonValue.fromJsonNode(node)
-
-                tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                    return Content(string = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                    ?.let {
-                        return Content(imageMedia = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<List<StringOrImageMediaUnion>>())?.let {
-                    return Content(imageMediaArray = it, _json = json)
-                }
-
-                return Content(_json = json)
-            }
-        }
-
-        class Serializer : BaseSerializer<Content>(Content::class) {
-
-            override fun serialize(
-                value: Content,
-                generator: JsonGenerator,
-                provider: SerializerProvider
-            ) {
-                when {
-                    value.string != null -> generator.writeObject(value.string)
-                    value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                    value.imageMediaArray != null -> generator.writeObject(value.imageMediaArray)
-                    value._json != null -> generator.writeObject(value._json)
-                    else -> throw IllegalStateException("Invalid Content")
-                }
-            }
-        }
-
-        @JsonDeserialize(using = StringOrImageMediaUnion.Deserializer::class)
-        @JsonSerialize(using = StringOrImageMediaUnion.Serializer::class)
-        class StringOrImageMediaUnion
-        private constructor(
-            private val string: String? = null,
-            private val imageMedia: ImageMedia? = null,
-            private val _json: JsonValue? = null,
-        ) {
-
-            private var validated: Boolean = false
-
-            fun string(): String? = string
-
-            fun imageMedia(): ImageMedia? = imageMedia
-
-            fun isString(): Boolean = string != null
-
-            fun isImageMedia(): Boolean = imageMedia != null
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asImageMedia(): ImageMedia = imageMedia.getOrThrow("imageMedia")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    string != null -> visitor.visitString(string)
-                    imageMedia != null -> visitor.visitImageMedia(imageMedia)
-                    else -> visitor.unknown(_json)
-                }
-            }
-
-            fun validate(): StringOrImageMediaUnion = apply {
-                if (!validated) {
-                    if (string == null && imageMedia == null) {
-                        throw LlamaStackClientInvalidDataException(
-                            "Unknown StringOrImageMediaUnion: $_json"
-                        )
-                    }
-                    imageMedia?.validate()
-                    validated = true
-                }
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is StringOrImageMediaUnion && string == other.string && imageMedia == other.imageMedia /* spotless:on */
-            }
-
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageMedia) /* spotless:on */
-
-            override fun toString(): String =
-                when {
-                    string != null -> "StringOrImageMediaUnion{string=$string}"
-                    imageMedia != null -> "StringOrImageMediaUnion{imageMedia=$imageMedia}"
-                    _json != null -> "StringOrImageMediaUnion{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
-                }
-
-            companion object {
-
-                fun ofString(string: String) = StringOrImageMediaUnion(string = string)
-
-                fun ofImageMedia(imageMedia: ImageMedia) =
-                    StringOrImageMediaUnion(imageMedia = imageMedia)
-            }
-
-            interface Visitor<out T> {
-
-                fun visitString(string: String): T
-
-                fun visitImageMedia(imageMedia: ImageMedia): T
-
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException(
-                        "Unknown StringOrImageMediaUnion: $json"
-                    )
-                }
-            }
-
-            class Deserializer :
-                BaseDeserializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                override fun ObjectCodec.deserialize(node: JsonNode): StringOrImageMediaUnion {
-                    val json = JsonValue.fromJsonNode(node)
-
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return StringOrImageMediaUnion(string = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<ImageMedia>()) { it.validate() }
-                        ?.let {
-                            return StringOrImageMediaUnion(imageMedia = it, _json = json)
-                        }
-
-                    return StringOrImageMediaUnion(_json = json)
-                }
-            }
-
-            class Serializer :
-                BaseSerializer<StringOrImageMediaUnion>(StringOrImageMediaUnion::class) {
-
-                override fun serialize(
-                    value: StringOrImageMediaUnion,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.string != null -> generator.writeObject(value.string)
-                        value.imageMedia != null -> generator.writeObject(value.imageMedia)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid StringOrImageMediaUnion")
-                    }
-                }
-            }
-        }
-    }
-
-    class Role
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Role && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
-        companion object {
-
-            val ASSISTANT = Role(JsonField.of("assistant"))
-
-            fun of(value: String) = Role(JsonField.of(value))
-        }
-
-        enum class Known {
-            ASSISTANT,
-        }
-
-        enum class Value {
-            ASSISTANT,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                ASSISTANT -> Value.ASSISTANT
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                ASSISTANT -> Known.ASSISTANT
-                else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
     }
 
     class StopReason
@@ -451,25 +173,13 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val END_OF_TURN = StopReason(JsonField.of("end_of_turn"))
+            val END_OF_TURN = of("end_of_turn")
 
-            val END_OF_MESSAGE = StopReason(JsonField.of("end_of_message"))
+            val END_OF_MESSAGE = of("end_of_message")
 
-            val OUT_OF_TOKENS = StopReason(JsonField.of("out_of_tokens"))
+            val OUT_OF_TOKENS = of("out_of_tokens")
 
             fun of(value: String) = StopReason(JsonField.of(value))
         }
@@ -504,6 +214,295 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is StopReason && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
+    }
+
+    @NoAutoDetect
+    class ToolCall
+    @JsonCreator
+    private constructor(
+        @JsonProperty("arguments")
+        @ExcludeMissing
+        private val arguments: JsonField<Arguments> = JsonMissing.of(),
+        @JsonProperty("call_id")
+        @ExcludeMissing
+        private val callId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("tool_name")
+        @ExcludeMissing
+        private val toolName: JsonField<ToolName> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        fun arguments(): Arguments = arguments.getRequired("arguments")
+
+        fun callId(): String = callId.getRequired("call_id")
+
+        fun toolName(): ToolName = toolName.getRequired("tool_name")
+
+        @JsonProperty("arguments")
+        @ExcludeMissing
+        fun _arguments(): JsonField<Arguments> = arguments
+
+        @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
+
+        @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolCall = apply {
+            if (validated) {
+                return@apply
+            }
+
+            arguments().validate()
+            callId()
+            toolName()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        class Builder {
+
+            private var arguments: JsonField<Arguments>? = null
+            private var callId: JsonField<String>? = null
+            private var toolName: JsonField<ToolName>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(toolCall: ToolCall) = apply {
+                arguments = toolCall.arguments
+                callId = toolCall.callId
+                toolName = toolCall.toolName
+                additionalProperties = toolCall.additionalProperties.toMutableMap()
+            }
+
+            fun arguments(arguments: Arguments) = arguments(JsonField.of(arguments))
+
+            fun arguments(arguments: JsonField<Arguments>) = apply { this.arguments = arguments }
+
+            fun callId(callId: String) = callId(JsonField.of(callId))
+
+            fun callId(callId: JsonField<String>) = apply { this.callId = callId }
+
+            fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
+
+            fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
+
+            fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): ToolCall =
+                ToolCall(
+                    checkRequired("arguments", arguments),
+                    checkRequired("callId", callId),
+                    checkRequired("toolName", toolName),
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        @NoAutoDetect
+        class Arguments
+        @JsonCreator
+        private constructor(
+            @JsonAnySetter
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        ) {
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            private var validated: Boolean = false
+
+            fun validate(): Arguments = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                fun builder() = Builder()
+            }
+
+            class Builder {
+
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(arguments: Arguments) = apply {
+                    additionalProperties = arguments.additionalProperties.toMutableMap()
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                fun build(): Arguments = Arguments(additionalProperties.toImmutable())
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is Arguments && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() = "Arguments{additionalProperties=$additionalProperties}"
+        }
+
+        class ToolName
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val BRAVE_SEARCH = of("brave_search")
+
+                val WOLFRAM_ALPHA = of("wolfram_alpha")
+
+                val PHOTOGEN = of("photogen")
+
+                val CODE_INTERPRETER = of("code_interpreter")
+
+                fun of(value: String) = ToolName(JsonField.of(value))
+            }
+
+            enum class Known {
+                BRAVE_SEARCH,
+                WOLFRAM_ALPHA,
+                PHOTOGEN,
+                CODE_INTERPRETER,
+            }
+
+            enum class Value {
+                BRAVE_SEARCH,
+                WOLFRAM_ALPHA,
+                PHOTOGEN,
+                CODE_INTERPRETER,
+                _UNKNOWN,
+            }
+
+            fun value(): Value =
+                when (this) {
+                    BRAVE_SEARCH -> Value.BRAVE_SEARCH
+                    WOLFRAM_ALPHA -> Value.WOLFRAM_ALPHA
+                    PHOTOGEN -> Value.PHOTOGEN
+                    CODE_INTERPRETER -> Value.CODE_INTERPRETER
+                    else -> Value._UNKNOWN
+                }
+
+            fun known(): Known =
+                when (this) {
+                    BRAVE_SEARCH -> Known.BRAVE_SEARCH
+                    WOLFRAM_ALPHA -> Known.WOLFRAM_ALPHA
+                    PHOTOGEN -> Known.PHOTOGEN
+                    CODE_INTERPRETER -> Known.CODE_INTERPRETER
+                    else -> throw LlamaStackClientInvalidDataException("Unknown ToolName: $value")
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolCall && arguments == other.arguments && callId == other.callId && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(arguments, callId, toolName, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "ToolCall{arguments=$arguments, callId=$callId, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

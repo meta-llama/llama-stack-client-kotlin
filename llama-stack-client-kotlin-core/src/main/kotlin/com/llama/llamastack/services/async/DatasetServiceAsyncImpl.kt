@@ -13,14 +13,16 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.DatasetListParams
-import com.llama.llamastack.models.DatasetListResponse
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetRetrieveResponse
+import com.llama.llamastack.models.DatasetUnregisterParams
+import com.llama.llamastack.models.ListDatasetsResponse
 
 class DatasetServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : DatasetServiceAsync {
 
@@ -38,7 +40,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "datasets", "get")
+                .addPathSegments("v1", "datasets", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -55,17 +57,18 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<DatasetListResponse> =
-        jsonHandler<DatasetListResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ListDatasetsResponse.Data>>> =
+        jsonHandler<DataEnvelope<List<ListDatasetsResponse.Data>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: DatasetListParams,
         requestOptions: RequestOptions
-    ): DatasetListResponse {
+    ): List<ListDatasetsResponse.Data> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "datasets", "list")
+                .addPathSegments("v1", "datasets")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -79,6 +82,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
@@ -88,7 +92,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "datasets", "register")
+                .addPathSegments("v1", "datasets")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -97,6 +101,27 @@ constructor(
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response.use { registerHandler.handle(it) }
+        }
+    }
+
+    private val unregisterHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+
+    override suspend fun unregister(
+        params: DatasetUnregisterParams,
+        requestOptions: RequestOptions
+    ) {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.DELETE)
+                .addPathSegments("v1", "datasets", params.getPathParam(0))
+                .putAllQueryParams(clientOptions.queryParams)
+                .replaceAllQueryParams(params.getQueryParams())
+                .putAllHeaders(clientOptions.headers)
+                .replaceAllHeaders(params.getHeaders())
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
+                .build()
+        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
+            response.use { unregisterHandler.handle(it) }
         }
     }
 }

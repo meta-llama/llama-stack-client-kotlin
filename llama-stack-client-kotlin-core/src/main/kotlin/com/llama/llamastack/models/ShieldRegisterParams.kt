@@ -4,59 +4,64 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class ShieldRegisterParams
 constructor(
-    private val shieldId: String,
-    private val params: Params?,
-    private val providerId: String?,
-    private val providerShieldId: String?,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
+    private val body: ShieldRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
-    fun shieldId(): String = shieldId
-
-    fun params(): Params? = params
-
-    fun providerId(): String? = providerId
-
-    fun providerShieldId(): String? = providerShieldId
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun shieldId(): String = body.shieldId()
+
+    fun params(): Params? = body.params()
+
+    fun providerId(): String? = body.providerId()
+
+    fun providerShieldId(): String? = body.providerShieldId()
+
+    fun _shieldId(): JsonField<String> = body._shieldId()
+
+    fun _params(): JsonField<Params> = body._params()
+
+    fun _providerId(): JsonField<String> = body._providerId()
+
+    fun _providerShieldId(): JsonField<String> = body._providerShieldId()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    internal fun getBody(): ShieldRegisterBody {
-        return ShieldRegisterBody(
-            shieldId,
-            params,
-            providerId,
-            providerShieldId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): ShieldRegisterBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -64,28 +69,63 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = ShieldRegisterBody.Builder::class)
     @NoAutoDetect
     class ShieldRegisterBody
+    @JsonCreator
     internal constructor(
-        private val shieldId: String?,
-        private val params: Params?,
-        private val providerId: String?,
-        private val providerShieldId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("shield_id")
+        @ExcludeMissing
+        private val shieldId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("params")
+        @ExcludeMissing
+        private val params: JsonField<Params> = JsonMissing.of(),
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        private val providerId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("provider_shield_id")
+        @ExcludeMissing
+        private val providerShieldId: JsonField<String> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("shield_id") fun shieldId(): String? = shieldId
+        fun shieldId(): String = shieldId.getRequired("shield_id")
 
-        @JsonProperty("params") fun params(): Params? = params
+        fun params(): Params? = params.getNullable("params")
 
-        @JsonProperty("provider_id") fun providerId(): String? = providerId
+        fun providerId(): String? = providerId.getNullable("provider_id")
 
-        @JsonProperty("provider_shield_id") fun providerShieldId(): String? = providerShieldId
+        fun providerShieldId(): String? = providerShieldId.getNullable("provider_shield_id")
+
+        @JsonProperty("shield_id") @ExcludeMissing fun _shieldId(): JsonField<String> = shieldId
+
+        @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
+
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        fun _providerId(): JsonField<String> = providerId
+
+        @JsonProperty("provider_shield_id")
+        @ExcludeMissing
+        fun _providerShieldId(): JsonField<String> = providerShieldId
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ShieldRegisterBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            shieldId()
+            params()?.validate()
+            providerId()
+            providerShieldId()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -96,50 +136,61 @@ constructor(
 
         class Builder {
 
-            private var shieldId: String? = null
-            private var params: Params? = null
-            private var providerId: String? = null
-            private var providerShieldId: String? = null
+            private var shieldId: JsonField<String>? = null
+            private var params: JsonField<Params> = JsonMissing.of()
+            private var providerId: JsonField<String> = JsonMissing.of()
+            private var providerShieldId: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(shieldRegisterBody: ShieldRegisterBody) = apply {
-                this.shieldId = shieldRegisterBody.shieldId
-                this.params = shieldRegisterBody.params
-                this.providerId = shieldRegisterBody.providerId
-                this.providerShieldId = shieldRegisterBody.providerShieldId
-                additionalProperties(shieldRegisterBody.additionalProperties)
+                shieldId = shieldRegisterBody.shieldId
+                params = shieldRegisterBody.params
+                providerId = shieldRegisterBody.providerId
+                providerShieldId = shieldRegisterBody.providerShieldId
+                additionalProperties = shieldRegisterBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("shield_id")
-            fun shieldId(shieldId: String) = apply { this.shieldId = shieldId }
+            fun shieldId(shieldId: String) = shieldId(JsonField.of(shieldId))
 
-            @JsonProperty("params") fun params(params: Params) = apply { this.params = params }
+            fun shieldId(shieldId: JsonField<String>) = apply { this.shieldId = shieldId }
 
-            @JsonProperty("provider_id")
-            fun providerId(providerId: String) = apply { this.providerId = providerId }
+            fun params(params: Params) = params(JsonField.of(params))
 
-            @JsonProperty("provider_shield_id")
-            fun providerShieldId(providerShieldId: String) = apply {
+            fun params(params: JsonField<Params>) = apply { this.params = params }
+
+            fun providerId(providerId: String) = providerId(JsonField.of(providerId))
+
+            fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
+
+            fun providerShieldId(providerShieldId: String) =
+                providerShieldId(JsonField.of(providerShieldId))
+
+            fun providerShieldId(providerShieldId: JsonField<String>) = apply {
                 this.providerShieldId = providerShieldId
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
             fun build(): ShieldRegisterBody =
                 ShieldRegisterBody(
-                    checkNotNull(shieldId) { "`shieldId` is required but was not set" },
+                    checkRequired("shieldId", shieldId),
                     params,
                     providerId,
                     providerShieldId,
@@ -175,38 +226,65 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var shieldId: String? = null
-        private var params: Params? = null
-        private var providerId: String? = null
-        private var providerShieldId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: ShieldRegisterBody.Builder = ShieldRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(shieldRegisterParams: ShieldRegisterParams) = apply {
-            shieldId = shieldRegisterParams.shieldId
-            params = shieldRegisterParams.params
-            providerId = shieldRegisterParams.providerId
-            providerShieldId = shieldRegisterParams.providerShieldId
+            xLlamaStackClientVersion = shieldRegisterParams.xLlamaStackClientVersion
             xLlamaStackProviderData = shieldRegisterParams.xLlamaStackProviderData
+            body = shieldRegisterParams.body.toBuilder()
             additionalHeaders = shieldRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = shieldRegisterParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties = shieldRegisterParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun shieldId(shieldId: String) = apply { this.shieldId = shieldId }
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
 
-        fun params(params: Params) = apply { this.params = params }
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
+            this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
 
-        fun providerId(providerId: String) = apply { this.providerId = providerId }
+        fun shieldId(shieldId: String) = apply { body.shieldId(shieldId) }
+
+        fun shieldId(shieldId: JsonField<String>) = apply { body.shieldId(shieldId) }
+
+        fun params(params: Params) = apply { body.params(params) }
+
+        fun params(params: JsonField<Params>) = apply { body.params(params) }
+
+        fun providerId(providerId: String) = apply { body.providerId(providerId) }
+
+        fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun providerShieldId(providerShieldId: String) = apply {
-            this.providerShieldId = providerShieldId
+            body.providerShieldId(providerShieldId)
         }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
+        fun providerShieldId(providerShieldId: JsonField<String>) = apply {
+            body.providerShieldId(providerShieldId)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -307,51 +385,37 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
-        }
-
         fun build(): ShieldRegisterParams =
             ShieldRegisterParams(
-                checkNotNull(shieldId) { "`shieldId` is required but was not set" },
-                params,
-                providerId,
-                providerShieldId,
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = Params.Builder::class)
     @NoAutoDetect
     class Params
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Params = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -365,21 +429,26 @@ constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(params: Params) = apply {
-                additionalProperties(params.additionalProperties)
+                additionalProperties = params.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Params = Params(additionalProperties.toImmutable())
@@ -407,11 +476,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ShieldRegisterParams && shieldId == other.shieldId && params == other.params && providerId == other.providerId && providerShieldId == other.providerShieldId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is ShieldRegisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(shieldId, params, providerId, providerShieldId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ShieldRegisterParams{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ShieldRegisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

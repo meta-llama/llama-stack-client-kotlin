@@ -4,7 +4,9 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.SafetyRunShieldParams
+import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,20 +21,15 @@ class SafetyServiceTest {
         val runShieldResponse =
             safetyService.runShield(
                 SafetyRunShieldParams.builder()
-                    .messages(
-                        listOf(
-                            SafetyRunShieldParams.Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
-                                    .build()
-                            )
-                        )
+                    .addMessage(UserMessage.builder().content("string").context("string").build())
+                    .params(
+                        SafetyRunShieldParams.Params.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
                     )
-                    .params(SafetyRunShieldParams.Params.builder().build())
                     .shieldId("shield_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(runShieldResponse)

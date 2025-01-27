@@ -4,45 +4,55 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-@JsonDeserialize(builder = PostTrainingJobArtifactsResponse.Builder::class)
 @NoAutoDetect
 class PostTrainingJobArtifactsResponse
+@JsonCreator
 private constructor(
-    private val checkpoints: JsonField<List<JsonValue>>,
-    private val jobUuid: JsonField<String>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("checkpoints")
+    @ExcludeMissing
+    private val checkpoints: JsonField<List<JsonValue>> = JsonMissing.of(),
+    @JsonProperty("job_uuid")
+    @ExcludeMissing
+    private val jobUuid: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun checkpoints(): List<JsonValue> = checkpoints.getRequired("checkpoints")
 
     fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
-    @JsonProperty("checkpoints") @ExcludeMissing fun _checkpoints() = checkpoints
+    @JsonProperty("checkpoints")
+    @ExcludeMissing
+    fun _checkpoints(): JsonField<List<JsonValue>> = checkpoints
 
-    @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid() = jobUuid
+    @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): PostTrainingJobArtifactsResponse = apply {
-        if (!validated) {
-            checkpoints()
-            jobUuid()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        checkpoints()
+        jobUuid()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -54,49 +64,63 @@ private constructor(
 
     class Builder {
 
-        private var checkpoints: JsonField<List<JsonValue>> = JsonMissing.of()
-        private var jobUuid: JsonField<String> = JsonMissing.of()
+        private var checkpoints: JsonField<MutableList<JsonValue>>? = null
+        private var jobUuid: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(postTrainingJobArtifactsResponse: PostTrainingJobArtifactsResponse) =
             apply {
-                this.checkpoints = postTrainingJobArtifactsResponse.checkpoints
-                this.jobUuid = postTrainingJobArtifactsResponse.jobUuid
-                additionalProperties(postTrainingJobArtifactsResponse.additionalProperties)
+                checkpoints =
+                    postTrainingJobArtifactsResponse.checkpoints.map { it.toMutableList() }
+                jobUuid = postTrainingJobArtifactsResponse.jobUuid
+                additionalProperties =
+                    postTrainingJobArtifactsResponse.additionalProperties.toMutableMap()
             }
 
         fun checkpoints(checkpoints: List<JsonValue>) = checkpoints(JsonField.of(checkpoints))
 
-        @JsonProperty("checkpoints")
-        @ExcludeMissing
         fun checkpoints(checkpoints: JsonField<List<JsonValue>>) = apply {
-            this.checkpoints = checkpoints
+            this.checkpoints = checkpoints.map { it.toMutableList() }
+        }
+
+        fun addCheckpoint(checkpoint: JsonValue) = apply {
+            checkpoints =
+                (checkpoints ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(checkpoint)
+                }
         }
 
         fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
-        @JsonProperty("job_uuid")
-        @ExcludeMissing
         fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): PostTrainingJobArtifactsResponse =
             PostTrainingJobArtifactsResponse(
-                checkpoints.map { it.toImmutable() },
-                jobUuid,
+                checkRequired("checkpoints", checkpoints).map { it.toImmutable() },
+                checkRequired("jobUuid", jobUuid),
                 additionalProperties.toImmutable(),
             )
     }

@@ -18,7 +18,7 @@ interface ScoringFunctionService {
     fun list(
         params: ScoringFunctionListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): ScoringFn
+    ): List<ScoringFn>
 
     fun register(
         params: ScoringFunctionRegisterParams,

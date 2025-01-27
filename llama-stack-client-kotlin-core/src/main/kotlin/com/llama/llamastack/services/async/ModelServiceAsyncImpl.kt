@@ -13,6 +13,7 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
@@ -20,7 +21,7 @@ import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
 
 class ModelServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ModelServiceAsync {
 
@@ -37,7 +38,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "models", "get")
+                .addPathSegments("v1", "models", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -54,14 +55,18 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<Model> =
-        jsonHandler<Model>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<Model>>> =
+        jsonHandler<DataEnvelope<List<Model>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
-    override suspend fun list(params: ModelListParams, requestOptions: RequestOptions): Model {
+    override suspend fun list(
+        params: ModelListParams,
+        requestOptions: RequestOptions
+    ): List<Model> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "models", "list")
+                .addPathSegments("v1", "models")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -75,6 +80,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
@@ -88,7 +94,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "models", "register")
+                .addPathSegments("v1", "models")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -111,13 +117,13 @@ constructor(
     override suspend fun unregister(params: ModelUnregisterParams, requestOptions: RequestOptions) {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("alpha", "models", "unregister")
+                .method(HttpMethod.DELETE)
+                .addPathSegments("v1", "models", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
                 .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
         return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
             response.use { unregisterHandler.handle(it) }

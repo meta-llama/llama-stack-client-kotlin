@@ -10,8 +10,13 @@ class ProviderInfoTest {
     @Test
     fun createProviderInfo() {
         val providerInfo =
-            ProviderInfo.builder().providerId("provider_id").providerType("provider_type").build()
+            ProviderInfo.builder()
+                .api("api")
+                .providerId("provider_id")
+                .providerType("provider_type")
+                .build()
         assertThat(providerInfo).isNotNull
+        assertThat(providerInfo.api()).isEqualTo("api")
         assertThat(providerInfo.providerId()).isEqualTo("provider_id")
         assertThat(providerInfo.providerType()).isEqualTo("provider_type")
     }

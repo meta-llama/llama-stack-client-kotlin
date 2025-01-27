@@ -4,7 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.AlgorithmConfig
+import com.llama.llamastack.models.PostTrainingPreferenceOptimizeParams
+import com.llama.llamastack.models.PostTrainingSupervisedFineTuneParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,7 +22,6 @@ class PostTrainingServiceTest {
         val postTrainingJob =
             postTrainingService.preferenceOptimize(
                 PostTrainingPreferenceOptimizeParams.builder()
-                    .algorithm(PostTrainingPreferenceOptimizeParams.Algorithm.DPO)
                     .algorithmConfig(
                         PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
                             .epsilon(0.0)
@@ -28,40 +30,69 @@ class PostTrainingServiceTest {
                             .rewardScale(0.0)
                             .build()
                     )
-                    .datasetId("dataset_id")
-                    .finetunedModel("https://example.com")
+                    .finetunedModel("finetuned_model")
                     .hyperparamSearchConfig(
                         PostTrainingPreferenceOptimizeParams.HyperparamSearchConfig.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .jobUuid("job_uuid")
                     .loggerConfig(
-                        PostTrainingPreferenceOptimizeParams.LoggerConfig.builder().build()
-                    )
-                    .optimizerConfig(
-                        PostTrainingPreferenceOptimizeParams.OptimizerConfig.builder()
-                            .lr(0.0)
-                            .lrMin(0.0)
-                            .optimizerType(
-                                PostTrainingPreferenceOptimizeParams.OptimizerConfig.OptimizerType
-                                    .ADAM
-                            )
-                            .weightDecay(0.0)
+                        PostTrainingPreferenceOptimizeParams.LoggerConfig.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .trainingConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                            .batchSize(0L)
-                            .enableActivationCheckpointing(true)
-                            .fsdpCpuOffload(true)
-                            .memoryEfficientFsdpWrap(true)
+                            .dataConfig(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
+                                    .builder()
+                                    .batchSize(0L)
+                                    .dataFormat(
+                                        PostTrainingPreferenceOptimizeParams.TrainingConfig
+                                            .DataConfig
+                                            .DataFormat
+                                            .INSTRUCT
+                                    )
+                                    .datasetId("dataset_id")
+                                    .shuffle(true)
+                                    .packed(true)
+                                    .trainOnInput(true)
+                                    .validationDatasetId("validation_dataset_id")
+                                    .build()
+                            )
+                            .gradientAccumulationSteps(0L)
+                            .maxStepsPerEpoch(0L)
+                            .maxValidationSteps(0L)
                             .nEpochs(0L)
-                            .nIters(0L)
-                            .shuffle(true)
+                            .optimizerConfig(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
+                                    .builder()
+                                    .lr(0.0)
+                                    .numWarmupSteps(0L)
+                                    .optimizerType(
+                                        PostTrainingPreferenceOptimizeParams.TrainingConfig
+                                            .OptimizerConfig
+                                            .OptimizerType
+                                            .ADAM
+                                    )
+                                    .weightDecay(0.0)
+                                    .build()
+                            )
+                            .dtype("dtype")
+                            .efficiencyConfig(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                                    .builder()
+                                    .enableActivationCheckpointing(true)
+                                    .enableActivationOffloading(true)
+                                    .fsdpCpuOffload(true)
+                                    .memoryEfficientFsdpWrap(true)
+                                    .build()
+                            )
                             .build()
                     )
-                    .validationDatasetId("validation_dataset_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJob)
@@ -76,54 +107,81 @@ class PostTrainingServiceTest {
         val postTrainingJob =
             postTrainingService.supervisedFineTune(
                 PostTrainingSupervisedFineTuneParams.builder()
-                    .algorithm(PostTrainingSupervisedFineTuneParams.Algorithm.FULL)
-                    .algorithmConfig(
-                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.ofLoraFinetuningConfig(
-                            PostTrainingSupervisedFineTuneParams.AlgorithmConfig
-                                .LoraFinetuningConfig
-                                .builder()
-                                .alpha(0L)
-                                .applyLoraToMlp(true)
-                                .applyLoraToOutput(true)
-                                .loraAttnModules(listOf("string"))
-                                .rank(0L)
-                                .build()
-                        )
-                    )
-                    .datasetId("dataset_id")
                     .hyperparamSearchConfig(
                         PostTrainingSupervisedFineTuneParams.HyperparamSearchConfig.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .jobUuid("job_uuid")
                     .loggerConfig(
-                        PostTrainingSupervisedFineTuneParams.LoggerConfig.builder().build()
+                        PostTrainingSupervisedFineTuneParams.LoggerConfig.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
                     )
                     .model("model")
-                    .optimizerConfig(
-                        PostTrainingSupervisedFineTuneParams.OptimizerConfig.builder()
-                            .lr(0.0)
-                            .lrMin(0.0)
-                            .optimizerType(
-                                PostTrainingSupervisedFineTuneParams.OptimizerConfig.OptimizerType
-                                    .ADAM
-                            )
-                            .weightDecay(0.0)
-                            .build()
-                    )
                     .trainingConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
-                            .batchSize(0L)
-                            .enableActivationCheckpointing(true)
-                            .fsdpCpuOffload(true)
-                            .memoryEfficientFsdpWrap(true)
+                            .dataConfig(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
+                                    .builder()
+                                    .batchSize(0L)
+                                    .dataFormat(
+                                        PostTrainingSupervisedFineTuneParams.TrainingConfig
+                                            .DataConfig
+                                            .DataFormat
+                                            .INSTRUCT
+                                    )
+                                    .datasetId("dataset_id")
+                                    .shuffle(true)
+                                    .packed(true)
+                                    .trainOnInput(true)
+                                    .validationDatasetId("validation_dataset_id")
+                                    .build()
+                            )
+                            .gradientAccumulationSteps(0L)
+                            .maxStepsPerEpoch(0L)
+                            .maxValidationSteps(0L)
                             .nEpochs(0L)
-                            .nIters(0L)
-                            .shuffle(true)
+                            .optimizerConfig(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
+                                    .builder()
+                                    .lr(0.0)
+                                    .numWarmupSteps(0L)
+                                    .optimizerType(
+                                        PostTrainingSupervisedFineTuneParams.TrainingConfig
+                                            .OptimizerConfig
+                                            .OptimizerType
+                                            .ADAM
+                                    )
+                                    .weightDecay(0.0)
+                                    .build()
+                            )
+                            .dtype("dtype")
+                            .efficiencyConfig(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
+                                    .builder()
+                                    .enableActivationCheckpointing(true)
+                                    .enableActivationOffloading(true)
+                                    .fsdpCpuOffload(true)
+                                    .memoryEfficientFsdpWrap(true)
+                                    .build()
+                            )
                             .build()
                     )
-                    .validationDatasetId("validation_dataset_id")
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .algorithmConfig(
+                        AlgorithmConfig.LoraFinetuningConfig.builder()
+                            .alpha(0L)
+                            .applyLoraToMlp(true)
+                            .applyLoraToOutput(true)
+                            .addLoraAttnModule("string")
+                            .rank(0L)
+                            .quantizeBase(true)
+                            .useDora(true)
+                            .build()
+                    )
+                    .checkpointDir("checkpoint_dir")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(postTrainingJob)

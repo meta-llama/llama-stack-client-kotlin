@@ -6,32 +6,42 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = EvalTask.Builder::class)
 @NoAutoDetect
 class EvalTask
+@JsonCreator
 private constructor(
-    private val datasetId: JsonField<String>,
-    private val identifier: JsonField<String>,
-    private val metadata: JsonField<Metadata>,
-    private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
-    private val scoringFunctions: JsonField<List<String>>,
-    private val type: JsonField<Type>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("dataset_id")
+    @ExcludeMissing
+    private val datasetId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("identifier")
+    @ExcludeMissing
+    private val identifier: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("metadata")
+    @ExcludeMissing
+    private val metadata: JsonField<Metadata> = JsonMissing.of(),
+    @JsonProperty("provider_id")
+    @ExcludeMissing
+    private val providerId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    private val providerResourceId: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("scoring_functions")
+    @ExcludeMissing
+    private val scoringFunctions: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun datasetId(): String = datasetId.getRequired("dataset_id")
 
@@ -45,39 +55,47 @@ private constructor(
 
     fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
-    fun type(): Type = type.getRequired("type")
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-    @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId() = datasetId
+    @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
-    @JsonProperty("identifier") @ExcludeMissing fun _identifier() = identifier
+    @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
-    @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+    @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-    @JsonProperty("provider_id") @ExcludeMissing fun _providerId() = providerId
+    @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
-    fun _providerResourceId() = providerResourceId
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
-    @JsonProperty("scoring_functions") @ExcludeMissing fun _scoringFunctions() = scoringFunctions
-
-    @JsonProperty("type") @ExcludeMissing fun _type() = type
+    @JsonProperty("scoring_functions")
+    @ExcludeMissing
+    fun _scoringFunctions(): JsonField<List<String>> = scoringFunctions
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): EvalTask = apply {
-        if (!validated) {
-            datasetId()
-            identifier()
-            metadata().validate()
-            providerId()
-            providerResourceId()
-            scoringFunctions()
-            type()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        datasetId()
+        identifier()
+        metadata().validate()
+        providerId()
+        providerResourceId()
+        scoringFunctions()
+        _type().let {
+            if (it != JsonValue.from("eval_task")) {
+                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+            }
+        }
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -89,55 +107,45 @@ private constructor(
 
     class Builder {
 
-        private var datasetId: JsonField<String> = JsonMissing.of()
-        private var identifier: JsonField<String> = JsonMissing.of()
-        private var metadata: JsonField<Metadata> = JsonMissing.of()
-        private var providerId: JsonField<String> = JsonMissing.of()
-        private var providerResourceId: JsonField<String> = JsonMissing.of()
-        private var scoringFunctions: JsonField<List<String>> = JsonMissing.of()
-        private var type: JsonField<Type> = JsonMissing.of()
+        private var datasetId: JsonField<String>? = null
+        private var identifier: JsonField<String>? = null
+        private var metadata: JsonField<Metadata>? = null
+        private var providerId: JsonField<String>? = null
+        private var providerResourceId: JsonField<String>? = null
+        private var scoringFunctions: JsonField<MutableList<String>>? = null
+        private var type: JsonValue = JsonValue.from("eval_task")
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalTask: EvalTask) = apply {
-            this.datasetId = evalTask.datasetId
-            this.identifier = evalTask.identifier
-            this.metadata = evalTask.metadata
-            this.providerId = evalTask.providerId
-            this.providerResourceId = evalTask.providerResourceId
-            this.scoringFunctions = evalTask.scoringFunctions
-            this.type = evalTask.type
-            additionalProperties(evalTask.additionalProperties)
+            datasetId = evalTask.datasetId
+            identifier = evalTask.identifier
+            metadata = evalTask.metadata
+            providerId = evalTask.providerId
+            providerResourceId = evalTask.providerResourceId
+            scoringFunctions = evalTask.scoringFunctions.map { it.toMutableList() }
+            type = evalTask.type
+            additionalProperties = evalTask.additionalProperties.toMutableMap()
         }
 
         fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
-        @JsonProperty("dataset_id")
-        @ExcludeMissing
         fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
-        @JsonProperty("identifier")
-        @ExcludeMissing
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
-        @JsonProperty("metadata")
-        @ExcludeMissing
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
-        @JsonProperty("provider_id")
-        @ExcludeMissing
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerResourceId(providerResourceId: String) =
             providerResourceId(JsonField.of(providerResourceId))
 
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
         fun providerResourceId(providerResourceId: JsonField<String>) = apply {
             this.providerResourceId = providerResourceId
         }
@@ -145,62 +153,75 @@ private constructor(
         fun scoringFunctions(scoringFunctions: List<String>) =
             scoringFunctions(JsonField.of(scoringFunctions))
 
-        @JsonProperty("scoring_functions")
-        @ExcludeMissing
         fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
-            this.scoringFunctions = scoringFunctions
+            this.scoringFunctions = scoringFunctions.map { it.toMutableList() }
         }
 
-        fun type(type: Type) = type(JsonField.of(type))
+        fun addScoringFunction(scoringFunction: String) = apply {
+            scoringFunctions =
+                (scoringFunctions ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(scoringFunction)
+                }
+        }
 
-        @JsonProperty("type")
-        @ExcludeMissing
-        fun type(type: JsonField<Type>) = apply { this.type = type }
+        fun type(type: JsonValue) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): EvalTask =
             EvalTask(
-                datasetId,
-                identifier,
-                metadata,
-                providerId,
-                providerResourceId,
-                scoringFunctions.map { it.toImmutable() },
+                checkRequired("datasetId", datasetId),
+                checkRequired("identifier", identifier),
+                checkRequired("metadata", metadata),
+                checkRequired("providerId", providerId),
+                checkRequired("providerResourceId", providerResourceId),
+                checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
                 type,
                 additionalProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = Metadata.Builder::class)
     @NoAutoDetect
     class Metadata
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
         fun validate(): Metadata = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -215,21 +236,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metadata: Metadata) = apply {
-                additionalProperties(metadata.additionalProperties)
+                additionalProperties = metadata.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
@@ -250,57 +276,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
-    }
-
-    class Type
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
-        companion object {
-
-            val EVAL_TASK = Type(JsonField.of("eval_task"))
-
-            fun of(value: String) = Type(JsonField.of(value))
-        }
-
-        enum class Known {
-            EVAL_TASK,
-        }
-
-        enum class Value {
-            EVAL_TASK,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                EVAL_TASK -> Value.EVAL_TASK
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                EVAL_TASK -> Known.EVAL_TASK
-                else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
     }
 
     override fun equals(other: Any?): Boolean {

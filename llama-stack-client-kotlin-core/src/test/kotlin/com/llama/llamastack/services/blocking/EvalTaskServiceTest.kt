@@ -4,8 +4,11 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
-import org.junit.jupiter.api.Disabled
+import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.EvalTask
+import com.llama.llamastack.models.EvalTaskListParams
+import com.llama.llamastack.models.EvalTaskRegisterParams
+import com.llama.llamastack.models.EvalTaskRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -20,30 +23,31 @@ class EvalTaskServiceTest {
         val evalTask =
             evalTaskService.retrieve(
                 EvalTaskRetrieveParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
-                    .name("name")
+                    .evalTaskId("eval_task_id")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(evalTask)
         evalTask?.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type application/jsonl, Prism mock server will fail"
-    )
     @Test
     fun callList() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
-        val evalTask =
+        val listEvalTasksResponse =
             evalTaskService.list(
                 EvalTaskListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(evalTask)
-        evalTask.validate()
+        println(listEvalTasksResponse)
+        for (evalTask: EvalTask in listEvalTasksResponse) {
+            evalTask.validate()
+        }
     }
 
     @Test
@@ -55,11 +59,16 @@ class EvalTaskServiceTest {
             EvalTaskRegisterParams.builder()
                 .datasetId("dataset_id")
                 .evalTaskId("eval_task_id")
-                .scoringFunctions(listOf("string"))
-                .metadata(EvalTaskRegisterParams.Metadata.builder().build())
+                .addScoringFunction("string")
+                .metadata(
+                    EvalTaskRegisterParams.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .providerEvalTaskId("provider_eval_task_id")
                 .providerId("provider_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

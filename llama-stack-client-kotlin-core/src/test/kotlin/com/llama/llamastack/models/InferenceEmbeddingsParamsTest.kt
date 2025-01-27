@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,9 +10,10 @@ class InferenceEmbeddingsParamsTest {
     @Test
     fun createInferenceEmbeddingsParams() {
         InferenceEmbeddingsParams.builder()
-            .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
+            .addContent("string")
             .modelId("model_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -21,28 +21,24 @@ class InferenceEmbeddingsParamsTest {
     fun getBody() {
         val params =
             InferenceEmbeddingsParams.builder()
-                .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
+                .addContent("string")
                 .modelId("model_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.contents())
-            .isEqualTo(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
+        assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
-            InferenceEmbeddingsParams.builder()
-                .contents(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
-                .modelId("model_id")
-                .build()
+            InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.contents())
-            .isEqualTo(listOf(InferenceEmbeddingsParams.Content.ofString("string")))
+        assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

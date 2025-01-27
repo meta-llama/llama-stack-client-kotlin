@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,50 +10,27 @@ class EvalRunEvalParamsTest {
     @Test
     fun createEvalRunEvalParams() {
         EvalRunEvalParams.builder()
-            .taskConfig(
-                EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(SamplingParams.Strategy.GREEDY)
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .temperature(0.0)
-                                                .topK(0L)
-                                                .topP(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
-                                        .build()
-                                )
-                        )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
-                        .numExamples(0L)
-                        .build()
-                )
-            )
             .taskId("task_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .taskConfig(
+                EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                    .evalCandidate(
+                        EvalCandidate.ModelCandidate.builder()
+                            .model("model")
+                            .samplingParams(
+                                SamplingParams.builder()
+                                    .strategyGreedySampling()
+                                    .maxTokens(0L)
+                                    .repetitionPenalty(0.0)
+                                    .build()
+                            )
+                            .systemMessage(SystemMessage.builder().content("string").build())
+                            .build()
+                    )
+                    .numExamples(0L)
+                    .build()
+            )
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -62,174 +38,112 @@ class EvalRunEvalParamsTest {
     fun getBody() {
         val params =
             EvalRunEvalParams.builder()
-                .taskConfig(
-                    EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(SamplingParams.Strategy.GREEDY)
-                                                    .maxTokens(0L)
-                                                    .repetitionPenalty(0.0)
-                                                    .temperature(0.0)
-                                                    .topK(0L)
-                                                    .topP(0.0)
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .systemMessage(
-                                                SystemMessage.builder()
-                                                    .content(
-                                                        SystemMessage.Content.ofString("string")
-                                                    )
-                                                    .role(SystemMessage.Role.SYSTEM)
-                                                    .build()
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                            )
-                            .numExamples(0L)
-                            .build()
-                    )
-                )
                 .taskId("task_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategyGreedySampling()
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
+                                        .build()
+                                )
+                                .systemMessage(SystemMessage.builder().content("string").build())
+                                .build()
+                        )
+                        .numExamples(0L)
+                        .build()
+                )
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalTaskConfig.ofBenchmark(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(SamplingParams.Strategy.GREEDY)
-                                                .maxTokens(0L)
-                                                .repetitionPenalty(0.0)
-                                                .temperature(0.0)
-                                                .topK(0L)
-                                                .topP(0.0)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .systemMessage(
-                                            SystemMessage.builder()
-                                                .content(SystemMessage.Content.ofString("string"))
-                                                .role(SystemMessage.Role.SYSTEM)
-                                                .build()
-                                        )
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder()
+                                        .strategyGreedySampling()
+                                        .maxTokens(0L)
+                                        .repetitionPenalty(0.0)
                                         .build()
                                 )
+                                .systemMessage(SystemMessage.builder().content("string").build())
+                                .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
                         .numExamples(0L)
                         .build()
                 )
             )
-        assertThat(body.taskId()).isEqualTo("task_id")
     }
 
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
             EvalRunEvalParams.builder()
-                .taskConfig(
-                    EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
-                            .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                    .ofModelCandidate(
-                                        EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                            .EvalCandidate
-                                            .ModelCandidate
-                                            .builder()
-                                            .model("model")
-                                            .samplingParams(
-                                                SamplingParams.builder()
-                                                    .strategy(SamplingParams.Strategy.GREEDY)
-                                                    .build()
-                                            )
-                                            .type(
-                                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                    .EvalCandidate
-                                                    .ModelCandidate
-                                                    .Type
-                                                    .MODEL
-                                            )
-                                            .build()
-                                    )
-                            )
-                            .type(
-                                EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK
-                            )
-                            .build()
-                    )
-                )
                 .taskId("task_id")
+                .taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.taskConfig())
             .isEqualTo(
-                EvalRunEvalParams.TaskConfig.ofBenchmarkEvalTaskConfig(
-                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.builder()
+                EvalTaskConfig.ofBenchmark(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
                         .evalCandidate(
-                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.EvalCandidate
-                                .ofModelCandidate(
-                                    EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                        .EvalCandidate
-                                        .ModelCandidate
-                                        .builder()
-                                        .model("model")
-                                        .samplingParams(
-                                            SamplingParams.builder()
-                                                .strategy(SamplingParams.Strategy.GREEDY)
-                                                .build()
-                                        )
-                                        .type(
-                                            EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig
-                                                .EvalCandidate
-                                                .ModelCandidate
-                                                .Type
-                                                .MODEL
-                                        )
-                                        .build()
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
                                 )
+                                .build()
                         )
-                        .type(EvalRunEvalParams.TaskConfig.BenchmarkEvalTaskConfig.Type.BENCHMARK)
                         .build()
                 )
             )
-        assertThat(body.taskId()).isEqualTo("task_id")
+    }
+
+    @Test
+    fun getPathParam() {
+        val params =
+            EvalRunEvalParams.builder()
+                .taskId("task_id")
+                .taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+        assertThat(params).isNotNull
+        // path param "taskId"
+        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

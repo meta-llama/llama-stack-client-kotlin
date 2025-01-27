@@ -3,9 +3,9 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class AgentTurnRetrieveParams
@@ -13,6 +13,7 @@ constructor(
     private val agentId: String,
     private val sessionId: String,
     private val turnId: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -24,6 +25,8 @@ constructor(
 
     fun turnId(): String = turnId
 
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
+
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -32,20 +35,25 @@ constructor(
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
     }
 
-    internal fun getQueryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.agentId.let { queryParams.put("agent_id", listOf(it.toString())) }
-        this.sessionId.let { queryParams.put("session_id", listOf(it.toString())) }
-        this.turnId.let { queryParams.put("turn_id", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
+    internal fun getQueryParams(): QueryParams = additionalQueryParams
+
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> agentId
+            1 -> sessionId
+            2 -> turnId
+            else -> ""
+        }
     }
 
     fun toBuilder() = Builder().from(this)
@@ -61,6 +69,7 @@ constructor(
         private var agentId: String? = null
         private var sessionId: String? = null
         private var turnId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
@@ -69,6 +78,7 @@ constructor(
             agentId = agentTurnRetrieveParams.agentId
             sessionId = agentTurnRetrieveParams.sessionId
             turnId = agentTurnRetrieveParams.turnId
+            xLlamaStackClientVersion = agentTurnRetrieveParams.xLlamaStackClientVersion
             xLlamaStackProviderData = agentTurnRetrieveParams.xLlamaStackProviderData
             additionalHeaders = agentTurnRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentTurnRetrieveParams.additionalQueryParams.toBuilder()
@@ -80,7 +90,11 @@ constructor(
 
         fun turnId(turnId: String) = apply { this.turnId = turnId }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -184,9 +198,10 @@ constructor(
 
         fun build(): AgentTurnRetrieveParams =
             AgentTurnRetrieveParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(sessionId) { "`sessionId` is required but was not set" },
-                checkNotNull(turnId) { "`turnId` is required but was not set" },
+                checkRequired("agentId", agentId),
+                checkRequired("sessionId", sessionId),
+                checkRequired("turnId", turnId),
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -198,11 +213,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentTurnRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentTurnRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnId=$turnId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentTurnRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnId=$turnId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

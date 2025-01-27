@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,27 +11,17 @@ class AgentTurnCreateParamsTest {
     fun createAgentTurnCreateParams() {
         AgentTurnCreateParams.builder()
             .agentId("agent_id")
-            .messages(
-                listOf(
-                    AgentTurnCreateParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
-                            .build()
-                    )
-                )
-            )
             .sessionId("session_id")
-            .attachments(
-                listOf(
-                    Attachment.builder()
-                        .content(Attachment.Content.ofString("string"))
-                        .mimeType("mime_type")
-                        .build()
-                )
+            .addMessage(UserMessage.builder().content("string").context("string").build())
+            .addDocument(
+                AgentTurnCreateParams.Document.builder()
+                    .content("string")
+                    .mimeType("mime_type")
+                    .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .addToolgroup("string")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -41,53 +30,39 @@ class AgentTurnCreateParamsTest {
         val params =
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
-                                .build()
-                        )
-                    )
-                )
                 .sessionId("session_id")
-                .attachments(
-                    listOf(
-                        Attachment.builder()
-                            .content(Attachment.Content.ofString("string"))
-                            .mimeType("mime_type")
-                            .build()
-                    )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
+                .addDocument(
+                    AgentTurnCreateParams.Document.builder()
+                        .content("string")
+                        .mimeType("mime_type")
+                        .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .addToolgroup("string")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    AgentTurnCreateParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .context(UserMessage.Context.ofString("string"))
-                            .build()
+                    AgentTurnCreateParams.Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
-        assertThat(body.sessionId()).isEqualTo("session_id")
-        assertThat(body.attachments())
+        assertThat(body.documents())
             .isEqualTo(
                 listOf(
-                    Attachment.builder()
-                        .content(Attachment.Content.ofString("string"))
+                    AgentTurnCreateParams.Document.builder()
+                        .content("string")
                         .mimeType("mime_type")
                         .build()
                 )
             )
+        assertThat(body.toolgroups())
+            .isEqualTo(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
     }
 
     @Test
@@ -95,32 +70,35 @@ class AgentTurnCreateParamsTest {
         val params =
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
-                )
                 .sessionId("session_id")
+                .addMessage(UserMessage.builder().content("string").build())
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.agentId()).isEqualTo("agent_id")
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    AgentTurnCreateParams.Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content(UserMessage.Content.ofString("string"))
-                            .role(UserMessage.Role.USER)
-                            .build()
+                    AgentTurnCreateParams.Message.ofUser(
+                        UserMessage.builder().content("string").build()
                     )
                 )
             )
-        assertThat(body.sessionId()).isEqualTo("session_id")
+    }
+
+    @Test
+    fun getPathParam() {
+        val params =
+            AgentTurnCreateParams.builder()
+                .agentId("agent_id")
+                .sessionId("session_id")
+                .addMessage(UserMessage.builder().content("string").build())
+                .build()
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // path param "sessionId"
+        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

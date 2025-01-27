@@ -18,7 +18,7 @@ interface ShieldServiceAsync {
     suspend fun list(
         params: ShieldListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): Shield
+    ): List<Shield>
 
     suspend fun register(
         params: ShieldRegisterParams,

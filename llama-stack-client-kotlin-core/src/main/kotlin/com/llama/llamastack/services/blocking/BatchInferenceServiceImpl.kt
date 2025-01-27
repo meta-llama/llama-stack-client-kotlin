@@ -18,7 +18,7 @@ import com.llama.llamastack.models.BatchInferenceChatCompletionResponse
 import com.llama.llamastack.models.BatchInferenceCompletionParams
 
 class BatchInferenceServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : BatchInferenceService {
 
@@ -36,7 +36,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "batch-inference", "chat-completion")
+                .addPathSegments("v1", "batch-inference", "chat-completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -64,7 +64,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "batch-inference", "completion")
+                .addPathSegments("v1", "batch-inference", "completion")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

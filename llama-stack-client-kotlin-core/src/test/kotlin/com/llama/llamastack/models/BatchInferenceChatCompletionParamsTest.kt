@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,16 +11,10 @@ class BatchInferenceChatCompletionParamsTest {
     @Test
     fun createBatchInferenceChatCompletionParams() {
         BatchInferenceChatCompletionParams.builder()
-            .messagesBatch(
+            .addMessagesBatch(
                 listOf(
-                    listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
-                            UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
-                                .build()
-                        )
+                    Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
@@ -28,28 +22,36 @@ class BatchInferenceChatCompletionParamsTest {
             .logprobs(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
             .samplingParams(
                 SamplingParams.builder()
-                    .strategy(SamplingParams.Strategy.GREEDY)
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
-                    .temperature(0.0)
-                    .topK(0L)
-                    .topP(0.0)
                     .build()
             )
             .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
             .toolPromptFormat(BatchInferenceChatCompletionParams.ToolPromptFormat.JSON)
-            .tools(
-                listOf(
-                    BatchInferenceChatCompletionParams.Tool.builder()
-                        .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                        .description("description")
-                        .parameters(
-                            BatchInferenceChatCompletionParams.Tool.Parameters.builder().build()
-                        )
-                        .build()
-                )
+            .addTool(
+                BatchInferenceChatCompletionParams.Tool.builder()
+                    .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                    .description("description")
+                    .parameters(
+                        BatchInferenceChatCompletionParams.Tool.Parameters.builder()
+                            .putAdditionalProperty(
+                                "foo",
+                                JsonValue.from(
+                                    mapOf(
+                                        "param_type" to "param_type",
+                                        "default" to true,
+                                        "description" to "description",
+                                        "required" to true,
+                                    )
+                                )
+                            )
+                            .build()
+                    )
+                    .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -57,16 +59,10 @@ class BatchInferenceChatCompletionParamsTest {
     fun getBody() {
         val params =
             BatchInferenceChatCompletionParams.builder()
-                .messagesBatch(
+                .addMessagesBatch(
                     listOf(
-                        listOf(
-                            BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .context(UserMessage.Context.ofString("string"))
-                                    .build()
-                            )
+                        Message.ofUser(
+                            UserMessage.builder().content("string").context("string").build()
                         )
                     )
                 )
@@ -74,28 +70,36 @@ class BatchInferenceChatCompletionParamsTest {
                 .logprobs(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
-                        .temperature(0.0)
-                        .topK(0L)
-                        .topP(0.0)
                         .build()
                 )
                 .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
                 .toolPromptFormat(BatchInferenceChatCompletionParams.ToolPromptFormat.JSON)
-                .tools(
-                    listOf(
-                        BatchInferenceChatCompletionParams.Tool.builder()
-                            .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                            .description("description")
-                            .parameters(
-                                BatchInferenceChatCompletionParams.Tool.Parameters.builder().build()
-                            )
-                            .build()
-                    )
+                .addTool(
+                    BatchInferenceChatCompletionParams.Tool.builder()
+                        .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                        .description("description")
+                        .parameters(
+                            BatchInferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
+                                        )
+                                    )
+                                )
+                                .build()
+                        )
+                        .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
@@ -103,12 +107,8 @@ class BatchInferenceChatCompletionParamsTest {
             .isEqualTo(
                 listOf(
                     listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
-                            UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .context(UserMessage.Context.ofString("string"))
-                                .build()
+                        Message.ofUser(
+                            UserMessage.builder().content("string").context("string").build()
                         )
                     )
                 )
@@ -119,12 +119,9 @@ class BatchInferenceChatCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategy(SamplingParams.Strategy.GREEDY)
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
-                    .temperature(0.0)
-                    .topK(0L)
-                    .topP(0.0)
                     .build()
             )
         assertThat(body.toolChoice()).isEqualTo(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
@@ -137,7 +134,19 @@ class BatchInferenceChatCompletionParamsTest {
                         .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
                         .description("description")
                         .parameters(
-                            BatchInferenceChatCompletionParams.Tool.Parameters.builder().build()
+                            BatchInferenceChatCompletionParams.Tool.Parameters.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "param_type" to "param_type",
+                                            "default" to true,
+                                            "description" to "description",
+                                            "required" to true,
+                                        )
+                                    )
+                                )
+                                .build()
                         )
                         .build()
                 )
@@ -148,17 +157,8 @@ class BatchInferenceChatCompletionParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             BatchInferenceChatCompletionParams.builder()
-                .messagesBatch(
-                    listOf(
-                        listOf(
-                            BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
-                                UserMessage.builder()
-                                    .content(UserMessage.Content.ofString("string"))
-                                    .role(UserMessage.Role.USER)
-                                    .build()
-                            )
-                        )
-                    )
+                .addMessagesBatch(
+                    listOf(Message.ofUser(UserMessage.builder().content("string").build()))
                 )
                 .model("model")
                 .build()
@@ -166,16 +166,7 @@ class BatchInferenceChatCompletionParamsTest {
         assertThat(body).isNotNull
         assertThat(body.messagesBatch())
             .isEqualTo(
-                listOf(
-                    listOf(
-                        BatchInferenceChatCompletionParams.MessagesBatch.ofUserMessage(
-                            UserMessage.builder()
-                                .content(UserMessage.Content.ofString("string"))
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
-                )
+                listOf(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
             )
         assertThat(body.model()).isEqualTo("model")
     }

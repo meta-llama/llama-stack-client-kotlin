@@ -13,13 +13,14 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
 class EvalTaskServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : EvalTaskService {
 
@@ -36,7 +37,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "eval-tasks", "get")
+                .addPathSegments("v1", "eval-tasks", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -53,14 +54,15 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<EvalTask> =
-        jsonHandler<EvalTask>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<EvalTask>>> =
+        jsonHandler<DataEnvelope<List<EvalTask>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
-    override fun list(params: EvalTaskListParams, requestOptions: RequestOptions): EvalTask {
+    override fun list(params: EvalTaskListParams, requestOptions: RequestOptions): List<EvalTask> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "eval-tasks", "list")
+                .addPathSegments("v1", "eval-tasks")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -74,6 +76,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
@@ -83,7 +86,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "eval-tasks", "register")
+                .addPathSegments("v1", "eval-tasks")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

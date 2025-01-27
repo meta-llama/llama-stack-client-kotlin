@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,10 +12,15 @@ class ShieldRegisterParamsTest {
     fun createShieldRegisterParams() {
         ShieldRegisterParams.builder()
             .shieldId("shield_id")
-            .params(ShieldRegisterParams.Params.builder().build())
+            .params(
+                ShieldRegisterParams.Params.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
             .providerId("provider_id")
             .providerShieldId("provider_shield_id")
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -24,15 +29,25 @@ class ShieldRegisterParamsTest {
         val params =
             ShieldRegisterParams.builder()
                 .shieldId("shield_id")
-                .params(ShieldRegisterParams.Params.builder().build())
+                .params(
+                    ShieldRegisterParams.Params.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .providerId("provider_id")
                 .providerShieldId("provider_shield_id")
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.shieldId()).isEqualTo("shield_id")
-        assertThat(body.params()).isEqualTo(ShieldRegisterParams.Params.builder().build())
+        assertThat(body.params())
+            .isEqualTo(
+                ShieldRegisterParams.Params.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.providerShieldId()).isEqualTo("provider_shield_id")
     }

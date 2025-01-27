@@ -13,35 +13,35 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
-import com.llama.llamastack.models.PostTrainingJob
+import com.llama.llamastack.models.DataEnvelope
+import com.llama.llamastack.models.ListPostTrainingJobsResponse
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobArtifactsResponse
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobListParams
-import com.llama.llamastack.models.PostTrainingJobLogsParams
-import com.llama.llamastack.models.PostTrainingJobLogsResponse
 import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
 class JobServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : JobServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val listHandler: Handler<PostTrainingJob> =
-        jsonHandler<PostTrainingJob>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>> =
+        jsonHandler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: PostTrainingJobListParams,
         requestOptions: RequestOptions
-    ): PostTrainingJob {
+    ): List<ListPostTrainingJobsResponse.Data> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "jobs")
+                .addPathSegments("v1", "post-training", "jobs")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -55,21 +55,22 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
-    private val artifactsHandler: Handler<PostTrainingJobArtifactsResponse> =
-        jsonHandler<PostTrainingJobArtifactsResponse>(clientOptions.jsonMapper)
+    private val artifactsHandler: Handler<PostTrainingJobArtifactsResponse?> =
+        jsonHandler<PostTrainingJobArtifactsResponse?>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override suspend fun artifacts(
         params: PostTrainingJobArtifactsParams,
         requestOptions: RequestOptions
-    ): PostTrainingJobArtifactsResponse {
+    ): PostTrainingJobArtifactsResponse? {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "job", "artifacts")
+                .addPathSegments("v1", "post-training", "job", "artifacts")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -80,7 +81,7 @@ constructor(
                 .use { artifactsHandler.handle(it) }
                 .apply {
                     if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
+                        this?.validate()
                     }
                 }
         }
@@ -95,7 +96,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "post-training", "job", "cancel")
+                .addPathSegments("v1", "post-training", "job", "cancel")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -107,46 +108,18 @@ constructor(
         }
     }
 
-    private val logsHandler: Handler<PostTrainingJobLogsResponse> =
-        jsonHandler<PostTrainingJobLogsResponse>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
-
-    override suspend fun logs(
-        params: PostTrainingJobLogsParams,
-        requestOptions: RequestOptions
-    ): PostTrainingJobLogsResponse {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "job", "logs")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { logsHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
-                }
-        }
-    }
-
-    private val statusHandler: Handler<PostTrainingJobStatusResponse> =
-        jsonHandler<PostTrainingJobStatusResponse>(clientOptions.jsonMapper)
+    private val statusHandler: Handler<PostTrainingJobStatusResponse?> =
+        jsonHandler<PostTrainingJobStatusResponse?>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override suspend fun status(
         params: PostTrainingJobStatusParams,
         requestOptions: RequestOptions
-    ): PostTrainingJobStatusResponse {
+    ): PostTrainingJobStatusResponse? {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "post-training", "job", "status")
+                .addPathSegments("v1", "post-training", "job", "status")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -157,7 +130,7 @@ constructor(
                 .use { statusHandler.handle(it) }
                 .apply {
                     if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
+                        this?.validate()
                     }
                 }
         }

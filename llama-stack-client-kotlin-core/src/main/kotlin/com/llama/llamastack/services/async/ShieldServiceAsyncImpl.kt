@@ -12,13 +12,14 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.Shield
 import com.llama.llamastack.models.ShieldListParams
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
 
 class ShieldServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ShieldServiceAsync {
 
@@ -35,7 +36,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "shields", "get")
+                .addPathSegments("v1", "shields", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -52,14 +53,18 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<Shield> =
-        jsonHandler<Shield>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<Shield>>> =
+        jsonHandler<DataEnvelope<List<Shield>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
-    override suspend fun list(params: ShieldListParams, requestOptions: RequestOptions): Shield {
+    override suspend fun list(
+        params: ShieldListParams,
+        requestOptions: RequestOptions
+    ): List<Shield> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "shields", "list")
+                .addPathSegments("v1", "shields")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -73,6 +78,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
@@ -86,7 +92,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "shields", "register")
+                .addPathSegments("v1", "shields")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

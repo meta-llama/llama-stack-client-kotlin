@@ -6,52 +6,65 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@JsonDeserialize(builder = SafetyViolation.Builder::class)
 @NoAutoDetect
 class SafetyViolation
+@JsonCreator
 private constructor(
-    private val metadata: JsonField<Metadata>,
-    private val userMessage: JsonField<String>,
-    private val violationLevel: JsonField<ViolationLevel>,
-    private val additionalProperties: Map<String, JsonValue>,
+    @JsonProperty("metadata")
+    @ExcludeMissing
+    private val metadata: JsonField<Metadata> = JsonMissing.of(),
+    @JsonProperty("violation_level")
+    @ExcludeMissing
+    private val violationLevel: JsonField<ViolationLevel> = JsonMissing.of(),
+    @JsonProperty("user_message")
+    @ExcludeMissing
+    private val userMessage: JsonField<String> = JsonMissing.of(),
+    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
-
-    private var validated: Boolean = false
 
     fun metadata(): Metadata = metadata.getRequired("metadata")
 
-    fun userMessage(): String? = userMessage.getNullable("user_message")
-
     fun violationLevel(): ViolationLevel = violationLevel.getRequired("violation_level")
 
-    @JsonProperty("metadata") @ExcludeMissing fun _metadata() = metadata
+    fun userMessage(): String? = userMessage.getNullable("user_message")
 
-    @JsonProperty("user_message") @ExcludeMissing fun _userMessage() = userMessage
+    @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-    @JsonProperty("violation_level") @ExcludeMissing fun _violationLevel() = violationLevel
+    @JsonProperty("violation_level")
+    @ExcludeMissing
+    fun _violationLevel(): JsonField<ViolationLevel> = violationLevel
+
+    @JsonProperty("user_message")
+    @ExcludeMissing
+    fun _userMessage(): JsonField<String> = userMessage
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+    private var validated: Boolean = false
+
     fun validate(): SafetyViolation = apply {
-        if (!validated) {
-            metadata().validate()
-            userMessage()
-            violationLevel()
-            validated = true
+        if (validated) {
+            return@apply
         }
+
+        metadata().validate()
+        violationLevel()
+        userMessage()
+        validated = true
     }
 
     fun toBuilder() = Builder().from(this)
@@ -63,79 +76,81 @@ private constructor(
 
     class Builder {
 
-        private var metadata: JsonField<Metadata> = JsonMissing.of()
+        private var metadata: JsonField<Metadata>? = null
+        private var violationLevel: JsonField<ViolationLevel>? = null
         private var userMessage: JsonField<String> = JsonMissing.of()
-        private var violationLevel: JsonField<ViolationLevel> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(safetyViolation: SafetyViolation) = apply {
-            this.metadata = safetyViolation.metadata
-            this.userMessage = safetyViolation.userMessage
-            this.violationLevel = safetyViolation.violationLevel
-            additionalProperties(safetyViolation.additionalProperties)
+            metadata = safetyViolation.metadata
+            violationLevel = safetyViolation.violationLevel
+            userMessage = safetyViolation.userMessage
+            additionalProperties = safetyViolation.additionalProperties.toMutableMap()
         }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
-        @JsonProperty("metadata")
-        @ExcludeMissing
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
-
-        fun userMessage(userMessage: String) = userMessage(JsonField.of(userMessage))
-
-        @JsonProperty("user_message")
-        @ExcludeMissing
-        fun userMessage(userMessage: JsonField<String>) = apply { this.userMessage = userMessage }
 
         fun violationLevel(violationLevel: ViolationLevel) =
             violationLevel(JsonField.of(violationLevel))
 
-        @JsonProperty("violation_level")
-        @ExcludeMissing
         fun violationLevel(violationLevel: JsonField<ViolationLevel>) = apply {
             this.violationLevel = violationLevel
         }
 
+        fun userMessage(userMessage: String) = userMessage(JsonField.of(userMessage))
+
+        fun userMessage(userMessage: JsonField<String>) = apply { this.userMessage = userMessage }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
-            this.additionalProperties.putAll(additionalProperties)
+            putAllAdditionalProperties(additionalProperties)
         }
 
-        @JsonAnySetter
         fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-            this.additionalProperties.put(key, value)
+            additionalProperties.put(key, value)
         }
 
         fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.putAll(additionalProperties)
         }
 
+        fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+            keys.forEach(::removeAdditionalProperty)
+        }
+
         fun build(): SafetyViolation =
             SafetyViolation(
-                metadata,
+                checkRequired("metadata", metadata),
+                checkRequired("violationLevel", violationLevel),
                 userMessage,
-                violationLevel,
                 additionalProperties.toImmutable(),
             )
     }
 
-    @JsonDeserialize(builder = Metadata.Builder::class)
     @NoAutoDetect
     class Metadata
+    @JsonCreator
     private constructor(
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
-
-        private var validated: Boolean = false
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
 
+        private var validated: Boolean = false
+
         fun validate(): Metadata = apply {
-            if (!validated) {
-                validated = true
+            if (validated) {
+                return@apply
             }
+
+            validated = true
         }
 
         fun toBuilder() = Builder().from(this)
@@ -150,21 +165,26 @@ private constructor(
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metadata: Metadata) = apply {
-                additionalProperties(metadata.additionalProperties)
+                additionalProperties = metadata.additionalProperties.toMutableMap()
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
             }
 
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
@@ -195,25 +215,13 @@ private constructor(
 
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ViolationLevel && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-
         companion object {
 
-            val INFO = ViolationLevel(JsonField.of("info"))
+            val INFO = of("info")
 
-            val WARN = ViolationLevel(JsonField.of("warn"))
+            val WARN = of("warn")
 
-            val ERROR = ViolationLevel(JsonField.of("error"))
+            val ERROR = of("error")
 
             fun of(value: String) = ViolationLevel(JsonField.of(value))
         }
@@ -248,6 +256,18 @@ private constructor(
             }
 
         fun asString(): String = _value().asStringOrThrow()
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ViolationLevel && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {
@@ -255,15 +275,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SafetyViolation && metadata == other.metadata && userMessage == other.userMessage && violationLevel == other.violationLevel && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SafetyViolation && metadata == other.metadata && violationLevel == other.violationLevel && userMessage == other.userMessage && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(metadata, userMessage, violationLevel, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(metadata, violationLevel, userMessage, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "SafetyViolation{metadata=$metadata, userMessage=$userMessage, violationLevel=$violationLevel, additionalProperties=$additionalProperties}"
+        "SafetyViolation{metadata=$metadata, violationLevel=$violationLevel, userMessage=$userMessage, additionalProperties=$additionalProperties}"
 }

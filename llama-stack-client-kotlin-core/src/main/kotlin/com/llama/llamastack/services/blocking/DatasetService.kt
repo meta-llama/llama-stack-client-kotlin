@@ -4,10 +4,11 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.DatasetListParams
-import com.llama.llamastack.models.DatasetListResponse
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetRetrieveResponse
+import com.llama.llamastack.models.DatasetUnregisterParams
+import com.llama.llamastack.models.ListDatasetsResponse
 
 interface DatasetService {
 
@@ -19,10 +20,15 @@ interface DatasetService {
     fun list(
         params: DatasetListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): DatasetListResponse
+    ): List<ListDatasetsResponse.Data>
 
     fun register(
         params: DatasetRegisterParams,
+        requestOptions: RequestOptions = RequestOptions.none()
+    )
+
+    fun unregister(
+        params: DatasetUnregisterParams,
         requestOptions: RequestOptions = RequestOptions.none()
     )
 }

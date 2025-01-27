@@ -2,32 +2,30 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
-import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class EvalJobCancelParams
 constructor(
-    private val jobId: String,
     private val taskId: String,
+    private val jobId: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
+    fun taskId(): String = taskId
+
     fun jobId(): String = jobId
 
-    fun taskId(): String = taskId
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
@@ -37,18 +35,15 @@ constructor(
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
-    internal fun getBody(): EvalJobCancelBody {
-        return EvalJobCancelBody(
-            jobId,
-            taskId,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -56,84 +51,12 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = EvalJobCancelBody.Builder::class)
-    @NoAutoDetect
-    class EvalJobCancelBody
-    internal constructor(
-        private val jobId: String?,
-        private val taskId: String?,
-        private val additionalProperties: Map<String, JsonValue>,
-    ) {
-
-        @JsonProperty("job_id") fun jobId(): String? = jobId
-
-        @JsonProperty("task_id") fun taskId(): String? = taskId
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> taskId
+            1 -> jobId
+            else -> ""
         }
-
-        class Builder {
-
-            private var jobId: String? = null
-            private var taskId: String? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(evalJobCancelBody: EvalJobCancelBody) = apply {
-                this.jobId = evalJobCancelBody.jobId
-                this.taskId = evalJobCancelBody.taskId
-                additionalProperties(evalJobCancelBody.additionalProperties)
-            }
-
-            @JsonProperty("job_id") fun jobId(jobId: String) = apply { this.jobId = jobId }
-
-            @JsonProperty("task_id") fun taskId(taskId: String) = apply { this.taskId = taskId }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            @JsonAnySetter
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun build(): EvalJobCancelBody =
-                EvalJobCancelBody(
-                    checkNotNull(jobId) { "`jobId` is required but was not set" },
-                    checkNotNull(taskId) { "`taskId` is required but was not set" },
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is EvalJobCancelBody && jobId == other.jobId && taskId == other.taskId && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(jobId, taskId, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "EvalJobCancelBody{jobId=$jobId, taskId=$taskId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -146,27 +69,33 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var jobId: String? = null
         private var taskId: String? = null
+        private var jobId: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalJobCancelParams: EvalJobCancelParams) = apply {
-            jobId = evalJobCancelParams.jobId
             taskId = evalJobCancelParams.taskId
+            jobId = evalJobCancelParams.jobId
+            xLlamaStackClientVersion = evalJobCancelParams.xLlamaStackClientVersion
             xLlamaStackProviderData = evalJobCancelParams.xLlamaStackProviderData
             additionalHeaders = evalJobCancelParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalJobCancelParams.additionalQueryParams.toBuilder()
             additionalBodyProperties = evalJobCancelParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun jobId(jobId: String) = apply { this.jobId = jobId }
-
         fun taskId(taskId: String) = apply { this.taskId = taskId }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun jobId(jobId: String) = apply { this.jobId = jobId }
+
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
+
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
@@ -292,8 +221,9 @@ constructor(
 
         fun build(): EvalJobCancelParams =
             EvalJobCancelParams(
-                checkNotNull(jobId) { "`jobId` is required but was not set" },
-                checkNotNull(taskId) { "`taskId` is required but was not set" },
+                checkRequired("taskId", taskId),
+                checkRequired("jobId", jobId),
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -306,11 +236,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobCancelParams && jobId == other.jobId && taskId == other.taskId && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is EvalJobCancelParams && taskId == other.taskId && jobId == other.jobId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(jobId, taskId, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "EvalJobCancelParams{jobId=$jobId, taskId=$taskId, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "EvalJobCancelParams{taskId=$taskId, jobId=$jobId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

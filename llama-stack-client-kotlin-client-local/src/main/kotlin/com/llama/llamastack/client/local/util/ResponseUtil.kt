@@ -2,27 +2,33 @@ package com.llama.llamastack.client.local.util
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.CompletionMessage
+import com.llama.llamastack.models.ContentDelta
 import com.llama.llamastack.models.InferenceChatCompletionResponse
-import com.llama.llamastack.models.ToolCall
+import com.llama.llamastack.models.InterleavedContent
 import java.util.UUID
 
 fun buildInferenceChatCompletionResponse(
     response: String,
-    stats: Float
+    stats: Float,
+    stopToken: String
 ): InferenceChatCompletionResponse {
     // check for prefix [ and suffix ] if so then tool call.
     // parse for "toolName", "additionalProperties"
-
     var completionMessage =
-        if (response.startsWith("[") && response.endsWith("]")) {
+        if (isResponseAToolCall(response)) {
             // custom tool call
             CompletionMessage.builder()
                 .toolCalls(createCustomToolCalls(response))
-                .content(CompletionMessage.Content.ofString(""))
+                .content(InterleavedContent.ofString(""))
+                //                .role(CompletionMessage.Role.ASSISTANT)
+                .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         } else {
             CompletionMessage.builder()
-                .content(CompletionMessage.Content.ofString(response))
+                .toolCalls(listOf())
+                .content(InterleavedContent.ofString(response))
+                //                .role(CompletionMessage.Role.ASSISTANT)
+                .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         }
 
@@ -36,8 +42,103 @@ fun buildInferenceChatCompletionResponse(
     return inferenceChatCompletionResponse
 }
 
-fun createCustomToolCalls(response: String): List<ToolCall> {
-    val toolCalls: MutableList<ToolCall> = mutableListOf()
+fun buildInferenceChatCompletionResponseFromStream(
+    response: String,
+): InferenceChatCompletionResponse {
+    return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
+        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
+            .event(
+                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
+                    .delta(ContentDelta.TextDelta.builder().text(response).build())
+                    .eventType(
+                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                            .EventType
+                            .PROGRESS
+                    )
+                    .build()
+            )
+            .build()
+    )
+}
+
+fun buildLastInferenceChatCompletionResponsesFromStream(
+    resultMessage: String,
+    stats: Float,
+    stopToken: String,
+): List<InferenceChatCompletionResponse> {
+    val listOfResponses: MutableList<InferenceChatCompletionResponse> = mutableListOf()
+    if (isResponseAToolCall(resultMessage)) {
+        val toolCalls = createCustomToolCalls(resultMessage)
+        for (toolCall in toolCalls) {
+            listOfResponses.add(
+                buildInferenceChatCompletionResponseForCustomToolCallStream(
+                    toolCall,
+                    stopToken,
+                    stats
+                )
+            )
+        }
+    } else {
+        buildInferenceChatCompletionResponseForStringStream("", stopToken, stats)
+    }
+    return listOfResponses.toList()
+}
+
+fun buildInferenceChatCompletionResponseForCustomToolCallStream(
+    toolCall: CompletionMessage.ToolCall,
+    stopToken: String,
+    stats: Float
+): InferenceChatCompletionResponse {
+    // Convert ToolCall to ToolCallDelta
+    val delta = ContentDelta.ToolCallDelta.builder().toolCall(toolCall.toString()).build()
+    return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
+        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
+            .event(
+                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
+                    .delta(delta)
+                    .stopReason(mapStopTokenToReasonForStream(stopToken))
+                    .eventType(
+                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                            .EventType
+                            .PROGRESS
+                    )
+                    .build()
+            )
+            .putAdditionalProperty("tps", JsonValue.from(stats))
+            .build()
+    )
+}
+
+fun buildInferenceChatCompletionResponseForStringStream(
+    str: String,
+    stopToken: String,
+    stats: Float
+): InferenceChatCompletionResponse {
+
+    return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
+        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
+            .event(
+                InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
+                    .delta(ContentDelta.TextDelta.builder().text(str).build())
+                    .stopReason(mapStopTokenToReasonForStream(stopToken))
+                    .eventType(
+                        InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
+                            .EventType
+                            .PROGRESS
+                    )
+                    .putAdditionalProperty("tps", JsonValue.from(stats))
+                    .build()
+            )
+            .build()
+    )
+}
+
+fun isResponseAToolCall(response: String): Boolean {
+    return response.startsWith("[") && response.endsWith("]")
+}
+
+fun createCustomToolCalls(response: String): List<CompletionMessage.ToolCall> {
+    val toolCalls: MutableList<CompletionMessage.ToolCall> = mutableListOf()
 
     val splitsResponse = response.split("),")
     for (split in splitsResponse) {
@@ -58,9 +159,13 @@ fun createCustomToolCalls(response: String): List<ToolCall> {
             }
         }
         toolCalls.add(
-            ToolCall.builder()
-                .toolName(ToolCall.ToolName.of(toolName))
-                .arguments(ToolCall.Arguments.builder().additionalProperties(paramsJson).build())
+            CompletionMessage.ToolCall.builder()
+                .toolName(CompletionMessage.ToolCall.ToolName.of(toolName))
+                .arguments(
+                    CompletionMessage.ToolCall.Arguments.builder()
+                        .additionalProperties(paramsJson)
+                        .build()
+                )
                 .callId(UUID.randomUUID().toString())
                 .build()
         )
@@ -68,3 +173,25 @@ fun createCustomToolCalls(response: String): List<ToolCall> {
 
     return toolCalls.toList()
 }
+
+fun mapStopTokenToReason(stopToken: String): CompletionMessage.StopReason =
+    when (stopToken) {
+        "<|eot_id|>" -> CompletionMessage.StopReason.END_OF_TURN
+        "<|eom_id|>" -> CompletionMessage.StopReason.END_OF_MESSAGE
+        else -> CompletionMessage.StopReason.OUT_OF_TOKENS
+    }
+
+fun mapStopTokenToReasonForStream(
+    stopToken: String
+): InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason =
+    when (stopToken) {
+        "<|eot_id|>" ->
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason
+                .END_OF_TURN
+        "<|eom_id|>" ->
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason
+                .END_OF_MESSAGE
+        else ->
+            InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.StopReason
+                .OUT_OF_TOKENS
+    }

@@ -4,7 +4,8 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.*
+import com.llama.llamastack.models.ProviderInfo
+import com.llama.llamastack.models.ProviderListParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -16,13 +17,16 @@ class ProviderServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val providerService = client.providers()
-        val providerListResponse =
+        val listProvidersResponse =
             providerService.list(
                 ProviderListParams.builder()
-                    .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(providerListResponse)
-        providerListResponse.validate()
+        println(listProvidersResponse)
+        for (providerInfo: ProviderInfo in listProvidersResponse) {
+            providerInfo.validate()
+        }
     }
 }

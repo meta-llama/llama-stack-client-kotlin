@@ -2,8 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.models.*
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -12,46 +10,34 @@ class AgentStepRetrieveParamsTest {
     @Test
     fun createAgentStepRetrieveParams() {
         AgentStepRetrieveParams.builder()
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
             .agentId("agent_id")
             .sessionId("session_id")
-            .stepId("step_id")
             .turnId("turn_id")
+            .stepId("step_id")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            AgentStepRetrieveParams.builder()
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .stepId("step_id")
-                .turnId("turn_id")
-                .build()
-        val expected = QueryParams.builder()
-        expected.put("agent_id", "agent_id")
-        expected.put("session_id", "session_id")
-        expected.put("step_id", "step_id")
-        expected.put("turn_id", "turn_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
-
-    @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun getPathParam() {
         val params =
             AgentStepRetrieveParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
-                .stepId("step_id")
                 .turnId("turn_id")
+                .stepId("step_id")
                 .build()
-        val expected = QueryParams.builder()
-        expected.put("agent_id", "agent_id")
-        expected.put("session_id", "session_id")
-        expected.put("step_id", "step_id")
-        expected.put("turn_id", "turn_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params).isNotNull
+        // path param "agentId"
+        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
+        // path param "sessionId"
+        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+        // path param "turnId"
+        assertThat(params.getPathParam(2)).isEqualTo("turn_id")
+        // path param "stepId"
+        assertThat(params.getPathParam(3)).isEqualTo("step_id")
+        // out-of-bound path param
+        assertThat(params.getPathParam(4)).isEqualTo("")
     }
 }

@@ -7,7 +7,6 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
-import com.llama.llamastack.core.handlers.map
 import com.llama.llamastack.core.handlers.mapJson
 import com.llama.llamastack.core.handlers.sseHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -15,6 +14,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.StreamResponse
+import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentTurnCreateParams
@@ -23,7 +23,7 @@ import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.Turn
 
 class TurnServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : TurnService {
 
@@ -41,7 +41,14 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "agents", "turn", "create")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn"
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -71,7 +78,14 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "agents", "turn", "create")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn"
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -107,7 +121,15 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "agents", "turn", "get")
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn",
+                    params.getPathParam(2)
+                )
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

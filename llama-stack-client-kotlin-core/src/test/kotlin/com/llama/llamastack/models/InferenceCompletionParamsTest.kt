@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.models.*
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,35 +11,27 @@ class InferenceCompletionParamsTest {
     @Test
     fun createInferenceCompletionParams() {
         InferenceCompletionParams.builder()
-            .content(InferenceCompletionParams.Content.ofString("string"))
+            .content("string")
             .modelId("model_id")
             .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
-                InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
-                        .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.JsonSchema
-                                .builder()
-                                .build()
-                        )
-                        .type(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
-                                .JSON_SCHEMA
-                        )
-                        .build()
-                )
+                ResponseFormat.JsonSchemaResponseFormat.builder()
+                    .jsonSchema(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategy(SamplingParams.Strategy.GREEDY)
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
-                    .temperature(0.0)
-                    .topK(0L)
-                    .topP(0.0)
                     .build()
             )
-            .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
@@ -47,54 +39,42 @@ class InferenceCompletionParamsTest {
     fun getBody() {
         val params =
             InferenceCompletionParams.builder()
-                .content(InferenceCompletionParams.Content.ofString("string"))
+                .content("string")
                 .modelId("model_id")
                 .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                        InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
-                            .jsonSchema(
-                                InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.JsonSchema
-                                    .builder()
-                                    .build()
-                            )
-                            .type(
-                                InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
-                                    .JSON_SCHEMA
-                            )
-                            .build()
-                    )
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
+                        .jsonSchema(
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(SamplingParams.Strategy.GREEDY)
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
-                        .temperature(0.0)
-                        .topK(0L)
-                        .topP(0.0)
                         .build()
                 )
-                .xLlamaStackProviderData("X-LlamaStack-ProviderData")
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
+        assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
             .isEqualTo(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
         assertThat(body.responseFormat())
             .isEqualTo(
-                InferenceCompletionParams.ResponseFormat.ofJsonSchemaFormat(
-                    InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.builder()
+                ResponseFormat.ofJsonSchema(
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceCompletionParams.ResponseFormat.JsonSchemaFormat.Type
-                                .JSON_SCHEMA
                         )
                         .build()
                 )
@@ -102,12 +82,9 @@ class InferenceCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategy(SamplingParams.Strategy.GREEDY)
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
-                    .temperature(0.0)
-                    .topK(0L)
-                    .topP(0.0)
                     .build()
             )
     }
@@ -115,13 +92,10 @@ class InferenceCompletionParamsTest {
     @Test
     fun getBodyWithoutOptionalFields() {
         val params =
-            InferenceCompletionParams.builder()
-                .content(InferenceCompletionParams.Content.ofString("string"))
-                .modelId("model_id")
-                .build()
+            InferenceCompletionParams.builder().content("string").modelId("model_id").build()
         val body = params.getBody()
         assertThat(body).isNotNull
-        assertThat(body.content()).isEqualTo(InferenceCompletionParams.Content.ofString("string"))
+        assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

@@ -19,7 +19,7 @@ interface ModelServiceAsync {
     suspend fun list(
         params: ModelListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): Model
+    ): List<Model>
 
     suspend fun register(
         params: ModelRegisterParams,

@@ -13,13 +13,14 @@ import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ScoringFn
 import com.llama.llamastack.models.ScoringFunctionListParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
 
 class ScoringFunctionServiceImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : ScoringFunctionService {
 
@@ -36,7 +37,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "scoring-functions", "get")
+                .addPathSegments("v1", "scoring-functions", params.getPathParam(0))
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -53,17 +54,18 @@ constructor(
         }
     }
 
-    private val listHandler: Handler<ScoringFn> =
-        jsonHandler<ScoringFn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val listHandler: Handler<DataEnvelope<List<ScoringFn>>> =
+        jsonHandler<DataEnvelope<List<ScoringFn>>>(clientOptions.jsonMapper)
+            .withErrorHandler(errorHandler)
 
     override fun list(
         params: ScoringFunctionListParams,
         requestOptions: RequestOptions
-    ): ScoringFn {
+    ): List<ScoringFn> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("alpha", "scoring-functions", "list")
+                .addPathSegments("v1", "scoring-functions")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -77,6 +79,7 @@ constructor(
                         validate()
                     }
                 }
+                .run { data() }
         }
     }
 
@@ -86,7 +89,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "scoring-functions", "register")
+                .addPathSegments("v1", "scoring-functions")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

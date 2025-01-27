@@ -20,7 +20,7 @@ import com.llama.llamastack.services.async.eval.JobServiceAsync
 import com.llama.llamastack.services.async.eval.JobServiceAsyncImpl
 
 class EvalServiceAsyncImpl
-constructor(
+internal constructor(
     private val clientOptions: ClientOptions,
 ) : EvalServiceAsync {
 
@@ -41,7 +41,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "eval", "evaluate-rows")
+                .addPathSegments("v1", "eval", "tasks", params.getPathParam(0), "evaluations")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)
@@ -66,7 +66,7 @@ constructor(
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("alpha", "eval", "run-eval")
+                .addPathSegments("v1", "eval", "tasks", params.getPathParam(0), "jobs")
                 .putAllQueryParams(clientOptions.queryParams)
                 .replaceAllQueryParams(params.getQueryParams())
                 .putAllHeaders(clientOptions.headers)

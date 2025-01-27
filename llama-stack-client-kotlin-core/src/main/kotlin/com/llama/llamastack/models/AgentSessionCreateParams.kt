@@ -4,51 +4,55 @@ package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.models.*
 import java.util.Objects
 
 class AgentSessionCreateParams
 constructor(
     private val agentId: String,
-    private val sessionName: String,
+    private val xLlamaStackClientVersion: String?,
     private val xLlamaStackProviderData: String?,
+    private val body: AgentSessionCreateBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-    private val additionalBodyProperties: Map<String, JsonValue>,
 ) {
 
     fun agentId(): String = agentId
 
-    fun sessionName(): String = sessionName
+    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
 
     fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+
+    fun sessionName(): String = body.sessionName()
+
+    fun _sessionName(): JsonField<String> = body._sessionName()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    internal fun getBody(): AgentSessionCreateBody {
-        return AgentSessionCreateBody(
-            agentId,
-            sessionName,
-            additionalBodyProperties,
-        )
-    }
+    internal fun getBody(): AgentSessionCreateBody = body
 
     internal fun getHeaders(): Headers {
         val headers = Headers.builder()
+        this.xLlamaStackClientVersion?.let {
+            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
+        }
         this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-ProviderData", listOf(it.toString()))
+            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
         }
         headers.putAll(additionalHeaders)
         return headers.build()
@@ -56,22 +60,44 @@ constructor(
 
     internal fun getQueryParams(): QueryParams = additionalQueryParams
 
-    @JsonDeserialize(builder = AgentSessionCreateBody.Builder::class)
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> agentId
+            else -> ""
+        }
+    }
+
     @NoAutoDetect
     class AgentSessionCreateBody
+    @JsonCreator
     internal constructor(
-        private val agentId: String?,
-        private val sessionName: String?,
-        private val additionalProperties: Map<String, JsonValue>,
+        @JsonProperty("session_name")
+        @ExcludeMissing
+        private val sessionName: JsonField<String> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        @JsonProperty("agent_id") fun agentId(): String? = agentId
+        fun sessionName(): String = sessionName.getRequired("session_name")
 
-        @JsonProperty("session_name") fun sessionName(): String? = sessionName
+        @JsonProperty("session_name")
+        @ExcludeMissing
+        fun _sessionName(): JsonField<String> = sessionName
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentSessionCreateBody = apply {
+            if (validated) {
+                return@apply
+            }
+
+            sessionName()
+            validated = true
+        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -82,41 +108,43 @@ constructor(
 
         class Builder {
 
-            private var agentId: String? = null
-            private var sessionName: String? = null
+            private var sessionName: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentSessionCreateBody: AgentSessionCreateBody) = apply {
-                this.agentId = agentSessionCreateBody.agentId
-                this.sessionName = agentSessionCreateBody.sessionName
-                additionalProperties(agentSessionCreateBody.additionalProperties)
+                sessionName = agentSessionCreateBody.sessionName
+                additionalProperties = agentSessionCreateBody.additionalProperties.toMutableMap()
             }
 
-            @JsonProperty("agent_id")
-            fun agentId(agentId: String) = apply { this.agentId = agentId }
+            fun sessionName(sessionName: String) = sessionName(JsonField.of(sessionName))
 
-            @JsonProperty("session_name")
-            fun sessionName(sessionName: String) = apply { this.sessionName = sessionName }
+            fun sessionName(sessionName: JsonField<String>) = apply {
+                this.sessionName = sessionName
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
-                this.additionalProperties.putAll(additionalProperties)
+                putAllAdditionalProperties(additionalProperties)
             }
 
-            @JsonAnySetter
             fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                this.additionalProperties.put(key, value)
+                additionalProperties.put(key, value)
             }
 
             fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.putAll(additionalProperties)
             }
 
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
             fun build(): AgentSessionCreateBody =
                 AgentSessionCreateBody(
-                    checkNotNull(agentId) { "`agentId` is required but was not set" },
-                    checkNotNull(sessionName) { "`sessionName` is required but was not set" },
-                    additionalProperties.toImmutable(),
+                    checkRequired("sessionName", sessionName),
+                    additionalProperties.toImmutable()
                 )
         }
 
@@ -125,17 +153,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentSessionCreateBody && agentId == other.agentId && sessionName == other.sessionName && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentSessionCreateBody && sessionName == other.sessionName && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(agentId, sessionName, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(sessionName, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentSessionCreateBody{agentId=$agentId, sessionName=$sessionName, additionalProperties=$additionalProperties}"
+            "AgentSessionCreateBody{sessionName=$sessionName, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -149,28 +177,52 @@ constructor(
     class Builder {
 
         private var agentId: String? = null
-        private var sessionName: String? = null
+        private var xLlamaStackClientVersion: String? = null
         private var xLlamaStackProviderData: String? = null
+        private var body: AgentSessionCreateBody.Builder = AgentSessionCreateBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-        private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(agentSessionCreateParams: AgentSessionCreateParams) = apply {
             agentId = agentSessionCreateParams.agentId
-            sessionName = agentSessionCreateParams.sessionName
+            xLlamaStackClientVersion = agentSessionCreateParams.xLlamaStackClientVersion
             xLlamaStackProviderData = agentSessionCreateParams.xLlamaStackProviderData
+            body = agentSessionCreateParams.body.toBuilder()
             additionalHeaders = agentSessionCreateParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentSessionCreateParams.additionalQueryParams.toBuilder()
-            additionalBodyProperties =
-                agentSessionCreateParams.additionalBodyProperties.toMutableMap()
         }
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
-        fun sessionName(sessionName: String) = apply { this.sessionName = sessionName }
+        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
+            this.xLlamaStackClientVersion = xLlamaStackClientVersion
+        }
 
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String) = apply {
+        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
             this.xLlamaStackProviderData = xLlamaStackProviderData
+        }
+
+        fun sessionName(sessionName: String) = apply { body.sessionName(sessionName) }
+
+        fun sessionName(sessionName: JsonField<String>) = apply { body.sessionName(sessionName) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -271,36 +323,14 @@ constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            this.additionalBodyProperties.clear()
-            putAllAdditionalBodyProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            additionalBodyProperties.put(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                this.additionalBodyProperties.putAll(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply {
-            additionalBodyProperties.remove(key)
-        }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            keys.forEach(::removeAdditionalBodyProperty)
-        }
-
         fun build(): AgentSessionCreateParams =
             AgentSessionCreateParams(
-                checkNotNull(agentId) { "`agentId` is required but was not set" },
-                checkNotNull(sessionName) { "`sessionName` is required but was not set" },
+                checkRequired("agentId", agentId),
+                xLlamaStackClientVersion,
                 xLlamaStackProviderData,
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
-                additionalBodyProperties.toImmutable(),
             )
     }
 
@@ -309,11 +339,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentSessionCreateParams && agentId == other.agentId && sessionName == other.sessionName && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is AgentSessionCreateParams && agentId == other.agentId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionName, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentSessionCreateParams{agentId=$agentId, sessionName=$sessionName, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "AgentSessionCreateParams{agentId=$agentId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

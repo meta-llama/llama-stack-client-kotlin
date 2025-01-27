@@ -18,7 +18,7 @@ interface ShieldService {
     fun list(
         params: ShieldListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): Shield
+    ): List<Shield>
 
     fun register(
         params: ShieldRegisterParams,

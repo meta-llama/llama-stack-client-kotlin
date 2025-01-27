@@ -116,6 +116,10 @@ sealed class JsonField<out T : Any> {
             is JsonValue -> this
         }
 
+    internal fun accept(consume: (T) -> Unit) {
+        asKnown()?.let(consume)
+    }
+
     fun <R> accept(visitor: Visitor<T, R>): R =
         when (this) {
             is KnownValue -> visitor.visitKnown(value)

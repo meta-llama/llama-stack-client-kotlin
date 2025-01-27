@@ -18,7 +18,7 @@ interface EvalTaskServiceAsync {
     suspend fun list(
         params: EvalTaskListParams,
         requestOptions: RequestOptions = RequestOptions.none()
-    ): EvalTask
+    ): List<EvalTask>
 
     suspend fun register(
         params: EvalTaskRegisterParams,
