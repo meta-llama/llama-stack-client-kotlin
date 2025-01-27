@@ -58,9 +58,9 @@ object PromptFormatLocal {
 
         for (message in messages) {
             when {
-                message.isSystemMessage() -> {
+                message.isSystem() -> {
                     // system message. Expecting this will only called once
-                    val systemMessage: SystemMessage? = message.systemMessage()
+                    val systemMessage: SystemMessage? = message.system()
                     val content: String? = systemMessage?.content()?.string()
                     if (content != null) {
                         formattedPrompt =
@@ -68,17 +68,17 @@ object PromptFormatLocal {
                                 .replace(SYSTEM_PLACEHOLDER, content) + formattedPrompt
                     }
                 }
-                message.isUserMessage() -> {
+                message.isUser() -> {
                     // user message
-                    val userMessage: UserMessage? = message.userMessage()
+                    val userMessage: UserMessage? = message.user()
                     val content: String? = userMessage?.content()?.string()
                     if (content != null) {
                         format = getUserPromptTemplate(modelName).replace(USER_PLACEHOLDER, content)
                     }
                 }
-                message.isCompletionMessage() -> {
+                message.isCompletion() -> {
                     // assistant message
-                    val completionMessage: CompletionMessage? = message.completionMessage()
+                    val completionMessage: CompletionMessage? = message.completion()
                     val content: String? = completionMessage?.content()?.string()
                     if (content != null) {
                         format =

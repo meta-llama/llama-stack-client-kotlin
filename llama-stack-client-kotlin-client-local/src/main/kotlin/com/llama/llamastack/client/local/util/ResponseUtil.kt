@@ -21,14 +21,14 @@ fun buildInferenceChatCompletionResponse(
             CompletionMessage.builder()
                 .toolCalls(createCustomToolCalls(response))
                 .content(InterleavedContent.ofString(""))
-                .role(CompletionMessage.Role.ASSISTANT)
+                //                .role(CompletionMessage.Role.ASSISTANT)
                 .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         } else {
             CompletionMessage.builder()
                 .toolCalls(listOf())
                 .content(InterleavedContent.ofString(response))
-                .role(CompletionMessage.Role.ASSISTANT)
+                //                .role(CompletionMessage.Role.ASSISTANT)
                 .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         }
@@ -50,12 +50,7 @@ fun buildInferenceChatCompletionResponseFromStream(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
                 InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
-                    .delta(
-                        ContentDelta.Text.builder()
-                            .text(response)
-                            .type(ContentDelta.Text.Type.TEXT)
-                            .build()
-                    )
+                    .delta(ContentDelta.TextDelta.builder().text(response).build())
                     .eventType(
                         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
                             .EventType
@@ -124,12 +119,7 @@ fun buildInferenceChatCompletionResponseForStringStream(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
                 InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event.builder()
-                    .delta(
-                        ContentDelta.Text.builder()
-                            .text(str)
-                            .type(ContentDelta.Text.Type.TEXT)
-                            .build()
-                    )
+                    .delta(ContentDelta.TextDelta.builder().text(str).build())
                     .stopReason(mapStopTokenToReasonForStream(stopToken))
                     .eventType(
                         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.Event
