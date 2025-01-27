@@ -20,14 +20,12 @@ fun buildInferenceChatCompletionResponse(
             CompletionMessage.builder()
                 .toolCalls(createCustomToolCalls(response))
                 .content(InterleavedContent.ofString(""))
-                //                .role(CompletionMessage.Role.ASSISTANT)
                 .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         } else {
             CompletionMessage.builder()
                 .toolCalls(listOf())
                 .content(InterleavedContent.ofString(response))
-                //                .role(CompletionMessage.Role.ASSISTANT)
                 .stopReason(mapStopTokenToReason(stopToken))
                 .build()
         }
@@ -89,8 +87,21 @@ fun buildInferenceChatCompletionResponseForCustomToolCallStream(
     stopToken: String,
     stats: Float
 ): InferenceChatCompletionResponse {
-    // Convert ToolCall to ToolCallDelta
-    val delta = ContentDelta.ToolCallDelta.builder().toolCall(toolCall.toString()).build()
+    val delta =
+        ContentDelta.ToolCallDelta.builder()
+            .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED)
+            .toolCall(
+                ContentDelta.ToolCallDelta.ToolCall.InnerToolCall.builder()
+                    .toolName(toolCall.toolName().toString())
+                    .arguments(
+                        ContentDelta.ToolCallDelta.ToolCall.InnerToolCall.Arguments.builder()
+                            .additionalProperties(toolCall.arguments()._additionalProperties())
+                            .build()
+                    )
+                    .callId(toolCall.callId())
+                    .build()
+            )
+            .build()
     return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
