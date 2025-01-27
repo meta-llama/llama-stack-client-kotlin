@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.http.QueryParams
 import org.junit.jupiter.api.Test
 
 class TelemetryQuerySpansParamsTest {
@@ -10,10 +11,10 @@ class TelemetryQuerySpansParamsTest {
     fun createTelemetryQuerySpansParams() {
         TelemetryQuerySpansParams.builder()
             .addAttributeFilter(
-                TelemetryQuerySpansParams.AttributeFilter.builder()
+                QueryCondition.builder()
                     .key("key")
-                    .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-                    .value(true)
+                    .op(QueryCondition.Op.EQ)
+                    .value(QueryCondition.Value.ofBoolean(true))
                     .build()
             )
             .addAttributesToReturn("string")
@@ -23,60 +24,54 @@ class TelemetryQuerySpansParamsTest {
             .build()
     }
 
-    //    @Test
-    //    @Disabled
-    //    fun getQueryParams() {
-    //        val params =
-    //            TelemetryQuerySpansParams.builder()
-    //                .addAttributeFilter(
-    //                    TelemetryQuerySpansParams.AttributeFilter.builder()
-    //                        .key("key")
-    //                        .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-    //                        .value(true)
-    //                        .build()
-    //                )
-    //                .addAttributesToReturn("string")
-    //                .maxDepth(0L)
-    //                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-    //                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-    //                .build()
-    //        val expected = QueryParams.builder()
-    //        expected.put(
-    //            "attribute_filters",
-    //            TelemetryQuerySpansParams.AttributeFilter.builder()
-    //                .key("key")
-    //                .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ.toString())
-    //                .value("true")
-    //                .build()
-    //        )
-    //        expected.put("attributes_to_return", "string")
-    //        expected.put("max_depth", "0")
-    //        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    //    }
+    @Test
+    fun getQueryParams() {
+        val params =
+            TelemetryQuerySpansParams.builder()
+                .addAttributeFilter(
+                    QueryCondition.builder()
+                        .key("key")
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
+                        .build()
+                )
+                .addAttributesToReturn("string")
+                .maxDepth(0L)
+                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+                .build()
+        val expected = QueryParams.builder()
+        expected.put(
+            "attribute_filters",
+            QueryCondition.builder()
+                .key("key")
+                .op(QueryCondition.Op.EQ.toString())
+                .value(QueryCondition.Value.ofBoolean("true").toString())
+                .build()
+        )
+    }
 
-    //    @Test
-    //    fun getQueryParamsWithoutOptionalFields() {
-    //        val params =
-    //            TelemetryQuerySpansParams.builder()
-    //                .addAttributeFilter(
-    //                    TelemetryQuerySpansParams.AttributeFilter.builder()
-    //                        .key("key")
-    //                        .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-    //                        .value(true)
-    //                        .build()
-    //                )
-    //                .addAttributesToReturn("string")
-    //                .build()
-    //        val expected = QueryParams.builder()
-    //        expected.put(
-    //            "attribute_filters",
-    //            TelemetryQuerySpansParams.AttributeFilter.builder()
-    //                .key("key")
-    //                .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ.toString())
-    //                .value("true")
-    //                .build()
-    //        )
-    //        expected.put("attributes_to_return", "string")
-    //        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    //    }
+    @Test
+    fun getQueryParamsWithoutOptionalFields() {
+        val params =
+            TelemetryQuerySpansParams.builder()
+                .addAttributeFilter(
+                    QueryCondition.builder()
+                        .key("key")
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
+                        .build()
+                )
+                .addAttributesToReturn("string")
+                .build()
+        val expected = QueryParams.builder()
+        expected.put(
+            "attribute_filters",
+            QueryCondition.builder()
+                .key("key")
+                .op(QueryCondition.Op.EQ.toString())
+                .value(QueryCondition.Value.ofBoolean("true").toString())
+                .build()
+        )
+    }
 }

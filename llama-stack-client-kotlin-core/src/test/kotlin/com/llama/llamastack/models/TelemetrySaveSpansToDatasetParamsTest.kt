@@ -11,10 +11,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
     fun createTelemetrySaveSpansToDatasetParams() {
         TelemetrySaveSpansToDatasetParams.builder()
             .addAttributeFilter(
-                TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                QueryCondition.builder()
                     .key("key")
-                    .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                    .value(true)
+                    .op(QueryCondition.Op.EQ)
+                    .value(QueryCondition.Value.ofBoolean(true))
                     .build()
             )
             .addAttributesToSave("string")
@@ -30,10 +30,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
-                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                    QueryCondition.builder()
                         .key("key")
-                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(true)
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
                         .build()
                 )
                 .addAttributesToSave("string")
@@ -47,10 +47,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
         assertThat(body.attributeFilters())
             .isEqualTo(
                 listOf(
-                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                    QueryCondition.builder()
                         .key("key")
-                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(true)
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
                         .build()
                 )
             )
@@ -64,10 +64,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
-                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                    QueryCondition.builder()
                         .key("key")
-                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(true)
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
                         .build()
                 )
                 .addAttributesToSave("string")
@@ -78,10 +78,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
         assertThat(body.attributeFilters())
             .isEqualTo(
                 listOf(
-                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                    QueryCondition.builder()
                         .key("key")
-                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(true)
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
                         .build()
                 )
             )

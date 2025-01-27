@@ -17,7 +17,6 @@ class ListToolGroupsResponseTest {
                         .identifier("identifier")
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
-                        .type(ToolGroup.Type.TOOL_GROUP)
                         .args(
                             ToolGroup.Args.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
@@ -34,7 +33,6 @@ class ListToolGroupsResponseTest {
                     .identifier("identifier")
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .type(ToolGroup.Type.TOOL_GROUP)
                     .args(
                         ToolGroup.Args.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))

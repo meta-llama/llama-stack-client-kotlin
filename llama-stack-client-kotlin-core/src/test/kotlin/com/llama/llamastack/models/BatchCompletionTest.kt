@@ -15,7 +15,6 @@ class BatchCompletionTest {
                 .addCompletionMessageBatch(
                     CompletionMessage.builder()
                         .content("string")
-                        .role(CompletionMessage.Role.ASSISTANT)
                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
@@ -36,7 +35,6 @@ class BatchCompletionTest {
             .containsExactly(
                 CompletionMessage.builder()
                     .content("string")
-                    .role(CompletionMessage.Role.ASSISTANT)
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()

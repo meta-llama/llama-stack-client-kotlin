@@ -151,17 +151,15 @@ constructor(
                     }
             }
 
-            fun addMessage(userMessage: UserMessage) =
-                addMessage(Message.ofUserMessage(userMessage))
+            fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
 
-            fun addMessage(systemMessage: SystemMessage) =
-                addMessage(Message.ofSystemMessage(systemMessage))
+            fun addMessage(system: SystemMessage) = addMessage(Message.ofSystem(system))
 
-            fun addMessage(toolResponseMessage: ToolResponseMessage) =
-                addMessage(Message.ofToolResponseMessage(toolResponseMessage))
+            fun addMessage(toolResponse: ToolResponseMessage) =
+                addMessage(Message.ofToolResponse(toolResponse))
 
-            fun addMessage(completionMessage: CompletionMessage) =
-                addMessage(Message.ofCompletionMessage(completionMessage))
+            fun addMessage(completion: CompletionMessage) =
+                addMessage(Message.ofCompletion(completion))
 
             fun params(params: Params) = params(JsonField.of(params))
 
@@ -255,17 +253,13 @@ constructor(
 
         fun addMessage(message: Message) = apply { body.addMessage(message) }
 
-        fun addMessage(userMessage: UserMessage) = apply { body.addMessage(userMessage) }
+        fun addMessage(user: UserMessage) = apply { body.addMessage(user) }
 
-        fun addMessage(systemMessage: SystemMessage) = apply { body.addMessage(systemMessage) }
+        fun addMessage(system: SystemMessage) = apply { body.addMessage(system) }
 
-        fun addMessage(toolResponseMessage: ToolResponseMessage) = apply {
-            body.addMessage(toolResponseMessage)
-        }
+        fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
-        fun addMessage(completionMessage: CompletionMessage) = apply {
-            body.addMessage(completionMessage)
-        }
+        fun addMessage(completion: CompletionMessage) = apply { body.addMessage(completion) }
 
         fun params(params: Params) = apply { body.params(params) }
 

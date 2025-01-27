@@ -145,11 +145,8 @@ constructor(
             fun addContent(textContentItem: InterleavedContent.TextContentItem) =
                 addContent(InterleavedContent.ofTextContentItem(textContentItem))
 
-            fun addContentOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) =
-                // MANUAL PATCH
-                addContent(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+            fun addContentOfItems(items: List<InterleavedContentItem>) =
+                addContent(InterleavedContent.ofItems(items))
 
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
@@ -250,9 +247,9 @@ constructor(
             body.addContent(textContentItem)
         }
 
-        fun addContentOfInterleavedContentItems(
-            interleavedContentItems: List<InterleavedContentItem>
-        ) = apply { body.addContentOfInterleavedContentItems(interleavedContentItems) }
+        fun addContentOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addContentOfItems(items)
+        }
 
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 

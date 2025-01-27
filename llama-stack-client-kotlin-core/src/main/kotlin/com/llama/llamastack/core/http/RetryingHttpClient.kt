@@ -1,6 +1,7 @@
 package com.llama.llamastack.core.http
 
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.errors.LlamaStackClientIoException
 import java.io.IOException
 import java.time.Clock
@@ -227,7 +228,7 @@ private constructor(
 
         fun build(): HttpClient =
             RetryingHttpClient(
-                checkNotNull(httpClient) { "`httpClient` is required but was not set" },
+                checkRequired("httpClient", httpClient),
                 clock,
                 maxRetries,
                 idempotencyHeader,

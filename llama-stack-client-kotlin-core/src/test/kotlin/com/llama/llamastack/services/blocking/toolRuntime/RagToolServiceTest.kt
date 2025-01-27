@@ -7,6 +7,7 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.Document
 import com.llama.llamastack.models.QueryConfig
+import com.llama.llamastack.models.QueryGeneratorConfig
 import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
 import com.llama.llamastack.models.ToolRuntimeRagToolQueryParams
 import org.junit.jupiter.api.Test
@@ -57,9 +58,8 @@ class RagToolServiceTest {
                             .maxChunks(0L)
                             .maxTokensInContext(0L)
                             .queryGeneratorConfig(
-                                QueryConfig.QueryGeneratorConfig.Default.builder()
+                                QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
                                     .separator("separator")
-                                    .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                                     .build()
                             )
                             .build()

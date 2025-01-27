@@ -13,7 +13,6 @@ class CompletionMessageTest {
         val completionMessage =
             CompletionMessage.builder()
                 .content("string")
-                .role(CompletionMessage.Role.ASSISTANT)
                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                 .addToolCall(
                     ToolCall.builder()
@@ -29,7 +28,6 @@ class CompletionMessageTest {
                 .build()
         assertThat(completionMessage).isNotNull
         assertThat(completionMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
-        assertThat(completionMessage.role()).isEqualTo(CompletionMessage.Role.ASSISTANT)
         assertThat(completionMessage.stopReason())
             .isEqualTo(CompletionMessage.StopReason.END_OF_TURN)
         assertThat(completionMessage.toolCalls())

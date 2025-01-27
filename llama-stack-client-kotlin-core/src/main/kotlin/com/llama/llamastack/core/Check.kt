@@ -1,6 +1,6 @@
 package com.llama.llamastack.core
 
-internal fun <T : Any> checkRequired(name: String, value: T?): T =
+fun <T : Any> checkRequired(name: String, value: T?): T =
     checkNotNull(value) { "`$name` is required, but was not set" }
 
 internal fun checkLength(name: String, value: String, length: Int): String =

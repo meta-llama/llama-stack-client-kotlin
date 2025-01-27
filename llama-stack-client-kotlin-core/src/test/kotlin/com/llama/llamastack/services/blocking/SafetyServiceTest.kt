@@ -21,13 +21,7 @@ class SafetyServiceTest {
         val runShieldResponse =
             safetyService.runShield(
                 SafetyRunShieldParams.builder()
-                    .addMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
-                    )
+                    .addMessage(UserMessage.builder().content("string").context("string").build())
                     .params(
                         SafetyRunShieldParams.Params.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))

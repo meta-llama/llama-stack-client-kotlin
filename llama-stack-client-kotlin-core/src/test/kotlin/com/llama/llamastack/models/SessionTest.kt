@@ -19,11 +19,7 @@ class SessionTest {
                 .addTurn(
                     Turn.builder()
                         .addInputMessage(
-                            UserMessage.builder()
-                                .content("string")
-                                .role(UserMessage.Role.USER)
-                                .context("string")
-                                .build()
+                            UserMessage.builder().content("string").context("string").build()
                         )
                         .addOutputAttachment(
                             Turn.OutputAttachment.builder()
@@ -34,7 +30,6 @@ class SessionTest {
                         .outputMessage(
                             CompletionMessage.builder()
                                 .content("string")
-                                .role(CompletionMessage.Role.ASSISTANT)
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
@@ -59,7 +54,6 @@ class SessionTest {
                                 .modelResponse(
                                     CompletionMessage.builder()
                                         .content("string")
-                                        .role(CompletionMessage.Role.ASSISTANT)
                                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                         .addToolCall(
                                             ToolCall.builder()
@@ -78,7 +72,6 @@ class SessionTest {
                                         .build()
                                 )
                                 .stepId("step_id")
-                                .stepType(InferenceStep.StepType.INFERENCE)
                                 .turnId("turn_id")
                                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                                 .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -97,11 +90,7 @@ class SessionTest {
             .containsExactly(
                 Turn.builder()
                     .addInputMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
+                        UserMessage.builder().content("string").context("string").build()
                     )
                     .addOutputAttachment(
                         Turn.OutputAttachment.builder()
@@ -112,7 +101,6 @@ class SessionTest {
                     .outputMessage(
                         CompletionMessage.builder()
                             .content("string")
-                            .role(CompletionMessage.Role.ASSISTANT)
                             .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .addToolCall(
                                 ToolCall.builder()
@@ -134,7 +122,6 @@ class SessionTest {
                             .modelResponse(
                                 CompletionMessage.builder()
                                     .content("string")
-                                    .role(CompletionMessage.Role.ASSISTANT)
                                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                     .addToolCall(
                                         ToolCall.builder()
@@ -153,7 +140,6 @@ class SessionTest {
                                     .build()
                             )
                             .stepId("step_id")
-                            .stepType(InferenceStep.StepType.INFERENCE)
                             .turnId("turn_id")
                             .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                             .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))

@@ -23,7 +23,6 @@ class ListModelsResponseTest {
                         .modelType(Model.ModelType.LLM)
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
-                        .type(Model.Type.MODEL)
                         .build()
                 )
                 .build()
@@ -40,7 +39,6 @@ class ListModelsResponseTest {
                     .modelType(Model.ModelType.LLM)
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .type(Model.Type.MODEL)
                     .build()
             )
     }

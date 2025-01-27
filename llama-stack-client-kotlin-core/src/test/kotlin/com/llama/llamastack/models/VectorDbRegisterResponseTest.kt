@@ -16,7 +16,6 @@ class VectorDbRegisterResponseTest {
                 .identifier("identifier")
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .type(VectorDbRegisterResponse.Type.VECTOR_DB)
                 .build()
         assertThat(vectorDbRegisterResponse).isNotNull
         assertThat(vectorDbRegisterResponse.embeddingDimension()).isEqualTo(0L)
@@ -24,7 +23,5 @@ class VectorDbRegisterResponseTest {
         assertThat(vectorDbRegisterResponse.identifier()).isEqualTo("identifier")
         assertThat(vectorDbRegisterResponse.providerId()).isEqualTo("provider_id")
         assertThat(vectorDbRegisterResponse.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(vectorDbRegisterResponse.type())
-            .isEqualTo(VectorDbRegisterResponse.Type.VECTOR_DB)
     }
 }

@@ -8,6 +8,7 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceCompletionParams
 import com.llama.llamastack.models.InferenceEmbeddingsParams
+import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Disabled
@@ -28,36 +29,21 @@ class InferenceServiceTest {
         val inferenceChatCompletionResponse =
             inferenceService.chatCompletion(
                 InferenceChatCompletionParams.builder()
-                    .addMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
-                    )
+                    .addMessage(UserMessage.builder().content("string").context("string").build())
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                        ResponseFormat.JsonSchemaResponseFormat.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                    .builder()
+                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type
-                                    .JSON_SCHEMA
                             )
                             .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(
-                                SamplingParams.Strategy.Greedy.builder()
-                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                    .build()
-                            )
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .build()
@@ -104,36 +90,21 @@ class InferenceServiceTest {
         val inferenceChatCompletionResponseStream =
             inferenceService.chatCompletionStreaming(
                 InferenceChatCompletionParams.builder()
-                    .addMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
-                    )
+                    .addMessage(UserMessage.builder().content("string").context("string").build())
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                        ResponseFormat.JsonSchemaResponseFormat.builder()
                             .jsonSchema(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                    .builder()
+                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
-                            )
-                            .type(
-                                InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type
-                                    .JSON_SCHEMA
                             )
                             .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(
-                                SamplingParams.Strategy.Greedy.builder()
-                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                    .build()
-                            )
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .build()
@@ -186,25 +157,17 @@ class InferenceServiceTest {
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceCompletionParams.ResponseFormat.JsonSchema.builder()
+                        ResponseFormat.JsonSchemaResponseFormat.builder()
                             .jsonSchema(
-                                InferenceCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                    .builder()
+                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
-                            )
-                            .type(
-                                InferenceCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                             )
                             .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(
-                                SamplingParams.Strategy.Greedy.builder()
-                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                    .build()
-                            )
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .build()
@@ -232,25 +195,17 @@ class InferenceServiceTest {
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .responseFormat(
-                        InferenceCompletionParams.ResponseFormat.JsonSchema.builder()
+                        ResponseFormat.JsonSchemaResponseFormat.builder()
                             .jsonSchema(
-                                InferenceCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                    .builder()
+                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
-                            )
-                            .type(
-                                InferenceCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                             )
                             .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(
-                                SamplingParams.Strategy.Greedy.builder()
-                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                    .build()
-                            )
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .build()

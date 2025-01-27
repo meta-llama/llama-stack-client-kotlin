@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.AlgorithmConfig
 import com.llama.llamastack.models.PostTrainingPreferenceOptimizeParams
 import com.llama.llamastack.models.PostTrainingSupervisedFineTuneParams
 import org.junit.jupiter.api.Test
@@ -168,15 +169,12 @@ class PostTrainingServiceTest {
                             .build()
                     )
                     .algorithmConfig(
-                        PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.builder()
+                        AlgorithmConfig.LoraFinetuningConfig.builder()
                             .alpha(0L)
                             .applyLoraToMlp(true)
                             .applyLoraToOutput(true)
                             .addLoraAttnModule("string")
                             .rank(0L)
-                            .type(
-                                PostTrainingSupervisedFineTuneParams.AlgorithmConfig.LoRa.Type.LO_RA
-                            )
                             .quantizeBase(true)
                             .useDora(true)
                             .build()

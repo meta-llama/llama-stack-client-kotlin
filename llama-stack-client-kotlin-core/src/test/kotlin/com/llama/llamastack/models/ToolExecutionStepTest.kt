@@ -14,7 +14,6 @@ class ToolExecutionStepTest {
         val toolExecutionStep =
             ToolExecutionStep.builder()
                 .stepId("step_id")
-                .stepType(ToolExecutionStep.StepType.TOOL_EXECUTION)
                 .addToolCall(
                     ToolCall.builder()
                         .arguments(
@@ -39,8 +38,6 @@ class ToolExecutionStepTest {
                 .build()
         assertThat(toolExecutionStep).isNotNull
         assertThat(toolExecutionStep.stepId()).isEqualTo("step_id")
-        assertThat(toolExecutionStep.stepType())
-            .isEqualTo(ToolExecutionStep.StepType.TOOL_EXECUTION)
         assertThat(toolExecutionStep.toolCalls())
             .containsExactly(
                 ToolCall.builder()

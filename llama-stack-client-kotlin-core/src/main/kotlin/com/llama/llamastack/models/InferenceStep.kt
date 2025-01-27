@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -29,9 +28,7 @@ private constructor(
     @JsonProperty("step_id")
     @ExcludeMissing
     private val stepId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("step_type")
-    @ExcludeMissing
-    private val stepType: JsonField<StepType> = JsonMissing.of(),
+    @JsonProperty("step_type") @ExcludeMissing private val stepType: JsonValue = JsonMissing.of(),
     @JsonProperty("turn_id")
     @ExcludeMissing
     private val turnId: JsonField<String> = JsonMissing.of(),
@@ -48,7 +45,7 @@ private constructor(
 
     fun stepId(): String = stepId.getRequired("step_id")
 
-    fun stepType(): StepType = stepType.getRequired("step_type")
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonValue = stepType
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
@@ -61,8 +58,6 @@ private constructor(
     fun _modelResponse(): JsonField<CompletionMessage> = modelResponse
 
     @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
-
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
     @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
@@ -87,7 +82,11 @@ private constructor(
 
         modelResponse().validate()
         stepId()
-        stepType()
+        _stepType().let {
+            if (it != JsonValue.from("inference")) {
+                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
+            }
+        }
         turnId()
         completedAt()
         startedAt()
@@ -105,7 +104,7 @@ private constructor(
 
         private var modelResponse: JsonField<CompletionMessage>? = null
         private var stepId: JsonField<String>? = null
-        private var stepType: JsonField<StepType>? = null
+        private var stepType: JsonValue = JsonValue.from("inference")
         private var turnId: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
         private var startedAt: JsonField<OffsetDateTime> = JsonMissing.of()
@@ -132,9 +131,7 @@ private constructor(
 
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
-        fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
-
-        fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
+        fun stepType(stepType: JsonValue) = apply { this.stepType = stepType }
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
@@ -173,63 +170,12 @@ private constructor(
             InferenceStep(
                 checkRequired("modelResponse", modelResponse),
                 checkRequired("stepId", stepId),
-                checkRequired("stepType", stepType),
+                stepType,
                 checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
                 additionalProperties.toImmutable(),
             )
-    }
-
-    class StepType
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val INFERENCE = of("inference")
-
-            fun of(value: String) = StepType(JsonField.of(value))
-        }
-
-        enum class Known {
-            INFERENCE,
-        }
-
-        enum class Value {
-            INFERENCE,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                INFERENCE -> Value.INFERENCE
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                INFERENCE -> Known.INFERENCE
-                else -> throw LlamaStackClientInvalidDataException("Unknown StepType: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

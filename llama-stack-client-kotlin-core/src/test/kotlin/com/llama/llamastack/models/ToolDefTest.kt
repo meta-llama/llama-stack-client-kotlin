@@ -25,7 +25,7 @@ class ToolDefTest {
                         .name("name")
                         .parameterType("parameter_type")
                         .required(true)
-                        .default(true)
+                        .default(ToolDef.Parameter.Default.ofBoolean(true))
                         .build()
                 )
                 .build()
@@ -45,7 +45,7 @@ class ToolDefTest {
                     .name("name")
                     .parameterType("parameter_type")
                     .required(true)
-                    .default(true)
+                    .default(ToolDef.Parameter.Default.ofBoolean(true))
                     .build()
             )
     }

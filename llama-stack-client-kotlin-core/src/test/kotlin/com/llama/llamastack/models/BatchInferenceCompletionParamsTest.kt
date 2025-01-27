@@ -15,11 +15,7 @@ class BatchInferenceCompletionParamsTest {
             .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
             .samplingParams(
                 SamplingParams.builder()
-                    .strategy(
-                        SamplingParams.Strategy.Greedy.builder()
-                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                            .build()
-                    )
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .build()
@@ -38,11 +34,7 @@ class BatchInferenceCompletionParamsTest {
                 .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -59,11 +51,7 @@ class BatchInferenceCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategy(
-                        SamplingParams.Strategy.Greedy.builder()
-                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                            .build()
-                    )
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .build()

@@ -11,13 +11,7 @@ class SafetyRunShieldParamsTest {
     @Test
     fun createSafetyRunShieldParams() {
         SafetyRunShieldParams.builder()
-            .addMessage(
-                UserMessage.builder()
-                    .content("string")
-                    .role(UserMessage.Role.USER)
-                    .context("string")
-                    .build()
-            )
+            .addMessage(UserMessage.builder().content("string").context("string").build())
             .params(
                 SafetyRunShieldParams.Params.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
@@ -33,13 +27,7 @@ class SafetyRunShieldParamsTest {
     fun getBody() {
         val params =
             SafetyRunShieldParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .params(
                     SafetyRunShieldParams.Params.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -54,12 +42,8 @@ class SafetyRunShieldParamsTest {
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
+                    Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
@@ -76,9 +60,7 @@ class SafetyRunShieldParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             SafetyRunShieldParams.builder()
-                .addMessage(
-                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
-                )
+                .addMessage(UserMessage.builder().content("string").build())
                 .params(
                     SafetyRunShieldParams.Params.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -89,13 +71,7 @@ class SafetyRunShieldParamsTest {
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.messages())
-            .isEqualTo(
-                listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
-                    )
-                )
-            )
+            .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
         assertThat(body.params())
             .isEqualTo(
                 SafetyRunShieldParams.Params.builder()

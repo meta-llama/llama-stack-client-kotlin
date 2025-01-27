@@ -204,9 +204,8 @@ private constructor(
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
-            fun contentOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+            fun contentOfItems(items: List<InterleavedContentItem>) =
+                content(InterleavedContent.ofItems(items))
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 

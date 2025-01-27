@@ -20,13 +20,7 @@ class SyntheticDataGenerationServiceTest {
         val syntheticDataGenerationResponse =
             syntheticDataGenerationService.generate(
                 SyntheticDataGenerationGenerateParams.builder()
-                    .addDialog(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
-                    )
+                    .addDialog(UserMessage.builder().content("string").context("string").build())
                     .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                     .model("model")
                     .xLlamaStackClientVersion("X-LlamaStack-Client-Version")

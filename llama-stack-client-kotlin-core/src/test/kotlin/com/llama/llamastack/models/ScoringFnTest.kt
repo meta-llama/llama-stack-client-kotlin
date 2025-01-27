@@ -21,14 +21,12 @@ class ScoringFnTest {
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
-                .type(ScoringFn.Type.SCORING_FUNCTION)
                 .description("description")
                 .params(
-                    ScoringFn.Params.LlmAsJudge.builder()
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
                         .judgeModel("judge_model")
-                        .type(ScoringFn.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                         .addAggregationFunction(
-                            ScoringFn.Params.LlmAsJudge.AggregationFunction.AVERAGE
+                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                         )
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
@@ -47,16 +45,14 @@ class ScoringFnTest {
         assertThat(scoringFn.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(scoringFn.returnType())
             .isEqualTo(ReturnType.builder().type(ReturnType.Type.STRING).build())
-        assertThat(scoringFn.type()).isEqualTo(ScoringFn.Type.SCORING_FUNCTION)
         assertThat(scoringFn.description()).isEqualTo("description")
         assertThat(scoringFn.params())
             .isEqualTo(
-                ScoringFn.Params.ofLlmAsJudge(
-                    ScoringFn.Params.LlmAsJudge.builder()
+                ScoringFnParams.ofLlmAsJudge(
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
                         .judgeModel("judge_model")
-                        .type(ScoringFn.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                         .addAggregationFunction(
-                            ScoringFn.Params.LlmAsJudge.AggregationFunction.AVERAGE
+                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                         )
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")

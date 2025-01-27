@@ -13,12 +13,8 @@ class BatchInferenceChatCompletionParamsTest {
         BatchInferenceChatCompletionParams.builder()
             .addMessagesBatch(
                 listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
+                    Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
@@ -26,11 +22,7 @@ class BatchInferenceChatCompletionParamsTest {
             .logprobs(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
             .samplingParams(
                 SamplingParams.builder()
-                    .strategy(
-                        SamplingParams.Strategy.Greedy.builder()
-                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                            .build()
-                    )
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .build()
@@ -69,12 +61,8 @@ class BatchInferenceChatCompletionParamsTest {
             BatchInferenceChatCompletionParams.builder()
                 .addMessagesBatch(
                     listOf(
-                        Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content("string")
-                                .role(UserMessage.Role.USER)
-                                .context("string")
-                                .build()
+                        Message.ofUser(
+                            UserMessage.builder().content("string").context("string").build()
                         )
                     )
                 )
@@ -82,11 +70,7 @@ class BatchInferenceChatCompletionParamsTest {
                 .logprobs(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -123,12 +107,8 @@ class BatchInferenceChatCompletionParamsTest {
             .isEqualTo(
                 listOf(
                     listOf(
-                        Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content("string")
-                                .role(UserMessage.Role.USER)
-                                .context("string")
-                                .build()
+                        Message.ofUser(
+                            UserMessage.builder().content("string").context("string").build()
                         )
                     )
                 )
@@ -139,11 +119,7 @@ class BatchInferenceChatCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategy(
-                        SamplingParams.Strategy.Greedy.builder()
-                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                            .build()
-                    )
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .build()
@@ -182,14 +158,7 @@ class BatchInferenceChatCompletionParamsTest {
         val params =
             BatchInferenceChatCompletionParams.builder()
                 .addMessagesBatch(
-                    listOf(
-                        Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content("string")
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
+                    listOf(Message.ofUser(UserMessage.builder().content("string").build()))
                 )
                 .model("model")
                 .build()
@@ -197,16 +166,7 @@ class BatchInferenceChatCompletionParamsTest {
         assertThat(body).isNotNull
         assertThat(body.messagesBatch())
             .isEqualTo(
-                listOf(
-                    listOf(
-                        Message.ofUserMessage(
-                            UserMessage.builder()
-                                .content("string")
-                                .role(UserMessage.Role.USER)
-                                .build()
-                        )
-                    )
-                )
+                listOf(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
             )
         assertThat(body.model()).isEqualTo("model")
     }

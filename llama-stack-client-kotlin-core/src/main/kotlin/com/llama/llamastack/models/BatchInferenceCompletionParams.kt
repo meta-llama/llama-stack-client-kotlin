@@ -178,12 +178,8 @@ constructor(
             fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) =
                 addContentBatch(InterleavedContent.ofTextContentItem(textContentItem))
 
-            fun addContentBatchOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) =
-                addContentBatch(
-                    InterleavedContent.ofInterleavedContentItems(interleavedContentItems)
-                )
+            fun addContentBatchOfItems(items: List<InterleavedContentItem>) =
+                addContentBatch(InterleavedContent.ofItems(items))
 
             fun model(model: String) = model(JsonField.of(model))
 
@@ -302,9 +298,9 @@ constructor(
             body.addContentBatch(textContentItem)
         }
 
-        fun addContentBatchOfInterleavedContentItems(
-            interleavedContentItems: List<InterleavedContentItem>
-        ) = apply { body.addContentBatchOfInterleavedContentItems(interleavedContentItems) }
+        fun addContentBatchOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addContentBatchOfItems(items)
+        }
 
         fun model(model: String) = apply { body.model(model) }
 

@@ -75,15 +75,14 @@ private constructor(
 
         fun step(step: JsonField<Step>) = apply { this.step = step }
 
-        fun step(inferenceStep: InferenceStep) = step(Step.ofInferenceStep(inferenceStep))
+        fun step(inference: InferenceStep) = step(Step.ofInference(inference))
 
-        fun step(toolExecutionStep: ToolExecutionStep) =
-            step(Step.ofToolExecutionStep(toolExecutionStep))
+        fun step(toolExecution: ToolExecutionStep) = step(Step.ofToolExecution(toolExecution))
 
-        fun step(shieldCallStep: ShieldCallStep) = step(Step.ofShieldCallStep(shieldCallStep))
+        fun step(shieldCall: ShieldCallStep) = step(Step.ofShieldCall(shieldCall))
 
-        fun step(memoryRetrievalStep: MemoryRetrievalStep) =
-            step(Step.ofMemoryRetrievalStep(memoryRetrievalStep))
+        fun step(memoryRetrieval: MemoryRetrievalStep) =
+            step(Step.ofMemoryRetrieval(memoryRetrieval))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -115,47 +114,45 @@ private constructor(
     @JsonSerialize(using = Step.Serializer::class)
     class Step
     private constructor(
-        private val inferenceStep: InferenceStep? = null,
-        private val toolExecutionStep: ToolExecutionStep? = null,
-        private val shieldCallStep: ShieldCallStep? = null,
-        private val memoryRetrievalStep: MemoryRetrievalStep? = null,
+        private val inference: InferenceStep? = null,
+        private val toolExecution: ToolExecutionStep? = null,
+        private val shieldCall: ShieldCallStep? = null,
+        private val memoryRetrieval: MemoryRetrievalStep? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun inferenceStep(): InferenceStep? = inferenceStep
+        fun inference(): InferenceStep? = inference
 
-        fun toolExecutionStep(): ToolExecutionStep? = toolExecutionStep
+        fun toolExecution(): ToolExecutionStep? = toolExecution
 
-        fun shieldCallStep(): ShieldCallStep? = shieldCallStep
+        fun shieldCall(): ShieldCallStep? = shieldCall
 
-        fun memoryRetrievalStep(): MemoryRetrievalStep? = memoryRetrievalStep
+        fun memoryRetrieval(): MemoryRetrievalStep? = memoryRetrieval
 
-        fun isInferenceStep(): Boolean = inferenceStep != null
+        fun isInference(): Boolean = inference != null
 
-        fun isToolExecutionStep(): Boolean = toolExecutionStep != null
+        fun isToolExecution(): Boolean = toolExecution != null
 
-        fun isShieldCallStep(): Boolean = shieldCallStep != null
+        fun isShieldCall(): Boolean = shieldCall != null
 
-        fun isMemoryRetrievalStep(): Boolean = memoryRetrievalStep != null
+        fun isMemoryRetrieval(): Boolean = memoryRetrieval != null
 
-        fun asInferenceStep(): InferenceStep = inferenceStep.getOrThrow("inferenceStep")
+        fun asInference(): InferenceStep = inference.getOrThrow("inference")
 
-        fun asToolExecutionStep(): ToolExecutionStep =
-            toolExecutionStep.getOrThrow("toolExecutionStep")
+        fun asToolExecution(): ToolExecutionStep = toolExecution.getOrThrow("toolExecution")
 
-        fun asShieldCallStep(): ShieldCallStep = shieldCallStep.getOrThrow("shieldCallStep")
+        fun asShieldCall(): ShieldCallStep = shieldCall.getOrThrow("shieldCall")
 
-        fun asMemoryRetrievalStep(): MemoryRetrievalStep =
-            memoryRetrievalStep.getOrThrow("memoryRetrievalStep")
+        fun asMemoryRetrieval(): MemoryRetrievalStep = memoryRetrieval.getOrThrow("memoryRetrieval")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                inferenceStep != null -> visitor.visitInferenceStep(inferenceStep)
-                toolExecutionStep != null -> visitor.visitToolExecutionStep(toolExecutionStep)
-                shieldCallStep != null -> visitor.visitShieldCallStep(shieldCallStep)
-                memoryRetrievalStep != null -> visitor.visitMemoryRetrievalStep(memoryRetrievalStep)
+                inference != null -> visitor.visitInference(inference)
+                toolExecution != null -> visitor.visitToolExecution(toolExecution)
+                shieldCall != null -> visitor.visitShieldCall(shieldCall)
+                memoryRetrieval != null -> visitor.visitMemoryRetrieval(memoryRetrieval)
                 else -> visitor.unknown(_json)
             }
         }
@@ -169,22 +166,20 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitInferenceStep(inferenceStep: InferenceStep) {
-                        inferenceStep.validate()
+                    override fun visitInference(inference: InferenceStep) {
+                        inference.validate()
                     }
 
-                    override fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep) {
-                        toolExecutionStep.validate()
+                    override fun visitToolExecution(toolExecution: ToolExecutionStep) {
+                        toolExecution.validate()
                     }
 
-                    override fun visitShieldCallStep(shieldCallStep: ShieldCallStep) {
-                        shieldCallStep.validate()
+                    override fun visitShieldCall(shieldCall: ShieldCallStep) {
+                        shieldCall.validate()
                     }
 
-                    override fun visitMemoryRetrievalStep(
-                        memoryRetrievalStep: MemoryRetrievalStep
-                    ) {
-                        memoryRetrievalStep.validate()
+                    override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) {
+                        memoryRetrieval.validate()
                     }
                 }
             )
@@ -196,44 +191,43 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Step && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+            return /* spotless:off */ other is Step && inference == other.inference && toolExecution == other.toolExecution && shieldCall == other.shieldCall && memoryRetrieval == other.memoryRetrieval /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inference, toolExecution, shieldCall, memoryRetrieval) /* spotless:on */
 
         override fun toString(): String =
             when {
-                inferenceStep != null -> "Step{inferenceStep=$inferenceStep}"
-                toolExecutionStep != null -> "Step{toolExecutionStep=$toolExecutionStep}"
-                shieldCallStep != null -> "Step{shieldCallStep=$shieldCallStep}"
-                memoryRetrievalStep != null -> "Step{memoryRetrievalStep=$memoryRetrievalStep}"
+                inference != null -> "Step{inference=$inference}"
+                toolExecution != null -> "Step{toolExecution=$toolExecution}"
+                shieldCall != null -> "Step{shieldCall=$shieldCall}"
+                memoryRetrieval != null -> "Step{memoryRetrieval=$memoryRetrieval}"
                 _json != null -> "Step{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Step")
             }
 
         companion object {
 
-            fun ofInferenceStep(inferenceStep: InferenceStep) = Step(inferenceStep = inferenceStep)
+            fun ofInference(inference: InferenceStep) = Step(inference = inference)
 
-            fun ofToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
-                Step(toolExecutionStep = toolExecutionStep)
+            fun ofToolExecution(toolExecution: ToolExecutionStep) =
+                Step(toolExecution = toolExecution)
 
-            fun ofShieldCallStep(shieldCallStep: ShieldCallStep) =
-                Step(shieldCallStep = shieldCallStep)
+            fun ofShieldCall(shieldCall: ShieldCallStep) = Step(shieldCall = shieldCall)
 
-            fun ofMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep) =
-                Step(memoryRetrievalStep = memoryRetrievalStep)
+            fun ofMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                Step(memoryRetrieval = memoryRetrieval)
         }
 
         interface Visitor<out T> {
 
-            fun visitInferenceStep(inferenceStep: InferenceStep): T
+            fun visitInference(inference: InferenceStep): T
 
-            fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep): T
+            fun visitToolExecution(toolExecution: ToolExecutionStep): T
 
-            fun visitShieldCallStep(shieldCallStep: ShieldCallStep): T
+            fun visitShieldCall(shieldCall: ShieldCallStep): T
 
-            fun visitMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep): T
+            fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Step: $json")
@@ -250,19 +244,19 @@ private constructor(
                     "inference" -> {
                         tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
                             ?.let {
-                                return Step(inferenceStep = it, _json = json)
+                                return Step(inference = it, _json = json)
                             }
                     }
                     "tool_execution" -> {
                         tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
                             ?.let {
-                                return Step(toolExecutionStep = it, _json = json)
+                                return Step(toolExecution = it, _json = json)
                             }
                     }
                     "shield_call" -> {
                         tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
                             ?.let {
-                                return Step(shieldCallStep = it, _json = json)
+                                return Step(shieldCall = it, _json = json)
                             }
                     }
                     "memory_retrieval" -> {
@@ -270,7 +264,7 @@ private constructor(
                                 it.validate()
                             }
                             ?.let {
-                                return Step(memoryRetrievalStep = it, _json = json)
+                                return Step(memoryRetrieval = it, _json = json)
                             }
                     }
                 }
@@ -287,12 +281,10 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.inferenceStep != null -> generator.writeObject(value.inferenceStep)
-                    value.toolExecutionStep != null ->
-                        generator.writeObject(value.toolExecutionStep)
-                    value.shieldCallStep != null -> generator.writeObject(value.shieldCallStep)
-                    value.memoryRetrievalStep != null ->
-                        generator.writeObject(value.memoryRetrievalStep)
+                    value.inference != null -> generator.writeObject(value.inference)
+                    value.toolExecution != null -> generator.writeObject(value.toolExecution)
+                    value.shieldCall != null -> generator.writeObject(value.shieldCall)
+                    value.memoryRetrieval != null -> generator.writeObject(value.memoryRetrieval)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Step")
                 }

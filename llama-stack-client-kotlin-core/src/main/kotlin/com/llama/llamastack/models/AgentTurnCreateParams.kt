@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.BaseDeserializer
 import com.llama.llamastack.core.BaseSerializer
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -181,11 +180,10 @@ constructor(
                     }
             }
 
-            fun addMessage(userMessage: UserMessage) =
-                addMessage(Message.ofUserMessage(userMessage))
+            fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
 
-            fun addMessage(toolResponseMessage: ToolResponseMessage) =
-                addMessage(Message.ofToolResponseMessage(toolResponseMessage))
+            fun addMessage(toolResponse: ToolResponseMessage) =
+                addMessage(Message.ofToolResponse(toolResponse))
 
             fun documents(documents: List<Document>) = documents(JsonField.of(documents))
 
@@ -318,11 +316,9 @@ constructor(
 
         fun addMessage(message: Message) = apply { body.addMessage(message) }
 
-        fun addMessage(userMessage: UserMessage) = apply { body.addMessage(userMessage) }
+        fun addMessage(user: UserMessage) = apply { body.addMessage(user) }
 
-        fun addMessage(toolResponseMessage: ToolResponseMessage) = apply {
-            body.addMessage(toolResponseMessage)
-        }
+        fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
 
@@ -477,30 +473,29 @@ constructor(
     @JsonSerialize(using = Message.Serializer::class)
     class Message
     private constructor(
-        private val userMessage: UserMessage? = null,
-        private val toolResponseMessage: ToolResponseMessage? = null,
+        private val user: UserMessage? = null,
+        private val toolResponse: ToolResponseMessage? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun userMessage(): UserMessage? = userMessage
+        fun user(): UserMessage? = user
 
-        fun toolResponseMessage(): ToolResponseMessage? = toolResponseMessage
+        fun toolResponse(): ToolResponseMessage? = toolResponse
 
-        fun isUserMessage(): Boolean = userMessage != null
+        fun isUser(): Boolean = user != null
 
-        fun isToolResponseMessage(): Boolean = toolResponseMessage != null
+        fun isToolResponse(): Boolean = toolResponse != null
 
-        fun asUserMessage(): UserMessage = userMessage.getOrThrow("userMessage")
+        fun asUser(): UserMessage = user.getOrThrow("user")
 
-        fun asToolResponseMessage(): ToolResponseMessage =
-            toolResponseMessage.getOrThrow("toolResponseMessage")
+        fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                userMessage != null -> visitor.visitUserMessage(userMessage)
-                toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
+                user != null -> visitor.visitUser(user)
+                toolResponse != null -> visitor.visitToolResponse(toolResponse)
                 else -> visitor.unknown(_json)
             }
         }
@@ -514,14 +509,12 @@ constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitUserMessage(userMessage: UserMessage) {
-                        userMessage.validate()
+                    override fun visitUser(user: UserMessage) {
+                        user.validate()
                     }
 
-                    override fun visitToolResponseMessage(
-                        toolResponseMessage: ToolResponseMessage
-                    ) {
-                        toolResponseMessage.validate()
+                    override fun visitToolResponse(toolResponse: ToolResponseMessage) {
+                        toolResponse.validate()
                     }
                 }
             )
@@ -533,32 +526,32 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Message && userMessage == other.userMessage && toolResponseMessage == other.toolResponseMessage /* spotless:on */
+            return /* spotless:off */ other is Message && user == other.user && toolResponse == other.toolResponse /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, toolResponseMessage) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(user, toolResponse) /* spotless:on */
 
         override fun toString(): String =
             when {
-                userMessage != null -> "Message{userMessage=$userMessage}"
-                toolResponseMessage != null -> "Message{toolResponseMessage=$toolResponseMessage}"
+                user != null -> "Message{user=$user}"
+                toolResponse != null -> "Message{toolResponse=$toolResponse}"
                 _json != null -> "Message{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Message")
             }
 
         companion object {
 
-            fun ofUserMessage(userMessage: UserMessage) = Message(userMessage = userMessage)
+            fun ofUser(user: UserMessage) = Message(user = user)
 
-            fun ofToolResponseMessage(toolResponseMessage: ToolResponseMessage) =
-                Message(toolResponseMessage = toolResponseMessage)
+            fun ofToolResponse(toolResponse: ToolResponseMessage) =
+                Message(toolResponse = toolResponse)
         }
 
         interface Visitor<out T> {
 
-            fun visitUserMessage(userMessage: UserMessage): T
+            fun visitUser(user: UserMessage): T
 
-            fun visitToolResponseMessage(toolResponseMessage: ToolResponseMessage): T
+            fun visitToolResponse(toolResponse: ToolResponseMessage): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Message: $json")
@@ -572,11 +565,11 @@ constructor(
 
                 tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
                     ?.let {
-                        return Message(userMessage = it, _json = json)
+                        return Message(user = it, _json = json)
                     }
                 tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
                     ?.let {
-                        return Message(toolResponseMessage = it, _json = json)
+                        return Message(toolResponse = it, _json = json)
                     }
 
                 return Message(_json = json)
@@ -591,9 +584,8 @@ constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.userMessage != null -> generator.writeObject(value.userMessage)
-                    value.toolResponseMessage != null ->
-                        generator.writeObject(value.toolResponseMessage)
+                    value.user != null -> generator.writeObject(value.user)
+                    value.toolResponse != null -> generator.writeObject(value.toolResponse)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Message")
                 }
@@ -918,18 +910,16 @@ constructor(
                 private val image: JsonField<Image> = JsonMissing.of(),
                 @JsonProperty("type")
                 @ExcludeMissing
-                private val type: JsonField<Type> = JsonMissing.of(),
+                private val type: JsonValue = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
                 fun image(): Image = image.getRequired("image")
 
-                fun type(): Type = type.getRequired("type")
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
                 @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
-
-                @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                 @JsonAnyGetter
                 @ExcludeMissing
@@ -943,7 +933,13 @@ constructor(
                     }
 
                     image().validate()
-                    type()
+                    _type().let {
+                        if (it != JsonValue.from("image")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
                     validated = true
                 }
 
@@ -957,7 +953,7 @@ constructor(
                 class Builder {
 
                     private var image: JsonField<Image>? = null
-                    private var type: JsonField<Type>? = null
+                    private var type: JsonValue = JsonValue.from("image")
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(imageContentItem: ImageContentItem) = apply {
@@ -970,9 +966,7 @@ constructor(
 
                     fun image(image: JsonField<Image>) = apply { this.image = image }
 
-                    fun type(type: Type) = type(JsonField.of(type))
-
-                    fun type(type: JsonField<Type>) = apply { this.type = type }
+                    fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -999,7 +993,7 @@ constructor(
                     fun build(): ImageContentItem =
                         ImageContentItem(
                             checkRequired("image", image),
-                            checkRequired("type", type),
+                            type,
                             additionalProperties.toImmutable(),
                         )
                 }
@@ -1118,59 +1112,6 @@ constructor(
                         "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
                 }
 
-                class Type
-                @JsonCreator
-                private constructor(
-                    private val value: JsonField<String>,
-                ) : Enum {
-
-                    @com.fasterxml.jackson.annotation.JsonValue
-                    fun _value(): JsonField<String> = value
-
-                    companion object {
-
-                        val IMAGE = of("image")
-
-                        fun of(value: String) = Type(JsonField.of(value))
-                    }
-
-                    enum class Known {
-                        IMAGE,
-                    }
-
-                    enum class Value {
-                        IMAGE,
-                        _UNKNOWN,
-                    }
-
-                    fun value(): Value =
-                        when (this) {
-                            IMAGE -> Value.IMAGE
-                            else -> Value._UNKNOWN
-                        }
-
-                    fun known(): Known =
-                        when (this) {
-                            IMAGE -> Known.IMAGE
-                            else ->
-                                throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-                        }
-
-                    fun asString(): String = _value().asStringOrThrow()
-
-                    override fun equals(other: Any?): Boolean {
-                        if (this === other) {
-                            return true
-                        }
-
-                        return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                    }
-
-                    override fun hashCode() = value.hashCode()
-
-                    override fun toString() = value.toString()
-                }
-
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
                         return true
@@ -1198,18 +1139,16 @@ constructor(
                 private val text: JsonField<String> = JsonMissing.of(),
                 @JsonProperty("type")
                 @ExcludeMissing
-                private val type: JsonField<Type> = JsonMissing.of(),
+                private val type: JsonValue = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
                 fun text(): String = text.getRequired("text")
 
-                fun type(): Type = type.getRequired("type")
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
                 @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
-
-                @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                 @JsonAnyGetter
                 @ExcludeMissing
@@ -1223,7 +1162,13 @@ constructor(
                     }
 
                     text()
-                    type()
+                    _type().let {
+                        if (it != JsonValue.from("text")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
                     validated = true
                 }
 
@@ -1237,7 +1182,7 @@ constructor(
                 class Builder {
 
                     private var text: JsonField<String>? = null
-                    private var type: JsonField<Type>? = null
+                    private var type: JsonValue = JsonValue.from("text")
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(textContentItem: TextContentItem) = apply {
@@ -1250,9 +1195,7 @@ constructor(
 
                     fun text(text: JsonField<String>) = apply { this.text = text }
 
-                    fun type(type: Type) = type(JsonField.of(type))
-
-                    fun type(type: JsonField<Type>) = apply { this.type = type }
+                    fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -1279,62 +1222,9 @@ constructor(
                     fun build(): TextContentItem =
                         TextContentItem(
                             checkRequired("text", text),
-                            checkRequired("type", type),
+                            type,
                             additionalProperties.toImmutable(),
                         )
-                }
-
-                class Type
-                @JsonCreator
-                private constructor(
-                    private val value: JsonField<String>,
-                ) : Enum {
-
-                    @com.fasterxml.jackson.annotation.JsonValue
-                    fun _value(): JsonField<String> = value
-
-                    companion object {
-
-                        val TEXT = of("text")
-
-                        fun of(value: String) = Type(JsonField.of(value))
-                    }
-
-                    enum class Known {
-                        TEXT,
-                    }
-
-                    enum class Value {
-                        TEXT,
-                        _UNKNOWN,
-                    }
-
-                    fun value(): Value =
-                        when (this) {
-                            TEXT -> Value.TEXT
-                            else -> Value._UNKNOWN
-                        }
-
-                    fun known(): Known =
-                        when (this) {
-                            TEXT -> Known.TEXT
-                            else ->
-                                throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-                        }
-
-                    fun asString(): String = _value().asStringOrThrow()
-
-                    override fun equals(other: Any?): Boolean {
-                        if (this === other) {
-                            return true
-                        }
-
-                        return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                    }
-
-                    override fun hashCode() = value.hashCode()
-
-                    override fun toString() = value.toString()
                 }
 
                 override fun equals(other: Any?): Boolean {

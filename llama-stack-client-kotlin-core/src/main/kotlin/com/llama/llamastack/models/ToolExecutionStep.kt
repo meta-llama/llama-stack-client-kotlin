@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -26,9 +25,7 @@ private constructor(
     @JsonProperty("step_id")
     @ExcludeMissing
     private val stepId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("step_type")
-    @ExcludeMissing
-    private val stepType: JsonField<StepType> = JsonMissing.of(),
+    @JsonProperty("step_type") @ExcludeMissing private val stepType: JsonValue = JsonMissing.of(),
     @JsonProperty("tool_calls")
     @ExcludeMissing
     private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
@@ -49,7 +46,7 @@ private constructor(
 
     fun stepId(): String = stepId.getRequired("step_id")
 
-    fun stepType(): StepType = stepType.getRequired("step_type")
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonValue = stepType
 
     fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
 
@@ -62,8 +59,6 @@ private constructor(
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
     @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
-
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
     @JsonProperty("tool_calls")
     @ExcludeMissing
@@ -95,7 +90,11 @@ private constructor(
         }
 
         stepId()
-        stepType()
+        _stepType().let {
+            if (it != JsonValue.from("tool_execution")) {
+                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
+            }
+        }
         toolCalls().forEach { it.validate() }
         toolResponses().forEach { it.validate() }
         turnId()
@@ -114,7 +113,7 @@ private constructor(
     class Builder {
 
         private var stepId: JsonField<String>? = null
-        private var stepType: JsonField<StepType>? = null
+        private var stepType: JsonValue = JsonValue.from("tool_execution")
         private var toolCalls: JsonField<MutableList<ToolCall>>? = null
         private var toolResponses: JsonField<MutableList<ToolResponse>>? = null
         private var turnId: JsonField<String>? = null
@@ -137,9 +136,7 @@ private constructor(
 
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
-        fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
-
-        fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
+        fun stepType(stepType: JsonValue) = apply { this.stepType = stepType }
 
         fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
 
@@ -212,7 +209,7 @@ private constructor(
         fun build(): ToolExecutionStep =
             ToolExecutionStep(
                 checkRequired("stepId", stepId),
-                checkRequired("stepType", stepType),
+                stepType,
                 checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
                 checkRequired("toolResponses", toolResponses).map { it.toImmutable() },
                 checkRequired("turnId", turnId),
@@ -220,57 +217,6 @@ private constructor(
                 startedAt,
                 additionalProperties.toImmutable(),
             )
-    }
-
-    class StepType
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val TOOL_EXECUTION = of("tool_execution")
-
-            fun of(value: String) = StepType(JsonField.of(value))
-        }
-
-        enum class Known {
-            TOOL_EXECUTION,
-        }
-
-        enum class Value {
-            TOOL_EXECUTION,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                TOOL_EXECUTION -> Value.TOOL_EXECUTION
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                TOOL_EXECUTION -> Known.TOOL_EXECUTION
-                else -> throw LlamaStackClientInvalidDataException("Unknown StepType: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

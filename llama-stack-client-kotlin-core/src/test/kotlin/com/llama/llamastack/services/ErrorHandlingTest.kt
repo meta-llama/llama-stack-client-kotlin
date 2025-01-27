@@ -28,6 +28,7 @@ import com.llama.llamastack.errors.UnprocessableEntityException
 import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionResponse
+import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.TokenLogProbs
 import com.llama.llamastack.models.ToolCall
@@ -60,35 +61,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion200() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -126,7 +113,6 @@ class ErrorHandlingTest {
                     .completionMessage(
                         CompletionMessage.builder()
                             .content("string")
-                            .role(CompletionMessage.Role.ASSISTANT)
                             .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .addToolCall(
                                 ToolCall.builder()
@@ -162,35 +148,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion400() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -243,35 +215,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion401() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -324,35 +282,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion403() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -405,35 +349,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion404() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -486,35 +416,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion422() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -567,35 +483,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion429() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -648,35 +550,21 @@ class ErrorHandlingTest {
     fun inferencesChatCompletion500() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -729,35 +617,21 @@ class ErrorHandlingTest {
     fun unexpectedStatusCode() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -811,35 +685,21 @@ class ErrorHandlingTest {
     fun invalidBody() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -885,35 +745,21 @@ class ErrorHandlingTest {
     fun invalidErrorBody() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()

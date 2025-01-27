@@ -45,7 +45,7 @@ class AgentServiceTest {
                                             .name("name")
                                             .parameterType("parameter_type")
                                             .required(true)
-                                            .default(true)
+                                            .default(ToolDef.Parameter.Default.ofBoolean(true))
                                             .build()
                                     )
                                     .build()
@@ -54,11 +54,7 @@ class AgentServiceTest {
                             .addOutputShield("string")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategy(
-                                        SamplingParams.Strategy.Greedy.builder()
-                                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                            .build()
-                                    )
+                                    .strategyGreedySampling()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .build()

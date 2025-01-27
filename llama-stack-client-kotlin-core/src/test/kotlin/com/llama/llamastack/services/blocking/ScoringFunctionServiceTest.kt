@@ -6,6 +6,7 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.ReturnType
 import com.llama.llamastack.models.ScoringFn
+import com.llama.llamastack.models.ScoringFnParams
 import com.llama.llamastack.models.ScoringFunctionListParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
@@ -61,12 +62,10 @@ class ScoringFunctionServiceTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .params(
-                    ScoringFunctionRegisterParams.Params.LlmAsJudge.builder()
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
                         .judgeModel("judge_model")
-                        .type(ScoringFunctionRegisterParams.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                         .addAggregationFunction(
-                            ScoringFunctionRegisterParams.Params.LlmAsJudge.AggregationFunction
-                                .AVERAGE
+                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                         )
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")

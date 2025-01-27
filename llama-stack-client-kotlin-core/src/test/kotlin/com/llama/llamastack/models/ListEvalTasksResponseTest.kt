@@ -24,7 +24,6 @@ class ListEvalTasksResponseTest {
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
                         .addScoringFunction("string")
-                        .type(EvalTask.Type.EVAL_TASK)
                         .build()
                 )
                 .build()
@@ -42,7 +41,6 @@ class ListEvalTasksResponseTest {
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
                     .addScoringFunction("string")
-                    .type(EvalTask.Type.EVAL_TASK)
                     .build()
             )
     }

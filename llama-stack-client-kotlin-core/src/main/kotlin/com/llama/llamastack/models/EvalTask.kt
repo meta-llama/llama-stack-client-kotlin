@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -40,7 +39,7 @@ private constructor(
     @JsonProperty("scoring_functions")
     @ExcludeMissing
     private val scoringFunctions: JsonField<List<String>> = JsonMissing.of(),
-    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
@@ -56,7 +55,7 @@ private constructor(
 
     fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
-    fun type(): Type = type.getRequired("type")
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
     @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
@@ -73,8 +72,6 @@ private constructor(
     @JsonProperty("scoring_functions")
     @ExcludeMissing
     fun _scoringFunctions(): JsonField<List<String>> = scoringFunctions
-
-    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -93,7 +90,11 @@ private constructor(
         providerId()
         providerResourceId()
         scoringFunctions()
-        type()
+        _type().let {
+            if (it != JsonValue.from("eval_task")) {
+                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+            }
+        }
         validated = true
     }
 
@@ -112,7 +113,7 @@ private constructor(
         private var providerId: JsonField<String>? = null
         private var providerResourceId: JsonField<String>? = null
         private var scoringFunctions: JsonField<MutableList<String>>? = null
-        private var type: JsonField<Type>? = null
+        private var type: JsonValue = JsonValue.from("eval_task")
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalTask: EvalTask) = apply {
@@ -167,9 +168,7 @@ private constructor(
                 }
         }
 
-        fun type(type: Type) = type(JsonField.of(type))
-
-        fun type(type: JsonField<Type>) = apply { this.type = type }
+        fun type(type: JsonValue) = apply { this.type = type }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -198,7 +197,7 @@ private constructor(
                 checkRequired("providerId", providerId),
                 checkRequired("providerResourceId", providerResourceId),
                 checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
-                checkRequired("type", type),
+                type,
                 additionalProperties.toImmutable(),
             )
     }
@@ -277,57 +276,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
-    }
-
-    class Type
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val EVAL_TASK = of("eval_task")
-
-            fun of(value: String) = Type(JsonField.of(value))
-        }
-
-        enum class Known {
-            EVAL_TASK,
-        }
-
-        enum class Value {
-            EVAL_TASK,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                EVAL_TASK -> Value.EVAL_TASK
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                EVAL_TASK -> Known.EVAL_TASK
-                else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

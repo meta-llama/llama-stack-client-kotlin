@@ -18,7 +18,6 @@ class ListVectorDbsResponseTest {
                         .identifier("identifier")
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
-                        .type(ListVectorDbsResponse.Data.Type.VECTOR_DB)
                         .build()
                 )
                 .build()
@@ -31,7 +30,6 @@ class ListVectorDbsResponseTest {
                     .identifier("identifier")
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .type(ListVectorDbsResponse.Data.Type.VECTOR_DB)
                     .build()
             )
     }

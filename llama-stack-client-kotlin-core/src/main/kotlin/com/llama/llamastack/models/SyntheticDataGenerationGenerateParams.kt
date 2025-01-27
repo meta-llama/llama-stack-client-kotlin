@@ -157,16 +157,15 @@ constructor(
                     }
             }
 
-            fun addDialog(userMessage: UserMessage) = addDialog(Message.ofUserMessage(userMessage))
+            fun addDialog(user: UserMessage) = addDialog(Message.ofUser(user))
 
-            fun addDialog(systemMessage: SystemMessage) =
-                addDialog(Message.ofSystemMessage(systemMessage))
+            fun addDialog(system: SystemMessage) = addDialog(Message.ofSystem(system))
 
-            fun addDialog(toolResponseMessage: ToolResponseMessage) =
-                addDialog(Message.ofToolResponseMessage(toolResponseMessage))
+            fun addDialog(toolResponse: ToolResponseMessage) =
+                addDialog(Message.ofToolResponse(toolResponse))
 
-            fun addDialog(completionMessage: CompletionMessage) =
-                addDialog(Message.ofCompletionMessage(completionMessage))
+            fun addDialog(completion: CompletionMessage) =
+                addDialog(Message.ofCompletion(completion))
 
             fun filteringFunction(filteringFunction: FilteringFunction) =
                 filteringFunction(JsonField.of(filteringFunction))
@@ -268,17 +267,13 @@ constructor(
 
         fun addDialog(dialog: Message) = apply { body.addDialog(dialog) }
 
-        fun addDialog(userMessage: UserMessage) = apply { body.addDialog(userMessage) }
+        fun addDialog(user: UserMessage) = apply { body.addDialog(user) }
 
-        fun addDialog(systemMessage: SystemMessage) = apply { body.addDialog(systemMessage) }
+        fun addDialog(system: SystemMessage) = apply { body.addDialog(system) }
 
-        fun addDialog(toolResponseMessage: ToolResponseMessage) = apply {
-            body.addDialog(toolResponseMessage)
-        }
+        fun addDialog(toolResponse: ToolResponseMessage) = apply { body.addDialog(toolResponse) }
 
-        fun addDialog(completionMessage: CompletionMessage) = apply {
-            body.addDialog(completionMessage)
-        }
+        fun addDialog(completion: CompletionMessage) = apply { body.addDialog(completion) }
 
         fun filteringFunction(filteringFunction: FilteringFunction) = apply {
             body.filteringFunction(filteringFunction)

@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -126,7 +125,7 @@ private constructor(
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
         private val providerResourceId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
@@ -141,7 +140,7 @@ private constructor(
 
         fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
-        fun type(): Type = type.getRequired("type")
+        @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
         @JsonProperty("embedding_dimension")
         @ExcludeMissing
@@ -163,8 +162,6 @@ private constructor(
         @ExcludeMissing
         fun _providerResourceId(): JsonField<String> = providerResourceId
 
-        @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
-
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
@@ -181,7 +178,11 @@ private constructor(
             identifier()
             providerId()
             providerResourceId()
-            type()
+            _type().let {
+                if (it != JsonValue.from("vector_db")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
             validated = true
         }
 
@@ -199,7 +200,7 @@ private constructor(
             private var identifier: JsonField<String>? = null
             private var providerId: JsonField<String>? = null
             private var providerResourceId: JsonField<String>? = null
-            private var type: JsonField<Type>? = null
+            private var type: JsonValue = JsonValue.from("vector_db")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(data: Data) = apply {
@@ -241,9 +242,7 @@ private constructor(
                 this.providerResourceId = providerResourceId
             }
 
-            fun type(type: Type) = type(JsonField.of(type))
-
-            fun type(type: JsonField<Type>) = apply { this.type = type }
+            fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -271,60 +270,9 @@ private constructor(
                     checkRequired("identifier", identifier),
                     checkRequired("providerId", providerId),
                     checkRequired("providerResourceId", providerResourceId),
-                    checkRequired("type", type),
+                    type,
                     additionalProperties.toImmutable(),
                 )
-        }
-
-        class Type
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val VECTOR_DB = of("vector_db")
-
-                fun of(value: String) = Type(JsonField.of(value))
-            }
-
-            enum class Known {
-                VECTOR_DB,
-            }
-
-            enum class Value {
-                VECTOR_DB,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    VECTOR_DB -> Value.VECTOR_DB
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    VECTOR_DB -> Known.VECTOR_DB
-                    else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
         }
 
         override fun equals(other: Any?): Boolean {

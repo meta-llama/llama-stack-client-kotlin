@@ -26,12 +26,8 @@ class BatchInferenceServiceTest {
                 BatchInferenceChatCompletionParams.builder()
                     .addMessagesBatch(
                         listOf(
-                            Message.ofUserMessage(
-                                UserMessage.builder()
-                                    .content("string")
-                                    .role(UserMessage.Role.USER)
-                                    .context("string")
-                                    .build()
+                            Message.ofUser(
+                                UserMessage.builder().content("string").context("string").build()
                             )
                         )
                     )
@@ -41,11 +37,7 @@ class BatchInferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(
-                                SamplingParams.Strategy.Greedy.builder()
-                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                    .build()
-                            )
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .build()
@@ -94,11 +86,7 @@ class BatchInferenceServiceTest {
                     .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategy(
-                                SamplingParams.Strategy.Greedy.builder()
-                                    .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                    .build()
-                            )
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .build()

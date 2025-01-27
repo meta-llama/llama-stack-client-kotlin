@@ -13,20 +13,13 @@ class TurnTest {
     fun createTurn() {
         val turn =
             Turn.builder()
-                .addInputMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addInputMessage(UserMessage.builder().content("string").context("string").build())
                 .addOutputAttachment(
                     Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
                 )
                 .outputMessage(
                     CompletionMessage.builder()
                         .content("string")
-                        .role(CompletionMessage.Role.ASSISTANT)
                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
@@ -48,7 +41,6 @@ class TurnTest {
                         .modelResponse(
                             CompletionMessage.builder()
                                 .content("string")
-                                .role(CompletionMessage.Role.ASSISTANT)
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
@@ -67,7 +59,6 @@ class TurnTest {
                                 .build()
                         )
                         .stepId("step_id")
-                        .stepType(InferenceStep.StepType.INFERENCE)
                         .turnId("turn_id")
                         .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -79,12 +70,8 @@ class TurnTest {
         assertThat(turn).isNotNull
         assertThat(turn.inputMessages())
             .containsExactly(
-                Turn.InputMessage.ofUserMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
+                Turn.InputMessage.ofUser(
+                    UserMessage.builder().content("string").context("string").build()
                 )
             )
         assertThat(turn.outputAttachments())
@@ -95,7 +82,6 @@ class TurnTest {
             .isEqualTo(
                 CompletionMessage.builder()
                     .content("string")
-                    .role(CompletionMessage.Role.ASSISTANT)
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
@@ -114,12 +100,11 @@ class TurnTest {
         assertThat(turn.startedAt()).isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
         assertThat(turn.steps())
             .containsExactly(
-                Turn.Step.ofInferenceStep(
+                Turn.Step.ofInference(
                     InferenceStep.builder()
                         .modelResponse(
                             CompletionMessage.builder()
                                 .content("string")
-                                .role(CompletionMessage.Role.ASSISTANT)
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
@@ -138,7 +123,6 @@ class TurnTest {
                                 .build()
                         )
                         .stepId("step_id")
-                        .stepType(InferenceStep.StepType.INFERENCE)
                         .turnId("turn_id")
                         .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))

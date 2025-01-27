@@ -28,7 +28,7 @@ private constructor(
     @JsonProperty("content")
     @ExcludeMissing
     private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-    @JsonProperty("role") @ExcludeMissing private val role: JsonField<Role> = JsonMissing.of(),
+    @JsonProperty("role") @ExcludeMissing private val role: JsonValue = JsonMissing.of(),
     @JsonProperty("tool_name")
     @ExcludeMissing
     private val toolName: JsonField<ToolName> = JsonMissing.of(),
@@ -39,15 +39,13 @@ private constructor(
 
     fun content(): InterleavedContent = content.getRequired("content")
 
-    fun role(): Role = role.getRequired("role")
+    @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
     @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
-
-    @JsonProperty("role") @ExcludeMissing fun _role(): JsonField<Role> = role
 
     @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
@@ -64,7 +62,11 @@ private constructor(
 
         callId()
         content().validate()
-        role()
+        _role().let {
+            if (it != JsonValue.from("tool")) {
+                throw LlamaStackClientInvalidDataException("'role' is invalid, received $it")
+            }
+        }
         toolName()
         validated = true
     }
@@ -80,7 +82,7 @@ private constructor(
 
         private var callId: JsonField<String>? = null
         private var content: JsonField<InterleavedContent>? = null
-        private var role: JsonField<Role>? = null
+        private var role: JsonValue = JsonValue.from("tool")
         private var toolName: JsonField<ToolName>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -108,13 +110,10 @@ private constructor(
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        fun contentOfInterleavedContentItems(
-            interleavedContentItems: List<InterleavedContentItem>
-        ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+        fun contentOfItems(items: List<InterleavedContentItem>) =
+            content(InterleavedContent.ofItems(items))
 
-        fun role(role: Role) = role(JsonField.of(role))
-
-        fun role(role: JsonField<Role>) = apply { this.role = role }
+        fun role(role: JsonValue) = apply { this.role = role }
 
         fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
@@ -145,61 +144,10 @@ private constructor(
             ToolResponseMessage(
                 checkRequired("callId", callId),
                 checkRequired("content", content),
-                checkRequired("role", role),
+                role,
                 checkRequired("toolName", toolName),
                 additionalProperties.toImmutable(),
             )
-    }
-
-    class Role
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val TOOL = of("tool")
-
-            fun of(value: String) = Role(JsonField.of(value))
-        }
-
-        enum class Known {
-            TOOL,
-        }
-
-        enum class Value {
-            TOOL,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                TOOL -> Value.TOOL
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                TOOL -> Known.TOOL
-                else -> throw LlamaStackClientInvalidDataException("Unknown Role: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Role && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
     }
 
     class ToolName

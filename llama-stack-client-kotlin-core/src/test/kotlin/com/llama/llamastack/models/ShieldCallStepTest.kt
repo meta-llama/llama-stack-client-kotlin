@@ -14,7 +14,6 @@ class ShieldCallStepTest {
         val shieldCallStep =
             ShieldCallStep.builder()
                 .stepId("step_id")
-                .stepType(ShieldCallStep.StepType.SHIELD_CALL)
                 .turnId("turn_id")
                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -32,7 +31,6 @@ class ShieldCallStepTest {
                 .build()
         assertThat(shieldCallStep).isNotNull
         assertThat(shieldCallStep.stepId()).isEqualTo("step_id")
-        assertThat(shieldCallStep.stepType()).isEqualTo(ShieldCallStep.StepType.SHIELD_CALL)
         assertThat(shieldCallStep.turnId()).isEqualTo("turn_id")
         assertThat(shieldCallStep.completedAt())
             .isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))

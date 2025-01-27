@@ -27,13 +27,7 @@ class TurnServiceTest {
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
-                    .addMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
-                    )
+                    .addMessage(UserMessage.builder().content("string").context("string").build())
                     .addDocument(
                         AgentTurnCreateParams.Document.builder()
                             .content("string")
@@ -62,13 +56,7 @@ class TurnServiceTest {
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
-                    .addMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
-                    )
+                    .addMessage(UserMessage.builder().content("string").context("string").build())
                     .addDocument(
                         AgentTurnCreateParams.Document.builder()
                             .content("string")

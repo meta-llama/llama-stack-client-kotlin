@@ -21,7 +21,6 @@ class ModelTest {
                 .modelType(Model.ModelType.LLM)
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .type(Model.Type.MODEL)
                 .build()
         assertThat(model).isNotNull
         assertThat(model.identifier()).isEqualTo("identifier")
@@ -32,6 +31,5 @@ class ModelTest {
         assertThat(model.modelType()).isEqualTo(Model.ModelType.LLM)
         assertThat(model.providerId()).isEqualTo("provider_id")
         assertThat(model.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(model.type()).isEqualTo(Model.Type.MODEL)
     }
 }

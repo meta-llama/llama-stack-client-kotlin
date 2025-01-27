@@ -20,97 +20,93 @@ import java.util.Objects
 @JsonSerialize(using = ParamType.Serializer::class)
 class ParamType
 private constructor(
-    private val stringType: StringType? = null,
-    private val numberType: NumberType? = null,
-    private val booleanType: BooleanType? = null,
-    private val arrayType: ArrayType? = null,
-    private val objectType: ObjectType? = null,
-    private val jsonType: JsonType? = null,
-    private val unionType: UnionType? = null,
-    private val chatCompletionInputType: ChatCompletionInputType? = null,
-    private val completionInputType: CompletionInputType? = null,
-    private val agentTurnInputType: AgentTurnInputType? = null,
+    private val string: JsonValue? = null,
+    private val number: JsonValue? = null,
+    private val boolean: JsonValue? = null,
+    private val array: JsonValue? = null,
+    private val objectType: JsonValue? = null,
+    private val json: JsonValue? = null,
+    private val union: JsonValue? = null,
+    private val chatCompletionInput: JsonValue? = null,
+    private val completionInput: JsonValue? = null,
+    private val agentTurnInput: JsonValue? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun stringType(): StringType? = stringType
+    fun string(): JsonValue? = string
 
-    fun numberType(): NumberType? = numberType
+    fun number(): JsonValue? = number
 
-    fun booleanType(): BooleanType? = booleanType
+    fun boolean(): JsonValue? = boolean
 
-    fun arrayType(): ArrayType? = arrayType
+    fun array(): JsonValue? = array
 
-    fun objectType(): ObjectType? = objectType
+    fun objectType(): JsonValue? = objectType
 
-    fun jsonType(): JsonType? = jsonType
+    fun json(): JsonValue? = json
 
-    fun unionType(): UnionType? = unionType
+    fun union(): JsonValue? = union
 
-    fun chatCompletionInputType(): ChatCompletionInputType? = chatCompletionInputType
+    fun chatCompletionInput(): JsonValue? = chatCompletionInput
 
-    fun completionInputType(): CompletionInputType? = completionInputType
+    fun completionInput(): JsonValue? = completionInput
 
-    fun agentTurnInputType(): AgentTurnInputType? = agentTurnInputType
+    fun agentTurnInput(): JsonValue? = agentTurnInput
 
-    fun isStringType(): Boolean = stringType != null
+    fun isString(): Boolean = string != null
 
-    fun isNumberType(): Boolean = numberType != null
+    fun isNumber(): Boolean = number != null
 
-    fun isBooleanType(): Boolean = booleanType != null
+    fun isBoolean(): Boolean = boolean != null
 
-    fun isArrayType(): Boolean = arrayType != null
+    fun isArray(): Boolean = array != null
 
     fun isObjectType(): Boolean = objectType != null
 
-    fun isJsonType(): Boolean = jsonType != null
+    fun isJson(): Boolean = json != null
 
-    fun isUnionType(): Boolean = unionType != null
+    fun isUnion(): Boolean = union != null
 
-    fun isChatCompletionInputType(): Boolean = chatCompletionInputType != null
+    fun isChatCompletionInput(): Boolean = chatCompletionInput != null
 
-    fun isCompletionInputType(): Boolean = completionInputType != null
+    fun isCompletionInput(): Boolean = completionInput != null
 
-    fun isAgentTurnInputType(): Boolean = agentTurnInputType != null
+    fun isAgentTurnInput(): Boolean = agentTurnInput != null
 
-    fun asStringType(): StringType = stringType.getOrThrow("stringType")
+    fun asString(): JsonValue = string.getOrThrow("string")
 
-    fun asNumberType(): NumberType = numberType.getOrThrow("numberType")
+    fun asNumber(): JsonValue = number.getOrThrow("number")
 
-    fun asBooleanType(): BooleanType = booleanType.getOrThrow("booleanType")
+    fun asBoolean(): JsonValue = boolean.getOrThrow("boolean")
 
-    fun asArrayType(): ArrayType = arrayType.getOrThrow("arrayType")
+    fun asArray(): JsonValue = array.getOrThrow("array")
 
-    fun asObjectType(): ObjectType = objectType.getOrThrow("objectType")
+    fun asObjectType(): JsonValue = objectType.getOrThrow("objectType")
 
-    fun asJsonType(): JsonType = jsonType.getOrThrow("jsonType")
+    fun asJson(): JsonValue = json.getOrThrow("json")
 
-    fun asUnionType(): UnionType = unionType.getOrThrow("unionType")
+    fun asUnion(): JsonValue = union.getOrThrow("union")
 
-    fun asChatCompletionInputType(): ChatCompletionInputType =
-        chatCompletionInputType.getOrThrow("chatCompletionInputType")
+    fun asChatCompletionInput(): JsonValue = chatCompletionInput.getOrThrow("chatCompletionInput")
 
-    fun asCompletionInputType(): CompletionInputType =
-        completionInputType.getOrThrow("completionInputType")
+    fun asCompletionInput(): JsonValue = completionInput.getOrThrow("completionInput")
 
-    fun asAgentTurnInputType(): AgentTurnInputType =
-        agentTurnInputType.getOrThrow("agentTurnInputType")
+    fun asAgentTurnInput(): JsonValue = agentTurnInput.getOrThrow("agentTurnInput")
 
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T {
         return when {
-            stringType != null -> visitor.visitStringType(stringType)
-            numberType != null -> visitor.visitNumberType(numberType)
-            booleanType != null -> visitor.visitBooleanType(booleanType)
-            arrayType != null -> visitor.visitArrayType(arrayType)
+            string != null -> visitor.visitString(string)
+            number != null -> visitor.visitNumber(number)
+            boolean != null -> visitor.visitBoolean(boolean)
+            array != null -> visitor.visitArray(array)
             objectType != null -> visitor.visitObjectType(objectType)
-            jsonType != null -> visitor.visitJsonType(jsonType)
-            unionType != null -> visitor.visitUnionType(unionType)
-            chatCompletionInputType != null ->
-                visitor.visitChatCompletionInputType(chatCompletionInputType)
-            completionInputType != null -> visitor.visitCompletionInputType(completionInputType)
-            agentTurnInputType != null -> visitor.visitAgentTurnInputType(agentTurnInputType)
+            json != null -> visitor.visitJson(json)
+            union != null -> visitor.visitUnion(union)
+            chatCompletionInput != null -> visitor.visitChatCompletionInput(chatCompletionInput)
+            completionInput != null -> visitor.visitCompletionInput(completionInput)
+            agentTurnInput != null -> visitor.visitAgentTurnInput(agentTurnInput)
             else -> visitor.unknown(_json)
         }
     }
@@ -124,46 +120,104 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitStringType(stringType: StringType) {
-                    stringType.validate()
+                override fun visitString(string: JsonValue) {
+                    string.let {
+                        if (it != JsonValue.from(mapOf("type" to "string"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'string' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitNumberType(numberType: NumberType) {
-                    numberType.validate()
+                override fun visitNumber(number: JsonValue) {
+                    number.let {
+                        if (it != JsonValue.from(mapOf("type" to "number"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'number' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitBooleanType(booleanType: BooleanType) {
-                    booleanType.validate()
+                override fun visitBoolean(boolean: JsonValue) {
+                    boolean.let {
+                        if (it != JsonValue.from(mapOf("type" to "boolean"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'boolean' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitArrayType(arrayType: ArrayType) {
-                    arrayType.validate()
+                override fun visitArray(array: JsonValue) {
+                    array.let {
+                        if (it != JsonValue.from(mapOf("type" to "array"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'array' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitObjectType(objectType: ObjectType) {
-                    objectType.validate()
+                override fun visitObjectType(objectType: JsonValue) {
+                    objectType.let {
+                        if (it != JsonValue.from(mapOf("type" to "object"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'objectType' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitJsonType(jsonType: JsonType) {
-                    jsonType.validate()
+                override fun visitJson(json: JsonValue) {
+                    json.let {
+                        if (it != JsonValue.from(mapOf("type" to "json"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'json' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitUnionType(unionType: UnionType) {
-                    unionType.validate()
+                override fun visitUnion(union: JsonValue) {
+                    union.let {
+                        if (it != JsonValue.from(mapOf("type" to "union"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'union' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitChatCompletionInputType(
-                    chatCompletionInputType: ChatCompletionInputType
-                ) {
-                    chatCompletionInputType.validate()
+                override fun visitChatCompletionInput(chatCompletionInput: JsonValue) {
+                    chatCompletionInput.let {
+                        if (it != JsonValue.from(mapOf("type" to "chat_completion_input"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'chatCompletionInput' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitCompletionInputType(completionInputType: CompletionInputType) {
-                    completionInputType.validate()
+                override fun visitCompletionInput(completionInput: JsonValue) {
+                    completionInput.let {
+                        if (it != JsonValue.from(mapOf("type" to "completion_input"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'completionInput' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
 
-                override fun visitAgentTurnInputType(agentTurnInputType: AgentTurnInputType) {
-                    agentTurnInputType.validate()
+                override fun visitAgentTurnInput(agentTurnInput: JsonValue) {
+                    agentTurnInput.let {
+                        if (it != JsonValue.from(mapOf("type" to "agent_turn_input"))) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'agentTurnInput' is invalid, received $it"
+                            )
+                        }
+                    }
                 }
             }
         )
@@ -175,75 +229,76 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ParamType && stringType == other.stringType && numberType == other.numberType && booleanType == other.booleanType && arrayType == other.arrayType && objectType == other.objectType && jsonType == other.jsonType && unionType == other.unionType && chatCompletionInputType == other.chatCompletionInputType && completionInputType == other.completionInputType && agentTurnInputType == other.agentTurnInputType /* spotless:on */
+        return /* spotless:off */ other is ParamType && string == other.string && number == other.number && boolean == other.boolean && array == other.array && objectType == other.objectType && json == other.json && union == other.union && chatCompletionInput == other.chatCompletionInput && completionInput == other.completionInput && agentTurnInput == other.agentTurnInput /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(stringType, numberType, booleanType, arrayType, objectType, jsonType, unionType, chatCompletionInputType, completionInputType, agentTurnInputType) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, number, boolean, array, objectType, json, union, chatCompletionInput, completionInput, agentTurnInput) /* spotless:on */
 
     override fun toString(): String =
         when {
-            stringType != null -> "ParamType{stringType=$stringType}"
-            numberType != null -> "ParamType{numberType=$numberType}"
-            booleanType != null -> "ParamType{booleanType=$booleanType}"
-            arrayType != null -> "ParamType{arrayType=$arrayType}"
+            string != null -> "ParamType{string=$string}"
+            number != null -> "ParamType{number=$number}"
+            boolean != null -> "ParamType{boolean=$boolean}"
+            array != null -> "ParamType{array=$array}"
             objectType != null -> "ParamType{objectType=$objectType}"
-            jsonType != null -> "ParamType{jsonType=$jsonType}"
-            unionType != null -> "ParamType{unionType=$unionType}"
-            chatCompletionInputType != null ->
-                "ParamType{chatCompletionInputType=$chatCompletionInputType}"
-            completionInputType != null -> "ParamType{completionInputType=$completionInputType}"
-            agentTurnInputType != null -> "ParamType{agentTurnInputType=$agentTurnInputType}"
+            json != null -> "ParamType{json=$json}"
+            union != null -> "ParamType{union=$union}"
+            chatCompletionInput != null -> "ParamType{chatCompletionInput=$chatCompletionInput}"
+            completionInput != null -> "ParamType{completionInput=$completionInput}"
+            agentTurnInput != null -> "ParamType{agentTurnInput=$agentTurnInput}"
             _json != null -> "ParamType{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid ParamType")
         }
 
     companion object {
 
-        fun ofStringType(stringType: StringType) = ParamType(stringType = stringType)
+        fun ofString() = ParamType(string = JsonValue.from(mapOf("type" to "string")))
 
-        fun ofNumberType(numberType: NumberType) = ParamType(numberType = numberType)
+        fun ofNumber() = ParamType(number = JsonValue.from(mapOf("type" to "number")))
 
-        fun ofBooleanType(booleanType: BooleanType) = ParamType(booleanType = booleanType)
+        fun ofBoolean() = ParamType(boolean = JsonValue.from(mapOf("type" to "boolean")))
 
-        fun ofArrayType(arrayType: ArrayType) = ParamType(arrayType = arrayType)
+        fun ofArray() = ParamType(array = JsonValue.from(mapOf("type" to "array")))
 
-        fun ofObjectType(objectType: ObjectType) = ParamType(objectType = objectType)
+        fun ofObjectType() = ParamType(objectType = JsonValue.from(mapOf("type" to "object")))
 
-        fun ofJsonType(jsonType: JsonType) = ParamType(jsonType = jsonType)
+        fun ofJson() = ParamType(json = JsonValue.from(mapOf("type" to "json")))
 
-        fun ofUnionType(unionType: UnionType) = ParamType(unionType = unionType)
+        fun ofUnion() = ParamType(union = JsonValue.from(mapOf("type" to "union")))
 
-        fun ofChatCompletionInputType(chatCompletionInputType: ChatCompletionInputType) =
-            ParamType(chatCompletionInputType = chatCompletionInputType)
+        fun ofChatCompletionInput() =
+            ParamType(
+                chatCompletionInput = JsonValue.from(mapOf("type" to "chat_completion_input"))
+            )
 
-        fun ofCompletionInputType(completionInputType: CompletionInputType) =
-            ParamType(completionInputType = completionInputType)
+        fun ofCompletionInput() =
+            ParamType(completionInput = JsonValue.from(mapOf("type" to "completion_input")))
 
-        fun ofAgentTurnInputType(agentTurnInputType: AgentTurnInputType) =
-            ParamType(agentTurnInputType = agentTurnInputType)
+        fun ofAgentTurnInput() =
+            ParamType(agentTurnInput = JsonValue.from(mapOf("type" to "agent_turn_input")))
     }
 
     interface Visitor<out T> {
 
-        fun visitStringType(stringType: StringType): T
+        fun visitString(string: JsonValue): T
 
-        fun visitNumberType(numberType: NumberType): T
+        fun visitNumber(number: JsonValue): T
 
-        fun visitBooleanType(booleanType: BooleanType): T
+        fun visitBoolean(boolean: JsonValue): T
 
-        fun visitArrayType(arrayType: ArrayType): T
+        fun visitArray(array: JsonValue): T
 
-        fun visitObjectType(objectType: ObjectType): T
+        fun visitObjectType(objectType: JsonValue): T
 
-        fun visitJsonType(jsonType: JsonType): T
+        fun visitJson(json: JsonValue): T
 
-        fun visitUnionType(unionType: UnionType): T
+        fun visitUnion(union: JsonValue): T
 
-        fun visitChatCompletionInputType(chatCompletionInputType: ChatCompletionInputType): T
+        fun visitChatCompletionInput(chatCompletionInput: JsonValue): T
 
-        fun visitCompletionInputType(completionInputType: CompletionInputType): T
+        fun visitCompletionInput(completionInput: JsonValue): T
 
-        fun visitAgentTurnInputType(agentTurnInputType: AgentTurnInputType): T
+        fun visitAgentTurnInput(agentTurnInput: JsonValue): T
 
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown ParamType: $json")
@@ -258,65 +313,145 @@ private constructor(
 
             when (type) {
                 "string" -> {
-                    tryDeserialize(node, jacksonTypeRef<StringType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "string"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'string' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(stringType = it, _json = json)
+                            return ParamType(string = it, _json = json)
                         }
                 }
                 "number" -> {
-                    tryDeserialize(node, jacksonTypeRef<NumberType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "number"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'number' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(numberType = it, _json = json)
+                            return ParamType(number = it, _json = json)
                         }
                 }
                 "boolean" -> {
-                    tryDeserialize(node, jacksonTypeRef<BooleanType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "boolean"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'boolean' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(booleanType = it, _json = json)
+                            return ParamType(boolean = it, _json = json)
                         }
                 }
                 "array" -> {
-                    tryDeserialize(node, jacksonTypeRef<ArrayType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "array"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'array' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(arrayType = it, _json = json)
+                            return ParamType(array = it, _json = json)
                         }
                 }
                 "object" -> {
-                    tryDeserialize(node, jacksonTypeRef<ObjectType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "object"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'objectType' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
                             return ParamType(objectType = it, _json = json)
                         }
                 }
                 "json" -> {
-                    tryDeserialize(node, jacksonTypeRef<JsonType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "json"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'json' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(jsonType = it, _json = json)
+                            return ParamType(json = it, _json = json)
                         }
                 }
                 "union" -> {
-                    tryDeserialize(node, jacksonTypeRef<UnionType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "union"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'union' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(unionType = it, _json = json)
+                            return ParamType(union = it, _json = json)
                         }
                 }
                 "chat_completion_input" -> {
-                    tryDeserialize(node, jacksonTypeRef<ChatCompletionInputType>()) {
-                            it.validate()
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (
+                                    it != JsonValue.from(mapOf("type" to "chat_completion_input"))
+                                ) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'chatCompletionInput' is invalid, received $it"
+                                    )
+                                }
+                            }
                         }
                         ?.let {
-                            return ParamType(chatCompletionInputType = it, _json = json)
+                            return ParamType(chatCompletionInput = it, _json = json)
                         }
                 }
                 "completion_input" -> {
-                    tryDeserialize(node, jacksonTypeRef<CompletionInputType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "completion_input"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'completionInput' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(completionInputType = it, _json = json)
+                            return ParamType(completionInput = it, _json = json)
                         }
                 }
                 "agent_turn_input" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentTurnInputType>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
+                            it.let {
+                                if (it != JsonValue.from(mapOf("type" to "agent_turn_input"))) {
+                                    throw LlamaStackClientInvalidDataException(
+                                        "'agentTurnInput' is invalid, received $it"
+                                    )
+                                }
+                            }
+                        }
                         ?.let {
-                            return ParamType(agentTurnInputType = it, _json = json)
+                            return ParamType(agentTurnInput = it, _json = json)
                         }
                 }
             }
@@ -333,18 +468,17 @@ private constructor(
             provider: SerializerProvider
         ) {
             when {
-                value.stringType != null -> generator.writeObject(value.stringType)
-                value.numberType != null -> generator.writeObject(value.numberType)
-                value.booleanType != null -> generator.writeObject(value.booleanType)
-                value.arrayType != null -> generator.writeObject(value.arrayType)
+                value.string != null -> generator.writeObject(value.string)
+                value.number != null -> generator.writeObject(value.number)
+                value.boolean != null -> generator.writeObject(value.boolean)
+                value.array != null -> generator.writeObject(value.array)
                 value.objectType != null -> generator.writeObject(value.objectType)
-                value.jsonType != null -> generator.writeObject(value.jsonType)
-                value.unionType != null -> generator.writeObject(value.unionType)
-                value.chatCompletionInputType != null ->
-                    generator.writeObject(value.chatCompletionInputType)
-                value.completionInputType != null ->
-                    generator.writeObject(value.completionInputType)
-                value.agentTurnInputType != null -> generator.writeObject(value.agentTurnInputType)
+                value.json != null -> generator.writeObject(value.json)
+                value.union != null -> generator.writeObject(value.union)
+                value.chatCompletionInput != null ->
+                    generator.writeObject(value.chatCompletionInput)
+                value.completionInput != null -> generator.writeObject(value.completionInput)
+                value.agentTurnInput != null -> generator.writeObject(value.agentTurnInput)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid ParamType")
             }

@@ -16,7 +16,6 @@ class InferenceStepTest {
                 .modelResponse(
                     CompletionMessage.builder()
                         .content("string")
-                        .role(CompletionMessage.Role.ASSISTANT)
                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
@@ -32,7 +31,6 @@ class InferenceStepTest {
                         .build()
                 )
                 .stepId("step_id")
-                .stepType(InferenceStep.StepType.INFERENCE)
                 .turnId("turn_id")
                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -42,7 +40,6 @@ class InferenceStepTest {
             .isEqualTo(
                 CompletionMessage.builder()
                     .content("string")
-                    .role(CompletionMessage.Role.ASSISTANT)
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
@@ -58,7 +55,6 @@ class InferenceStepTest {
                     .build()
             )
         assertThat(inferenceStep.stepId()).isEqualTo("step_id")
-        assertThat(inferenceStep.stepType()).isEqualTo(InferenceStep.StepType.INFERENCE)
         assertThat(inferenceStep.turnId()).isEqualTo("turn_id")
         assertThat(inferenceStep.completedAt())
             .isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))

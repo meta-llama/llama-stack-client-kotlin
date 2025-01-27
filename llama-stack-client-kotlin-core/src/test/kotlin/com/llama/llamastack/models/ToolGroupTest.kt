@@ -15,7 +15,6 @@ class ToolGroupTest {
                 .identifier("identifier")
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .type(ToolGroup.Type.TOOL_GROUP)
                 .args(
                     ToolGroup.Args.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -27,7 +26,6 @@ class ToolGroupTest {
         assertThat(toolGroup.identifier()).isEqualTo("identifier")
         assertThat(toolGroup.providerId()).isEqualTo("provider_id")
         assertThat(toolGroup.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(toolGroup.type()).isEqualTo(ToolGroup.Type.TOOL_GROUP)
         assertThat(toolGroup.args())
             .isEqualTo(
                 ToolGroup.Args.builder().putAdditionalProperty("foo", JsonValue.from(true)).build()

@@ -152,9 +152,8 @@ constructor(
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
-            fun contentOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) = content(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+            fun contentOfItems(items: List<InterleavedContentItem>) =
+                content(InterleavedContent.ofItems(items))
 
             fun vectorDbIds(vectorDbIds: List<String>) = vectorDbIds(JsonField.of(vectorDbIds))
 
@@ -272,9 +271,9 @@ constructor(
             body.content(textContentItem)
         }
 
-        fun contentOfInterleavedContentItems(
-            interleavedContentItems: List<InterleavedContentItem>
-        ) = apply { body.contentOfInterleavedContentItems(interleavedContentItems) }
+        fun contentOfItems(items: List<InterleavedContentItem>) = apply {
+            body.contentOfItems(items)
+        }
 
         fun vectorDbIds(vectorDbIds: List<String>) = apply { body.vectorDbIds(vectorDbIds) }
 

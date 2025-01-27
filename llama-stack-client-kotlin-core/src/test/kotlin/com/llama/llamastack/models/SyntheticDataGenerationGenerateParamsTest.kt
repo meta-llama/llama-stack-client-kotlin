@@ -10,13 +10,7 @@ class SyntheticDataGenerationGenerateParamsTest {
     @Test
     fun createSyntheticDataGenerationGenerateParams() {
         SyntheticDataGenerationGenerateParams.builder()
-            .addDialog(
-                UserMessage.builder()
-                    .content("string")
-                    .role(UserMessage.Role.USER)
-                    .context("string")
-                    .build()
-            )
+            .addDialog(UserMessage.builder().content("string").context("string").build())
             .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
             .model("model")
             .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -28,13 +22,7 @@ class SyntheticDataGenerationGenerateParamsTest {
     fun getBody() {
         val params =
             SyntheticDataGenerationGenerateParams.builder()
-                .addDialog(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addDialog(UserMessage.builder().content("string").context("string").build())
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .model("model")
                 .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
@@ -45,12 +33,8 @@ class SyntheticDataGenerationGenerateParamsTest {
         assertThat(body.dialogs())
             .isEqualTo(
                 listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
+                    Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
@@ -63,21 +47,13 @@ class SyntheticDataGenerationGenerateParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             SyntheticDataGenerationGenerateParams.builder()
-                .addDialog(
-                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
-                )
+                .addDialog(UserMessage.builder().content("string").build())
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.dialogs())
-            .isEqualTo(
-                listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
-                    )
-                )
-            )
+            .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
         assertThat(body.filteringFunction())
             .isEqualTo(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
     }

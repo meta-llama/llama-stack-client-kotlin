@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.BaseDeserializer
 import com.llama.llamastack.core.BaseSerializer
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -174,11 +173,10 @@ private constructor(
                 }
         }
 
-        fun addInputMessage(userMessage: UserMessage) =
-            addInputMessage(InputMessage.ofUserMessage(userMessage))
+        fun addInputMessage(user: UserMessage) = addInputMessage(InputMessage.ofUser(user))
 
-        fun addInputMessage(toolResponseMessage: ToolResponseMessage) =
-            addInputMessage(InputMessage.ofToolResponseMessage(toolResponseMessage))
+        fun addInputMessage(toolResponse: ToolResponseMessage) =
+            addInputMessage(InputMessage.ofToolResponse(toolResponse))
 
         fun outputAttachments(outputAttachments: List<OutputAttachment>) =
             outputAttachments(JsonField.of(outputAttachments))
@@ -230,15 +228,14 @@ private constructor(
                 }
         }
 
-        fun addStep(inferenceStep: InferenceStep) = addStep(Step.ofInferenceStep(inferenceStep))
+        fun addStep(inference: InferenceStep) = addStep(Step.ofInference(inference))
 
-        fun addStep(toolExecutionStep: ToolExecutionStep) =
-            addStep(Step.ofToolExecutionStep(toolExecutionStep))
+        fun addStep(toolExecution: ToolExecutionStep) = addStep(Step.ofToolExecution(toolExecution))
 
-        fun addStep(shieldCallStep: ShieldCallStep) = addStep(Step.ofShieldCallStep(shieldCallStep))
+        fun addStep(shieldCall: ShieldCallStep) = addStep(Step.ofShieldCall(shieldCall))
 
-        fun addStep(memoryRetrievalStep: MemoryRetrievalStep) =
-            addStep(Step.ofMemoryRetrievalStep(memoryRetrievalStep))
+        fun addStep(memoryRetrieval: MemoryRetrievalStep) =
+            addStep(Step.ofMemoryRetrieval(memoryRetrieval))
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
@@ -287,30 +284,29 @@ private constructor(
     @JsonSerialize(using = InputMessage.Serializer::class)
     class InputMessage
     private constructor(
-        private val userMessage: UserMessage? = null,
-        private val toolResponseMessage: ToolResponseMessage? = null,
+        private val user: UserMessage? = null,
+        private val toolResponse: ToolResponseMessage? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun userMessage(): UserMessage? = userMessage
+        fun user(): UserMessage? = user
 
-        fun toolResponseMessage(): ToolResponseMessage? = toolResponseMessage
+        fun toolResponse(): ToolResponseMessage? = toolResponse
 
-        fun isUserMessage(): Boolean = userMessage != null
+        fun isUser(): Boolean = user != null
 
-        fun isToolResponseMessage(): Boolean = toolResponseMessage != null
+        fun isToolResponse(): Boolean = toolResponse != null
 
-        fun asUserMessage(): UserMessage = userMessage.getOrThrow("userMessage")
+        fun asUser(): UserMessage = user.getOrThrow("user")
 
-        fun asToolResponseMessage(): ToolResponseMessage =
-            toolResponseMessage.getOrThrow("toolResponseMessage")
+        fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                userMessage != null -> visitor.visitUserMessage(userMessage)
-                toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
+                user != null -> visitor.visitUser(user)
+                toolResponse != null -> visitor.visitToolResponse(toolResponse)
                 else -> visitor.unknown(_json)
             }
         }
@@ -324,14 +320,12 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitUserMessage(userMessage: UserMessage) {
-                        userMessage.validate()
+                    override fun visitUser(user: UserMessage) {
+                        user.validate()
                     }
 
-                    override fun visitToolResponseMessage(
-                        toolResponseMessage: ToolResponseMessage
-                    ) {
-                        toolResponseMessage.validate()
+                    override fun visitToolResponse(toolResponse: ToolResponseMessage) {
+                        toolResponse.validate()
                     }
                 }
             )
@@ -343,33 +337,32 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InputMessage && userMessage == other.userMessage && toolResponseMessage == other.toolResponseMessage /* spotless:on */
+            return /* spotless:off */ other is InputMessage && user == other.user && toolResponse == other.toolResponse /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, toolResponseMessage) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(user, toolResponse) /* spotless:on */
 
         override fun toString(): String =
             when {
-                userMessage != null -> "InputMessage{userMessage=$userMessage}"
-                toolResponseMessage != null ->
-                    "InputMessage{toolResponseMessage=$toolResponseMessage}"
+                user != null -> "InputMessage{user=$user}"
+                toolResponse != null -> "InputMessage{toolResponse=$toolResponse}"
                 _json != null -> "InputMessage{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid InputMessage")
             }
 
         companion object {
 
-            fun ofUserMessage(userMessage: UserMessage) = InputMessage(userMessage = userMessage)
+            fun ofUser(user: UserMessage) = InputMessage(user = user)
 
-            fun ofToolResponseMessage(toolResponseMessage: ToolResponseMessage) =
-                InputMessage(toolResponseMessage = toolResponseMessage)
+            fun ofToolResponse(toolResponse: ToolResponseMessage) =
+                InputMessage(toolResponse = toolResponse)
         }
 
         interface Visitor<out T> {
 
-            fun visitUserMessage(userMessage: UserMessage): T
+            fun visitUser(user: UserMessage): T
 
-            fun visitToolResponseMessage(toolResponseMessage: ToolResponseMessage): T
+            fun visitToolResponse(toolResponse: ToolResponseMessage): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown InputMessage: $json")
@@ -383,11 +376,11 @@ private constructor(
 
                 tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
                     ?.let {
-                        return InputMessage(userMessage = it, _json = json)
+                        return InputMessage(user = it, _json = json)
                     }
                 tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
                     ?.let {
-                        return InputMessage(toolResponseMessage = it, _json = json)
+                        return InputMessage(toolResponse = it, _json = json)
                     }
 
                 return InputMessage(_json = json)
@@ -402,9 +395,8 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.userMessage != null -> generator.writeObject(value.userMessage)
-                    value.toolResponseMessage != null ->
-                        generator.writeObject(value.toolResponseMessage)
+                    value.user != null -> generator.writeObject(value.user)
+                    value.toolResponse != null -> generator.writeObject(value.toolResponse)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid InputMessage")
                 }
@@ -729,18 +721,16 @@ private constructor(
                 private val image: JsonField<Image> = JsonMissing.of(),
                 @JsonProperty("type")
                 @ExcludeMissing
-                private val type: JsonField<Type> = JsonMissing.of(),
+                private val type: JsonValue = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
                 fun image(): Image = image.getRequired("image")
 
-                fun type(): Type = type.getRequired("type")
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
                 @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
-
-                @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                 @JsonAnyGetter
                 @ExcludeMissing
@@ -754,7 +744,13 @@ private constructor(
                     }
 
                     image().validate()
-                    type()
+                    _type().let {
+                        if (it != JsonValue.from("image")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
                     validated = true
                 }
 
@@ -768,7 +764,7 @@ private constructor(
                 class Builder {
 
                     private var image: JsonField<Image>? = null
-                    private var type: JsonField<Type>? = null
+                    private var type: JsonValue = JsonValue.from("image")
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(imageContentItem: ImageContentItem) = apply {
@@ -781,9 +777,7 @@ private constructor(
 
                     fun image(image: JsonField<Image>) = apply { this.image = image }
 
-                    fun type(type: Type) = type(JsonField.of(type))
-
-                    fun type(type: JsonField<Type>) = apply { this.type = type }
+                    fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -810,7 +804,7 @@ private constructor(
                     fun build(): ImageContentItem =
                         ImageContentItem(
                             checkRequired("image", image),
-                            checkRequired("type", type),
+                            type,
                             additionalProperties.toImmutable(),
                         )
                 }
@@ -929,59 +923,6 @@ private constructor(
                         "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
                 }
 
-                class Type
-                @JsonCreator
-                private constructor(
-                    private val value: JsonField<String>,
-                ) : Enum {
-
-                    @com.fasterxml.jackson.annotation.JsonValue
-                    fun _value(): JsonField<String> = value
-
-                    companion object {
-
-                        val IMAGE = of("image")
-
-                        fun of(value: String) = Type(JsonField.of(value))
-                    }
-
-                    enum class Known {
-                        IMAGE,
-                    }
-
-                    enum class Value {
-                        IMAGE,
-                        _UNKNOWN,
-                    }
-
-                    fun value(): Value =
-                        when (this) {
-                            IMAGE -> Value.IMAGE
-                            else -> Value._UNKNOWN
-                        }
-
-                    fun known(): Known =
-                        when (this) {
-                            IMAGE -> Known.IMAGE
-                            else ->
-                                throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-                        }
-
-                    fun asString(): String = _value().asStringOrThrow()
-
-                    override fun equals(other: Any?): Boolean {
-                        if (this === other) {
-                            return true
-                        }
-
-                        return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                    }
-
-                    override fun hashCode() = value.hashCode()
-
-                    override fun toString() = value.toString()
-                }
-
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
                         return true
@@ -1009,18 +950,16 @@ private constructor(
                 private val text: JsonField<String> = JsonMissing.of(),
                 @JsonProperty("type")
                 @ExcludeMissing
-                private val type: JsonField<Type> = JsonMissing.of(),
+                private val type: JsonValue = JsonMissing.of(),
                 @JsonAnySetter
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
                 fun text(): String = text.getRequired("text")
 
-                fun type(): Type = type.getRequired("type")
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
                 @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
-
-                @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
 
                 @JsonAnyGetter
                 @ExcludeMissing
@@ -1034,7 +973,13 @@ private constructor(
                     }
 
                     text()
-                    type()
+                    _type().let {
+                        if (it != JsonValue.from("text")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
                     validated = true
                 }
 
@@ -1048,7 +993,7 @@ private constructor(
                 class Builder {
 
                     private var text: JsonField<String>? = null
-                    private var type: JsonField<Type>? = null
+                    private var type: JsonValue = JsonValue.from("text")
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
                     internal fun from(textContentItem: TextContentItem) = apply {
@@ -1061,9 +1006,7 @@ private constructor(
 
                     fun text(text: JsonField<String>) = apply { this.text = text }
 
-                    fun type(type: Type) = type(JsonField.of(type))
-
-                    fun type(type: JsonField<Type>) = apply { this.type = type }
+                    fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                         this.additionalProperties.clear()
@@ -1090,62 +1033,9 @@ private constructor(
                     fun build(): TextContentItem =
                         TextContentItem(
                             checkRequired("text", text),
-                            checkRequired("type", type),
+                            type,
                             additionalProperties.toImmutable(),
                         )
-                }
-
-                class Type
-                @JsonCreator
-                private constructor(
-                    private val value: JsonField<String>,
-                ) : Enum {
-
-                    @com.fasterxml.jackson.annotation.JsonValue
-                    fun _value(): JsonField<String> = value
-
-                    companion object {
-
-                        val TEXT = of("text")
-
-                        fun of(value: String) = Type(JsonField.of(value))
-                    }
-
-                    enum class Known {
-                        TEXT,
-                    }
-
-                    enum class Value {
-                        TEXT,
-                        _UNKNOWN,
-                    }
-
-                    fun value(): Value =
-                        when (this) {
-                            TEXT -> Value.TEXT
-                            else -> Value._UNKNOWN
-                        }
-
-                    fun known(): Known =
-                        when (this) {
-                            TEXT -> Known.TEXT
-                            else ->
-                                throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-                        }
-
-                    fun asString(): String = _value().asStringOrThrow()
-
-                    override fun equals(other: Any?): Boolean {
-                        if (this === other) {
-                            return true
-                        }
-
-                        return /* spotless:off */ other is Type && value == other.value /* spotless:on */
-                    }
-
-                    override fun hashCode() = value.hashCode()
-
-                    override fun toString() = value.toString()
                 }
 
                 override fun equals(other: Any?): Boolean {
@@ -1189,47 +1079,45 @@ private constructor(
     @JsonSerialize(using = Step.Serializer::class)
     class Step
     private constructor(
-        private val inferenceStep: InferenceStep? = null,
-        private val toolExecutionStep: ToolExecutionStep? = null,
-        private val shieldCallStep: ShieldCallStep? = null,
-        private val memoryRetrievalStep: MemoryRetrievalStep? = null,
+        private val inference: InferenceStep? = null,
+        private val toolExecution: ToolExecutionStep? = null,
+        private val shieldCall: ShieldCallStep? = null,
+        private val memoryRetrieval: MemoryRetrievalStep? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun inferenceStep(): InferenceStep? = inferenceStep
+        fun inference(): InferenceStep? = inference
 
-        fun toolExecutionStep(): ToolExecutionStep? = toolExecutionStep
+        fun toolExecution(): ToolExecutionStep? = toolExecution
 
-        fun shieldCallStep(): ShieldCallStep? = shieldCallStep
+        fun shieldCall(): ShieldCallStep? = shieldCall
 
-        fun memoryRetrievalStep(): MemoryRetrievalStep? = memoryRetrievalStep
+        fun memoryRetrieval(): MemoryRetrievalStep? = memoryRetrieval
 
-        fun isInferenceStep(): Boolean = inferenceStep != null
+        fun isInference(): Boolean = inference != null
 
-        fun isToolExecutionStep(): Boolean = toolExecutionStep != null
+        fun isToolExecution(): Boolean = toolExecution != null
 
-        fun isShieldCallStep(): Boolean = shieldCallStep != null
+        fun isShieldCall(): Boolean = shieldCall != null
 
-        fun isMemoryRetrievalStep(): Boolean = memoryRetrievalStep != null
+        fun isMemoryRetrieval(): Boolean = memoryRetrieval != null
 
-        fun asInferenceStep(): InferenceStep = inferenceStep.getOrThrow("inferenceStep")
+        fun asInference(): InferenceStep = inference.getOrThrow("inference")
 
-        fun asToolExecutionStep(): ToolExecutionStep =
-            toolExecutionStep.getOrThrow("toolExecutionStep")
+        fun asToolExecution(): ToolExecutionStep = toolExecution.getOrThrow("toolExecution")
 
-        fun asShieldCallStep(): ShieldCallStep = shieldCallStep.getOrThrow("shieldCallStep")
+        fun asShieldCall(): ShieldCallStep = shieldCall.getOrThrow("shieldCall")
 
-        fun asMemoryRetrievalStep(): MemoryRetrievalStep =
-            memoryRetrievalStep.getOrThrow("memoryRetrievalStep")
+        fun asMemoryRetrieval(): MemoryRetrievalStep = memoryRetrieval.getOrThrow("memoryRetrieval")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
-                inferenceStep != null -> visitor.visitInferenceStep(inferenceStep)
-                toolExecutionStep != null -> visitor.visitToolExecutionStep(toolExecutionStep)
-                shieldCallStep != null -> visitor.visitShieldCallStep(shieldCallStep)
-                memoryRetrievalStep != null -> visitor.visitMemoryRetrievalStep(memoryRetrievalStep)
+                inference != null -> visitor.visitInference(inference)
+                toolExecution != null -> visitor.visitToolExecution(toolExecution)
+                shieldCall != null -> visitor.visitShieldCall(shieldCall)
+                memoryRetrieval != null -> visitor.visitMemoryRetrieval(memoryRetrieval)
                 else -> visitor.unknown(_json)
             }
         }
@@ -1243,22 +1131,20 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitInferenceStep(inferenceStep: InferenceStep) {
-                        inferenceStep.validate()
+                    override fun visitInference(inference: InferenceStep) {
+                        inference.validate()
                     }
 
-                    override fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep) {
-                        toolExecutionStep.validate()
+                    override fun visitToolExecution(toolExecution: ToolExecutionStep) {
+                        toolExecution.validate()
                     }
 
-                    override fun visitShieldCallStep(shieldCallStep: ShieldCallStep) {
-                        shieldCallStep.validate()
+                    override fun visitShieldCall(shieldCall: ShieldCallStep) {
+                        shieldCall.validate()
                     }
 
-                    override fun visitMemoryRetrievalStep(
-                        memoryRetrievalStep: MemoryRetrievalStep
-                    ) {
-                        memoryRetrievalStep.validate()
+                    override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) {
+                        memoryRetrieval.validate()
                     }
                 }
             )
@@ -1270,44 +1156,43 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Step && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+            return /* spotless:off */ other is Step && inference == other.inference && toolExecution == other.toolExecution && shieldCall == other.shieldCall && memoryRetrieval == other.memoryRetrieval /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(inference, toolExecution, shieldCall, memoryRetrieval) /* spotless:on */
 
         override fun toString(): String =
             when {
-                inferenceStep != null -> "Step{inferenceStep=$inferenceStep}"
-                toolExecutionStep != null -> "Step{toolExecutionStep=$toolExecutionStep}"
-                shieldCallStep != null -> "Step{shieldCallStep=$shieldCallStep}"
-                memoryRetrievalStep != null -> "Step{memoryRetrievalStep=$memoryRetrievalStep}"
+                inference != null -> "Step{inference=$inference}"
+                toolExecution != null -> "Step{toolExecution=$toolExecution}"
+                shieldCall != null -> "Step{shieldCall=$shieldCall}"
+                memoryRetrieval != null -> "Step{memoryRetrieval=$memoryRetrieval}"
                 _json != null -> "Step{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Step")
             }
 
         companion object {
 
-            fun ofInferenceStep(inferenceStep: InferenceStep) = Step(inferenceStep = inferenceStep)
+            fun ofInference(inference: InferenceStep) = Step(inference = inference)
 
-            fun ofToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
-                Step(toolExecutionStep = toolExecutionStep)
+            fun ofToolExecution(toolExecution: ToolExecutionStep) =
+                Step(toolExecution = toolExecution)
 
-            fun ofShieldCallStep(shieldCallStep: ShieldCallStep) =
-                Step(shieldCallStep = shieldCallStep)
+            fun ofShieldCall(shieldCall: ShieldCallStep) = Step(shieldCall = shieldCall)
 
-            fun ofMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep) =
-                Step(memoryRetrievalStep = memoryRetrievalStep)
+            fun ofMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                Step(memoryRetrieval = memoryRetrieval)
         }
 
         interface Visitor<out T> {
 
-            fun visitInferenceStep(inferenceStep: InferenceStep): T
+            fun visitInference(inference: InferenceStep): T
 
-            fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep): T
+            fun visitToolExecution(toolExecution: ToolExecutionStep): T
 
-            fun visitShieldCallStep(shieldCallStep: ShieldCallStep): T
+            fun visitShieldCall(shieldCall: ShieldCallStep): T
 
-            fun visitMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep): T
+            fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Step: $json")
@@ -1324,19 +1209,19 @@ private constructor(
                     "inference" -> {
                         tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
                             ?.let {
-                                return Step(inferenceStep = it, _json = json)
+                                return Step(inference = it, _json = json)
                             }
                     }
                     "tool_execution" -> {
                         tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
                             ?.let {
-                                return Step(toolExecutionStep = it, _json = json)
+                                return Step(toolExecution = it, _json = json)
                             }
                     }
                     "shield_call" -> {
                         tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
                             ?.let {
-                                return Step(shieldCallStep = it, _json = json)
+                                return Step(shieldCall = it, _json = json)
                             }
                     }
                     "memory_retrieval" -> {
@@ -1344,7 +1229,7 @@ private constructor(
                                 it.validate()
                             }
                             ?.let {
-                                return Step(memoryRetrievalStep = it, _json = json)
+                                return Step(memoryRetrieval = it, _json = json)
                             }
                     }
                 }
@@ -1361,12 +1246,10 @@ private constructor(
                 provider: SerializerProvider
             ) {
                 when {
-                    value.inferenceStep != null -> generator.writeObject(value.inferenceStep)
-                    value.toolExecutionStep != null ->
-                        generator.writeObject(value.toolExecutionStep)
-                    value.shieldCallStep != null -> generator.writeObject(value.shieldCallStep)
-                    value.memoryRetrievalStep != null ->
-                        generator.writeObject(value.memoryRetrievalStep)
+                    value.inference != null -> generator.writeObject(value.inference)
+                    value.toolExecution != null -> generator.writeObject(value.toolExecution)
+                    value.shieldCall != null -> generator.writeObject(value.shieldCall)
+                    value.memoryRetrieval != null -> generator.writeObject(value.memoryRetrieval)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Step")
                 }

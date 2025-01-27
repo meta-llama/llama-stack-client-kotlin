@@ -11,23 +11,12 @@ class SamplingParamsTest {
     fun createSamplingParams() {
         val samplingParams =
             SamplingParams.builder()
-                .strategy(
-                    SamplingParams.Strategy.Greedy.builder()
-                        .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                        .build()
-                )
+                .strategyGreedySampling()
                 .maxTokens(0L)
                 .repetitionPenalty(0.0)
                 .build()
         assertThat(samplingParams).isNotNull
-        assertThat(samplingParams.strategy())
-            .isEqualTo(
-                SamplingParams.Strategy.ofGreedy(
-                    SamplingParams.Strategy.Greedy.builder()
-                        .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                        .build()
-                )
-            )
+        assertThat(samplingParams.strategy()).isEqualTo(SamplingParams.Strategy.ofGreedySampling())
         assertThat(samplingParams.maxTokens()).isEqualTo(0L)
         assertThat(samplingParams.repetitionPenalty()).isEqualTo(0.0)
     }

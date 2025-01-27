@@ -2,31 +2,16 @@
 
 package com.llama.llamastack.models
 
-import com.fasterxml.jackson.annotation.JsonCreator
-import com.fasterxml.jackson.core.JsonGenerator
-import com.fasterxml.jackson.core.ObjectCodec
-import com.fasterxml.jackson.databind.JsonNode
-import com.fasterxml.jackson.databind.SerializerProvider
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize
-import com.fasterxml.jackson.databind.annotation.JsonSerialize
-import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.llama.llamastack.core.BaseDeserializer
-import com.llama.llamastack.core.BaseSerializer
-import com.llama.llamastack.core.Enum
-import com.llama.llamastack.core.JsonField
-import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class TelemetryQuerySpansParams
 constructor(
-    private val attributeFilters: List<AttributeFilter>,
+    private val attributeFilters: List<QueryCondition>,
     private val attributesToReturn: List<String>,
     private val maxDepth: Long?,
     private val xLlamaStackClientVersion: String?,
@@ -35,7 +20,7 @@ constructor(
     private val additionalQueryParams: QueryParams,
 ) {
 
-    fun attributeFilters(): List<AttributeFilter> = attributeFilters
+    fun attributeFilters(): List<QueryCondition> = attributeFilters
 
     fun attributesToReturn(): List<String> = attributesToReturn
 
@@ -84,7 +69,7 @@ constructor(
     @NoAutoDetect
     class Builder {
 
-        private var attributeFilters: MutableList<AttributeFilter>? = null
+        private var attributeFilters: MutableList<QueryCondition>? = null
         private var attributesToReturn: MutableList<String>? = null
         private var maxDepth: Long? = null
         private var xLlamaStackClientVersion: String? = null
@@ -102,11 +87,11 @@ constructor(
             additionalQueryParams = telemetryQuerySpansParams.additionalQueryParams.toBuilder()
         }
 
-        fun attributeFilters(attributeFilters: List<AttributeFilter>) = apply {
+        fun attributeFilters(attributeFilters: List<QueryCondition>) = apply {
             this.attributeFilters = attributeFilters.toMutableList()
         }
 
-        fun addAttributeFilter(attributeFilter: AttributeFilter) = apply {
+        fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
             attributeFilters = (attributeFilters ?: mutableListOf()).apply { add(attributeFilter) }
         }
 
@@ -239,363 +224,6 @@ constructor(
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
-    }
-
-    class AttributeFilter
-    private constructor(
-        private val key: String,
-        private val op: Op,
-        private val value: Value?,
-        private val additionalProperties: QueryParams,
-    ) {
-
-        fun key(): String = key
-
-        fun op(): Op = op
-
-        fun value(): Value? = value
-
-        fun _additionalProperties(): QueryParams = additionalProperties
-
-        internal fun forEachQueryParam(putParam: (String, List<String>) -> Unit) {
-            this.key.let { putParam("key", listOf(it.toString())) }
-            this.op.let { putParam("op", listOf(it.toString())) }
-            this.value.let { putParam("value", listOf(it.toString())) }
-            additionalProperties.keys().forEach { putParam(it, additionalProperties.values(it)) }
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var key: String? = null
-            private var op: Op? = null
-            private var value: Value? = null
-            private var additionalProperties: QueryParams.Builder = QueryParams.builder()
-
-            internal fun from(attributeFilter: AttributeFilter) = apply {
-                key = attributeFilter.key
-                op = attributeFilter.op
-                value = attributeFilter.value
-                additionalProperties = attributeFilter.additionalProperties.toBuilder()
-            }
-
-            fun key(key: String) = apply { this.key = key }
-
-            fun op(op: Op) = apply { this.op = op }
-
-            fun value(value: Value?) = apply { this.value = value }
-
-            fun value(boolean: Boolean) = value(Value.ofBoolean(boolean))
-
-            fun value(double: Double) = value(Value.ofDouble(double))
-
-            fun value(string: String) = value(Value.ofString(string))
-
-            fun valueOfJsonValues(jsonValues: List<JsonValue>) =
-                value(Value.ofJsonValues(jsonValues))
-
-            fun value(jsonValue: JsonValue) = value(Value.ofJsonValue(jsonValue))
-
-            fun additionalProperties(additionalProperties: QueryParams) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, Iterable<String>>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: String) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAdditionalProperties(key: String, values: Iterable<String>) = apply {
-                additionalProperties.put(key, values)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: QueryParams) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, Iterable<String>>) =
-                apply {
-                    this.additionalProperties.putAll(additionalProperties)
-                }
-
-            fun replaceAdditionalProperties(key: String, value: String) = apply {
-                additionalProperties.replace(key, value)
-            }
-
-            fun replaceAdditionalProperties(key: String, values: Iterable<String>) = apply {
-                additionalProperties.replace(key, values)
-            }
-
-            fun replaceAllAdditionalProperties(additionalProperties: QueryParams) = apply {
-                this.additionalProperties.replaceAll(additionalProperties)
-            }
-
-            fun replaceAllAdditionalProperties(
-                additionalProperties: Map<String, Iterable<String>>
-            ) = apply { this.additionalProperties.replaceAll(additionalProperties) }
-
-            fun removeAdditionalProperties(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                additionalProperties.removeAll(keys)
-            }
-
-            fun build(): AttributeFilter =
-                AttributeFilter(
-                    checkRequired("key", key),
-                    checkRequired("op", op),
-                    value,
-                    additionalProperties.build(),
-                )
-        }
-
-        class Op
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val EQ = of("eq")
-
-                val NE = of("ne")
-
-                val GT = of("gt")
-
-                val LT = of("lt")
-
-                fun of(value: String) = Op(JsonField.of(value))
-            }
-
-            enum class Known {
-                EQ,
-                NE,
-                GT,
-                LT,
-            }
-
-            enum class Value {
-                EQ,
-                NE,
-                GT,
-                LT,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    EQ -> Value.EQ
-                    NE -> Value.NE
-                    GT -> Value.GT
-                    LT -> Value.LT
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    EQ -> Known.EQ
-                    NE -> Known.NE
-                    GT -> Known.GT
-                    LT -> Known.LT
-                    else -> throw LlamaStackClientInvalidDataException("Unknown Op: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Op && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-        }
-
-        @JsonDeserialize(using = Value.Deserializer::class)
-        @JsonSerialize(using = Value.Serializer::class)
-        class Value
-        private constructor(
-            private val boolean: Boolean? = null,
-            private val double: Double? = null,
-            private val string: String? = null,
-            private val jsonValues: List<JsonValue>? = null,
-            private val jsonValue: JsonValue? = null,
-            private val _json: JsonValue? = null,
-        ) {
-
-            fun boolean(): Boolean? = boolean
-
-            fun double(): Double? = double
-
-            fun string(): String? = string
-
-            fun jsonValues(): List<JsonValue>? = jsonValues
-
-            fun jsonValue(): JsonValue? = jsonValue
-
-            fun isBoolean(): Boolean = boolean != null
-
-            fun isDouble(): Boolean = double != null
-
-            fun isString(): Boolean = string != null
-
-            fun isJsonValues(): Boolean = jsonValues != null
-
-            fun isJsonValue(): Boolean = jsonValue != null
-
-            fun asBoolean(): Boolean = boolean.getOrThrow("boolean")
-
-            fun asDouble(): Double = double.getOrThrow("double")
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asJsonValues(): List<JsonValue> = jsonValues.getOrThrow("jsonValues")
-
-            fun asJsonValue(): JsonValue = jsonValue.getOrThrow("jsonValue")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    boolean != null -> visitor.visitBoolean(boolean)
-                    double != null -> visitor.visitDouble(double)
-                    string != null -> visitor.visitString(string)
-                    jsonValues != null -> visitor.visitJsonValues(jsonValues)
-                    jsonValue != null -> visitor.visitJsonValue(jsonValue)
-                    else -> visitor.unknown(_json)
-                }
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Value && boolean == other.boolean && double == other.double && string == other.string && jsonValues == other.jsonValues && jsonValue == other.jsonValue /* spotless:on */
-            }
-
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(boolean, double, string, jsonValues, jsonValue) /* spotless:on */
-
-            override fun toString(): String =
-                when {
-                    boolean != null -> "Value{boolean=$boolean}"
-                    double != null -> "Value{double=$double}"
-                    string != null -> "Value{string=$string}"
-                    jsonValues != null -> "Value{jsonValues=$jsonValues}"
-                    jsonValue != null -> "Value{jsonValue=$jsonValue}"
-                    _json != null -> "Value{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid Value")
-                }
-
-            companion object {
-
-                fun ofBoolean(boolean: Boolean) = Value(boolean = boolean)
-
-                fun ofDouble(double: Double) = Value(double = double)
-
-                fun ofString(string: String) = Value(string = string)
-
-                fun ofJsonValues(jsonValues: List<JsonValue>) = Value(jsonValues = jsonValues)
-
-                fun ofJsonValue(jsonValue: JsonValue) = Value(jsonValue = jsonValue)
-            }
-
-            interface Visitor<out T> {
-
-                fun visitBoolean(boolean: Boolean): T
-
-                fun visitDouble(double: Double): T
-
-                fun visitString(string: String): T
-
-                fun visitJsonValues(jsonValues: List<JsonValue>): T
-
-                fun visitJsonValue(jsonValue: JsonValue): T
-
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException("Unknown Value: $json")
-                }
-            }
-
-            class Deserializer : BaseDeserializer<Value>(Value::class) {
-
-                override fun ObjectCodec.deserialize(node: JsonNode): Value {
-                    val json = JsonValue.fromJsonNode(node)
-
-                    tryDeserialize(node, jacksonTypeRef<Boolean>())?.let {
-                        return Value(boolean = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<Double>())?.let {
-                        return Value(double = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return Value(string = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<List<JsonValue>>())?.let {
-                        return Value(jsonValues = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<JsonValue>())?.let {
-                        return Value(jsonValue = it, _json = json)
-                    }
-
-                    return Value(_json = json)
-                }
-            }
-
-            class Serializer : BaseSerializer<Value>(Value::class) {
-
-                override fun serialize(
-                    value: Value,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.boolean != null -> generator.writeObject(value.boolean)
-                        value.double != null -> generator.writeObject(value.double)
-                        value.string != null -> generator.writeObject(value.string)
-                        value.jsonValues != null -> generator.writeObject(value.jsonValues)
-                        value.jsonValue != null -> generator.writeObject(value.jsonValue)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid Value")
-                    }
-                }
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is AttributeFilter && key == other.key && op == other.op && value == other.value && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(key, op, value, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "AttributeFilter{key=$key, op=$op, value=$value, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

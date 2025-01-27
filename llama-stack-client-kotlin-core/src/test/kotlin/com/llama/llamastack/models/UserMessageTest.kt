@@ -9,15 +9,9 @@ class UserMessageTest {
 
     @Test
     fun createUserMessage() {
-        val userMessage =
-            UserMessage.builder()
-                .content("string")
-                .role(UserMessage.Role.USER)
-                .context("string")
-                .build()
+        val userMessage = UserMessage.builder().content("string").context("string").build()
         assertThat(userMessage).isNotNull
         assertThat(userMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
-        assertThat(userMessage.role()).isEqualTo(UserMessage.Role.USER)
         assertThat(userMessage.context()).isEqualTo(InterleavedContent.ofString("string"))
     }
 }

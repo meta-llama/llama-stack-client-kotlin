@@ -28,9 +28,8 @@ class ToolRuntimeListToolsParamsTest {
                 .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
-        // MANUAL PATCH
-        Url.builder().uri("uri").build()._additionalProperties().forEach { (key, values) ->
-            expected.put("mcp_endpoint[$key]", values.toString())
+        Url.builder().uri("uri").build().forEachQueryParam { key, values ->
+            expected.put("mcp_endpoint[$key]", values)
         }
         expected.put("tool_group_id", "tool_group_id")
         assertThat(params.getQueryParams()).isEqualTo(expected.build())

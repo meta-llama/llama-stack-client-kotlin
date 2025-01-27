@@ -20,46 +20,45 @@ import java.util.Objects
 @JsonSerialize(using = Message.Serializer::class)
 class Message
 private constructor(
-    private val userMessage: UserMessage? = null,
-    private val systemMessage: SystemMessage? = null,
-    private val toolResponseMessage: ToolResponseMessage? = null,
-    private val completionMessage: CompletionMessage? = null,
+    private val user: UserMessage? = null,
+    private val system: SystemMessage? = null,
+    private val toolResponse: ToolResponseMessage? = null,
+    private val completion: CompletionMessage? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun userMessage(): UserMessage? = userMessage
+    fun user(): UserMessage? = user
 
-    fun systemMessage(): SystemMessage? = systemMessage
+    fun system(): SystemMessage? = system
 
-    fun toolResponseMessage(): ToolResponseMessage? = toolResponseMessage
+    fun toolResponse(): ToolResponseMessage? = toolResponse
 
-    fun completionMessage(): CompletionMessage? = completionMessage
+    fun completion(): CompletionMessage? = completion
 
-    fun isUserMessage(): Boolean = userMessage != null
+    fun isUser(): Boolean = user != null
 
-    fun isSystemMessage(): Boolean = systemMessage != null
+    fun isSystem(): Boolean = system != null
 
-    fun isToolResponseMessage(): Boolean = toolResponseMessage != null
+    fun isToolResponse(): Boolean = toolResponse != null
 
-    fun isCompletionMessage(): Boolean = completionMessage != null
+    fun isCompletion(): Boolean = completion != null
 
-    fun asUserMessage(): UserMessage = userMessage.getOrThrow("userMessage")
+    fun asUser(): UserMessage = user.getOrThrow("user")
 
-    fun asSystemMessage(): SystemMessage = systemMessage.getOrThrow("systemMessage")
+    fun asSystem(): SystemMessage = system.getOrThrow("system")
 
-    fun asToolResponseMessage(): ToolResponseMessage =
-        toolResponseMessage.getOrThrow("toolResponseMessage")
+    fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
 
-    fun asCompletionMessage(): CompletionMessage = completionMessage.getOrThrow("completionMessage")
+    fun asCompletion(): CompletionMessage = completion.getOrThrow("completion")
 
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T {
         return when {
-            userMessage != null -> visitor.visitUserMessage(userMessage)
-            systemMessage != null -> visitor.visitSystemMessage(systemMessage)
-            toolResponseMessage != null -> visitor.visitToolResponseMessage(toolResponseMessage)
-            completionMessage != null -> visitor.visitCompletionMessage(completionMessage)
+            user != null -> visitor.visitUser(user)
+            system != null -> visitor.visitSystem(system)
+            toolResponse != null -> visitor.visitToolResponse(toolResponse)
+            completion != null -> visitor.visitCompletion(completion)
             else -> visitor.unknown(_json)
         }
     }
@@ -73,20 +72,20 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitUserMessage(userMessage: UserMessage) {
-                    userMessage.validate()
+                override fun visitUser(user: UserMessage) {
+                    user.validate()
                 }
 
-                override fun visitSystemMessage(systemMessage: SystemMessage) {
-                    systemMessage.validate()
+                override fun visitSystem(system: SystemMessage) {
+                    system.validate()
                 }
 
-                override fun visitToolResponseMessage(toolResponseMessage: ToolResponseMessage) {
-                    toolResponseMessage.validate()
+                override fun visitToolResponse(toolResponse: ToolResponseMessage) {
+                    toolResponse.validate()
                 }
 
-                override fun visitCompletionMessage(completionMessage: CompletionMessage) {
-                    completionMessage.validate()
+                override fun visitCompletion(completion: CompletionMessage) {
+                    completion.validate()
                 }
             }
         )
@@ -98,43 +97,41 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Message && userMessage == other.userMessage && systemMessage == other.systemMessage && toolResponseMessage == other.toolResponseMessage && completionMessage == other.completionMessage /* spotless:on */
+        return /* spotless:off */ other is Message && user == other.user && system == other.system && toolResponse == other.toolResponse && completion == other.completion /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(userMessage, systemMessage, toolResponseMessage, completionMessage) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(user, system, toolResponse, completion) /* spotless:on */
 
     override fun toString(): String =
         when {
-            userMessage != null -> "Message{userMessage=$userMessage}"
-            systemMessage != null -> "Message{systemMessage=$systemMessage}"
-            toolResponseMessage != null -> "Message{toolResponseMessage=$toolResponseMessage}"
-            completionMessage != null -> "Message{completionMessage=$completionMessage}"
+            user != null -> "Message{user=$user}"
+            system != null -> "Message{system=$system}"
+            toolResponse != null -> "Message{toolResponse=$toolResponse}"
+            completion != null -> "Message{completion=$completion}"
             _json != null -> "Message{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid Message")
         }
 
     companion object {
 
-        fun ofUserMessage(userMessage: UserMessage) = Message(userMessage = userMessage)
+        fun ofUser(user: UserMessage) = Message(user = user)
 
-        fun ofSystemMessage(systemMessage: SystemMessage) = Message(systemMessage = systemMessage)
+        fun ofSystem(system: SystemMessage) = Message(system = system)
 
-        fun ofToolResponseMessage(toolResponseMessage: ToolResponseMessage) =
-            Message(toolResponseMessage = toolResponseMessage)
+        fun ofToolResponse(toolResponse: ToolResponseMessage) = Message(toolResponse = toolResponse)
 
-        fun ofCompletionMessage(completionMessage: CompletionMessage) =
-            Message(completionMessage = completionMessage)
+        fun ofCompletion(completion: CompletionMessage) = Message(completion = completion)
     }
 
     interface Visitor<out T> {
 
-        fun visitUserMessage(userMessage: UserMessage): T
+        fun visitUser(user: UserMessage): T
 
-        fun visitSystemMessage(systemMessage: SystemMessage): T
+        fun visitSystem(system: SystemMessage): T
 
-        fun visitToolResponseMessage(toolResponseMessage: ToolResponseMessage): T
+        fun visitToolResponse(toolResponse: ToolResponseMessage): T
 
-        fun visitCompletionMessage(completionMessage: CompletionMessage): T
+        fun visitCompletion(completion: CompletionMessage): T
 
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown Message: $json")
@@ -151,25 +148,25 @@ private constructor(
                 "user" -> {
                     tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
                         ?.let {
-                            return Message(userMessage = it, _json = json)
+                            return Message(user = it, _json = json)
                         }
                 }
                 "system" -> {
                     tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
                         ?.let {
-                            return Message(systemMessage = it, _json = json)
+                            return Message(system = it, _json = json)
                         }
                 }
                 "tool" -> {
                     tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
                         ?.let {
-                            return Message(toolResponseMessage = it, _json = json)
+                            return Message(toolResponse = it, _json = json)
                         }
                 }
                 "assistant" -> {
                     tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
                         ?.let {
-                            return Message(completionMessage = it, _json = json)
+                            return Message(completion = it, _json = json)
                         }
                 }
             }
@@ -186,11 +183,10 @@ private constructor(
             provider: SerializerProvider
         ) {
             when {
-                value.userMessage != null -> generator.writeObject(value.userMessage)
-                value.systemMessage != null -> generator.writeObject(value.systemMessage)
-                value.toolResponseMessage != null ->
-                    generator.writeObject(value.toolResponseMessage)
-                value.completionMessage != null -> generator.writeObject(value.completionMessage)
+                value.user != null -> generator.writeObject(value.user)
+                value.system != null -> generator.writeObject(value.system)
+                value.toolResponse != null -> generator.writeObject(value.toolResponse)
+                value.completion != null -> generator.writeObject(value.completion)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid Message")
             }

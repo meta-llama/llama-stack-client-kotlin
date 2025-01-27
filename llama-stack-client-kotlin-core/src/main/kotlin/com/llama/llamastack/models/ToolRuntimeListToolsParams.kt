@@ -43,9 +43,8 @@ constructor(
 
     internal fun getQueryParams(): QueryParams {
         val queryParams = QueryParams.builder()
-        // MANUAL PATCH
-        this.mcpEndpoint?._additionalProperties()?.forEach { (key, values) ->
-            queryParams.put("mcp_endpoint[$key]", values.toString())
+        this.mcpEndpoint?.forEachQueryParam { key, values ->
+            queryParams.put("mcp_endpoint[$key]", values)
         }
         this.toolGroupId?.let { queryParams.put("tool_group_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)

@@ -18,7 +18,6 @@ class AgentStepRetrieveResponseTest {
                         .modelResponse(
                             CompletionMessage.builder()
                                 .content("string")
-                                .role(CompletionMessage.Role.ASSISTANT)
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
@@ -37,7 +36,6 @@ class AgentStepRetrieveResponseTest {
                                 .build()
                         )
                         .stepId("step_id")
-                        .stepType(InferenceStep.StepType.INFERENCE)
                         .turnId("turn_id")
                         .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -47,12 +45,11 @@ class AgentStepRetrieveResponseTest {
         assertThat(agentStepRetrieveResponse).isNotNull
         assertThat(agentStepRetrieveResponse.step())
             .isEqualTo(
-                AgentStepRetrieveResponse.Step.ofInferenceStep(
+                AgentStepRetrieveResponse.Step.ofInference(
                     InferenceStep.builder()
                         .modelResponse(
                             CompletionMessage.builder()
                                 .content("string")
-                                .role(CompletionMessage.Role.ASSISTANT)
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
@@ -71,7 +68,6 @@ class AgentStepRetrieveResponseTest {
                                 .build()
                         )
                         .stepId("step_id")
-                        .stepType(InferenceStep.StepType.INFERENCE)
                         .turnId("turn_id")
                         .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))

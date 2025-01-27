@@ -1,5 +1,6 @@
 package com.llama.llamastack.core.http
 
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.toImmutable
 
 class HttpRequest
@@ -133,7 +134,7 @@ private constructor(
 
         fun build(): HttpRequest =
             HttpRequest(
-                checkNotNull(method) { "`method` is required but was not set" },
+                checkRequired("method", method),
                 url,
                 pathSegments.toImmutable(),
                 headers.build(),

@@ -17,9 +17,8 @@ class ToolRuntimeRagToolQueryParamsTest {
                     .maxChunks(0L)
                     .maxTokensInContext(0L)
                     .queryGeneratorConfig(
-                        QueryConfig.QueryGeneratorConfig.Default.builder()
+                        QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
                             .separator("separator")
-                            .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                             .build()
                     )
                     .build()
@@ -40,9 +39,8 @@ class ToolRuntimeRagToolQueryParamsTest {
                         .maxChunks(0L)
                         .maxTokensInContext(0L)
                         .queryGeneratorConfig(
-                            QueryConfig.QueryGeneratorConfig.Default.builder()
+                            QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
                                 .separator("separator")
-                                .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                                 .build()
                         )
                         .build()
@@ -60,9 +58,8 @@ class ToolRuntimeRagToolQueryParamsTest {
                     .maxChunks(0L)
                     .maxTokensInContext(0L)
                     .queryGeneratorConfig(
-                        QueryConfig.QueryGeneratorConfig.Default.builder()
+                        QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
                             .separator("separator")
-                            .type(QueryConfig.QueryGeneratorConfig.Default.Type.DEFAULT)
                             .build()
                     )
                     .build()

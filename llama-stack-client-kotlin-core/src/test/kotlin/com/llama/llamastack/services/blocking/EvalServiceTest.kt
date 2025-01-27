@@ -5,8 +5,10 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.EvalCandidate
 import com.llama.llamastack.models.EvalEvaluateRowsParams
 import com.llama.llamastack.models.EvalRunEvalParams
+import com.llama.llamastack.models.EvalTaskConfig
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.SystemMessage
 import org.junit.jupiter.api.Test
@@ -31,39 +33,22 @@ class EvalServiceTest {
                     )
                     .addScoringFunction("string")
                     .taskConfig(
-                        EvalEvaluateRowsParams.TaskConfig.Benchmark.builder()
+                        EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
                             .evalCandidate(
-                                EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate.Model
-                                    .builder()
+                                EvalCandidate.ModelCandidate.builder()
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategy(
-                                                SamplingParams.Strategy.Greedy.builder()
-                                                    .type(
-                                                        SamplingParams.Strategy.Greedy.Type.GREEDY
-                                                    )
-                                                    .build()
-                                            )
+                                            .strategyGreedySampling()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
                                             .build()
                                     )
-                                    .type(
-                                        EvalEvaluateRowsParams.TaskConfig.Benchmark.EvalCandidate
-                                            .Model
-                                            .Type
-                                            .MODEL
-                                    )
                                     .systemMessage(
-                                        SystemMessage.builder()
-                                            .content("string")
-                                            .role(SystemMessage.Role.SYSTEM)
-                                            .build()
+                                        SystemMessage.builder().content("string").build()
                                     )
                                     .build()
                             )
-                            .type(EvalEvaluateRowsParams.TaskConfig.Benchmark.Type.BENCHMARK)
                             .numExamples(0L)
                             .build()
                     )
@@ -85,37 +70,22 @@ class EvalServiceTest {
                 EvalRunEvalParams.builder()
                     .taskId("task_id")
                     .taskConfig(
-                        EvalRunEvalParams.TaskConfig.Benchmark.builder()
+                        EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
                             .evalCandidate(
-                                EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model.builder()
+                                EvalCandidate.ModelCandidate.builder()
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategy(
-                                                SamplingParams.Strategy.Greedy.builder()
-                                                    .type(
-                                                        SamplingParams.Strategy.Greedy.Type.GREEDY
-                                                    )
-                                                    .build()
-                                            )
+                                            .strategyGreedySampling()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
                                             .build()
                                     )
-                                    .type(
-                                        EvalRunEvalParams.TaskConfig.Benchmark.EvalCandidate.Model
-                                            .Type
-                                            .MODEL
-                                    )
                                     .systemMessage(
-                                        SystemMessage.builder()
-                                            .content("string")
-                                            .role(SystemMessage.Role.SYSTEM)
-                                            .build()
+                                        SystemMessage.builder().content("string").build()
                                     )
                                     .build()
                             )
-                            .type(EvalRunEvalParams.TaskConfig.Benchmark.Type.BENCHMARK)
                             .numExamples(0L)
                             .build()
                     )

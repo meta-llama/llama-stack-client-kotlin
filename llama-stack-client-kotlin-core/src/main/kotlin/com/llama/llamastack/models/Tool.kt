@@ -53,7 +53,7 @@ private constructor(
     @JsonProperty("toolgroup_id")
     @ExcludeMissing
     private val toolgroupId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("type") @ExcludeMissing private val type: JsonField<Type> = JsonMissing.of(),
+    @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
     @JsonProperty("metadata")
     @ExcludeMissing
     private val metadata: JsonField<Metadata> = JsonMissing.of(),
@@ -74,7 +74,7 @@ private constructor(
 
     fun toolgroupId(): String = toolgroupId.getRequired("toolgroup_id")
 
-    fun type(): Type = type.getRequired("type")
+    @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
     fun metadata(): Metadata? = metadata.getNullable("metadata")
 
@@ -98,8 +98,6 @@ private constructor(
     @ExcludeMissing
     fun _toolgroupId(): JsonField<String> = toolgroupId
 
-    @JsonProperty("type") @ExcludeMissing fun _type(): JsonField<Type> = type
-
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
     @JsonAnyGetter
@@ -120,7 +118,11 @@ private constructor(
         providerResourceId()
         toolHost()
         toolgroupId()
-        type()
+        _type().let {
+            if (it != JsonValue.from("tool")) {
+                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+            }
+        }
         metadata()?.validate()
         validated = true
     }
@@ -141,7 +143,7 @@ private constructor(
         private var providerResourceId: JsonField<String>? = null
         private var toolHost: JsonField<ToolHost>? = null
         private var toolgroupId: JsonField<String>? = null
-        private var type: JsonField<Type>? = null
+        private var type: JsonValue = JsonValue.from("tool")
         private var metadata: JsonField<Metadata> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -202,9 +204,7 @@ private constructor(
 
         fun toolgroupId(toolgroupId: JsonField<String>) = apply { this.toolgroupId = toolgroupId }
 
-        fun type(type: Type) = type(JsonField.of(type))
-
-        fun type(type: JsonField<Type>) = apply { this.type = type }
+        fun type(type: JsonValue) = apply { this.type = type }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
@@ -238,7 +238,7 @@ private constructor(
                 checkRequired("providerResourceId", providerResourceId),
                 checkRequired("toolHost", toolHost),
                 checkRequired("toolgroupId", toolgroupId),
-                checkRequired("type", type),
+                type,
                 metadata,
                 additionalProperties.toImmutable(),
             )
@@ -648,57 +648,6 @@ private constructor(
             }
 
             return /* spotless:off */ other is ToolHost && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-    }
-
-    class Type
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val TOOL = of("tool")
-
-            fun of(value: String) = Type(JsonField.of(value))
-        }
-
-        enum class Known {
-            TOOL,
-        }
-
-        enum class Value {
-            TOOL,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                TOOL -> Value.TOOL
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                TOOL -> Known.TOOL
-                else -> throw LlamaStackClientInvalidDataException("Unknown Type: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Type && value == other.value /* spotless:on */
         }
 
         override fun hashCode() = value.hashCode()

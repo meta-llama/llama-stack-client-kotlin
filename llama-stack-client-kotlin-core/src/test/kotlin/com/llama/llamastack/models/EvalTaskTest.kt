@@ -22,7 +22,6 @@ class EvalTaskTest {
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
                 .addScoringFunction("string")
-                .type(EvalTask.Type.EVAL_TASK)
                 .build()
         assertThat(evalTask).isNotNull
         assertThat(evalTask.datasetId()).isEqualTo("dataset_id")
@@ -36,6 +35,5 @@ class EvalTaskTest {
         assertThat(evalTask.providerId()).isEqualTo("provider_id")
         assertThat(evalTask.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(evalTask.scoringFunctions()).containsExactly("string")
-        assertThat(evalTask.type()).isEqualTo(EvalTask.Type.EVAL_TASK)
     }
 }

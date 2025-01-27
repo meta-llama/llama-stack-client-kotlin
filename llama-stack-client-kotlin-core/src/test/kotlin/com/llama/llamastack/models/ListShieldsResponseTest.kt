@@ -17,7 +17,6 @@ class ListShieldsResponseTest {
                         .identifier("identifier")
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
-                        .type(Shield.Type.SHIELD)
                         .params(
                             Shield.Params.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
@@ -33,7 +32,6 @@ class ListShieldsResponseTest {
                     .identifier("identifier")
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .type(Shield.Type.SHIELD)
                     .params(
                         Shield.Params.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))

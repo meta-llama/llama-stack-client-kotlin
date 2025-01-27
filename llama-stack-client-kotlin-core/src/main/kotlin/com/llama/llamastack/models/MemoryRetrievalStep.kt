@@ -6,7 +6,6 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -29,9 +28,7 @@ private constructor(
     @JsonProperty("step_id")
     @ExcludeMissing
     private val stepId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("step_type")
-    @ExcludeMissing
-    private val stepType: JsonField<StepType> = JsonMissing.of(),
+    @JsonProperty("step_type") @ExcludeMissing private val stepType: JsonValue = JsonMissing.of(),
     @JsonProperty("turn_id")
     @ExcludeMissing
     private val turnId: JsonField<String> = JsonMissing.of(),
@@ -51,7 +48,7 @@ private constructor(
 
     fun stepId(): String = stepId.getRequired("step_id")
 
-    fun stepType(): StepType = stepType.getRequired("step_type")
+    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonValue = stepType
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
@@ -66,8 +63,6 @@ private constructor(
     fun _insertedContext(): JsonField<InterleavedContent> = insertedContext
 
     @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
-
-    @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
     @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
@@ -96,7 +91,11 @@ private constructor(
 
         insertedContext().validate()
         stepId()
-        stepType()
+        _stepType().let {
+            if (it != JsonValue.from("memory_retrieval")) {
+                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
+            }
+        }
         turnId()
         vectorDbIds()
         completedAt()
@@ -115,7 +114,7 @@ private constructor(
 
         private var insertedContext: JsonField<InterleavedContent>? = null
         private var stepId: JsonField<String>? = null
-        private var stepType: JsonField<StepType>? = null
+        private var stepType: JsonValue = JsonValue.from("memory_retrieval")
         private var turnId: JsonField<String>? = null
         private var vectorDbIds: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
@@ -148,17 +147,14 @@ private constructor(
         fun insertedContext(textContentItem: InterleavedContent.TextContentItem) =
             insertedContext(InterleavedContent.ofTextContentItem(textContentItem))
 
-        fun insertedContextOfInterleavedContentItems(
-            interleavedContentItems: List<InterleavedContentItem>
-        ) = insertedContext(InterleavedContent.ofInterleavedContentItems(interleavedContentItems))
+        fun insertedContextOfItems(items: List<InterleavedContentItem>) =
+            insertedContext(InterleavedContent.ofItems(items))
 
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
-        fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
-
-        fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
+        fun stepType(stepType: JsonValue) = apply { this.stepType = stepType }
 
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
@@ -201,64 +197,13 @@ private constructor(
             MemoryRetrievalStep(
                 checkRequired("insertedContext", insertedContext),
                 checkRequired("stepId", stepId),
-                checkRequired("stepType", stepType),
+                stepType,
                 checkRequired("turnId", turnId),
                 checkRequired("vectorDbIds", vectorDbIds),
                 completedAt,
                 startedAt,
                 additionalProperties.toImmutable(),
             )
-    }
-
-    class StepType
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
-
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val MEMORY_RETRIEVAL = of("memory_retrieval")
-
-            fun of(value: String) = StepType(JsonField.of(value))
-        }
-
-        enum class Known {
-            MEMORY_RETRIEVAL,
-        }
-
-        enum class Value {
-            MEMORY_RETRIEVAL,
-            _UNKNOWN,
-        }
-
-        fun value(): Value =
-            when (this) {
-                MEMORY_RETRIEVAL -> Value.MEMORY_RETRIEVAL
-                else -> Value._UNKNOWN
-            }
-
-        fun known(): Known =
-            when (this) {
-                MEMORY_RETRIEVAL -> Known.MEMORY_RETRIEVAL
-                else -> throw LlamaStackClientInvalidDataException("Unknown StepType: $value")
-            }
-
-        fun asString(): String = _value().asStringOrThrow()
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is StepType && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
     }
 
     override fun equals(other: Any?): Boolean {

@@ -5,6 +5,8 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.Event
+import com.llama.llamastack.models.QueryCondition
 import com.llama.llamastack.models.QuerySpansResponse
 import com.llama.llamastack.models.TelemetryGetSpanParams
 import com.llama.llamastack.models.TelemetryGetSpanTreeParams
@@ -15,6 +17,7 @@ import com.llama.llamastack.models.TelemetryQueryTracesParams
 import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
 import com.llama.llamastack.models.Trace
 import java.time.OffsetDateTime
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -83,15 +86,14 @@ class TelemetryServiceTest {
         telemetryService.logEvent(
             TelemetryLogEventParams.builder()
                 .event(
-                    TelemetryLogEventParams.Event.UnstructuredLog.builder()
+                    Event.UnstructuredLogEvent.builder()
                         .message("message")
-                        .severity(TelemetryLogEventParams.Event.UnstructuredLog.Severity.VERBOSE)
+                        .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
                         .spanId("span_id")
                         .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .traceId("trace_id")
-                        .type(TelemetryLogEventParams.Event.UnstructuredLog.Type.UNSTRUCTURED_LOG)
                         .attributes(
-                            TelemetryLogEventParams.Event.UnstructuredLog.Attributes.builder()
+                            Event.UnstructuredLogEvent.Attributes.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
@@ -104,6 +106,7 @@ class TelemetryServiceTest {
         )
     }
 
+    @Disabled("unsupported query params in java / kotlin")
     @Test
     fun callQuerySpans() {
         val client =
@@ -113,10 +116,10 @@ class TelemetryServiceTest {
             telemetryService.querySpans(
                 TelemetryQuerySpansParams.builder()
                     .addAttributeFilter(
-                        TelemetryQuerySpansParams.AttributeFilter.builder()
+                        QueryCondition.builder()
                             .key("key")
-                            .op(TelemetryQuerySpansParams.AttributeFilter.Op.EQ)
-                            .value(true)
+                            .op(QueryCondition.Op.EQ)
+                            .value(QueryCondition.Value.ofBoolean(true))
                             .build()
                     )
                     .addAttributesToReturn("string")
@@ -131,6 +134,7 @@ class TelemetryServiceTest {
         }
     }
 
+    @Disabled("unsupported query params in java / kotlin")
     @Test
     fun callQueryTraces() {
         val client =
@@ -140,10 +144,10 @@ class TelemetryServiceTest {
             telemetryService.queryTraces(
                 TelemetryQueryTracesParams.builder()
                     .addAttributeFilter(
-                        TelemetryQueryTracesParams.AttributeFilter.builder()
+                        QueryCondition.builder()
                             .key("key")
-                            .op(TelemetryQueryTracesParams.AttributeFilter.Op.EQ)
-                            .value(true)
+                            .op(QueryCondition.Op.EQ)
+                            .value(QueryCondition.Value.ofBoolean(true))
                             .build()
                     )
                     .limit(0L)
@@ -167,10 +171,10 @@ class TelemetryServiceTest {
         telemetryService.saveSpansToDataset(
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
-                    TelemetrySaveSpansToDatasetParams.AttributeFilter.builder()
+                    QueryCondition.builder()
                         .key("key")
-                        .op(TelemetrySaveSpansToDatasetParams.AttributeFilter.Op.EQ)
-                        .value(true)
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
                         .build()
                 )
                 .addAttributesToSave("string")

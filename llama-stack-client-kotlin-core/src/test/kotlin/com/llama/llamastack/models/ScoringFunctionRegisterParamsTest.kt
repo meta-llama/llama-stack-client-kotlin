@@ -14,11 +14,10 @@ class ScoringFunctionRegisterParamsTest {
             .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
             .scoringFnId("scoring_fn_id")
             .params(
-                ScoringFunctionRegisterParams.Params.LlmAsJudge.builder()
+                ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
                     .judgeModel("judge_model")
-                    .type(ScoringFunctionRegisterParams.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                     .addAggregationFunction(
-                        ScoringFunctionRegisterParams.Params.LlmAsJudge.AggregationFunction.AVERAGE
+                        ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                     )
                     .addJudgeScoreRegex("string")
                     .promptTemplate("prompt_template")
@@ -39,12 +38,10 @@ class ScoringFunctionRegisterParamsTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .params(
-                    ScoringFunctionRegisterParams.Params.LlmAsJudge.builder()
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
                         .judgeModel("judge_model")
-                        .type(ScoringFunctionRegisterParams.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                         .addAggregationFunction(
-                            ScoringFunctionRegisterParams.Params.LlmAsJudge.AggregationFunction
-                                .AVERAGE
+                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                         )
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
@@ -63,13 +60,11 @@ class ScoringFunctionRegisterParamsTest {
         assertThat(body.scoringFnId()).isEqualTo("scoring_fn_id")
         assertThat(body.params())
             .isEqualTo(
-                ScoringFunctionRegisterParams.Params.ofLlmAsJudge(
-                    ScoringFunctionRegisterParams.Params.LlmAsJudge.builder()
+                ScoringFnParams.ofLlmAsJudge(
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
                         .judgeModel("judge_model")
-                        .type(ScoringFunctionRegisterParams.Params.LlmAsJudge.Type.LLM_AS_JUDGE)
                         .addAggregationFunction(
-                            ScoringFunctionRegisterParams.Params.LlmAsJudge.AggregationFunction
-                                .AVERAGE
+                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
                         )
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")

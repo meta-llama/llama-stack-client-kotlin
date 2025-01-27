@@ -11,32 +11,21 @@ class InferenceChatCompletionParamsTest {
     @Test
     fun createInferenceChatCompletionParams() {
         InferenceChatCompletionParams.builder()
-            .addMessage(
-                UserMessage.builder()
-                    .content("string")
-                    .role(UserMessage.Role.USER)
-                    .context("string")
-                    .build()
-            )
+            .addMessage(UserMessage.builder().content("string").context("string").build())
             .modelId("model_id")
             .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
             .responseFormat(
-                InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                ResponseFormat.JsonSchemaResponseFormat.builder()
                     .jsonSchema(
-                        InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema.builder()
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .type(InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA)
                     .build()
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategy(
-                        SamplingParams.Strategy.Greedy.builder()
-                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                            .build()
-                    )
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .build()
@@ -73,35 +62,21 @@ class InferenceChatCompletionParamsTest {
     fun getBody() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder()
-                        .content("string")
-                        .role(UserMessage.Role.USER)
-                        .context("string")
-                        .build()
-                )
+                .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .responseFormat(
-                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
                         .jsonSchema(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-                                .builder()
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
-                        )
-                        .type(
-                            InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
                         )
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.Greedy.builder()
-                                .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                                .build()
-                        )
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .build()
@@ -137,44 +112,30 @@ class InferenceChatCompletionParamsTest {
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder()
-                            .content("string")
-                            .role(UserMessage.Role.USER)
-                            .context("string")
-                            .build()
+                    Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
             .isEqualTo(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
-        //        assertThat(body.responseFormat())
-        //            .isEqualTo(
-        //                InferenceChatCompletionParams.ResponseFormat.ofJsonSchema(
-        //                    InferenceChatCompletionParams.ResponseFormat.JsonSchema.builder()
-        //                        .jsonSchema(
-        //
-        // InferenceChatCompletionParams.ResponseFormat.JsonSchema.JsonSchema
-        //                                .builder()
-        //                                .putAdditionalProperty("foo", JsonValue.from(true))
-        //                                .build()
-        //                        )
-        //                        .type(
-        //
-        // InferenceChatCompletionParams.ResponseFormat.JsonSchema.Type.JSON_SCHEMA
-        //                        )
-        //                        .build()
-        //                )
-        //            )
+        assertThat(body.responseFormat())
+            .isEqualTo(
+                ResponseFormat.ofJsonSchema(
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
+                        .jsonSchema(
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
+                )
+            )
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategy(
-                        SamplingParams.Strategy.Greedy.builder()
-                            .type(SamplingParams.Strategy.Greedy.Type.GREEDY)
-                            .build()
-                    )
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .build()
@@ -212,21 +173,13 @@ class InferenceChatCompletionParamsTest {
     fun getBodyWithoutOptionalFields() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(
-                    UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
-                )
+                .addMessage(UserMessage.builder().content("string").build())
                 .modelId("model_id")
                 .build()
         val body = params.getBody()
         assertThat(body).isNotNull
         assertThat(body.messages())
-            .isEqualTo(
-                listOf(
-                    Message.ofUserMessage(
-                        UserMessage.builder().content("string").role(UserMessage.Role.USER).build()
-                    )
-                )
-            )
+            .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 }
