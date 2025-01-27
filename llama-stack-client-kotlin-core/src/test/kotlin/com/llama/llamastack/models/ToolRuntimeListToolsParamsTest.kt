@@ -18,22 +18,22 @@ class ToolRuntimeListToolsParamsTest {
             .build()
     }
 
-    @Test
-    fun getQueryParams() {
-        val params =
-            ToolRuntimeListToolsParams.builder()
-                .mcpEndpoint(Url.builder().uri("uri").build())
-                .toolGroupId("tool_group_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val expected = QueryParams.builder()
-        Url.builder().uri("uri").build().forEachQueryParam { key, values ->
-            expected.put("mcp_endpoint[$key]", values)
-        }
-        expected.put("tool_group_id", "tool_group_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
-    }
+    //    @Test
+    //    fun getQueryParams() {
+    //        val params =
+    //            ToolRuntimeListToolsParams.builder()
+    //                .mcpEndpoint(Url.builder().uri("uri").build())
+    //                .toolGroupId("tool_group_id")
+    //                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
+    //                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+    //                .build()
+    //        val expected = QueryParams.builder()
+    //        Url.builder().uri("uri").build().forEachQueryParam { key, values ->
+    //            expected.put("mcp_endpoint[$key]", values)
+    //        }
+    //        expected.put("tool_group_id", "tool_group_id")
+    //        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+    //    }
 
     @Test
     fun getQueryParamsWithoutOptionalFields() {

@@ -117,7 +117,7 @@ private constructor(
 
         fun ofImage(image: ImageDelta) = ContentDelta(image = image)
 
-        fun ofToolCall(toolCall: ToolCall) = ContentDelta(toolCall = toolCall)
+        fun ofToolCall(toolCall: ToolCallDelta) = ContentDelta(toolCall = toolCall)
     }
 
     interface Visitor<out T> {
@@ -478,7 +478,7 @@ private constructor(
 
             fun toolCall(string: String) = toolCall(ToolCall.ofString(string))
 
-            fun toolCall(toolCall: ToolCall) = toolCall(ToolCall.ofToolCall(toolCall))
+            fun toolCall(toolCall: ToolCall.InnerToolCall) = toolCall(ToolCall.ofToolCall(toolCall))
 
             fun type(type: JsonValue) = apply { this.type = type }
 
@@ -585,13 +585,13 @@ private constructor(
         class ToolCall
         private constructor(
             private val string: String? = null,
-            private val toolCall: ToolCall? = null,
+            private val toolCall: InnerToolCall? = null,
             private val _json: JsonValue? = null,
         ) {
 
             fun string(): String? = string
 
-            fun toolCall(): ToolCall? = toolCall
+            fun toolCall(): InnerToolCall? = toolCall
 
             fun isString(): Boolean = string != null
 
@@ -599,7 +599,7 @@ private constructor(
 
             fun asString(): String = string.getOrThrow("string")
 
-            fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
+            fun asToolCall(): InnerToolCall = toolCall.getOrThrow("toolCall")
 
             fun _json(): JsonValue? = _json
 
@@ -622,7 +622,7 @@ private constructor(
                     object : Visitor<Unit> {
                         override fun visitString(string: String) {}
 
-                        override fun visitToolCall(toolCall: ToolCall) {
+                        override fun visitToolCall(toolCall: InnerToolCall) {
                             toolCall.validate()
                         }
                     }
@@ -652,14 +652,14 @@ private constructor(
 
                 fun ofString(string: String) = ToolCall(string = string)
 
-                fun ofToolCall(toolCall: ToolCall) = ToolCall(toolCall = toolCall)
+                fun ofToolCall(toolCall: InnerToolCall) = ToolCall(toolCall = toolCall)
             }
 
             interface Visitor<out T> {
 
                 fun visitString(string: String): T
 
-                fun visitToolCall(toolCall: ToolCall): T
+                fun visitToolCall(toolCall: InnerToolCall): T
 
                 fun unknown(json: JsonValue?): T {
                     throw LlamaStackClientInvalidDataException("Unknown ToolCall: $json")
@@ -674,7 +674,7 @@ private constructor(
                     tryDeserialize(node, jacksonTypeRef<String>())?.let {
                         return ToolCall(string = it, _json = json)
                     }
-                    tryDeserialize(node, jacksonTypeRef<ToolCall>()) { it.validate() }
+                    tryDeserialize(node, jacksonTypeRef<InnerToolCall>()) { it.validate() }
                         ?.let {
                             return ToolCall(toolCall = it, _json = json)
                         }
@@ -697,6 +697,296 @@ private constructor(
                         else -> throw IllegalStateException("Invalid ToolCall")
                     }
                 }
+            }
+
+            @NoAutoDetect
+            class InnerToolCall
+            @JsonCreator
+            private constructor(
+                @JsonProperty("arguments")
+                @ExcludeMissing
+                private val arguments: JsonField<Arguments> = JsonMissing.of(),
+                @JsonProperty("call_id")
+                @ExcludeMissing
+                private val callId: JsonField<String> = JsonMissing.of(),
+                @JsonProperty("tool_name")
+                @ExcludeMissing
+                private val toolName: JsonField<ToolName> = JsonMissing.of(),
+                @JsonAnySetter
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            ) {
+
+                fun arguments(): Arguments = arguments.getRequired("arguments")
+
+                fun callId(): String = callId.getRequired("call_id")
+
+                fun toolName(): ToolName = toolName.getRequired("tool_name")
+
+                @JsonProperty("arguments")
+                @ExcludeMissing
+                fun _arguments(): JsonField<Arguments> = arguments
+
+                @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
+
+                @JsonProperty("tool_name")
+                @ExcludeMissing
+                fun _toolName(): JsonField<ToolName> = toolName
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): InnerToolCall = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    arguments().validate()
+                    callId()
+                    toolName()
+                    validated = true
+                }
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    fun builder() = Builder()
+                }
+
+                class Builder {
+
+                    private var arguments: JsonField<Arguments>? = null
+                    private var callId: JsonField<String>? = null
+                    private var toolName: JsonField<ToolName>? = null
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(innerToolCall: InnerToolCall) = apply {
+                        arguments = innerToolCall.arguments
+                        callId = innerToolCall.callId
+                        toolName = innerToolCall.toolName
+                        additionalProperties = innerToolCall.additionalProperties.toMutableMap()
+                    }
+
+                    fun arguments(arguments: Arguments) = arguments(JsonField.of(arguments))
+
+                    fun arguments(arguments: JsonField<Arguments>) = apply {
+                        this.arguments = arguments
+                    }
+
+                    fun callId(callId: String) = callId(JsonField.of(callId))
+
+                    fun callId(callId: JsonField<String>) = apply { this.callId = callId }
+
+                    fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
+
+                    fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
+
+                    fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    fun build(): InnerToolCall =
+                        InnerToolCall(
+                            checkRequired("arguments", arguments),
+                            checkRequired("callId", callId),
+                            checkRequired("toolName", toolName),
+                            additionalProperties.toImmutable(),
+                        )
+                }
+
+                @NoAutoDetect
+                class Arguments
+                @JsonCreator
+                private constructor(
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                ) {
+
+                    @JsonAnyGetter
+                    @ExcludeMissing
+                    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): Arguments = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        validated = true
+                    }
+
+                    fun toBuilder() = Builder().from(this)
+
+                    companion object {
+
+                        fun builder() = Builder()
+                    }
+
+                    class Builder {
+
+                        private var additionalProperties: MutableMap<String, JsonValue> =
+                            mutableMapOf()
+
+                        internal fun from(arguments: Arguments) = apply {
+                            additionalProperties = arguments.additionalProperties.toMutableMap()
+                        }
+
+                        fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
+                            apply {
+                                this.additionalProperties.clear()
+                                putAllAdditionalProperties(additionalProperties)
+                            }
+
+                        fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                            additionalProperties.put(key, value)
+                        }
+
+                        fun putAllAdditionalProperties(
+                            additionalProperties: Map<String, JsonValue>
+                        ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
+                        fun build(): Arguments = Arguments(additionalProperties.toImmutable())
+                    }
+
+                    override fun equals(other: Any?): Boolean {
+                        if (this === other) {
+                            return true
+                        }
+
+                        return /* spotless:off */ other is Arguments && additionalProperties == other.additionalProperties /* spotless:on */
+                    }
+
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                    /* spotless:on */
+
+                    override fun hashCode(): Int = hashCode
+
+                    override fun toString() =
+                        "Arguments{additionalProperties=$additionalProperties}"
+                }
+
+                class ToolName
+                @JsonCreator
+                private constructor(
+                    private val value: JsonField<String>,
+                ) : Enum {
+
+                    @com.fasterxml.jackson.annotation.JsonValue
+                    fun _value(): JsonField<String> = value
+
+                    companion object {
+
+                        val BRAVE_SEARCH = of("brave_search")
+
+                        val WOLFRAM_ALPHA = of("wolfram_alpha")
+
+                        val PHOTOGEN = of("photogen")
+
+                        val CODE_INTERPRETER = of("code_interpreter")
+
+                        fun of(value: String) = ToolName(JsonField.of(value))
+                    }
+
+                    enum class Known {
+                        BRAVE_SEARCH,
+                        WOLFRAM_ALPHA,
+                        PHOTOGEN,
+                        CODE_INTERPRETER,
+                    }
+
+                    enum class Value {
+                        BRAVE_SEARCH,
+                        WOLFRAM_ALPHA,
+                        PHOTOGEN,
+                        CODE_INTERPRETER,
+                        _UNKNOWN,
+                    }
+
+                    fun value(): Value =
+                        when (this) {
+                            BRAVE_SEARCH -> Value.BRAVE_SEARCH
+                            WOLFRAM_ALPHA -> Value.WOLFRAM_ALPHA
+                            PHOTOGEN -> Value.PHOTOGEN
+                            CODE_INTERPRETER -> Value.CODE_INTERPRETER
+                            else -> Value._UNKNOWN
+                        }
+
+                    fun known(): Known =
+                        when (this) {
+                            BRAVE_SEARCH -> Known.BRAVE_SEARCH
+                            WOLFRAM_ALPHA -> Known.WOLFRAM_ALPHA
+                            PHOTOGEN -> Known.PHOTOGEN
+                            CODE_INTERPRETER -> Known.CODE_INTERPRETER
+                            else ->
+                                throw LlamaStackClientInvalidDataException(
+                                    "Unknown ToolName: $value"
+                                )
+                        }
+
+                    fun asString(): String = _value().asStringOrThrow()
+
+                    override fun equals(other: Any?): Boolean {
+                        if (this === other) {
+                            return true
+                        }
+
+                        return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
+                    }
+
+                    override fun hashCode() = value.hashCode()
+
+                    override fun toString() = value.toString()
+                }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is InnerToolCall && arguments == other.arguments && callId == other.callId && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(arguments, callId, toolName, additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() =
+                    "InnerToolCall{arguments=$arguments, callId=$callId, toolName=$toolName, additionalProperties=$additionalProperties}"
             }
         }
 

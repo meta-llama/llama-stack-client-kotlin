@@ -20,9 +20,9 @@ class AgentStepRetrieveResponseTest {
                                 .content("string")
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
-                                    ToolCall.builder()
+                                    CompletionMessage.ToolCall.builder()
                                         .arguments(
-                                            ToolCall.Arguments.builder()
+                                            CompletionMessage.ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
                                                     JsonValue.from("string")
@@ -30,7 +30,7 @@ class AgentStepRetrieveResponseTest {
                                                 .build()
                                         )
                                         .callId("call_id")
-                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
                                 )
                                 .build()
@@ -52,9 +52,9 @@ class AgentStepRetrieveResponseTest {
                                 .content("string")
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
-                                    ToolCall.builder()
+                                    CompletionMessage.ToolCall.builder()
                                         .arguments(
-                                            ToolCall.Arguments.builder()
+                                            CompletionMessage.ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
                                                     JsonValue.from("string")
@@ -62,7 +62,7 @@ class AgentStepRetrieveResponseTest {
                                                 .build()
                                         )
                                         .callId("call_id")
-                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
                                 )
                                 .build()

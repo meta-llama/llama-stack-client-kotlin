@@ -31,7 +31,6 @@ import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.TokenLogProbs
-import com.llama.llamastack.models.ToolCall
 import com.llama.llamastack.models.UserMessage
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
@@ -115,14 +114,14 @@ class ErrorHandlingTest {
                             .content("string")
                             .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .addToolCall(
-                                ToolCall.builder()
+                                CompletionMessage.ToolCall.builder()
                                     .arguments(
-                                        ToolCall.Arguments.builder()
+                                        CompletionMessage.ToolCall.Arguments.builder()
                                             .putAdditionalProperty("foo", JsonValue.from("string"))
                                             .build()
                                     )
                                     .callId("call_id")
-                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                    .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
                                     .build()
                             )
                             .build()
