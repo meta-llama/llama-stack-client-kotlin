@@ -5,7 +5,6 @@ import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.ContentDelta
 import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.InterleavedContent
-import com.llama.llamastack.models.ToolCall
 import java.util.UUID
 
 fun buildInferenceChatCompletionResponse(
@@ -86,11 +85,12 @@ fun buildLastInferenceChatCompletionResponsesFromStream(
 }
 
 fun buildInferenceChatCompletionResponseForCustomToolCallStream(
-    toolCall: ToolCall,
+    toolCall: CompletionMessage.ToolCall,
     stopToken: String,
     stats: Float
 ): InferenceChatCompletionResponse {
-    val delta = ContentDelta.ofToolCall(toolCall)
+    // Convert ToolCall to ToolCallDelta
+    val delta = ContentDelta.ToolCallDelta.builder().toolCall(toolCall.toString()).build()
     return InferenceChatCompletionResponse.ofChatCompletionResponseStreamChunk(
         InferenceChatCompletionResponse.ChatCompletionResponseStreamChunk.builder()
             .event(
@@ -137,8 +137,8 @@ fun isResponseAToolCall(response: String): Boolean {
     return response.startsWith("[") && response.endsWith("]")
 }
 
-fun createCustomToolCalls(response: String): List<ToolCall> {
-    val toolCalls: MutableList<ToolCall> = mutableListOf()
+fun createCustomToolCalls(response: String): List<CompletionMessage.ToolCall> {
+    val toolCalls: MutableList<CompletionMessage.ToolCall> = mutableListOf()
 
     val splitsResponse = response.split("),")
     for (split in splitsResponse) {
@@ -159,9 +159,13 @@ fun createCustomToolCalls(response: String): List<ToolCall> {
             }
         }
         toolCalls.add(
-            ToolCall.builder()
-                .toolName(ToolCall.ToolName.of(toolName))
-                .arguments(ToolCall.Arguments.builder().additionalProperties(paramsJson).build())
+            CompletionMessage.ToolCall.builder()
+                .toolName(CompletionMessage.ToolCall.ToolName.of(toolName))
+                .arguments(
+                    CompletionMessage.ToolCall.Arguments.builder()
+                        .additionalProperties(paramsJson)
+                        .build()
+                )
                 .callId(UUID.randomUUID().toString())
                 .build()
         )
