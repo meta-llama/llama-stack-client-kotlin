@@ -115,9 +115,9 @@ Create the agent configuration:
         val agentConfig =
             AgentConfig.builder()
                 .enableSessionPersistence(false)
-                .instructions(instruction)
+                .instructions("You're a helpful assistant")
                 .maxInferIters(100)
-                .model(modelName)
+                .model("meta-llama/Llama-3.1-8B-Instruct")
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
@@ -126,22 +126,24 @@ Create the agent configuration:
                         .build()
                 )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
-                .toolPromptFormat(toolPromptFormat)
+                .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                 .clientTools(
-                    clientTools
+                    listOf(
+                        CustomTools.getCreateCalendarEventTool() #Custom local tools
+                    )
                 )
                 .build()
 ```
 
 Create the agent:
 ```
-        val agentConfig = createRemoteAgentConfig(modelName, temperature, userProvidedSystemPrompt)
         val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(
             AgentCreateParams.builder()
                 .agentConfig(agentConfig)
                 .build(),
         )
+        val agentId = agentCreateResponse.agentId()
 ```
 
 Create the session:
