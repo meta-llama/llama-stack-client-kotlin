@@ -8,7 +8,7 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest Release Notes: [v0.0.58](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.0.58) 
+Latest Release Notes: [v0.1.0](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.0) 
 
 *Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.*
 
@@ -24,7 +24,7 @@ The key files in the app are `ExampleLlamaStackLocalInference.kt`, `ExampleLlama
 Add the following dependency in your `build.gradle.kts` file:
 ```
 dependencies {
- implementation("com.llama.llamastack:llama-stack-client-kotlin:0.0.58")
+ implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.0")
 }
 ```
 This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/` 
@@ -60,7 +60,7 @@ Start a Llama Stack server on localhost. Here is an example of how you can do th
 ```
 conda create -n stack-fireworks python=3.10 
 conda activate stack-fireworks
-pip install llama-stack=0.0.58
+pip install llama-stack=0.1.0
 llama stack build --template fireworks --image-type conda
 export FIREWORKS_API_KEY=<SOME_KEY>
 llama stack run /Users/<your_username>/.llama/distributions/llamastack-fireworks/fireworks-run.yaml --port=5050
@@ -98,7 +98,8 @@ client = LlamaStackClientLocalClient
 // remoteURL is a string like "http://localhost:5050"
 client = LlamaStackClientOkHttpClient
                 .builder()
-                .baseUrl(remoteURL) 
+                .baseUrl(remoteURL)
+                .headers(mapOf("x-llamastack-client-version" to listOf("0.1.0")))
                 .build()
 ```
 </td>
@@ -114,22 +115,18 @@ Create the agent configuration:
         val agentConfig =
             AgentConfig.builder()
                 .enableSessionPersistence(false)
-                .instructions("You are a helpful assistant")
+                .instructions("You're a helpful assistant")
                 .maxInferIters(100)
-                .model("meta-llama/Llama-3.2-3B-Instruct")
+                .model("meta-llama/Llama-3.1-8B-Instruct")
                 .samplingParams(
                     SamplingParams.builder()
                         .strategy(
-                            SamplingParams.Strategy.ofGreedySamplingStrategy(
-                                SamplingParams.Strategy.GreedySamplingStrategy.builder()
-                                    .type(SamplingParams.Strategy.GreedySamplingStrategy.Type.GREEDY)
-                                    .build()
-                            )
+                            SamplingParams.Strategy.ofGreedySampling()
                         )
                         .build()
                 )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
-                .toolPromptFormat(AgentConfig.ToolPromptFormat.PYTHON_LIST)
+                .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                 .clientTools(
                     listOf(
                         CustomTools.getCreateCalendarEventTool() #Custom local tools
@@ -140,7 +137,7 @@ Create the agent configuration:
 
 Create the agent:
 ```
-        val agentService = client!!.agents() #LlamaStackClientLocalClient
+        val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(
             AgentCreateParams.builder()
                 .agentConfig(agentConfig)
@@ -170,10 +167,9 @@ Create a turn:
                 .agentId(agentId)
                 .messages(
                     listOf(
-                        AgentTurnCreateParams.Message.ofUserMessage(
+                        AgentTurnCreateParams.Message.ofUser(
                             UserMessage.builder()
                                 .content(InterleavedContent.ofString("What is the capital of France?"))
-                                .role(UserMessage.Role.USER)
                                 .build()
                             )
                     )
@@ -185,30 +181,32 @@ Create a turn:
 Handle the stream chunk callback:
 ```
         agentTurnCreateResponseStream.use {
-                    agentTurnCreateResponseStream.asSequence().forEach {
-                        val agentResponsePayload = it.agentTurnResponseStreamChunk()?.event()?.payload()
-                        if (agentResponsePayload != null) {
-                            when {
-                                agentResponsePayload.isTurnStart() -> {
-                                    // Handle Turn Start Payload
-                                }
-                                agentResponsePayload.isStepStart() -> {
-                                    // Handle Step Start Payload
-                                }
-                                agentResponsePayload.isStepProgress() -> {
-                                    // Handle Step Progress Payload
-                                }
-                                agentResponsePayload.isStepComplete() -> {
-                                    // Handle Step Complete Payload
-                                }
-                                agentResponsePayload.isTurnComplete() -> {
-                                    // Handle Turn Complete Payload
-                                }
-                            }
+            agentTurnCreateResponseStream.asSequence().forEach {
+                val agentResponsePayload = it.responseStreamChunk()?.event()?.payload()
+                if (agentResponsePayload != null) {
+                    when {
+                        agentResponsePayload.isAgentTurnResponseTurnStart() -> {
+                            // Handle Turn Start Payload
                         }
+                        agentResponsePayload.isAgentTurnResponseStepStart() -> {
+                            // Handle Step Start Payload
+                        }
+                        agentResponsePayload.isAgentTurnResponseStepProgress() -> {
+                            // Handle Step Progress Payload
+                        }
+                        agentResponsePayload.isAgentTurnResponseStepComplete() -> {
+                            // Handle Step Complete Payload
+                        }
+                        agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
+                            // Handle Turn Complete Payload
+                        }
+                    }
+                }
+            }
+        }
 ```
 
-More examples can be found in our demo app (TO-ADD Agent section)  
+More examples can be found in our [demo app](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app) 
 
 
 ### Run Image Reasoning
@@ -223,21 +221,19 @@ Create an image inference with agent:
                     .agentId(agentId)
                     .messages(
                         listOf(
-                            AgentTurnCreateParams.Message.ofUserMessage(
+                            AgentTurnCreateParams.Message.ofUser(
                                 UserMessage.builder()
                                     .content(InterleavedContent.ofString("What is in the image?"))
-                                    .role(UserMessage.Role.USER)
                                     .build()
                             ),
-                            AgentTurnCreateParams.Message.ofUserMessage(
+                            AgentTurnCreateParams.Message.ofUser(
                                 UserMessage.builder()
                                     .content(InterleavedContent.ofImageContentItem(
                                         InterleavedContent.ImageContentItem.builder()
-                                            .image(imageUrl)
-                                            .type(InterleavedContent.ImageContentItem.Type.IMAGE)
+                                            .image(image)
+                                            .type(JsonValue.from("image"))
                                             .build()
                                     ))
-                                    .role(UserMessage.Role.USER)
                                     .build()
                             )
                          )
@@ -247,7 +243,7 @@ Create an image inference with agent:
             )
 ```
 
-Note that image captured on device needs to be encoded with Base64 before sending it to the model. Check out our demo app example here (TO-ADD Image Reasoning section)
+Note that image captured on device needs to be encoded with Base64 before sending it to the model. Check out our demo app example [here](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app)
 
 
 ### Run Simple Inference
@@ -290,7 +286,7 @@ The purpose of this section is to share more details with users that would like 
 ### Prerequisite
 
 You must complete the following steps:
-1. Clone the repo (`git clone https://github.com/meta-llama/llama-stack-client-kotlin.git -b release/0.0.58`)
+1. Clone the repo (`git clone https://github.com/meta-llama/llama-stack-client-kotlin.git -b release/0.1.0`)
 2. Port the appropriate ExecuTorch libraries over into your Llama Stack Kotlin library environment.
 ```
 cd llama-stack-client-kotlin-client-local
@@ -396,9 +392,7 @@ If you encountered any bugs or issues following this guide please file a bug/iss
 
 ## Known Issues
 We're aware of the following issues and are working to resolve them:
-1. Streaming response is a work-in-progress for local and remote inference
-2. Due to #1, agents are not supported at the time. LS agents only work in streaming mode
-3. Changing to another model is a work in progress for local and remote platforms
+- Because of the different model behavior when handling function calls and special tags such as "ipython", Llama Stack currently returning streaming events payload for Llama 3.2 1B/3B models as textDelta object rather than toolCallDelta object when making a tool call. At the the StepComplete, the Llama Stack will still return the entire toolCall detail.
 
 ## Thanks
 We'd like to extend our thanks to the ExecuTorch team for providing their support as we integrated ExecuTorch as one of the local inference distributors for Llama Stack. Checkout [ExecuTorch Github repo](https://github.com/pytorch/executorch/tree/main) for more information.
