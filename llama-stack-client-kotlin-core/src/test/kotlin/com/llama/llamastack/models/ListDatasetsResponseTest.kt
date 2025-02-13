@@ -30,7 +30,7 @@ class ListDatasetsResponseTest {
                         )
                         .providerId("provider_id")
                         .providerResourceId("provider_resource_id")
-                        .url(Url.builder().uri("uri").build())
+                        .url(ListDatasetsResponse.Data.Url.builder().uri("uri").build())
                         .build()
                 )
                 .build()
@@ -51,7 +51,7 @@ class ListDatasetsResponseTest {
                     )
                     .providerId("provider_id")
                     .providerResourceId("provider_resource_id")
-                    .url(Url.builder().uri("uri").build())
+                    .url(ListDatasetsResponse.Data.Url.builder().uri("uri").build())
                     .build()
             )
     }

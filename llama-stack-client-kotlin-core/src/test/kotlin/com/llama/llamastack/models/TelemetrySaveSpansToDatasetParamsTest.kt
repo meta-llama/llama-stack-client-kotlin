@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class TelemetrySaveSpansToDatasetParamsTest {
 
     @Test
-    fun createTelemetrySaveSpansToDatasetParams() {
+    fun create() {
         TelemetrySaveSpansToDatasetParams.builder()
             .addAttributeFilter(
                 QueryCondition.builder()
@@ -20,13 +20,11 @@ class TelemetrySaveSpansToDatasetParamsTest {
             .addAttributesToSave("string")
             .datasetId("dataset_id")
             .maxDepth(0L)
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
@@ -39,10 +37,8 @@ class TelemetrySaveSpansToDatasetParamsTest {
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .maxDepth(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.attributeFilters())
             .isEqualTo(
@@ -60,7 +56,7 @@ class TelemetrySaveSpansToDatasetParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
@@ -73,7 +69,7 @@ class TelemetrySaveSpansToDatasetParamsTest {
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.attributeFilters())
             .isEqualTo(

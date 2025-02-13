@@ -9,18 +9,14 @@ import org.junit.jupiter.api.Test
 class InferenceCompletionParamsTest {
 
     @Test
-    fun createInferenceCompletionParams() {
+    fun create() {
         InferenceCompletionParams.builder()
             .content("string")
             .modelId("model_id")
             .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
-            .responseFormat(
-                ResponseFormat.JsonSchemaResponseFormat.builder()
-                    .jsonSchema(
-                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+            .jsonSchemaResponseFormat(
+                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
             .samplingParams(
@@ -30,25 +26,19 @@ class InferenceCompletionParamsTest {
                     .repetitionPenalty(0.0)
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             InferenceCompletionParams.builder()
                 .content("string")
                 .modelId("model_id")
                 .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
-                .responseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.builder()
-                        .jsonSchema(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
+                .jsonSchemaResponseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .samplingParams(
@@ -58,10 +48,8 @@ class InferenceCompletionParamsTest {
                         .repetitionPenalty(0.0)
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
@@ -90,10 +78,10 @@ class InferenceCompletionParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             InferenceCompletionParams.builder().content("string").modelId("model_id").build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")

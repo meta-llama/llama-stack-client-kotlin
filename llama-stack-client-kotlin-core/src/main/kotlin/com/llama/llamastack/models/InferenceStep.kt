@@ -41,6 +41,7 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** A message containing the model's (assistant) response in a chat conversation. */
     fun modelResponse(): CompletionMessage = modelResponse.getRequired("model_response")
 
     fun stepId(): String = stepId.getRequired("step_id")
@@ -53,6 +54,7 @@ private constructor(
 
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
+    /** A message containing the model's (assistant) response in a chat conversation. */
     @JsonProperty("model_response")
     @ExcludeMissing
     fun _modelResponse(): JsonField<CompletionMessage> = modelResponse
@@ -100,7 +102,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [InferenceStep]. */
+    class Builder internal constructor() {
 
         private var modelResponse: JsonField<CompletionMessage>? = null
         private var stepId: JsonField<String>? = null
@@ -120,9 +123,11 @@ private constructor(
             additionalProperties = inferenceStep.additionalProperties.toMutableMap()
         }
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun modelResponse(modelResponse: CompletionMessage) =
             modelResponse(JsonField.of(modelResponse))
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun modelResponse(modelResponse: JsonField<CompletionMessage>) = apply {
             this.modelResponse = modelResponse
         }

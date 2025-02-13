@@ -8,35 +8,25 @@ import org.junit.jupiter.api.Test
 class InferenceEmbeddingsParamsTest {
 
     @Test
-    fun createInferenceEmbeddingsParams() {
-        InferenceEmbeddingsParams.builder()
-            .addContent("string")
-            .modelId("model_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
-            InferenceEmbeddingsParams.builder()
-                .addContent("string")
-                .modelId("model_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
+            InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.modelId()).isEqualTo("model_id")

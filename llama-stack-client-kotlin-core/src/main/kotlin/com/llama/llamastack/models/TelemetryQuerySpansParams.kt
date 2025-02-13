@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -10,15 +11,13 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class TelemetryQuerySpansParams
-constructor(
+private constructor(
     private val attributeFilters: List<QueryCondition>,
     private val attributesToReturn: List<String>,
     private val maxDepth: Long?,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun attributeFilters(): List<QueryCondition> = attributeFilters
 
@@ -26,27 +25,13 @@ constructor(
 
     fun maxDepth(): Long? = maxDepth
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams {
+    override fun _queryParams(): QueryParams {
         val queryParams = QueryParams.builder()
         this.attributeFilters.let {
             queryParams.put("attribute_filters", listOf(it.joinToString(separator = ",")))
@@ -66,14 +51,13 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [TelemetryQuerySpansParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var attributeFilters: MutableList<QueryCondition>? = null
         private var attributesToReturn: MutableList<String>? = null
         private var maxDepth: Long? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -81,8 +65,6 @@ constructor(
             attributeFilters = telemetryQuerySpansParams.attributeFilters.toMutableList()
             attributesToReturn = telemetryQuerySpansParams.attributesToReturn.toMutableList()
             maxDepth = telemetryQuerySpansParams.maxDepth
-            xLlamaStackClientVersion = telemetryQuerySpansParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = telemetryQuerySpansParams.xLlamaStackProviderData
             additionalHeaders = telemetryQuerySpansParams.additionalHeaders.toBuilder()
             additionalQueryParams = telemetryQuerySpansParams.additionalQueryParams.toBuilder()
         }
@@ -107,14 +89,6 @@ constructor(
         fun maxDepth(maxDepth: Long?) = apply { this.maxDepth = maxDepth }
 
         fun maxDepth(maxDepth: Long) = maxDepth(maxDepth as Long?)
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -219,8 +193,6 @@ constructor(
                 checkRequired("attributeFilters", attributeFilters).toImmutable(),
                 checkRequired("attributesToReturn", attributesToReturn).toImmutable(),
                 maxDepth,
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -231,11 +203,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryQuerySpansParams && attributeFilters == other.attributeFilters && attributesToReturn == other.attributesToReturn && maxDepth == other.maxDepth && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryQuerySpansParams && attributeFilters == other.attributeFilters && attributesToReturn == other.attributesToReturn && maxDepth == other.maxDepth && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(attributeFilters, attributesToReturn, maxDepth, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(attributeFilters, attributesToReturn, maxDepth, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryQuerySpansParams{attributeFilters=$attributeFilters, attributesToReturn=$attributesToReturn, maxDepth=$maxDepth, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryQuerySpansParams{attributeFilters=$attributeFilters, attributesToReturn=$attributesToReturn, maxDepth=$maxDepth, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

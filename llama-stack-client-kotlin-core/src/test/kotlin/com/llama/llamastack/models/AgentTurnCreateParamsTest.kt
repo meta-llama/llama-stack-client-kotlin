@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class AgentTurnCreateParamsTest {
 
     @Test
-    fun createAgentTurnCreateParams() {
+    fun create() {
         AgentTurnCreateParams.builder()
             .agentId("agent_id")
             .sessionId("session_id")
@@ -19,14 +19,21 @@ class AgentTurnCreateParamsTest {
                     .mimeType("mime_type")
                     .build()
             )
+            .toolConfig(
+                AgentTurnCreateParams.ToolConfig.builder()
+                    .systemMessageBehavior(
+                        AgentTurnCreateParams.ToolConfig.SystemMessageBehavior.APPEND
+                    )
+                    .toolChoice(AgentTurnCreateParams.ToolConfig.ToolChoice.AUTO)
+                    .toolPromptFormat(AgentTurnCreateParams.ToolConfig.ToolPromptFormat.JSON)
+                    .build()
+            )
             .addToolgroup("string")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
@@ -38,11 +45,18 @@ class AgentTurnCreateParamsTest {
                         .mimeType("mime_type")
                         .build()
                 )
+                .toolConfig(
+                    AgentTurnCreateParams.ToolConfig.builder()
+                        .systemMessageBehavior(
+                            AgentTurnCreateParams.ToolConfig.SystemMessageBehavior.APPEND
+                        )
+                        .toolChoice(AgentTurnCreateParams.ToolConfig.ToolChoice.AUTO)
+                        .toolPromptFormat(AgentTurnCreateParams.ToolConfig.ToolPromptFormat.JSON)
+                        .build()
+                )
                 .addToolgroup("string")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(
@@ -61,19 +75,29 @@ class AgentTurnCreateParamsTest {
                         .build()
                 )
             )
+        assertThat(body.toolConfig())
+            .isEqualTo(
+                AgentTurnCreateParams.ToolConfig.builder()
+                    .systemMessageBehavior(
+                        AgentTurnCreateParams.ToolConfig.SystemMessageBehavior.APPEND
+                    )
+                    .toolChoice(AgentTurnCreateParams.ToolConfig.ToolChoice.AUTO)
+                    .toolPromptFormat(AgentTurnCreateParams.ToolConfig.ToolPromptFormat.JSON)
+                    .build()
+            )
         assertThat(body.toolgroups())
             .isEqualTo(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             AgentTurnCreateParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .addMessage(UserMessage.builder().content("string").build())
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(

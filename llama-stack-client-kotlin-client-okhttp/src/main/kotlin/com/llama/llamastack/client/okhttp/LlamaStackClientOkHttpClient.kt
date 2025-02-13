@@ -21,7 +21,8 @@ class LlamaStackClientOkHttpClient private constructor() {
         fun fromEnv(): LlamaStackClientClient = builder().fromEnv().build()
     }
 
-    class Builder {
+    /** A builder for [LlamaStackClientOkHttpClient]. */
+    class Builder internal constructor() {
 
         private var clientOptions: ClientOptions.Builder = ClientOptions.builder()
         private var baseUrl: String = ClientOptions.PRODUCTION_URL
@@ -127,6 +128,8 @@ class LlamaStackClientOkHttpClient private constructor() {
         fun responseValidation(responseValidation: Boolean) = apply {
             clientOptions.responseValidation(responseValidation)
         }
+
+        fun apiKey(apiKey: String?) = apply { clientOptions.apiKey(apiKey) }
 
         fun fromEnv() = apply { clientOptions.fromEnv() }
 

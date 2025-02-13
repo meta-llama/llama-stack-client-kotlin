@@ -8,31 +8,22 @@ import org.junit.jupiter.api.Test
 class PostTrainingJobCancelParamsTest {
 
     @Test
-    fun createPostTrainingJobCancelParams() {
-        PostTrainingJobCancelParams.builder()
-            .jobUuid("job_uuid")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
     }
 
     @Test
-    fun getBody() {
-        val params =
-            PostTrainingJobCancelParams.builder()
-                .jobUuid("job_uuid")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        val body = params.getBody()
+    fun body() {
+        val params = PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params = PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }

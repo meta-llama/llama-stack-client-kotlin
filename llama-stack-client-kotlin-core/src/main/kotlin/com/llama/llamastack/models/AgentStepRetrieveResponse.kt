@@ -61,7 +61,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [AgentStepRetrieveResponse]. */
+    class Builder internal constructor() {
 
         private var step: JsonField<Step>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -219,6 +220,7 @@ private constructor(
                 Step(memoryRetrieval = memoryRetrieval)
         }
 
+        /** An interface that defines how to map each variant of [Step] to a value of type [T]. */
         interface Visitor<out T> {
 
             fun visitInference(inference: InferenceStep): T
@@ -229,12 +231,21 @@ private constructor(
 
             fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
+            /**
+             * Maps an unknown variant of [Step] to a value of type [T].
+             *
+             * An instance of [Step] can contain an unknown variant if it was deserialized from data
+             * that doesn't match any known variant. For example, if the SDK is on an older version
+             * than the API, then the API may respond with new variants that the SDK is unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Step: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Step>(Step::class) {
+        internal class Deserializer : BaseDeserializer<Step>(Step::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Step {
                 val json = JsonValue.fromJsonNode(node)
@@ -273,7 +284,7 @@ private constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Step>(Step::class) {
+        internal class Serializer : BaseSerializer<Step>(Step::class) {
 
             override fun serialize(
                 value: Step,

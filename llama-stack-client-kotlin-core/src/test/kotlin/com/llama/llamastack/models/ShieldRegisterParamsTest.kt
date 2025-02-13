@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ShieldRegisterParamsTest {
 
     @Test
-    fun createShieldRegisterParams() {
+    fun create() {
         ShieldRegisterParams.builder()
             .shieldId("shield_id")
             .params(
@@ -19,13 +19,11 @@ class ShieldRegisterParamsTest {
             )
             .providerId("provider_id")
             .providerShieldId("provider_shield_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ShieldRegisterParams.builder()
                 .shieldId("shield_id")
@@ -36,10 +34,8 @@ class ShieldRegisterParamsTest {
                 )
                 .providerId("provider_id")
                 .providerShieldId("provider_shield_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.shieldId()).isEqualTo("shield_id")
         assertThat(body.params())
@@ -53,9 +49,9 @@ class ShieldRegisterParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params = ShieldRegisterParams.builder().shieldId("shield_id").build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.shieldId()).isEqualTo("shield_id")
     }

@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class ShieldListParamsTest {
 
     @Test
-    fun createShieldListParams() {
-        ShieldListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ShieldListParams.builder().build()
     }
 }

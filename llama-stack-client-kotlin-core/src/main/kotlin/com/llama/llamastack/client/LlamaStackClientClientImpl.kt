@@ -51,8 +51,7 @@ import com.llama.llamastack.services.blocking.VectorDbServiceImpl
 import com.llama.llamastack.services.blocking.VectorIoService
 import com.llama.llamastack.services.blocking.VectorIoServiceImpl
 
-class LlamaStackClientClientImpl
-constructor(
+class LlamaStackClientClientImpl(
     private val clientOptions: ClientOptions,
 ) : LlamaStackClientClient {
 
@@ -188,4 +187,6 @@ constructor(
     override fun scoringFunctions(): ScoringFunctionService = scoringFunctions
 
     override fun evalTasks(): EvalTaskService = evalTasks
+
+    override fun close() = clientOptions.httpClient.close()
 }

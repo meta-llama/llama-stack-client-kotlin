@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,17 +20,11 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class VectorIoInsertParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: VectorIoInsertBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun chunks(): List<Chunk> = body.chunks()
 
@@ -49,21 +44,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): VectorIoInsertBody = body
+    internal fun _body(): VectorIoInsertBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class VectorIoInsertBody
@@ -120,7 +105,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [VectorIoInsertBody]. */
+        class Builder internal constructor() {
 
             private var chunks: JsonField<MutableList<Chunk>>? = null
             private var vectorDbId: JsonField<String>? = null
@@ -212,29 +198,18 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [VectorIoInsertParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: VectorIoInsertBody.Builder = VectorIoInsertBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(vectorIoInsertParams: VectorIoInsertParams) = apply {
-            xLlamaStackClientVersion = vectorIoInsertParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = vectorIoInsertParams.xLlamaStackProviderData
             body = vectorIoInsertParams.body.toBuilder()
             additionalHeaders = vectorIoInsertParams.additionalHeaders.toBuilder()
             additionalQueryParams = vectorIoInsertParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun chunks(chunks: List<Chunk>) = apply { body.chunks(chunks) }
@@ -370,8 +345,6 @@ constructor(
 
         fun build(): VectorIoInsertParams =
             VectorIoInsertParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -392,10 +365,12 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** A image content item */
         fun content(): InterleavedContent = content.getRequired("content")
 
         fun metadata(): Metadata = metadata.getRequired("metadata")
 
+        /** A image content item */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
@@ -425,7 +400,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Chunk]. */
+        class Builder internal constructor() {
 
             private var content: JsonField<InterleavedContent>? = null
             private var metadata: JsonField<Metadata>? = null
@@ -437,18 +413,24 @@ constructor(
                 additionalProperties = chunk.additionalProperties.toMutableMap()
             }
 
+            /** A image content item */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+            /** A image content item */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+            /** A image content item */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /** A image content item */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
@@ -512,7 +494,8 @@ constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Metadata]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -585,11 +568,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is VectorIoInsertParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is VectorIoInsertParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "VectorIoInsertParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "VectorIoInsertParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

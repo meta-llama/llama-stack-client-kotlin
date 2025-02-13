@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -21,17 +22,11 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class PostTrainingPreferenceOptimizeParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: PostTrainingPreferenceOptimizeBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun algorithmConfig(): AlgorithmConfig = body.algorithmConfig()
 
@@ -64,21 +59,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): PostTrainingPreferenceOptimizeBody = body
+    internal fun _body(): PostTrainingPreferenceOptimizeBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class PostTrainingPreferenceOptimizeBody
@@ -168,7 +153,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [PostTrainingPreferenceOptimizeBody]. */
+        class Builder internal constructor() {
 
             private var algorithmConfig: JsonField<AlgorithmConfig>? = null
             private var finetunedModel: JsonField<String>? = null
@@ -286,11 +272,10 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [PostTrainingPreferenceOptimizeParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: PostTrainingPreferenceOptimizeBody.Builder =
             PostTrainingPreferenceOptimizeBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
@@ -299,20 +284,10 @@ constructor(
         internal fun from(
             postTrainingPreferenceOptimizeParams: PostTrainingPreferenceOptimizeParams
         ) = apply {
-            xLlamaStackClientVersion = postTrainingPreferenceOptimizeParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = postTrainingPreferenceOptimizeParams.xLlamaStackProviderData
             body = postTrainingPreferenceOptimizeParams.body.toBuilder()
             additionalHeaders = postTrainingPreferenceOptimizeParams.additionalHeaders.toBuilder()
             additionalQueryParams =
                 postTrainingPreferenceOptimizeParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
@@ -475,8 +450,6 @@ constructor(
 
         fun build(): PostTrainingPreferenceOptimizeParams =
             PostTrainingPreferenceOptimizeParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -548,7 +521,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AlgorithmConfig]. */
+        class Builder internal constructor() {
 
             private var epsilon: JsonField<Double>? = null
             private var gamma: JsonField<Double>? = null
@@ -658,7 +632,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [HyperparamSearchConfig]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -736,7 +711,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [LoggerConfig]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -890,7 +866,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [TrainingConfig]. */
+        class Builder internal constructor() {
 
             private var dataConfig: JsonField<DataConfig>? = null
             private var gradientAccumulationSteps: JsonField<Long>? = null
@@ -1092,7 +1069,8 @@ constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [DataConfig]. */
+            class Builder internal constructor() {
 
                 private var batchSize: JsonField<Long>? = null
                 private var dataFormat: JsonField<DataFormat>? = null
@@ -1190,6 +1168,14 @@ constructor(
                 private val value: JsonField<String>,
             ) : Enum {
 
+                /**
+                 * Returns this class instance's raw value.
+                 *
+                 * This is usually only useful if this instance was deserialized from data that
+                 * doesn't match any known member, and you want to know that value. For example, if
+                 * the SDK is on an older version than the API, then the API may respond with new
+                 * members that the SDK is unaware of.
+                 */
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
                 companion object {
@@ -1201,17 +1187,38 @@ constructor(
                     fun of(value: String) = DataFormat(JsonField.of(value))
                 }
 
+                /** An enum containing [DataFormat]'s known values. */
                 enum class Known {
                     INSTRUCT,
                     DIALOG,
                 }
 
+                /**
+                 * An enum containing [DataFormat]'s known values, as well as an [_UNKNOWN] member.
+                 *
+                 * An instance of [DataFormat] can contain an unknown value in a couple of cases:
+                 * - It was deserialized from data that doesn't match any known member. For example,
+                 *   if the SDK is on an older version than the API, then the API may respond with
+                 *   new members that the SDK is unaware of.
+                 * - It was constructed with an arbitrary value using the [of] method.
+                 */
                 enum class Value {
                     INSTRUCT,
                     DIALOG,
+                    /**
+                     * An enum member indicating that [DataFormat] was instantiated with an unknown
+                     * value.
+                     */
                     _UNKNOWN,
                 }
 
+                /**
+                 * Returns an enum member corresponding to this class instance's value, or
+                 * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+                 *
+                 * Use the [known] method instead if you're certain the value is always known or if
+                 * you want to throw for the unknown case.
+                 */
                 fun value(): Value =
                     when (this) {
                         INSTRUCT -> Value.INSTRUCT
@@ -1219,6 +1226,15 @@ constructor(
                         else -> Value._UNKNOWN
                     }
 
+                /**
+                 * Returns an enum member corresponding to this class instance's value.
+                 *
+                 * Use the [value] method instead if you're uncertain the value is always known and
+                 * don't want to throw for the unknown case.
+                 *
+                 * @throws LlamaStackClientInvalidDataException if this class instance's value is a
+                 *   not a known member.
+                 */
                 fun known(): Known =
                     when (this) {
                         INSTRUCT -> Known.INSTRUCT
@@ -1327,7 +1343,8 @@ constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [OptimizerConfig]. */
+            class Builder internal constructor() {
 
                 private var lr: JsonField<Double>? = null
                 private var numWarmupSteps: JsonField<Long>? = null
@@ -1405,6 +1422,14 @@ constructor(
                 private val value: JsonField<String>,
             ) : Enum {
 
+                /**
+                 * Returns this class instance's raw value.
+                 *
+                 * This is usually only useful if this instance was deserialized from data that
+                 * doesn't match any known member, and you want to know that value. For example, if
+                 * the SDK is on an older version than the API, then the API may respond with new
+                 * members that the SDK is unaware of.
+                 */
                 @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
                 companion object {
@@ -1418,19 +1443,41 @@ constructor(
                     fun of(value: String) = OptimizerType(JsonField.of(value))
                 }
 
+                /** An enum containing [OptimizerType]'s known values. */
                 enum class Known {
                     ADAM,
                     ADAMW,
                     SGD,
                 }
 
+                /**
+                 * An enum containing [OptimizerType]'s known values, as well as an [_UNKNOWN]
+                 * member.
+                 *
+                 * An instance of [OptimizerType] can contain an unknown value in a couple of cases:
+                 * - It was deserialized from data that doesn't match any known member. For example,
+                 *   if the SDK is on an older version than the API, then the API may respond with
+                 *   new members that the SDK is unaware of.
+                 * - It was constructed with an arbitrary value using the [of] method.
+                 */
                 enum class Value {
                     ADAM,
                     ADAMW,
                     SGD,
+                    /**
+                     * An enum member indicating that [OptimizerType] was instantiated with an
+                     * unknown value.
+                     */
                     _UNKNOWN,
                 }
 
+                /**
+                 * Returns an enum member corresponding to this class instance's value, or
+                 * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+                 *
+                 * Use the [known] method instead if you're certain the value is always known or if
+                 * you want to throw for the unknown case.
+                 */
                 fun value(): Value =
                     when (this) {
                         ADAM -> Value.ADAM
@@ -1439,6 +1486,15 @@ constructor(
                         else -> Value._UNKNOWN
                     }
 
+                /**
+                 * Returns an enum member corresponding to this class instance's value.
+                 *
+                 * Use the [value] method instead if you're uncertain the value is always known and
+                 * don't want to throw for the unknown case.
+                 *
+                 * @throws LlamaStackClientInvalidDataException if this class instance's value is a
+                 *   not a known member.
+                 */
                 fun known(): Known =
                     when (this) {
                         ADAM -> Known.ADAM
@@ -1555,7 +1611,8 @@ constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [EfficiencyConfig]. */
+            class Builder internal constructor() {
 
                 private var enableActivationCheckpointing: JsonField<Boolean> = JsonMissing.of()
                 private var enableActivationOffloading: JsonField<Boolean> = JsonMissing.of()
@@ -1673,11 +1730,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is PostTrainingPreferenceOptimizeParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "PostTrainingPreferenceOptimizeParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "PostTrainingPreferenceOptimizeParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

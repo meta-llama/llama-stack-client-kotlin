@@ -28,6 +28,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
+/** A single turn in an interaction with an Agentic System. */
 @NoAutoDetect
 class Turn
 @JsonCreator
@@ -35,9 +36,6 @@ private constructor(
     @JsonProperty("input_messages")
     @ExcludeMissing
     private val inputMessages: JsonField<List<InputMessage>> = JsonMissing.of(),
-    @JsonProperty("output_attachments")
-    @ExcludeMissing
-    private val outputAttachments: JsonField<List<OutputAttachment>> = JsonMissing.of(),
     @JsonProperty("output_message")
     @ExcludeMissing
     private val outputMessage: JsonField<CompletionMessage> = JsonMissing.of(),
@@ -56,14 +54,15 @@ private constructor(
     @JsonProperty("completed_at")
     @ExcludeMissing
     private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    @JsonProperty("output_attachments")
+    @ExcludeMissing
+    private val outputAttachments: JsonField<List<OutputAttachment>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
     fun inputMessages(): List<InputMessage> = inputMessages.getRequired("input_messages")
 
-    fun outputAttachments(): List<OutputAttachment> =
-        outputAttachments.getRequired("output_attachments")
-
+    /** A message containing the model's (assistant) response in a chat conversation. */
     fun outputMessage(): CompletionMessage = outputMessage.getRequired("output_message")
 
     fun sessionId(): String = sessionId.getRequired("session_id")
@@ -76,14 +75,14 @@ private constructor(
 
     fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
+    fun outputAttachments(): List<OutputAttachment>? =
+        outputAttachments.getNullable("output_attachments")
+
     @JsonProperty("input_messages")
     @ExcludeMissing
     fun _inputMessages(): JsonField<List<InputMessage>> = inputMessages
 
-    @JsonProperty("output_attachments")
-    @ExcludeMissing
-    fun _outputAttachments(): JsonField<List<OutputAttachment>> = outputAttachments
-
+    /** A message containing the model's (assistant) response in a chat conversation. */
     @JsonProperty("output_message")
     @ExcludeMissing
     fun _outputMessage(): JsonField<CompletionMessage> = outputMessage
@@ -102,6 +101,10 @@ private constructor(
     @ExcludeMissing
     fun _completedAt(): JsonField<OffsetDateTime> = completedAt
 
+    @JsonProperty("output_attachments")
+    @ExcludeMissing
+    fun _outputAttachments(): JsonField<List<OutputAttachment>> = outputAttachments
+
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
@@ -114,13 +117,13 @@ private constructor(
         }
 
         inputMessages().forEach { it.validate() }
-        outputAttachments().forEach { it.validate() }
         outputMessage().validate()
         sessionId()
         startedAt()
         steps().forEach { it.validate() }
         turnId()
         completedAt()
+        outputAttachments()?.forEach { it.validate() }
         validated = true
     }
 
@@ -131,27 +134,28 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [Turn]. */
+    class Builder internal constructor() {
 
         private var inputMessages: JsonField<MutableList<InputMessage>>? = null
-        private var outputAttachments: JsonField<MutableList<OutputAttachment>>? = null
         private var outputMessage: JsonField<CompletionMessage>? = null
         private var sessionId: JsonField<String>? = null
         private var startedAt: JsonField<OffsetDateTime>? = null
         private var steps: JsonField<MutableList<Step>>? = null
         private var turnId: JsonField<String>? = null
         private var completedAt: JsonField<OffsetDateTime> = JsonMissing.of()
+        private var outputAttachments: JsonField<MutableList<OutputAttachment>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(turn: Turn) = apply {
             inputMessages = turn.inputMessages.map { it.toMutableList() }
-            outputAttachments = turn.outputAttachments.map { it.toMutableList() }
             outputMessage = turn.outputMessage
             sessionId = turn.sessionId
             startedAt = turn.startedAt
             steps = turn.steps.map { it.toMutableList() }
             turnId = turn.turnId
             completedAt = turn.completedAt
+            outputAttachments = turn.outputAttachments.map { it.toMutableList() }
             additionalProperties = turn.additionalProperties.toMutableMap()
         }
 
@@ -173,32 +177,18 @@ private constructor(
                 }
         }
 
+        /** A message from the user in a chat conversation. */
         fun addInputMessage(user: UserMessage) = addInputMessage(InputMessage.ofUser(user))
 
+        /** A message representing the result of a tool invocation. */
         fun addInputMessage(toolResponse: ToolResponseMessage) =
             addInputMessage(InputMessage.ofToolResponse(toolResponse))
 
-        fun outputAttachments(outputAttachments: List<OutputAttachment>) =
-            outputAttachments(JsonField.of(outputAttachments))
-
-        fun outputAttachments(outputAttachments: JsonField<List<OutputAttachment>>) = apply {
-            this.outputAttachments = outputAttachments.map { it.toMutableList() }
-        }
-
-        fun addOutputAttachment(outputAttachment: OutputAttachment) = apply {
-            outputAttachments =
-                (outputAttachments ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(outputAttachment)
-                }
-        }
-
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun outputMessage(outputMessage: CompletionMessage) =
             outputMessage(JsonField.of(outputMessage))
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun outputMessage(outputMessage: JsonField<CompletionMessage>) = apply {
             this.outputMessage = outputMessage
         }
@@ -247,6 +237,24 @@ private constructor(
             this.completedAt = completedAt
         }
 
+        fun outputAttachments(outputAttachments: List<OutputAttachment>) =
+            outputAttachments(JsonField.of(outputAttachments))
+
+        fun outputAttachments(outputAttachments: JsonField<List<OutputAttachment>>) = apply {
+            this.outputAttachments = outputAttachments.map { it.toMutableList() }
+        }
+
+        fun addOutputAttachment(outputAttachment: OutputAttachment) = apply {
+            outputAttachments =
+                (outputAttachments ?: JsonField.of(mutableListOf())).apply {
+                    (asKnown()
+                            ?: throw IllegalStateException(
+                                "Field was set to non-list type: ${javaClass.simpleName}"
+                            ))
+                        .add(outputAttachment)
+                }
+        }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)
@@ -269,17 +277,18 @@ private constructor(
         fun build(): Turn =
             Turn(
                 checkRequired("inputMessages", inputMessages).map { it.toImmutable() },
-                checkRequired("outputAttachments", outputAttachments).map { it.toImmutable() },
                 checkRequired("outputMessage", outputMessage),
                 checkRequired("sessionId", sessionId),
                 checkRequired("startedAt", startedAt),
                 checkRequired("steps", steps).map { it.toImmutable() },
                 checkRequired("turnId", turnId),
                 completedAt,
+                (outputAttachments ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
 
+    /** A message from the user in a chat conversation. */
     @JsonDeserialize(using = InputMessage.Deserializer::class)
     @JsonSerialize(using = InputMessage.Serializer::class)
     class InputMessage
@@ -289,16 +298,20 @@ private constructor(
         private val _json: JsonValue? = null,
     ) {
 
+        /** A message from the user in a chat conversation. */
         fun user(): UserMessage? = user
 
+        /** A message representing the result of a tool invocation. */
         fun toolResponse(): ToolResponseMessage? = toolResponse
 
         fun isUser(): Boolean = user != null
 
         fun isToolResponse(): Boolean = toolResponse != null
 
+        /** A message from the user in a chat conversation. */
         fun asUser(): UserMessage = user.getOrThrow("user")
 
+        /** A message representing the result of a tool invocation. */
         fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
 
         fun _json(): JsonValue? = _json
@@ -352,24 +365,42 @@ private constructor(
 
         companion object {
 
+            /** A message from the user in a chat conversation. */
             fun ofUser(user: UserMessage) = InputMessage(user = user)
 
+            /** A message representing the result of a tool invocation. */
             fun ofToolResponse(toolResponse: ToolResponseMessage) =
                 InputMessage(toolResponse = toolResponse)
         }
 
+        /**
+         * An interface that defines how to map each variant of [InputMessage] to a value of type
+         * [T].
+         */
         interface Visitor<out T> {
 
+            /** A message from the user in a chat conversation. */
             fun visitUser(user: UserMessage): T
 
+            /** A message representing the result of a tool invocation. */
             fun visitToolResponse(toolResponse: ToolResponseMessage): T
 
+            /**
+             * Maps an unknown variant of [InputMessage] to a value of type [T].
+             *
+             * An instance of [InputMessage] can contain an unknown variant if it was deserialized
+             * from data that doesn't match any known variant. For example, if the SDK is on an
+             * older version than the API, then the API may respond with new variants that the SDK
+             * is unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown InputMessage: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<InputMessage>(InputMessage::class) {
+        internal class Deserializer : BaseDeserializer<InputMessage>(InputMessage::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): InputMessage {
                 val json = JsonValue.fromJsonNode(node)
@@ -387,7 +418,7 @@ private constructor(
             }
         }
 
-        class Serializer : BaseSerializer<InputMessage>(InputMessage::class) {
+        internal class Serializer : BaseSerializer<InputMessage>(InputMessage::class) {
 
             override fun serialize(
                 value: InputMessage,
@@ -402,677 +433,6 @@ private constructor(
                 }
             }
         }
-    }
-
-    @NoAutoDetect
-    class OutputAttachment
-    @JsonCreator
-    private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<Content> = JsonMissing.of(),
-        @JsonProperty("mime_type")
-        @ExcludeMissing
-        private val mimeType: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun content(): Content = content.getRequired("content")
-
-        fun mimeType(): String = mimeType.getRequired("mime_type")
-
-        @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
-
-        @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): OutputAttachment = apply {
-            if (validated) {
-                return@apply
-            }
-
-            content().validate()
-            mimeType()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var content: JsonField<Content>? = null
-            private var mimeType: JsonField<String>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(outputAttachment: OutputAttachment) = apply {
-                content = outputAttachment.content
-                mimeType = outputAttachment.mimeType
-                additionalProperties = outputAttachment.additionalProperties.toMutableMap()
-            }
-
-            fun content(content: Content) = content(JsonField.of(content))
-
-            fun content(content: JsonField<Content>) = apply { this.content = content }
-
-            fun content(string: String) = content(Content.ofString(string))
-
-            fun content(imageContentItem: Content.ImageContentItem) =
-                content(Content.ofImageContentItem(imageContentItem))
-
-            fun content(textContentItem: Content.TextContentItem) =
-                content(Content.ofTextContentItem(textContentItem))
-
-            fun contentOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) = content(Content.ofInterleavedContentItems(interleavedContentItems))
-
-            fun content(url: Url) = content(Content.ofUrl(url))
-
-            fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
-
-            fun mimeType(mimeType: JsonField<String>) = apply { this.mimeType = mimeType }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): OutputAttachment =
-                OutputAttachment(
-                    checkRequired("content", content),
-                    checkRequired("mimeType", mimeType),
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        @JsonDeserialize(using = Content.Deserializer::class)
-        @JsonSerialize(using = Content.Serializer::class)
-        class Content
-        private constructor(
-            private val string: String? = null,
-            private val imageContentItem: ImageContentItem? = null,
-            private val textContentItem: TextContentItem? = null,
-            private val interleavedContentItems: List<InterleavedContentItem>? = null,
-            private val url: Url? = null,
-            private val _json: JsonValue? = null,
-        ) {
-
-            fun string(): String? = string
-
-            fun imageContentItem(): ImageContentItem? = imageContentItem
-
-            fun textContentItem(): TextContentItem? = textContentItem
-
-            fun interleavedContentItems(): List<InterleavedContentItem>? = interleavedContentItems
-
-            fun url(): Url? = url
-
-            fun isString(): Boolean = string != null
-
-            fun isImageContentItem(): Boolean = imageContentItem != null
-
-            fun isTextContentItem(): Boolean = textContentItem != null
-
-            fun isInterleavedContentItems(): Boolean = interleavedContentItems != null
-
-            fun isUrl(): Boolean = url != null
-
-            fun asString(): String = string.getOrThrow("string")
-
-            fun asImageContentItem(): ImageContentItem =
-                imageContentItem.getOrThrow("imageContentItem")
-
-            fun asTextContentItem(): TextContentItem = textContentItem.getOrThrow("textContentItem")
-
-            fun asInterleavedContentItems(): List<InterleavedContentItem> =
-                interleavedContentItems.getOrThrow("interleavedContentItems")
-
-            fun asUrl(): Url = url.getOrThrow("url")
-
-            fun _json(): JsonValue? = _json
-
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
-                    string != null -> visitor.visitString(string)
-                    imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
-                    textContentItem != null -> visitor.visitTextContentItem(textContentItem)
-                    interleavedContentItems != null ->
-                        visitor.visitInterleavedContentItems(interleavedContentItems)
-                    url != null -> visitor.visitUrl(url)
-                    else -> visitor.unknown(_json)
-                }
-            }
-
-            private var validated: Boolean = false
-
-            fun validate(): Content = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                accept(
-                    object : Visitor<Unit> {
-                        override fun visitString(string: String) {}
-
-                        override fun visitImageContentItem(imageContentItem: ImageContentItem) {
-                            imageContentItem.validate()
-                        }
-
-                        override fun visitTextContentItem(textContentItem: TextContentItem) {
-                            textContentItem.validate()
-                        }
-
-                        override fun visitInterleavedContentItems(
-                            interleavedContentItems: List<InterleavedContentItem>
-                        ) {
-                            interleavedContentItems.forEach { it.validate() }
-                        }
-
-                        override fun visitUrl(url: Url) {
-                            url.validate()
-                        }
-                    }
-                )
-                validated = true
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Content && string == other.string && imageContentItem == other.imageContentItem && textContentItem == other.textContentItem && interleavedContentItems == other.interleavedContentItems && url == other.url /* spotless:on */
-            }
-
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageContentItem, textContentItem, interleavedContentItems, url) /* spotless:on */
-
-            override fun toString(): String =
-                when {
-                    string != null -> "Content{string=$string}"
-                    imageContentItem != null -> "Content{imageContentItem=$imageContentItem}"
-                    textContentItem != null -> "Content{textContentItem=$textContentItem}"
-                    interleavedContentItems != null ->
-                        "Content{interleavedContentItems=$interleavedContentItems}"
-                    url != null -> "Content{url=$url}"
-                    _json != null -> "Content{_unknown=$_json}"
-                    else -> throw IllegalStateException("Invalid Content")
-                }
-
-            companion object {
-
-                fun ofString(string: String) = Content(string = string)
-
-                fun ofImageContentItem(imageContentItem: ImageContentItem) =
-                    Content(imageContentItem = imageContentItem)
-
-                fun ofTextContentItem(textContentItem: TextContentItem) =
-                    Content(textContentItem = textContentItem)
-
-                fun ofInterleavedContentItems(
-                    interleavedContentItems: List<InterleavedContentItem>
-                ) = Content(interleavedContentItems = interleavedContentItems)
-
-                fun ofUrl(url: Url) = Content(url = url)
-            }
-
-            interface Visitor<out T> {
-
-                fun visitString(string: String): T
-
-                fun visitImageContentItem(imageContentItem: ImageContentItem): T
-
-                fun visitTextContentItem(textContentItem: TextContentItem): T
-
-                fun visitInterleavedContentItems(
-                    interleavedContentItems: List<InterleavedContentItem>
-                ): T
-
-                fun visitUrl(url: Url): T
-
-                fun unknown(json: JsonValue?): T {
-                    throw LlamaStackClientInvalidDataException("Unknown Content: $json")
-                }
-            }
-
-            class Deserializer : BaseDeserializer<Content>(Content::class) {
-
-                override fun ObjectCodec.deserialize(node: JsonNode): Content {
-                    val json = JsonValue.fromJsonNode(node)
-
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return Content(string = it, _json = json)
-                    }
-                    tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
-                        ?.let {
-                            return Content(imageContentItem = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
-                        ?.let {
-                            return Content(textContentItem = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
-                            it.forEach { it.validate() }
-                        }
-                        ?.let {
-                            return Content(interleavedContentItems = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<Url>()) { it.validate() }
-                        ?.let {
-                            return Content(url = it, _json = json)
-                        }
-
-                    return Content(_json = json)
-                }
-            }
-
-            class Serializer : BaseSerializer<Content>(Content::class) {
-
-                override fun serialize(
-                    value: Content,
-                    generator: JsonGenerator,
-                    provider: SerializerProvider
-                ) {
-                    when {
-                        value.string != null -> generator.writeObject(value.string)
-                        value.imageContentItem != null ->
-                            generator.writeObject(value.imageContentItem)
-                        value.textContentItem != null ->
-                            generator.writeObject(value.textContentItem)
-                        value.interleavedContentItems != null ->
-                            generator.writeObject(value.interleavedContentItems)
-                        value.url != null -> generator.writeObject(value.url)
-                        value._json != null -> generator.writeObject(value._json)
-                        else -> throw IllegalStateException("Invalid Content")
-                    }
-                }
-            }
-
-            @NoAutoDetect
-            class ImageContentItem
-            @JsonCreator
-            private constructor(
-                @JsonProperty("image")
-                @ExcludeMissing
-                private val image: JsonField<Image> = JsonMissing.of(),
-                @JsonProperty("type")
-                @ExcludeMissing
-                private val type: JsonValue = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-            ) {
-
-                fun image(): Image = image.getRequired("image")
-
-                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
-
-                @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
-
-                @JsonAnyGetter
-                @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): ImageContentItem = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    image().validate()
-                    _type().let {
-                        if (it != JsonValue.from("image")) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'type' is invalid, received $it"
-                            )
-                        }
-                    }
-                    validated = true
-                }
-
-                fun toBuilder() = Builder().from(this)
-
-                companion object {
-
-                    fun builder() = Builder()
-                }
-
-                class Builder {
-
-                    private var image: JsonField<Image>? = null
-                    private var type: JsonValue = JsonValue.from("image")
-                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-                    internal fun from(imageContentItem: ImageContentItem) = apply {
-                        image = imageContentItem.image
-                        type = imageContentItem.type
-                        additionalProperties = imageContentItem.additionalProperties.toMutableMap()
-                    }
-
-                    fun image(image: Image) = image(JsonField.of(image))
-
-                    fun image(image: JsonField<Image>) = apply { this.image = image }
-
-                    fun type(type: JsonValue) = apply { this.type = type }
-
-                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                        this.additionalProperties.clear()
-                        putAllAdditionalProperties(additionalProperties)
-                    }
-
-                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                        additionalProperties.put(key, value)
-                    }
-
-                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
-                        apply {
-                            this.additionalProperties.putAll(additionalProperties)
-                        }
-
-                    fun removeAdditionalProperty(key: String) = apply {
-                        additionalProperties.remove(key)
-                    }
-
-                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                        keys.forEach(::removeAdditionalProperty)
-                    }
-
-                    fun build(): ImageContentItem =
-                        ImageContentItem(
-                            checkRequired("image", image),
-                            type,
-                            additionalProperties.toImmutable(),
-                        )
-                }
-
-                @NoAutoDetect
-                class Image
-                @JsonCreator
-                private constructor(
-                    @JsonProperty("data")
-                    @ExcludeMissing
-                    private val data: JsonField<String> = JsonMissing.of(),
-                    @JsonProperty("url")
-                    @ExcludeMissing
-                    private val url: JsonField<Url> = JsonMissing.of(),
-                    @JsonAnySetter
-                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-                ) {
-
-                    fun data(): String? = data.getNullable("data")
-
-                    fun url(): Url? = url.getNullable("url")
-
-                    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
-
-                    @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
-
-                    @JsonAnyGetter
-                    @ExcludeMissing
-                    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                    private var validated: Boolean = false
-
-                    fun validate(): Image = apply {
-                        if (validated) {
-                            return@apply
-                        }
-
-                        data()
-                        url()?.validate()
-                        validated = true
-                    }
-
-                    fun toBuilder() = Builder().from(this)
-
-                    companion object {
-
-                        fun builder() = Builder()
-                    }
-
-                    class Builder {
-
-                        private var data: JsonField<String> = JsonMissing.of()
-                        private var url: JsonField<Url> = JsonMissing.of()
-                        private var additionalProperties: MutableMap<String, JsonValue> =
-                            mutableMapOf()
-
-                        internal fun from(image: Image) = apply {
-                            data = image.data
-                            url = image.url
-                            additionalProperties = image.additionalProperties.toMutableMap()
-                        }
-
-                        fun data(data: String) = data(JsonField.of(data))
-
-                        fun data(data: JsonField<String>) = apply { this.data = data }
-
-                        fun url(url: Url) = url(JsonField.of(url))
-
-                        fun url(url: JsonField<Url>) = apply { this.url = url }
-
-                        fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
-                            apply {
-                                this.additionalProperties.clear()
-                                putAllAdditionalProperties(additionalProperties)
-                            }
-
-                        fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                            additionalProperties.put(key, value)
-                        }
-
-                        fun putAllAdditionalProperties(
-                            additionalProperties: Map<String, JsonValue>
-                        ) = apply { this.additionalProperties.putAll(additionalProperties) }
-
-                        fun removeAdditionalProperty(key: String) = apply {
-                            additionalProperties.remove(key)
-                        }
-
-                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                            keys.forEach(::removeAdditionalProperty)
-                        }
-
-                        fun build(): Image =
-                            Image(
-                                data,
-                                url,
-                                additionalProperties.toImmutable(),
-                            )
-                    }
-
-                    override fun equals(other: Any?): Boolean {
-                        if (this === other) {
-                            return true
-                        }
-
-                        return /* spotless:off */ other is Image && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
-                    }
-
-                    /* spotless:off */
-                    private val hashCode: Int by lazy { Objects.hash(data, url, additionalProperties) }
-                    /* spotless:on */
-
-                    override fun hashCode(): Int = hashCode
-
-                    override fun toString() =
-                        "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
-                }
-
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is ImageContentItem && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
-                }
-
-                /* spotless:off */
-                private val hashCode: Int by lazy { Objects.hash(image, type, additionalProperties) }
-                /* spotless:on */
-
-                override fun hashCode(): Int = hashCode
-
-                override fun toString() =
-                    "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
-            }
-
-            @NoAutoDetect
-            class TextContentItem
-            @JsonCreator
-            private constructor(
-                @JsonProperty("text")
-                @ExcludeMissing
-                private val text: JsonField<String> = JsonMissing.of(),
-                @JsonProperty("type")
-                @ExcludeMissing
-                private val type: JsonValue = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-            ) {
-
-                fun text(): String = text.getRequired("text")
-
-                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
-
-                @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
-
-                @JsonAnyGetter
-                @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): TextContentItem = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    text()
-                    _type().let {
-                        if (it != JsonValue.from("text")) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'type' is invalid, received $it"
-                            )
-                        }
-                    }
-                    validated = true
-                }
-
-                fun toBuilder() = Builder().from(this)
-
-                companion object {
-
-                    fun builder() = Builder()
-                }
-
-                class Builder {
-
-                    private var text: JsonField<String>? = null
-                    private var type: JsonValue = JsonValue.from("text")
-                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-                    internal fun from(textContentItem: TextContentItem) = apply {
-                        text = textContentItem.text
-                        type = textContentItem.type
-                        additionalProperties = textContentItem.additionalProperties.toMutableMap()
-                    }
-
-                    fun text(text: String) = text(JsonField.of(text))
-
-                    fun text(text: JsonField<String>) = apply { this.text = text }
-
-                    fun type(type: JsonValue) = apply { this.type = type }
-
-                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                        this.additionalProperties.clear()
-                        putAllAdditionalProperties(additionalProperties)
-                    }
-
-                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                        additionalProperties.put(key, value)
-                    }
-
-                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
-                        apply {
-                            this.additionalProperties.putAll(additionalProperties)
-                        }
-
-                    fun removeAdditionalProperty(key: String) = apply {
-                        additionalProperties.remove(key)
-                    }
-
-                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                        keys.forEach(::removeAdditionalProperty)
-                    }
-
-                    fun build(): TextContentItem =
-                        TextContentItem(
-                            checkRequired("text", text),
-                            type,
-                            additionalProperties.toImmutable(),
-                        )
-                }
-
-                override fun equals(other: Any?): Boolean {
-                    if (this === other) {
-                        return true
-                    }
-
-                    return /* spotless:off */ other is TextContentItem && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
-                }
-
-                /* spotless:off */
-                private val hashCode: Int by lazy { Objects.hash(text, type, additionalProperties) }
-                /* spotless:on */
-
-                override fun hashCode(): Int = hashCode
-
-                override fun toString() =
-                    "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
-            }
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is OutputAttachment && content == other.content && mimeType == other.mimeType && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(content, mimeType, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "OutputAttachment{content=$content, mimeType=$mimeType, additionalProperties=$additionalProperties}"
     }
 
     @JsonDeserialize(using = Step.Deserializer::class)
@@ -1184,6 +544,7 @@ private constructor(
                 Step(memoryRetrieval = memoryRetrieval)
         }
 
+        /** An interface that defines how to map each variant of [Step] to a value of type [T]. */
         interface Visitor<out T> {
 
             fun visitInference(inference: InferenceStep): T
@@ -1194,12 +555,21 @@ private constructor(
 
             fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
+            /**
+             * Maps an unknown variant of [Step] to a value of type [T].
+             *
+             * An instance of [Step] can contain an unknown variant if it was deserialized from data
+             * that doesn't match any known variant. For example, if the SDK is on an older version
+             * than the API, then the API may respond with new variants that the SDK is unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Step: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Step>(Step::class) {
+        internal class Deserializer : BaseDeserializer<Step>(Step::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Step {
                 val json = JsonValue.fromJsonNode(node)
@@ -1238,7 +608,7 @@ private constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Step>(Step::class) {
+        internal class Serializer : BaseSerializer<Step>(Step::class) {
 
             override fun serialize(
                 value: Step,
@@ -1257,20 +627,960 @@ private constructor(
         }
     }
 
+    @NoAutoDetect
+    class OutputAttachment
+    @JsonCreator
+    private constructor(
+        @JsonProperty("content")
+        @ExcludeMissing
+        private val content: JsonField<Content> = JsonMissing.of(),
+        @JsonProperty("mime_type")
+        @ExcludeMissing
+        private val mimeType: JsonField<String> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        /** A image content item */
+        fun content(): Content = content.getRequired("content")
+
+        fun mimeType(): String = mimeType.getRequired("mime_type")
+
+        /** A image content item */
+        @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
+
+        @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): OutputAttachment = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            mimeType()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [OutputAttachment]. */
+        class Builder internal constructor() {
+
+            private var content: JsonField<Content>? = null
+            private var mimeType: JsonField<String>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(outputAttachment: OutputAttachment) = apply {
+                content = outputAttachment.content
+                mimeType = outputAttachment.mimeType
+                additionalProperties = outputAttachment.additionalProperties.toMutableMap()
+            }
+
+            /** A image content item */
+            fun content(content: Content) = content(JsonField.of(content))
+
+            /** A image content item */
+            fun content(content: JsonField<Content>) = apply { this.content = content }
+
+            /** A image content item */
+            fun content(string: String) = content(Content.ofString(string))
+
+            /** A image content item */
+            fun content(imageContentItem: Content.ImageContentItem) =
+                content(Content.ofImageContentItem(imageContentItem))
+
+            /** A text content item */
+            fun content(textContentItem: Content.TextContentItem) =
+                content(Content.ofTextContentItem(textContentItem))
+
+            /** A image content item */
+            fun contentOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = content(Content.ofInterleavedContentItems(interleavedContentItems))
+
+            /** A image content item */
+            fun content(url: Content.Url) = content(Content.ofUrl(url))
+
+            fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
+
+            fun mimeType(mimeType: JsonField<String>) = apply { this.mimeType = mimeType }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): OutputAttachment =
+                OutputAttachment(
+                    checkRequired("content", content),
+                    checkRequired("mimeType", mimeType),
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        /** A image content item */
+        @JsonDeserialize(using = Content.Deserializer::class)
+        @JsonSerialize(using = Content.Serializer::class)
+        class Content
+        private constructor(
+            private val string: String? = null,
+            private val imageContentItem: ImageContentItem? = null,
+            private val textContentItem: TextContentItem? = null,
+            private val interleavedContentItems: List<InterleavedContentItem>? = null,
+            private val url: Url? = null,
+            private val _json: JsonValue? = null,
+        ) {
+
+            fun string(): String? = string
+
+            /** A image content item */
+            fun imageContentItem(): ImageContentItem? = imageContentItem
+
+            /** A text content item */
+            fun textContentItem(): TextContentItem? = textContentItem
+
+            fun interleavedContentItems(): List<InterleavedContentItem>? = interleavedContentItems
+
+            fun url(): Url? = url
+
+            fun isString(): Boolean = string != null
+
+            fun isImageContentItem(): Boolean = imageContentItem != null
+
+            fun isTextContentItem(): Boolean = textContentItem != null
+
+            fun isInterleavedContentItems(): Boolean = interleavedContentItems != null
+
+            fun isUrl(): Boolean = url != null
+
+            fun asString(): String = string.getOrThrow("string")
+
+            /** A image content item */
+            fun asImageContentItem(): ImageContentItem =
+                imageContentItem.getOrThrow("imageContentItem")
+
+            /** A text content item */
+            fun asTextContentItem(): TextContentItem = textContentItem.getOrThrow("textContentItem")
+
+            fun asInterleavedContentItems(): List<InterleavedContentItem> =
+                interleavedContentItems.getOrThrow("interleavedContentItems")
+
+            fun asUrl(): Url = url.getOrThrow("url")
+
+            fun _json(): JsonValue? = _json
+
+            fun <T> accept(visitor: Visitor<T>): T {
+                return when {
+                    string != null -> visitor.visitString(string)
+                    imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
+                    textContentItem != null -> visitor.visitTextContentItem(textContentItem)
+                    interleavedContentItems != null ->
+                        visitor.visitInterleavedContentItems(interleavedContentItems)
+                    url != null -> visitor.visitUrl(url)
+                    else -> visitor.unknown(_json)
+                }
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): Content = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                accept(
+                    object : Visitor<Unit> {
+                        override fun visitString(string: String) {}
+
+                        override fun visitImageContentItem(imageContentItem: ImageContentItem) {
+                            imageContentItem.validate()
+                        }
+
+                        override fun visitTextContentItem(textContentItem: TextContentItem) {
+                            textContentItem.validate()
+                        }
+
+                        override fun visitInterleavedContentItems(
+                            interleavedContentItems: List<InterleavedContentItem>
+                        ) {
+                            interleavedContentItems.forEach { it.validate() }
+                        }
+
+                        override fun visitUrl(url: Url) {
+                            url.validate()
+                        }
+                    }
+                )
+                validated = true
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is Content && string == other.string && imageContentItem == other.imageContentItem && textContentItem == other.textContentItem && interleavedContentItems == other.interleavedContentItems && url == other.url /* spotless:on */
+            }
+
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, imageContentItem, textContentItem, interleavedContentItems, url) /* spotless:on */
+
+            override fun toString(): String =
+                when {
+                    string != null -> "Content{string=$string}"
+                    imageContentItem != null -> "Content{imageContentItem=$imageContentItem}"
+                    textContentItem != null -> "Content{textContentItem=$textContentItem}"
+                    interleavedContentItems != null ->
+                        "Content{interleavedContentItems=$interleavedContentItems}"
+                    url != null -> "Content{url=$url}"
+                    _json != null -> "Content{_unknown=$_json}"
+                    else -> throw IllegalStateException("Invalid Content")
+                }
+
+            companion object {
+
+                fun ofString(string: String) = Content(string = string)
+
+                /** A image content item */
+                fun ofImageContentItem(imageContentItem: ImageContentItem) =
+                    Content(imageContentItem = imageContentItem)
+
+                /** A text content item */
+                fun ofTextContentItem(textContentItem: TextContentItem) =
+                    Content(textContentItem = textContentItem)
+
+                fun ofInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ) = Content(interleavedContentItems = interleavedContentItems)
+
+                fun ofUrl(url: Url) = Content(url = url)
+            }
+
+            /**
+             * An interface that defines how to map each variant of [Content] to a value of type
+             * [T].
+             */
+            interface Visitor<out T> {
+
+                fun visitString(string: String): T
+
+                /** A image content item */
+                fun visitImageContentItem(imageContentItem: ImageContentItem): T
+
+                /** A text content item */
+                fun visitTextContentItem(textContentItem: TextContentItem): T
+
+                fun visitInterleavedContentItems(
+                    interleavedContentItems: List<InterleavedContentItem>
+                ): T
+
+                fun visitUrl(url: Url): T
+
+                /**
+                 * Maps an unknown variant of [Content] to a value of type [T].
+                 *
+                 * An instance of [Content] can contain an unknown variant if it was deserialized
+                 * from data that doesn't match any known variant. For example, if the SDK is on an
+                 * older version than the API, then the API may respond with new variants that the
+                 * SDK is unaware of.
+                 *
+                 * @throws LlamaStackClientInvalidDataException in the default implementation.
+                 */
+                fun unknown(json: JsonValue?): T {
+                    throw LlamaStackClientInvalidDataException("Unknown Content: $json")
+                }
+            }
+
+            internal class Deserializer : BaseDeserializer<Content>(Content::class) {
+
+                override fun ObjectCodec.deserialize(node: JsonNode): Content {
+                    val json = JsonValue.fromJsonNode(node)
+
+                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                        return Content(string = it, _json = json)
+                    }
+                    tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
+                        ?.let {
+                            return Content(imageContentItem = it, _json = json)
+                        }
+                    tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
+                        ?.let {
+                            return Content(textContentItem = it, _json = json)
+                        }
+                    tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
+                            it.forEach { it.validate() }
+                        }
+                        ?.let {
+                            return Content(interleavedContentItems = it, _json = json)
+                        }
+                    tryDeserialize(node, jacksonTypeRef<Url>()) { it.validate() }
+                        ?.let {
+                            return Content(url = it, _json = json)
+                        }
+
+                    return Content(_json = json)
+                }
+            }
+
+            internal class Serializer : BaseSerializer<Content>(Content::class) {
+
+                override fun serialize(
+                    value: Content,
+                    generator: JsonGenerator,
+                    provider: SerializerProvider
+                ) {
+                    when {
+                        value.string != null -> generator.writeObject(value.string)
+                        value.imageContentItem != null ->
+                            generator.writeObject(value.imageContentItem)
+                        value.textContentItem != null ->
+                            generator.writeObject(value.textContentItem)
+                        value.interleavedContentItems != null ->
+                            generator.writeObject(value.interleavedContentItems)
+                        value.url != null -> generator.writeObject(value.url)
+                        value._json != null -> generator.writeObject(value._json)
+                        else -> throw IllegalStateException("Invalid Content")
+                    }
+                }
+            }
+
+            /** A image content item */
+            @NoAutoDetect
+            class ImageContentItem
+            @JsonCreator
+            private constructor(
+                @JsonProperty("image")
+                @ExcludeMissing
+                private val image: JsonField<Image> = JsonMissing.of(),
+                @JsonProperty("type")
+                @ExcludeMissing
+                private val type: JsonValue = JsonMissing.of(),
+                @JsonAnySetter
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            ) {
+
+                /** Image as a base64 encoded string or an URL */
+                fun image(): Image = image.getRequired("image")
+
+                /** Discriminator type of the content item. Always "image" */
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
+
+                /** Image as a base64 encoded string or an URL */
+                @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): ImageContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    image().validate()
+                    _type().let {
+                        if (it != JsonValue.from("image")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
+                    validated = true
+                }
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    fun builder() = Builder()
+                }
+
+                /** A builder for [ImageContentItem]. */
+                class Builder internal constructor() {
+
+                    private var image: JsonField<Image>? = null
+                    private var type: JsonValue = JsonValue.from("image")
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(imageContentItem: ImageContentItem) = apply {
+                        image = imageContentItem.image
+                        type = imageContentItem.type
+                        additionalProperties = imageContentItem.additionalProperties.toMutableMap()
+                    }
+
+                    /** Image as a base64 encoded string or an URL */
+                    fun image(image: Image) = image(JsonField.of(image))
+
+                    /** Image as a base64 encoded string or an URL */
+                    fun image(image: JsonField<Image>) = apply { this.image = image }
+
+                    /** Discriminator type of the content item. Always "image" */
+                    fun type(type: JsonValue) = apply { this.type = type }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    fun build(): ImageContentItem =
+                        ImageContentItem(
+                            checkRequired("image", image),
+                            type,
+                            additionalProperties.toImmutable(),
+                        )
+                }
+
+                /** Image as a base64 encoded string or an URL */
+                @NoAutoDetect
+                class Image
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("data")
+                    @ExcludeMissing
+                    private val data: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("url")
+                    @ExcludeMissing
+                    private val url: JsonField<Url> = JsonMissing.of(),
+                    @JsonAnySetter
+                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                ) {
+
+                    /** base64 encoded image data as string */
+                    fun data(): String? = data.getNullable("data")
+
+                    /**
+                     * A URL of the image or data URL in the format of
+                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     */
+                    fun url(): Url? = url.getNullable("url")
+
+                    /** base64 encoded image data as string */
+                    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
+
+                    /**
+                     * A URL of the image or data URL in the format of
+                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     */
+                    @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
+
+                    @JsonAnyGetter
+                    @ExcludeMissing
+                    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                    private var validated: Boolean = false
+
+                    fun validate(): Image = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        data()
+                        url()?.validate()
+                        validated = true
+                    }
+
+                    fun toBuilder() = Builder().from(this)
+
+                    companion object {
+
+                        fun builder() = Builder()
+                    }
+
+                    /** A builder for [Image]. */
+                    class Builder internal constructor() {
+
+                        private var data: JsonField<String> = JsonMissing.of()
+                        private var url: JsonField<Url> = JsonMissing.of()
+                        private var additionalProperties: MutableMap<String, JsonValue> =
+                            mutableMapOf()
+
+                        internal fun from(image: Image) = apply {
+                            data = image.data
+                            url = image.url
+                            additionalProperties = image.additionalProperties.toMutableMap()
+                        }
+
+                        /** base64 encoded image data as string */
+                        fun data(data: String) = data(JsonField.of(data))
+
+                        /** base64 encoded image data as string */
+                        fun data(data: JsonField<String>) = apply { this.data = data }
+
+                        /**
+                         * A URL of the image or data URL in the format of
+                         * data:image/{type};base64,{data}. Note that URL could have length limits.
+                         */
+                        fun url(url: Url) = url(JsonField.of(url))
+
+                        /**
+                         * A URL of the image or data URL in the format of
+                         * data:image/{type};base64,{data}. Note that URL could have length limits.
+                         */
+                        fun url(url: JsonField<Url>) = apply { this.url = url }
+
+                        fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
+                            apply {
+                                this.additionalProperties.clear()
+                                putAllAdditionalProperties(additionalProperties)
+                            }
+
+                        fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                            additionalProperties.put(key, value)
+                        }
+
+                        fun putAllAdditionalProperties(
+                            additionalProperties: Map<String, JsonValue>
+                        ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                        fun removeAdditionalProperty(key: String) = apply {
+                            additionalProperties.remove(key)
+                        }
+
+                        fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                            keys.forEach(::removeAdditionalProperty)
+                        }
+
+                        fun build(): Image =
+                            Image(
+                                data,
+                                url,
+                                additionalProperties.toImmutable(),
+                            )
+                    }
+
+                    /**
+                     * A URL of the image or data URL in the format of
+                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     */
+                    @NoAutoDetect
+                    class Url
+                    @JsonCreator
+                    private constructor(
+                        @JsonProperty("uri")
+                        @ExcludeMissing
+                        private val uri: JsonField<String> = JsonMissing.of(),
+                        @JsonAnySetter
+                        private val additionalProperties: Map<String, JsonValue> =
+                            immutableEmptyMap(),
+                    ) {
+
+                        fun uri(): String = uri.getRequired("uri")
+
+                        @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+                        @JsonAnyGetter
+                        @ExcludeMissing
+                        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                        private var validated: Boolean = false
+
+                        fun validate(): Url = apply {
+                            if (validated) {
+                                return@apply
+                            }
+
+                            uri()
+                            validated = true
+                        }
+
+                        fun toBuilder() = Builder().from(this)
+
+                        companion object {
+
+                            fun builder() = Builder()
+                        }
+
+                        /** A builder for [Url]. */
+                        class Builder internal constructor() {
+
+                            private var uri: JsonField<String>? = null
+                            private var additionalProperties: MutableMap<String, JsonValue> =
+                                mutableMapOf()
+
+                            internal fun from(url: Url) = apply {
+                                uri = url.uri
+                                additionalProperties = url.additionalProperties.toMutableMap()
+                            }
+
+                            fun uri(uri: String) = uri(JsonField.of(uri))
+
+                            fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+                            fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
+                                apply {
+                                    this.additionalProperties.clear()
+                                    putAllAdditionalProperties(additionalProperties)
+                                }
+
+                            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                                additionalProperties.put(key, value)
+                            }
+
+                            fun putAllAdditionalProperties(
+                                additionalProperties: Map<String, JsonValue>
+                            ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                            fun removeAdditionalProperty(key: String) = apply {
+                                additionalProperties.remove(key)
+                            }
+
+                            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                                keys.forEach(::removeAdditionalProperty)
+                            }
+
+                            fun build(): Url =
+                                Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                        }
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is Url && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+                        }
+
+                        /* spotless:off */
+                        private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+                        /* spotless:on */
+
+                        override fun hashCode(): Int = hashCode
+
+                        override fun toString() =
+                            "Url{uri=$uri, additionalProperties=$additionalProperties}"
+                    }
+
+                    override fun equals(other: Any?): Boolean {
+                        if (this === other) {
+                            return true
+                        }
+
+                        return /* spotless:off */ other is Image && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+                    }
+
+                    /* spotless:off */
+                    private val hashCode: Int by lazy { Objects.hash(data, url, additionalProperties) }
+                    /* spotless:on */
+
+                    override fun hashCode(): Int = hashCode
+
+                    override fun toString() =
+                        "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
+                }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is ImageContentItem && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(image, type, additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() =
+                    "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
+            }
+
+            /** A text content item */
+            @NoAutoDetect
+            class TextContentItem
+            @JsonCreator
+            private constructor(
+                @JsonProperty("text")
+                @ExcludeMissing
+                private val text: JsonField<String> = JsonMissing.of(),
+                @JsonProperty("type")
+                @ExcludeMissing
+                private val type: JsonValue = JsonMissing.of(),
+                @JsonAnySetter
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            ) {
+
+                /** Text content */
+                fun text(): String = text.getRequired("text")
+
+                /** Discriminator type of the content item. Always "text" */
+                @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
+
+                /** Text content */
+                @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): TextContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    text()
+                    _type().let {
+                        if (it != JsonValue.from("text")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
+                    validated = true
+                }
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    fun builder() = Builder()
+                }
+
+                /** A builder for [TextContentItem]. */
+                class Builder internal constructor() {
+
+                    private var text: JsonField<String>? = null
+                    private var type: JsonValue = JsonValue.from("text")
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(textContentItem: TextContentItem) = apply {
+                        text = textContentItem.text
+                        type = textContentItem.type
+                        additionalProperties = textContentItem.additionalProperties.toMutableMap()
+                    }
+
+                    /** Text content */
+                    fun text(text: String) = text(JsonField.of(text))
+
+                    /** Text content */
+                    fun text(text: JsonField<String>) = apply { this.text = text }
+
+                    /** Discriminator type of the content item. Always "text" */
+                    fun type(type: JsonValue) = apply { this.type = type }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    fun build(): TextContentItem =
+                        TextContentItem(
+                            checkRequired("text", text),
+                            type,
+                            additionalProperties.toImmutable(),
+                        )
+                }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is TextContentItem && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(text, type, additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() =
+                    "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
+            }
+
+            @NoAutoDetect
+            class Url
+            @JsonCreator
+            private constructor(
+                @JsonProperty("uri")
+                @ExcludeMissing
+                private val uri: JsonField<String> = JsonMissing.of(),
+                @JsonAnySetter
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            ) {
+
+                fun uri(): String = uri.getRequired("uri")
+
+                @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): Url = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    uri()
+                    validated = true
+                }
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    fun builder() = Builder()
+                }
+
+                /** A builder for [Url]. */
+                class Builder internal constructor() {
+
+                    private var uri: JsonField<String>? = null
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(url: Url) = apply {
+                        uri = url.uri
+                        additionalProperties = url.additionalProperties.toMutableMap()
+                    }
+
+                    fun uri(uri: String) = uri(JsonField.of(uri))
+
+                    fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    fun build(): Url =
+                        Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Url && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() =
+                    "Url{uri=$uri, additionalProperties=$additionalProperties}"
+            }
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is OutputAttachment && content == other.content && mimeType == other.mimeType && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(content, mimeType, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "OutputAttachment{content=$content, mimeType=$mimeType, additionalProperties=$additionalProperties}"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is Turn && inputMessages == other.inputMessages && outputAttachments == other.outputAttachments && outputMessage == other.outputMessage && sessionId == other.sessionId && startedAt == other.startedAt && steps == other.steps && turnId == other.turnId && completedAt == other.completedAt && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Turn && inputMessages == other.inputMessages && outputMessage == other.outputMessage && sessionId == other.sessionId && startedAt == other.startedAt && steps == other.steps && turnId == other.turnId && completedAt == other.completedAt && outputAttachments == other.outputAttachments && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(inputMessages, outputAttachments, outputMessage, sessionId, startedAt, steps, turnId, completedAt, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(inputMessages, outputMessage, sessionId, startedAt, steps, turnId, completedAt, outputAttachments, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Turn{inputMessages=$inputMessages, outputAttachments=$outputAttachments, outputMessage=$outputMessage, sessionId=$sessionId, startedAt=$startedAt, steps=$steps, turnId=$turnId, completedAt=$completedAt, additionalProperties=$additionalProperties}"
+        "Turn{inputMessages=$inputMessages, outputMessage=$outputMessage, sessionId=$sessionId, startedAt=$startedAt, steps=$steps, turnId=$turnId, completedAt=$completedAt, outputAttachments=$outputAttachments, additionalProperties=$additionalProperties}"
 }

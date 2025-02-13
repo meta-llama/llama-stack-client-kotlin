@@ -23,8 +23,6 @@ class SessionServiceTest {
                 AgentSessionCreateParams.builder()
                     .agentId("agent_id")
                     .sessionName("session_name")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentSessionCreateResponse)
@@ -42,8 +40,6 @@ class SessionServiceTest {
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .addTurnId("string")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(session)
@@ -56,12 +52,7 @@ class SessionServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val sessionService = client.agents().session()
         sessionService.delete(
-            AgentSessionDeleteParams.builder()
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
+            AgentSessionDeleteParams.builder().agentId("agent_id").sessionId("session_id").build()
         )
     }
 }

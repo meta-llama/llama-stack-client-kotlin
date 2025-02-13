@@ -53,7 +53,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ListVectorDbsResponse]. */
+    class Builder internal constructor() {
 
         private var data: JsonField<MutableList<Data>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -193,7 +194,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Data]. */
+        class Builder internal constructor() {
 
             private var embeddingDimension: JsonField<Long>? = null
             private var embeddingModel: JsonField<String>? = null

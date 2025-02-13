@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class EvalEvaluateRowsParamsTest {
 
     @Test
-    fun createEvalEvaluateRowsParams() {
+    fun create() {
         EvalEvaluateRowsParams.builder()
             .taskId("task_id")
             .addInputRow(
@@ -36,13 +36,11 @@ class EvalEvaluateRowsParamsTest {
                     .numExamples(0L)
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             EvalEvaluateRowsParams.builder()
                 .taskId("task_id")
@@ -70,10 +68,8 @@ class EvalEvaluateRowsParamsTest {
                         .numExamples(0L)
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
             .isEqualTo(
@@ -108,7 +104,7 @@ class EvalEvaluateRowsParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             EvalEvaluateRowsParams.builder()
                 .taskId("task_id")
@@ -118,20 +114,14 @@ class EvalEvaluateRowsParamsTest {
                         .build()
                 )
                 .addScoringFunction("string")
-                .taskConfig(
-                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
-                                .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
-                                .build()
-                        )
+                .benchmarkTaskConfig(
+                    EvalCandidate.ModelCandidate.builder()
+                        .model("model")
+                        .samplingParams(SamplingParams.builder().strategyGreedySampling().build())
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
             .isEqualTo(
@@ -170,16 +160,10 @@ class EvalEvaluateRowsParamsTest {
                         .build()
                 )
                 .addScoringFunction("string")
-                .taskConfig(
-                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
-                                .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
-                                .build()
-                        )
+                .benchmarkTaskConfig(
+                    EvalCandidate.ModelCandidate.builder()
+                        .model("model")
+                        .samplingParams(SamplingParams.builder().strategyGreedySampling().build())
                         .build()
                 )
                 .build()

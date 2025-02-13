@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class ToolGetParamsTest {
 
     @Test
-    fun createToolGetParams() {
-        ToolGetParams.builder()
-            .toolName("tool_name")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ToolGetParams.builder().toolName("tool_name").build()
     }
 
     @Test

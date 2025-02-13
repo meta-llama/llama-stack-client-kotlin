@@ -16,9 +16,10 @@ import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentTurnCreateParams
-import com.llama.llamastack.models.AgentTurnCreateResponse
+import com.llama.llamastack.models.AgentTurnResponseStreamChunk
 import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.Turn
 
@@ -30,14 +31,10 @@ internal constructor(
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val createHandler: Handler<AgentTurnCreateResponse> =
-        jsonHandler<AgentTurnCreateResponse>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
+    private val createHandler: Handler<Turn> =
+        jsonHandler<Turn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
-    override fun create(
-        params: AgentTurnCreateParams,
-        requestOptions: RequestOptions
-    ): AgentTurnCreateResponse {
+    override fun create(params: AgentTurnCreateParams, requestOptions: RequestOptions): Turn {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
@@ -49,32 +46,28 @@ internal constructor(
                     params.getPathParam(1),
                     "turn"
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { createHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { createHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
-    private val createStreamingHandler: Handler<StreamResponse<AgentTurnCreateResponse>> =
+    private val createStreamingHandler: Handler<StreamResponse<AgentTurnResponseStreamChunk>> =
         sseHandler(clientOptions.jsonMapper)
-            .mapJson<AgentTurnCreateResponse>()
+            .mapJson<AgentTurnResponseStreamChunk>()
             .withErrorHandler(errorHandler)
 
     override fun createStreaming(
         params: AgentTurnCreateParams,
         requestOptions: RequestOptions
-    ): StreamResponse<AgentTurnCreateResponse> {
+    ): StreamResponse<AgentTurnResponseStreamChunk> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
@@ -86,32 +79,28 @@ internal constructor(
                     params.getPathParam(1),
                     "turn"
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .body(
                     json(
                         clientOptions.jsonMapper,
                         params
-                            .getBody()
+                            ._body()
                             .toBuilder()
                             .putAdditionalProperty("stream", JsonValue.from(true))
                             .build()
                     )
                 )
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .let { createStreamingHandler.handle(it) }
-                .let { streamResponse ->
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        streamResponse.map { it.validate() }
-                    } else {
-                        streamResponse
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .let { createStreamingHandler.handle(it) }
+            .let { streamResponse ->
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    streamResponse.map { it.validate() }
+                } else {
+                    streamResponse
                 }
-        }
+            }
     }
 
     private val retrieveHandler: Handler<Turn> =
@@ -130,19 +119,15 @@ internal constructor(
                     "turn",
                     params.getPathParam(2)
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { retrieveHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { retrieveHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 }

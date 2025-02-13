@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ModelRegisterParamsTest {
 
     @Test
-    fun createModelRegisterParams() {
+    fun create() {
         ModelRegisterParams.builder()
             .modelId("model_id")
             .metadata(
@@ -20,13 +20,11 @@ class ModelRegisterParamsTest {
             .modelType(ModelRegisterParams.ModelType.LLM)
             .providerId("provider_id")
             .providerModelId("provider_model_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ModelRegisterParams.builder()
                 .modelId("model_id")
@@ -38,10 +36,8 @@ class ModelRegisterParamsTest {
                 .modelType(ModelRegisterParams.ModelType.LLM)
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.metadata())
@@ -56,9 +52,9 @@ class ModelRegisterParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params = ModelRegisterParams.builder().modelId("model_id").build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.modelId()).isEqualTo("model_id")
     }

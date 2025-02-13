@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ToolRuntimeRagToolInsertParamsTest {
 
     @Test
-    fun createToolRuntimeRagToolInsertParams() {
+    fun create() {
         ToolRuntimeRagToolInsertParams.builder()
             .chunkSizeInTokens(0L)
             .addDocument(
@@ -25,13 +25,11 @@ class ToolRuntimeRagToolInsertParamsTest {
                     .build()
             )
             .vectorDbId("vector_db_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ToolRuntimeRagToolInsertParams.builder()
                 .chunkSizeInTokens(0L)
@@ -48,10 +46,8 @@ class ToolRuntimeRagToolInsertParamsTest {
                         .build()
                 )
                 .vectorDbId("vector_db_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.chunkSizeInTokens()).isEqualTo(0L)
         assertThat(body.documents())
@@ -73,7 +69,7 @@ class ToolRuntimeRagToolInsertParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ToolRuntimeRagToolInsertParams.builder()
                 .chunkSizeInTokens(0L)
@@ -90,7 +86,7 @@ class ToolRuntimeRagToolInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.chunkSizeInTokens()).isEqualTo(0L)
         assertThat(body.documents())

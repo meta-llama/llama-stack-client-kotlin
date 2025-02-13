@@ -18,6 +18,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Response from a completion request. */
 @NoAutoDetect
 class CompletionResponse
 @JsonCreator
@@ -34,18 +35,24 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** The generated completion text */
     fun content(): String = content.getRequired("content")
 
+    /** Reason why generation stopped */
     fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
 
+    /** Optional log probabilities for generated tokens */
     fun logprobs(): List<TokenLogProbs>? = logprobs.getNullable("logprobs")
 
+    /** The generated completion text */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<String> = content
 
+    /** Reason why generation stopped */
     @JsonProperty("stop_reason")
     @ExcludeMissing
     fun _stopReason(): JsonField<StopReason> = stopReason
 
+    /** Optional log probabilities for generated tokens */
     @JsonProperty("logprobs")
     @ExcludeMissing
     fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
@@ -74,7 +81,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [CompletionResponse]. */
+    class Builder internal constructor() {
 
         private var content: JsonField<String>? = null
         private var stopReason: JsonField<StopReason>? = null
@@ -88,20 +96,27 @@ private constructor(
             additionalProperties = completionResponse.additionalProperties.toMutableMap()
         }
 
+        /** The generated completion text */
         fun content(content: String) = content(JsonField.of(content))
 
+        /** The generated completion text */
         fun content(content: JsonField<String>) = apply { this.content = content }
 
+        /** Reason why generation stopped */
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
+        /** Reason why generation stopped */
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
 
+        /** Optional log probabilities for generated tokens */
         fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
+        /** Optional log probabilities for generated tokens */
         fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
             this.logprobs = logprobs.map { it.toMutableList() }
         }
 
+        /** Optional log probabilities for generated tokens */
         fun addLogprob(logprob: TokenLogProbs) = apply {
             logprobs =
                 (logprobs ?: JsonField.of(mutableListOf())).apply {
@@ -141,12 +156,21 @@ private constructor(
             )
     }
 
+    /** Reason why generation stopped */
     class StopReason
     @JsonCreator
     private constructor(
         private val value: JsonField<String>,
     ) : Enum {
 
+        /**
+         * Returns this class instance's raw value.
+         *
+         * This is usually only useful if this instance was deserialized from data that doesn't
+         * match any known member, and you want to know that value. For example, if the SDK is on an
+         * older version than the API, then the API may respond with new members that the SDK is
+         * unaware of.
+         */
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
         companion object {
@@ -160,19 +184,39 @@ private constructor(
             fun of(value: String) = StopReason(JsonField.of(value))
         }
 
+        /** An enum containing [StopReason]'s known values. */
         enum class Known {
             END_OF_TURN,
             END_OF_MESSAGE,
             OUT_OF_TOKENS,
         }
 
+        /**
+         * An enum containing [StopReason]'s known values, as well as an [_UNKNOWN] member.
+         *
+         * An instance of [StopReason] can contain an unknown value in a couple of cases:
+         * - It was deserialized from data that doesn't match any known member. For example, if the
+         *   SDK is on an older version than the API, then the API may respond with new members that
+         *   the SDK is unaware of.
+         * - It was constructed with an arbitrary value using the [of] method.
+         */
         enum class Value {
             END_OF_TURN,
             END_OF_MESSAGE,
             OUT_OF_TOKENS,
+            /**
+             * An enum member indicating that [StopReason] was instantiated with an unknown value.
+             */
             _UNKNOWN,
         }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
+         * if the class was instantiated with an unknown value.
+         *
+         * Use the [known] method instead if you're certain the value is always known or if you want
+         * to throw for the unknown case.
+         */
         fun value(): Value =
             when (this) {
                 END_OF_TURN -> Value.END_OF_TURN
@@ -181,6 +225,15 @@ private constructor(
                 else -> Value._UNKNOWN
             }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value.
+         *
+         * Use the [value] method instead if you're uncertain the value is always known and don't
+         * want to throw for the unknown case.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
+         *   known member.
+         */
         fun known(): Known =
             when (this) {
                 END_OF_TURN -> Known.END_OF_TURN

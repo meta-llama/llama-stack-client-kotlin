@@ -64,7 +64,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ScoringResult]. */
+    class Builder internal constructor() {
 
         private var aggregatedResults: JsonField<AggregatedResults>? = null
         private var scoreRows: JsonField<MutableList<ScoreRow>>? = null
@@ -156,7 +157,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AggregatedResults]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -232,7 +234,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [ScoreRow]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

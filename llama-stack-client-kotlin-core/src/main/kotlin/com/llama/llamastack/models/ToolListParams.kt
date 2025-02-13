@@ -3,43 +3,28 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
 /** List tools with optional tool group */
 class ToolListParams
-constructor(
+private constructor(
     private val toolgroupId: String?,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun toolgroupId(): String? = toolgroupId
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams {
+    override fun _queryParams(): QueryParams {
         val queryParams = QueryParams.builder()
         this.toolgroupId?.let { queryParams.put("toolgroup_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)
@@ -53,32 +38,21 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ToolListParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var toolgroupId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolListParams: ToolListParams) = apply {
             toolgroupId = toolListParams.toolgroupId
-            xLlamaStackClientVersion = toolListParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = toolListParams.xLlamaStackProviderData
             additionalHeaders = toolListParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolListParams.additionalQueryParams.toBuilder()
         }
 
         fun toolgroupId(toolgroupId: String?) = apply { this.toolgroupId = toolgroupId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -181,8 +155,6 @@ constructor(
         fun build(): ToolListParams =
             ToolListParams(
                 toolgroupId,
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -193,11 +165,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolListParams && toolgroupId == other.toolgroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolListParams && toolgroupId == other.toolgroupId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolgroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolgroupId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolListParams{toolgroupId=$toolgroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolListParams{toolgroupId=$toolgroupId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

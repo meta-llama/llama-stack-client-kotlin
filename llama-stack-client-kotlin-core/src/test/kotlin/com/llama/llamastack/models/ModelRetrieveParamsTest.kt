@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class ModelRetrieveParamsTest {
 
     @Test
-    fun createModelRetrieveParams() {
-        ModelRetrieveParams.builder()
-            .modelId("model_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ModelRetrieveParams.builder().modelId("model_id").build()
     }
 
     @Test

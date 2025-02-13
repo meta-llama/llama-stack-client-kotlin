@@ -8,37 +8,30 @@ import org.junit.jupiter.api.Test
 class AgentSessionCreateParamsTest {
 
     @Test
-    fun createAgentSessionCreateParams() {
-        AgentSessionCreateParams.builder()
-            .agentId("agent_id")
-            .sessionName("session_name")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        AgentSessionCreateParams.builder().agentId("agent_id").sessionName("session_name").build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             AgentSessionCreateParams.builder()
                 .agentId("agent_id")
                 .sessionName("session_name")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.sessionName()).isEqualTo("session_name")
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             AgentSessionCreateParams.builder()
                 .agentId("agent_id")
                 .sessionName("session_name")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.sessionName()).isEqualTo("session_name")
     }

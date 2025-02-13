@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class VectorIoQueryParamsTest {
 
     @Test
-    fun createVectorIoQueryParams() {
+    fun create() {
         VectorIoQueryParams.builder()
             .query("string")
             .vectorDbId("vector_db_id")
@@ -18,13 +18,11 @@ class VectorIoQueryParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             VectorIoQueryParams.builder()
                 .query("string")
@@ -34,10 +32,8 @@ class VectorIoQueryParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.query()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
@@ -50,10 +46,10 @@ class VectorIoQueryParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             VectorIoQueryParams.builder().query("string").vectorDbId("vector_db_id").build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.query()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")

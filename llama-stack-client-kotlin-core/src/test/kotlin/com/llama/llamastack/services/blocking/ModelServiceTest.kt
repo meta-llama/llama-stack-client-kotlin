@@ -21,14 +21,7 @@ class ModelServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        val model =
-            modelService.retrieve(
-                ModelRetrieveParams.builder()
-                    .modelId("model_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val model = modelService.retrieve(ModelRetrieveParams.builder().modelId("model_id").build())
         println(model)
         model?.validate()
     }
@@ -38,13 +31,7 @@ class ModelServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        val listModelsResponse =
-            modelService.list(
-                ModelListParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val listModelsResponse = modelService.list(ModelListParams.builder().build())
         println(listModelsResponse)
         for (model: Model in listModelsResponse) {
             model.validate()
@@ -68,8 +55,6 @@ class ModelServiceTest {
                     .modelType(ModelRegisterParams.ModelType.LLM)
                     .providerId("provider_id")
                     .providerModelId("provider_model_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(model)
@@ -81,12 +66,6 @@ class ModelServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        modelService.unregister(
-            ModelUnregisterParams.builder()
-                .modelId("model_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        )
+        modelService.unregister(ModelUnregisterParams.builder().modelId("model_id").build())
     }
 }

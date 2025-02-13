@@ -106,18 +106,32 @@ private constructor(
             AlgorithmConfig(qatFinetuning = qatFinetuning)
     }
 
+    /**
+     * An interface that defines how to map each variant of [AlgorithmConfig] to a value of type
+     * [T].
+     */
     interface Visitor<out T> {
 
         fun visitLoraFinetuning(loraFinetuning: LoraFinetuningConfig): T
 
         fun visitQatFinetuning(qatFinetuning: QatFinetuningConfig): T
 
+        /**
+         * Maps an unknown variant of [AlgorithmConfig] to a value of type [T].
+         *
+         * An instance of [AlgorithmConfig] can contain an unknown variant if it was deserialized
+         * from data that doesn't match any known variant. For example, if the SDK is on an older
+         * version than the API, then the API may respond with new variants that the SDK is unaware
+         * of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown AlgorithmConfig: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<AlgorithmConfig>(AlgorithmConfig::class) {
+    internal class Deserializer : BaseDeserializer<AlgorithmConfig>(AlgorithmConfig::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): AlgorithmConfig {
             val json = JsonValue.fromJsonNode(node)
@@ -142,7 +156,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<AlgorithmConfig>(AlgorithmConfig::class) {
+    internal class Serializer : BaseSerializer<AlgorithmConfig>(AlgorithmConfig::class) {
 
         override fun serialize(
             value: AlgorithmConfig,
@@ -257,7 +271,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [LoraFinetuningConfig]. */
+        class Builder internal constructor() {
 
             private var alpha: JsonField<Long>? = null
             private var applyLoraToMlp: JsonField<Boolean>? = null
@@ -439,7 +454,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [QatFinetuningConfig]. */
+        class Builder internal constructor() {
 
             private var groupSize: JsonField<Long>? = null
             private var quantizerName: JsonField<String>? = null

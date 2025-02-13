@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ScoringScoreParamsTest {
 
     @Test
-    fun createScoringScoreParams() {
+    fun create() {
         ScoringScoreParams.builder()
             .addInputRow(
                 ScoringScoreParams.InputRow.builder()
@@ -32,13 +32,11 @@ class ScoringScoreParamsTest {
                     )
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ScoringScoreParams.builder()
                 .addInputRow(
@@ -62,10 +60,8 @@ class ScoringScoreParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
             .isEqualTo(
@@ -95,7 +91,7 @@ class ScoringScoreParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ScoringScoreParams.builder()
                 .addInputRow(
@@ -114,7 +110,7 @@ class ScoringScoreParamsTest {
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.inputRows())
             .isEqualTo(

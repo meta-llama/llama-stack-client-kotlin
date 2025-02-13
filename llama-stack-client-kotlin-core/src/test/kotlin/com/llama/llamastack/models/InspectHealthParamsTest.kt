@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class InspectHealthParamsTest {
 
     @Test
-    fun createInspectHealthParams() {
-        InspectHealthParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        InspectHealthParams.builder().build()
     }
 }

@@ -26,8 +26,6 @@ class ToolRuntimeServiceTest {
                             .build()
                     )
                     .toolName("tool_name")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(toolInvocationResult)

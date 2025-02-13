@@ -34,7 +34,7 @@ private constructor(
     @JsonProperty("args") @ExcludeMissing private val args: JsonField<Args> = JsonMissing.of(),
     @JsonProperty("mcp_endpoint")
     @ExcludeMissing
-    private val mcpEndpoint: JsonField<Url> = JsonMissing.of(),
+    private val mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
@@ -48,7 +48,7 @@ private constructor(
 
     fun args(): Args? = args.getNullable("args")
 
-    fun mcpEndpoint(): Url? = mcpEndpoint.getNullable("mcp_endpoint")
+    fun mcpEndpoint(): McpEndpoint? = mcpEndpoint.getNullable("mcp_endpoint")
 
     @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
@@ -60,7 +60,9 @@ private constructor(
 
     @JsonProperty("args") @ExcludeMissing fun _args(): JsonField<Args> = args
 
-    @JsonProperty("mcp_endpoint") @ExcludeMissing fun _mcpEndpoint(): JsonField<Url> = mcpEndpoint
+    @JsonProperty("mcp_endpoint")
+    @ExcludeMissing
+    fun _mcpEndpoint(): JsonField<McpEndpoint> = mcpEndpoint
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -93,14 +95,15 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ToolGroup]. */
+    class Builder internal constructor() {
 
         private var identifier: JsonField<String>? = null
         private var providerId: JsonField<String>? = null
         private var providerResourceId: JsonField<String>? = null
         private var type: JsonValue = JsonValue.from("tool_group")
         private var args: JsonField<Args> = JsonMissing.of()
-        private var mcpEndpoint: JsonField<Url> = JsonMissing.of()
+        private var mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolGroup: ToolGroup) = apply {
@@ -134,9 +137,11 @@ private constructor(
 
         fun args(args: JsonField<Args>) = apply { this.args = args }
 
-        fun mcpEndpoint(mcpEndpoint: Url) = mcpEndpoint(JsonField.of(mcpEndpoint))
+        fun mcpEndpoint(mcpEndpoint: McpEndpoint) = mcpEndpoint(JsonField.of(mcpEndpoint))
 
-        fun mcpEndpoint(mcpEndpoint: JsonField<Url>) = apply { this.mcpEndpoint = mcpEndpoint }
+        fun mcpEndpoint(mcpEndpoint: JsonField<McpEndpoint>) = apply {
+            this.mcpEndpoint = mcpEndpoint
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -198,7 +203,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Args]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -243,6 +249,97 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() = "Args{additionalProperties=$additionalProperties}"
+    }
+
+    @NoAutoDetect
+    class McpEndpoint
+    @JsonCreator
+    private constructor(
+        @JsonProperty("uri") @ExcludeMissing private val uri: JsonField<String> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        fun uri(): String = uri.getRequired("uri")
+
+        @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): McpEndpoint = apply {
+            if (validated) {
+                return@apply
+            }
+
+            uri()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [McpEndpoint]. */
+        class Builder internal constructor() {
+
+            private var uri: JsonField<String>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(mcpEndpoint: McpEndpoint) = apply {
+                uri = mcpEndpoint.uri
+                additionalProperties = mcpEndpoint.additionalProperties.toMutableMap()
+            }
+
+            fun uri(uri: String) = uri(JsonField.of(uri))
+
+            fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): McpEndpoint =
+                McpEndpoint(checkRequired("uri", uri), additionalProperties.toImmutable())
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is McpEndpoint && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "McpEndpoint{uri=$uri, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

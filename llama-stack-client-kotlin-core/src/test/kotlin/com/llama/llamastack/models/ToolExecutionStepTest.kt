@@ -15,14 +15,14 @@ class ToolExecutionStepTest {
             ToolExecutionStep.builder()
                 .stepId("step_id")
                 .addToolCall(
-                    ToolExecutionStep.ToolCall.builder()
+                    ToolCall.builder()
                         .arguments(
-                            ToolExecutionStep.ToolCall.Arguments.builder()
+                            ToolCall.Arguments.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .callId("call_id")
-                        .toolName(ToolExecutionStep.ToolCall.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                         .build()
                 )
                 .addToolResponse(
@@ -40,14 +40,14 @@ class ToolExecutionStepTest {
         assertThat(toolExecutionStep.stepId()).isEqualTo("step_id")
         assertThat(toolExecutionStep.toolCalls())
             .containsExactly(
-                ToolExecutionStep.ToolCall.builder()
+                ToolCall.builder()
                     .arguments(
-                        ToolExecutionStep.ToolCall.Arguments.builder()
+                        ToolCall.Arguments.builder()
                             .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
                     .callId("call_id")
-                    .toolName(ToolExecutionStep.ToolCall.ToolName.BRAVE_SEARCH)
+                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                     .build()
             )
         assertThat(toolExecutionStep.toolResponses())

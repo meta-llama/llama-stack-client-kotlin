@@ -31,12 +31,7 @@ class TelemetryServiceTest {
         val telemetryService = client.telemetry()
         val telemetryGetSpanResponse =
             telemetryService.getSpan(
-                TelemetryGetSpanParams.builder()
-                    .traceId("trace_id")
-                    .spanId("span_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
+                TelemetryGetSpanParams.builder().traceId("trace_id").spanId("span_id").build()
             )
         println(telemetryGetSpanResponse)
         telemetryGetSpanResponse.validate()
@@ -53,8 +48,6 @@ class TelemetryServiceTest {
                     .spanId("span_id")
                     .addAttributesToReturn("string")
                     .maxDepth(0L)
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(querySpanTreeResponse)
@@ -67,13 +60,7 @@ class TelemetryServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
         val trace =
-            telemetryService.getTrace(
-                TelemetryGetTraceParams.builder()
-                    .traceId("trace_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+            telemetryService.getTrace(TelemetryGetTraceParams.builder().traceId("trace_id").build())
         println(trace)
         trace.validate()
     }
@@ -100,8 +87,6 @@ class TelemetryServiceTest {
                         .build()
                 )
                 .ttlSeconds(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -124,8 +109,6 @@ class TelemetryServiceTest {
                     )
                     .addAttributesToReturn("string")
                     .maxDepth(0L)
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(querySpansResponse)
@@ -153,8 +136,6 @@ class TelemetryServiceTest {
                     .limit(0L)
                     .offset(0L)
                     .addOrderBy("string")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(queryTracesResponse)
@@ -180,8 +161,6 @@ class TelemetryServiceTest {
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .maxDepth(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }

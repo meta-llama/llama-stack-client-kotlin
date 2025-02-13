@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ToolgroupRegisterParamsTest {
 
     @Test
-    fun createToolgroupRegisterParams() {
+    fun create() {
         ToolgroupRegisterParams.builder()
             .providerId("provider_id")
             .toolgroupId("toolgroup_id")
@@ -18,14 +18,12 @@ class ToolgroupRegisterParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .mcpEndpoint(Url.builder().uri("uri").build())
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+            .mcpEndpoint(ToolgroupRegisterParams.McpEndpoint.builder().uri("uri").build())
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ToolgroupRegisterParams.builder()
                 .providerId("provider_id")
@@ -35,11 +33,9 @@ class ToolgroupRegisterParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .mcpEndpoint(Url.builder().uri("uri").build())
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+                .mcpEndpoint(ToolgroupRegisterParams.McpEndpoint.builder().uri("uri").build())
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")
@@ -49,17 +45,18 @@ class ToolgroupRegisterParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(body.mcpEndpoint()).isEqualTo(Url.builder().uri("uri").build())
+        assertThat(body.mcpEndpoint())
+            .isEqualTo(ToolgroupRegisterParams.McpEndpoint.builder().uri("uri").build())
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ToolgroupRegisterParams.builder()
                 .providerId("provider_id")
                 .toolgroupId("toolgroup_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")

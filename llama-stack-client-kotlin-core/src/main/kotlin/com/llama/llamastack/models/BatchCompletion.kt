@@ -20,18 +20,15 @@ import java.util.Objects
 class BatchCompletion
 @JsonCreator
 private constructor(
-    @JsonProperty("completion_message_batch")
+    @JsonProperty("batch")
     @ExcludeMissing
-    private val completionMessageBatch: JsonField<List<CompletionMessage>> = JsonMissing.of(),
+    private val batch: JsonField<List<CompletionResponse>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun completionMessageBatch(): List<CompletionMessage> =
-        completionMessageBatch.getRequired("completion_message_batch")
+    fun batch(): List<CompletionResponse> = batch.getRequired("batch")
 
-    @JsonProperty("completion_message_batch")
-    @ExcludeMissing
-    fun _completionMessageBatch(): JsonField<List<CompletionMessage>> = completionMessageBatch
+    @JsonProperty("batch") @ExcludeMissing fun _batch(): JsonField<List<CompletionResponse>> = batch
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -44,7 +41,7 @@ private constructor(
             return@apply
         }
 
-        completionMessageBatch().forEach { it.validate() }
+        batch().forEach { it.validate() }
         validated = true
     }
 
@@ -55,33 +52,31 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [BatchCompletion]. */
+    class Builder internal constructor() {
 
-        private var completionMessageBatch: JsonField<MutableList<CompletionMessage>>? = null
+        private var batch: JsonField<MutableList<CompletionResponse>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(batchCompletion: BatchCompletion) = apply {
-            completionMessageBatch =
-                batchCompletion.completionMessageBatch.map { it.toMutableList() }
+            batch = batchCompletion.batch.map { it.toMutableList() }
             additionalProperties = batchCompletion.additionalProperties.toMutableMap()
         }
 
-        fun completionMessageBatch(completionMessageBatch: List<CompletionMessage>) =
-            completionMessageBatch(JsonField.of(completionMessageBatch))
+        fun batch(batch: List<CompletionResponse>) = batch(JsonField.of(batch))
 
-        fun completionMessageBatch(completionMessageBatch: JsonField<List<CompletionMessage>>) =
-            apply {
-                this.completionMessageBatch = completionMessageBatch.map { it.toMutableList() }
-            }
+        fun batch(batch: JsonField<List<CompletionResponse>>) = apply {
+            this.batch = batch.map { it.toMutableList() }
+        }
 
-        fun addCompletionMessageBatch(completionMessageBatch: CompletionMessage) = apply {
-            this.completionMessageBatch =
-                (this.completionMessageBatch ?: JsonField.of(mutableListOf())).apply {
+        fun addBatch(batch: CompletionResponse) = apply {
+            this.batch =
+                (this.batch ?: JsonField.of(mutableListOf())).apply {
                     (asKnown()
                             ?: throw IllegalStateException(
                                 "Field was set to non-list type: ${javaClass.simpleName}"
                             ))
-                        .add(completionMessageBatch)
+                        .add(batch)
                 }
         }
 
@@ -106,9 +101,7 @@ private constructor(
 
         fun build(): BatchCompletion =
             BatchCompletion(
-                checkRequired("completionMessageBatch", completionMessageBatch).map {
-                    it.toImmutable()
-                },
+                checkRequired("batch", batch).map { it.toImmutable() },
                 additionalProperties.toImmutable()
             )
     }
@@ -118,15 +111,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is BatchCompletion && completionMessageBatch == other.completionMessageBatch && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is BatchCompletion && batch == other.batch && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(completionMessageBatch, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(batch, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "BatchCompletion{completionMessageBatch=$completionMessageBatch, additionalProperties=$additionalProperties}"
+        "BatchCompletion{batch=$batch, additionalProperties=$additionalProperties}"
 }

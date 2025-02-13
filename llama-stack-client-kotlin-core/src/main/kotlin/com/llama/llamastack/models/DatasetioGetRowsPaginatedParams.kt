@@ -3,22 +3,21 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
 class DatasetioGetRowsPaginatedParams
-constructor(
+private constructor(
     private val datasetId: String,
     private val rowsInPage: Long,
     private val filterCondition: String?,
     private val pageToken: String?,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun datasetId(): String = datasetId
 
@@ -28,27 +27,13 @@ constructor(
 
     fun pageToken(): String? = pageToken
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams {
+    override fun _queryParams(): QueryParams {
         val queryParams = QueryParams.builder()
         this.datasetId.let { queryParams.put("dataset_id", listOf(it.toString())) }
         this.rowsInPage.let { queryParams.put("rows_in_page", listOf(it.toString())) }
@@ -65,15 +50,14 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [DatasetioGetRowsPaginatedParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var datasetId: String? = null
         private var rowsInPage: Long? = null
         private var filterCondition: String? = null
         private var pageToken: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -83,8 +67,6 @@ constructor(
                 rowsInPage = datasetioGetRowsPaginatedParams.rowsInPage
                 filterCondition = datasetioGetRowsPaginatedParams.filterCondition
                 pageToken = datasetioGetRowsPaginatedParams.pageToken
-                xLlamaStackClientVersion = datasetioGetRowsPaginatedParams.xLlamaStackClientVersion
-                xLlamaStackProviderData = datasetioGetRowsPaginatedParams.xLlamaStackProviderData
                 additionalHeaders = datasetioGetRowsPaginatedParams.additionalHeaders.toBuilder()
                 additionalQueryParams =
                     datasetioGetRowsPaginatedParams.additionalQueryParams.toBuilder()
@@ -99,14 +81,6 @@ constructor(
         }
 
         fun pageToken(pageToken: String?) = apply { this.pageToken = pageToken }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -212,8 +186,6 @@ constructor(
                 checkRequired("rowsInPage", rowsInPage),
                 filterCondition,
                 pageToken,
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -224,11 +196,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

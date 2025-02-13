@@ -9,13 +9,12 @@ import org.junit.jupiter.api.Test
 class AgentCreateParamsTest {
 
     @Test
-    fun createAgentCreateParams() {
+    fun create() {
         AgentCreateParams.builder()
             .agentConfig(
                 AgentConfig.builder()
                     .enableSessionPersistence(true)
                     .instructions("instructions")
-                    .maxInferIters(0L)
                     .model("model")
                     .addClientTool(
                         ToolDef.builder()
@@ -38,7 +37,13 @@ class AgentCreateParamsTest {
                             .build()
                     )
                     .addInputShield("string")
+                    .maxInferIters(0L)
                     .addOutputShield("string")
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategyGreedySampling()
@@ -47,24 +52,30 @@ class AgentCreateParamsTest {
                             .build()
                     )
                     .toolChoice(AgentConfig.ToolChoice.AUTO)
+                    .toolConfig(
+                        AgentConfig.ToolConfig.builder()
+                            .systemMessageBehavior(
+                                AgentConfig.ToolConfig.SystemMessageBehavior.APPEND
+                            )
+                            .toolChoice(AgentConfig.ToolConfig.ToolChoice.AUTO)
+                            .toolPromptFormat(AgentConfig.ToolConfig.ToolPromptFormat.JSON)
+                            .build()
+                    )
                     .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                     .addToolgroup("string")
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             AgentCreateParams.builder()
                 .agentConfig(
                     AgentConfig.builder()
                         .enableSessionPersistence(true)
                         .instructions("instructions")
-                        .maxInferIters(0L)
                         .model("model")
                         .addClientTool(
                             ToolDef.builder()
@@ -87,7 +98,13 @@ class AgentCreateParamsTest {
                                 .build()
                         )
                         .addInputShield("string")
+                        .maxInferIters(0L)
                         .addOutputShield("string")
+                        .jsonSchemaResponseFormat(
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .samplingParams(
                             SamplingParams.builder()
                                 .strategyGreedySampling()
@@ -96,21 +113,27 @@ class AgentCreateParamsTest {
                                 .build()
                         )
                         .toolChoice(AgentConfig.ToolChoice.AUTO)
+                        .toolConfig(
+                            AgentConfig.ToolConfig.builder()
+                                .systemMessageBehavior(
+                                    AgentConfig.ToolConfig.SystemMessageBehavior.APPEND
+                                )
+                                .toolChoice(AgentConfig.ToolConfig.ToolChoice.AUTO)
+                                .toolPromptFormat(AgentConfig.ToolConfig.ToolPromptFormat.JSON)
+                                .build()
+                        )
                         .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                         .addToolgroup("string")
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.agentConfig())
             .isEqualTo(
                 AgentConfig.builder()
                     .enableSessionPersistence(true)
                     .instructions("instructions")
-                    .maxInferIters(0L)
                     .model("model")
                     .addClientTool(
                         ToolDef.builder()
@@ -133,7 +156,13 @@ class AgentCreateParamsTest {
                             .build()
                     )
                     .addInputShield("string")
+                    .maxInferIters(0L)
                     .addOutputShield("string")
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategyGreedySampling()
@@ -142,6 +171,15 @@ class AgentCreateParamsTest {
                             .build()
                     )
                     .toolChoice(AgentConfig.ToolChoice.AUTO)
+                    .toolConfig(
+                        AgentConfig.ToolConfig.builder()
+                            .systemMessageBehavior(
+                                AgentConfig.ToolConfig.SystemMessageBehavior.APPEND
+                            )
+                            .toolChoice(AgentConfig.ToolConfig.ToolChoice.AUTO)
+                            .toolPromptFormat(AgentConfig.ToolConfig.ToolPromptFormat.JSON)
+                            .build()
+                    )
                     .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                     .addToolgroup("string")
                     .build()
@@ -149,26 +187,24 @@ class AgentCreateParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             AgentCreateParams.builder()
                 .agentConfig(
                     AgentConfig.builder()
                         .enableSessionPersistence(true)
                         .instructions("instructions")
-                        .maxInferIters(0L)
                         .model("model")
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.agentConfig())
             .isEqualTo(
                 AgentConfig.builder()
                     .enableSessionPersistence(true)
                     .instructions("instructions")
-                    .maxInferIters(0L)
                     .model("model")
                     .build()
             )

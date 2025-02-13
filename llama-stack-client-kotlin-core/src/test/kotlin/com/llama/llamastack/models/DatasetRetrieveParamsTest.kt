@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class DatasetRetrieveParamsTest {
 
     @Test
-    fun createDatasetRetrieveParams() {
-        DatasetRetrieveParams.builder()
-            .datasetId("dataset_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        DatasetRetrieveParams.builder().datasetId("dataset_id").build()
     }
 
     @Test

@@ -17,7 +17,7 @@ class QueryParams private constructor(private val map: Map<String, List<String>>
         fun builder() = Builder()
     }
 
-    class Builder {
+    class Builder internal constructor() {
 
         private val map: MutableMap<String, MutableList<String>> = mutableMapOf()
         private var size: Int = 0

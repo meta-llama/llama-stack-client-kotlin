@@ -12,6 +12,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.QuerySpansResponse
@@ -53,20 +54,16 @@ internal constructor(
                     "spans",
                     params.getPathParam(1)
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { getSpanHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { getSpanHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
     private val getSpanTreeHandler: Handler<DataEnvelope<TelemetryGetSpanTreeResponse>> =
@@ -81,21 +78,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "telemetry", "spans", params.getPathParam(0), "tree")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { getSpanTreeHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { getSpanTreeHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-                .run { data() }
-        }
+            }
+            .data()
     }
 
     private val getTraceHandler: Handler<Trace> =
@@ -109,20 +102,16 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "telemetry", "traces", params.getPathParam(0))
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { getTraceHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { getTraceHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
     private val logEventHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
@@ -132,15 +121,11 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "events")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response.use { logEventHandler.handle(it) }
-        }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        response.use { logEventHandler.handle(it) }
     }
 
     private val querySpansHandler: Handler<DataEnvelope<List<QuerySpansResponse.Data>>> =
@@ -155,21 +140,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "telemetry", "spans")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { querySpansHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { querySpansHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-                .run { data() }
-        }
+            }
+            .data()
     }
 
     private val queryTracesHandler: Handler<DataEnvelope<List<Trace>>> =
@@ -184,21 +165,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "telemetry", "traces")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { queryTracesHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { queryTracesHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-                .run { data() }
-        }
+            }
+            .data()
     }
 
     private val saveSpansToDatasetHandler: Handler<Void?> =
@@ -212,14 +189,10 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans", "export")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response.use { saveSpansToDatasetHandler.handle(it) }
-        }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        response.use { saveSpansToDatasetHandler.handle(it) }
     }
 }

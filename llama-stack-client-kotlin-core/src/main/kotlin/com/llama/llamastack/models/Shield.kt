@@ -17,6 +17,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A safety shield resource that can be used to check content */
 @NoAutoDetect
 class Shield
 @JsonCreator
@@ -87,7 +88,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [Shield]. */
+    class Builder internal constructor() {
 
         private var identifier: JsonField<String>? = null
         private var providerId: JsonField<String>? = null
@@ -185,7 +187,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Params]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

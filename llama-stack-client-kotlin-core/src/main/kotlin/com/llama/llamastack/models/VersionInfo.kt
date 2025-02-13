@@ -52,7 +52,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [VersionInfo]. */
+    class Builder internal constructor() {
 
         private var version: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()

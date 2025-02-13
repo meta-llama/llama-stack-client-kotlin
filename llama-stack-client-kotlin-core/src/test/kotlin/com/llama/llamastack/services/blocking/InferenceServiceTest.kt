@@ -11,34 +11,26 @@ import com.llama.llamastack.models.InferenceEmbeddingsParams
 import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.UserMessage
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 class InferenceServiceTest {
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
-    )
     @Test
     fun callChatCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
-        val inferenceChatCompletionResponse =
+        val chatCompletionResponse =
             inferenceService.chatCompletion(
                 InferenceChatCompletionParams.builder()
                     .addMessage(UserMessage.builder().content("string").context("string").build())
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
-                    .responseFormat(
-                        ResponseFormat.JsonSchemaResponseFormat.builder()
-                            .jsonSchema(
-                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .samplingParams(
@@ -49,6 +41,18 @@ class InferenceServiceTest {
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                    .toolConfig(
+                        InferenceChatCompletionParams.ToolConfig.builder()
+                            .systemMessageBehavior(
+                                InferenceChatCompletionParams.ToolConfig.SystemMessageBehavior
+                                    .APPEND
+                            )
+                            .toolChoice(InferenceChatCompletionParams.ToolConfig.ToolChoice.AUTO)
+                            .toolPromptFormat(
+                                InferenceChatCompletionParams.ToolConfig.ToolPromptFormat.JSON
+                            )
+                            .build()
+                    )
                     .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                     .addTool(
                         InferenceChatCompletionParams.Tool.builder()
@@ -71,35 +75,27 @@ class InferenceServiceTest {
                             )
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(inferenceChatCompletionResponse)
+        println(chatCompletionResponse)
+        chatCompletionResponse.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
-    )
     @Test
     fun callChatCompletionStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
 
-        val inferenceChatCompletionResponseStream =
+        val chatCompletionResponseStream =
             inferenceService.chatCompletionStreaming(
                 InferenceChatCompletionParams.builder()
                     .addMessage(UserMessage.builder().content("string").context("string").build())
                     .modelId("model_id")
                     .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
-                    .responseFormat(
-                        ResponseFormat.JsonSchemaResponseFormat.builder()
-                            .jsonSchema(
-                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .samplingParams(
@@ -110,6 +106,18 @@ class InferenceServiceTest {
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                    .toolConfig(
+                        InferenceChatCompletionParams.ToolConfig.builder()
+                            .systemMessageBehavior(
+                                InferenceChatCompletionParams.ToolConfig.SystemMessageBehavior
+                                    .APPEND
+                            )
+                            .toolChoice(InferenceChatCompletionParams.ToolConfig.ToolChoice.AUTO)
+                            .toolPromptFormat(
+                                InferenceChatCompletionParams.ToolConfig.ToolPromptFormat.JSON
+                            )
+                            .build()
+                    )
                     .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                     .addTool(
                         InferenceChatCompletionParams.Tool.builder()
@@ -132,37 +140,31 @@ class InferenceServiceTest {
                             )
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
 
-        inferenceChatCompletionResponseStream.use {
-            inferenceChatCompletionResponseStream.asSequence().forEach { println(it) }
+        chatCompletionResponseStream.use {
+            chatCompletionResponseStream.asSequence().forEach {
+                println(it)
+                it.validate()
+            }
         }
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
-    )
     @Test
     fun callCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
-        val inferenceCompletionResponse =
+        val completionResponse =
             inferenceService.completion(
                 InferenceCompletionParams.builder()
                     .content("string")
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
-                    .responseFormat(
-                        ResponseFormat.JsonSchemaResponseFormat.builder()
-                            .jsonSchema(
-                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .samplingParams(
@@ -172,35 +174,27 @@ class InferenceServiceTest {
                             .repetitionPenalty(0.0)
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(inferenceCompletionResponse)
+        println(completionResponse)
+        completionResponse.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
-    )
     @Test
     fun callCompletionStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
 
-        val inferenceCompletionResponseStream =
+        val completionResponseStream =
             inferenceService.completionStreaming(
                 InferenceCompletionParams.builder()
                     .content("string")
                     .modelId("model_id")
                     .logprobs(InferenceCompletionParams.Logprobs.builder().topK(0L).build())
-                    .responseFormat(
-                        ResponseFormat.JsonSchemaResponseFormat.builder()
-                            .jsonSchema(
-                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(true))
-                                    .build()
-                            )
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
                     .samplingParams(
@@ -210,13 +204,14 @@ class InferenceServiceTest {
                             .repetitionPenalty(0.0)
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
 
-        inferenceCompletionResponseStream.use {
-            inferenceCompletionResponseStream.asSequence().forEach { println(it) }
+        completionResponseStream.use {
+            completionResponseStream.asSequence().forEach {
+                println(it)
+                it.validate()
+            }
         }
     }
 
@@ -227,12 +222,7 @@ class InferenceServiceTest {
         val inferenceService = client.inference()
         val embeddingsResponse =
             inferenceService.embeddings(
-                InferenceEmbeddingsParams.builder()
-                    .addContent("string")
-                    .modelId("model_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
+                InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
             )
         println(embeddingsResponse)
         embeddingsResponse.validate()

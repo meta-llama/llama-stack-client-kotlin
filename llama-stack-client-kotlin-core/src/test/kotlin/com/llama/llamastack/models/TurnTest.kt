@@ -14,22 +14,19 @@ class TurnTest {
         val turn =
             Turn.builder()
                 .addInputMessage(UserMessage.builder().content("string").context("string").build())
-                .addOutputAttachment(
-                    Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
-                )
                 .outputMessage(
                     CompletionMessage.builder()
                         .content("string")
                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
-                            CompletionMessage.ToolCall.builder()
+                            ToolCall.builder()
                                 .arguments(
-                                    CompletionMessage.ToolCall.Arguments.builder()
+                                    ToolCall.Arguments.builder()
                                         .putAdditionalProperty("foo", JsonValue.from("string"))
                                         .build()
                                 )
                                 .callId("call_id")
-                                .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                 .build()
                         )
                         .build()
@@ -43,9 +40,9 @@ class TurnTest {
                                 .content("string")
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
-                                    CompletionMessage.ToolCall.builder()
+                                    ToolCall.builder()
                                         .arguments(
-                                            CompletionMessage.ToolCall.Arguments.builder()
+                                            ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
                                                     JsonValue.from("string")
@@ -53,7 +50,7 @@ class TurnTest {
                                                 .build()
                                         )
                                         .callId("call_id")
-                                        .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
                                 )
                                 .build()
@@ -66,6 +63,9 @@ class TurnTest {
                 )
                 .turnId("turn_id")
                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .addOutputAttachment(
+                    Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
+                )
                 .build()
         assertThat(turn).isNotNull
         assertThat(turn.inputMessages())
@@ -74,24 +74,20 @@ class TurnTest {
                     UserMessage.builder().content("string").context("string").build()
                 )
             )
-        assertThat(turn.outputAttachments())
-            .containsExactly(
-                Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
-            )
         assertThat(turn.outputMessage())
             .isEqualTo(
                 CompletionMessage.builder()
                     .content("string")
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
-                        CompletionMessage.ToolCall.builder()
+                        ToolCall.builder()
                             .arguments(
-                                CompletionMessage.ToolCall.Arguments.builder()
+                                ToolCall.Arguments.builder()
                                     .putAdditionalProperty("foo", JsonValue.from("string"))
                                     .build()
                             )
                             .callId("call_id")
-                            .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                             .build()
                     )
                     .build()
@@ -107,9 +103,9 @@ class TurnTest {
                                 .content("string")
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
-                                    CompletionMessage.ToolCall.builder()
+                                    ToolCall.builder()
                                         .arguments(
-                                            CompletionMessage.ToolCall.Arguments.builder()
+                                            ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
                                                     JsonValue.from("string")
@@ -117,7 +113,7 @@ class TurnTest {
                                                 .build()
                                         )
                                         .callId("call_id")
-                                        .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
                                 )
                                 .build()
@@ -131,5 +127,9 @@ class TurnTest {
             )
         assertThat(turn.turnId()).isEqualTo("turn_id")
         assertThat(turn.completedAt()).isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+        assertThat(turn.outputAttachments())
+            .containsExactly(
+                Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
+            )
     }
 }

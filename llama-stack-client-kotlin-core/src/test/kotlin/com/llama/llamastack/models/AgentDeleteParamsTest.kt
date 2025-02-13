@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class AgentDeleteParamsTest {
 
     @Test
-    fun createAgentDeleteParams() {
-        AgentDeleteParams.builder()
-            .agentId("agent_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        AgentDeleteParams.builder().agentId("agent_id").build()
     }
 
     @Test

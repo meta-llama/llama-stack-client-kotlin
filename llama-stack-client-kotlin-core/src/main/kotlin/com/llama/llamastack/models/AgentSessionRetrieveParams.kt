@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -10,15 +11,13 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class AgentSessionRetrieveParams
-constructor(
+private constructor(
     private val agentId: String,
     private val sessionId: String,
     private val turnIds: List<String>?,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun agentId(): String = agentId
 
@@ -26,27 +25,13 @@ constructor(
 
     fun turnIds(): List<String>? = turnIds
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams {
+    override fun _queryParams(): QueryParams {
         val queryParams = QueryParams.builder()
         this.turnIds?.let { queryParams.put("turn_ids", listOf(it.joinToString(separator = ","))) }
         queryParams.putAll(additionalQueryParams)
@@ -68,14 +53,13 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [AgentSessionRetrieveParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var agentId: String? = null
         private var sessionId: String? = null
         private var turnIds: MutableList<String>? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -83,8 +67,6 @@ constructor(
             agentId = agentSessionRetrieveParams.agentId
             sessionId = agentSessionRetrieveParams.sessionId
             turnIds = agentSessionRetrieveParams.turnIds?.toMutableList()
-            xLlamaStackClientVersion = agentSessionRetrieveParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = agentSessionRetrieveParams.xLlamaStackProviderData
             additionalHeaders = agentSessionRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentSessionRetrieveParams.additionalQueryParams.toBuilder()
         }
@@ -97,14 +79,6 @@ constructor(
 
         fun addTurnId(turnId: String) = apply {
             turnIds = (turnIds ?: mutableListOf()).apply { add(turnId) }
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -210,8 +184,6 @@ constructor(
                 checkRequired("agentId", agentId),
                 checkRequired("sessionId", sessionId),
                 turnIds?.toImmutable(),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -222,11 +194,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentSessionRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && turnIds == other.turnIds && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentSessionRetrieveParams && agentId == other.agentId && sessionId == other.sessionId && turnIds == other.turnIds && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnIds, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnIds, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentSessionRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnIds=$turnIds, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentSessionRetrieveParams{agentId=$agentId, sessionId=$sessionId, turnIds=$turnIds, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

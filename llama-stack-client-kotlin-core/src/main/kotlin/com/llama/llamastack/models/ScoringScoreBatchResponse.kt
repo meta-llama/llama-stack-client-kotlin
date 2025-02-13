@@ -60,7 +60,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ScoringScoreBatchResponse]. */
+    class Builder internal constructor() {
 
         private var results: JsonField<Results>? = null
         private var datasetId: JsonField<String> = JsonMissing.of()
@@ -136,7 +137,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Results]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

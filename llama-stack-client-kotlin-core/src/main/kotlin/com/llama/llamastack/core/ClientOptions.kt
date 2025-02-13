@@ -21,6 +21,7 @@ private constructor(
     val queryParams: QueryParams,
     val responseValidation: Boolean,
     val maxRetries: Int,
+    val apiKey: String?,
 ) {
 
     fun toBuilder() = Builder().from(this)
@@ -34,7 +35,8 @@ private constructor(
         fun fromEnv(): ClientOptions = builder().fromEnv().build()
     }
 
-    class Builder {
+    /** A builder for [ClientOptions]. */
+    class Builder internal constructor() {
 
         private var httpClient: HttpClient? = null
         private var jsonMapper: JsonMapper = jsonMapper()
@@ -44,6 +46,7 @@ private constructor(
         private var queryParams: QueryParams.Builder = QueryParams.builder()
         private var responseValidation: Boolean = false
         private var maxRetries: Int = 2
+        private var apiKey: String? = null
 
         internal fun from(clientOptions: ClientOptions) = apply {
             httpClient = clientOptions.originalHttpClient
@@ -54,6 +57,7 @@ private constructor(
             queryParams = clientOptions.queryParams.toBuilder()
             responseValidation = clientOptions.responseValidation
             maxRetries = clientOptions.maxRetries
+            apiKey = clientOptions.apiKey
         }
 
         fun httpClient(httpClient: HttpClient) = apply { this.httpClient = httpClient }
@@ -69,6 +73,8 @@ private constructor(
         }
 
         fun maxRetries(maxRetries: Int) = apply { this.maxRetries = maxRetries }
+
+        fun apiKey(apiKey: String?) = apply { this.apiKey = apiKey }
 
         fun headers(headers: Headers) = apply {
             this.headers.clear()
@@ -150,7 +156,7 @@ private constructor(
 
         fun removeAllQueryParams(keys: Set<String>) = apply { queryParams.removeAll(keys) }
 
-        fun fromEnv() = apply {}
+        fun fromEnv() = apply { System.getenv("LLAMA_STACK_CLIENT_API_KEY")?.let { apiKey(it) } }
 
         fun build(): ClientOptions {
             val httpClient = checkRequired("httpClient", httpClient)
@@ -164,6 +170,11 @@ private constructor(
             headers.put("X-Stainless-Package-Version", getPackageVersion())
             headers.put("X-Stainless-Runtime", "JRE")
             headers.put("X-Stainless-Runtime-Version", getJavaVersion())
+            apiKey?.let {
+                if (!it.isEmpty()) {
+                    headers.put("Authorization", "Bearer $it")
+                }
+            }
             headers.replaceAll(this.headers.build())
             queryParams.replaceAll(this.queryParams.build())
 
@@ -183,6 +194,7 @@ private constructor(
                 queryParams.build(),
                 responseValidation,
                 maxRetries,
+                apiKey,
             )
         }
     }

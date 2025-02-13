@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class DatasetUnregisterParamsTest {
 
     @Test
-    fun createDatasetUnregisterParams() {
-        DatasetUnregisterParams.builder()
-            .datasetId("dataset_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        DatasetUnregisterParams.builder().datasetId("dataset_id").build()
     }
 
     @Test

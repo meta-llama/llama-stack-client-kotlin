@@ -12,39 +12,68 @@ class BatchInferenceChatCompletionResponseTest {
     fun createBatchInferenceChatCompletionResponse() {
         val batchInferenceChatCompletionResponse =
             BatchInferenceChatCompletionResponse.builder()
-                .addCompletionMessageBatch(
-                    CompletionMessage.builder()
-                        .content("string")
-                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
-                        .addToolCall(
-                            CompletionMessage.ToolCall.builder()
-                                .arguments(
-                                    CompletionMessage.ToolCall.Arguments.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from("string"))
+                .addBatch(
+                    ChatCompletionResponse.builder()
+                        .completionMessage(
+                            CompletionMessage.builder()
+                                .content("string")
+                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                .addToolCall(
+                                    ToolCall.builder()
+                                        .arguments(
+                                            ToolCall.Arguments.builder()
+                                                .putAdditionalProperty(
+                                                    "foo",
+                                                    JsonValue.from("string")
+                                                )
+                                                .build()
+                                        )
+                                        .callId("call_id")
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
                                 )
-                                .callId("call_id")
-                                .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                                .build()
+                        )
+                        .addLogprob(
+                            TokenLogProbs.builder()
+                                .logprobsByToken(
+                                    TokenLogProbs.LogprobsByToken.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(0))
+                                        .build()
+                                )
                                 .build()
                         )
                         .build()
                 )
                 .build()
         assertThat(batchInferenceChatCompletionResponse).isNotNull
-        assertThat(batchInferenceChatCompletionResponse.completionMessageBatch())
+        assertThat(batchInferenceChatCompletionResponse.batch())
             .containsExactly(
-                CompletionMessage.builder()
-                    .content("string")
-                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
-                    .addToolCall(
-                        CompletionMessage.ToolCall.builder()
-                            .arguments(
-                                CompletionMessage.ToolCall.Arguments.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                ChatCompletionResponse.builder()
+                    .completionMessage(
+                        CompletionMessage.builder()
+                            .content("string")
+                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                            .addToolCall(
+                                ToolCall.builder()
+                                    .arguments(
+                                        ToolCall.Arguments.builder()
+                                            .putAdditionalProperty("foo", JsonValue.from("string"))
+                                            .build()
+                                    )
+                                    .callId("call_id")
+                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                     .build()
                             )
-                            .callId("call_id")
-                            .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                            .build()
+                    )
+                    .addLogprob(
+                        TokenLogProbs.builder()
+                            .logprobsByToken(
+                                TokenLogProbs.LogprobsByToken.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(0))
+                                    .build()
+                            )
                             .build()
                     )
                     .build()

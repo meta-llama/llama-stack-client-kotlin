@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -20,17 +21,11 @@ import java.util.Objects
 
 /** Index documents so they can be used by the RAG system */
 class ToolRuntimeRagToolInsertParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: ToolRuntimeRagToolInsertBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun chunkSizeInTokens(): Long = body.chunkSizeInTokens()
 
@@ -50,21 +45,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): ToolRuntimeRagToolInsertBody = body
+    internal fun _body(): ToolRuntimeRagToolInsertBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class ToolRuntimeRagToolInsertBody
@@ -125,7 +110,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [ToolRuntimeRagToolInsertBody]. */
+        class Builder internal constructor() {
 
             private var chunkSizeInTokens: JsonField<Long>? = null
             private var documents: JsonField<MutableList<Document>>? = null
@@ -221,30 +207,19 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ToolRuntimeRagToolInsertParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: ToolRuntimeRagToolInsertBody.Builder =
             ToolRuntimeRagToolInsertBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolRuntimeRagToolInsertParams: ToolRuntimeRagToolInsertParams) = apply {
-            xLlamaStackClientVersion = toolRuntimeRagToolInsertParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = toolRuntimeRagToolInsertParams.xLlamaStackProviderData
             body = toolRuntimeRagToolInsertParams.body.toBuilder()
             additionalHeaders = toolRuntimeRagToolInsertParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolRuntimeRagToolInsertParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun chunkSizeInTokens(chunkSizeInTokens: Long) = apply {
@@ -384,8 +359,6 @@ constructor(
 
         fun build(): ToolRuntimeRagToolInsertParams =
             ToolRuntimeRagToolInsertParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -397,11 +370,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolRuntimeRagToolInsertParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolRuntimeRagToolInsertParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolRuntimeRagToolInsertParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolRuntimeRagToolInsertParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

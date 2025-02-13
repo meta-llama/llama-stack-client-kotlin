@@ -100,7 +100,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ShieldCallStep]. */
+    class Builder internal constructor() {
 
         private var stepId: JsonField<String>? = null
         private var stepType: JsonValue = JsonValue.from("shield_call")

@@ -60,7 +60,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [QueryChunksResponse]. */
+    class Builder internal constructor() {
 
         private var chunks: JsonField<MutableList<Chunk>>? = null
         private var scores: JsonField<MutableList<Double>>? = null
@@ -147,10 +148,12 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** A image content item */
         fun content(): InterleavedContent = content.getRequired("content")
 
         fun metadata(): Metadata = metadata.getRequired("metadata")
 
+        /** A image content item */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
@@ -180,7 +183,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Chunk]. */
+        class Builder internal constructor() {
 
             private var content: JsonField<InterleavedContent>? = null
             private var metadata: JsonField<Metadata>? = null
@@ -192,18 +196,24 @@ private constructor(
                 additionalProperties = chunk.additionalProperties.toMutableMap()
             }
 
+            /** A image content item */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+            /** A image content item */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+            /** A image content item */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /** A image content item */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
@@ -267,7 +277,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Metadata]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

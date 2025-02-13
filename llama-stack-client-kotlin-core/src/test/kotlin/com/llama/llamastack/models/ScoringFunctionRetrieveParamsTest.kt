@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class ScoringFunctionRetrieveParamsTest {
 
     @Test
-    fun createScoringFunctionRetrieveParams() {
-        ScoringFunctionRetrieveParams.builder()
-            .scoringFnId("scoring_fn_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ScoringFunctionRetrieveParams.builder().scoringFnId("scoring_fn_id").build()
     }
 
     @Test

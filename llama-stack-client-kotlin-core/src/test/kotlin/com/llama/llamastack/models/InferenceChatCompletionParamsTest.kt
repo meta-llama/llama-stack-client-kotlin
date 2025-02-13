@@ -9,18 +9,14 @@ import org.junit.jupiter.api.Test
 class InferenceChatCompletionParamsTest {
 
     @Test
-    fun createInferenceChatCompletionParams() {
+    fun create() {
         InferenceChatCompletionParams.builder()
             .addMessage(UserMessage.builder().content("string").context("string").build())
             .modelId("model_id")
             .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
-            .responseFormat(
-                ResponseFormat.JsonSchemaResponseFormat.builder()
-                    .jsonSchema(
-                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
-                            .build()
-                    )
+            .jsonSchemaResponseFormat(
+                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
             .samplingParams(
@@ -31,6 +27,17 @@ class InferenceChatCompletionParamsTest {
                     .build()
             )
             .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+            .toolConfig(
+                InferenceChatCompletionParams.ToolConfig.builder()
+                    .systemMessageBehavior(
+                        InferenceChatCompletionParams.ToolConfig.SystemMessageBehavior.APPEND
+                    )
+                    .toolChoice(InferenceChatCompletionParams.ToolConfig.ToolChoice.AUTO)
+                    .toolPromptFormat(
+                        InferenceChatCompletionParams.ToolConfig.ToolPromptFormat.JSON
+                    )
+                    .build()
+            )
             .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
             .addTool(
                 InferenceChatCompletionParams.Tool.builder()
@@ -53,25 +60,19 @@ class InferenceChatCompletionParamsTest {
                     )
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             InferenceChatCompletionParams.builder()
                 .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
-                .responseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.builder()
-                        .jsonSchema(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
+                .jsonSchemaResponseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .samplingParams(
@@ -82,6 +83,17 @@ class InferenceChatCompletionParamsTest {
                         .build()
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolConfig(
+                    InferenceChatCompletionParams.ToolConfig.builder()
+                        .systemMessageBehavior(
+                            InferenceChatCompletionParams.ToolConfig.SystemMessageBehavior.APPEND
+                        )
+                        .toolChoice(InferenceChatCompletionParams.ToolConfig.ToolChoice.AUTO)
+                        .toolPromptFormat(
+                            InferenceChatCompletionParams.ToolConfig.ToolPromptFormat.JSON
+                        )
+                        .build()
+                )
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                 .addTool(
                     InferenceChatCompletionParams.Tool.builder()
@@ -104,10 +116,8 @@ class InferenceChatCompletionParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(
@@ -141,6 +151,18 @@ class InferenceChatCompletionParamsTest {
                     .build()
             )
         assertThat(body.toolChoice()).isEqualTo(InferenceChatCompletionParams.ToolChoice.AUTO)
+        assertThat(body.toolConfig())
+            .isEqualTo(
+                InferenceChatCompletionParams.ToolConfig.builder()
+                    .systemMessageBehavior(
+                        InferenceChatCompletionParams.ToolConfig.SystemMessageBehavior.APPEND
+                    )
+                    .toolChoice(InferenceChatCompletionParams.ToolConfig.ToolChoice.AUTO)
+                    .toolPromptFormat(
+                        InferenceChatCompletionParams.ToolConfig.ToolPromptFormat.JSON
+                    )
+                    .build()
+            )
         assertThat(body.toolPromptFormat())
             .isEqualTo(InferenceChatCompletionParams.ToolPromptFormat.JSON)
         assertThat(body.tools())
@@ -170,13 +192,13 @@ class InferenceChatCompletionParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             InferenceChatCompletionParams.builder()
-                .addMessage(UserMessage.builder().content("string").build())
+                .addUserMessage("string")
                 .modelId("model_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))

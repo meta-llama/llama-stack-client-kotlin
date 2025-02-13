@@ -7,22 +7,18 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.UserMessage
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
 class TurnServiceTest {
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
-    )
     @Test
     fun callCreate() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
-        val agentTurnCreateResponse =
+        val turn =
             turnService.create(
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
@@ -34,24 +30,31 @@ class TurnServiceTest {
                             .mimeType("mime_type")
                             .build()
                     )
+                    .toolConfig(
+                        AgentTurnCreateParams.ToolConfig.builder()
+                            .systemMessageBehavior(
+                                AgentTurnCreateParams.ToolConfig.SystemMessageBehavior.APPEND
+                            )
+                            .toolChoice(AgentTurnCreateParams.ToolConfig.ToolChoice.AUTO)
+                            .toolPromptFormat(
+                                AgentTurnCreateParams.ToolConfig.ToolPromptFormat.JSON
+                            )
+                            .build()
+                    )
                     .addToolgroup("string")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
-        println(agentTurnCreateResponse)
+        println(turn)
+        turn.validate()
     }
 
-    @Disabled(
-        "skipped: currently no good way to test endpoints with content type text/event-stream, Prism mock server will fail"
-    )
     @Test
     fun callCreateStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
 
-        val agentTurnCreateResponseStream =
+        val turnStream =
             turnService.createStreaming(
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
@@ -63,14 +66,26 @@ class TurnServiceTest {
                             .mimeType("mime_type")
                             .build()
                     )
+                    .toolConfig(
+                        AgentTurnCreateParams.ToolConfig.builder()
+                            .systemMessageBehavior(
+                                AgentTurnCreateParams.ToolConfig.SystemMessageBehavior.APPEND
+                            )
+                            .toolChoice(AgentTurnCreateParams.ToolConfig.ToolChoice.AUTO)
+                            .toolPromptFormat(
+                                AgentTurnCreateParams.ToolConfig.ToolPromptFormat.JSON
+                            )
+                            .build()
+                    )
                     .addToolgroup("string")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
 
-        agentTurnCreateResponseStream.use {
-            agentTurnCreateResponseStream.asSequence().forEach { println(it) }
+        turnStream.use {
+            turnStream.asSequence().forEach {
+                println(it)
+                it.validate()
+            }
         }
     }
 
@@ -85,8 +100,6 @@ class TurnServiceTest {
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .turnId("turn_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(turn)

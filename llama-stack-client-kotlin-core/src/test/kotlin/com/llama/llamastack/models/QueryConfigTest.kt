@@ -13,11 +13,7 @@ class QueryConfigTest {
             QueryConfig.builder()
                 .maxChunks(0L)
                 .maxTokensInContext(0L)
-                .queryGeneratorConfig(
-                    QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                        .separator("separator")
-                        .build()
-                )
+                .defaultRagQueryGeneratorConfig("separator")
                 .build()
         assertThat(queryConfig).isNotNull
         assertThat(queryConfig.maxChunks()).isEqualTo(0L)

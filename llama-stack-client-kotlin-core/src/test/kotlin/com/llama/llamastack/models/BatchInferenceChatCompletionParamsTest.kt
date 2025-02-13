@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class BatchInferenceChatCompletionParamsTest {
 
     @Test
-    fun createBatchInferenceChatCompletionParams() {
+    fun create() {
         BatchInferenceChatCompletionParams.builder()
             .addMessagesBatch(
                 listOf(
@@ -20,6 +20,11 @@ class BatchInferenceChatCompletionParamsTest {
             )
             .model("model")
             .logprobs(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
+            .jsonSchemaResponseFormat(
+                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
             .samplingParams(
                 SamplingParams.builder()
                     .strategyGreedySampling()
@@ -50,13 +55,11 @@ class BatchInferenceChatCompletionParamsTest {
                     )
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             BatchInferenceChatCompletionParams.builder()
                 .addMessagesBatch(
@@ -68,6 +71,11 @@ class BatchInferenceChatCompletionParamsTest {
                 )
                 .model("model")
                 .logprobs(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
+                .jsonSchemaResponseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .samplingParams(
                     SamplingParams.builder()
                         .strategyGreedySampling()
@@ -98,10 +106,8 @@ class BatchInferenceChatCompletionParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messagesBatch())
             .isEqualTo(
@@ -116,6 +122,18 @@ class BatchInferenceChatCompletionParamsTest {
         assertThat(body.model()).isEqualTo("model")
         assertThat(body.logprobs())
             .isEqualTo(BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
+        assertThat(body.responseFormat())
+            .isEqualTo(
+                ResponseFormat.ofJsonSchema(
+                    ResponseFormat.JsonSchemaResponseFormat.builder()
+                        .jsonSchema(
+                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
+                )
+            )
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
@@ -154,7 +172,7 @@ class BatchInferenceChatCompletionParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             BatchInferenceChatCompletionParams.builder()
                 .addMessagesBatch(
@@ -162,7 +180,7 @@ class BatchInferenceChatCompletionParamsTest {
                 )
                 .model("model")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messagesBatch())
             .isEqualTo(

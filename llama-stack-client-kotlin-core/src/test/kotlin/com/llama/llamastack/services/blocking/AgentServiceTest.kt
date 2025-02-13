@@ -8,6 +8,7 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.AgentConfig
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentDeleteParams
+import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.ToolDef
 import org.junit.jupiter.api.Test
@@ -28,7 +29,6 @@ class AgentServiceTest {
                         AgentConfig.builder()
                             .enableSessionPersistence(true)
                             .instructions("instructions")
-                            .maxInferIters(0L)
                             .model("model")
                             .addClientTool(
                                 ToolDef.builder()
@@ -51,7 +51,13 @@ class AgentServiceTest {
                                     .build()
                             )
                             .addInputShield("string")
+                            .maxInferIters(0L)
                             .addOutputShield("string")
+                            .jsonSchemaResponseFormat(
+                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
                             .samplingParams(
                                 SamplingParams.builder()
                                     .strategyGreedySampling()
@@ -60,12 +66,19 @@ class AgentServiceTest {
                                     .build()
                             )
                             .toolChoice(AgentConfig.ToolChoice.AUTO)
+                            .toolConfig(
+                                AgentConfig.ToolConfig.builder()
+                                    .systemMessageBehavior(
+                                        AgentConfig.ToolConfig.SystemMessageBehavior.APPEND
+                                    )
+                                    .toolChoice(AgentConfig.ToolConfig.ToolChoice.AUTO)
+                                    .toolPromptFormat(AgentConfig.ToolConfig.ToolPromptFormat.JSON)
+                                    .build()
+                            )
                             .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                             .addToolgroup("string")
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentCreateResponse)
@@ -77,12 +90,6 @@ class AgentServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val agentService = client.agents()
-        agentService.delete(
-            AgentDeleteParams.builder()
-                .agentId("agent_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        )
+        agentService.delete(AgentDeleteParams.builder().agentId("agent_id").build())
     }
 }

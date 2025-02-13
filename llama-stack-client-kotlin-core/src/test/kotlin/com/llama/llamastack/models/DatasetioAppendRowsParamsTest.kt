@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class DatasetioAppendRowsParamsTest {
 
     @Test
-    fun createDatasetioAppendRowsParams() {
+    fun create() {
         DatasetioAppendRowsParams.builder()
             .datasetId("dataset_id")
             .addRow(
@@ -17,13 +17,11 @@ class DatasetioAppendRowsParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             DatasetioAppendRowsParams.builder()
                 .datasetId("dataset_id")
@@ -32,10 +30,8 @@ class DatasetioAppendRowsParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.rows())
@@ -49,7 +45,7 @@ class DatasetioAppendRowsParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             DatasetioAppendRowsParams.builder()
                 .datasetId("dataset_id")
@@ -59,7 +55,7 @@ class DatasetioAppendRowsParamsTest {
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.rows())

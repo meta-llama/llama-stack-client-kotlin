@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -12,20 +13,14 @@ import java.util.Objects
 
 /** Unregister a tool group */
 class ToolgroupUnregisterParams
-constructor(
+private constructor(
     private val toolgroupId: String,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
-) {
+) : Params {
 
     fun toolgroupId(): String = toolgroupId
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -33,21 +28,11 @@ constructor(
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
-    internal fun getBody(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
+    internal fun _body(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
@@ -63,20 +48,17 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ToolgroupUnregisterParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var toolgroupId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolgroupUnregisterParams: ToolgroupUnregisterParams) = apply {
             toolgroupId = toolgroupUnregisterParams.toolgroupId
-            xLlamaStackClientVersion = toolgroupUnregisterParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = toolgroupUnregisterParams.xLlamaStackProviderData
             additionalHeaders = toolgroupUnregisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolgroupUnregisterParams.additionalQueryParams.toBuilder()
             additionalBodyProperties =
@@ -84,14 +66,6 @@ constructor(
         }
 
         fun toolgroupId(toolgroupId: String) = apply { this.toolgroupId = toolgroupId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -216,8 +190,6 @@ constructor(
         fun build(): ToolgroupUnregisterParams =
             ToolgroupUnregisterParams(
                 checkRequired("toolgroupId", toolgroupId),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -229,11 +201,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolgroupUnregisterParams && toolgroupId == other.toolgroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is ToolgroupUnregisterParams && toolgroupId == other.toolgroupId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolgroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(toolgroupId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "ToolgroupUnregisterParams{toolgroupId=$toolgroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "ToolgroupUnregisterParams{toolgroupId=$toolgroupId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

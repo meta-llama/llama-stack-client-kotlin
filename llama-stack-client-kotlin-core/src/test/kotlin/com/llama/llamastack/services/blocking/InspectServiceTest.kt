@@ -17,13 +17,7 @@ class InspectServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inspectService = client.inspect()
-        val healthInfo =
-            inspectService.health(
-                InspectHealthParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val healthInfo = inspectService.health(InspectHealthParams.builder().build())
         println(healthInfo)
         healthInfo.validate()
     }
@@ -33,13 +27,7 @@ class InspectServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inspectService = client.inspect()
-        val versionInfo =
-            inspectService.version(
-                InspectVersionParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val versionInfo = inspectService.version(InspectVersionParams.builder().build())
         println(versionInfo)
         versionInfo.validate()
     }

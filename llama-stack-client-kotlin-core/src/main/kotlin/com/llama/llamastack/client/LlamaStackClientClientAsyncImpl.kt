@@ -51,8 +51,7 @@ import com.llama.llamastack.services.async.VectorDbServiceAsyncImpl
 import com.llama.llamastack.services.async.VectorIoServiceAsync
 import com.llama.llamastack.services.async.VectorIoServiceAsyncImpl
 
-class LlamaStackClientClientAsyncImpl
-constructor(
+class LlamaStackClientClientAsyncImpl(
     private val clientOptions: ClientOptions,
 ) : LlamaStackClientClientAsync {
 
@@ -203,4 +202,6 @@ constructor(
     override fun scoringFunctions(): ScoringFunctionServiceAsync = scoringFunctions
 
     override fun evalTasks(): EvalTaskServiceAsync = evalTasks
+
+    override fun close() = clientOptions.httpClient.close()
 }

@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class ToolgroupListParamsTest {
 
     @Test
-    fun createToolgroupListParams() {
-        ToolgroupListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ToolgroupListParams.builder().build()
     }
 }

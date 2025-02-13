@@ -31,36 +31,11 @@ class OkHttpClient
 private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val baseUrl: HttpUrl) :
     HttpClient {
 
-    private fun getClient(requestOptions: RequestOptions): okhttp3.OkHttpClient {
-        val clientBuilder = okHttpClient.newBuilder()
-
-        val logLevel =
-            when (System.getenv("LLAMA_STACK_CLIENT_LOG")?.lowercase()) {
-                "info" -> HttpLoggingInterceptor.Level.BASIC
-                "debug" -> HttpLoggingInterceptor.Level.BODY
-                else -> null
-            }
-        if (logLevel != null) {
-            clientBuilder.addNetworkInterceptor(HttpLoggingInterceptor().setLevel(logLevel))
-        }
-
-        val timeout = requestOptions.timeout
-        if (timeout != null) {
-            clientBuilder
-                .connectTimeout(timeout)
-                .readTimeout(timeout)
-                .writeTimeout(timeout)
-                .callTimeout(if (timeout.seconds == 0L) timeout else timeout.plusSeconds(30))
-        }
-
-        return clientBuilder.build()
-    }
-
     override fun execute(
         request: HttpRequest,
         requestOptions: RequestOptions,
     ): HttpResponse {
-        val call = getClient(requestOptions).newCall(request.toRequest())
+        val call = newCall(request, requestOptions)
 
         return try {
             call.execute().toResponse()
@@ -75,7 +50,7 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
         request: HttpRequest,
         requestOptions: RequestOptions,
     ): HttpResponse {
-        val call = getClient(requestOptions).newCall(request.toRequest())
+        val call = newCall(request, requestOptions)
 
         return try {
             call.executeAsync().toResponse()
@@ -92,10 +67,54 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
         okHttpClient.cache?.close()
     }
 
-    private fun HttpRequest.toRequest(): Request {
+    private fun newCall(request: HttpRequest, requestOptions: RequestOptions): Call {
+        val clientBuilder = okHttpClient.newBuilder()
+
+        val logLevel =
+            when (System.getenv("LLAMA_STACK_CLIENT_LOG")?.lowercase()) {
+                "info" -> HttpLoggingInterceptor.Level.BASIC
+                "debug" -> HttpLoggingInterceptor.Level.BODY
+                else -> null
+            }
+        if (logLevel != null) {
+            clientBuilder.addNetworkInterceptor(
+                HttpLoggingInterceptor().setLevel(logLevel).apply { redactHeader("Authorization") }
+            )
+        }
+
+        val timeout = requestOptions.timeout
+        if (timeout != null) {
+            clientBuilder
+                .connectTimeout(timeout)
+                .readTimeout(timeout)
+                .writeTimeout(timeout)
+                .callTimeout(if (timeout.seconds == 0L) timeout else timeout.plusSeconds(30))
+        }
+
+        val client = clientBuilder.build()
+        return client.newCall(request.toRequest(client))
+    }
+
+    private suspend fun Call.executeAsync(): Response =
+        suspendCancellableCoroutine { continuation ->
+            continuation.invokeOnCancellation { this.cancel() }
+
+            enqueue(
+                object : Callback {
+                    override fun onFailure(call: Call, e: IOException) {
+                        continuation.resumeWith(Result.failure(e))
+                    }
+
+                    override fun onResponse(call: Call, response: Response) {
+                        continuation.resumeWith(Result.success(response))
+                    }
+                }
+            )
+        }
+
+    private fun HttpRequest.toRequest(client: okhttp3.OkHttpClient): Request {
         var body: RequestBody? = body?.toRequestBody()
-        // OkHttpClient always requires a request body for PUT and POST methods.
-        if (body == null && (method == HttpMethod.PUT || method == HttpMethod.POST)) {
+        if (body == null && requiresBody(method)) {
             body = "".toRequestBody()
         }
 
@@ -104,8 +123,32 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
             headers.values(name).forEach { builder.header(name, it) }
         }
 
+        if (
+            !headers.names().contains("X-Stainless-Read-Timeout") && client.readTimeoutMillis != 0
+        ) {
+            builder.header(
+                "X-Stainless-Read-Timeout",
+                Duration.ofMillis(client.readTimeoutMillis.toLong()).seconds.toString()
+            )
+        }
+        if (!headers.names().contains("X-Stainless-Timeout") && client.callTimeoutMillis != 0) {
+            builder.header(
+                "X-Stainless-Timeout",
+                Duration.ofMillis(client.callTimeoutMillis.toLong()).seconds.toString()
+            )
+        }
+
         return builder.build()
     }
+
+    /** `OkHttpClient` always requires a request body for some methods. */
+    private fun requiresBody(method: HttpMethod): Boolean =
+        when (method) {
+            HttpMethod.POST,
+            HttpMethod.PUT,
+            HttpMethod.PATCH -> true
+            else -> false
+        }
 
     private fun HttpRequest.toUrl(): String {
         url?.let {
@@ -160,7 +203,7 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
         fun builder() = Builder()
     }
 
-    class Builder {
+    class Builder internal constructor() {
 
         private var baseUrl: HttpUrl? = null
         // The default timeout is 1 minute.
@@ -185,21 +228,4 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
                 checkRequired("baseUrl", baseUrl),
             )
     }
-
-    private suspend fun Call.executeAsync(): Response =
-        suspendCancellableCoroutine { continuation ->
-            continuation.invokeOnCancellation { this.cancel() }
-
-            enqueue(
-                object : Callback {
-                    override fun onFailure(call: Call, e: IOException) {
-                        continuation.resumeWith(Result.failure(e))
-                    }
-
-                    override fun onResponse(call: Call, response: Response) {
-                        continuation.resumeWith(Result.success(response))
-                    }
-                }
-            )
-        }
 }

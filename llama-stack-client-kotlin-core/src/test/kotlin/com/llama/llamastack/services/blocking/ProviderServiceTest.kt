@@ -17,13 +17,7 @@ class ProviderServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val providerService = client.providers()
-        val listProvidersResponse =
-            providerService.list(
-                ProviderListParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val listProvidersResponse = providerService.list(ProviderListParams.builder().build())
         println(listProvidersResponse)
         for (providerInfo: ProviderInfo in listProvidersResponse) {
             providerInfo.validate()

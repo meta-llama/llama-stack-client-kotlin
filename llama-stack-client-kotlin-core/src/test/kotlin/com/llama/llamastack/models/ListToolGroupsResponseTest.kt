@@ -22,7 +22,7 @@ class ListToolGroupsResponseTest {
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
-                        .mcpEndpoint(Url.builder().uri("uri").build())
+                        .mcpEndpoint(ToolGroup.McpEndpoint.builder().uri("uri").build())
                         .build()
                 )
                 .build()
@@ -38,7 +38,7 @@ class ListToolGroupsResponseTest {
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .mcpEndpoint(Url.builder().uri("uri").build())
+                    .mcpEndpoint(ToolGroup.McpEndpoint.builder().uri("uri").build())
                     .build()
             )
     }

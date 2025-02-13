@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class SafetyRunShieldParamsTest {
 
     @Test
-    fun createSafetyRunShieldParams() {
+    fun create() {
         SafetyRunShieldParams.builder()
             .addMessage(UserMessage.builder().content("string").context("string").build())
             .params(
@@ -18,13 +18,11 @@ class SafetyRunShieldParamsTest {
                     .build()
             )
             .shieldId("shield_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             SafetyRunShieldParams.builder()
                 .addMessage(UserMessage.builder().content("string").context("string").build())
@@ -34,10 +32,8 @@ class SafetyRunShieldParamsTest {
                         .build()
                 )
                 .shieldId("shield_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(
@@ -57,10 +53,10 @@ class SafetyRunShieldParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             SafetyRunShieldParams.builder()
-                .addMessage(UserMessage.builder().content("string").build())
+                .addUserMessage("string")
                 .params(
                     SafetyRunShieldParams.Params.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -68,7 +64,7 @@ class SafetyRunShieldParamsTest {
                 )
                 .shieldId("shield_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))

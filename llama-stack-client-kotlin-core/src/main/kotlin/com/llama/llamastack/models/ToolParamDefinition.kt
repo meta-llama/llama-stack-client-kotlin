@@ -87,7 +87,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ToolParamDefinition]. */
+    class Builder internal constructor() {
 
         private var paramType: JsonField<String>? = null
         private var default: JsonField<Default> = JsonMissing.of()
@@ -271,6 +272,9 @@ private constructor(
             fun ofJsonValue(jsonValue: JsonValue) = Default(jsonValue = jsonValue)
         }
 
+        /**
+         * An interface that defines how to map each variant of [Default] to a value of type [T].
+         */
         interface Visitor<out T> {
 
             fun visitBoolean(boolean: Boolean): T
@@ -283,12 +287,22 @@ private constructor(
 
             fun visitJsonValue(jsonValue: JsonValue): T
 
+            /**
+             * Maps an unknown variant of [Default] to a value of type [T].
+             *
+             * An instance of [Default] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Default: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Default>(Default::class) {
+        internal class Deserializer : BaseDeserializer<Default>(Default::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Default {
                 val json = JsonValue.fromJsonNode(node)
@@ -313,7 +327,7 @@ private constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Default>(Default::class) {
+        internal class Serializer : BaseSerializer<Default>(Default::class) {
 
             override fun serialize(
                 value: Default,

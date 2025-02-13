@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class InspectVersionParamsTest {
 
     @Test
-    fun createInspectVersionParams() {
-        InspectVersionParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        InspectVersionParams.builder().build()
     }
 }

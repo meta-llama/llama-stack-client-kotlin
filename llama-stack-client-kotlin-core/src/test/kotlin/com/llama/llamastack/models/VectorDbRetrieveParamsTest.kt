@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class VectorDbRetrieveParamsTest {
 
     @Test
-    fun createVectorDbRetrieveParams() {
-        VectorDbRetrieveParams.builder()
-            .vectorDbId("vector_db_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
     }
 
     @Test

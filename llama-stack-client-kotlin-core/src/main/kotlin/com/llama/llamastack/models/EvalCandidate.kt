@@ -104,18 +104,30 @@ private constructor(
         fun ofAgent(agent: AgentCandidate) = EvalCandidate(agent = agent)
     }
 
+    /**
+     * An interface that defines how to map each variant of [EvalCandidate] to a value of type [T].
+     */
     interface Visitor<out T> {
 
         fun visitModel(model: ModelCandidate): T
 
         fun visitAgent(agent: AgentCandidate): T
 
+        /**
+         * Maps an unknown variant of [EvalCandidate] to a value of type [T].
+         *
+         * An instance of [EvalCandidate] can contain an unknown variant if it was deserialized from
+         * data that doesn't match any known variant. For example, if the SDK is on an older version
+         * than the API, then the API may respond with new variants that the SDK is unaware of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown EvalCandidate: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<EvalCandidate>(EvalCandidate::class) {
+    internal class Deserializer : BaseDeserializer<EvalCandidate>(EvalCandidate::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): EvalCandidate {
             val json = JsonValue.fromJsonNode(node)
@@ -140,7 +152,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<EvalCandidate>(EvalCandidate::class) {
+    internal class Serializer : BaseSerializer<EvalCandidate>(EvalCandidate::class) {
 
         override fun serialize(
             value: EvalCandidate,
@@ -180,6 +192,7 @@ private constructor(
 
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /** A system message providing instructions or context to the model. */
         fun systemMessage(): SystemMessage? = systemMessage.getNullable("system_message")
 
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
@@ -188,6 +201,7 @@ private constructor(
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
+        /** A system message providing instructions or context to the model. */
         @JsonProperty("system_message")
         @ExcludeMissing
         fun _systemMessage(): JsonField<SystemMessage> = systemMessage
@@ -221,7 +235,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [ModelCandidate]. */
+        class Builder internal constructor() {
 
             private var model: JsonField<String>? = null
             private var samplingParams: JsonField<SamplingParams>? = null
@@ -250,9 +265,11 @@ private constructor(
 
             fun type(type: JsonValue) = apply { this.type = type }
 
+            /** A system message providing instructions or context to the model. */
             fun systemMessage(systemMessage: SystemMessage) =
                 systemMessage(JsonField.of(systemMessage))
 
+            /** A system message providing instructions or context to the model. */
             fun systemMessage(systemMessage: JsonField<SystemMessage>) = apply {
                 this.systemMessage = systemMessage
             }
@@ -349,7 +366,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentCandidate]. */
+        class Builder internal constructor() {
 
             private var config: JsonField<AgentConfig>? = null
             private var type: JsonValue = JsonValue.from("agent")

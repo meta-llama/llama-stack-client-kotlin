@@ -10,7 +10,6 @@ import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetUnregisterParams
 import com.llama.llamastack.models.ListDatasetsResponse
-import com.llama.llamastack.models.Url
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -23,13 +22,7 @@ class DatasetServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
         val datasetRetrieveResponse =
-            datasetService.retrieve(
-                DatasetRetrieveParams.builder()
-                    .datasetId("dataset_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+            datasetService.retrieve(DatasetRetrieveParams.builder().datasetId("dataset_id").build())
         println(datasetRetrieveResponse)
         datasetRetrieveResponse?.validate()
     }
@@ -39,13 +32,7 @@ class DatasetServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
-        val listDatasetsResponse =
-            datasetService.list(
-                DatasetListParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val listDatasetsResponse = datasetService.list(DatasetListParams.builder().build())
         println(listDatasetsResponse)
         for (dataset: ListDatasetsResponse.Data in listDatasetsResponse) {
             dataset.validate()
@@ -65,7 +52,7 @@ class DatasetServiceTest {
                         .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
                         .build()
                 )
-                .url(Url.builder().uri("uri").build())
+                .url(DatasetRegisterParams.Url.builder().uri("uri").build())
                 .metadata(
                     DatasetRegisterParams.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -73,8 +60,6 @@ class DatasetServiceTest {
                 )
                 .providerDatasetId("provider_dataset_id")
                 .providerId("provider_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -84,12 +69,6 @@ class DatasetServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
-        datasetService.unregister(
-            DatasetUnregisterParams.builder()
-                .datasetId("dataset_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
-        )
+        datasetService.unregister(DatasetUnregisterParams.builder().datasetId("dataset_id").build())
     }
 }

@@ -16,6 +16,7 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Response containing generated embeddings. */
 @NoAutoDetect
 class EmbeddingsResponse
 @JsonCreator
@@ -26,8 +27,18 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * List of embedding vectors, one per input content. Each embedding is a list of floats. The
+     * dimensionality of the embedding is model-specific; you can check model metadata using
+     * /models/{model_id}
+     */
     fun embeddings(): List<List<Double>> = embeddings.getRequired("embeddings")
 
+    /**
+     * List of embedding vectors, one per input content. Each embedding is a list of floats. The
+     * dimensionality of the embedding is model-specific; you can check model metadata using
+     * /models/{model_id}
+     */
     @JsonProperty("embeddings")
     @ExcludeMissing
     fun _embeddings(): JsonField<List<List<Double>>> = embeddings
@@ -54,7 +65,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [EmbeddingsResponse]. */
+    class Builder internal constructor() {
 
         private var embeddings: JsonField<MutableList<List<Double>>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -64,12 +76,27 @@ private constructor(
             additionalProperties = embeddingsResponse.additionalProperties.toMutableMap()
         }
 
+        /**
+         * List of embedding vectors, one per input content. Each embedding is a list of floats. The
+         * dimensionality of the embedding is model-specific; you can check model metadata using
+         * /models/{model_id}
+         */
         fun embeddings(embeddings: List<List<Double>>) = embeddings(JsonField.of(embeddings))
 
+        /**
+         * List of embedding vectors, one per input content. Each embedding is a list of floats. The
+         * dimensionality of the embedding is model-specific; you can check model metadata using
+         * /models/{model_id}
+         */
         fun embeddings(embeddings: JsonField<List<List<Double>>>) = apply {
             this.embeddings = embeddings.map { it.toMutableList() }
         }
 
+        /**
+         * List of embedding vectors, one per input content. Each embedding is a list of floats. The
+         * dimensionality of the embedding is model-specific; you can check model metadata using
+         * /models/{model_id}
+         */
         fun addEmbedding(embedding: List<Double>) = apply {
             embeddings =
                 (embeddings ?: JsonField.of(mutableListOf())).apply {

@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class ToolgroupUnregisterParamsTest {
 
     @Test
-    fun createToolgroupUnregisterParams() {
-        ToolgroupUnregisterParams.builder()
-            .toolgroupId("toolgroup_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ToolgroupUnregisterParams.builder().toolgroupId("toolgroup_id").build()
     }
 
     @Test

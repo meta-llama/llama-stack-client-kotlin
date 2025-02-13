@@ -9,37 +9,33 @@ import org.junit.jupiter.api.Test
 class TelemetryGetSpanTreeParamsTest {
 
     @Test
-    fun createTelemetryGetSpanTreeParams() {
+    fun create() {
         TelemetryGetSpanTreeParams.builder()
             .spanId("span_id")
             .addAttributesToReturn("string")
             .maxDepth(0L)
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getQueryParams() {
+    fun queryParams() {
         val params =
             TelemetryGetSpanTreeParams.builder()
                 .spanId("span_id")
                 .addAttributesToReturn("string")
                 .maxDepth(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("attributes_to_return", "string")
         expected.put("max_depth", "0")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun queryParamsWithoutOptionalFields() {
         val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
         val expected = QueryParams.builder()
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 
     @Test

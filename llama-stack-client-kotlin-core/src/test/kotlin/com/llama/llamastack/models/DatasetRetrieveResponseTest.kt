@@ -25,7 +25,7 @@ class DatasetRetrieveResponseTest {
                 )
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .url(Url.builder().uri("uri").build())
+                .url(DatasetRetrieveResponse.Url.builder().uri("uri").build())
                 .build()
         assertThat(datasetRetrieveResponse).isNotNull
         assertThat(datasetRetrieveResponse.datasetSchema())
@@ -43,6 +43,7 @@ class DatasetRetrieveResponseTest {
             )
         assertThat(datasetRetrieveResponse.providerId()).isEqualTo("provider_id")
         assertThat(datasetRetrieveResponse.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(datasetRetrieveResponse.url()).isEqualTo(Url.builder().uri("uri").build())
+        assertThat(datasetRetrieveResponse.url())
+            .isEqualTo(DatasetRetrieveResponse.Url.builder().uri("uri").build())
     }
 }

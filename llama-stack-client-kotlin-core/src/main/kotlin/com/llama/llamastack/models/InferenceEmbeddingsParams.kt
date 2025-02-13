@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -18,25 +19,36 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Generate embeddings for content pieces using the specified model. */
 class InferenceEmbeddingsParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: InferenceEmbeddingsBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
+    /**
+     * List of contents to generate embeddings for. Note that content can be multimodal. The
+     * behavior depends on the model and provider. Some models may only support text.
+     */
     fun contents(): List<InterleavedContent> = body.contents()
 
+    /**
+     * The identifier of the model to use. The model must be an embedding model registered with
+     * Llama Stack and available via the /models endpoint.
+     */
     fun modelId(): String = body.modelId()
 
+    /**
+     * List of contents to generate embeddings for. Note that content can be multimodal. The
+     * behavior depends on the model and provider. Some models may only support text.
+     */
     fun _contents(): JsonField<List<InterleavedContent>> = body._contents()
 
+    /**
+     * The identifier of the model to use. The model must be an embedding model registered with
+     * Llama Stack and available via the /models endpoint.
+     */
     fun _modelId(): JsonField<String> = body._modelId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -45,21 +57,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): InferenceEmbeddingsBody = body
+    internal fun _body(): InferenceEmbeddingsBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class InferenceEmbeddingsBody
@@ -75,14 +77,30 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         fun contents(): List<InterleavedContent> = contents.getRequired("contents")
 
+        /**
+         * The identifier of the model to use. The model must be an embedding model registered with
+         * Llama Stack and available via the /models endpoint.
+         */
         fun modelId(): String = modelId.getRequired("model_id")
 
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         @JsonProperty("contents")
         @ExcludeMissing
         fun _contents(): JsonField<List<InterleavedContent>> = contents
 
+        /**
+         * The identifier of the model to use. The model must be an embedding model registered with
+         * Llama Stack and available via the /models endpoint.
+         */
         @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
 
         @JsonAnyGetter
@@ -108,7 +126,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [InferenceEmbeddingsBody]. */
+        class Builder internal constructor() {
 
             private var contents: JsonField<MutableList<InterleavedContent>>? = null
             private var modelId: JsonField<String>? = null
@@ -120,12 +139,24 @@ constructor(
                 additionalProperties = inferenceEmbeddingsBody.additionalProperties.toMutableMap()
             }
 
+            /**
+             * List of contents to generate embeddings for. Note that content can be multimodal. The
+             * behavior depends on the model and provider. Some models may only support text.
+             */
             fun contents(contents: List<InterleavedContent>) = contents(JsonField.of(contents))
 
+            /**
+             * List of contents to generate embeddings for. Note that content can be multimodal. The
+             * behavior depends on the model and provider. Some models may only support text.
+             */
             fun contents(contents: JsonField<List<InterleavedContent>>) = apply {
                 this.contents = contents.map { it.toMutableList() }
             }
 
+            /**
+             * List of contents to generate embeddings for. Note that content can be multimodal. The
+             * behavior depends on the model and provider. Some models may only support text.
+             */
             fun addContent(content: InterleavedContent) = apply {
                 contents =
                     (contents ?: JsonField.of(mutableListOf())).apply {
@@ -137,19 +168,37 @@ constructor(
                     }
             }
 
+            /**
+             * List of contents to generate embeddings for. Note that content can be multimodal. The
+             * behavior depends on the model and provider. Some models may only support text.
+             */
             fun addContent(string: String) = addContent(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun addContent(imageContentItem: InterleavedContent.ImageContentItem) =
                 addContent(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun addContent(textContentItem: InterleavedContent.TextContentItem) =
                 addContent(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /**
+             * List of contents to generate embeddings for. Note that content can be multimodal. The
+             * behavior depends on the model and provider. Some models may only support text.
+             */
             fun addContentOfItems(items: List<InterleavedContentItem>) =
                 addContent(InterleavedContent.ofItems(items))
 
+            /**
+             * The identifier of the model to use. The model must be an embedding model registered
+             * with Llama Stack and available via the /models endpoint.
+             */
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
+            /**
+             * The identifier of the model to use. The model must be an embedding model registered
+             * with Llama Stack and available via the /models endpoint.
+             */
             fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -204,55 +253,74 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [InferenceEmbeddingsParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: InferenceEmbeddingsBody.Builder = InferenceEmbeddingsBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(inferenceEmbeddingsParams: InferenceEmbeddingsParams) = apply {
-            xLlamaStackClientVersion = inferenceEmbeddingsParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = inferenceEmbeddingsParams.xLlamaStackProviderData
             body = inferenceEmbeddingsParams.body.toBuilder()
             additionalHeaders = inferenceEmbeddingsParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceEmbeddingsParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         fun contents(contents: List<InterleavedContent>) = apply { body.contents(contents) }
 
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         fun contents(contents: JsonField<List<InterleavedContent>>) = apply {
             body.contents(contents)
         }
 
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         fun addContent(content: InterleavedContent) = apply { body.addContent(content) }
 
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         fun addContent(string: String) = apply { body.addContent(string) }
 
+        /** A image content item */
         fun addContent(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addContent(imageContentItem)
         }
 
+        /** A text content item */
         fun addContent(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addContent(textContentItem)
         }
 
+        /**
+         * List of contents to generate embeddings for. Note that content can be multimodal. The
+         * behavior depends on the model and provider. Some models may only support text.
+         */
         fun addContentOfItems(items: List<InterleavedContentItem>) = apply {
             body.addContentOfItems(items)
         }
 
+        /**
+         * The identifier of the model to use. The model must be an embedding model registered with
+         * Llama Stack and available via the /models endpoint.
+         */
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
+        /**
+         * The identifier of the model to use. The model must be an embedding model registered with
+         * Llama Stack and available via the /models endpoint.
+         */
         fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -374,8 +442,6 @@ constructor(
 
         fun build(): InferenceEmbeddingsParams =
             InferenceEmbeddingsParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -387,11 +453,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceEmbeddingsParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is InferenceEmbeddingsParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "InferenceEmbeddingsParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "InferenceEmbeddingsParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

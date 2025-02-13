@@ -15,14 +15,14 @@ class CompletionMessageTest {
                 .content("string")
                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                 .addToolCall(
-                    CompletionMessage.ToolCall.builder()
+                    ToolCall.builder()
                         .arguments(
-                            CompletionMessage.ToolCall.Arguments.builder()
+                            ToolCall.Arguments.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .callId("call_id")
-                        .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                         .build()
                 )
                 .build()
@@ -32,14 +32,14 @@ class CompletionMessageTest {
             .isEqualTo(CompletionMessage.StopReason.END_OF_TURN)
         assertThat(completionMessage.toolCalls())
             .containsExactly(
-                CompletionMessage.ToolCall.builder()
+                ToolCall.builder()
                     .arguments(
-                        CompletionMessage.ToolCall.Arguments.builder()
+                        ToolCall.Arguments.builder()
                             .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
                     .callId("call_id")
-                    .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                     .build()
             )
     }

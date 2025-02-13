@@ -26,8 +26,6 @@ class DatasetioServiceTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -44,8 +42,6 @@ class DatasetioServiceTest {
                     .rowsInPage(0L)
                     .filterCondition("filter_condition")
                     .pageToken("page_token")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(paginatedRowsResult)

@@ -16,6 +16,10 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/**
+ * Response from the synthetic data generation. Batch of (prompt, response, score) tuples that pass
+ * the threshold.
+ */
 @NoAutoDetect
 class SyntheticDataGenerationResponse
 @JsonCreator
@@ -64,7 +68,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [SyntheticDataGenerationResponse]. */
+    class Builder internal constructor() {
 
         private var syntheticData: JsonField<MutableList<SyntheticData>>? = null
         private var statistics: JsonField<Statistics> = JsonMissing.of()
@@ -157,7 +162,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [SyntheticData]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -233,7 +239,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Statistics]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

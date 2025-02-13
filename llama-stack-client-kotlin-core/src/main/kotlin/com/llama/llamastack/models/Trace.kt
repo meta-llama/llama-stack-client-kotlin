@@ -79,7 +79,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [Trace]. */
+    class Builder internal constructor() {
 
         private var rootSpanId: JsonField<String>? = null
         private var startTime: JsonField<OffsetDateTime>? = null

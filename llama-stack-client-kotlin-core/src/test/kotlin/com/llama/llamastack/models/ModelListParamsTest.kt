@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class ModelListParamsTest {
 
     @Test
-    fun createModelListParams() {
-        ModelListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ModelListParams.builder().build()
     }
 }

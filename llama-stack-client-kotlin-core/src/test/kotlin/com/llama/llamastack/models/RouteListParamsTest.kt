@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class RouteListParamsTest {
 
     @Test
-    fun createRouteListParams() {
-        RouteListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        RouteListParams.builder().build()
     }
 }

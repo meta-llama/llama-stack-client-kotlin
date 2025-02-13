@@ -8,14 +8,12 @@ import org.junit.jupiter.api.Test
 class AgentStepRetrieveParamsTest {
 
     @Test
-    fun createAgentStepRetrieveParams() {
+    fun create() {
         AgentStepRetrieveParams.builder()
             .agentId("agent_id")
             .sessionId("session_id")
             .turnId("turn_id")
             .stepId("step_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
