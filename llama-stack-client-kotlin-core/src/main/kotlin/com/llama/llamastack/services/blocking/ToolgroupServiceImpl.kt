@@ -12,6 +12,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ToolGroup
@@ -41,21 +42,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "toolgroups")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { listHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { listHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-                .run { data() }
-        }
+            }
+            .data()
     }
 
     private val getHandler: Handler<ToolGroup> =
@@ -66,20 +63,16 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "toolgroups", params.getPathParam(0))
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { getHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { getHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
     private val registerHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
@@ -90,15 +83,11 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "toolgroups")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response.use { registerHandler.handle(it) }
-        }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        response.use { registerHandler.handle(it) }
     }
 
     private val unregisterHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
@@ -109,14 +98,10 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.DELETE)
                 .addPathSegments("v1", "toolgroups", params.getPathParam(0))
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
+                .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
-        clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response.use { unregisterHandler.handle(it) }
-        }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        response.use { unregisterHandler.handle(it) }
     }
 }

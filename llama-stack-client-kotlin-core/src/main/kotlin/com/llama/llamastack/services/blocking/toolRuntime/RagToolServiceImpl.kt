@@ -12,6 +12,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.QueryResult
 import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
@@ -33,15 +34,11 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "tool-runtime", "rag-tool", "insert")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response.use { insertHandler.handle(it) }
-        }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        response.use { insertHandler.handle(it) }
     }
 
     private val queryHandler: Handler<QueryResult> =
@@ -56,20 +53,16 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "tool-runtime", "rag-tool", "query")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { queryHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { queryHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 }

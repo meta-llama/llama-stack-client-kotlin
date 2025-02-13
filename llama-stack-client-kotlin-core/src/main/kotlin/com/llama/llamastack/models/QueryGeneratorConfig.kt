@@ -105,18 +105,33 @@ private constructor(
         fun ofLlmrag(llmrag: LlmragQueryGeneratorConfig) = QueryGeneratorConfig(llmrag = llmrag)
     }
 
+    /**
+     * An interface that defines how to map each variant of [QueryGeneratorConfig] to a value of
+     * type [T].
+     */
     interface Visitor<out T> {
 
         fun visitDefaultRag(defaultRag: DefaultRagQueryGeneratorConfig): T
 
         fun visitLlmrag(llmrag: LlmragQueryGeneratorConfig): T
 
+        /**
+         * Maps an unknown variant of [QueryGeneratorConfig] to a value of type [T].
+         *
+         * An instance of [QueryGeneratorConfig] can contain an unknown variant if it was
+         * deserialized from data that doesn't match any known variant. For example, if the SDK is
+         * on an older version than the API, then the API may respond with new variants that the SDK
+         * is unaware of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown QueryGeneratorConfig: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<QueryGeneratorConfig>(QueryGeneratorConfig::class) {
+    internal class Deserializer :
+        BaseDeserializer<QueryGeneratorConfig>(QueryGeneratorConfig::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): QueryGeneratorConfig {
             val json = JsonValue.fromJsonNode(node)
@@ -145,7 +160,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<QueryGeneratorConfig>(QueryGeneratorConfig::class) {
+    internal class Serializer : BaseSerializer<QueryGeneratorConfig>(QueryGeneratorConfig::class) {
 
         override fun serialize(
             value: QueryGeneratorConfig,
@@ -206,7 +221,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [DefaultRagQueryGeneratorConfig]. */
+        class Builder internal constructor() {
 
             private var separator: JsonField<String>? = null
             private var type: JsonValue = JsonValue.from("default")
@@ -324,7 +340,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [LlmragQueryGeneratorConfig]. */
+        class Builder internal constructor() {
 
             private var model: JsonField<String>? = null
             private var template: JsonField<String>? = null

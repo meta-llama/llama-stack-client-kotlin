@@ -12,6 +12,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.EvalJobCancelParams
 import com.llama.llamastack.models.EvalJobRetrieveParams
@@ -46,20 +47,16 @@ internal constructor(
                     params.getPathParam(1),
                     "result"
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { retrieveHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { retrieveHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
     private val cancelHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
@@ -76,15 +73,11 @@ internal constructor(
                     "jobs",
                     params.getPathParam(1)
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .apply { params.getBody()?.also { body(json(clientOptions.jsonMapper, it)) } }
+                .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response.use { cancelHandler.handle(it) }
-        }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        response.use { cancelHandler.handle(it) }
     }
 
     private val statusHandler: Handler<EvalJobStatusResponse?> =
@@ -105,13 +98,9 @@ internal constructor(
                     "jobs",
                     params.getPathParam(1)
                 )
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response.use { statusHandler.handle(it) }
-        }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response.use { statusHandler.handle(it) }
     }
 }

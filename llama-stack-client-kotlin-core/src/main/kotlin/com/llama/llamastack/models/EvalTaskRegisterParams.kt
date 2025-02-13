@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,17 +20,11 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class EvalTaskRegisterParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: EvalTaskRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun datasetId(): String = body.datasetId()
 
@@ -61,21 +56,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): EvalTaskRegisterBody = body
+    internal fun _body(): EvalTaskRegisterBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class EvalTaskRegisterBody
@@ -162,7 +147,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [EvalTaskRegisterBody]. */
+        class Builder internal constructor() {
 
             private var datasetId: JsonField<String>? = null
             private var evalTaskId: JsonField<String>? = null
@@ -279,29 +265,18 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [EvalTaskRegisterParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: EvalTaskRegisterBody.Builder = EvalTaskRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalTaskRegisterParams: EvalTaskRegisterParams) = apply {
-            xLlamaStackClientVersion = evalTaskRegisterParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = evalTaskRegisterParams.xLlamaStackProviderData
             body = evalTaskRegisterParams.body.toBuilder()
             additionalHeaders = evalTaskRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalTaskRegisterParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
@@ -459,8 +434,6 @@ constructor(
 
         fun build(): EvalTaskRegisterParams =
             EvalTaskRegisterParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -496,7 +469,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Metadata]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -548,11 +522,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTaskRegisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalTaskRegisterParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalTaskRegisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalTaskRegisterParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

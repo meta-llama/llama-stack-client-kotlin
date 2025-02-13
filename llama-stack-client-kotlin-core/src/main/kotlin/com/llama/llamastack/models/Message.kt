@@ -16,6 +16,7 @@ import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A message from the user in a chat conversation. */
 @JsonDeserialize(using = Message.Deserializer::class)
 @JsonSerialize(using = Message.Serializer::class)
 class Message
@@ -27,12 +28,16 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
+    /** A message from the user in a chat conversation. */
     fun user(): UserMessage? = user
 
+    /** A system message providing instructions or context to the model. */
     fun system(): SystemMessage? = system
 
+    /** A message representing the result of a tool invocation. */
     fun toolResponse(): ToolResponseMessage? = toolResponse
 
+    /** A message containing the model's (assistant) response in a chat conversation. */
     fun completion(): CompletionMessage? = completion
 
     fun isUser(): Boolean = user != null
@@ -43,12 +48,16 @@ private constructor(
 
     fun isCompletion(): Boolean = completion != null
 
+    /** A message from the user in a chat conversation. */
     fun asUser(): UserMessage = user.getOrThrow("user")
 
+    /** A system message providing instructions or context to the model. */
     fun asSystem(): SystemMessage = system.getOrThrow("system")
 
+    /** A message representing the result of a tool invocation. */
     fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
 
+    /** A message containing the model's (assistant) response in a chat conversation. */
     fun asCompletion(): CompletionMessage = completion.getOrThrow("completion")
 
     fun _json(): JsonValue? = _json
@@ -114,31 +123,49 @@ private constructor(
 
     companion object {
 
+        /** A message from the user in a chat conversation. */
         fun ofUser(user: UserMessage) = Message(user = user)
 
+        /** A system message providing instructions or context to the model. */
         fun ofSystem(system: SystemMessage) = Message(system = system)
 
+        /** A message representing the result of a tool invocation. */
         fun ofToolResponse(toolResponse: ToolResponseMessage) = Message(toolResponse = toolResponse)
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun ofCompletion(completion: CompletionMessage) = Message(completion = completion)
     }
 
+    /** An interface that defines how to map each variant of [Message] to a value of type [T]. */
     interface Visitor<out T> {
 
+        /** A message from the user in a chat conversation. */
         fun visitUser(user: UserMessage): T
 
+        /** A system message providing instructions or context to the model. */
         fun visitSystem(system: SystemMessage): T
 
+        /** A message representing the result of a tool invocation. */
         fun visitToolResponse(toolResponse: ToolResponseMessage): T
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun visitCompletion(completion: CompletionMessage): T
 
+        /**
+         * Maps an unknown variant of [Message] to a value of type [T].
+         *
+         * An instance of [Message] can contain an unknown variant if it was deserialized from data
+         * that doesn't match any known variant. For example, if the SDK is on an older version than
+         * the API, then the API may respond with new variants that the SDK is unaware of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown Message: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<Message>(Message::class) {
+    internal class Deserializer : BaseDeserializer<Message>(Message::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): Message {
             val json = JsonValue.fromJsonNode(node)
@@ -175,7 +202,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<Message>(Message::class) {
+    internal class Serializer : BaseSerializer<Message>(Message::class) {
 
         override fun serialize(
             value: Message,

@@ -8,13 +8,8 @@ import org.junit.jupiter.api.Test
 class TelemetryGetSpanParamsTest {
 
     @Test
-    fun createTelemetryGetSpanParams() {
-        TelemetryGetSpanParams.builder()
-            .traceId("trace_id")
-            .spanId("span_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        TelemetryGetSpanParams.builder().traceId("trace_id").spanId("span_id").build()
     }
 
     @Test

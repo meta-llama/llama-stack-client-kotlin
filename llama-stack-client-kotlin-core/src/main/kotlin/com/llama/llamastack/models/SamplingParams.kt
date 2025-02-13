@@ -81,7 +81,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [SamplingParams]. */
+    class Builder internal constructor() {
 
         private var strategy: JsonField<Strategy>? = null
         private var maxTokens: JsonField<Long> = JsonMissing.of()
@@ -106,6 +107,9 @@ private constructor(
 
         fun strategy(topKSampling: Strategy.TopKSamplingStrategy) =
             strategy(Strategy.ofTopKSampling(topKSampling))
+
+        fun topKSamplingStrategy(topK: Long) =
+            strategy(Strategy.TopKSamplingStrategy.builder().topK(topK).build())
 
         fun maxTokens(maxTokens: Long) = maxTokens(JsonField.of(maxTokens))
 
@@ -247,6 +251,9 @@ private constructor(
                 Strategy(topKSampling = topKSampling)
         }
 
+        /**
+         * An interface that defines how to map each variant of [Strategy] to a value of type [T].
+         */
         interface Visitor<out T> {
 
             fun visitGreedySampling(greedySampling: JsonValue): T
@@ -255,12 +262,22 @@ private constructor(
 
             fun visitTopKSampling(topKSampling: TopKSamplingStrategy): T
 
+            /**
+             * Maps an unknown variant of [Strategy] to a value of type [T].
+             *
+             * An instance of [Strategy] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Strategy: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Strategy>(Strategy::class) {
+        internal class Deserializer : BaseDeserializer<Strategy>(Strategy::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Strategy {
                 val json = JsonValue.fromJsonNode(node)
@@ -303,7 +320,7 @@ private constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Strategy>(Strategy::class) {
+        internal class Serializer : BaseSerializer<Strategy>(Strategy::class) {
 
             override fun serialize(
                 value: Strategy,
@@ -377,7 +394,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [TopPSamplingStrategy]. */
+            class Builder internal constructor() {
 
                 private var type: JsonValue = JsonValue.from("top_p")
                 private var temperature: JsonField<Double> = JsonMissing.of()
@@ -499,7 +517,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [TopKSamplingStrategy]. */
+            class Builder internal constructor() {
 
                 private var topK: JsonField<Long>? = null
                 private var type: JsonValue = JsonValue.from("top_k")

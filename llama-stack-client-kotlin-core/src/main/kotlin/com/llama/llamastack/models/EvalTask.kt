@@ -105,7 +105,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [EvalTask]. */
+    class Builder internal constructor() {
 
         private var datasetId: JsonField<String>? = null
         private var identifier: JsonField<String>? = null
@@ -231,7 +232,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Metadata]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

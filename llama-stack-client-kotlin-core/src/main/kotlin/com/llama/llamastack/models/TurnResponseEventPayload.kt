@@ -190,6 +190,10 @@ private constructor(
         ) = TurnResponseEventPayload(agentTurnResponseTurnComplete = agentTurnResponseTurnComplete)
     }
 
+    /**
+     * An interface that defines how to map each variant of [TurnResponseEventPayload] to a value of
+     * type [T].
+     */
     interface Visitor<out T> {
 
         fun visitAgentTurnResponseStepStart(
@@ -212,12 +216,22 @@ private constructor(
             agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
         ): T
 
+        /**
+         * Maps an unknown variant of [TurnResponseEventPayload] to a value of type [T].
+         *
+         * An instance of [TurnResponseEventPayload] can contain an unknown variant if it was
+         * deserialized from data that doesn't match any known variant. For example, if the SDK is
+         * on an older version than the API, then the API may respond with new variants that the SDK
+         * is unaware of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown TurnResponseEventPayload: $json")
         }
     }
 
-    class Deserializer :
+    internal class Deserializer :
         BaseDeserializer<TurnResponseEventPayload>(TurnResponseEventPayload::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): TurnResponseEventPayload {
@@ -286,7 +300,8 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<TurnResponseEventPayload>(TurnResponseEventPayload::class) {
+    internal class Serializer :
+        BaseSerializer<TurnResponseEventPayload>(TurnResponseEventPayload::class) {
 
         override fun serialize(
             value: TurnResponseEventPayload,
@@ -375,7 +390,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentTurnResponseStepStartPayload]. */
+        class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("step_start")
             private var stepId: JsonField<String>? = null
@@ -443,6 +459,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -458,6 +482,7 @@ private constructor(
                 fun of(value: String) = StepType(JsonField.of(value))
             }
 
+            /** An enum containing [StepType]'s known values. */
             enum class Known {
                 INFERENCE,
                 TOOL_EXECUTION,
@@ -465,14 +490,33 @@ private constructor(
                 MEMORY_RETRIEVAL,
             }
 
+            /**
+             * An enum containing [StepType]'s known values, as well as an [_UNKNOWN] member.
+             *
+             * An instance of [StepType] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 INFERENCE,
                 TOOL_EXECUTION,
                 SHIELD_CALL,
                 MEMORY_RETRIEVAL,
+                /**
+                 * An enum member indicating that [StepType] was instantiated with an unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     INFERENCE -> Value.INFERENCE
@@ -482,6 +526,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     INFERENCE -> Known.INFERENCE
@@ -535,7 +588,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Metadata]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -668,7 +722,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentTurnResponseStepProgressPayload]. */
+        class Builder internal constructor() {
 
             private var delta: JsonField<ContentDelta>? = null
             private var eventType: JsonValue = JsonValue.from("step_progress")
@@ -693,7 +748,12 @@ private constructor(
 
             fun delta(text: ContentDelta.TextDelta) = delta(ContentDelta.ofText(text))
 
+            fun textDelta(text: String) = delta(ContentDelta.TextDelta.builder().text(text).build())
+
             fun delta(image: ContentDelta.ImageDelta) = delta(ContentDelta.ofImage(image))
+
+            fun imageDelta(image: String) =
+                delta(ContentDelta.ImageDelta.builder().image(image).build())
 
             fun delta(toolCall: ContentDelta.ToolCallDelta) =
                 delta(ContentDelta.ofToolCall(toolCall))
@@ -743,6 +803,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -758,6 +826,7 @@ private constructor(
                 fun of(value: String) = StepType(JsonField.of(value))
             }
 
+            /** An enum containing [StepType]'s known values. */
             enum class Known {
                 INFERENCE,
                 TOOL_EXECUTION,
@@ -765,14 +834,33 @@ private constructor(
                 MEMORY_RETRIEVAL,
             }
 
+            /**
+             * An enum containing [StepType]'s known values, as well as an [_UNKNOWN] member.
+             *
+             * An instance of [StepType] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 INFERENCE,
                 TOOL_EXECUTION,
                 SHIELD_CALL,
                 MEMORY_RETRIEVAL,
+                /**
+                 * An enum member indicating that [StepType] was instantiated with an unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     INFERENCE -> Value.INFERENCE
@@ -782,6 +870,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     INFERENCE -> Known.INFERENCE
@@ -891,7 +988,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentTurnResponseStepCompletePayload]. */
+        class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("step_complete")
             private var stepDetails: JsonField<StepDetails>? = null
@@ -1084,6 +1182,10 @@ private constructor(
                     StepDetails(memoryRetrievalStep = memoryRetrievalStep)
             }
 
+            /**
+             * An interface that defines how to map each variant of [StepDetails] to a value of type
+             * [T].
+             */
             interface Visitor<out T> {
 
                 fun visitInferenceStep(inferenceStep: InferenceStep): T
@@ -1094,12 +1196,22 @@ private constructor(
 
                 fun visitMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep): T
 
+                /**
+                 * Maps an unknown variant of [StepDetails] to a value of type [T].
+                 *
+                 * An instance of [StepDetails] can contain an unknown variant if it was
+                 * deserialized from data that doesn't match any known variant. For example, if the
+                 * SDK is on an older version than the API, then the API may respond with new
+                 * variants that the SDK is unaware of.
+                 *
+                 * @throws LlamaStackClientInvalidDataException in the default implementation.
+                 */
                 fun unknown(json: JsonValue?): T {
                     throw LlamaStackClientInvalidDataException("Unknown StepDetails: $json")
                 }
             }
 
-            class Deserializer : BaseDeserializer<StepDetails>(StepDetails::class) {
+            internal class Deserializer : BaseDeserializer<StepDetails>(StepDetails::class) {
 
                 override fun ObjectCodec.deserialize(node: JsonNode): StepDetails {
                     val json = JsonValue.fromJsonNode(node)
@@ -1140,7 +1252,7 @@ private constructor(
                 }
             }
 
-            class Serializer : BaseSerializer<StepDetails>(StepDetails::class) {
+            internal class Serializer : BaseSerializer<StepDetails>(StepDetails::class) {
 
                 override fun serialize(
                     value: StepDetails,
@@ -1167,6 +1279,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -1182,6 +1302,7 @@ private constructor(
                 fun of(value: String) = StepType(JsonField.of(value))
             }
 
+            /** An enum containing [StepType]'s known values. */
             enum class Known {
                 INFERENCE,
                 TOOL_EXECUTION,
@@ -1189,14 +1310,33 @@ private constructor(
                 MEMORY_RETRIEVAL,
             }
 
+            /**
+             * An enum containing [StepType]'s known values, as well as an [_UNKNOWN] member.
+             *
+             * An instance of [StepType] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 INFERENCE,
                 TOOL_EXECUTION,
                 SHIELD_CALL,
                 MEMORY_RETRIEVAL,
+                /**
+                 * An enum member indicating that [StepType] was instantiated with an unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     INFERENCE -> Value.INFERENCE
@@ -1206,6 +1346,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     INFERENCE -> Known.INFERENCE
@@ -1297,7 +1446,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentTurnResponseTurnStartPayload]. */
+        class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("turn_start")
             private var turnId: JsonField<String>? = null
@@ -1377,8 +1527,10 @@ private constructor(
 
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
+        /** A single turn in an interaction with an Agentic System. */
         fun turn(): Turn = turn.getRequired("turn")
 
+        /** A single turn in an interaction with an Agentic System. */
         @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
 
         @JsonAnyGetter
@@ -1410,7 +1562,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentTurnResponseTurnCompletePayload]. */
+        class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("turn_complete")
             private var turn: JsonField<Turn>? = null
@@ -1427,8 +1580,10 @@ private constructor(
 
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
+            /** A single turn in an interaction with an Agentic System. */
             fun turn(turn: Turn) = turn(JsonField.of(turn))
 
+            /** A single turn in an interaction with an Agentic System. */
             fun turn(turn: JsonField<Turn>) = apply { this.turn = turn }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

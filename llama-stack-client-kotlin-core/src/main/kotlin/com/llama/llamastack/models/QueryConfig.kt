@@ -73,7 +73,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [QueryConfig]. */
+    class Builder internal constructor() {
 
         private var maxChunks: JsonField<Long>? = null
         private var maxTokensInContext: JsonField<Long>? = null
@@ -107,6 +108,13 @@ private constructor(
 
         fun queryGeneratorConfig(defaultRag: QueryGeneratorConfig.DefaultRagQueryGeneratorConfig) =
             queryGeneratorConfig(QueryGeneratorConfig.ofDefaultRag(defaultRag))
+
+        fun defaultRagQueryGeneratorConfig(separator: String) =
+            queryGeneratorConfig(
+                QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
+                    .separator(separator)
+                    .build()
+            )
 
         fun queryGeneratorConfig(llmrag: QueryGeneratorConfig.LlmragQueryGeneratorConfig) =
             queryGeneratorConfig(QueryGeneratorConfig.ofLlmrag(llmrag))

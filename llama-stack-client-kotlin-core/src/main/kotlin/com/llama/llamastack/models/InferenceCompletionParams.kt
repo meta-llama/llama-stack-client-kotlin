@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -18,37 +19,48 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Generate a completion for the given content using the specified model. */
 class InferenceCompletionParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: InferenceCompletionBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
+    /** The content to generate a completion for */
     fun content(): InterleavedContent = body.content()
 
+    /**
+     * The identifier of the model to use. The model must be registered with Llama Stack and
+     * available via the /models endpoint.
+     */
     fun modelId(): String = body.modelId()
 
+    /** (Optional) If specified, log probabilities for each token position will be returned. */
     fun logprobs(): Logprobs? = body.logprobs()
 
+    /** (Optional) Grammar specification for guided (structured) decoding */
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
+    /** (Optional) Parameters to control the sampling strategy */
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
+    /** The content to generate a completion for */
     fun _content(): JsonField<InterleavedContent> = body._content()
 
+    /**
+     * The identifier of the model to use. The model must be registered with Llama Stack and
+     * available via the /models endpoint.
+     */
     fun _modelId(): JsonField<String> = body._modelId()
 
+    /** (Optional) If specified, log probabilities for each token position will be returned. */
     fun _logprobs(): JsonField<Logprobs> = body._logprobs()
 
+    /** (Optional) Grammar specification for guided (structured) decoding */
     fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
 
+    /** (Optional) Parameters to control the sampling strategy */
     fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -57,21 +69,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): InferenceCompletionBody = body
+    internal fun _body(): InferenceCompletionBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class InferenceCompletionBody
@@ -96,28 +98,44 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** The content to generate a completion for */
         fun content(): InterleavedContent = content.getRequired("content")
 
+        /**
+         * The identifier of the model to use. The model must be registered with Llama Stack and
+         * available via the /models endpoint.
+         */
         fun modelId(): String = modelId.getRequired("model_id")
 
+        /** (Optional) If specified, log probabilities for each token position will be returned. */
         fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
+        /** (Optional) Grammar specification for guided (structured) decoding */
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
+        /** (Optional) Parameters to control the sampling strategy */
         fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
+        /** The content to generate a completion for */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
 
+        /**
+         * The identifier of the model to use. The model must be registered with Llama Stack and
+         * available via the /models endpoint.
+         */
         @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
 
+        /** (Optional) If specified, log probabilities for each token position will be returned. */
         @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
 
+        /** (Optional) Grammar specification for guided (structured) decoding */
         @JsonProperty("response_format")
         @ExcludeMissing
         fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
 
+        /** (Optional) Parameters to control the sampling strategy */
         @JsonProperty("sampling_params")
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
@@ -148,7 +166,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [InferenceCompletionBody]. */
+        class Builder internal constructor() {
 
             private var content: JsonField<InterleavedContent>? = null
             private var modelId: JsonField<String>? = null
@@ -166,45 +185,83 @@ constructor(
                 additionalProperties = inferenceCompletionBody.additionalProperties.toMutableMap()
             }
 
+            /** The content to generate a completion for */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+            /** The content to generate a completion for */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+            /** The content to generate a completion for */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /** The content to generate a completion for */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
+            /**
+             * The identifier of the model to use. The model must be registered with Llama Stack and
+             * available via the /models endpoint.
+             */
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
+            /**
+             * The identifier of the model to use. The model must be registered with Llama Stack and
+             * available via the /models endpoint.
+             */
             fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
+            /**
+             * (Optional) If specified, log probabilities for each token position will be returned.
+             */
             fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
 
+            /**
+             * (Optional) If specified, log probabilities for each token position will be returned.
+             */
             fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
 
+            /** (Optional) Grammar specification for guided (structured) decoding */
             fun responseFormat(responseFormat: ResponseFormat) =
                 responseFormat(JsonField.of(responseFormat))
 
+            /** (Optional) Grammar specification for guided (structured) decoding */
             fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
                 this.responseFormat = responseFormat
             }
 
+            /** Configuration for JSON schema-guided response generation. */
             fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
                 responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
+            /** Configuration for JSON schema-guided response generation. */
+            fun jsonSchemaResponseFormat(
+                jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+            ) =
+                responseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
+                )
+
+            /** Configuration for grammar-guided response generation. */
             fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
                 responseFormat(ResponseFormat.ofGrammar(grammar))
 
+            /** Configuration for grammar-guided response generation. */
+            fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
+                responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
+
+            /** (Optional) Parameters to control the sampling strategy */
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
+            /** (Optional) Parameters to control the sampling strategy */
             fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
@@ -264,77 +321,98 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [InferenceCompletionParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: InferenceCompletionBody.Builder = InferenceCompletionBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(inferenceCompletionParams: InferenceCompletionParams) = apply {
-            xLlamaStackClientVersion = inferenceCompletionParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = inferenceCompletionParams.xLlamaStackProviderData
             body = inferenceCompletionParams.body.toBuilder()
             additionalHeaders = inferenceCompletionParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceCompletionParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
+        /** The content to generate a completion for */
         fun content(content: InterleavedContent) = apply { body.content(content) }
 
+        /** The content to generate a completion for */
         fun content(content: JsonField<InterleavedContent>) = apply { body.content(content) }
 
+        /** The content to generate a completion for */
         fun content(string: String) = apply { body.content(string) }
 
+        /** A image content item */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.content(imageContentItem)
         }
 
+        /** A text content item */
         fun content(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.content(textContentItem)
         }
 
+        /** The content to generate a completion for */
         fun contentOfItems(items: List<InterleavedContentItem>) = apply {
             body.contentOfItems(items)
         }
 
+        /**
+         * The identifier of the model to use. The model must be registered with Llama Stack and
+         * available via the /models endpoint.
+         */
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
+        /**
+         * The identifier of the model to use. The model must be registered with Llama Stack and
+         * available via the /models endpoint.
+         */
         fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
 
+        /** (Optional) If specified, log probabilities for each token position will be returned. */
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
+        /** (Optional) If specified, log probabilities for each token position will be returned. */
         fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
 
+        /** (Optional) Grammar specification for guided (structured) decoding */
         fun responseFormat(responseFormat: ResponseFormat) = apply {
             body.responseFormat(responseFormat)
         }
 
+        /** (Optional) Grammar specification for guided (structured) decoding */
         fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
             body.responseFormat(responseFormat)
         }
 
+        /** Configuration for JSON schema-guided response generation. */
         fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
             body.responseFormat(jsonSchema)
         }
 
+        /** Configuration for JSON schema-guided response generation. */
+        fun jsonSchemaResponseFormat(
+            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+        ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
+
+        /** Configuration for grammar-guided response generation. */
         fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
             body.responseFormat(grammar)
         }
 
+        /** Configuration for grammar-guided response generation. */
+        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
+            body.grammarResponseFormat(bnf)
+        }
+
+        /** (Optional) Parameters to control the sampling strategy */
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
         }
 
+        /** (Optional) Parameters to control the sampling strategy */
         fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
             body.samplingParams(samplingParams)
         }
@@ -458,14 +536,13 @@ constructor(
 
         fun build(): InferenceCompletionParams =
             InferenceCompletionParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
 
+    /** (Optional) If specified, log probabilities for each token position will be returned. */
     @NoAutoDetect
     class Logprobs
     @JsonCreator
@@ -475,8 +552,10 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** How many tokens (for each position) to return log probabilities for. */
         fun topK(): Long? = topK.getNullable("top_k")
 
+        /** How many tokens (for each position) to return log probabilities for. */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
@@ -501,7 +580,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Logprobs]. */
+        class Builder internal constructor() {
 
             private var topK: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -511,8 +591,10 @@ constructor(
                 additionalProperties = logprobs.additionalProperties.toMutableMap()
             }
 
+            /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: Long) = topK(JsonField.of(topK))
 
+            /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -559,11 +641,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is InferenceCompletionParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is InferenceCompletionParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "InferenceCompletionParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "InferenceCompletionParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

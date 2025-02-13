@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class DatasetListParamsTest {
 
     @Test
-    fun createDatasetListParams() {
-        DatasetListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        DatasetListParams.builder().build()
     }
 }

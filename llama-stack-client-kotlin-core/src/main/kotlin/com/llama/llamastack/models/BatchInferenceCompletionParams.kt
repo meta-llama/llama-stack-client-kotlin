@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,23 +20,20 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class BatchInferenceCompletionParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: BatchInferenceCompletionBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun contentBatch(): List<InterleavedContent> = body.contentBatch()
 
     fun model(): String = body.model()
 
     fun logprobs(): Logprobs? = body.logprobs()
+
+    /** Configuration for JSON schema-guided response generation. */
+    fun responseFormat(): ResponseFormat? = body.responseFormat()
 
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
@@ -45,6 +43,9 @@ constructor(
 
     fun _logprobs(): JsonField<Logprobs> = body._logprobs()
 
+    /** Configuration for JSON schema-guided response generation. */
+    fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
+
     fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -53,21 +54,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): BatchInferenceCompletionBody = body
+    internal fun _body(): BatchInferenceCompletionBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class BatchInferenceCompletionBody
@@ -82,6 +73,9 @@ constructor(
         @JsonProperty("logprobs")
         @ExcludeMissing
         private val logprobs: JsonField<Logprobs> = JsonMissing.of(),
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
         @JsonProperty("sampling_params")
         @ExcludeMissing
         private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
@@ -95,6 +89,9 @@ constructor(
 
         fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
+
         fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
         @JsonProperty("content_batch")
@@ -104,6 +101,11 @@ constructor(
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
         @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
+
+        /** Configuration for JSON schema-guided response generation. */
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
 
         @JsonProperty("sampling_params")
         @ExcludeMissing
@@ -123,6 +125,7 @@ constructor(
             contentBatch().forEach { it.validate() }
             model()
             logprobs()?.validate()
+            responseFormat()?.validate()
             samplingParams()?.validate()
             validated = true
         }
@@ -134,11 +137,13 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [BatchInferenceCompletionBody]. */
+        class Builder internal constructor() {
 
             private var contentBatch: JsonField<MutableList<InterleavedContent>>? = null
             private var model: JsonField<String>? = null
             private var logprobs: JsonField<Logprobs> = JsonMissing.of()
+            private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
             private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -146,6 +151,7 @@ constructor(
                 contentBatch = batchInferenceCompletionBody.contentBatch.map { it.toMutableList() }
                 model = batchInferenceCompletionBody.model
                 logprobs = batchInferenceCompletionBody.logprobs
+                responseFormat = batchInferenceCompletionBody.responseFormat
                 samplingParams = batchInferenceCompletionBody.samplingParams
                 additionalProperties =
                     batchInferenceCompletionBody.additionalProperties.toMutableMap()
@@ -172,9 +178,11 @@ constructor(
             fun addContentBatch(string: String) =
                 addContentBatch(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) =
                 addContentBatch(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) =
                 addContentBatch(InterleavedContent.ofTextContentItem(textContentItem))
 
@@ -188,6 +196,35 @@ constructor(
             fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
 
             fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
+
+            /** Configuration for JSON schema-guided response generation. */
+            fun responseFormat(responseFormat: ResponseFormat) =
+                responseFormat(JsonField.of(responseFormat))
+
+            /** Configuration for JSON schema-guided response generation. */
+            fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
+                this.responseFormat = responseFormat
+            }
+
+            /** Configuration for JSON schema-guided response generation. */
+            fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
+                responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
+
+            /** Configuration for JSON schema-guided response generation. */
+            fun jsonSchemaResponseFormat(
+                jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+            ) =
+                responseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
+                )
+
+            /** Configuration for grammar-guided response generation. */
+            fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
+                responseFormat(ResponseFormat.ofGrammar(grammar))
+
+            /** Configuration for grammar-guided response generation. */
+            fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
+                responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
 
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
@@ -220,6 +257,7 @@ constructor(
                     checkRequired("contentBatch", contentBatch).map { it.toImmutable() },
                     checkRequired("model", model),
                     logprobs,
+                    responseFormat,
                     samplingParams,
                     additionalProperties.toImmutable(),
                 )
@@ -230,17 +268,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is BatchInferenceCompletionBody && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is BatchInferenceCompletionBody && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(contentBatch, model, logprobs, samplingParams, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(contentBatch, model, logprobs, responseFormat, samplingParams, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "BatchInferenceCompletionBody{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
+            "BatchInferenceCompletionBody{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -250,30 +288,19 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [BatchInferenceCompletionParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: BatchInferenceCompletionBody.Builder =
             BatchInferenceCompletionBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(batchInferenceCompletionParams: BatchInferenceCompletionParams) = apply {
-            xLlamaStackClientVersion = batchInferenceCompletionParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = batchInferenceCompletionParams.xLlamaStackProviderData
             body = batchInferenceCompletionParams.body.toBuilder()
             additionalHeaders = batchInferenceCompletionParams.additionalHeaders.toBuilder()
             additionalQueryParams = batchInferenceCompletionParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun contentBatch(contentBatch: List<InterleavedContent>) = apply {
@@ -290,10 +317,12 @@ constructor(
 
         fun addContentBatch(string: String) = apply { body.addContentBatch(string) }
 
+        /** A image content item */
         fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addContentBatch(imageContentItem)
         }
 
+        /** A text content item */
         fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addContentBatch(textContentItem)
         }
@@ -309,6 +338,36 @@ constructor(
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
         fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(responseFormat: ResponseFormat) = apply {
+            body.responseFormat(responseFormat)
+        }
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
+            body.responseFormat(responseFormat)
+        }
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
+            body.responseFormat(jsonSchema)
+        }
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun jsonSchemaResponseFormat(
+            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+        ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
+
+        /** Configuration for grammar-guided response generation. */
+        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
+            body.responseFormat(grammar)
+        }
+
+        /** Configuration for grammar-guided response generation. */
+        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
+            body.grammarResponseFormat(bnf)
+        }
 
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
@@ -437,8 +496,6 @@ constructor(
 
         fun build(): BatchInferenceCompletionParams =
             BatchInferenceCompletionParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -454,8 +511,10 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** How many tokens (for each position) to return log probabilities for. */
         fun topK(): Long? = topK.getNullable("top_k")
 
+        /** How many tokens (for each position) to return log probabilities for. */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
@@ -480,7 +539,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Logprobs]. */
+        class Builder internal constructor() {
 
             private var topK: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -490,8 +550,10 @@ constructor(
                 additionalProperties = logprobs.additionalProperties.toMutableMap()
             }
 
+            /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: Long) = topK(JsonField.of(topK))
 
+            /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -538,11 +600,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is BatchInferenceCompletionParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is BatchInferenceCompletionParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "BatchInferenceCompletionParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "BatchInferenceCompletionParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

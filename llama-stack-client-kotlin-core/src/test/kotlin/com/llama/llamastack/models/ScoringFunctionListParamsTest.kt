@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class ScoringFunctionListParamsTest {
 
     @Test
-    fun createScoringFunctionListParams() {
-        ScoringFunctionListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ScoringFunctionListParams.builder().build()
     }
 }

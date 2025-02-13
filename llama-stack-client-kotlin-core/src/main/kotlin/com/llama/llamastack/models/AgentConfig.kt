@@ -38,9 +38,6 @@ private constructor(
     @JsonProperty("instructions")
     @ExcludeMissing
     private val instructions: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("max_infer_iters")
-    @ExcludeMissing
-    private val maxInferIters: JsonField<Long> = JsonMissing.of(),
     @JsonProperty("model") @ExcludeMissing private val model: JsonField<String> = JsonMissing.of(),
     @JsonProperty("client_tools")
     @ExcludeMissing
@@ -48,15 +45,24 @@ private constructor(
     @JsonProperty("input_shields")
     @ExcludeMissing
     private val inputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("max_infer_iters")
+    @ExcludeMissing
+    private val maxInferIters: JsonField<Long> = JsonMissing.of(),
     @JsonProperty("output_shields")
     @ExcludeMissing
     private val outputShields: JsonField<List<String>> = JsonMissing.of(),
+    @JsonProperty("response_format")
+    @ExcludeMissing
+    private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
     @JsonProperty("sampling_params")
     @ExcludeMissing
     private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
     @JsonProperty("tool_choice")
     @ExcludeMissing
     private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+    @JsonProperty("tool_config")
+    @ExcludeMissing
+    private val toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
     @JsonProperty("tool_prompt_format")
     @ExcludeMissing
     private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
@@ -71,31 +77,31 @@ private constructor(
 
     fun instructions(): String = instructions.getRequired("instructions")
 
-    fun maxInferIters(): Long = maxInferIters.getRequired("max_infer_iters")
-
     fun model(): String = model.getRequired("model")
 
     fun clientTools(): List<ToolDef>? = clientTools.getNullable("client_tools")
 
     fun inputShields(): List<String>? = inputShields.getNullable("input_shields")
 
+    fun maxInferIters(): Long? = maxInferIters.getNullable("max_infer_iters")
+
     fun outputShields(): List<String>? = outputShields.getNullable("output_shields")
+
+    /** Configuration for JSON schema-guided response generation. */
+    fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
     fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
+    /**
+     * Whether tool use is required or automatic. This is a hint to the model which may not be
+     * followed. It depends on the Instruction Following capabilities of the model.
+     */
     fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
 
-    /**
-     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
-     * "type": "function", "function" : { "name": "function_name", "description":
-     * "function_description", "parameters": {...} } }
-     *
-     * `function_tag` -- This is an example of how you could define your own user defined format for
-     * making tool calls. The function_tag format looks like this,
-     * <function=function_name>(parameters)</function>
-     *
-     * The detailed prompts for each of these formats are added to llama cli
-     */
+    /** Configuration for tool use. */
+    fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
+
+    /** Prompt format for calling custom / zero shot tools. */
     fun toolPromptFormat(): ToolPromptFormat? = toolPromptFormat.getNullable("tool_prompt_format")
 
     fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
@@ -108,10 +114,6 @@ private constructor(
     @ExcludeMissing
     fun _instructions(): JsonField<String> = instructions
 
-    @JsonProperty("max_infer_iters")
-    @ExcludeMissing
-    fun _maxInferIters(): JsonField<Long> = maxInferIters
-
     @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
     @JsonProperty("client_tools")
@@ -122,29 +124,37 @@ private constructor(
     @ExcludeMissing
     fun _inputShields(): JsonField<List<String>> = inputShields
 
+    @JsonProperty("max_infer_iters")
+    @ExcludeMissing
+    fun _maxInferIters(): JsonField<Long> = maxInferIters
+
     @JsonProperty("output_shields")
     @ExcludeMissing
     fun _outputShields(): JsonField<List<String>> = outputShields
+
+    /** Configuration for JSON schema-guided response generation. */
+    @JsonProperty("response_format")
+    @ExcludeMissing
+    fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
 
     @JsonProperty("sampling_params")
     @ExcludeMissing
     fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
+    /**
+     * Whether tool use is required or automatic. This is a hint to the model which may not be
+     * followed. It depends on the Instruction Following capabilities of the model.
+     */
     @JsonProperty("tool_choice")
     @ExcludeMissing
     fun _toolChoice(): JsonField<ToolChoice> = toolChoice
 
-    /**
-     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
-     * "type": "function", "function" : { "name": "function_name", "description":
-     * "function_description", "parameters": {...} } }
-     *
-     * `function_tag` -- This is an example of how you could define your own user defined format for
-     * making tool calls. The function_tag format looks like this,
-     * <function=function_name>(parameters)</function>
-     *
-     * The detailed prompts for each of these formats are added to llama cli
-     */
+    /** Configuration for tool use. */
+    @JsonProperty("tool_config")
+    @ExcludeMissing
+    fun _toolConfig(): JsonField<ToolConfig> = toolConfig
+
+    /** Prompt format for calling custom / zero shot tools. */
     @JsonProperty("tool_prompt_format")
     @ExcludeMissing
     fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
@@ -166,13 +176,15 @@ private constructor(
 
         enableSessionPersistence()
         instructions()
-        maxInferIters()
         model()
         clientTools()?.forEach { it.validate() }
         inputShields()
+        maxInferIters()
         outputShields()
+        responseFormat()?.validate()
         samplingParams()?.validate()
         toolChoice()
+        toolConfig()?.validate()
         toolPromptFormat()
         toolgroups()?.forEach { it.validate() }
         validated = true
@@ -185,17 +197,20 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [AgentConfig]. */
+    class Builder internal constructor() {
 
         private var enableSessionPersistence: JsonField<Boolean>? = null
         private var instructions: JsonField<String>? = null
-        private var maxInferIters: JsonField<Long>? = null
         private var model: JsonField<String>? = null
         private var clientTools: JsonField<MutableList<ToolDef>>? = null
         private var inputShields: JsonField<MutableList<String>>? = null
+        private var maxInferIters: JsonField<Long> = JsonMissing.of()
         private var outputShields: JsonField<MutableList<String>>? = null
+        private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
         private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
         private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
+        private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
         private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
         private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -203,13 +218,15 @@ private constructor(
         internal fun from(agentConfig: AgentConfig) = apply {
             enableSessionPersistence = agentConfig.enableSessionPersistence
             instructions = agentConfig.instructions
-            maxInferIters = agentConfig.maxInferIters
             model = agentConfig.model
             clientTools = agentConfig.clientTools.map { it.toMutableList() }
             inputShields = agentConfig.inputShields.map { it.toMutableList() }
+            maxInferIters = agentConfig.maxInferIters
             outputShields = agentConfig.outputShields.map { it.toMutableList() }
+            responseFormat = agentConfig.responseFormat
             samplingParams = agentConfig.samplingParams
             toolChoice = agentConfig.toolChoice
+            toolConfig = agentConfig.toolConfig
             toolPromptFormat = agentConfig.toolPromptFormat
             toolgroups = agentConfig.toolgroups.map { it.toMutableList() }
             additionalProperties = agentConfig.additionalProperties.toMutableMap()
@@ -226,12 +243,6 @@ private constructor(
 
         fun instructions(instructions: JsonField<String>) = apply {
             this.instructions = instructions
-        }
-
-        fun maxInferIters(maxInferIters: Long) = maxInferIters(JsonField.of(maxInferIters))
-
-        fun maxInferIters(maxInferIters: JsonField<Long>) = apply {
-            this.maxInferIters = maxInferIters
         }
 
         fun model(model: String) = model(JsonField.of(model))
@@ -272,6 +283,12 @@ private constructor(
                 }
         }
 
+        fun maxInferIters(maxInferIters: Long) = maxInferIters(JsonField.of(maxInferIters))
+
+        fun maxInferIters(maxInferIters: JsonField<Long>) = apply {
+            this.maxInferIters = maxInferIters
+        }
+
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
         fun outputShields(outputShields: JsonField<List<String>>) = apply {
@@ -289,6 +306,35 @@ private constructor(
                 }
         }
 
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(responseFormat: ResponseFormat) =
+            responseFormat(JsonField.of(responseFormat))
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
+            this.responseFormat = responseFormat
+        }
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
+            responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun jsonSchemaResponseFormat(
+            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+        ) =
+            responseFormat(
+                ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
+            )
+
+        /** Configuration for grammar-guided response generation. */
+        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
+            responseFormat(ResponseFormat.ofGrammar(grammar))
+
+        /** Configuration for grammar-guided response generation. */
+        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
+            responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
+
         fun samplingParams(samplingParams: SamplingParams) =
             samplingParams(JsonField.of(samplingParams))
 
@@ -296,35 +342,29 @@ private constructor(
             this.samplingParams = samplingParams
         }
 
+        /**
+         * Whether tool use is required or automatic. This is a hint to the model which may not be
+         * followed. It depends on the Instruction Following capabilities of the model.
+         */
         fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
 
+        /**
+         * Whether tool use is required or automatic. This is a hint to the model which may not be
+         * followed. It depends on the Instruction Following capabilities of the model.
+         */
         fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply { this.toolChoice = toolChoice }
 
-        /**
-         * `json` -- Refers to the json format for calling tools. The json format takes the form
-         * like { "type": "function", "function" : { "name": "function_name", "description":
-         * "function_description", "parameters": {...} } }
-         *
-         * `function_tag` -- This is an example of how you could define your own user defined format
-         * for making tool calls. The function_tag format looks like this,
-         * <function=function_name>(parameters)</function>
-         *
-         * The detailed prompts for each of these formats are added to llama cli
-         */
+        /** Configuration for tool use. */
+        fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
+
+        /** Configuration for tool use. */
+        fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply { this.toolConfig = toolConfig }
+
+        /** Prompt format for calling custom / zero shot tools. */
         fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
             toolPromptFormat(JsonField.of(toolPromptFormat))
 
-        /**
-         * `json` -- Refers to the json format for calling tools. The json format takes the form
-         * like { "type": "function", "function" : { "name": "function_name", "description":
-         * "function_description", "parameters": {...} } }
-         *
-         * `function_tag` -- This is an example of how you could define your own user defined format
-         * for making tool calls. The function_tag format looks like this,
-         * <function=function_name>(parameters)</function>
-         *
-         * The detailed prompts for each of these formats are added to llama cli
-         */
+        /** Prompt format for calling custom / zero shot tools. */
         fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
             this.toolPromptFormat = toolPromptFormat
         }
@@ -374,25 +414,39 @@ private constructor(
             AgentConfig(
                 checkRequired("enableSessionPersistence", enableSessionPersistence),
                 checkRequired("instructions", instructions),
-                checkRequired("maxInferIters", maxInferIters),
                 checkRequired("model", model),
                 (clientTools ?: JsonMissing.of()).map { it.toImmutable() },
                 (inputShields ?: JsonMissing.of()).map { it.toImmutable() },
+                maxInferIters,
                 (outputShields ?: JsonMissing.of()).map { it.toImmutable() },
+                responseFormat,
                 samplingParams,
                 toolChoice,
+                toolConfig,
                 toolPromptFormat,
                 (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
 
+    /**
+     * Whether tool use is required or automatic. This is a hint to the model which may not be
+     * followed. It depends on the Instruction Following capabilities of the model.
+     */
     class ToolChoice
     @JsonCreator
     private constructor(
         private val value: JsonField<String>,
     ) : Enum {
 
+        /**
+         * Returns this class instance's raw value.
+         *
+         * This is usually only useful if this instance was deserialized from data that doesn't
+         * match any known member, and you want to know that value. For example, if the SDK is on an
+         * older version than the API, then the API may respond with new members that the SDK is
+         * unaware of.
+         */
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
         companion object {
@@ -404,17 +458,37 @@ private constructor(
             fun of(value: String) = ToolChoice(JsonField.of(value))
         }
 
+        /** An enum containing [ToolChoice]'s known values. */
         enum class Known {
             AUTO,
             REQUIRED,
         }
 
+        /**
+         * An enum containing [ToolChoice]'s known values, as well as an [_UNKNOWN] member.
+         *
+         * An instance of [ToolChoice] can contain an unknown value in a couple of cases:
+         * - It was deserialized from data that doesn't match any known member. For example, if the
+         *   SDK is on an older version than the API, then the API may respond with new members that
+         *   the SDK is unaware of.
+         * - It was constructed with an arbitrary value using the [of] method.
+         */
         enum class Value {
             AUTO,
             REQUIRED,
+            /**
+             * An enum member indicating that [ToolChoice] was instantiated with an unknown value.
+             */
             _UNKNOWN,
         }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
+         * if the class was instantiated with an unknown value.
+         *
+         * Use the [known] method instead if you're certain the value is always known or if you want
+         * to throw for the unknown case.
+         */
         fun value(): Value =
             when (this) {
                 AUTO -> Value.AUTO
@@ -422,6 +496,15 @@ private constructor(
                 else -> Value._UNKNOWN
             }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value.
+         *
+         * Use the [value] method instead if you're uncertain the value is always known and don't
+         * want to throw for the unknown case.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
+         *   known member.
+         */
         fun known(): Known =
             when (this) {
                 AUTO -> Known.AUTO
@@ -444,23 +527,548 @@ private constructor(
         override fun toString() = value.toString()
     }
 
-    /**
-     * `json` -- Refers to the json format for calling tools. The json format takes the form like {
-     * "type": "function", "function" : { "name": "function_name", "description":
-     * "function_description", "parameters": {...} } }
-     *
-     * `function_tag` -- This is an example of how you could define your own user defined format for
-     * making tool calls. The function_tag format looks like this,
-     * <function=function_name>(parameters)</function>
-     *
-     * The detailed prompts for each of these formats are added to llama cli
-     */
+    /** Configuration for tool use. */
+    @NoAutoDetect
+    class ToolConfig
+    @JsonCreator
+    private constructor(
+        @JsonProperty("system_message_behavior")
+        @ExcludeMissing
+        private val systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        /**
+         * (Optional) Config for how to override the default system prompt. -
+         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
+         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
+         * provided system message. The system message can include the string
+         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         */
+        fun systemMessageBehavior(): SystemMessageBehavior =
+            systemMessageBehavior.getRequired("system_message_behavior")
+
+        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls.
+         */
+        fun toolPromptFormat(): ToolPromptFormat? =
+            toolPromptFormat.getNullable("tool_prompt_format")
+
+        /**
+         * (Optional) Config for how to override the default system prompt. -
+         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
+         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
+         * provided system message. The system message can include the string
+         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         */
+        @JsonProperty("system_message_behavior")
+        @ExcludeMissing
+        fun _systemMessageBehavior(): JsonField<SystemMessageBehavior> = systemMessageBehavior
+
+        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        fun _toolChoice(): JsonField<ToolChoice> = toolChoice
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls.
+         */
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            systemMessageBehavior()
+            toolChoice()
+            toolPromptFormat()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [ToolConfig]. */
+        class Builder internal constructor() {
+
+            private var systemMessageBehavior: JsonField<SystemMessageBehavior>? = null
+            private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
+            private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(toolConfig: ToolConfig) = apply {
+                systemMessageBehavior = toolConfig.systemMessageBehavior
+                toolChoice = toolConfig.toolChoice
+                toolPromptFormat = toolConfig.toolPromptFormat
+                additionalProperties = toolConfig.additionalProperties.toMutableMap()
+            }
+
+            /**
+             * (Optional) Config for how to override the default system prompt. -
+             * `SystemMessageBehavior.append`: Appends the provided system message to the default
+             * system prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt
+             * with the provided system message. The system message can include the string
+             * '{{function_definitions}}' to indicate where the function definitions should be
+             * inserted.
+             */
+            fun systemMessageBehavior(systemMessageBehavior: SystemMessageBehavior) =
+                systemMessageBehavior(JsonField.of(systemMessageBehavior))
+
+            /**
+             * (Optional) Config for how to override the default system prompt. -
+             * `SystemMessageBehavior.append`: Appends the provided system message to the default
+             * system prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt
+             * with the provided system message. The system message can include the string
+             * '{{function_definitions}}' to indicate where the function definitions should be
+             * inserted.
+             */
+            fun systemMessageBehavior(systemMessageBehavior: JsonField<SystemMessageBehavior>) =
+                apply {
+                    this.systemMessageBehavior = systemMessageBehavior
+                }
+
+            /**
+             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             */
+            fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
+
+            /**
+             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             */
+            fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
+                this.toolChoice = toolChoice
+            }
+
+            /**
+             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
+             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
+             * tool calls are enclosed in a <function=function_name> tag. -
+             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
+             * of function calls.
+             */
+            fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
+                toolPromptFormat(JsonField.of(toolPromptFormat))
+
+            /**
+             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
+             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
+             * tool calls are enclosed in a <function=function_name> tag. -
+             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
+             * of function calls.
+             */
+            fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
+                this.toolPromptFormat = toolPromptFormat
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): ToolConfig =
+                ToolConfig(
+                    checkRequired("systemMessageBehavior", systemMessageBehavior),
+                    toolChoice,
+                    toolPromptFormat,
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        /**
+         * (Optional) Config for how to override the default system prompt. -
+         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
+         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
+         * provided system message. The system message can include the string
+         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         */
+        class SystemMessageBehavior
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val APPEND = of("append")
+
+                val REPLACE = of("replace")
+
+                fun of(value: String) = SystemMessageBehavior(JsonField.of(value))
+            }
+
+            /** An enum containing [SystemMessageBehavior]'s known values. */
+            enum class Known {
+                APPEND,
+                REPLACE,
+            }
+
+            /**
+             * An enum containing [SystemMessageBehavior]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [SystemMessageBehavior] can contain an unknown value in a couple of
+             * cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
+            enum class Value {
+                APPEND,
+                REPLACE,
+                /**
+                 * An enum member indicating that [SystemMessageBehavior] was instantiated with an
+                 * unknown value.
+                 */
+                _UNKNOWN,
+            }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
+            fun value(): Value =
+                when (this) {
+                    APPEND -> Value.APPEND
+                    REPLACE -> Value.REPLACE
+                    else -> Value._UNKNOWN
+                }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
+            fun known(): Known =
+                when (this) {
+                    APPEND -> Known.APPEND
+                    REPLACE -> Known.REPLACE
+                    else ->
+                        throw LlamaStackClientInvalidDataException(
+                            "Unknown SystemMessageBehavior: $value"
+                        )
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is SystemMessageBehavior && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        class ToolChoice
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val AUTO = of("auto")
+
+                val REQUIRED = of("required")
+
+                fun of(value: String) = ToolChoice(JsonField.of(value))
+            }
+
+            /** An enum containing [ToolChoice]'s known values. */
+            enum class Known {
+                AUTO,
+                REQUIRED,
+            }
+
+            /**
+             * An enum containing [ToolChoice]'s known values, as well as an [_UNKNOWN] member.
+             *
+             * An instance of [ToolChoice] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
+            enum class Value {
+                AUTO,
+                REQUIRED,
+                /**
+                 * An enum member indicating that [ToolChoice] was instantiated with an unknown
+                 * value.
+                 */
+                _UNKNOWN,
+            }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
+            fun value(): Value =
+                when (this) {
+                    AUTO -> Value.AUTO
+                    REQUIRED -> Value.REQUIRED
+                    else -> Value._UNKNOWN
+                }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
+            fun known(): Known =
+                when (this) {
+                    AUTO -> Known.AUTO
+                    REQUIRED -> Known.REQUIRED
+                    else -> throw LlamaStackClientInvalidDataException("Unknown ToolChoice: $value")
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls.
+         */
+        class ToolPromptFormat
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val JSON = of("json")
+
+                val FUNCTION_TAG = of("function_tag")
+
+                val PYTHON_LIST = of("python_list")
+
+                fun of(value: String) = ToolPromptFormat(JsonField.of(value))
+            }
+
+            /** An enum containing [ToolPromptFormat]'s known values. */
+            enum class Known {
+                JSON,
+                FUNCTION_TAG,
+                PYTHON_LIST,
+            }
+
+            /**
+             * An enum containing [ToolPromptFormat]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [ToolPromptFormat] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
+            enum class Value {
+                JSON,
+                FUNCTION_TAG,
+                PYTHON_LIST,
+                /**
+                 * An enum member indicating that [ToolPromptFormat] was instantiated with an
+                 * unknown value.
+                 */
+                _UNKNOWN,
+            }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
+            fun value(): Value =
+                when (this) {
+                    JSON -> Value.JSON
+                    FUNCTION_TAG -> Value.FUNCTION_TAG
+                    PYTHON_LIST -> Value.PYTHON_LIST
+                    else -> Value._UNKNOWN
+                }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
+            fun known(): Known =
+                when (this) {
+                    JSON -> Known.JSON
+                    FUNCTION_TAG -> Known.FUNCTION_TAG
+                    PYTHON_LIST -> Known.PYTHON_LIST
+                    else ->
+                        throw LlamaStackClientInvalidDataException(
+                            "Unknown ToolPromptFormat: $value"
+                        )
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolConfig && systemMessageBehavior == other.systemMessageBehavior && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(systemMessageBehavior, toolChoice, toolPromptFormat, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "ToolConfig{systemMessageBehavior=$systemMessageBehavior, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, additionalProperties=$additionalProperties}"
+    }
+
+    /** Prompt format for calling custom / zero shot tools. */
     class ToolPromptFormat
     @JsonCreator
     private constructor(
         private val value: JsonField<String>,
     ) : Enum {
 
+        /**
+         * Returns this class instance's raw value.
+         *
+         * This is usually only useful if this instance was deserialized from data that doesn't
+         * match any known member, and you want to know that value. For example, if the SDK is on an
+         * older version than the API, then the API may respond with new members that the SDK is
+         * unaware of.
+         */
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
         companion object {
@@ -474,19 +1082,40 @@ private constructor(
             fun of(value: String) = ToolPromptFormat(JsonField.of(value))
         }
 
+        /** An enum containing [ToolPromptFormat]'s known values. */
         enum class Known {
             JSON,
             FUNCTION_TAG,
             PYTHON_LIST,
         }
 
+        /**
+         * An enum containing [ToolPromptFormat]'s known values, as well as an [_UNKNOWN] member.
+         *
+         * An instance of [ToolPromptFormat] can contain an unknown value in a couple of cases:
+         * - It was deserialized from data that doesn't match any known member. For example, if the
+         *   SDK is on an older version than the API, then the API may respond with new members that
+         *   the SDK is unaware of.
+         * - It was constructed with an arbitrary value using the [of] method.
+         */
         enum class Value {
             JSON,
             FUNCTION_TAG,
             PYTHON_LIST,
+            /**
+             * An enum member indicating that [ToolPromptFormat] was instantiated with an unknown
+             * value.
+             */
             _UNKNOWN,
         }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
+         * if the class was instantiated with an unknown value.
+         *
+         * Use the [known] method instead if you're certain the value is always known or if you want
+         * to throw for the unknown case.
+         */
         fun value(): Value =
             when (this) {
                 JSON -> Value.JSON
@@ -495,6 +1124,15 @@ private constructor(
                 else -> Value._UNKNOWN
             }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value.
+         *
+         * Use the [value] method instead if you're uncertain the value is always known and don't
+         * want to throw for the unknown case.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
+         *   known member.
+         */
         fun known(): Known =
             when (this) {
                 JSON -> Known.JSON
@@ -594,18 +1232,31 @@ private constructor(
             fun ofUnionMember1(unionMember1: UnionMember1) = Toolgroup(unionMember1 = unionMember1)
         }
 
+        /**
+         * An interface that defines how to map each variant of [Toolgroup] to a value of type [T].
+         */
         interface Visitor<out T> {
 
             fun visitString(string: String): T
 
             fun visitUnionMember1(unionMember1: UnionMember1): T
 
+            /**
+             * Maps an unknown variant of [Toolgroup] to a value of type [T].
+             *
+             * An instance of [Toolgroup] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Toolgroup: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Toolgroup>(Toolgroup::class) {
+        internal class Deserializer : BaseDeserializer<Toolgroup>(Toolgroup::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Toolgroup {
                 val json = JsonValue.fromJsonNode(node)
@@ -622,7 +1273,7 @@ private constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Toolgroup>(Toolgroup::class) {
+        internal class Serializer : BaseSerializer<Toolgroup>(Toolgroup::class) {
 
             override fun serialize(
                 value: Toolgroup,
@@ -683,7 +1334,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [UnionMember1]. */
+            class Builder internal constructor() {
 
                 private var args: JsonField<Args>? = null
                 private var name: JsonField<String>? = null
@@ -762,7 +1414,8 @@ private constructor(
                     fun builder() = Builder()
                 }
 
-                class Builder {
+                /** A builder for [Args]. */
+                class Builder internal constructor() {
 
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -836,15 +1489,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentConfig && enableSessionPersistence == other.enableSessionPersistence && instructions == other.instructions && maxInferIters == other.maxInferIters && model == other.model && clientTools == other.clientTools && inputShields == other.inputShields && outputShields == other.outputShields && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentConfig && enableSessionPersistence == other.enableSessionPersistence && instructions == other.instructions && model == other.model && clientTools == other.clientTools && inputShields == other.inputShields && maxInferIters == other.maxInferIters && outputShields == other.outputShields && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(enableSessionPersistence, instructions, maxInferIters, model, clientTools, inputShields, outputShields, samplingParams, toolChoice, toolPromptFormat, toolgroups, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(enableSessionPersistence, instructions, model, clientTools, inputShields, maxInferIters, outputShields, responseFormat, samplingParams, toolChoice, toolConfig, toolPromptFormat, toolgroups, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "AgentConfig{enableSessionPersistence=$enableSessionPersistence, instructions=$instructions, maxInferIters=$maxInferIters, model=$model, clientTools=$clientTools, inputShields=$inputShields, outputShields=$outputShields, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+        "AgentConfig{enableSessionPersistence=$enableSessionPersistence, instructions=$instructions, model=$model, clientTools=$clientTools, inputShields=$inputShields, maxInferIters=$maxInferIters, outputShields=$outputShields, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
 }

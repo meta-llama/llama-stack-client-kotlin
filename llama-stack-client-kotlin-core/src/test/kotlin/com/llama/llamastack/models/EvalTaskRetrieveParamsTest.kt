@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class EvalTaskRetrieveParamsTest {
 
     @Test
-    fun createEvalTaskRetrieveParams() {
-        EvalTaskRetrieveParams.builder()
-            .evalTaskId("eval_task_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        EvalTaskRetrieveParams.builder().evalTaskId("eval_task_id").build()
     }
 
     @Test

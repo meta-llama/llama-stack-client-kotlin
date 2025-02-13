@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -21,26 +22,22 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class SyntheticDataGenerationGenerateParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: SyntheticDataGenerationGenerateBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun dialogs(): List<Message> = body.dialogs()
 
+    /** The type of filtering function. */
     fun filteringFunction(): FilteringFunction = body.filteringFunction()
 
     fun model(): String? = body.model()
 
     fun _dialogs(): JsonField<List<Message>> = body._dialogs()
 
+    /** The type of filtering function. */
     fun _filteringFunction(): JsonField<FilteringFunction> = body._filteringFunction()
 
     fun _model(): JsonField<String> = body._model()
@@ -51,21 +48,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): SyntheticDataGenerationGenerateBody = body
+    internal fun _body(): SyntheticDataGenerationGenerateBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class SyntheticDataGenerationGenerateBody
@@ -86,6 +73,7 @@ constructor(
 
         fun dialogs(): List<Message> = dialogs.getRequired("dialogs")
 
+        /** The type of filtering function. */
         fun filteringFunction(): FilteringFunction =
             filteringFunction.getRequired("filtering_function")
 
@@ -93,6 +81,7 @@ constructor(
 
         @JsonProperty("dialogs") @ExcludeMissing fun _dialogs(): JsonField<List<Message>> = dialogs
 
+        /** The type of filtering function. */
         @JsonProperty("filtering_function")
         @ExcludeMissing
         fun _filteringFunction(): JsonField<FilteringFunction> = filteringFunction
@@ -123,7 +112,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [SyntheticDataGenerationGenerateBody]. */
+        class Builder internal constructor() {
 
             private var dialogs: JsonField<MutableList<Message>>? = null
             private var filteringFunction: JsonField<FilteringFunction>? = null
@@ -157,19 +147,64 @@ constructor(
                     }
             }
 
+            /** A message from the user in a chat conversation. */
             fun addDialog(user: UserMessage) = addDialog(Message.ofUser(user))
 
+            /** A message from the user in a chat conversation. */
+            fun addUserDialog(content: InterleavedContent) =
+                addDialog(UserMessage.builder().content(content).build())
+
+            /** A message from the user in a chat conversation. */
+            fun addUserDialog(string: String) = addUserDialog(InterleavedContent.ofString(string))
+
+            /** A image content item */
+            fun addUserDialog(imageContentItem: InterleavedContent.ImageContentItem) =
+                addUserDialog(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /** A text content item */
+            fun addUserDialog(textContentItem: InterleavedContent.TextContentItem) =
+                addUserDialog(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** A message from the user in a chat conversation. */
+            fun addUserDialogOfItems(items: List<InterleavedContentItem>) =
+                addUserDialog(InterleavedContent.ofItems(items))
+
+            /** A system message providing instructions or context to the model. */
             fun addDialog(system: SystemMessage) = addDialog(Message.ofSystem(system))
 
+            /** A system message providing instructions or context to the model. */
+            fun addSystemDialog(content: InterleavedContent) =
+                addDialog(SystemMessage.builder().content(content).build())
+
+            /** A system message providing instructions or context to the model. */
+            fun addSystemDialog(string: String) =
+                addSystemDialog(InterleavedContent.ofString(string))
+
+            /** A image content item */
+            fun addSystemDialog(imageContentItem: InterleavedContent.ImageContentItem) =
+                addSystemDialog(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /** A text content item */
+            fun addSystemDialog(textContentItem: InterleavedContent.TextContentItem) =
+                addSystemDialog(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** A system message providing instructions or context to the model. */
+            fun addSystemDialogOfItems(items: List<InterleavedContentItem>) =
+                addSystemDialog(InterleavedContent.ofItems(items))
+
+            /** A message representing the result of a tool invocation. */
             fun addDialog(toolResponse: ToolResponseMessage) =
                 addDialog(Message.ofToolResponse(toolResponse))
 
+            /** A message containing the model's (assistant) response in a chat conversation. */
             fun addDialog(completion: CompletionMessage) =
                 addDialog(Message.ofCompletion(completion))
 
+            /** The type of filtering function. */
             fun filteringFunction(filteringFunction: FilteringFunction) =
                 filteringFunction(JsonField.of(filteringFunction))
 
+            /** The type of filtering function. */
             fun filteringFunction(filteringFunction: JsonField<FilteringFunction>) = apply {
                 this.filteringFunction = filteringFunction
             }
@@ -231,11 +266,10 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [SyntheticDataGenerationGenerateParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: SyntheticDataGenerationGenerateBody.Builder =
             SyntheticDataGenerationGenerateBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
@@ -244,21 +278,10 @@ constructor(
         internal fun from(
             syntheticDataGenerationGenerateParams: SyntheticDataGenerationGenerateParams
         ) = apply {
-            xLlamaStackClientVersion =
-                syntheticDataGenerationGenerateParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = syntheticDataGenerationGenerateParams.xLlamaStackProviderData
             body = syntheticDataGenerationGenerateParams.body.toBuilder()
             additionalHeaders = syntheticDataGenerationGenerateParams.additionalHeaders.toBuilder()
             additionalQueryParams =
                 syntheticDataGenerationGenerateParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun dialogs(dialogs: List<Message>) = apply { body.dialogs(dialogs) }
@@ -267,18 +290,66 @@ constructor(
 
         fun addDialog(dialog: Message) = apply { body.addDialog(dialog) }
 
+        /** A message from the user in a chat conversation. */
         fun addDialog(user: UserMessage) = apply { body.addDialog(user) }
 
+        /** A message from the user in a chat conversation. */
+        fun addUserDialog(content: InterleavedContent) = apply { body.addUserDialog(content) }
+
+        /** A message from the user in a chat conversation. */
+        fun addUserDialog(string: String) = apply { body.addUserDialog(string) }
+
+        /** A image content item */
+        fun addUserDialog(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addUserDialog(imageContentItem)
+        }
+
+        /** A text content item */
+        fun addUserDialog(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addUserDialog(textContentItem)
+        }
+
+        /** A message from the user in a chat conversation. */
+        fun addUserDialogOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addUserDialogOfItems(items)
+        }
+
+        /** A system message providing instructions or context to the model. */
         fun addDialog(system: SystemMessage) = apply { body.addDialog(system) }
 
+        /** A system message providing instructions or context to the model. */
+        fun addSystemDialog(content: InterleavedContent) = apply { body.addSystemDialog(content) }
+
+        /** A system message providing instructions or context to the model. */
+        fun addSystemDialog(string: String) = apply { body.addSystemDialog(string) }
+
+        /** A image content item */
+        fun addSystemDialog(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addSystemDialog(imageContentItem)
+        }
+
+        /** A text content item */
+        fun addSystemDialog(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addSystemDialog(textContentItem)
+        }
+
+        /** A system message providing instructions or context to the model. */
+        fun addSystemDialogOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addSystemDialogOfItems(items)
+        }
+
+        /** A message representing the result of a tool invocation. */
         fun addDialog(toolResponse: ToolResponseMessage) = apply { body.addDialog(toolResponse) }
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun addDialog(completion: CompletionMessage) = apply { body.addDialog(completion) }
 
+        /** The type of filtering function. */
         fun filteringFunction(filteringFunction: FilteringFunction) = apply {
             body.filteringFunction(filteringFunction)
         }
 
+        /** The type of filtering function. */
         fun filteringFunction(filteringFunction: JsonField<FilteringFunction>) = apply {
             body.filteringFunction(filteringFunction)
         }
@@ -406,20 +477,27 @@ constructor(
 
         fun build(): SyntheticDataGenerationGenerateParams =
             SyntheticDataGenerationGenerateParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
 
+    /** The type of filtering function. */
     class FilteringFunction
     @JsonCreator
     private constructor(
         private val value: JsonField<String>,
     ) : Enum {
 
+        /**
+         * Returns this class instance's raw value.
+         *
+         * This is usually only useful if this instance was deserialized from data that doesn't
+         * match any known member, and you want to know that value. For example, if the SDK is on an
+         * older version than the API, then the API may respond with new members that the SDK is
+         * unaware of.
+         */
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
         companion object {
@@ -439,6 +517,7 @@ constructor(
             fun of(value: String) = FilteringFunction(JsonField.of(value))
         }
 
+        /** An enum containing [FilteringFunction]'s known values. */
         enum class Known {
             NONE,
             RANDOM,
@@ -448,6 +527,15 @@ constructor(
             SIGMOID,
         }
 
+        /**
+         * An enum containing [FilteringFunction]'s known values, as well as an [_UNKNOWN] member.
+         *
+         * An instance of [FilteringFunction] can contain an unknown value in a couple of cases:
+         * - It was deserialized from data that doesn't match any known member. For example, if the
+         *   SDK is on an older version than the API, then the API may respond with new members that
+         *   the SDK is unaware of.
+         * - It was constructed with an arbitrary value using the [of] method.
+         */
         enum class Value {
             NONE,
             RANDOM,
@@ -455,9 +543,20 @@ constructor(
             TOP_P,
             TOP_K_TOP_P,
             SIGMOID,
+            /**
+             * An enum member indicating that [FilteringFunction] was instantiated with an unknown
+             * value.
+             */
             _UNKNOWN,
         }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
+         * if the class was instantiated with an unknown value.
+         *
+         * Use the [known] method instead if you're certain the value is always known or if you want
+         * to throw for the unknown case.
+         */
         fun value(): Value =
             when (this) {
                 NONE -> Value.NONE
@@ -469,6 +568,15 @@ constructor(
                 else -> Value._UNKNOWN
             }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value.
+         *
+         * Use the [value] method instead if you're uncertain the value is always known and don't
+         * want to throw for the unknown case.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
+         *   known member.
+         */
         fun known(): Known =
             when (this) {
                 NONE -> Known.NONE
@@ -501,11 +609,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is SyntheticDataGenerationGenerateParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "SyntheticDataGenerationGenerateParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "SyntheticDataGenerationGenerateParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

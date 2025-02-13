@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,17 +20,11 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class SafetyRunShieldParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: SafetyRunShieldBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun messages(): List<Message> = body.messages()
 
@@ -49,21 +44,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): SafetyRunShieldBody = body
+    internal fun _body(): SafetyRunShieldBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class SafetyRunShieldBody
@@ -120,7 +105,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [SafetyRunShieldBody]. */
+        class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
             private var params: JsonField<Params>? = null
@@ -151,13 +137,56 @@ constructor(
                     }
             }
 
+            /** A message from the user in a chat conversation. */
             fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
 
+            /** A message from the user in a chat conversation. */
+            fun addUserMessage(content: InterleavedContent) =
+                addMessage(UserMessage.builder().content(content).build())
+
+            /** A message from the user in a chat conversation. */
+            fun addUserMessage(string: String) = addUserMessage(InterleavedContent.ofString(string))
+
+            /** A image content item */
+            fun addUserMessage(imageContentItem: InterleavedContent.ImageContentItem) =
+                addUserMessage(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /** A text content item */
+            fun addUserMessage(textContentItem: InterleavedContent.TextContentItem) =
+                addUserMessage(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** A message from the user in a chat conversation. */
+            fun addUserMessageOfItems(items: List<InterleavedContentItem>) =
+                addUserMessage(InterleavedContent.ofItems(items))
+
+            /** A system message providing instructions or context to the model. */
             fun addMessage(system: SystemMessage) = addMessage(Message.ofSystem(system))
 
+            /** A system message providing instructions or context to the model. */
+            fun addSystemMessage(content: InterleavedContent) =
+                addMessage(SystemMessage.builder().content(content).build())
+
+            /** A system message providing instructions or context to the model. */
+            fun addSystemMessage(string: String) =
+                addSystemMessage(InterleavedContent.ofString(string))
+
+            /** A image content item */
+            fun addSystemMessage(imageContentItem: InterleavedContent.ImageContentItem) =
+                addSystemMessage(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /** A text content item */
+            fun addSystemMessage(textContentItem: InterleavedContent.TextContentItem) =
+                addSystemMessage(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** A system message providing instructions or context to the model. */
+            fun addSystemMessageOfItems(items: List<InterleavedContentItem>) =
+                addSystemMessage(InterleavedContent.ofItems(items))
+
+            /** A message representing the result of a tool invocation. */
             fun addMessage(toolResponse: ToolResponseMessage) =
                 addMessage(Message.ofToolResponse(toolResponse))
 
+            /** A message containing the model's (assistant) response in a chat conversation. */
             fun addMessage(completion: CompletionMessage) =
                 addMessage(Message.ofCompletion(completion))
 
@@ -222,29 +251,18 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [SafetyRunShieldParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: SafetyRunShieldBody.Builder = SafetyRunShieldBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(safetyRunShieldParams: SafetyRunShieldParams) = apply {
-            xLlamaStackClientVersion = safetyRunShieldParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = safetyRunShieldParams.xLlamaStackProviderData
             body = safetyRunShieldParams.body.toBuilder()
             additionalHeaders = safetyRunShieldParams.additionalHeaders.toBuilder()
             additionalQueryParams = safetyRunShieldParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
@@ -253,12 +271,58 @@ constructor(
 
         fun addMessage(message: Message) = apply { body.addMessage(message) }
 
+        /** A message from the user in a chat conversation. */
         fun addMessage(user: UserMessage) = apply { body.addMessage(user) }
 
+        /** A message from the user in a chat conversation. */
+        fun addUserMessage(content: InterleavedContent) = apply { body.addUserMessage(content) }
+
+        /** A message from the user in a chat conversation. */
+        fun addUserMessage(string: String) = apply { body.addUserMessage(string) }
+
+        /** A image content item */
+        fun addUserMessage(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addUserMessage(imageContentItem)
+        }
+
+        /** A text content item */
+        fun addUserMessage(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addUserMessage(textContentItem)
+        }
+
+        /** A message from the user in a chat conversation. */
+        fun addUserMessageOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addUserMessageOfItems(items)
+        }
+
+        /** A system message providing instructions or context to the model. */
         fun addMessage(system: SystemMessage) = apply { body.addMessage(system) }
 
+        /** A system message providing instructions or context to the model. */
+        fun addSystemMessage(content: InterleavedContent) = apply { body.addSystemMessage(content) }
+
+        /** A system message providing instructions or context to the model. */
+        fun addSystemMessage(string: String) = apply { body.addSystemMessage(string) }
+
+        /** A image content item */
+        fun addSystemMessage(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addSystemMessage(imageContentItem)
+        }
+
+        /** A text content item */
+        fun addSystemMessage(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addSystemMessage(textContentItem)
+        }
+
+        /** A system message providing instructions or context to the model. */
+        fun addSystemMessageOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addSystemMessageOfItems(items)
+        }
+
+        /** A message representing the result of a tool invocation. */
         fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
+        /** A message containing the model's (assistant) response in a chat conversation. */
         fun addMessage(completion: CompletionMessage) = apply { body.addMessage(completion) }
 
         fun params(params: Params) = apply { body.params(params) }
@@ -388,8 +452,6 @@ constructor(
 
         fun build(): SafetyRunShieldParams =
             SafetyRunShieldParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -425,7 +487,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Params]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -477,11 +540,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is SafetyRunShieldParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is SafetyRunShieldParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "SafetyRunShieldParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "SafetyRunShieldParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

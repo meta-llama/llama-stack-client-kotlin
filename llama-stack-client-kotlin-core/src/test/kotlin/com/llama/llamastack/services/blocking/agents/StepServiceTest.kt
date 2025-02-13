@@ -23,8 +23,6 @@ class StepServiceTest {
                     .sessionId("session_id")
                     .turnId("turn_id")
                     .stepId("step_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(agentStepRetrieveResponse)

@@ -16,6 +16,7 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Log probabilities for generated tokens. */
 @NoAutoDetect
 class TokenLogProbs
 @JsonCreator
@@ -26,8 +27,10 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** Dictionary mapping tokens to their log probabilities */
     fun logprobsByToken(): LogprobsByToken = logprobsByToken.getRequired("logprobs_by_token")
 
+    /** Dictionary mapping tokens to their log probabilities */
     @JsonProperty("logprobs_by_token")
     @ExcludeMissing
     fun _logprobsByToken(): JsonField<LogprobsByToken> = logprobsByToken
@@ -54,7 +57,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [TokenLogProbs]. */
+    class Builder internal constructor() {
 
         private var logprobsByToken: JsonField<LogprobsByToken>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -64,9 +68,11 @@ private constructor(
             additionalProperties = tokenLogProbs.additionalProperties.toMutableMap()
         }
 
+        /** Dictionary mapping tokens to their log probabilities */
         fun logprobsByToken(logprobsByToken: LogprobsByToken) =
             logprobsByToken(JsonField.of(logprobsByToken))
 
+        /** Dictionary mapping tokens to their log probabilities */
         fun logprobsByToken(logprobsByToken: JsonField<LogprobsByToken>) = apply {
             this.logprobsByToken = logprobsByToken
         }
@@ -97,6 +103,7 @@ private constructor(
             )
     }
 
+    /** Dictionary mapping tokens to their log probabilities */
     @NoAutoDetect
     class LogprobsByToken
     @JsonCreator
@@ -126,7 +133,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [LogprobsByToken]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

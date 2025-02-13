@@ -8,11 +8,12 @@ import com.llama.llamastack.client.local.util.buildInferenceChatCompletionRespon
 import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponsesFromStream
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
+import com.llama.llamastack.models.ChatCompletionResponse
+import com.llama.llamastack.models.ChatCompletionResponseStreamChunk
+import com.llama.llamastack.models.CompletionResponse
 import com.llama.llamastack.models.EmbeddingsResponse
 import com.llama.llamastack.models.InferenceChatCompletionParams
-import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.InferenceCompletionParams
-import com.llama.llamastack.models.InferenceCompletionResponse
 import com.llama.llamastack.models.InferenceEmbeddingsParams
 import com.llama.llamastack.services.blocking.InferenceService
 import org.pytorch.executorch.LlamaCallback
@@ -31,7 +32,7 @@ constructor(
     private var sequenceLengthKey: String = "seq_len"
     private var stopToken: String = ""
 
-    private val streamingResponseList = mutableListOf<InferenceChatCompletionResponse>()
+    private val streamingResponseList = mutableListOf<ChatCompletionResponseStreamChunk>()
     private var isStreaming: Boolean = false
 
     private val waitTime: Long = 100
@@ -69,7 +70,7 @@ constructor(
     override fun chatCompletion(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
-    ): InferenceChatCompletionResponse {
+    ): ChatCompletionResponse {
         isStreaming = false
         clearElements()
         val mModule = clientOptions.llamaModule
@@ -99,8 +100,8 @@ constructor(
     }
 
     private val streamResponse =
-        object : StreamResponse<InferenceChatCompletionResponse> {
-            override fun asSequence(): Sequence<InferenceChatCompletionResponse> {
+        object : StreamResponse<ChatCompletionResponseStreamChunk> {
+            override fun asSequence(): Sequence<ChatCompletionResponseStreamChunk> {
                 return sequence {
                     while (!onResultComplete || streamingResponseList.isNotEmpty()) {
                         if (streamingResponseList.isNotEmpty()) {
@@ -132,7 +133,7 @@ constructor(
     override fun chatCompletionStreaming(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions
-    ): StreamResponse<InferenceChatCompletionResponse> {
+    ): StreamResponse<ChatCompletionResponseStreamChunk> {
         isStreaming = true
         streamingResponseList.clear()
         resultMessage = ""
@@ -156,14 +157,14 @@ constructor(
     override fun completion(
         params: InferenceCompletionParams,
         requestOptions: RequestOptions
-    ): InferenceCompletionResponse {
+    ): CompletionResponse {
         TODO("Not yet implemented")
     }
 
     override fun completionStreaming(
         params: InferenceCompletionParams,
         requestOptions: RequestOptions
-    ): StreamResponse<InferenceCompletionResponse> {
+    ): StreamResponse<CompletionResponse> {
         TODO("Not yet implemented")
     }
 

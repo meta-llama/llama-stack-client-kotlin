@@ -5,39 +5,82 @@ import com.github.tomakehurst.wiremock.junit5.WireMockRuntimeInfo
 import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.github.tomakehurst.wiremock.stubbing.Scenario
 import com.llama.llamastack.client.okhttp.OkHttpClient
+import com.llama.llamastack.core.RequestOptions
+import java.io.InputStream
 import kotlinx.coroutines.runBlocking
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.ValueSource
 
 @WireMockTest
 internal class RetryingHttpClientTest {
 
+    private var openResponseCount = 0
     private lateinit var httpClient: HttpClient
 
     @BeforeEach
     fun beforeEach(wmRuntimeInfo: WireMockRuntimeInfo) {
-        httpClient = OkHttpClient.builder().baseUrl(wmRuntimeInfo.httpBaseUrl).build()
+        val okHttpClient = OkHttpClient.builder().baseUrl(wmRuntimeInfo.httpBaseUrl).build()
+        httpClient =
+            object : HttpClient {
+                override fun execute(
+                    request: HttpRequest,
+                    requestOptions: RequestOptions
+                ): HttpResponse = trackClose(okHttpClient.execute(request, requestOptions))
+
+                override suspend fun executeAsync(
+                    request: HttpRequest,
+                    requestOptions: RequestOptions
+                ): HttpResponse = trackClose(okHttpClient.executeAsync(request, requestOptions))
+
+                override fun close() = okHttpClient.close()
+
+                private fun trackClose(response: HttpResponse): HttpResponse {
+                    openResponseCount++
+                    return object : HttpResponse {
+                        private var isClosed = false
+
+                        override fun statusCode(): Int = response.statusCode()
+
+                        override fun headers(): Headers = response.headers()
+
+                        override fun body(): InputStream = response.body()
+
+                        override fun close() {
+                            response.close()
+                            if (isClosed) {
+                                return
+                            }
+                            openResponseCount--
+                            isClosed = true
+                        }
+                    }
+                }
+            }
         resetAllScenarios()
     }
 
-    @Test
-    fun byDefaultShouldNotAddIdempotencyHeaderToRequest() {
-        val request =
-            HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build()
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun execute(async: Boolean) {
         stubFor(post(urlPathEqualTo("/something")).willReturn(ok()))
         val retryingClient = RetryingHttpClient.builder().httpClient(httpClient).build()
-        val response = retryingClient.execute(request)
+
+        val response =
+            retryingClient.execute(
+                HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build(),
+                async
+            )
+
         assertThat(response.statusCode()).isEqualTo(200)
         verify(1, postRequestedFor(urlPathEqualTo("/something")))
+        assertNoResponseLeaks()
     }
 
-    @Test
-    fun whenProvidedShouldAddIdempotencyHeaderToRequest() {
-        val request =
-            HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build()
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun execute_withIdempotencyHeader(async: Boolean) {
         stubFor(
             post(urlPathEqualTo("/something"))
                 .withHeader("X-Some-Header", matching("stainless-java-retry-.+"))
@@ -49,19 +92,25 @@ internal class RetryingHttpClientTest {
                 .maxRetries(2)
                 .idempotencyHeader("X-Some-Header")
                 .build()
-        val response = retryingClient.execute(request)
+
+        val response =
+            retryingClient.execute(
+                HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build(),
+                async
+            )
+
         assertThat(response.statusCode()).isEqualTo(200)
         verify(1, postRequestedFor(urlPathEqualTo("/something")))
+        assertNoResponseLeaks()
     }
 
     @ParameterizedTest
     @ValueSource(booleans = [false, true])
-    fun retryAfterHeader(async: Boolean) {
-        val request =
-            HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build()
+    fun execute_withRetryAfterHeader(async: Boolean) {
         stubFor(
             post(urlPathEqualTo("/something"))
-                .inScenario("foo") // first we fail with a retry after header given as a date
+                // First we fail with a retry after header given as a date
+                .inScenario("foo")
                 .whenScenarioStateIs(Scenario.STARTED)
                 .willReturn(
                     serviceUnavailable().withHeader("Retry-After", "Wed, 21 Oct 2015 07:28:00 GMT")
@@ -70,14 +119,16 @@ internal class RetryingHttpClientTest {
         )
         stubFor(
             post(urlPathEqualTo("/something"))
-                .inScenario("foo") // then we fail with a retry after header given as a delay
+                // Then we fail with a retry after header given as a delay
+                .inScenario("foo")
                 .whenScenarioStateIs("RETRY_AFTER_DATE")
                 .willReturn(serviceUnavailable().withHeader("Retry-After", "1.234"))
                 .willSetStateTo("RETRY_AFTER_DELAY")
         )
         stubFor(
             post(urlPathEqualTo("/something"))
-                .inScenario("foo") // then we return a success
+                // Then we return a success
+                .inScenario("foo")
                 .whenScenarioStateIs("RETRY_AFTER_DELAY")
                 .willReturn(ok())
                 .willSetStateTo("COMPLETED")
@@ -86,8 +137,10 @@ internal class RetryingHttpClientTest {
             RetryingHttpClient.builder().httpClient(httpClient).maxRetries(2).build()
 
         val response =
-            if (async) runBlocking { retryingClient.executeAsync(request) }
-            else retryingClient.execute(request)
+            retryingClient.execute(
+                HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build(),
+                async
+            )
 
         assertThat(response.statusCode()).isEqualTo(200)
         verify(
@@ -105,17 +158,12 @@ internal class RetryingHttpClientTest {
             postRequestedFor(urlPathEqualTo("/something"))
                 .withHeader("x-stainless-retry-count", equalTo("2"))
         )
+        assertNoResponseLeaks()
     }
 
     @ParameterizedTest
     @ValueSource(booleans = [false, true])
-    fun overwriteRetryCountHeader(async: Boolean) {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegment("something")
-                .putHeader("x-stainless-retry-count", "42")
-                .build()
+    fun execute_withOverwrittenRetryCountHeader(async: Boolean) {
         stubFor(
             post(urlPathEqualTo("/something"))
                 .inScenario("foo") // first we fail with a retry after header given as a date
@@ -136,8 +184,14 @@ internal class RetryingHttpClientTest {
             RetryingHttpClient.builder().httpClient(httpClient).maxRetries(2).build()
 
         val response =
-            if (async) runBlocking { retryingClient.executeAsync(request) }
-            else retryingClient.execute(request)
+            retryingClient.execute(
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .addPathSegment("something")
+                    .putHeader("x-stainless-retry-count", "42")
+                    .build(),
+                async
+            )
 
         assertThat(response.statusCode()).isEqualTo(200)
         verify(
@@ -145,12 +199,12 @@ internal class RetryingHttpClientTest {
             postRequestedFor(urlPathEqualTo("/something"))
                 .withHeader("x-stainless-retry-count", equalTo("42"))
         )
+        assertNoResponseLeaks()
     }
 
-    @Test
-    fun retryAfterMsHeader() {
-        val request =
-            HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build()
+    @ParameterizedTest
+    @ValueSource(booleans = [false, true])
+    fun execute_withRetryAfterMsHeader(async: Boolean) {
         stubFor(
             post(urlPathEqualTo("/something"))
                 .inScenario("foo")
@@ -166,9 +220,23 @@ internal class RetryingHttpClientTest {
                 .willSetStateTo("COMPLETED")
         )
         val retryingClient =
-            RetryingHttpClient.builder().httpClient(httpClient).maxRetries(2).build()
-        val response = retryingClient.execute(request)
+            RetryingHttpClient.builder().httpClient(httpClient).maxRetries(1).build()
+
+        val response =
+            retryingClient.execute(
+                HttpRequest.builder().method(HttpMethod.POST).addPathSegment("something").build(),
+                async
+            )
+
         assertThat(response.statusCode()).isEqualTo(200)
         verify(2, postRequestedFor(urlPathEqualTo("/something")))
+        assertNoResponseLeaks()
     }
+
+    private fun HttpClient.execute(request: HttpRequest, async: Boolean): HttpResponse =
+        if (async) runBlocking { executeAsync(request) } else execute(request)
+
+    // When retrying, all failed responses should be closed. Only the final returned response should
+    // be open.
+    private fun assertNoResponseLeaks() = assertThat(openResponseCount).isEqualTo(1)
 }

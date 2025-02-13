@@ -278,6 +278,7 @@ private constructor(
             ParamType(agentTurnInput = JsonValue.from(mapOf("type" to "agent_turn_input")))
     }
 
+    /** An interface that defines how to map each variant of [ParamType] to a value of type [T]. */
     interface Visitor<out T> {
 
         fun visitString(string: JsonValue): T
@@ -300,12 +301,21 @@ private constructor(
 
         fun visitAgentTurnInput(agentTurnInput: JsonValue): T
 
+        /**
+         * Maps an unknown variant of [ParamType] to a value of type [T].
+         *
+         * An instance of [ParamType] can contain an unknown variant if it was deserialized from
+         * data that doesn't match any known variant. For example, if the SDK is on an older version
+         * than the API, then the API may respond with new variants that the SDK is unaware of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown ParamType: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<ParamType>(ParamType::class) {
+    internal class Deserializer : BaseDeserializer<ParamType>(ParamType::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): ParamType {
             val json = JsonValue.fromJsonNode(node)
@@ -460,7 +470,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<ParamType>(ParamType::class) {
+    internal class Serializer : BaseSerializer<ParamType>(ParamType::class) {
 
         override fun serialize(
             value: ParamType,

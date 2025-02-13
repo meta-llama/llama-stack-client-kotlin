@@ -9,37 +9,33 @@ import org.junit.jupiter.api.Test
 class AgentSessionRetrieveParamsTest {
 
     @Test
-    fun createAgentSessionRetrieveParams() {
+    fun create() {
         AgentSessionRetrieveParams.builder()
             .agentId("agent_id")
             .sessionId("session_id")
             .addTurnId("string")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getQueryParams() {
+    fun queryParams() {
         val params =
             AgentSessionRetrieveParams.builder()
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .addTurnId("string")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         val expected = QueryParams.builder()
         expected.put("turn_ids", "string")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun queryParamsWithoutOptionalFields() {
         val params =
             AgentSessionRetrieveParams.builder().agentId("agent_id").sessionId("session_id").build()
         val expected = QueryParams.builder()
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 
     @Test

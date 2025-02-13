@@ -22,11 +22,7 @@ class VectorDbServiceTest {
         val vectorDbService = client.vectorDbs()
         val vectorDbRetrieveResponse =
             vectorDbService.retrieve(
-                VectorDbRetrieveParams.builder()
-                    .vectorDbId("vector_db_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
+                VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
             )
         println(vectorDbRetrieveResponse)
         vectorDbRetrieveResponse?.validate()
@@ -37,13 +33,7 @@ class VectorDbServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
-        val listVectorDbsResponse =
-            vectorDbService.list(
-                VectorDbListParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val listVectorDbsResponse = vectorDbService.list(VectorDbListParams.builder().build())
         println(listVectorDbsResponse)
         for (vectorDb: ListVectorDbsResponse.Data in listVectorDbsResponse) {
             vectorDb.validate()
@@ -63,8 +53,6 @@ class VectorDbServiceTest {
                     .embeddingDimension(0L)
                     .providerId("provider_id")
                     .providerVectorDbId("provider_vector_db_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(vectorDbRegisterResponse)
@@ -77,11 +65,7 @@ class VectorDbServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
         vectorDbService.unregister(
-            VectorDbUnregisterParams.builder()
-                .vectorDbId("vector_db_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
+            VectorDbUnregisterParams.builder().vectorDbId("vector_db_id").build()
         )
     }
 }

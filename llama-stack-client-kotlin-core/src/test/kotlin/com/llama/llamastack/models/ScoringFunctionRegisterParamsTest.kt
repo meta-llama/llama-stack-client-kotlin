@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class ScoringFunctionRegisterParamsTest {
 
     @Test
-    fun createScoringFunctionRegisterParams() {
+    fun create() {
         ScoringFunctionRegisterParams.builder()
             .description("description")
             .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
@@ -25,13 +25,11 @@ class ScoringFunctionRegisterParamsTest {
             )
             .providerId("provider_id")
             .providerScoringFnId("provider_scoring_fn_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ScoringFunctionRegisterParams.builder()
                 .description("description")
@@ -49,10 +47,8 @@ class ScoringFunctionRegisterParamsTest {
                 )
                 .providerId("provider_id")
                 .providerScoringFnId("provider_scoring_fn_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.description()).isEqualTo("description")
         assertThat(body.returnType())
@@ -76,14 +72,14 @@ class ScoringFunctionRegisterParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ScoringFunctionRegisterParams.builder()
                 .description("description")
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.description()).isEqualTo("description")
         assertThat(body.returnType())

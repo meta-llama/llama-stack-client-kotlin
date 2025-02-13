@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -20,17 +21,11 @@ import java.util.Objects
 
 /** Register a tool group */
 class ToolgroupRegisterParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: ToolgroupRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun providerId(): String = body.providerId()
 
@@ -38,7 +33,7 @@ constructor(
 
     fun args(): Args? = body.args()
 
-    fun mcpEndpoint(): Url? = body.mcpEndpoint()
+    fun mcpEndpoint(): McpEndpoint? = body.mcpEndpoint()
 
     fun _providerId(): JsonField<String> = body._providerId()
 
@@ -46,7 +41,7 @@ constructor(
 
     fun _args(): JsonField<Args> = body._args()
 
-    fun _mcpEndpoint(): JsonField<Url> = body._mcpEndpoint()
+    fun _mcpEndpoint(): JsonField<McpEndpoint> = body._mcpEndpoint()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -54,21 +49,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): ToolgroupRegisterBody = body
+    internal fun _body(): ToolgroupRegisterBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class ToolgroupRegisterBody
@@ -83,7 +68,7 @@ constructor(
         @JsonProperty("args") @ExcludeMissing private val args: JsonField<Args> = JsonMissing.of(),
         @JsonProperty("mcp_endpoint")
         @ExcludeMissing
-        private val mcpEndpoint: JsonField<Url> = JsonMissing.of(),
+        private val mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
@@ -94,7 +79,7 @@ constructor(
 
         fun args(): Args? = args.getNullable("args")
 
-        fun mcpEndpoint(): Url? = mcpEndpoint.getNullable("mcp_endpoint")
+        fun mcpEndpoint(): McpEndpoint? = mcpEndpoint.getNullable("mcp_endpoint")
 
         @JsonProperty("provider_id")
         @ExcludeMissing
@@ -108,7 +93,7 @@ constructor(
 
         @JsonProperty("mcp_endpoint")
         @ExcludeMissing
-        fun _mcpEndpoint(): JsonField<Url> = mcpEndpoint
+        fun _mcpEndpoint(): JsonField<McpEndpoint> = mcpEndpoint
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -135,12 +120,13 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [ToolgroupRegisterBody]. */
+        class Builder internal constructor() {
 
             private var providerId: JsonField<String>? = null
             private var toolgroupId: JsonField<String>? = null
             private var args: JsonField<Args> = JsonMissing.of()
-            private var mcpEndpoint: JsonField<Url> = JsonMissing.of()
+            private var mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(toolgroupRegisterBody: ToolgroupRegisterBody) = apply {
@@ -165,9 +151,11 @@ constructor(
 
             fun args(args: JsonField<Args>) = apply { this.args = args }
 
-            fun mcpEndpoint(mcpEndpoint: Url) = mcpEndpoint(JsonField.of(mcpEndpoint))
+            fun mcpEndpoint(mcpEndpoint: McpEndpoint) = mcpEndpoint(JsonField.of(mcpEndpoint))
 
-            fun mcpEndpoint(mcpEndpoint: JsonField<Url>) = apply { this.mcpEndpoint = mcpEndpoint }
+            fun mcpEndpoint(mcpEndpoint: JsonField<McpEndpoint>) = apply {
+                this.mcpEndpoint = mcpEndpoint
+            }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -223,29 +211,18 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ToolgroupRegisterParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: ToolgroupRegisterBody.Builder = ToolgroupRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolgroupRegisterParams: ToolgroupRegisterParams) = apply {
-            xLlamaStackClientVersion = toolgroupRegisterParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = toolgroupRegisterParams.xLlamaStackProviderData
             body = toolgroupRegisterParams.body.toBuilder()
             additionalHeaders = toolgroupRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolgroupRegisterParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
@@ -260,9 +237,11 @@ constructor(
 
         fun args(args: JsonField<Args>) = apply { body.args(args) }
 
-        fun mcpEndpoint(mcpEndpoint: Url) = apply { body.mcpEndpoint(mcpEndpoint) }
+        fun mcpEndpoint(mcpEndpoint: McpEndpoint) = apply { body.mcpEndpoint(mcpEndpoint) }
 
-        fun mcpEndpoint(mcpEndpoint: JsonField<Url>) = apply { body.mcpEndpoint(mcpEndpoint) }
+        fun mcpEndpoint(mcpEndpoint: JsonField<McpEndpoint>) = apply {
+            body.mcpEndpoint(mcpEndpoint)
+        }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -383,8 +362,6 @@ constructor(
 
         fun build(): ToolgroupRegisterParams =
             ToolgroupRegisterParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -420,7 +397,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Args]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -467,16 +445,107 @@ constructor(
         override fun toString() = "Args{additionalProperties=$additionalProperties}"
     }
 
+    @NoAutoDetect
+    class McpEndpoint
+    @JsonCreator
+    private constructor(
+        @JsonProperty("uri") @ExcludeMissing private val uri: JsonField<String> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        fun uri(): String = uri.getRequired("uri")
+
+        @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): McpEndpoint = apply {
+            if (validated) {
+                return@apply
+            }
+
+            uri()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [McpEndpoint]. */
+        class Builder internal constructor() {
+
+            private var uri: JsonField<String>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(mcpEndpoint: McpEndpoint) = apply {
+                uri = mcpEndpoint.uri
+                additionalProperties = mcpEndpoint.additionalProperties.toMutableMap()
+            }
+
+            fun uri(uri: String) = uri(JsonField.of(uri))
+
+            fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): McpEndpoint =
+                McpEndpoint(checkRequired("uri", uri), additionalProperties.toImmutable())
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is McpEndpoint && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "McpEndpoint{uri=$uri, additionalProperties=$additionalProperties}"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is ToolgroupRegisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolgroupRegisterParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolgroupRegisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolgroupRegisterParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

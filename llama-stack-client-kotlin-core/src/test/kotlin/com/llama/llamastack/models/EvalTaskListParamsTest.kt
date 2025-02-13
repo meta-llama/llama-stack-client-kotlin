@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class EvalTaskListParamsTest {
 
     @Test
-    fun createEvalTaskListParams() {
-        EvalTaskListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        EvalTaskListParams.builder().build()
     }
 }

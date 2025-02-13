@@ -3,46 +3,31 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
 class EvalJobStatusParams
-constructor(
+private constructor(
     private val taskId: String,
     private val jobId: String,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun taskId(): String = taskId
 
     fun jobId(): String = jobId
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
@@ -59,21 +44,18 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [EvalJobStatusParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var taskId: String? = null
         private var jobId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalJobStatusParams: EvalJobStatusParams) = apply {
             taskId = evalJobStatusParams.taskId
             jobId = evalJobStatusParams.jobId
-            xLlamaStackClientVersion = evalJobStatusParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = evalJobStatusParams.xLlamaStackProviderData
             additionalHeaders = evalJobStatusParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalJobStatusParams.additionalQueryParams.toBuilder()
         }
@@ -81,14 +63,6 @@ constructor(
         fun taskId(taskId: String) = apply { this.taskId = taskId }
 
         fun jobId(jobId: String) = apply { this.jobId = jobId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -192,8 +166,6 @@ constructor(
             EvalJobStatusParams(
                 checkRequired("taskId", taskId),
                 checkRequired("jobId", jobId),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -204,11 +176,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobStatusParams && taskId == other.taskId && jobId == other.jobId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalJobStatusParams && taskId == other.taskId && jobId == other.jobId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalJobStatusParams{taskId=$taskId, jobId=$jobId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalJobStatusParams{taskId=$taskId, jobId=$jobId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

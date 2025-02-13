@@ -21,20 +21,14 @@ class SessionTest {
                         .addInputMessage(
                             UserMessage.builder().content("string").context("string").build()
                         )
-                        .addOutputAttachment(
-                            Turn.OutputAttachment.builder()
-                                .content("string")
-                                .mimeType("mime_type")
-                                .build()
-                        )
                         .outputMessage(
                             CompletionMessage.builder()
                                 .content("string")
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
-                                    CompletionMessage.ToolCall.builder()
+                                    ToolCall.builder()
                                         .arguments(
-                                            CompletionMessage.ToolCall.Arguments.builder()
+                                            ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
                                                     JsonValue.from("string")
@@ -42,7 +36,7 @@ class SessionTest {
                                                 .build()
                                         )
                                         .callId("call_id")
-                                        .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                         .build()
                                 )
                                 .build()
@@ -56,9 +50,9 @@ class SessionTest {
                                         .content("string")
                                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                         .addToolCall(
-                                            CompletionMessage.ToolCall.builder()
+                                            ToolCall.builder()
                                                 .arguments(
-                                                    CompletionMessage.ToolCall.Arguments.builder()
+                                                    ToolCall.Arguments.builder()
                                                         .putAdditionalProperty(
                                                             "foo",
                                                             JsonValue.from("string")
@@ -66,9 +60,7 @@ class SessionTest {
                                                         .build()
                                                 )
                                                 .callId("call_id")
-                                                .toolName(
-                                                    CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH
-                                                )
+                                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                                 .build()
                                         )
                                         .build()
@@ -81,6 +73,12 @@ class SessionTest {
                         )
                         .turnId("turn_id")
                         .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .addOutputAttachment(
+                            Turn.OutputAttachment.builder()
+                                .content("string")
+                                .mimeType("mime_type")
+                                .build()
+                        )
                         .build()
                 )
                 .build()
@@ -94,25 +92,19 @@ class SessionTest {
                     .addInputMessage(
                         UserMessage.builder().content("string").context("string").build()
                     )
-                    .addOutputAttachment(
-                        Turn.OutputAttachment.builder()
-                            .content("string")
-                            .mimeType("mime_type")
-                            .build()
-                    )
                     .outputMessage(
                         CompletionMessage.builder()
                             .content("string")
                             .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                             .addToolCall(
-                                CompletionMessage.ToolCall.builder()
+                                ToolCall.builder()
                                     .arguments(
-                                        CompletionMessage.ToolCall.Arguments.builder()
+                                        ToolCall.Arguments.builder()
                                             .putAdditionalProperty("foo", JsonValue.from("string"))
                                             .build()
                                     )
                                     .callId("call_id")
-                                    .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
+                                    .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                     .build()
                             )
                             .build()
@@ -126,9 +118,9 @@ class SessionTest {
                                     .content("string")
                                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                     .addToolCall(
-                                        CompletionMessage.ToolCall.builder()
+                                        ToolCall.builder()
                                             .arguments(
-                                                CompletionMessage.ToolCall.Arguments.builder()
+                                                ToolCall.Arguments.builder()
                                                     .putAdditionalProperty(
                                                         "foo",
                                                         JsonValue.from("string")
@@ -136,9 +128,7 @@ class SessionTest {
                                                     .build()
                                             )
                                             .callId("call_id")
-                                            .toolName(
-                                                CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH
-                                            )
+                                            .toolName(ToolCall.ToolName.BRAVE_SEARCH)
                                             .build()
                                     )
                                     .build()
@@ -151,6 +141,12 @@ class SessionTest {
                     )
                     .turnId("turn_id")
                     .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                    .addOutputAttachment(
+                        Turn.OutputAttachment.builder()
+                            .content("string")
+                            .mimeType("mime_type")
+                            .build()
+                    )
                     .build()
             )
     }

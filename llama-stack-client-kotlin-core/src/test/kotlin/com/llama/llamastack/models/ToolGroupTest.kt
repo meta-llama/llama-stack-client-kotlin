@@ -20,7 +20,7 @@ class ToolGroupTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .mcpEndpoint(Url.builder().uri("uri").build())
+                .mcpEndpoint(ToolGroup.McpEndpoint.builder().uri("uri").build())
                 .build()
         assertThat(toolGroup).isNotNull
         assertThat(toolGroup.identifier()).isEqualTo("identifier")
@@ -30,6 +30,7 @@ class ToolGroupTest {
             .isEqualTo(
                 ToolGroup.Args.builder().putAdditionalProperty("foo", JsonValue.from(true)).build()
             )
-        assertThat(toolGroup.mcpEndpoint()).isEqualTo(Url.builder().uri("uri").build())
+        assertThat(toolGroup.mcpEndpoint())
+            .isEqualTo(ToolGroup.McpEndpoint.builder().uri("uri").build())
     }
 }

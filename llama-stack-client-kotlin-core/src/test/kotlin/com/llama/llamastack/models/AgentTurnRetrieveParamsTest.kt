@@ -8,13 +8,11 @@ import org.junit.jupiter.api.Test
 class AgentTurnRetrieveParamsTest {
 
     @Test
-    fun createAgentTurnRetrieveParams() {
+    fun create() {
         AgentTurnRetrieveParams.builder()
             .agentId("agent_id")
             .sessionId("session_id")
             .turnId("turn_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 

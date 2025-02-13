@@ -10,7 +10,7 @@ import org.junit.jupiter.api.Test
 class TelemetryLogEventParamsTest {
 
     @Test
-    fun createTelemetryLogEventParams() {
+    fun create() {
         TelemetryLogEventParams.builder()
             .event(
                 Event.UnstructuredLogEvent.builder()
@@ -27,13 +27,11 @@ class TelemetryLogEventParamsTest {
                     .build()
             )
             .ttlSeconds(0L)
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             TelemetryLogEventParams.builder()
                 .event(
@@ -51,10 +49,8 @@ class TelemetryLogEventParamsTest {
                         .build()
                 )
                 .ttlSeconds(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.event())
             .isEqualTo(
@@ -77,7 +73,7 @@ class TelemetryLogEventParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             TelemetryLogEventParams.builder()
                 .event(
@@ -91,7 +87,7 @@ class TelemetryLogEventParamsTest {
                 )
                 .ttlSeconds(0L)
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.event())
             .isEqualTo(

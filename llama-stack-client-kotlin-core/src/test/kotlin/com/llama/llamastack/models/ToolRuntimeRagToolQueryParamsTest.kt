@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class ToolRuntimeRagToolQueryParamsTest {
 
     @Test
-    fun createToolRuntimeRagToolQueryParams() {
+    fun create() {
         ToolRuntimeRagToolQueryParams.builder()
             .content("string")
             .addVectorDbId("string")
@@ -16,20 +16,14 @@ class ToolRuntimeRagToolQueryParamsTest {
                 QueryConfig.builder()
                     .maxChunks(0L)
                     .maxTokensInContext(0L)
-                    .queryGeneratorConfig(
-                        QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                            .separator("separator")
-                            .build()
-                    )
+                    .defaultRagQueryGeneratorConfig("separator")
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ToolRuntimeRagToolQueryParams.builder()
                 .content("string")
@@ -38,17 +32,11 @@ class ToolRuntimeRagToolQueryParamsTest {
                     QueryConfig.builder()
                         .maxChunks(0L)
                         .maxTokensInContext(0L)
-                        .queryGeneratorConfig(
-                            QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                                .separator("separator")
-                                .build()
-                        )
+                        .defaultRagQueryGeneratorConfig("separator")
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbIds()).isEqualTo(listOf("string"))
@@ -57,23 +45,19 @@ class ToolRuntimeRagToolQueryParamsTest {
                 QueryConfig.builder()
                     .maxChunks(0L)
                     .maxTokensInContext(0L)
-                    .queryGeneratorConfig(
-                        QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                            .separator("separator")
-                            .build()
-                    )
+                    .defaultRagQueryGeneratorConfig("separator")
                     .build()
             )
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ToolRuntimeRagToolQueryParams.builder()
                 .content("string")
                 .addVectorDbId("string")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbIds()).isEqualTo(listOf("string"))

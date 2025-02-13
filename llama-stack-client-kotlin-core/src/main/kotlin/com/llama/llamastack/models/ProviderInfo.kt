@@ -68,7 +68,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ProviderInfo]. */
+    class Builder internal constructor() {
 
         private var api: JsonField<String>? = null
         private var providerId: JsonField<String>? = null

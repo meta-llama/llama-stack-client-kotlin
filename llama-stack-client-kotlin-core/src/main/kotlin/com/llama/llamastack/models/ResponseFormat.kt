@@ -27,6 +27,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Configuration for JSON schema-guided response generation. */
 @JsonDeserialize(using = ResponseFormat.Deserializer::class)
 @JsonSerialize(using = ResponseFormat.Serializer::class)
 class ResponseFormat
@@ -36,16 +37,20 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
+    /** Configuration for JSON schema-guided response generation. */
     fun jsonSchema(): JsonSchemaResponseFormat? = jsonSchema
 
+    /** Configuration for grammar-guided response generation. */
     fun grammar(): GrammarResponseFormat? = grammar
 
     fun isJsonSchema(): Boolean = jsonSchema != null
 
     fun isGrammar(): Boolean = grammar != null
 
+    /** Configuration for JSON schema-guided response generation. */
     fun asJsonSchema(): JsonSchemaResponseFormat = jsonSchema.getOrThrow("jsonSchema")
 
+    /** Configuration for grammar-guided response generation. */
     fun asGrammar(): GrammarResponseFormat = grammar.getOrThrow("grammar")
 
     fun _json(): JsonValue? = _json
@@ -99,24 +104,41 @@ private constructor(
 
     companion object {
 
+        /** Configuration for JSON schema-guided response generation. */
         fun ofJsonSchema(jsonSchema: JsonSchemaResponseFormat) =
             ResponseFormat(jsonSchema = jsonSchema)
 
+        /** Configuration for grammar-guided response generation. */
         fun ofGrammar(grammar: GrammarResponseFormat) = ResponseFormat(grammar = grammar)
     }
 
+    /**
+     * An interface that defines how to map each variant of [ResponseFormat] to a value of type [T].
+     */
     interface Visitor<out T> {
 
+        /** Configuration for JSON schema-guided response generation. */
         fun visitJsonSchema(jsonSchema: JsonSchemaResponseFormat): T
 
+        /** Configuration for grammar-guided response generation. */
         fun visitGrammar(grammar: GrammarResponseFormat): T
 
+        /**
+         * Maps an unknown variant of [ResponseFormat] to a value of type [T].
+         *
+         * An instance of [ResponseFormat] can contain an unknown variant if it was deserialized
+         * from data that doesn't match any known variant. For example, if the SDK is on an older
+         * version than the API, then the API may respond with new variants that the SDK is unaware
+         * of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown ResponseFormat: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<ResponseFormat>(ResponseFormat::class) {
+    internal class Deserializer : BaseDeserializer<ResponseFormat>(ResponseFormat::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): ResponseFormat {
             val json = JsonValue.fromJsonNode(node)
@@ -143,7 +165,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<ResponseFormat>(ResponseFormat::class) {
+    internal class Serializer : BaseSerializer<ResponseFormat>(ResponseFormat::class) {
 
         override fun serialize(
             value: ResponseFormat,
@@ -159,6 +181,7 @@ private constructor(
         }
     }
 
+    /** Configuration for JSON schema-guided response generation. */
     @NoAutoDetect
     class JsonSchemaResponseFormat
     @JsonCreator
@@ -171,10 +194,19 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The JSON schema the response should conform to. In a Python SDK, this is often a
+         * `pydantic` model.
+         */
         fun jsonSchema(): JsonSchema = jsonSchema.getRequired("json_schema")
 
+        /** Must be "json_schema" to identify this format type */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * The JSON schema the response should conform to. In a Python SDK, this is often a
+         * `pydantic` model.
+         */
         @JsonProperty("json_schema")
         @ExcludeMissing
         fun _jsonSchema(): JsonField<JsonSchema> = jsonSchema
@@ -206,7 +238,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [JsonSchemaResponseFormat]. */
+        class Builder internal constructor() {
 
             private var jsonSchema: JsonField<JsonSchema>? = null
             private var type: JsonValue = JsonValue.from("json_schema")
@@ -218,12 +251,21 @@ private constructor(
                 additionalProperties = jsonSchemaResponseFormat.additionalProperties.toMutableMap()
             }
 
+            /**
+             * The JSON schema the response should conform to. In a Python SDK, this is often a
+             * `pydantic` model.
+             */
             fun jsonSchema(jsonSchema: JsonSchema) = jsonSchema(JsonField.of(jsonSchema))
 
+            /**
+             * The JSON schema the response should conform to. In a Python SDK, this is often a
+             * `pydantic` model.
+             */
             fun jsonSchema(jsonSchema: JsonField<JsonSchema>) = apply {
                 this.jsonSchema = jsonSchema
             }
 
+            /** Must be "json_schema" to identify this format type */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -253,6 +295,10 @@ private constructor(
                 )
         }
 
+        /**
+         * The JSON schema the response should conform to. In a Python SDK, this is often a
+         * `pydantic` model.
+         */
         @NoAutoDetect
         class JsonSchema
         @JsonCreator
@@ -282,7 +328,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [JsonSchema]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -350,6 +397,7 @@ private constructor(
             "JsonSchemaResponseFormat{jsonSchema=$jsonSchema, type=$type, additionalProperties=$additionalProperties}"
     }
 
+    /** Configuration for grammar-guided response generation. */
     @NoAutoDetect
     class GrammarResponseFormat
     @JsonCreator
@@ -360,10 +408,13 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** The BNF grammar specification the response should conform to */
         fun bnf(): Bnf = bnf.getRequired("bnf")
 
+        /** Must be "grammar" to identify this format type */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /** The BNF grammar specification the response should conform to */
         @JsonProperty("bnf") @ExcludeMissing fun _bnf(): JsonField<Bnf> = bnf
 
         @JsonAnyGetter
@@ -393,7 +444,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [GrammarResponseFormat]. */
+        class Builder internal constructor() {
 
             private var bnf: JsonField<Bnf>? = null
             private var type: JsonValue = JsonValue.from("grammar")
@@ -405,10 +457,13 @@ private constructor(
                 additionalProperties = grammarResponseFormat.additionalProperties.toMutableMap()
             }
 
+            /** The BNF grammar specification the response should conform to */
             fun bnf(bnf: Bnf) = bnf(JsonField.of(bnf))
 
+            /** The BNF grammar specification the response should conform to */
             fun bnf(bnf: JsonField<Bnf>) = apply { this.bnf = bnf }
 
+            /** Must be "grammar" to identify this format type */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -438,6 +493,7 @@ private constructor(
                 )
         }
 
+        /** The BNF grammar specification the response should conform to */
         @NoAutoDetect
         class Bnf
         @JsonCreator
@@ -467,7 +523,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Bnf]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

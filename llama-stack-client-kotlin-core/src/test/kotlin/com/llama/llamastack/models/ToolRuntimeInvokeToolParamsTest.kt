@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ToolRuntimeInvokeToolParamsTest {
 
     @Test
-    fun createToolRuntimeInvokeToolParams() {
+    fun create() {
         ToolRuntimeInvokeToolParams.builder()
             .kwargs(
                 ToolRuntimeInvokeToolParams.Kwargs.builder()
@@ -17,13 +17,11 @@ class ToolRuntimeInvokeToolParamsTest {
                     .build()
             )
             .toolName("tool_name")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ToolRuntimeInvokeToolParams.builder()
                 .kwargs(
@@ -32,10 +30,8 @@ class ToolRuntimeInvokeToolParamsTest {
                         .build()
                 )
                 .toolName("tool_name")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.kwargs())
             .isEqualTo(
@@ -47,7 +43,7 @@ class ToolRuntimeInvokeToolParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ToolRuntimeInvokeToolParams.builder()
                 .kwargs(
@@ -57,7 +53,7 @@ class ToolRuntimeInvokeToolParamsTest {
                 )
                 .toolName("tool_name")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.kwargs())
             .isEqualTo(

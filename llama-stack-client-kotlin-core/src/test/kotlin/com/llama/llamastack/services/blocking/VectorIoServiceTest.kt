@@ -32,8 +32,6 @@ class VectorIoServiceTest {
                 )
                 .vectorDbId("vector_db_id")
                 .ttlSeconds(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
         )
     }
@@ -53,8 +51,6 @@ class VectorIoServiceTest {
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(queryChunksResponse)

@@ -9,19 +9,34 @@ import org.junit.jupiter.api.Test
 class ToolRuntimeListToolsParamsTest {
 
     @Test
-    fun createToolRuntimeListToolsParams() {
+    fun create() {
         ToolRuntimeListToolsParams.builder()
-            .mcpEndpoint(Url.builder().uri("uri").build())
+            .mcpEndpoint(ToolRuntimeListToolsParams.McpEndpoint.builder().uri("uri").build())
             .toolGroupId("tool_group_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun queryParams() {
+        val params =
+            ToolRuntimeListToolsParams.builder()
+                .mcpEndpoint(ToolRuntimeListToolsParams.McpEndpoint.builder().uri("uri").build())
+                .toolGroupId("tool_group_id")
+                .build()
+        val expected = QueryParams.builder()
+        ToolRuntimeListToolsParams.McpEndpoint.builder().uri("uri").build().forEachQueryParam {
+            key,
+            values ->
+            expected.put("mcp_endpoint[$key]", values)
+        }
+        expected.put("tool_group_id", "tool_group_id")
+        assertThat(params._queryParams()).isEqualTo(expected.build())
+    }
+
+    @Test
+    fun queryParamsWithoutOptionalFields() {
         val params = ToolRuntimeListToolsParams.builder().build()
         val expected = QueryParams.builder()
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 }

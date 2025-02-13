@@ -99,7 +99,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [VectorDbRetrieveResponse]. */
+    class Builder internal constructor() {
 
         private var embeddingDimension: JsonField<Long>? = null
         private var embeddingModel: JsonField<String>? = null

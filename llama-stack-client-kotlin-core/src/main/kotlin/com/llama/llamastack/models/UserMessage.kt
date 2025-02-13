@@ -17,6 +17,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A message from the user in a chat conversation. */
 @NoAutoDetect
 class UserMessage
 @JsonCreator
@@ -31,14 +32,25 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** The content of the message, which can include text and other media */
     fun content(): InterleavedContent = content.getRequired("content")
 
+    /** Must be "user" to identify this as a user message */
     @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
+    /**
+     * (Optional) This field is used internally by Llama Stack to pass RAG context. This field may
+     * be removed in the API in the future.
+     */
     fun context(): InterleavedContent? = context.getNullable("context")
 
+    /** The content of the message, which can include text and other media */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
+    /**
+     * (Optional) This field is used internally by Llama Stack to pass RAG context. This field may
+     * be removed in the API in the future.
+     */
     @JsonProperty("context") @ExcludeMissing fun _context(): JsonField<InterleavedContent> = context
 
     @JsonAnyGetter
@@ -69,7 +81,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [UserMessage]. */
+    class Builder internal constructor() {
 
         private var content: JsonField<InterleavedContent>? = null
         private var role: JsonValue = JsonValue.from("user")
@@ -83,35 +96,60 @@ private constructor(
             additionalProperties = userMessage.additionalProperties.toMutableMap()
         }
 
+        /** The content of the message, which can include text and other media */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+        /** The content of the message, which can include text and other media */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+        /** The content of the message, which can include text and other media */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
+        /** A image content item */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+        /** A text content item */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
+        /** The content of the message, which can include text and other media */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
+        /** Must be "user" to identify this as a user message */
         fun role(role: JsonValue) = apply { this.role = role }
 
+        /**
+         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
+         * may be removed in the API in the future.
+         */
         fun context(context: InterleavedContent) = context(JsonField.of(context))
 
+        /**
+         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
+         * may be removed in the API in the future.
+         */
         fun context(context: JsonField<InterleavedContent>) = apply { this.context = context }
 
+        /**
+         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
+         * may be removed in the API in the future.
+         */
         fun context(string: String) = context(InterleavedContent.ofString(string))
 
+        /** A image content item */
         fun context(imageContentItem: InterleavedContent.ImageContentItem) =
             context(InterleavedContent.ofImageContentItem(imageContentItem))
 
+        /** A text content item */
         fun context(textContentItem: InterleavedContent.TextContentItem) =
             context(InterleavedContent.ofTextContentItem(textContentItem))
 
+        /**
+         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
+         * may be removed in the API in the future.
+         */
         fun contextOfItems(items: List<InterleavedContentItem>) =
             context(InterleavedContent.ofItems(items))
 

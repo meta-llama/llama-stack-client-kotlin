@@ -8,27 +8,23 @@ import org.junit.jupiter.api.Test
 class SyntheticDataGenerationGenerateParamsTest {
 
     @Test
-    fun createSyntheticDataGenerationGenerateParams() {
+    fun create() {
         SyntheticDataGenerationGenerateParams.builder()
             .addDialog(UserMessage.builder().content("string").context("string").build())
             .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
             .model("model")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             SyntheticDataGenerationGenerateParams.builder()
                 .addDialog(UserMessage.builder().content("string").context("string").build())
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .model("model")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.dialogs())
             .isEqualTo(
@@ -44,13 +40,13 @@ class SyntheticDataGenerationGenerateParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             SyntheticDataGenerationGenerateParams.builder()
-                .addDialog(UserMessage.builder().content("string").build())
+                .addUserDialog("string")
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.dialogs())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))

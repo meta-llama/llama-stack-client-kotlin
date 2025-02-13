@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class PostTrainingPreferenceOptimizeParamsTest {
 
     @Test
-    fun createPostTrainingPreferenceOptimizeParams() {
+    fun create() {
         PostTrainingPreferenceOptimizeParams.builder()
             .algorithmConfig(
                 PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
@@ -77,13 +77,11 @@ class PostTrainingPreferenceOptimizeParamsTest {
                     )
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             PostTrainingPreferenceOptimizeParams.builder()
                 .algorithmConfig(
@@ -153,10 +151,8 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.algorithmConfig())
             .isEqualTo(
@@ -231,7 +227,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             PostTrainingPreferenceOptimizeParams.builder()
                 .algorithmConfig(
@@ -289,7 +285,7 @@ class PostTrainingPreferenceOptimizeParamsTest {
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.algorithmConfig())
             .isEqualTo(

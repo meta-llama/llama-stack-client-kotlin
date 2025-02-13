@@ -7,10 +7,7 @@ import org.junit.jupiter.api.Test
 class VectorDbListParamsTest {
 
     @Test
-    fun createVectorDbListParams() {
-        VectorDbListParams.builder()
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        VectorDbListParams.builder().build()
     }
 }

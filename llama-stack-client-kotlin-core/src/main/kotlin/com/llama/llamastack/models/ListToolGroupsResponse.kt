@@ -52,7 +52,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ListToolGroupsResponse]. */
+    class Builder internal constructor() {
 
         private var data: JsonField<MutableList<ToolGroup>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()

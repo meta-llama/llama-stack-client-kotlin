@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -20,24 +21,20 @@ import java.util.Objects
 
 /** Query the RAG system for context; typically invoked by the agent */
 class ToolRuntimeRagToolQueryParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: ToolRuntimeRagToolQueryBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
+    /** A image content item */
     fun content(): InterleavedContent = body.content()
 
     fun vectorDbIds(): List<String> = body.vectorDbIds()
 
     fun queryConfig(): QueryConfig? = body.queryConfig()
 
+    /** A image content item */
     fun _content(): JsonField<InterleavedContent> = body._content()
 
     fun _vectorDbIds(): JsonField<List<String>> = body._vectorDbIds()
@@ -50,21 +47,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): ToolRuntimeRagToolQueryBody = body
+    internal fun _body(): ToolRuntimeRagToolQueryBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class ToolRuntimeRagToolQueryBody
@@ -83,12 +70,14 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** A image content item */
         fun content(): InterleavedContent = content.getRequired("content")
 
         fun vectorDbIds(): List<String> = vectorDbIds.getRequired("vector_db_ids")
 
         fun queryConfig(): QueryConfig? = queryConfig.getNullable("query_config")
 
+        /** A image content item */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
@@ -125,7 +114,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [ToolRuntimeRagToolQueryBody]. */
+        class Builder internal constructor() {
 
             private var content: JsonField<InterleavedContent>? = null
             private var vectorDbIds: JsonField<MutableList<String>>? = null
@@ -140,18 +130,24 @@ constructor(
                     toolRuntimeRagToolQueryBody.additionalProperties.toMutableMap()
             }
 
+            /** A image content item */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+            /** A image content item */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+            /** A image content item */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /** A image content item */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
@@ -231,46 +227,41 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ToolRuntimeRagToolQueryParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: ToolRuntimeRagToolQueryBody.Builder =
             ToolRuntimeRagToolQueryBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolRuntimeRagToolQueryParams: ToolRuntimeRagToolQueryParams) = apply {
-            xLlamaStackClientVersion = toolRuntimeRagToolQueryParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = toolRuntimeRagToolQueryParams.xLlamaStackProviderData
             body = toolRuntimeRagToolQueryParams.body.toBuilder()
             additionalHeaders = toolRuntimeRagToolQueryParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolRuntimeRagToolQueryParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
+        /** A image content item */
         fun content(content: InterleavedContent) = apply { body.content(content) }
 
+        /** A image content item */
         fun content(content: JsonField<InterleavedContent>) = apply { body.content(content) }
 
+        /** A image content item */
         fun content(string: String) = apply { body.content(string) }
 
+        /** A image content item */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.content(imageContentItem)
         }
 
+        /** A text content item */
         fun content(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.content(textContentItem)
         }
 
+        /** A image content item */
         fun contentOfItems(items: List<InterleavedContentItem>) = apply {
             body.contentOfItems(items)
         }
@@ -408,8 +399,6 @@ constructor(
 
         fun build(): ToolRuntimeRagToolQueryParams =
             ToolRuntimeRagToolQueryParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -421,11 +410,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolRuntimeRagToolQueryParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolRuntimeRagToolQueryParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolRuntimeRagToolQueryParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolRuntimeRagToolQueryParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

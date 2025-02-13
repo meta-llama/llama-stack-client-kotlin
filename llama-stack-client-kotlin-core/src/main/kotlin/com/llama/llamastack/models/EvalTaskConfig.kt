@@ -104,18 +104,31 @@ private constructor(
         fun ofApp(app: AppEvalTaskConfig) = EvalTaskConfig(app = app)
     }
 
+    /**
+     * An interface that defines how to map each variant of [EvalTaskConfig] to a value of type [T].
+     */
     interface Visitor<out T> {
 
         fun visitBenchmark(benchmark: BenchmarkEvalTaskConfig): T
 
         fun visitApp(app: AppEvalTaskConfig): T
 
+        /**
+         * Maps an unknown variant of [EvalTaskConfig] to a value of type [T].
+         *
+         * An instance of [EvalTaskConfig] can contain an unknown variant if it was deserialized
+         * from data that doesn't match any known variant. For example, if the SDK is on an older
+         * version than the API, then the API may respond with new variants that the SDK is unaware
+         * of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown EvalTaskConfig: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<EvalTaskConfig>(EvalTaskConfig::class) {
+    internal class Deserializer : BaseDeserializer<EvalTaskConfig>(EvalTaskConfig::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): EvalTaskConfig {
             val json = JsonValue.fromJsonNode(node)
@@ -142,7 +155,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<EvalTaskConfig>(EvalTaskConfig::class) {
+    internal class Serializer : BaseSerializer<EvalTaskConfig>(EvalTaskConfig::class) {
 
         override fun serialize(
             value: EvalTaskConfig,
@@ -215,7 +228,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [BenchmarkEvalTaskConfig]. */
+        class Builder internal constructor() {
 
             private var evalCandidate: JsonField<EvalCandidate>? = null
             private var type: JsonValue = JsonValue.from("benchmark")
@@ -241,6 +255,9 @@ private constructor(
 
             fun evalCandidate(agent: EvalCandidate.AgentCandidate) =
                 evalCandidate(EvalCandidate.ofAgent(agent))
+
+            fun agentEvalCandidate(config: AgentConfig) =
+                evalCandidate(EvalCandidate.AgentCandidate.builder().config(config).build())
 
             fun type(type: JsonValue) = apply { this.type = type }
 
@@ -361,7 +378,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AppEvalTaskConfig]. */
+        class Builder internal constructor() {
 
             private var evalCandidate: JsonField<EvalCandidate>? = null
             private var scoringParams: JsonField<ScoringParams>? = null
@@ -389,6 +407,9 @@ private constructor(
 
             fun evalCandidate(agent: EvalCandidate.AgentCandidate) =
                 evalCandidate(EvalCandidate.ofAgent(agent))
+
+            fun agentEvalCandidate(config: AgentConfig) =
+                evalCandidate(EvalCandidate.AgentCandidate.builder().config(config).build())
 
             fun scoringParams(scoringParams: ScoringParams) =
                 scoringParams(JsonField.of(scoringParams))
@@ -461,7 +482,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [ScoringParams]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

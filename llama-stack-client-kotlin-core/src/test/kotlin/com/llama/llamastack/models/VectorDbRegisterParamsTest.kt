@@ -8,20 +8,18 @@ import org.junit.jupiter.api.Test
 class VectorDbRegisterParamsTest {
 
     @Test
-    fun createVectorDbRegisterParams() {
+    fun create() {
         VectorDbRegisterParams.builder()
             .embeddingModel("embedding_model")
             .vectorDbId("vector_db_id")
             .embeddingDimension(0L)
             .providerId("provider_id")
             .providerVectorDbId("provider_vector_db_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             VectorDbRegisterParams.builder()
                 .embeddingModel("embedding_model")
@@ -29,10 +27,8 @@ class VectorDbRegisterParamsTest {
                 .embeddingDimension(0L)
                 .providerId("provider_id")
                 .providerVectorDbId("provider_vector_db_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.embeddingModel()).isEqualTo("embedding_model")
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
@@ -42,13 +38,13 @@ class VectorDbRegisterParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             VectorDbRegisterParams.builder()
                 .embeddingModel("embedding_model")
                 .vectorDbId("vector_db_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.embeddingModel()).isEqualTo("embedding_model")
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")

@@ -32,12 +32,14 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** A image content item */
     fun content(): InterleavedContent = content.getRequired("content")
 
     fun errorCode(): Long? = errorCode.getNullable("error_code")
 
     fun errorMessage(): String? = errorMessage.getNullable("error_message")
 
+    /** A image content item */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
     @JsonProperty("error_code") @ExcludeMissing fun _errorCode(): JsonField<Long> = errorCode
@@ -70,7 +72,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ToolInvocationResult]. */
+    class Builder internal constructor() {
 
         private var content: JsonField<InterleavedContent>? = null
         private var errorCode: JsonField<Long> = JsonMissing.of()
@@ -84,18 +87,24 @@ private constructor(
             additionalProperties = toolInvocationResult.additionalProperties.toMutableMap()
         }
 
+        /** A image content item */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+        /** A image content item */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+        /** A image content item */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
+        /** A image content item */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+        /** A text content item */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
+        /** A image content item */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 

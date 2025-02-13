@@ -8,6 +8,7 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.BatchInferenceChatCompletionParams
 import com.llama.llamastack.models.BatchInferenceCompletionParams
 import com.llama.llamastack.models.Message
+import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
@@ -34,6 +35,11 @@ class BatchInferenceServiceTest {
                     .model("model")
                     .logprobs(
                         BatchInferenceChatCompletionParams.Logprobs.builder().topK(0L).build()
+                    )
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
                     )
                     .samplingParams(
                         SamplingParams.builder()
@@ -65,8 +71,6 @@ class BatchInferenceServiceTest {
                             )
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(batchInferenceChatCompletionResponse)
@@ -84,6 +88,11 @@ class BatchInferenceServiceTest {
                     .addContentBatch("string")
                     .model("model")
                     .logprobs(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
+                    .jsonSchemaResponseFormat(
+                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .samplingParams(
                         SamplingParams.builder()
                             .strategyGreedySampling()
@@ -91,8 +100,6 @@ class BatchInferenceServiceTest {
                             .repetitionPenalty(0.0)
                             .build()
                     )
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(batchCompletion)

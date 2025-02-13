@@ -14,6 +14,7 @@ import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
@@ -46,21 +47,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "tool-runtime", "invoke")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .use { invokeToolHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { invokeToolHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
     private val listToolsStreamingHandler: Handler<StreamResponse<ToolDef>> =
@@ -74,21 +71,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "tool-runtime", "list-tools")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.execute(request, requestOptions).let { response ->
-            response
-                .let { listToolsStreamingHandler.handle(it) }
-                .let { streamResponse ->
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        streamResponse.map { it.validate() }
-                    } else {
-                        streamResponse
-                    }
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .let { listToolsStreamingHandler.handle(it) }
+            .let { streamResponse ->
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    streamResponse.map { it.validate() }
+                } else {
+                    streamResponse
                 }
-        }
+            }
     }
 }

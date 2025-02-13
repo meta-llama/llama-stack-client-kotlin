@@ -113,7 +113,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ScoringFn]. */
+    class Builder internal constructor() {
 
         private var identifier: JsonField<String>? = null
         private var metadata: JsonField<Metadata>? = null
@@ -172,6 +173,11 @@ private constructor(
 
         fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) =
             params(ScoringFnParams.ofLlmAsJudge(llmAsJudge))
+
+        fun llmAsJudgeParams(judgeModel: String) =
+            params(
+                ScoringFnParams.LlmAsJudgeScoringFnParams.builder().judgeModel(judgeModel).build()
+            )
 
         fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) =
             params(ScoringFnParams.ofRegexParser(regexParser))
@@ -241,7 +247,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Metadata]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

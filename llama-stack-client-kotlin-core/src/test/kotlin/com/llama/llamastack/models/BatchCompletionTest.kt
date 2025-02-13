@@ -12,39 +12,35 @@ class BatchCompletionTest {
     fun createBatchCompletion() {
         val batchCompletion =
             BatchCompletion.builder()
-                .addCompletionMessageBatch(
-                    CompletionMessage.builder()
-                        .content("string")
-                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
-                        .addToolCall(
-                            CompletionMessage.ToolCall.builder()
-                                .arguments(
-                                    CompletionMessage.ToolCall.Arguments.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from("string"))
+                .addBatch(
+                    CompletionResponse.builder()
+                        .content("content")
+                        .stopReason(CompletionResponse.StopReason.END_OF_TURN)
+                        .addLogprob(
+                            TokenLogProbs.builder()
+                                .logprobsByToken(
+                                    TokenLogProbs.LogprobsByToken.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(0))
                                         .build()
                                 )
-                                .callId("call_id")
-                                .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
                                 .build()
                         )
                         .build()
                 )
                 .build()
         assertThat(batchCompletion).isNotNull
-        assertThat(batchCompletion.completionMessageBatch())
+        assertThat(batchCompletion.batch())
             .containsExactly(
-                CompletionMessage.builder()
-                    .content("string")
-                    .stopReason(CompletionMessage.StopReason.END_OF_TURN)
-                    .addToolCall(
-                        CompletionMessage.ToolCall.builder()
-                            .arguments(
-                                CompletionMessage.ToolCall.Arguments.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from("string"))
+                CompletionResponse.builder()
+                    .content("content")
+                    .stopReason(CompletionResponse.StopReason.END_OF_TURN)
+                    .addLogprob(
+                        TokenLogProbs.builder()
+                            .logprobsByToken(
+                                TokenLogProbs.LogprobsByToken.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(0))
                                     .build()
                             )
-                            .callId("call_id")
-                            .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
                             .build()
                     )
                     .build()

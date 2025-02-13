@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class VectorDbUnregisterParamsTest {
 
     @Test
-    fun createVectorDbUnregisterParams() {
-        VectorDbUnregisterParams.builder()
-            .vectorDbId("vector_db_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        VectorDbUnregisterParams.builder().vectorDbId("vector_db_id").build()
     }
 
     @Test

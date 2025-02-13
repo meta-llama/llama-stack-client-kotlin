@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,17 +20,11 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class ScoringFunctionRegisterParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: ScoringFunctionRegisterBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
+) : Params {
 
     fun description(): String = body.description()
 
@@ -61,21 +56,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): ScoringFunctionRegisterBody = body
+    internal fun _body(): ScoringFunctionRegisterBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class ScoringFunctionRegisterBody
@@ -165,7 +150,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [ScoringFunctionRegisterBody]. */
+        class Builder internal constructor() {
 
             private var description: JsonField<String>? = null
             private var returnType: JsonField<ReturnType>? = null
@@ -210,6 +196,13 @@ constructor(
 
             fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) =
                 params(ScoringFnParams.ofLlmAsJudge(llmAsJudge))
+
+            fun llmAsJudgeParams(judgeModel: String) =
+                params(
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
+                        .judgeModel(judgeModel)
+                        .build()
+                )
 
             fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) =
                 params(ScoringFnParams.ofRegexParser(regexParser))
@@ -284,30 +277,19 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ScoringFunctionRegisterParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: ScoringFunctionRegisterBody.Builder =
             ScoringFunctionRegisterBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(scoringFunctionRegisterParams: ScoringFunctionRegisterParams) = apply {
-            xLlamaStackClientVersion = scoringFunctionRegisterParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = scoringFunctionRegisterParams.xLlamaStackProviderData
             body = scoringFunctionRegisterParams.body.toBuilder()
             additionalHeaders = scoringFunctionRegisterParams.additionalHeaders.toBuilder()
             additionalQueryParams = scoringFunctionRegisterParams.additionalQueryParams.toBuilder()
-        }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
         }
 
         fun description(description: String) = apply { body.description(description) }
@@ -329,6 +311,8 @@ constructor(
         fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) = apply {
             body.params(llmAsJudge)
         }
+
+        fun llmAsJudgeParams(judgeModel: String) = apply { body.llmAsJudgeParams(judgeModel) }
 
         fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) = apply {
             body.params(regexParser)
@@ -467,8 +451,6 @@ constructor(
 
         fun build(): ScoringFunctionRegisterParams =
             ScoringFunctionRegisterParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -480,11 +462,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringFunctionRegisterParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ScoringFunctionRegisterParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ScoringFunctionRegisterParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ScoringFunctionRegisterParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

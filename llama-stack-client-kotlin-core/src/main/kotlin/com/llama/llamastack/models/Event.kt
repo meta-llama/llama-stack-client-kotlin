@@ -123,6 +123,7 @@ private constructor(
             Event(structuredLog = structuredLog)
     }
 
+    /** An interface that defines how to map each variant of [Event] to a value of type [T]. */
     interface Visitor<out T> {
 
         fun visitUnstructuredLog(unstructuredLog: UnstructuredLogEvent): T
@@ -131,12 +132,21 @@ private constructor(
 
         fun visitStructuredLog(structuredLog: StructuredLogEvent): T
 
+        /**
+         * Maps an unknown variant of [Event] to a value of type [T].
+         *
+         * An instance of [Event] can contain an unknown variant if it was deserialized from data
+         * that doesn't match any known variant. For example, if the SDK is on an older version than
+         * the API, then the API may respond with new variants that the SDK is unaware of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown Event: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<Event>(Event::class) {
+    internal class Deserializer : BaseDeserializer<Event>(Event::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): Event {
             val json = JsonValue.fromJsonNode(node)
@@ -167,7 +177,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<Event>(Event::class) {
+    internal class Serializer : BaseSerializer<Event>(Event::class) {
 
         override fun serialize(
             value: Event,
@@ -273,7 +283,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [UnstructuredLogEvent]. */
+        class Builder internal constructor() {
 
             private var message: JsonField<String>? = null
             private var severity: JsonField<Severity>? = null
@@ -363,6 +374,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -382,6 +401,7 @@ private constructor(
                 fun of(value: String) = Severity(JsonField.of(value))
             }
 
+            /** An enum containing [Severity]'s known values. */
             enum class Known {
                 VERBOSE,
                 DEBUG,
@@ -391,6 +411,15 @@ private constructor(
                 CRITICAL,
             }
 
+            /**
+             * An enum containing [Severity]'s known values, as well as an [_UNKNOWN] member.
+             *
+             * An instance of [Severity] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 VERBOSE,
                 DEBUG,
@@ -398,9 +427,19 @@ private constructor(
                 WARN,
                 ERROR,
                 CRITICAL,
+                /**
+                 * An enum member indicating that [Severity] was instantiated with an unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     VERBOSE -> Value.VERBOSE
@@ -412,6 +451,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     VERBOSE -> Known.VERBOSE
@@ -467,7 +515,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Attributes]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -632,7 +681,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [MetricEvent]. */
+        class Builder internal constructor() {
 
             private var metric: JsonField<String>? = null
             private var spanId: JsonField<String>? = null
@@ -752,7 +802,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Attributes]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -901,7 +952,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [StructuredLogEvent]. */
+        class Builder internal constructor() {
 
             private var payload: JsonField<Payload>? = null
             private var spanId: JsonField<String>? = null
@@ -928,7 +980,13 @@ private constructor(
             fun payload(spanStart: Payload.SpanStartPayload) =
                 payload(Payload.ofSpanStart(spanStart))
 
+            fun spanStartPayload(name: String) =
+                payload(Payload.SpanStartPayload.builder().name(name).build())
+
             fun payload(spanEnd: Payload.SpanEndPayload) = payload(Payload.ofSpanEnd(spanEnd))
+
+            fun spanEndPayload(status: Payload.SpanEndPayload.Status) =
+                payload(Payload.SpanEndPayload.builder().status(status).build())
 
             fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
@@ -1060,18 +1118,32 @@ private constructor(
                 fun ofSpanEnd(spanEnd: SpanEndPayload) = Payload(spanEnd = spanEnd)
             }
 
+            /**
+             * An interface that defines how to map each variant of [Payload] to a value of type
+             * [T].
+             */
             interface Visitor<out T> {
 
                 fun visitSpanStart(spanStart: SpanStartPayload): T
 
                 fun visitSpanEnd(spanEnd: SpanEndPayload): T
 
+                /**
+                 * Maps an unknown variant of [Payload] to a value of type [T].
+                 *
+                 * An instance of [Payload] can contain an unknown variant if it was deserialized
+                 * from data that doesn't match any known variant. For example, if the SDK is on an
+                 * older version than the API, then the API may respond with new variants that the
+                 * SDK is unaware of.
+                 *
+                 * @throws LlamaStackClientInvalidDataException in the default implementation.
+                 */
                 fun unknown(json: JsonValue?): T {
                     throw LlamaStackClientInvalidDataException("Unknown Payload: $json")
                 }
             }
 
-            class Deserializer : BaseDeserializer<Payload>(Payload::class) {
+            internal class Deserializer : BaseDeserializer<Payload>(Payload::class) {
 
                 override fun ObjectCodec.deserialize(node: JsonNode): Payload {
                     val json = JsonValue.fromJsonNode(node)
@@ -1098,7 +1170,7 @@ private constructor(
                 }
             }
 
-            class Serializer : BaseSerializer<Payload>(Payload::class) {
+            internal class Serializer : BaseSerializer<Payload>(Payload::class) {
 
                 override fun serialize(
                     value: Payload,
@@ -1173,7 +1245,8 @@ private constructor(
                     fun builder() = Builder()
                 }
 
-                class Builder {
+                /** A builder for [SpanStartPayload]. */
+                class Builder internal constructor() {
 
                     private var name: JsonField<String>? = null
                     private var type: JsonValue = JsonValue.from("span_start")
@@ -1298,7 +1371,8 @@ private constructor(
                     fun builder() = Builder()
                 }
 
-                class Builder {
+                /** A builder for [SpanEndPayload]. */
+                class Builder internal constructor() {
 
                     private var status: JsonField<Status>? = null
                     private var type: JsonValue = JsonValue.from("span_end")
@@ -1352,6 +1426,14 @@ private constructor(
                     private val value: JsonField<String>,
                 ) : Enum {
 
+                    /**
+                     * Returns this class instance's raw value.
+                     *
+                     * This is usually only useful if this instance was deserialized from data that
+                     * doesn't match any known member, and you want to know that value. For example,
+                     * if the SDK is on an older version than the API, then the API may respond with
+                     * new members that the SDK is unaware of.
+                     */
                     @com.fasterxml.jackson.annotation.JsonValue
                     fun _value(): JsonField<String> = value
 
@@ -1364,17 +1446,38 @@ private constructor(
                         fun of(value: String) = Status(JsonField.of(value))
                     }
 
+                    /** An enum containing [Status]'s known values. */
                     enum class Known {
                         OK,
                         ERROR,
                     }
 
+                    /**
+                     * An enum containing [Status]'s known values, as well as an [_UNKNOWN] member.
+                     *
+                     * An instance of [Status] can contain an unknown value in a couple of cases:
+                     * - It was deserialized from data that doesn't match any known member. For
+                     *   example, if the SDK is on an older version than the API, then the API may
+                     *   respond with new members that the SDK is unaware of.
+                     * - It was constructed with an arbitrary value using the [of] method.
+                     */
                     enum class Value {
                         OK,
                         ERROR,
+                        /**
+                         * An enum member indicating that [Status] was instantiated with an unknown
+                         * value.
+                         */
                         _UNKNOWN,
                     }
 
+                    /**
+                     * Returns an enum member corresponding to this class instance's value, or
+                     * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+                     *
+                     * Use the [known] method instead if you're certain the value is always known or
+                     * if you want to throw for the unknown case.
+                     */
                     fun value(): Value =
                         when (this) {
                             OK -> Value.OK
@@ -1382,6 +1485,15 @@ private constructor(
                             else -> Value._UNKNOWN
                         }
 
+                    /**
+                     * Returns an enum member corresponding to this class instance's value.
+                     *
+                     * Use the [value] method instead if you're uncertain the value is always known
+                     * and don't want to throw for the unknown case.
+                     *
+                     * @throws LlamaStackClientInvalidDataException if this class instance's value
+                     *   is a not a known member.
+                     */
                     fun known(): Known =
                         when (this) {
                             OK -> Known.OK
@@ -1453,7 +1565,8 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [Attributes]. */
+            class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

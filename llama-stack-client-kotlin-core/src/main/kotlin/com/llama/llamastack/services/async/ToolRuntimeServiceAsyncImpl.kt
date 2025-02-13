@@ -11,6 +11,7 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
+import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
@@ -43,21 +44,17 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.POST)
                 .addPathSegments("v1", "tool-runtime", "invoke")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
-                .body(json(clientOptions.jsonMapper, params.getBody()))
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { invokeToolHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { invokeToolHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 
     private val listToolsHandler: Handler<ToolDef> =
@@ -71,19 +68,15 @@ internal constructor(
             HttpRequest.builder()
                 .method(HttpMethod.GET)
                 .addPathSegments("v1", "tool-runtime", "list-tools")
-                .putAllQueryParams(clientOptions.queryParams)
-                .replaceAllQueryParams(params.getQueryParams())
-                .putAllHeaders(clientOptions.headers)
-                .replaceAllHeaders(params.getHeaders())
                 .build()
-        return clientOptions.httpClient.executeAsync(request, requestOptions).let { response ->
-            response
-                .use { listToolsHandler.handle(it) }
-                .apply {
-                    if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                        validate()
-                    }
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { listToolsHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
                 }
-        }
+            }
     }
 }

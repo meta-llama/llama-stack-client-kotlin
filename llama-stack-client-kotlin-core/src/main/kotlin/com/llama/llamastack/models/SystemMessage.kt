@@ -17,6 +17,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A system message providing instructions or context to the model. */
 @NoAutoDetect
 class SystemMessage
 @JsonCreator
@@ -28,10 +29,21 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * The content of the "system prompt". If multiple system messages are provided, they are
+     * concatenated. The underlying Llama Stack code may also add other system messages (for
+     * example, for formatting tool definitions).
+     */
     fun content(): InterleavedContent = content.getRequired("content")
 
+    /** Must be "system" to identify this as a system message */
     @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
+    /**
+     * The content of the "system prompt". If multiple system messages are provided, they are
+     * concatenated. The underlying Llama Stack code may also add other system messages (for
+     * example, for formatting tool definitions).
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
     @JsonAnyGetter
@@ -61,7 +73,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [SystemMessage]. */
+    class Builder internal constructor() {
 
         private var content: JsonField<InterleavedContent>? = null
         private var role: JsonValue = JsonValue.from("system")
@@ -73,21 +86,44 @@ private constructor(
             additionalProperties = systemMessage.additionalProperties.toMutableMap()
         }
 
+        /**
+         * The content of the "system prompt". If multiple system messages are provided, they are
+         * concatenated. The underlying Llama Stack code may also add other system messages (for
+         * example, for formatting tool definitions).
+         */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+        /**
+         * The content of the "system prompt". If multiple system messages are provided, they are
+         * concatenated. The underlying Llama Stack code may also add other system messages (for
+         * example, for formatting tool definitions).
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+        /**
+         * The content of the "system prompt". If multiple system messages are provided, they are
+         * concatenated. The underlying Llama Stack code may also add other system messages (for
+         * example, for formatting tool definitions).
+         */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
+        /** A image content item */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+        /** A text content item */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
+        /**
+         * The content of the "system prompt". If multiple system messages are provided, they are
+         * concatenated. The underlying Llama Stack code may also add other system messages (for
+         * example, for formatting tool definitions).
+         */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
+        /** Must be "system" to identify this as a system message */
         fun role(role: JsonValue) = apply { this.role = role }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

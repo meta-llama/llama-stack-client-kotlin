@@ -44,6 +44,7 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** A image content item */
     fun insertedContext(): InterleavedContent = insertedContext.getRequired("inserted_context")
 
     fun stepId(): String = stepId.getRequired("step_id")
@@ -58,6 +59,7 @@ private constructor(
 
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
+    /** A image content item */
     @JsonProperty("inserted_context")
     @ExcludeMissing
     fun _insertedContext(): JsonField<InterleavedContent> = insertedContext
@@ -110,7 +112,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [MemoryRetrievalStep]. */
+    class Builder internal constructor() {
 
         private var insertedContext: JsonField<InterleavedContent>? = null
         private var stepId: JsonField<String>? = null
@@ -132,21 +135,27 @@ private constructor(
             additionalProperties = memoryRetrievalStep.additionalProperties.toMutableMap()
         }
 
+        /** A image content item */
         fun insertedContext(insertedContext: InterleavedContent) =
             insertedContext(JsonField.of(insertedContext))
 
+        /** A image content item */
         fun insertedContext(insertedContext: JsonField<InterleavedContent>) = apply {
             this.insertedContext = insertedContext
         }
 
+        /** A image content item */
         fun insertedContext(string: String) = insertedContext(InterleavedContent.ofString(string))
 
+        /** A image content item */
         fun insertedContext(imageContentItem: InterleavedContent.ImageContentItem) =
             insertedContext(InterleavedContent.ofImageContentItem(imageContentItem))
 
+        /** A text content item */
         fun insertedContext(textContentItem: InterleavedContent.TextContentItem) =
             insertedContext(InterleavedContent.ofTextContentItem(textContentItem))
 
+        /** A image content item */
         fun insertedContextOfItems(items: List<InterleavedContentItem>) =
             insertedContext(InterleavedContent.ofItems(items))
 

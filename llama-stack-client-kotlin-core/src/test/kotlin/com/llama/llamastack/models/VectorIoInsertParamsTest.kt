@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class VectorIoInsertParamsTest {
 
     @Test
-    fun createVectorIoInsertParams() {
+    fun create() {
         VectorIoInsertParams.builder()
             .addChunk(
                 VectorIoInsertParams.Chunk.builder()
@@ -23,13 +23,11 @@ class VectorIoInsertParamsTest {
             )
             .vectorDbId("vector_db_id")
             .ttlSeconds(0L)
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             VectorIoInsertParams.builder()
                 .addChunk(
@@ -44,10 +42,8 @@ class VectorIoInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .ttlSeconds(0L)
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.chunks())
             .isEqualTo(
@@ -67,7 +63,7 @@ class VectorIoInsertParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             VectorIoInsertParams.builder()
                 .addChunk(
@@ -82,7 +78,7 @@ class VectorIoInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.chunks())
             .isEqualTo(

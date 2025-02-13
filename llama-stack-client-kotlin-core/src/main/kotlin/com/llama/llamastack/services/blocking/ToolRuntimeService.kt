@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.services.blocking
 
+import com.google.errorprone.annotations.MustBeClosed
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.ToolDef
@@ -20,6 +21,7 @@ interface ToolRuntimeService {
         requestOptions: RequestOptions = RequestOptions.none()
     ): ToolInvocationResult
 
+    @MustBeClosed
     fun listToolsStreaming(
         params: ToolRuntimeListToolsParams,
         requestOptions: RequestOptions = RequestOptions.none()

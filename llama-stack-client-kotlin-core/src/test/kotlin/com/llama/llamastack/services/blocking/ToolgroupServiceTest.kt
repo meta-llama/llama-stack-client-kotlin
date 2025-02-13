@@ -10,7 +10,6 @@ import com.llama.llamastack.models.ToolgroupGetParams
 import com.llama.llamastack.models.ToolgroupListParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
-import com.llama.llamastack.models.Url
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -22,13 +21,7 @@ class ToolgroupServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
-        val listToolGroupsResponse =
-            toolgroupService.list(
-                ToolgroupListParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val listToolGroupsResponse = toolgroupService.list(ToolgroupListParams.builder().build())
         println(listToolGroupsResponse)
         for (toolGroup: ToolGroup in listToolGroupsResponse) {
             toolGroup.validate()
@@ -41,13 +34,7 @@ class ToolgroupServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
         val toolGroup =
-            toolgroupService.get(
-                ToolgroupGetParams.builder()
-                    .toolgroupId("toolgroup_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+            toolgroupService.get(ToolgroupGetParams.builder().toolgroupId("toolgroup_id").build())
         println(toolGroup)
         toolGroup.validate()
     }
@@ -66,9 +53,7 @@ class ToolgroupServiceTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .mcpEndpoint(Url.builder().uri("uri").build())
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
+                .mcpEndpoint(ToolgroupRegisterParams.McpEndpoint.builder().uri("uri").build())
                 .build()
         )
     }
@@ -79,11 +64,7 @@ class ToolgroupServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
         toolgroupService.unregister(
-            ToolgroupUnregisterParams.builder()
-                .toolgroupId("toolgroup_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
+            ToolgroupUnregisterParams.builder().toolgroupId("toolgroup_id").build()
         )
     }
 }

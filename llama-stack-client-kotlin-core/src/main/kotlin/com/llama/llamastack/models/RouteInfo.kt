@@ -68,7 +68,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [RouteInfo]. */
+    class Builder internal constructor() {
 
         private var method: JsonField<String>? = null
         private var providerTypes: JsonField<MutableList<String>>? = null

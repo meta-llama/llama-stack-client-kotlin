@@ -18,6 +18,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A message containing the model's (assistant) response in a chat conversation. */
 @NoAutoDetect
 class CompletionMessage
 @JsonCreator
@@ -35,20 +36,39 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /** The content of the model's response */
     fun content(): InterleavedContent = content.getRequired("content")
 
+    /** Must be "assistant" to identify this as the model's response */
     @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
+    /**
+     * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The model
+     * finished generating the entire response. - `StopReason.end_of_message`: The model finished
+     * generating but generated a partial response -- usually, a tool call. The user may call the
+     * tool and continue the conversation with the tool's response. - `StopReason.out_of_tokens`:
+     * The model ran out of token budget.
+     */
     fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
 
-    fun toolCalls(): List<ToolCall> = toolCalls.getRequired("tool_calls")
+    /** List of tool calls. Each tool call is a ToolCall object. */
+    fun toolCalls(): List<ToolCall>? = toolCalls.getNullable("tool_calls")
 
+    /** The content of the model's response */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
+    /**
+     * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The model
+     * finished generating the entire response. - `StopReason.end_of_message`: The model finished
+     * generating but generated a partial response -- usually, a tool call. The user may call the
+     * tool and continue the conversation with the tool's response. - `StopReason.out_of_tokens`:
+     * The model ran out of token budget.
+     */
     @JsonProperty("stop_reason")
     @ExcludeMissing
     fun _stopReason(): JsonField<StopReason> = stopReason
 
+    /** List of tool calls. Each tool call is a ToolCall object. */
     @JsonProperty("tool_calls")
     @ExcludeMissing
     fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
@@ -71,7 +91,7 @@ private constructor(
             }
         }
         stopReason()
-        toolCalls().forEach { it.validate() }
+        toolCalls()?.forEach { it.validate() }
         validated = true
     }
 
@@ -82,7 +102,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [CompletionMessage]. */
+    class Builder internal constructor() {
 
         private var content: JsonField<InterleavedContent>? = null
         private var role: JsonValue = JsonValue.from("assistant")
@@ -98,33 +119,57 @@ private constructor(
             additionalProperties = completionMessage.additionalProperties.toMutableMap()
         }
 
+        /** The content of the model's response */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
+        /** The content of the model's response */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
+        /** The content of the model's response */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
+        /** A image content item */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
+        /** A text content item */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
+        /** The content of the model's response */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
+        /** Must be "assistant" to identify this as the model's response */
         fun role(role: JsonValue) = apply { this.role = role }
 
+        /**
+         * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The
+         * model finished generating the entire response. - `StopReason.end_of_message`: The model
+         * finished generating but generated a partial response -- usually, a tool call. The user
+         * may call the tool and continue the conversation with the tool's response. -
+         * `StopReason.out_of_tokens`: The model ran out of token budget.
+         */
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
+        /**
+         * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The
+         * model finished generating the entire response. - `StopReason.end_of_message`: The model
+         * finished generating but generated a partial response -- usually, a tool call. The user
+         * may call the tool and continue the conversation with the tool's response. -
+         * `StopReason.out_of_tokens`: The model ran out of token budget.
+         */
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
 
+        /** List of tool calls. Each tool call is a ToolCall object. */
         fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
 
+        /** List of tool calls. Each tool call is a ToolCall object. */
         fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
             this.toolCalls = toolCalls.map { it.toMutableList() }
         }
 
+        /** List of tool calls. Each tool call is a ToolCall object. */
         fun addToolCall(toolCall: ToolCall) = apply {
             toolCalls =
                 (toolCalls ?: JsonField.of(mutableListOf())).apply {
@@ -160,17 +205,32 @@ private constructor(
                 checkRequired("content", content),
                 role,
                 checkRequired("stopReason", stopReason),
-                checkRequired("toolCalls", toolCalls).map { it.toImmutable() },
+                (toolCalls ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
 
+    /**
+     * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The model
+     * finished generating the entire response. - `StopReason.end_of_message`: The model finished
+     * generating but generated a partial response -- usually, a tool call. The user may call the
+     * tool and continue the conversation with the tool's response. - `StopReason.out_of_tokens`:
+     * The model ran out of token budget.
+     */
     class StopReason
     @JsonCreator
     private constructor(
         private val value: JsonField<String>,
     ) : Enum {
 
+        /**
+         * Returns this class instance's raw value.
+         *
+         * This is usually only useful if this instance was deserialized from data that doesn't
+         * match any known member, and you want to know that value. For example, if the SDK is on an
+         * older version than the API, then the API may respond with new members that the SDK is
+         * unaware of.
+         */
         @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
         companion object {
@@ -184,19 +244,39 @@ private constructor(
             fun of(value: String) = StopReason(JsonField.of(value))
         }
 
+        /** An enum containing [StopReason]'s known values. */
         enum class Known {
             END_OF_TURN,
             END_OF_MESSAGE,
             OUT_OF_TOKENS,
         }
 
+        /**
+         * An enum containing [StopReason]'s known values, as well as an [_UNKNOWN] member.
+         *
+         * An instance of [StopReason] can contain an unknown value in a couple of cases:
+         * - It was deserialized from data that doesn't match any known member. For example, if the
+         *   SDK is on an older version than the API, then the API may respond with new members that
+         *   the SDK is unaware of.
+         * - It was constructed with an arbitrary value using the [of] method.
+         */
         enum class Value {
             END_OF_TURN,
             END_OF_MESSAGE,
             OUT_OF_TOKENS,
+            /**
+             * An enum member indicating that [StopReason] was instantiated with an unknown value.
+             */
             _UNKNOWN,
         }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
+         * if the class was instantiated with an unknown value.
+         *
+         * Use the [known] method instead if you're certain the value is always known or if you want
+         * to throw for the unknown case.
+         */
         fun value(): Value =
             when (this) {
                 END_OF_TURN -> Value.END_OF_TURN
@@ -205,6 +285,15 @@ private constructor(
                 else -> Value._UNKNOWN
             }
 
+        /**
+         * Returns an enum member corresponding to this class instance's value.
+         *
+         * Use the [value] method instead if you're uncertain the value is always known and don't
+         * want to throw for the unknown case.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
+         *   known member.
+         */
         fun known(): Known =
             when (this) {
                 END_OF_TURN -> Known.END_OF_TURN
@@ -226,283 +315,6 @@ private constructor(
         override fun hashCode() = value.hashCode()
 
         override fun toString() = value.toString()
-    }
-
-    @NoAutoDetect
-    class ToolCall
-    @JsonCreator
-    private constructor(
-        @JsonProperty("arguments")
-        @ExcludeMissing
-        private val arguments: JsonField<Arguments> = JsonMissing.of(),
-        @JsonProperty("call_id")
-        @ExcludeMissing
-        private val callId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("tool_name")
-        @ExcludeMissing
-        private val toolName: JsonField<ToolName> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        fun arguments(): Arguments = arguments.getRequired("arguments")
-
-        fun callId(): String = callId.getRequired("call_id")
-
-        fun toolName(): ToolName = toolName.getRequired("tool_name")
-
-        @JsonProperty("arguments")
-        @ExcludeMissing
-        fun _arguments(): JsonField<Arguments> = arguments
-
-        @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
-
-        @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolCall = apply {
-            if (validated) {
-                return@apply
-            }
-
-            arguments().validate()
-            callId()
-            toolName()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            fun builder() = Builder()
-        }
-
-        class Builder {
-
-            private var arguments: JsonField<Arguments>? = null
-            private var callId: JsonField<String>? = null
-            private var toolName: JsonField<ToolName>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(toolCall: ToolCall) = apply {
-                arguments = toolCall.arguments
-                callId = toolCall.callId
-                toolName = toolCall.toolName
-                additionalProperties = toolCall.additionalProperties.toMutableMap()
-            }
-
-            fun arguments(arguments: Arguments) = arguments(JsonField.of(arguments))
-
-            fun arguments(arguments: JsonField<Arguments>) = apply { this.arguments = arguments }
-
-            fun callId(callId: String) = callId(JsonField.of(callId))
-
-            fun callId(callId: JsonField<String>) = apply { this.callId = callId }
-
-            fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
-
-            fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
-
-            fun toolName(value: String) = apply { toolName(ToolName.of(value)) }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): ToolCall =
-                ToolCall(
-                    checkRequired("arguments", arguments),
-                    checkRequired("callId", callId),
-                    checkRequired("toolName", toolName),
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        @NoAutoDetect
-        class Arguments
-        @JsonCreator
-        private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-        ) {
-
-            @JsonAnyGetter
-            @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Arguments = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
-
-            fun toBuilder() = Builder().from(this)
-
-            companion object {
-
-                fun builder() = Builder()
-            }
-
-            class Builder {
-
-                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-                internal fun from(arguments: Arguments) = apply {
-                    additionalProperties = arguments.additionalProperties.toMutableMap()
-                }
-
-                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                    this.additionalProperties.clear()
-                    putAllAdditionalProperties(additionalProperties)
-                }
-
-                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    additionalProperties.put(key, value)
-                }
-
-                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
-                    apply {
-                        this.additionalProperties.putAll(additionalProperties)
-                    }
-
-                fun removeAdditionalProperty(key: String) = apply {
-                    additionalProperties.remove(key)
-                }
-
-                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                    keys.forEach(::removeAdditionalProperty)
-                }
-
-                fun build(): Arguments = Arguments(additionalProperties.toImmutable())
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Arguments && additionalProperties == other.additionalProperties /* spotless:on */
-            }
-
-            /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
-            /* spotless:on */
-
-            override fun hashCode(): Int = hashCode
-
-            override fun toString() = "Arguments{additionalProperties=$additionalProperties}"
-        }
-
-        class ToolName
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
-
-            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-            companion object {
-
-                val BRAVE_SEARCH = of("brave_search")
-
-                val WOLFRAM_ALPHA = of("wolfram_alpha")
-
-                val PHOTOGEN = of("photogen")
-
-                val CODE_INTERPRETER = of("code_interpreter")
-
-                fun of(value: String) = ToolName(JsonField.of(value))
-            }
-
-            enum class Known {
-                BRAVE_SEARCH,
-                WOLFRAM_ALPHA,
-                PHOTOGEN,
-                CODE_INTERPRETER,
-            }
-
-            enum class Value {
-                BRAVE_SEARCH,
-                WOLFRAM_ALPHA,
-                PHOTOGEN,
-                CODE_INTERPRETER,
-                _UNKNOWN,
-            }
-
-            fun value(): Value =
-                when (this) {
-                    BRAVE_SEARCH -> Value.BRAVE_SEARCH
-                    WOLFRAM_ALPHA -> Value.WOLFRAM_ALPHA
-                    PHOTOGEN -> Value.PHOTOGEN
-                    CODE_INTERPRETER -> Value.CODE_INTERPRETER
-                    else -> Value._UNKNOWN
-                }
-
-            fun known(): Known =
-                when (this) {
-                    BRAVE_SEARCH -> Known.BRAVE_SEARCH
-                    WOLFRAM_ALPHA -> Known.WOLFRAM_ALPHA
-                    PHOTOGEN -> Known.PHOTOGEN
-                    CODE_INTERPRETER -> Known.CODE_INTERPRETER
-                    else -> throw LlamaStackClientInvalidDataException("Unknown ToolName: $value")
-                }
-
-            fun asString(): String = _value().asStringOrThrow()
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is ToolName && value == other.value /* spotless:on */
-            }
-
-            override fun hashCode() = value.hashCode()
-
-            override fun toString() = value.toString()
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolCall && arguments == other.arguments && callId == other.callId && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(arguments, callId, toolName, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "ToolCall{arguments=$arguments, callId=$callId, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class PostTrainingSupervisedFineTuneParamsTest {
 
     @Test
-    fun createPostTrainingSupervisedFineTuneParams() {
+    fun create() {
         PostTrainingSupervisedFineTuneParams.builder()
             .hyperparamSearchConfig(
                 PostTrainingSupervisedFineTuneParams.HyperparamSearchConfig.builder()
@@ -81,13 +81,11 @@ class PostTrainingSupervisedFineTuneParamsTest {
                     .build()
             )
             .checkpointDir("checkpoint_dir")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             PostTrainingSupervisedFineTuneParams.builder()
                 .hyperparamSearchConfig(
@@ -161,10 +159,8 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .checkpointDir("checkpoint_dir")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
@@ -245,7 +241,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             PostTrainingSupervisedFineTuneParams.builder()
                 .hyperparamSearchConfig(
@@ -295,7 +291,7 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(

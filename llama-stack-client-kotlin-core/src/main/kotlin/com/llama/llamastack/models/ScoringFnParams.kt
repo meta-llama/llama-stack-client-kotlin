@@ -122,6 +122,10 @@ private constructor(
         fun ofBasic(basic: BasicScoringFnParams) = ScoringFnParams(basic = basic)
     }
 
+    /**
+     * An interface that defines how to map each variant of [ScoringFnParams] to a value of type
+     * [T].
+     */
     interface Visitor<out T> {
 
         fun visitLlmAsJudge(llmAsJudge: LlmAsJudgeScoringFnParams): T
@@ -130,12 +134,22 @@ private constructor(
 
         fun visitBasic(basic: BasicScoringFnParams): T
 
+        /**
+         * Maps an unknown variant of [ScoringFnParams] to a value of type [T].
+         *
+         * An instance of [ScoringFnParams] can contain an unknown variant if it was deserialized
+         * from data that doesn't match any known variant. For example, if the SDK is on an older
+         * version than the API, then the API may respond with new variants that the SDK is unaware
+         * of.
+         *
+         * @throws LlamaStackClientInvalidDataException in the default implementation.
+         */
         fun unknown(json: JsonValue?): T {
             throw LlamaStackClientInvalidDataException("Unknown ScoringFnParams: $json")
         }
     }
 
-    class Deserializer : BaseDeserializer<ScoringFnParams>(ScoringFnParams::class) {
+    internal class Deserializer : BaseDeserializer<ScoringFnParams>(ScoringFnParams::class) {
 
         override fun ObjectCodec.deserialize(node: JsonNode): ScoringFnParams {
             val json = JsonValue.fromJsonNode(node)
@@ -170,7 +184,7 @@ private constructor(
         }
     }
 
-    class Serializer : BaseSerializer<ScoringFnParams>(ScoringFnParams::class) {
+    internal class Serializer : BaseSerializer<ScoringFnParams>(ScoringFnParams::class) {
 
         override fun serialize(
             value: ScoringFnParams,
@@ -266,7 +280,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [LlmAsJudgeScoringFnParams]. */
+        class Builder internal constructor() {
 
             private var judgeModel: JsonField<String>? = null
             private var type: JsonValue = JsonValue.from("llm_as_judge")
@@ -372,6 +387,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -387,6 +410,7 @@ private constructor(
                 fun of(value: String) = AggregationFunction(JsonField.of(value))
             }
 
+            /** An enum containing [AggregationFunction]'s known values. */
             enum class Known {
                 AVERAGE,
                 MEDIAN,
@@ -394,14 +418,36 @@ private constructor(
                 ACCURACY,
             }
 
+            /**
+             * An enum containing [AggregationFunction]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [AggregationFunction] can contain an unknown value in a couple of
+             * cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
+                /**
+                 * An enum member indicating that [AggregationFunction] was instantiated with an
+                 * unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     AVERAGE -> Value.AVERAGE
@@ -411,6 +457,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     AVERAGE -> Known.AVERAGE
@@ -514,7 +569,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [RegexParserScoringFnParams]. */
+        class Builder internal constructor() {
 
             private var type: JsonValue = JsonValue.from("regex_parser")
             private var aggregationFunctions: JsonField<MutableList<AggregationFunction>>? = null
@@ -604,6 +660,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -619,6 +683,7 @@ private constructor(
                 fun of(value: String) = AggregationFunction(JsonField.of(value))
             }
 
+            /** An enum containing [AggregationFunction]'s known values. */
             enum class Known {
                 AVERAGE,
                 MEDIAN,
@@ -626,14 +691,36 @@ private constructor(
                 ACCURACY,
             }
 
+            /**
+             * An enum containing [AggregationFunction]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [AggregationFunction] can contain an unknown value in a couple of
+             * cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
+                /**
+                 * An enum member indicating that [AggregationFunction] was instantiated with an
+                 * unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     AVERAGE -> Value.AVERAGE
@@ -643,6 +730,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     AVERAGE -> Known.AVERAGE
@@ -736,7 +832,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [BasicScoringFnParams]. */
+        class Builder internal constructor() {
 
             private var type: JsonValue = JsonValue.from("basic")
             private var aggregationFunctions: JsonField<MutableList<AggregationFunction>>? = null
@@ -803,6 +900,14 @@ private constructor(
             private val value: JsonField<String>,
         ) : Enum {
 
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
             @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
 
             companion object {
@@ -818,6 +923,7 @@ private constructor(
                 fun of(value: String) = AggregationFunction(JsonField.of(value))
             }
 
+            /** An enum containing [AggregationFunction]'s known values. */
             enum class Known {
                 AVERAGE,
                 MEDIAN,
@@ -825,14 +931,36 @@ private constructor(
                 ACCURACY,
             }
 
+            /**
+             * An enum containing [AggregationFunction]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [AggregationFunction] can contain an unknown value in a couple of
+             * cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
             enum class Value {
                 AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
+                /**
+                 * An enum member indicating that [AggregationFunction] was instantiated with an
+                 * unknown value.
+                 */
                 _UNKNOWN,
             }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
             fun value(): Value =
                 when (this) {
                     AVERAGE -> Value.AVERAGE
@@ -842,6 +970,15 @@ private constructor(
                     else -> Value._UNKNOWN
                 }
 
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
             fun known(): Known =
                 when (this) {
                     AVERAGE -> Known.AVERAGE

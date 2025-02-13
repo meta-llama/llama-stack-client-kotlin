@@ -3,43 +3,28 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
 class EvalTaskRetrieveParams
-constructor(
+private constructor(
     private val evalTaskId: String,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun evalTaskId(): String = evalTaskId
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
@@ -55,32 +40,21 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [EvalTaskRetrieveParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var evalTaskId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalTaskRetrieveParams: EvalTaskRetrieveParams) = apply {
             evalTaskId = evalTaskRetrieveParams.evalTaskId
-            xLlamaStackClientVersion = evalTaskRetrieveParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = evalTaskRetrieveParams.xLlamaStackProviderData
             additionalHeaders = evalTaskRetrieveParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalTaskRetrieveParams.additionalQueryParams.toBuilder()
         }
 
         fun evalTaskId(evalTaskId: String) = apply { this.evalTaskId = evalTaskId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -183,8 +157,6 @@ constructor(
         fun build(): EvalTaskRetrieveParams =
             EvalTaskRetrieveParams(
                 checkRequired("evalTaskId", evalTaskId),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -195,11 +167,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTaskRetrieveParams && evalTaskId == other.evalTaskId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalTaskRetrieveParams && evalTaskId == other.evalTaskId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(evalTaskId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(evalTaskId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalTaskRetrieveParams{evalTaskId=$evalTaskId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalTaskRetrieveParams{evalTaskId=$evalTaskId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

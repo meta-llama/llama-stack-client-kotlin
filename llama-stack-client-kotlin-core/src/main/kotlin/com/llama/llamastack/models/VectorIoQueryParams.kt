@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,24 +20,20 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class VectorIoQueryParams
-constructor(
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
+private constructor(
     private val body: VectorIoQueryBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
+    /** A image content item */
     fun query(): InterleavedContent = body.query()
 
     fun vectorDbId(): String = body.vectorDbId()
 
     fun params(): Params? = body.params()
 
+    /** A image content item */
     fun _query(): JsonField<InterleavedContent> = body._query()
 
     fun _vectorDbId(): JsonField<String> = body._vectorDbId()
@@ -49,21 +46,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): VectorIoQueryBody = body
+    internal fun _body(): VectorIoQueryBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
     class VectorIoQueryBody
@@ -82,12 +69,14 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** A image content item */
         fun query(): InterleavedContent = query.getRequired("query")
 
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
         fun params(): Params? = params.getNullable("params")
 
+        /** A image content item */
         @JsonProperty("query") @ExcludeMissing fun _query(): JsonField<InterleavedContent> = query
 
         @JsonProperty("vector_db_id")
@@ -120,7 +109,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [VectorIoQueryBody]. */
+        class Builder internal constructor() {
 
             private var query: JsonField<InterleavedContent>? = null
             private var vectorDbId: JsonField<String>? = null
@@ -134,18 +124,24 @@ constructor(
                 additionalProperties = vectorIoQueryBody.additionalProperties.toMutableMap()
             }
 
+            /** A image content item */
             fun query(query: InterleavedContent) = query(JsonField.of(query))
 
+            /** A image content item */
             fun query(query: JsonField<InterleavedContent>) = apply { this.query = query }
 
+            /** A image content item */
             fun query(string: String) = query(InterleavedContent.ofString(string))
 
+            /** A image content item */
             fun query(imageContentItem: InterleavedContent.ImageContentItem) =
                 query(InterleavedContent.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun query(textContentItem: InterleavedContent.TextContentItem) =
                 query(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /** A image content item */
             fun queryOfItems(items: List<InterleavedContentItem>) =
                 query(InterleavedContent.ofItems(items))
 
@@ -210,45 +206,40 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [VectorIoQueryParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: VectorIoQueryBody.Builder = VectorIoQueryBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(vectorIoQueryParams: VectorIoQueryParams) = apply {
-            xLlamaStackClientVersion = vectorIoQueryParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = vectorIoQueryParams.xLlamaStackProviderData
             body = vectorIoQueryParams.body.toBuilder()
             additionalHeaders = vectorIoQueryParams.additionalHeaders.toBuilder()
             additionalQueryParams = vectorIoQueryParams.additionalQueryParams.toBuilder()
         }
 
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
+        /** A image content item */
         fun query(query: InterleavedContent) = apply { body.query(query) }
 
+        /** A image content item */
         fun query(query: JsonField<InterleavedContent>) = apply { body.query(query) }
 
+        /** A image content item */
         fun query(string: String) = apply { body.query(string) }
 
+        /** A image content item */
         fun query(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.query(imageContentItem)
         }
 
+        /** A text content item */
         fun query(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.query(textContentItem)
         }
 
+        /** A image content item */
         fun queryOfItems(items: List<InterleavedContentItem>) = apply { body.queryOfItems(items) }
 
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
@@ -378,8 +369,6 @@ constructor(
 
         fun build(): VectorIoQueryParams =
             VectorIoQueryParams(
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -415,7 +404,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Params]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -467,11 +457,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is VectorIoQueryParams && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is VectorIoQueryParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "VectorIoQueryParams{xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "VectorIoQueryParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

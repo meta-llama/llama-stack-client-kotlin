@@ -11,6 +11,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -19,20 +20,14 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class EvalEvaluateRowsParams
-constructor(
+private constructor(
     private val taskId: String,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val body: EvalEvaluateRowsBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun taskId(): String = taskId
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun inputRows(): List<InputRow> = body.inputRows()
 
@@ -52,21 +47,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): EvalEvaluateRowsBody = body
+    internal fun _body(): EvalEvaluateRowsBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
@@ -134,7 +119,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [EvalEvaluateRowsBody]. */
+        class Builder internal constructor() {
 
             private var inputRows: JsonField<MutableList<InputRow>>? = null
             private var scoringFunctions: JsonField<MutableList<String>>? = null
@@ -192,6 +178,22 @@ constructor(
             fun taskConfig(benchmark: EvalTaskConfig.BenchmarkEvalTaskConfig) =
                 taskConfig(EvalTaskConfig.ofBenchmark(benchmark))
 
+            fun benchmarkTaskConfig(evalCandidate: EvalCandidate) =
+                taskConfig(
+                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
+                        .evalCandidate(evalCandidate)
+                        .build()
+                )
+
+            fun benchmarkTaskConfig(model: EvalCandidate.ModelCandidate) =
+                benchmarkTaskConfig(EvalCandidate.ofModel(model))
+
+            fun benchmarkTaskConfig(agent: EvalCandidate.AgentCandidate) =
+                benchmarkTaskConfig(EvalCandidate.ofAgent(agent))
+
+            fun agentBenchmarkTaskConfig(config: AgentConfig) =
+                benchmarkTaskConfig(EvalCandidate.AgentCandidate.builder().config(config).build())
+
             fun taskConfig(app: EvalTaskConfig.AppEvalTaskConfig) =
                 taskConfig(EvalTaskConfig.ofApp(app))
 
@@ -248,34 +250,23 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [EvalEvaluateRowsParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var taskId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: EvalEvaluateRowsBody.Builder = EvalEvaluateRowsBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalEvaluateRowsParams: EvalEvaluateRowsParams) = apply {
             taskId = evalEvaluateRowsParams.taskId
-            xLlamaStackClientVersion = evalEvaluateRowsParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = evalEvaluateRowsParams.xLlamaStackProviderData
             body = evalEvaluateRowsParams.body.toBuilder()
             additionalHeaders = evalEvaluateRowsParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalEvaluateRowsParams.additionalQueryParams.toBuilder()
         }
 
         fun taskId(taskId: String) = apply { this.taskId = taskId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun inputRows(inputRows: List<InputRow>) = apply { body.inputRows(inputRows) }
 
@@ -303,6 +294,22 @@ constructor(
 
         fun taskConfig(benchmark: EvalTaskConfig.BenchmarkEvalTaskConfig) = apply {
             body.taskConfig(benchmark)
+        }
+
+        fun benchmarkTaskConfig(evalCandidate: EvalCandidate) = apply {
+            body.benchmarkTaskConfig(evalCandidate)
+        }
+
+        fun benchmarkTaskConfig(model: EvalCandidate.ModelCandidate) = apply {
+            body.benchmarkTaskConfig(model)
+        }
+
+        fun benchmarkTaskConfig(agent: EvalCandidate.AgentCandidate) = apply {
+            body.benchmarkTaskConfig(agent)
+        }
+
+        fun agentBenchmarkTaskConfig(config: AgentConfig) = apply {
+            body.agentBenchmarkTaskConfig(config)
         }
 
         fun taskConfig(app: EvalTaskConfig.AppEvalTaskConfig) = apply { body.taskConfig(app) }
@@ -427,8 +434,6 @@ constructor(
         fun build(): EvalEvaluateRowsParams =
             EvalEvaluateRowsParams(
                 checkRequired("taskId", taskId),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -464,7 +469,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [InputRow]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -516,11 +522,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalEvaluateRowsParams && taskId == other.taskId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalEvaluateRowsParams && taskId == other.taskId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalEvaluateRowsParams{taskId=$taskId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalEvaluateRowsParams{taskId=$taskId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

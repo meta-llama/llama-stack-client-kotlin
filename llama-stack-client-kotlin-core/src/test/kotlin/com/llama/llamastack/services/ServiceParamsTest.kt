@@ -17,14 +17,15 @@ import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.jsonMapper
+import com.llama.llamastack.models.ChatCompletionResponse
 import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionParams
-import com.llama.llamastack.models.InferenceChatCompletionResponse
 import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.TokenLogProbs
+import com.llama.llamastack.models.ToolCall
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -39,7 +40,10 @@ class ServiceParamsTest {
     @BeforeEach
     fun beforeEach(wmRuntimeInfo: WireMockRuntimeInfo) {
         client =
-            LlamaStackClientOkHttpClient.builder().baseUrl(wmRuntimeInfo.getHttpBaseUrl()).build()
+            LlamaStackClientOkHttpClient.builder()
+                .apiKey("My API Key")
+                .baseUrl(wmRuntimeInfo.getHttpBaseUrl())
+                .build()
     }
 
     @Test
@@ -61,13 +65,9 @@ class ServiceParamsTest {
                 .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
-                .responseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.builder()
-                        .jsonSchema(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
+                .jsonSchemaResponseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .samplingParams(
@@ -78,6 +78,17 @@ class ServiceParamsTest {
                         .build()
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
+                .toolConfig(
+                    InferenceChatCompletionParams.ToolConfig.builder()
+                        .systemMessageBehavior(
+                            InferenceChatCompletionParams.ToolConfig.SystemMessageBehavior.APPEND
+                        )
+                        .toolChoice(InferenceChatCompletionParams.ToolConfig.ToolChoice.AUTO)
+                        .toolPromptFormat(
+                            InferenceChatCompletionParams.ToolConfig.ToolPromptFormat.JSON
+                        )
+                        .build()
+                )
                 .toolPromptFormat(InferenceChatCompletionParams.ToolPromptFormat.JSON)
                 .addTool(
                     InferenceChatCompletionParams.Tool.builder()
@@ -100,44 +111,40 @@ class ServiceParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .additionalHeaders(additionalHeaders)
                 .additionalBodyProperties(additionalBodyProperties)
                 .additionalQueryParams(additionalQueryParams)
                 .build()
 
         val apiResponse =
-            InferenceChatCompletionResponse.ofChatCompletionResponse(
-                InferenceChatCompletionResponse.ChatCompletionResponse.builder()
-                    .completionMessage(
-                        CompletionMessage.builder()
-                            .content("string")
-                            .stopReason(CompletionMessage.StopReason.END_OF_TURN)
-                            .addToolCall(
-                                CompletionMessage.ToolCall.builder()
-                                    .arguments(
-                                        CompletionMessage.ToolCall.Arguments.builder()
-                                            .putAdditionalProperty("foo", JsonValue.from("string"))
-                                            .build()
-                                    )
-                                    .callId("call_id")
-                                    .toolName(CompletionMessage.ToolCall.ToolName.BRAVE_SEARCH)
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .addLogprob(
-                        TokenLogProbs.builder()
-                            .logprobsByToken(
-                                TokenLogProbs.LogprobsByToken.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from(0))
-                                    .build()
-                            )
-                            .build()
-                    )
-                    .build()
-            )
+            ChatCompletionResponse.builder()
+                .completionMessage(
+                    CompletionMessage.builder()
+                        .content("string")
+                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                        .addToolCall(
+                            ToolCall.builder()
+                                .arguments(
+                                    ToolCall.Arguments.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from("string"))
+                                        .build()
+                                )
+                                .callId("call_id")
+                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                .build()
+                        )
+                        .build()
+                )
+                .addLogprob(
+                    TokenLogProbs.builder()
+                        .logprobsByToken(
+                            TokenLogProbs.LogprobsByToken.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(0))
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
 
         stubFor(
             post(anyUrl())
@@ -177,8 +184,6 @@ class ServiceParamsTest {
                 .modelType(ModelRegisterParams.ModelType.LLM)
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .additionalHeaders(additionalHeaders)
                 .additionalBodyProperties(additionalBodyProperties)
                 .additionalQueryParams(additionalQueryParams)

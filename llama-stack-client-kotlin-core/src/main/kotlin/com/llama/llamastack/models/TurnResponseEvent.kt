@@ -54,7 +54,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [TurnResponseEvent]. */
+    class Builder internal constructor() {
 
         private var payload: JsonField<TurnResponseEventPayload>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -102,6 +103,13 @@ private constructor(
                 TurnResponseEventPayload.ofAgentTurnResponseTurnStart(agentTurnResponseTurnStart)
             )
 
+        fun agentTurnResponseTurnStartPayload(turnId: String) =
+            payload(
+                TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
+                    .turnId(turnId)
+                    .build()
+            )
+
         fun payload(
             agentTurnResponseTurnComplete:
                 TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload
@@ -110,6 +118,13 @@ private constructor(
                 TurnResponseEventPayload.ofAgentTurnResponseTurnComplete(
                     agentTurnResponseTurnComplete
                 )
+            )
+
+        fun agentTurnResponseTurnCompletePayload(turn: Turn) =
+            payload(
+                TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
+                    .turn(turn)
+                    .build()
             )
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

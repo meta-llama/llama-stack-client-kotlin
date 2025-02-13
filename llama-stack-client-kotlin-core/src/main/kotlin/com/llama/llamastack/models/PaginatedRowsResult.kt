@@ -68,7 +68,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [PaginatedRowsResult]. */
+    class Builder internal constructor() {
 
         private var rows: JsonField<MutableList<Row>>? = null
         private var totalCount: JsonField<Long>? = null
@@ -164,7 +165,8 @@ private constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Row]. */
+        class Builder internal constructor() {
 
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 

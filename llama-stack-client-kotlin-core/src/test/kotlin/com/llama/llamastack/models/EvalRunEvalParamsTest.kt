@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 class EvalRunEvalParamsTest {
 
     @Test
-    fun createEvalRunEvalParams() {
+    fun create() {
         EvalRunEvalParams.builder()
             .taskId("task_id")
             .taskConfig(
@@ -29,13 +29,11 @@ class EvalRunEvalParamsTest {
                     .numExamples(0L)
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             EvalRunEvalParams.builder()
                 .taskId("task_id")
@@ -57,10 +55,8 @@ class EvalRunEvalParamsTest {
                         .numExamples(0L)
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.taskConfig())
             .isEqualTo(
@@ -86,24 +82,18 @@ class EvalRunEvalParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             EvalRunEvalParams.builder()
                 .taskId("task_id")
-                .taskConfig(
-                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
-                                .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
-                                .build()
-                        )
+                .benchmarkTaskConfig(
+                    EvalCandidate.ModelCandidate.builder()
+                        .model("model")
+                        .samplingParams(SamplingParams.builder().strategyGreedySampling().build())
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.taskConfig())
             .isEqualTo(
@@ -127,16 +117,10 @@ class EvalRunEvalParamsTest {
         val params =
             EvalRunEvalParams.builder()
                 .taskId("task_id")
-                .taskConfig(
-                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
-                                .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
-                                .build()
-                        )
+                .benchmarkTaskConfig(
+                    EvalCandidate.ModelCandidate.builder()
+                        .model("model")
+                        .samplingParams(SamplingParams.builder().strategyGreedySampling().build())
                         .build()
                 )
                 .build()

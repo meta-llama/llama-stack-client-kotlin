@@ -9,31 +9,22 @@ import org.junit.jupiter.api.Test
 class ToolListParamsTest {
 
     @Test
-    fun createToolListParams() {
-        ToolListParams.builder()
-            .toolgroupId("toolgroup_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ToolListParams.builder().toolgroupId("toolgroup_id").build()
     }
 
     @Test
-    fun getQueryParams() {
-        val params =
-            ToolListParams.builder()
-                .toolgroupId("toolgroup_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                .build()
+    fun queryParams() {
+        val params = ToolListParams.builder().toolgroupId("toolgroup_id").build()
         val expected = QueryParams.builder()
         expected.put("toolgroup_id", "toolgroup_id")
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 
     @Test
-    fun getQueryParamsWithoutOptionalFields() {
+    fun queryParamsWithoutOptionalFields() {
         val params = ToolListParams.builder().build()
         val expected = QueryParams.builder()
-        assertThat(params.getQueryParams()).isEqualTo(expected.build())
+        assertThat(params._queryParams()).isEqualTo(expected.build())
     }
 }

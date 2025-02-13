@@ -15,11 +15,13 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.BaseDeserializer
 import com.llama.llamastack.core.BaseSerializer
+import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
@@ -30,33 +32,33 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class AgentTurnCreateParams
-constructor(
+private constructor(
     private val agentId: String,
     private val sessionId: String,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val body: AgentTurnCreateBody,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
     fun agentId(): String = agentId
 
     fun sessionId(): String = sessionId
 
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
-
     fun messages(): List<Message> = body.messages()
 
     fun documents(): List<Document>? = body.documents()
+
+    /** Configuration for tool use. */
+    fun toolConfig(): ToolConfig? = body.toolConfig()
 
     fun toolgroups(): List<Toolgroup>? = body.toolgroups()
 
     fun _messages(): JsonField<List<Message>> = body._messages()
 
     fun _documents(): JsonField<List<Document>> = body._documents()
+
+    /** Configuration for tool use. */
+    fun _toolConfig(): JsonField<ToolConfig> = body._toolConfig()
 
     fun _toolgroups(): JsonField<List<Toolgroup>> = body._toolgroups()
 
@@ -66,21 +68,11 @@ constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getBody(): AgentTurnCreateBody = body
+    internal fun _body(): AgentTurnCreateBody = body
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
@@ -100,6 +92,9 @@ constructor(
         @JsonProperty("documents")
         @ExcludeMissing
         private val documents: JsonField<List<Document>> = JsonMissing.of(),
+        @JsonProperty("tool_config")
+        @ExcludeMissing
+        private val toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
         @JsonProperty("toolgroups")
         @ExcludeMissing
         private val toolgroups: JsonField<List<Toolgroup>> = JsonMissing.of(),
@@ -111,6 +106,9 @@ constructor(
 
         fun documents(): List<Document>? = documents.getNullable("documents")
 
+        /** Configuration for tool use. */
+        fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
+
         fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
 
         @JsonProperty("messages")
@@ -120,6 +118,11 @@ constructor(
         @JsonProperty("documents")
         @ExcludeMissing
         fun _documents(): JsonField<List<Document>> = documents
+
+        /** Configuration for tool use. */
+        @JsonProperty("tool_config")
+        @ExcludeMissing
+        fun _toolConfig(): JsonField<ToolConfig> = toolConfig
 
         @JsonProperty("toolgroups")
         @ExcludeMissing
@@ -138,6 +141,7 @@ constructor(
 
             messages().forEach { it.validate() }
             documents()?.forEach { it.validate() }
+            toolConfig()?.validate()
             toolgroups()?.forEach { it.validate() }
             validated = true
         }
@@ -149,16 +153,19 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [AgentTurnCreateBody]. */
+        class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
             private var documents: JsonField<MutableList<Document>>? = null
+            private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
             private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(agentTurnCreateBody: AgentTurnCreateBody) = apply {
                 messages = agentTurnCreateBody.messages.map { it.toMutableList() }
                 documents = agentTurnCreateBody.documents.map { it.toMutableList() }
+                toolConfig = agentTurnCreateBody.toolConfig
                 toolgroups = agentTurnCreateBody.toolgroups.map { it.toMutableList() }
                 additionalProperties = agentTurnCreateBody.additionalProperties.toMutableMap()
             }
@@ -180,8 +187,10 @@ constructor(
                     }
             }
 
+            /** A message from the user in a chat conversation. */
             fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
 
+            /** A message representing the result of a tool invocation. */
             fun addMessage(toolResponse: ToolResponseMessage) =
                 addMessage(Message.ofToolResponse(toolResponse))
 
@@ -200,6 +209,14 @@ constructor(
                                 ))
                             .add(document)
                     }
+            }
+
+            /** Configuration for tool use. */
+            fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
+
+            /** Configuration for tool use. */
+            fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply {
+                this.toolConfig = toolConfig
             }
 
             fun toolgroups(toolgroups: List<Toolgroup>) = toolgroups(JsonField.of(toolgroups))
@@ -247,6 +264,7 @@ constructor(
                 AgentTurnCreateBody(
                     checkRequired("messages", messages).map { it.toImmutable() },
                     (documents ?: JsonMissing.of()).map { it.toImmutable() },
+                    toolConfig,
                     (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
@@ -257,17 +275,17 @@ constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnCreateBody && messages == other.messages && documents == other.documents && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is AgentTurnCreateBody && messages == other.messages && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolgroups, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolConfig, toolgroups, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnCreateBody{messages=$messages, documents=$documents, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+            "AgentTurnCreateBody{messages=$messages, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -277,13 +295,12 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [AgentTurnCreateParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var agentId: String? = null
         private var sessionId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var body: AgentTurnCreateBody.Builder = AgentTurnCreateBody.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
@@ -291,8 +308,6 @@ constructor(
         internal fun from(agentTurnCreateParams: AgentTurnCreateParams) = apply {
             agentId = agentTurnCreateParams.agentId
             sessionId = agentTurnCreateParams.sessionId
-            xLlamaStackClientVersion = agentTurnCreateParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = agentTurnCreateParams.xLlamaStackProviderData
             body = agentTurnCreateParams.body.toBuilder()
             additionalHeaders = agentTurnCreateParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentTurnCreateParams.additionalQueryParams.toBuilder()
@@ -302,22 +317,16 @@ constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
-
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
         fun messages(messages: JsonField<List<Message>>) = apply { body.messages(messages) }
 
         fun addMessage(message: Message) = apply { body.addMessage(message) }
 
+        /** A message from the user in a chat conversation. */
         fun addMessage(user: UserMessage) = apply { body.addMessage(user) }
 
+        /** A message representing the result of a tool invocation. */
         fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
@@ -325,6 +334,12 @@ constructor(
         fun documents(documents: JsonField<List<Document>>) = apply { body.documents(documents) }
 
         fun addDocument(document: Document) = apply { body.addDocument(document) }
+
+        /** Configuration for tool use. */
+        fun toolConfig(toolConfig: ToolConfig) = apply { body.toolConfig(toolConfig) }
+
+        /** Configuration for tool use. */
+        fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply { body.toolConfig(toolConfig) }
 
         fun toolgroups(toolgroups: List<Toolgroup>) = apply { body.toolgroups(toolgroups) }
 
@@ -461,14 +476,13 @@ constructor(
             AgentTurnCreateParams(
                 checkRequired("agentId", agentId),
                 checkRequired("sessionId", sessionId),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
 
+    /** A message from the user in a chat conversation. */
     @JsonDeserialize(using = Message.Deserializer::class)
     @JsonSerialize(using = Message.Serializer::class)
     class Message
@@ -478,16 +492,20 @@ constructor(
         private val _json: JsonValue? = null,
     ) {
 
+        /** A message from the user in a chat conversation. */
         fun user(): UserMessage? = user
 
+        /** A message representing the result of a tool invocation. */
         fun toolResponse(): ToolResponseMessage? = toolResponse
 
         fun isUser(): Boolean = user != null
 
         fun isToolResponse(): Boolean = toolResponse != null
 
+        /** A message from the user in a chat conversation. */
         fun asUser(): UserMessage = user.getOrThrow("user")
 
+        /** A message representing the result of a tool invocation. */
         fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
 
         fun _json(): JsonValue? = _json
@@ -541,24 +559,41 @@ constructor(
 
         companion object {
 
+            /** A message from the user in a chat conversation. */
             fun ofUser(user: UserMessage) = Message(user = user)
 
+            /** A message representing the result of a tool invocation. */
             fun ofToolResponse(toolResponse: ToolResponseMessage) =
                 Message(toolResponse = toolResponse)
         }
 
+        /**
+         * An interface that defines how to map each variant of [Message] to a value of type [T].
+         */
         interface Visitor<out T> {
 
+            /** A message from the user in a chat conversation. */
             fun visitUser(user: UserMessage): T
 
+            /** A message representing the result of a tool invocation. */
             fun visitToolResponse(toolResponse: ToolResponseMessage): T
 
+            /**
+             * Maps an unknown variant of [Message] to a value of type [T].
+             *
+             * An instance of [Message] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Message: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Message>(Message::class) {
+        internal class Deserializer : BaseDeserializer<Message>(Message::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Message {
                 val json = JsonValue.fromJsonNode(node)
@@ -576,7 +611,7 @@ constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Message>(Message::class) {
+        internal class Serializer : BaseSerializer<Message>(Message::class) {
 
             override fun serialize(
                 value: Message,
@@ -607,10 +642,12 @@ constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /** A image content item */
         fun content(): Content = content.getRequired("content")
 
         fun mimeType(): String = mimeType.getRequired("mime_type")
 
+        /** A image content item */
         @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
 
         @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
@@ -638,7 +675,8 @@ constructor(
             fun builder() = Builder()
         }
 
-        class Builder {
+        /** A builder for [Document]. */
+        class Builder internal constructor() {
 
             private var content: JsonField<Content>? = null
             private var mimeType: JsonField<String>? = null
@@ -650,23 +688,30 @@ constructor(
                 additionalProperties = document.additionalProperties.toMutableMap()
             }
 
+            /** A image content item */
             fun content(content: Content) = content(JsonField.of(content))
 
+            /** A image content item */
             fun content(content: JsonField<Content>) = apply { this.content = content }
 
+            /** A image content item */
             fun content(string: String) = content(Content.ofString(string))
 
+            /** A image content item */
             fun content(imageContentItem: Content.ImageContentItem) =
                 content(Content.ofImageContentItem(imageContentItem))
 
+            /** A text content item */
             fun content(textContentItem: Content.TextContentItem) =
                 content(Content.ofTextContentItem(textContentItem))
 
+            /** A image content item */
             fun contentOfInterleavedContentItems(
                 interleavedContentItems: List<InterleavedContentItem>
             ) = content(Content.ofInterleavedContentItems(interleavedContentItems))
 
-            fun content(url: Url) = content(Content.ofUrl(url))
+            /** A image content item */
+            fun content(url: Content.Url) = content(Content.ofUrl(url))
 
             fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
 
@@ -699,6 +744,7 @@ constructor(
                 )
         }
 
+        /** A image content item */
         @JsonDeserialize(using = Content.Deserializer::class)
         @JsonSerialize(using = Content.Serializer::class)
         class Content
@@ -713,8 +759,10 @@ constructor(
 
             fun string(): String? = string
 
+            /** A image content item */
             fun imageContentItem(): ImageContentItem? = imageContentItem
 
+            /** A text content item */
             fun textContentItem(): TextContentItem? = textContentItem
 
             fun interleavedContentItems(): List<InterleavedContentItem>? = interleavedContentItems
@@ -733,9 +781,11 @@ constructor(
 
             fun asString(): String = string.getOrThrow("string")
 
+            /** A image content item */
             fun asImageContentItem(): ImageContentItem =
                 imageContentItem.getOrThrow("imageContentItem")
 
+            /** A text content item */
             fun asTextContentItem(): TextContentItem = textContentItem.getOrThrow("textContentItem")
 
             fun asInterleavedContentItems(): List<InterleavedContentItem> =
@@ -816,9 +866,11 @@ constructor(
 
                 fun ofString(string: String) = Content(string = string)
 
+                /** A image content item */
                 fun ofImageContentItem(imageContentItem: ImageContentItem) =
                     Content(imageContentItem = imageContentItem)
 
+                /** A text content item */
                 fun ofTextContentItem(textContentItem: TextContentItem) =
                     Content(textContentItem = textContentItem)
 
@@ -829,12 +881,18 @@ constructor(
                 fun ofUrl(url: Url) = Content(url = url)
             }
 
+            /**
+             * An interface that defines how to map each variant of [Content] to a value of type
+             * [T].
+             */
             interface Visitor<out T> {
 
                 fun visitString(string: String): T
 
+                /** A image content item */
                 fun visitImageContentItem(imageContentItem: ImageContentItem): T
 
+                /** A text content item */
                 fun visitTextContentItem(textContentItem: TextContentItem): T
 
                 fun visitInterleavedContentItems(
@@ -843,12 +901,22 @@ constructor(
 
                 fun visitUrl(url: Url): T
 
+                /**
+                 * Maps an unknown variant of [Content] to a value of type [T].
+                 *
+                 * An instance of [Content] can contain an unknown variant if it was deserialized
+                 * from data that doesn't match any known variant. For example, if the SDK is on an
+                 * older version than the API, then the API may respond with new variants that the
+                 * SDK is unaware of.
+                 *
+                 * @throws LlamaStackClientInvalidDataException in the default implementation.
+                 */
                 fun unknown(json: JsonValue?): T {
                     throw LlamaStackClientInvalidDataException("Unknown Content: $json")
                 }
             }
 
-            class Deserializer : BaseDeserializer<Content>(Content::class) {
+            internal class Deserializer : BaseDeserializer<Content>(Content::class) {
 
                 override fun ObjectCodec.deserialize(node: JsonNode): Content {
                     val json = JsonValue.fromJsonNode(node)
@@ -879,7 +947,7 @@ constructor(
                 }
             }
 
-            class Serializer : BaseSerializer<Content>(Content::class) {
+            internal class Serializer : BaseSerializer<Content>(Content::class) {
 
                 override fun serialize(
                     value: Content,
@@ -901,6 +969,7 @@ constructor(
                 }
             }
 
+            /** A image content item */
             @NoAutoDetect
             class ImageContentItem
             @JsonCreator
@@ -915,10 +984,13 @@ constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
+                /** Image as a base64 encoded string or an URL */
                 fun image(): Image = image.getRequired("image")
 
+                /** Discriminator type of the content item. Always "image" */
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+                /** Image as a base64 encoded string or an URL */
                 @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
                 @JsonAnyGetter
@@ -950,7 +1022,8 @@ constructor(
                     fun builder() = Builder()
                 }
 
-                class Builder {
+                /** A builder for [ImageContentItem]. */
+                class Builder internal constructor() {
 
                     private var image: JsonField<Image>? = null
                     private var type: JsonValue = JsonValue.from("image")
@@ -962,10 +1035,13 @@ constructor(
                         additionalProperties = imageContentItem.additionalProperties.toMutableMap()
                     }
 
+                    /** Image as a base64 encoded string or an URL */
                     fun image(image: Image) = image(JsonField.of(image))
 
+                    /** Image as a base64 encoded string or an URL */
                     fun image(image: JsonField<Image>) = apply { this.image = image }
 
+                    /** Discriminator type of the content item. Always "image" */
                     fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -998,6 +1074,7 @@ constructor(
                         )
                 }
 
+                /** Image as a base64 encoded string or an URL */
                 @NoAutoDetect
                 class Image
                 @JsonCreator
@@ -1012,12 +1089,22 @@ constructor(
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
+                    /** base64 encoded image data as string */
                     fun data(): String? = data.getNullable("data")
 
+                    /**
+                     * A URL of the image or data URL in the format of
+                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     */
                     fun url(): Url? = url.getNullable("url")
 
+                    /** base64 encoded image data as string */
                     @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
 
+                    /**
+                     * A URL of the image or data URL in the format of
+                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     */
                     @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
                     @JsonAnyGetter
@@ -1043,7 +1130,8 @@ constructor(
                         fun builder() = Builder()
                     }
 
-                    class Builder {
+                    /** A builder for [Image]. */
+                    class Builder internal constructor() {
 
                         private var data: JsonField<String> = JsonMissing.of()
                         private var url: JsonField<Url> = JsonMissing.of()
@@ -1056,12 +1144,22 @@ constructor(
                             additionalProperties = image.additionalProperties.toMutableMap()
                         }
 
+                        /** base64 encoded image data as string */
                         fun data(data: String) = data(JsonField.of(data))
 
+                        /** base64 encoded image data as string */
                         fun data(data: JsonField<String>) = apply { this.data = data }
 
+                        /**
+                         * A URL of the image or data URL in the format of
+                         * data:image/{type};base64,{data}. Note that URL could have length limits.
+                         */
                         fun url(url: Url) = url(JsonField.of(url))
 
+                        /**
+                         * A URL of the image or data URL in the format of
+                         * data:image/{type};base64,{data}. Note that URL could have length limits.
+                         */
                         fun url(url: JsonField<Url>) = apply { this.url = url }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -1092,6 +1190,108 @@ constructor(
                                 url,
                                 additionalProperties.toImmutable(),
                             )
+                    }
+
+                    /**
+                     * A URL of the image or data URL in the format of
+                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     */
+                    @NoAutoDetect
+                    class Url
+                    @JsonCreator
+                    private constructor(
+                        @JsonProperty("uri")
+                        @ExcludeMissing
+                        private val uri: JsonField<String> = JsonMissing.of(),
+                        @JsonAnySetter
+                        private val additionalProperties: Map<String, JsonValue> =
+                            immutableEmptyMap(),
+                    ) {
+
+                        fun uri(): String = uri.getRequired("uri")
+
+                        @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+                        @JsonAnyGetter
+                        @ExcludeMissing
+                        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                        private var validated: Boolean = false
+
+                        fun validate(): Url = apply {
+                            if (validated) {
+                                return@apply
+                            }
+
+                            uri()
+                            validated = true
+                        }
+
+                        fun toBuilder() = Builder().from(this)
+
+                        companion object {
+
+                            fun builder() = Builder()
+                        }
+
+                        /** A builder for [Url]. */
+                        class Builder internal constructor() {
+
+                            private var uri: JsonField<String>? = null
+                            private var additionalProperties: MutableMap<String, JsonValue> =
+                                mutableMapOf()
+
+                            internal fun from(url: Url) = apply {
+                                uri = url.uri
+                                additionalProperties = url.additionalProperties.toMutableMap()
+                            }
+
+                            fun uri(uri: String) = uri(JsonField.of(uri))
+
+                            fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+                            fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
+                                apply {
+                                    this.additionalProperties.clear()
+                                    putAllAdditionalProperties(additionalProperties)
+                                }
+
+                            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                                additionalProperties.put(key, value)
+                            }
+
+                            fun putAllAdditionalProperties(
+                                additionalProperties: Map<String, JsonValue>
+                            ) = apply { this.additionalProperties.putAll(additionalProperties) }
+
+                            fun removeAdditionalProperty(key: String) = apply {
+                                additionalProperties.remove(key)
+                            }
+
+                            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                                keys.forEach(::removeAdditionalProperty)
+                            }
+
+                            fun build(): Url =
+                                Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                        }
+
+                        override fun equals(other: Any?): Boolean {
+                            if (this === other) {
+                                return true
+                            }
+
+                            return /* spotless:off */ other is Url && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+                        }
+
+                        /* spotless:off */
+                        private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+                        /* spotless:on */
+
+                        override fun hashCode(): Int = hashCode
+
+                        override fun toString() =
+                            "Url{uri=$uri, additionalProperties=$additionalProperties}"
                     }
 
                     override fun equals(other: Any?): Boolean {
@@ -1130,6 +1330,7 @@ constructor(
                     "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
             }
 
+            /** A text content item */
             @NoAutoDetect
             class TextContentItem
             @JsonCreator
@@ -1144,10 +1345,13 @@ constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
+                /** Text content */
                 fun text(): String = text.getRequired("text")
 
+                /** Discriminator type of the content item. Always "text" */
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+                /** Text content */
                 @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
                 @JsonAnyGetter
@@ -1179,7 +1383,8 @@ constructor(
                     fun builder() = Builder()
                 }
 
-                class Builder {
+                /** A builder for [TextContentItem]. */
+                class Builder internal constructor() {
 
                     private var text: JsonField<String>? = null
                     private var type: JsonValue = JsonValue.from("text")
@@ -1191,10 +1396,13 @@ constructor(
                         additionalProperties = textContentItem.additionalProperties.toMutableMap()
                     }
 
+                    /** Text content */
                     fun text(text: String) = text(JsonField.of(text))
 
+                    /** Text content */
                     fun text(text: JsonField<String>) = apply { this.text = text }
 
+                    /** Discriminator type of the content item. Always "text" */
                     fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1244,6 +1452,102 @@ constructor(
                 override fun toString() =
                     "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
             }
+
+            @NoAutoDetect
+            class Url
+            @JsonCreator
+            private constructor(
+                @JsonProperty("uri")
+                @ExcludeMissing
+                private val uri: JsonField<String> = JsonMissing.of(),
+                @JsonAnySetter
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            ) {
+
+                fun uri(): String = uri.getRequired("uri")
+
+                @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                private var validated: Boolean = false
+
+                fun validate(): Url = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    uri()
+                    validated = true
+                }
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    fun builder() = Builder()
+                }
+
+                /** A builder for [Url]. */
+                class Builder internal constructor() {
+
+                    private var uri: JsonField<String>? = null
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(url: Url) = apply {
+                        uri = url.uri
+                        additionalProperties = url.additionalProperties.toMutableMap()
+                    }
+
+                    fun uri(uri: String) = uri(JsonField.of(uri))
+
+                    fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    fun build(): Url =
+                        Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Url && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() =
+                    "Url{uri=$uri, additionalProperties=$additionalProperties}"
+            }
         }
 
         override fun equals(other: Any?): Boolean {
@@ -1262,6 +1566,533 @@ constructor(
 
         override fun toString() =
             "Document{content=$content, mimeType=$mimeType, additionalProperties=$additionalProperties}"
+    }
+
+    /** Configuration for tool use. */
+    @NoAutoDetect
+    class ToolConfig
+    @JsonCreator
+    private constructor(
+        @JsonProperty("system_message_behavior")
+        @ExcludeMissing
+        private val systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        /**
+         * (Optional) Config for how to override the default system prompt. -
+         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
+         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
+         * provided system message. The system message can include the string
+         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         */
+        fun systemMessageBehavior(): SystemMessageBehavior =
+            systemMessageBehavior.getRequired("system_message_behavior")
+
+        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls.
+         */
+        fun toolPromptFormat(): ToolPromptFormat? =
+            toolPromptFormat.getNullable("tool_prompt_format")
+
+        /**
+         * (Optional) Config for how to override the default system prompt. -
+         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
+         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
+         * provided system message. The system message can include the string
+         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         */
+        @JsonProperty("system_message_behavior")
+        @ExcludeMissing
+        fun _systemMessageBehavior(): JsonField<SystemMessageBehavior> = systemMessageBehavior
+
+        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        fun _toolChoice(): JsonField<ToolChoice> = toolChoice
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls.
+         */
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            systemMessageBehavior()
+            toolChoice()
+            toolPromptFormat()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [ToolConfig]. */
+        class Builder internal constructor() {
+
+            private var systemMessageBehavior: JsonField<SystemMessageBehavior>? = null
+            private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
+            private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(toolConfig: ToolConfig) = apply {
+                systemMessageBehavior = toolConfig.systemMessageBehavior
+                toolChoice = toolConfig.toolChoice
+                toolPromptFormat = toolConfig.toolPromptFormat
+                additionalProperties = toolConfig.additionalProperties.toMutableMap()
+            }
+
+            /**
+             * (Optional) Config for how to override the default system prompt. -
+             * `SystemMessageBehavior.append`: Appends the provided system message to the default
+             * system prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt
+             * with the provided system message. The system message can include the string
+             * '{{function_definitions}}' to indicate where the function definitions should be
+             * inserted.
+             */
+            fun systemMessageBehavior(systemMessageBehavior: SystemMessageBehavior) =
+                systemMessageBehavior(JsonField.of(systemMessageBehavior))
+
+            /**
+             * (Optional) Config for how to override the default system prompt. -
+             * `SystemMessageBehavior.append`: Appends the provided system message to the default
+             * system prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt
+             * with the provided system message. The system message can include the string
+             * '{{function_definitions}}' to indicate where the function definitions should be
+             * inserted.
+             */
+            fun systemMessageBehavior(systemMessageBehavior: JsonField<SystemMessageBehavior>) =
+                apply {
+                    this.systemMessageBehavior = systemMessageBehavior
+                }
+
+            /**
+             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             */
+            fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
+
+            /**
+             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             */
+            fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
+                this.toolChoice = toolChoice
+            }
+
+            /**
+             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
+             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
+             * tool calls are enclosed in a <function=function_name> tag. -
+             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
+             * of function calls.
+             */
+            fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
+                toolPromptFormat(JsonField.of(toolPromptFormat))
+
+            /**
+             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
+             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
+             * tool calls are enclosed in a <function=function_name> tag. -
+             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
+             * of function calls.
+             */
+            fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
+                this.toolPromptFormat = toolPromptFormat
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): ToolConfig =
+                ToolConfig(
+                    checkRequired("systemMessageBehavior", systemMessageBehavior),
+                    toolChoice,
+                    toolPromptFormat,
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        /**
+         * (Optional) Config for how to override the default system prompt. -
+         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
+         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
+         * provided system message. The system message can include the string
+         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         */
+        class SystemMessageBehavior
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val APPEND = of("append")
+
+                val REPLACE = of("replace")
+
+                fun of(value: String) = SystemMessageBehavior(JsonField.of(value))
+            }
+
+            /** An enum containing [SystemMessageBehavior]'s known values. */
+            enum class Known {
+                APPEND,
+                REPLACE,
+            }
+
+            /**
+             * An enum containing [SystemMessageBehavior]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [SystemMessageBehavior] can contain an unknown value in a couple of
+             * cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
+            enum class Value {
+                APPEND,
+                REPLACE,
+                /**
+                 * An enum member indicating that [SystemMessageBehavior] was instantiated with an
+                 * unknown value.
+                 */
+                _UNKNOWN,
+            }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
+            fun value(): Value =
+                when (this) {
+                    APPEND -> Value.APPEND
+                    REPLACE -> Value.REPLACE
+                    else -> Value._UNKNOWN
+                }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
+            fun known(): Known =
+                when (this) {
+                    APPEND -> Known.APPEND
+                    REPLACE -> Known.REPLACE
+                    else ->
+                        throw LlamaStackClientInvalidDataException(
+                            "Unknown SystemMessageBehavior: $value"
+                        )
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is SystemMessageBehavior && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        class ToolChoice
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val AUTO = of("auto")
+
+                val REQUIRED = of("required")
+
+                fun of(value: String) = ToolChoice(JsonField.of(value))
+            }
+
+            /** An enum containing [ToolChoice]'s known values. */
+            enum class Known {
+                AUTO,
+                REQUIRED,
+            }
+
+            /**
+             * An enum containing [ToolChoice]'s known values, as well as an [_UNKNOWN] member.
+             *
+             * An instance of [ToolChoice] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
+            enum class Value {
+                AUTO,
+                REQUIRED,
+                /**
+                 * An enum member indicating that [ToolChoice] was instantiated with an unknown
+                 * value.
+                 */
+                _UNKNOWN,
+            }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
+            fun value(): Value =
+                when (this) {
+                    AUTO -> Value.AUTO
+                    REQUIRED -> Value.REQUIRED
+                    else -> Value._UNKNOWN
+                }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
+            fun known(): Known =
+                when (this) {
+                    AUTO -> Known.AUTO
+                    REQUIRED -> Known.REQUIRED
+                    else -> throw LlamaStackClientInvalidDataException("Unknown ToolChoice: $value")
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is ToolChoice && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls.
+         */
+        class ToolPromptFormat
+        @JsonCreator
+        private constructor(
+            private val value: JsonField<String>,
+        ) : Enum {
+
+            /**
+             * Returns this class instance's raw value.
+             *
+             * This is usually only useful if this instance was deserialized from data that doesn't
+             * match any known member, and you want to know that value. For example, if the SDK is
+             * on an older version than the API, then the API may respond with new members that the
+             * SDK is unaware of.
+             */
+            @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+            companion object {
+
+                val JSON = of("json")
+
+                val FUNCTION_TAG = of("function_tag")
+
+                val PYTHON_LIST = of("python_list")
+
+                fun of(value: String) = ToolPromptFormat(JsonField.of(value))
+            }
+
+            /** An enum containing [ToolPromptFormat]'s known values. */
+            enum class Known {
+                JSON,
+                FUNCTION_TAG,
+                PYTHON_LIST,
+            }
+
+            /**
+             * An enum containing [ToolPromptFormat]'s known values, as well as an [_UNKNOWN]
+             * member.
+             *
+             * An instance of [ToolPromptFormat] can contain an unknown value in a couple of cases:
+             * - It was deserialized from data that doesn't match any known member. For example, if
+             *   the SDK is on an older version than the API, then the API may respond with new
+             *   members that the SDK is unaware of.
+             * - It was constructed with an arbitrary value using the [of] method.
+             */
+            enum class Value {
+                JSON,
+                FUNCTION_TAG,
+                PYTHON_LIST,
+                /**
+                 * An enum member indicating that [ToolPromptFormat] was instantiated with an
+                 * unknown value.
+                 */
+                _UNKNOWN,
+            }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value, or
+             * [Value._UNKNOWN] if the class was instantiated with an unknown value.
+             *
+             * Use the [known] method instead if you're certain the value is always known or if you
+             * want to throw for the unknown case.
+             */
+            fun value(): Value =
+                when (this) {
+                    JSON -> Value.JSON
+                    FUNCTION_TAG -> Value.FUNCTION_TAG
+                    PYTHON_LIST -> Value.PYTHON_LIST
+                    else -> Value._UNKNOWN
+                }
+
+            /**
+             * Returns an enum member corresponding to this class instance's value.
+             *
+             * Use the [value] method instead if you're uncertain the value is always known and
+             * don't want to throw for the unknown case.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value is a not
+             *   a known member.
+             */
+            fun known(): Known =
+                when (this) {
+                    JSON -> Known.JSON
+                    FUNCTION_TAG -> Known.FUNCTION_TAG
+                    PYTHON_LIST -> Known.PYTHON_LIST
+                    else ->
+                        throw LlamaStackClientInvalidDataException(
+                            "Unknown ToolPromptFormat: $value"
+                        )
+                }
+
+            fun asString(): String = _value().asStringOrThrow()
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is ToolPromptFormat && value == other.value /* spotless:on */
+            }
+
+            override fun hashCode() = value.hashCode()
+
+            override fun toString() = value.toString()
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is ToolConfig && systemMessageBehavior == other.systemMessageBehavior && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(systemMessageBehavior, toolChoice, toolPromptFormat, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "ToolConfig{systemMessageBehavior=$systemMessageBehavior, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, additionalProperties=$additionalProperties}"
     }
 
     @JsonDeserialize(using = Toolgroup.Deserializer::class)
@@ -1339,18 +2170,31 @@ constructor(
             fun ofUnionMember1(unionMember1: UnionMember1) = Toolgroup(unionMember1 = unionMember1)
         }
 
+        /**
+         * An interface that defines how to map each variant of [Toolgroup] to a value of type [T].
+         */
         interface Visitor<out T> {
 
             fun visitString(string: String): T
 
             fun visitUnionMember1(unionMember1: UnionMember1): T
 
+            /**
+             * Maps an unknown variant of [Toolgroup] to a value of type [T].
+             *
+             * An instance of [Toolgroup] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
             fun unknown(json: JsonValue?): T {
                 throw LlamaStackClientInvalidDataException("Unknown Toolgroup: $json")
             }
         }
 
-        class Deserializer : BaseDeserializer<Toolgroup>(Toolgroup::class) {
+        internal class Deserializer : BaseDeserializer<Toolgroup>(Toolgroup::class) {
 
             override fun ObjectCodec.deserialize(node: JsonNode): Toolgroup {
                 val json = JsonValue.fromJsonNode(node)
@@ -1367,7 +2211,7 @@ constructor(
             }
         }
 
-        class Serializer : BaseSerializer<Toolgroup>(Toolgroup::class) {
+        internal class Serializer : BaseSerializer<Toolgroup>(Toolgroup::class) {
 
             override fun serialize(
                 value: Toolgroup,
@@ -1428,7 +2272,8 @@ constructor(
                 fun builder() = Builder()
             }
 
-            class Builder {
+            /** A builder for [UnionMember1]. */
+            class Builder internal constructor() {
 
                 private var args: JsonField<Args>? = null
                 private var name: JsonField<String>? = null
@@ -1507,7 +2352,8 @@ constructor(
                     fun builder() = Builder()
                 }
 
-                class Builder {
+                /** A builder for [Args]. */
+                class Builder internal constructor() {
 
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
@@ -1581,11 +2427,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && sessionId == other.sessionId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentTurnCreateParams && agentId == other.agentId && sessionId == other.sessionId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, xLlamaStackClientVersion, xLlamaStackProviderData, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "AgentTurnCreateParams{agentId=$agentId, sessionId=$sessionId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentTurnCreateParams{agentId=$agentId, sessionId=$sessionId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

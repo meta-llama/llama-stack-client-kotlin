@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class ScoringScoreBatchParamsTest {
 
     @Test
-    fun createScoringScoreBatchParams() {
+    fun create() {
         ScoringScoreBatchParams.builder()
             .datasetId("dataset_id")
             .saveResultsDataset(true)
@@ -29,13 +29,11 @@ class ScoringScoreBatchParamsTest {
                     )
                     .build()
             )
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             ScoringScoreBatchParams.builder()
                 .datasetId("dataset_id")
@@ -56,10 +54,8 @@ class ScoringScoreBatchParamsTest {
                         )
                         .build()
                 )
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.saveResultsDataset()).isEqualTo(true)
@@ -83,7 +79,7 @@ class ScoringScoreBatchParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             ScoringScoreBatchParams.builder()
                 .datasetId("dataset_id")
@@ -99,7 +95,7 @@ class ScoringScoreBatchParamsTest {
                         .build()
                 )
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.saveResultsDataset()).isEqualTo(true)

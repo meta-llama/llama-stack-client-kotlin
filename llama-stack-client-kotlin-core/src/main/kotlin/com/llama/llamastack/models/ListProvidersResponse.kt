@@ -52,7 +52,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [ListProvidersResponse]. */
+    class Builder internal constructor() {
 
         private var data: JsonField<MutableList<ProviderInfo>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()

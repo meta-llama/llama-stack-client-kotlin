@@ -8,12 +8,8 @@ import org.junit.jupiter.api.Test
 class ShieldRetrieveParamsTest {
 
     @Test
-    fun createShieldRetrieveParams() {
-        ShieldRetrieveParams.builder()
-            .identifier("identifier")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-            .build()
+    fun create() {
+        ShieldRetrieveParams.builder().identifier("identifier").build()
     }
 
     @Test

@@ -21,13 +21,7 @@ class ShieldServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
         val shield =
-            shieldService.retrieve(
-                ShieldRetrieveParams.builder()
-                    .identifier("identifier")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+            shieldService.retrieve(ShieldRetrieveParams.builder().identifier("identifier").build())
         println(shield)
         shield?.validate()
     }
@@ -37,13 +31,7 @@ class ShieldServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
-        val listShieldsResponse =
-            shieldService.list(
-                ShieldListParams.builder()
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val listShieldsResponse = shieldService.list(ShieldListParams.builder().build())
         println(listShieldsResponse)
         for (shield: Shield in listShieldsResponse) {
             shield.validate()
@@ -66,8 +54,6 @@ class ShieldServiceTest {
                     )
                     .providerId("provider_id")
                     .providerShieldId("provider_shield_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(shield)

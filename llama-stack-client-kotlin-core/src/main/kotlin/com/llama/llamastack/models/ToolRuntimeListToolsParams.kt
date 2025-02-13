@@ -3,48 +3,34 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
 class ToolRuntimeListToolsParams
-constructor(
-    private val mcpEndpoint: Url?,
+private constructor(
+    private val mcpEndpoint: McpEndpoint?,
     private val toolGroupId: String?,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
-) {
+) : Params {
 
-    fun mcpEndpoint(): Url? = mcpEndpoint
+    fun mcpEndpoint(): McpEndpoint? = mcpEndpoint
 
     fun toolGroupId(): String? = toolGroupId
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams {
+    override fun _queryParams(): QueryParams {
         val queryParams = QueryParams.builder()
-        this.mcpEndpoint?._additionalProperties()?.forEach { (key, values) ->
-            queryParams.put("mcp_endpoint[$key]", values.toString())
+        this.mcpEndpoint?.forEachQueryParam { key, values ->
+            queryParams.put("mcp_endpoint[$key]", values)
         }
         this.toolGroupId?.let { queryParams.put("tool_group_id", listOf(it.toString())) }
         queryParams.putAll(additionalQueryParams)
@@ -58,36 +44,25 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [ToolRuntimeListToolsParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
-        private var mcpEndpoint: Url? = null
+        private var mcpEndpoint: McpEndpoint? = null
         private var toolGroupId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(toolRuntimeListToolsParams: ToolRuntimeListToolsParams) = apply {
             mcpEndpoint = toolRuntimeListToolsParams.mcpEndpoint
             toolGroupId = toolRuntimeListToolsParams.toolGroupId
-            xLlamaStackClientVersion = toolRuntimeListToolsParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = toolRuntimeListToolsParams.xLlamaStackProviderData
             additionalHeaders = toolRuntimeListToolsParams.additionalHeaders.toBuilder()
             additionalQueryParams = toolRuntimeListToolsParams.additionalQueryParams.toBuilder()
         }
 
-        fun mcpEndpoint(mcpEndpoint: Url?) = apply { this.mcpEndpoint = mcpEndpoint }
+        fun mcpEndpoint(mcpEndpoint: McpEndpoint?) = apply { this.mcpEndpoint = mcpEndpoint }
 
         fun toolGroupId(toolGroupId: String?) = apply { this.toolGroupId = toolGroupId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -191,11 +166,115 @@ constructor(
             ToolRuntimeListToolsParams(
                 mcpEndpoint,
                 toolGroupId,
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
+    }
+
+    class McpEndpoint
+    private constructor(
+        private val uri: String,
+        private val additionalProperties: QueryParams,
+    ) {
+
+        fun uri(): String = uri
+
+        fun _additionalProperties(): QueryParams = additionalProperties
+
+        internal fun forEachQueryParam(putParam: (String, List<String>) -> Unit) {
+            this.uri.let { putParam("uri", listOf(it.toString())) }
+            additionalProperties.keys().forEach { putParam(it, additionalProperties.values(it)) }
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [McpEndpoint]. */
+        class Builder internal constructor() {
+
+            private var uri: String? = null
+            private var additionalProperties: QueryParams.Builder = QueryParams.builder()
+
+            internal fun from(mcpEndpoint: McpEndpoint) = apply {
+                uri = mcpEndpoint.uri
+                additionalProperties = mcpEndpoint.additionalProperties.toBuilder()
+            }
+
+            fun uri(uri: String) = apply { this.uri = uri }
+
+            fun additionalProperties(additionalProperties: QueryParams) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, Iterable<String>>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: String) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAdditionalProperties(key: String, values: Iterable<String>) = apply {
+                additionalProperties.put(key, values)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: QueryParams) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, Iterable<String>>) =
+                apply {
+                    this.additionalProperties.putAll(additionalProperties)
+                }
+
+            fun replaceAdditionalProperties(key: String, value: String) = apply {
+                additionalProperties.replace(key, value)
+            }
+
+            fun replaceAdditionalProperties(key: String, values: Iterable<String>) = apply {
+                additionalProperties.replace(key, values)
+            }
+
+            fun replaceAllAdditionalProperties(additionalProperties: QueryParams) = apply {
+                this.additionalProperties.replaceAll(additionalProperties)
+            }
+
+            fun replaceAllAdditionalProperties(
+                additionalProperties: Map<String, Iterable<String>>
+            ) = apply { this.additionalProperties.replaceAll(additionalProperties) }
+
+            fun removeAdditionalProperties(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                additionalProperties.removeAll(keys)
+            }
+
+            fun build(): McpEndpoint =
+                McpEndpoint(checkRequired("uri", uri), additionalProperties.build())
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is McpEndpoint && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "McpEndpoint{uri=$uri, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {
@@ -203,11 +282,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolRuntimeListToolsParams && mcpEndpoint == other.mcpEndpoint && toolGroupId == other.toolGroupId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is ToolRuntimeListToolsParams && mcpEndpoint == other.mcpEndpoint && toolGroupId == other.toolGroupId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(mcpEndpoint, toolGroupId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(mcpEndpoint, toolGroupId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "ToolRuntimeListToolsParams{mcpEndpoint=$mcpEndpoint, toolGroupId=$toolGroupId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "ToolRuntimeListToolsParams{mcpEndpoint=$mcpEndpoint, toolGroupId=$toolGroupId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

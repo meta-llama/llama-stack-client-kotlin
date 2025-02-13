@@ -9,7 +9,7 @@ import org.junit.jupiter.api.Test
 class EvalTaskRegisterParamsTest {
 
     @Test
-    fun createEvalTaskRegisterParams() {
+    fun create() {
         EvalTaskRegisterParams.builder()
             .datasetId("dataset_id")
             .evalTaskId("eval_task_id")
@@ -21,13 +21,11 @@ class EvalTaskRegisterParamsTest {
             )
             .providerEvalTaskId("provider_eval_task_id")
             .providerId("provider_id")
-            .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-            .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
             .build()
     }
 
     @Test
-    fun getBody() {
+    fun body() {
         val params =
             EvalTaskRegisterParams.builder()
                 .datasetId("dataset_id")
@@ -40,10 +38,8 @@ class EvalTaskRegisterParamsTest {
                 )
                 .providerEvalTaskId("provider_eval_task_id")
                 .providerId("provider_id")
-                .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.evalTaskId()).isEqualTo("eval_task_id")
@@ -59,14 +55,14 @@ class EvalTaskRegisterParamsTest {
     }
 
     @Test
-    fun getBodyWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             EvalTaskRegisterParams.builder()
                 .datasetId("dataset_id")
                 .evalTaskId("eval_task_id")
                 .addScoringFunction("string")
                 .build()
-        val body = params.getBody()
+        val body = params._body()
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.evalTaskId()).isEqualTo("eval_task_id")

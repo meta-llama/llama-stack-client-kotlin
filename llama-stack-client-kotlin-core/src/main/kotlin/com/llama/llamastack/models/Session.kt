@@ -17,6 +17,7 @@ import com.llama.llamastack.core.toImmutable
 import java.time.OffsetDateTime
 import java.util.Objects
 
+/** A single session of an interaction with an Agentic System. */
 @NoAutoDetect
 class Session
 @JsonCreator
@@ -81,7 +82,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [Session]. */
+    class Builder internal constructor() {
 
         private var sessionId: JsonField<String>? = null
         private var sessionName: JsonField<String>? = null

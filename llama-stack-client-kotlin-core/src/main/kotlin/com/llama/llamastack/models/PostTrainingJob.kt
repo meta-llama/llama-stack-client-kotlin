@@ -52,7 +52,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [PostTrainingJob]. */
+    class Builder internal constructor() {
 
         private var jobUuid: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()

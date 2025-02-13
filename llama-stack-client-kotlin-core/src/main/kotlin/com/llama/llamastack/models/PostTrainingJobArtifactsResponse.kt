@@ -16,6 +16,7 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Artifacts of a finetuning job. */
 @NoAutoDetect
 class PostTrainingJobArtifactsResponse
 @JsonCreator
@@ -62,7 +63,8 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [PostTrainingJobArtifactsResponse]. */
+    class Builder internal constructor() {
 
         private var checkpoints: JsonField<MutableList<JsonValue>>? = null
         private var jobUuid: JsonField<String>? = null

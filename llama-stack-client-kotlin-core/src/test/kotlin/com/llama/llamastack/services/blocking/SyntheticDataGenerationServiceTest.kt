@@ -23,8 +23,6 @@ class SyntheticDataGenerationServiceTest {
                     .addDialog(UserMessage.builder().content("string").context("string").build())
                     .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                     .model("model")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
                     .build()
             )
         println(syntheticDataGenerationResponse)

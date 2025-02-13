@@ -16,17 +16,20 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** streamed agent turn completion response. */
 @NoAutoDetect
-class Url
+class AgentTurnResponseStreamChunk
 @JsonCreator
 private constructor(
-    @JsonProperty("uri") @ExcludeMissing private val uri: JsonField<String> = JsonMissing.of(),
+    @JsonProperty("event")
+    @ExcludeMissing
+    private val event: JsonField<TurnResponseEvent> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun uri(): String = uri.getRequired("uri")
+    fun event(): TurnResponseEvent = event.getRequired("event")
 
-    @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+    @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<TurnResponseEvent> = event
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -34,12 +37,12 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): Url = apply {
+    fun validate(): AgentTurnResponseStreamChunk = apply {
         if (validated) {
             return@apply
         }
 
-        uri()
+        event().validate()
         validated = true
     }
 
@@ -50,19 +53,20 @@ private constructor(
         fun builder() = Builder()
     }
 
-    class Builder {
+    /** A builder for [AgentTurnResponseStreamChunk]. */
+    class Builder internal constructor() {
 
-        private var uri: JsonField<String>? = null
+        private var event: JsonField<TurnResponseEvent>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(url: Url) = apply {
-            uri = url.uri
-            additionalProperties = url.additionalProperties.toMutableMap()
+        internal fun from(agentTurnResponseStreamChunk: AgentTurnResponseStreamChunk) = apply {
+            event = agentTurnResponseStreamChunk.event
+            additionalProperties = agentTurnResponseStreamChunk.additionalProperties.toMutableMap()
         }
 
-        fun uri(uri: String) = uri(JsonField.of(uri))
+        fun event(event: TurnResponseEvent) = event(JsonField.of(event))
 
-        fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+        fun event(event: JsonField<TurnResponseEvent>) = apply { this.event = event }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -83,7 +87,11 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): Url = Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+        fun build(): AgentTurnResponseStreamChunk =
+            AgentTurnResponseStreamChunk(
+                checkRequired("event", event),
+                additionalProperties.toImmutable()
+            )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -91,14 +99,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Url && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentTurnResponseStreamChunk && event == other.event && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(event, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
-    override fun toString() = "Url{uri=$uri, additionalProperties=$additionalProperties}"
+    override fun toString() =
+        "AgentTurnResponseStreamChunk{event=$event, additionalProperties=$additionalProperties}"
 }

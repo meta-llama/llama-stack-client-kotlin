@@ -60,6 +60,10 @@ constructor(
         TODO("Not yet implemented")
     }
 
+    override fun close() {
+        TODO("Not yet implemented")
+    }
+
     override fun agents(): AgentService {
         TODO("Not yet implemented")
     }

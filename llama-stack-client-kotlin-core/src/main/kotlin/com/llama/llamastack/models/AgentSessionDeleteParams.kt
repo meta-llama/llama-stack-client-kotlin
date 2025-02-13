@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -11,23 +12,17 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class AgentSessionDeleteParams
-constructor(
+private constructor(
     private val agentId: String,
     private val sessionId: String,
-    private val xLlamaStackClientVersion: String?,
-    private val xLlamaStackProviderData: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
-) {
+) : Params {
 
     fun agentId(): String = agentId
 
     fun sessionId(): String = sessionId
-
-    fun xLlamaStackClientVersion(): String? = xLlamaStackClientVersion
-
-    fun xLlamaStackProviderData(): String? = xLlamaStackProviderData
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -35,21 +30,11 @@ constructor(
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
-    internal fun getBody(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
+    internal fun _body(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
 
-    internal fun getHeaders(): Headers {
-        val headers = Headers.builder()
-        this.xLlamaStackClientVersion?.let {
-            headers.put("X-LlamaStack-Client-Version", listOf(it.toString()))
-        }
-        this.xLlamaStackProviderData?.let {
-            headers.put("X-LlamaStack-Provider-Data", listOf(it.toString()))
-        }
-        headers.putAll(additionalHeaders)
-        return headers.build()
-    }
+    override fun _headers(): Headers = additionalHeaders
 
-    internal fun getQueryParams(): QueryParams = additionalQueryParams
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     fun getPathParam(index: Int): String {
         return when (index) {
@@ -66,13 +51,12 @@ constructor(
         fun builder() = Builder()
     }
 
+    /** A builder for [AgentSessionDeleteParams]. */
     @NoAutoDetect
-    class Builder {
+    class Builder internal constructor() {
 
         private var agentId: String? = null
         private var sessionId: String? = null
-        private var xLlamaStackClientVersion: String? = null
-        private var xLlamaStackProviderData: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -80,8 +64,6 @@ constructor(
         internal fun from(agentSessionDeleteParams: AgentSessionDeleteParams) = apply {
             agentId = agentSessionDeleteParams.agentId
             sessionId = agentSessionDeleteParams.sessionId
-            xLlamaStackClientVersion = agentSessionDeleteParams.xLlamaStackClientVersion
-            xLlamaStackProviderData = agentSessionDeleteParams.xLlamaStackProviderData
             additionalHeaders = agentSessionDeleteParams.additionalHeaders.toBuilder()
             additionalQueryParams = agentSessionDeleteParams.additionalQueryParams.toBuilder()
             additionalBodyProperties =
@@ -91,14 +73,6 @@ constructor(
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
-
-        fun xLlamaStackClientVersion(xLlamaStackClientVersion: String?) = apply {
-            this.xLlamaStackClientVersion = xLlamaStackClientVersion
-        }
-
-        fun xLlamaStackProviderData(xLlamaStackProviderData: String?) = apply {
-            this.xLlamaStackProviderData = xLlamaStackProviderData
-        }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -224,8 +198,6 @@ constructor(
             AgentSessionDeleteParams(
                 checkRequired("agentId", agentId),
                 checkRequired("sessionId", sessionId),
-                xLlamaStackClientVersion,
-                xLlamaStackProviderData,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -237,11 +209,11 @@ constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentSessionDeleteParams && agentId == other.agentId && sessionId == other.sessionId && xLlamaStackClientVersion == other.xLlamaStackClientVersion && xLlamaStackProviderData == other.xLlamaStackProviderData && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is AgentSessionDeleteParams && agentId == other.agentId && sessionId == other.sessionId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, xLlamaStackClientVersion, xLlamaStackProviderData, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "AgentSessionDeleteParams{agentId=$agentId, sessionId=$sessionId, xLlamaStackClientVersion=$xLlamaStackClientVersion, xLlamaStackProviderData=$xLlamaStackProviderData, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "AgentSessionDeleteParams{agentId=$agentId, sessionId=$sessionId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

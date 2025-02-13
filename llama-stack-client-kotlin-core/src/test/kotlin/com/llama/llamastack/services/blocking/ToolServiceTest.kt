@@ -19,13 +19,7 @@ class ToolServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolService = client.tools()
         val listToolsResponse =
-            toolService.list(
-                ToolListParams.builder()
-                    .toolgroupId("toolgroup_id")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+            toolService.list(ToolListParams.builder().toolgroupId("toolgroup_id").build())
         println(listToolsResponse)
         for (tool: Tool in listToolsResponse) {
             tool.validate()
@@ -37,14 +31,7 @@ class ToolServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolService = client.tools()
-        val tool =
-            toolService.get(
-                ToolGetParams.builder()
-                    .toolName("tool_name")
-                    .xLlamaStackClientVersion("X-LlamaStack-Client-Version")
-                    .xLlamaStackProviderData("X-LlamaStack-Provider-Data")
-                    .build()
-            )
+        val tool = toolService.get(ToolGetParams.builder().toolName("tool_name").build())
         println(tool)
         tool.validate()
     }
