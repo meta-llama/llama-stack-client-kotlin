@@ -99,7 +99,7 @@ private constructor(
         fun build(): TokenLogProbs =
             TokenLogProbs(
                 checkRequired("logprobsByToken", logprobsByToken),
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 
@@ -109,7 +109,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

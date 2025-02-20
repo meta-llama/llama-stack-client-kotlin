@@ -22,7 +22,7 @@ import java.util.Objects
 /** Generate embeddings for content pieces using the specified model. */
 class InferenceEmbeddingsParams
 private constructor(
-    private val body: InferenceEmbeddingsBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -57,16 +57,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): InferenceEmbeddingsBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class InferenceEmbeddingsBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("contents")
         @ExcludeMissing
         private val contents: JsonField<List<InterleavedContent>> = JsonMissing.of(),
@@ -109,7 +109,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): InferenceEmbeddingsBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -126,17 +126,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [InferenceEmbeddingsBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var contents: JsonField<MutableList<InterleavedContent>>? = null
             private var modelId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(inferenceEmbeddingsBody: InferenceEmbeddingsBody) = apply {
-                contents = inferenceEmbeddingsBody.contents.map { it.toMutableList() }
-                modelId = inferenceEmbeddingsBody.modelId
-                additionalProperties = inferenceEmbeddingsBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                contents = body.contents.map { it.toMutableList() }
+                modelId = body.modelId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             /**
@@ -220,8 +220,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): InferenceEmbeddingsBody =
-                InferenceEmbeddingsBody(
+            fun build(): Body =
+                Body(
                     checkRequired("contents", contents).map { it.toImmutable() },
                     checkRequired("modelId", modelId),
                     additionalProperties.toImmutable(),
@@ -233,7 +233,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InferenceEmbeddingsBody && contents == other.contents && modelId == other.modelId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && contents == other.contents && modelId == other.modelId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -243,7 +243,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "InferenceEmbeddingsBody{contents=$contents, modelId=$modelId, additionalProperties=$additionalProperties}"
+            "Body{contents=$contents, modelId=$modelId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -257,7 +257,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: InferenceEmbeddingsBody.Builder = InferenceEmbeddingsBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

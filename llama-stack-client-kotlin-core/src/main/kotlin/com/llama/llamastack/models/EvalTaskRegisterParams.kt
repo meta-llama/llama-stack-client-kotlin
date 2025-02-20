@@ -21,7 +21,7 @@ import java.util.Objects
 
 class EvalTaskRegisterParams
 private constructor(
-    private val body: EvalTaskRegisterBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -34,7 +34,7 @@ private constructor(
 
     fun metadata(): Metadata? = body.metadata()
 
-    fun providerEvalTaskId(): String? = body.providerEvalTaskId()
+    fun providerBenchmarkId(): String? = body.providerBenchmarkId()
 
     fun providerId(): String? = body.providerId()
 
@@ -46,7 +46,7 @@ private constructor(
 
     fun _metadata(): JsonField<Metadata> = body._metadata()
 
-    fun _providerEvalTaskId(): JsonField<String> = body._providerEvalTaskId()
+    fun _providerBenchmarkId(): JsonField<String> = body._providerBenchmarkId()
 
     fun _providerId(): JsonField<String> = body._providerId()
 
@@ -56,16 +56,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): EvalTaskRegisterBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class EvalTaskRegisterBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("dataset_id")
         @ExcludeMissing
         private val datasetId: JsonField<String> = JsonMissing.of(),
@@ -78,9 +78,9 @@ private constructor(
         @JsonProperty("metadata")
         @ExcludeMissing
         private val metadata: JsonField<Metadata> = JsonMissing.of(),
-        @JsonProperty("provider_eval_task_id")
+        @JsonProperty("provider_benchmark_id")
         @ExcludeMissing
-        private val providerEvalTaskId: JsonField<String> = JsonMissing.of(),
+        private val providerBenchmarkId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("provider_id")
         @ExcludeMissing
         private val providerId: JsonField<String> = JsonMissing.of(),
@@ -96,7 +96,8 @@ private constructor(
 
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
-        fun providerEvalTaskId(): String? = providerEvalTaskId.getNullable("provider_eval_task_id")
+        fun providerBenchmarkId(): String? =
+            providerBenchmarkId.getNullable("provider_benchmark_id")
 
         fun providerId(): String? = providerId.getNullable("provider_id")
 
@@ -112,9 +113,9 @@ private constructor(
 
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-        @JsonProperty("provider_eval_task_id")
+        @JsonProperty("provider_benchmark_id")
         @ExcludeMissing
-        fun _providerEvalTaskId(): JsonField<String> = providerEvalTaskId
+        fun _providerBenchmarkId(): JsonField<String> = providerBenchmarkId
 
         @JsonProperty("provider_id")
         @ExcludeMissing
@@ -126,7 +127,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): EvalTaskRegisterBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -135,7 +136,7 @@ private constructor(
             evalTaskId()
             scoringFunctions()
             metadata()?.validate()
-            providerEvalTaskId()
+            providerBenchmarkId()
             providerId()
             validated = true
         }
@@ -147,25 +148,25 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [EvalTaskRegisterBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var datasetId: JsonField<String>? = null
             private var evalTaskId: JsonField<String>? = null
             private var scoringFunctions: JsonField<MutableList<String>>? = null
             private var metadata: JsonField<Metadata> = JsonMissing.of()
-            private var providerEvalTaskId: JsonField<String> = JsonMissing.of()
+            private var providerBenchmarkId: JsonField<String> = JsonMissing.of()
             private var providerId: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(evalTaskRegisterBody: EvalTaskRegisterBody) = apply {
-                datasetId = evalTaskRegisterBody.datasetId
-                evalTaskId = evalTaskRegisterBody.evalTaskId
-                scoringFunctions = evalTaskRegisterBody.scoringFunctions.map { it.toMutableList() }
-                metadata = evalTaskRegisterBody.metadata
-                providerEvalTaskId = evalTaskRegisterBody.providerEvalTaskId
-                providerId = evalTaskRegisterBody.providerId
-                additionalProperties = evalTaskRegisterBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                datasetId = body.datasetId
+                evalTaskId = body.evalTaskId
+                scoringFunctions = body.scoringFunctions.map { it.toMutableList() }
+                metadata = body.metadata
+                providerBenchmarkId = body.providerBenchmarkId
+                providerId = body.providerId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
@@ -198,11 +199,11 @@ private constructor(
 
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
-            fun providerEvalTaskId(providerEvalTaskId: String) =
-                providerEvalTaskId(JsonField.of(providerEvalTaskId))
+            fun providerBenchmarkId(providerBenchmarkId: String) =
+                providerBenchmarkId(JsonField.of(providerBenchmarkId))
 
-            fun providerEvalTaskId(providerEvalTaskId: JsonField<String>) = apply {
-                this.providerEvalTaskId = providerEvalTaskId
+            fun providerBenchmarkId(providerBenchmarkId: JsonField<String>) = apply {
+                this.providerBenchmarkId = providerBenchmarkId
             }
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
@@ -228,13 +229,13 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): EvalTaskRegisterBody =
-                EvalTaskRegisterBody(
+            fun build(): Body =
+                Body(
                     checkRequired("datasetId", datasetId),
                     checkRequired("evalTaskId", evalTaskId),
                     checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
                     metadata,
-                    providerEvalTaskId,
+                    providerBenchmarkId,
                     providerId,
                     additionalProperties.toImmutable(),
                 )
@@ -245,17 +246,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is EvalTaskRegisterBody && datasetId == other.datasetId && evalTaskId == other.evalTaskId && scoringFunctions == other.scoringFunctions && metadata == other.metadata && providerEvalTaskId == other.providerEvalTaskId && providerId == other.providerId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && datasetId == other.datasetId && evalTaskId == other.evalTaskId && scoringFunctions == other.scoringFunctions && metadata == other.metadata && providerBenchmarkId == other.providerBenchmarkId && providerId == other.providerId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(datasetId, evalTaskId, scoringFunctions, metadata, providerEvalTaskId, providerId, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(datasetId, evalTaskId, scoringFunctions, metadata, providerBenchmarkId, providerId, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "EvalTaskRegisterBody{datasetId=$datasetId, evalTaskId=$evalTaskId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerEvalTaskId=$providerEvalTaskId, providerId=$providerId, additionalProperties=$additionalProperties}"
+            "Body{datasetId=$datasetId, evalTaskId=$evalTaskId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerBenchmarkId=$providerBenchmarkId, providerId=$providerId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -269,7 +270,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: EvalTaskRegisterBody.Builder = EvalTaskRegisterBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -303,12 +304,12 @@ private constructor(
 
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
-        fun providerEvalTaskId(providerEvalTaskId: String) = apply {
-            body.providerEvalTaskId(providerEvalTaskId)
+        fun providerBenchmarkId(providerBenchmarkId: String) = apply {
+            body.providerBenchmarkId(providerBenchmarkId)
         }
 
-        fun providerEvalTaskId(providerEvalTaskId: JsonField<String>) = apply {
-            body.providerEvalTaskId(providerEvalTaskId)
+        fun providerBenchmarkId(providerBenchmarkId: JsonField<String>) = apply {
+            body.providerBenchmarkId(providerBenchmarkId)
         }
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
@@ -445,7 +446,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

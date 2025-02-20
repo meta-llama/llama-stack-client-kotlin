@@ -21,10 +21,8 @@ import com.llama.llamastack.models.ToolgroupListParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 
-class ToolgroupServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ToolgroupService {
+class ToolgroupServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    ToolgroupService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -36,7 +34,7 @@ internal constructor(
     /** List tool groups with optional provider */
     override fun list(
         params: ToolgroupListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ToolGroup> {
         val request =
             HttpRequest.builder()

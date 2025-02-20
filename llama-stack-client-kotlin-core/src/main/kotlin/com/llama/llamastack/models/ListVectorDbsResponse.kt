@@ -103,7 +103,7 @@ private constructor(
         fun build(): ListVectorDbsResponse =
             ListVectorDbsResponse(
                 checkRequired("data", data).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

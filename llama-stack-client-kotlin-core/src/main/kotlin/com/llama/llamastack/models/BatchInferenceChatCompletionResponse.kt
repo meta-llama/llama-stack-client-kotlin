@@ -107,7 +107,7 @@ private constructor(
         fun build(): BatchInferenceChatCompletionResponse =
             BatchInferenceChatCompletionResponse(
                 checkRequired("batch", batch).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

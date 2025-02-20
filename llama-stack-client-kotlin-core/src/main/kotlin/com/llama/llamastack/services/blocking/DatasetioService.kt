@@ -11,11 +11,11 @@ interface DatasetioService {
 
     fun appendRows(
         params: DatasetioAppendRowsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     fun getRowsPaginated(
         params: DatasetioGetRowsPaginatedParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PaginatedRowsResult
 }

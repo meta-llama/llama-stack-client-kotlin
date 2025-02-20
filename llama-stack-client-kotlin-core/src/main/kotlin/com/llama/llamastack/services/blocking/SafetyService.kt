@@ -10,6 +10,6 @@ interface SafetyService {
 
     fun runShield(
         params: SafetyRunShieldParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): RunShieldResponse
 }

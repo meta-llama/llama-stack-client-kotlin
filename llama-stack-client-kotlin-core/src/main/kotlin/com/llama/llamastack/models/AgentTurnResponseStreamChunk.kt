@@ -90,7 +90,7 @@ private constructor(
         fun build(): AgentTurnResponseStreamChunk =
             AgentTurnResponseStreamChunk(
                 checkRequired("event", event),
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

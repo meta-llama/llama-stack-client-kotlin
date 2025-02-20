@@ -38,7 +38,9 @@ class TelemetrySaveSpansToDatasetParamsTest {
                 .datasetId("dataset_id")
                 .maxDepth(0L)
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.attributeFilters())
             .isEqualTo(
@@ -69,7 +71,9 @@ class TelemetrySaveSpansToDatasetParamsTest {
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.attributeFilters())
             .isEqualTo(

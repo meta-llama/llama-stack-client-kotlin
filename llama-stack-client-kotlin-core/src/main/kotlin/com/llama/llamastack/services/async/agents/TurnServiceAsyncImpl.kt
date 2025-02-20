@@ -17,10 +17,8 @@ import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.Turn
 
-class TurnServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : TurnServiceAsync {
+class TurnServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    TurnServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +28,7 @@ internal constructor(
 
     override suspend fun create(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Turn {
         val request =
             HttpRequest.builder()
@@ -41,7 +39,7 @@ internal constructor(
                     params.getPathParam(0),
                     "session",
                     params.getPathParam(1),
-                    "turn"
+                    "turn",
                 )
                 .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
@@ -61,7 +59,7 @@ internal constructor(
 
     override suspend fun retrieve(
         params: AgentTurnRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Turn {
         val request =
             HttpRequest.builder()
@@ -73,7 +71,7 @@ internal constructor(
                     "session",
                     params.getPathParam(1),
                     "turn",
-                    params.getPathParam(2)
+                    params.getPathParam(2),
                 )
                 .build()
                 .prepareAsync(clientOptions, params)

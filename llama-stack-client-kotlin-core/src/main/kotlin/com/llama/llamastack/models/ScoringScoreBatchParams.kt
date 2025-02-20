@@ -21,7 +21,7 @@ import java.util.Objects
 
 class ScoringScoreBatchParams
 private constructor(
-    private val body: ScoringScoreBatchBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -44,16 +44,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ScoringScoreBatchBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ScoringScoreBatchBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("dataset_id")
         @ExcludeMissing
         private val datasetId: JsonField<String> = JsonMissing.of(),
@@ -89,7 +89,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ScoringScoreBatchBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -107,7 +107,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ScoringScoreBatchBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var datasetId: JsonField<String>? = null
@@ -115,11 +115,11 @@ private constructor(
             private var scoringFunctions: JsonField<ScoringFunctions>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(scoringScoreBatchBody: ScoringScoreBatchBody) = apply {
-                datasetId = scoringScoreBatchBody.datasetId
-                saveResultsDataset = scoringScoreBatchBody.saveResultsDataset
-                scoringFunctions = scoringScoreBatchBody.scoringFunctions
-                additionalProperties = scoringScoreBatchBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                datasetId = body.datasetId
+                saveResultsDataset = body.saveResultsDataset
+                scoringFunctions = body.scoringFunctions
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
@@ -159,8 +159,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ScoringScoreBatchBody =
-                ScoringScoreBatchBody(
+            fun build(): Body =
+                Body(
                     checkRequired("datasetId", datasetId),
                     checkRequired("saveResultsDataset", saveResultsDataset),
                     checkRequired("scoringFunctions", scoringFunctions),
@@ -173,7 +173,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ScoringScoreBatchBody && datasetId == other.datasetId && saveResultsDataset == other.saveResultsDataset && scoringFunctions == other.scoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && datasetId == other.datasetId && saveResultsDataset == other.saveResultsDataset && scoringFunctions == other.scoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -183,7 +183,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ScoringScoreBatchBody{datasetId=$datasetId, saveResultsDataset=$saveResultsDataset, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
+            "Body{datasetId=$datasetId, saveResultsDataset=$saveResultsDataset, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -197,7 +197,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ScoringScoreBatchBody.Builder = ScoringScoreBatchBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -357,7 +357,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

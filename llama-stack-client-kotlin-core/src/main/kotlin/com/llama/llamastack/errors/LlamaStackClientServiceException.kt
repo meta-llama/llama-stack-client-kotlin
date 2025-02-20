@@ -8,7 +8,7 @@ abstract class LlamaStackClientServiceException(
     private val body: String,
     private val error: LlamaStackClientError,
     message: String = "$statusCode: $error",
-    cause: Throwable? = null
+    cause: Throwable? = null,
 ) : LlamaStackClientException(message, cause) {
 
     fun statusCode(): Int = statusCode

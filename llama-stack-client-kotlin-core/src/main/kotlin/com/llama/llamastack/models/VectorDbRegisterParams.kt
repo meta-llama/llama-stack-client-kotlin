@@ -21,7 +21,7 @@ import java.util.Objects
 
 class VectorDbRegisterParams
 private constructor(
-    private val body: VectorDbRegisterBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -52,16 +52,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): VectorDbRegisterBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class VectorDbRegisterBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("embedding_model")
         @ExcludeMissing
         private val embeddingModel: JsonField<String> = JsonMissing.of(),
@@ -117,7 +117,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): VectorDbRegisterBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -137,7 +137,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [VectorDbRegisterBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var embeddingModel: JsonField<String>? = null
@@ -147,13 +147,13 @@ private constructor(
             private var providerVectorDbId: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(vectorDbRegisterBody: VectorDbRegisterBody) = apply {
-                embeddingModel = vectorDbRegisterBody.embeddingModel
-                vectorDbId = vectorDbRegisterBody.vectorDbId
-                embeddingDimension = vectorDbRegisterBody.embeddingDimension
-                providerId = vectorDbRegisterBody.providerId
-                providerVectorDbId = vectorDbRegisterBody.providerVectorDbId
-                additionalProperties = vectorDbRegisterBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                embeddingModel = body.embeddingModel
+                vectorDbId = body.vectorDbId
+                embeddingDimension = body.embeddingDimension
+                providerId = body.providerId
+                providerVectorDbId = body.providerVectorDbId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun embeddingModel(embeddingModel: String) =
@@ -204,8 +204,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): VectorDbRegisterBody =
-                VectorDbRegisterBody(
+            fun build(): Body =
+                Body(
                     checkRequired("embeddingModel", embeddingModel),
                     checkRequired("vectorDbId", vectorDbId),
                     embeddingDimension,
@@ -220,7 +220,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is VectorDbRegisterBody && embeddingModel == other.embeddingModel && vectorDbId == other.vectorDbId && embeddingDimension == other.embeddingDimension && providerId == other.providerId && providerVectorDbId == other.providerVectorDbId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && embeddingModel == other.embeddingModel && vectorDbId == other.vectorDbId && embeddingDimension == other.embeddingDimension && providerId == other.providerId && providerVectorDbId == other.providerVectorDbId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -230,7 +230,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "VectorDbRegisterBody{embeddingModel=$embeddingModel, vectorDbId=$vectorDbId, embeddingDimension=$embeddingDimension, providerId=$providerId, providerVectorDbId=$providerVectorDbId, additionalProperties=$additionalProperties}"
+            "Body{embeddingModel=$embeddingModel, vectorDbId=$vectorDbId, embeddingDimension=$embeddingDimension, providerId=$providerId, providerVectorDbId=$providerVectorDbId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -244,7 +244,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: VectorDbRegisterBody.Builder = VectorDbRegisterBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

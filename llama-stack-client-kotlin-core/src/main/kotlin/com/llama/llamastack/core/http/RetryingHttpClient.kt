@@ -26,10 +26,7 @@ private constructor(
     private val idempotencyHeader: String?,
 ) : HttpClient {
 
-    override fun execute(
-        request: HttpRequest,
-        requestOptions: RequestOptions,
-    ): HttpResponse {
+    override fun execute(request: HttpRequest, requestOptions: RequestOptions): HttpResponse {
         if (!isRetryable(request) || maxRetries <= 0) {
             return httpClient.execute(request, requestOptions)
         }
@@ -184,8 +181,8 @@ private constructor(
                                     OffsetDateTime.now(clock),
                                     OffsetDateTime.parse(
                                         retryAfter,
-                                        DateTimeFormatter.RFC_1123_DATE_TIME
-                                    )
+                                        DateTimeFormatter.RFC_1123_DATE_TIME,
+                                    ),
                                 )
                             } catch (e: DateTimeParseException) {
                                 null

@@ -423,7 +423,7 @@ private constructor(
             override fun serialize(
                 value: InputMessage,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.user != null -> generator.writeObject(value.user)
@@ -613,7 +613,7 @@ private constructor(
             override fun serialize(
                 value: Step,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.inference != null -> generator.writeObject(value.inference)
@@ -951,7 +951,7 @@ private constructor(
                 override fun serialize(
                     value: Content,
                     generator: JsonGenerator,
-                    provider: SerializerProvider
+                    provider: SerializerProvider,
                 ) {
                     when {
                         value.string != null -> generator.writeObject(value.string)
@@ -1183,12 +1183,7 @@ private constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): Image =
-                            Image(
-                                data,
-                                url,
-                                additionalProperties.toImmutable(),
-                            )
+                        fun build(): Image = Image(data, url, additionalProperties.toImmutable())
                     }
 
                     /**

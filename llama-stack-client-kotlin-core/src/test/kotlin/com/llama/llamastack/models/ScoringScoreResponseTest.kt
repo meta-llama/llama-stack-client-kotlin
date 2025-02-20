@@ -19,9 +19,9 @@ class ScoringScoreResponseTest {
                             JsonValue.from(
                                 mapOf(
                                     "aggregated_results" to mapOf("foo" to true),
-                                    "score_rows" to listOf(mapOf("foo" to true))
+                                    "score_rows" to listOf(mapOf("foo" to true)),
                                 )
-                            )
+                            ),
                         )
                         .build()
                 )
@@ -35,9 +35,9 @@ class ScoringScoreResponseTest {
                         JsonValue.from(
                             mapOf(
                                 "aggregated_results" to mapOf("foo" to true),
-                                "score_rows" to listOf(mapOf("foo" to true))
+                                "score_rows" to listOf(mapOf("foo" to true)),
                             )
-                        )
+                        ),
                     )
                     .build()
             )

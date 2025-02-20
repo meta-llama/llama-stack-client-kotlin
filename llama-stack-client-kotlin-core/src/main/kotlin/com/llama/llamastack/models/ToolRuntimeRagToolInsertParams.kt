@@ -22,7 +22,7 @@ import java.util.Objects
 /** Index documents so they can be used by the RAG system */
 class ToolRuntimeRagToolInsertParams
 private constructor(
-    private val body: ToolRuntimeRagToolInsertBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -45,16 +45,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ToolRuntimeRagToolInsertBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ToolRuntimeRagToolInsertBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("chunk_size_in_tokens")
         @ExcludeMissing
         private val chunkSizeInTokens: JsonField<Long> = JsonMissing.of(),
@@ -92,7 +92,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ToolRuntimeRagToolInsertBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -110,7 +110,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ToolRuntimeRagToolInsertBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var chunkSizeInTokens: JsonField<Long>? = null
@@ -118,12 +118,11 @@ private constructor(
             private var vectorDbId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(toolRuntimeRagToolInsertBody: ToolRuntimeRagToolInsertBody) = apply {
-                chunkSizeInTokens = toolRuntimeRagToolInsertBody.chunkSizeInTokens
-                documents = toolRuntimeRagToolInsertBody.documents.map { it.toMutableList() }
-                vectorDbId = toolRuntimeRagToolInsertBody.vectorDbId
-                additionalProperties =
-                    toolRuntimeRagToolInsertBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                chunkSizeInTokens = body.chunkSizeInTokens
+                documents = body.documents.map { it.toMutableList() }
+                vectorDbId = body.vectorDbId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun chunkSizeInTokens(chunkSizeInTokens: Long) =
@@ -173,8 +172,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ToolRuntimeRagToolInsertBody =
-                ToolRuntimeRagToolInsertBody(
+            fun build(): Body =
+                Body(
                     checkRequired("chunkSizeInTokens", chunkSizeInTokens),
                     checkRequired("documents", documents).map { it.toImmutable() },
                     checkRequired("vectorDbId", vectorDbId),
@@ -187,7 +186,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolRuntimeRagToolInsertBody && chunkSizeInTokens == other.chunkSizeInTokens && documents == other.documents && vectorDbId == other.vectorDbId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && chunkSizeInTokens == other.chunkSizeInTokens && documents == other.documents && vectorDbId == other.vectorDbId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -197,7 +196,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolRuntimeRagToolInsertBody{chunkSizeInTokens=$chunkSizeInTokens, documents=$documents, vectorDbId=$vectorDbId, additionalProperties=$additionalProperties}"
+            "Body{chunkSizeInTokens=$chunkSizeInTokens, documents=$documents, vectorDbId=$vectorDbId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -211,8 +210,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ToolRuntimeRagToolInsertBody.Builder =
-            ToolRuntimeRagToolInsertBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

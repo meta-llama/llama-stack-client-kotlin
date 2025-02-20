@@ -27,7 +27,6 @@ class AgentServiceTest {
                 AgentCreateParams.builder()
                     .agentConfig(
                         AgentConfig.builder()
-                            .enableSessionPersistence(true)
                             .instructions("instructions")
                             .model("model")
                             .addClientTool(
@@ -50,6 +49,7 @@ class AgentServiceTest {
                                     )
                                     .build()
                             )
+                            .enableSessionPersistence(true)
                             .addInputShield("string")
                             .maxInferIters(0L)
                             .addOutputShield("string")

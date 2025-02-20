@@ -161,7 +161,7 @@ private constructor(
         override fun serialize(
             value: AlgorithmConfig,
             generator: JsonGenerator,
-            provider: SerializerProvider
+            provider: SerializerProvider,
         ) {
             when {
                 value.loraFinetuning != null -> generator.writeObject(value.loraFinetuning)

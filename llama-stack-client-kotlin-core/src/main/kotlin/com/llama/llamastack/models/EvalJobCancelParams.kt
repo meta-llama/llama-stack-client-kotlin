@@ -13,14 +13,14 @@ import java.util.Objects
 
 class EvalJobCancelParams
 private constructor(
-    private val taskId: String,
+    private val benchmarkId: String,
     private val jobId: String,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
 
-    fun taskId(): String = taskId
+    fun benchmarkId(): String = benchmarkId
 
     fun jobId(): String = jobId
 
@@ -38,7 +38,7 @@ private constructor(
 
     fun getPathParam(index: Int): String {
         return when (index) {
-            0 -> taskId
+            0 -> benchmarkId
             1 -> jobId
             else -> ""
         }
@@ -55,21 +55,21 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var taskId: String? = null
+        private var benchmarkId: String? = null
         private var jobId: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
         private var additionalBodyProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(evalJobCancelParams: EvalJobCancelParams) = apply {
-            taskId = evalJobCancelParams.taskId
+            benchmarkId = evalJobCancelParams.benchmarkId
             jobId = evalJobCancelParams.jobId
             additionalHeaders = evalJobCancelParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalJobCancelParams.additionalQueryParams.toBuilder()
             additionalBodyProperties = evalJobCancelParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun taskId(taskId: String) = apply { this.taskId = taskId }
+        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
         fun jobId(jobId: String) = apply { this.jobId = jobId }
 
@@ -195,7 +195,7 @@ private constructor(
 
         fun build(): EvalJobCancelParams =
             EvalJobCancelParams(
-                checkRequired("taskId", taskId),
+                checkRequired("benchmarkId", benchmarkId),
                 checkRequired("jobId", jobId),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -208,11 +208,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobCancelParams && taskId == other.taskId && jobId == other.jobId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
+        return /* spotless:off */ other is EvalJobCancelParams && benchmarkId == other.benchmarkId && jobId == other.jobId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams && additionalBodyProperties == other.additionalBodyProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmarkId, jobId, additionalHeaders, additionalQueryParams, additionalBodyProperties) /* spotless:on */
 
     override fun toString() =
-        "EvalJobCancelParams{taskId=$taskId, jobId=$jobId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
+        "EvalJobCancelParams{benchmarkId=$benchmarkId, jobId=$jobId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams, additionalBodyProperties=$additionalBodyProperties}"
 }

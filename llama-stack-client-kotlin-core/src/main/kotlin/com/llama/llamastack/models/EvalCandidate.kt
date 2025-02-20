@@ -157,7 +157,7 @@ private constructor(
         override fun serialize(
             value: EvalCandidate,
             generator: JsonGenerator,
-            provider: SerializerProvider
+            provider: SerializerProvider,
         ) {
             when {
                 value.model != null -> generator.writeObject(value.model)

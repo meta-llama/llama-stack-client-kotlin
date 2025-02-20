@@ -16,7 +16,9 @@ class InferenceEmbeddingsParamsTest {
     fun body() {
         val params =
             InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.modelId()).isEqualTo("model_id")
@@ -26,7 +28,9 @@ class InferenceEmbeddingsParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.contents()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.modelId()).isEqualTo("model_id")

@@ -20,11 +20,11 @@ interface AgentServiceAsync {
 
     suspend fun create(
         params: AgentCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentCreateResponse
 
     suspend fun delete(
         params: AgentDeleteParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

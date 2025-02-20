@@ -21,10 +21,8 @@ import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
 
-class ModelServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ModelService {
+class ModelServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    ModelService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)

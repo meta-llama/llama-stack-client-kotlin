@@ -22,7 +22,7 @@ import java.util.Objects
 class EvalEvaluateRowsParams
 private constructor(
     private val taskId: String,
-    private val body: EvalEvaluateRowsBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -33,13 +33,13 @@ private constructor(
 
     fun scoringFunctions(): List<String> = body.scoringFunctions()
 
-    fun taskConfig(): EvalTaskConfig = body.taskConfig()
+    fun taskConfig(): BenchmarkConfig = body.taskConfig()
 
     fun _inputRows(): JsonField<List<InputRow>> = body._inputRows()
 
     fun _scoringFunctions(): JsonField<List<String>> = body._scoringFunctions()
 
-    fun _taskConfig(): JsonField<EvalTaskConfig> = body._taskConfig()
+    fun _taskConfig(): JsonField<BenchmarkConfig> = body._taskConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -47,7 +47,7 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): EvalEvaluateRowsBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
@@ -61,9 +61,9 @@ private constructor(
     }
 
     @NoAutoDetect
-    class EvalEvaluateRowsBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("input_rows")
         @ExcludeMissing
         private val inputRows: JsonField<List<InputRow>> = JsonMissing.of(),
@@ -72,7 +72,7 @@ private constructor(
         private val scoringFunctions: JsonField<List<String>> = JsonMissing.of(),
         @JsonProperty("task_config")
         @ExcludeMissing
-        private val taskConfig: JsonField<EvalTaskConfig> = JsonMissing.of(),
+        private val taskConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
@@ -81,7 +81,7 @@ private constructor(
 
         fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
-        fun taskConfig(): EvalTaskConfig = taskConfig.getRequired("task_config")
+        fun taskConfig(): BenchmarkConfig = taskConfig.getRequired("task_config")
 
         @JsonProperty("input_rows")
         @ExcludeMissing
@@ -93,7 +93,7 @@ private constructor(
 
         @JsonProperty("task_config")
         @ExcludeMissing
-        fun _taskConfig(): JsonField<EvalTaskConfig> = taskConfig
+        fun _taskConfig(): JsonField<BenchmarkConfig> = taskConfig
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -101,7 +101,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): EvalEvaluateRowsBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -119,19 +119,19 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [EvalEvaluateRowsBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var inputRows: JsonField<MutableList<InputRow>>? = null
             private var scoringFunctions: JsonField<MutableList<String>>? = null
-            private var taskConfig: JsonField<EvalTaskConfig>? = null
+            private var taskConfig: JsonField<BenchmarkConfig>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(evalEvaluateRowsBody: EvalEvaluateRowsBody) = apply {
-                inputRows = evalEvaluateRowsBody.inputRows.map { it.toMutableList() }
-                scoringFunctions = evalEvaluateRowsBody.scoringFunctions.map { it.toMutableList() }
-                taskConfig = evalEvaluateRowsBody.taskConfig
-                additionalProperties = evalEvaluateRowsBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                inputRows = body.inputRows.map { it.toMutableList() }
+                scoringFunctions = body.scoringFunctions.map { it.toMutableList() }
+                taskConfig = body.taskConfig
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun inputRows(inputRows: List<InputRow>) = inputRows(JsonField.of(inputRows))
@@ -169,33 +169,11 @@ private constructor(
                     }
             }
 
-            fun taskConfig(taskConfig: EvalTaskConfig) = taskConfig(JsonField.of(taskConfig))
+            fun taskConfig(taskConfig: BenchmarkConfig) = taskConfig(JsonField.of(taskConfig))
 
-            fun taskConfig(taskConfig: JsonField<EvalTaskConfig>) = apply {
+            fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
                 this.taskConfig = taskConfig
             }
-
-            fun taskConfig(benchmark: EvalTaskConfig.BenchmarkEvalTaskConfig) =
-                taskConfig(EvalTaskConfig.ofBenchmark(benchmark))
-
-            fun benchmarkTaskConfig(evalCandidate: EvalCandidate) =
-                taskConfig(
-                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(evalCandidate)
-                        .build()
-                )
-
-            fun benchmarkTaskConfig(model: EvalCandidate.ModelCandidate) =
-                benchmarkTaskConfig(EvalCandidate.ofModel(model))
-
-            fun benchmarkTaskConfig(agent: EvalCandidate.AgentCandidate) =
-                benchmarkTaskConfig(EvalCandidate.ofAgent(agent))
-
-            fun agentBenchmarkTaskConfig(config: AgentConfig) =
-                benchmarkTaskConfig(EvalCandidate.AgentCandidate.builder().config(config).build())
-
-            fun taskConfig(app: EvalTaskConfig.AppEvalTaskConfig) =
-                taskConfig(EvalTaskConfig.ofApp(app))
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -216,8 +194,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): EvalEvaluateRowsBody =
-                EvalEvaluateRowsBody(
+            fun build(): Body =
+                Body(
                     checkRequired("inputRows", inputRows).map { it.toImmutable() },
                     checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
                     checkRequired("taskConfig", taskConfig),
@@ -230,7 +208,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is EvalEvaluateRowsBody && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -240,7 +218,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "EvalEvaluateRowsBody{inputRows=$inputRows, scoringFunctions=$scoringFunctions, taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
+            "Body{inputRows=$inputRows, scoringFunctions=$scoringFunctions, taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -255,7 +233,7 @@ private constructor(
     class Builder internal constructor() {
 
         private var taskId: String? = null
-        private var body: EvalEvaluateRowsBody.Builder = EvalEvaluateRowsBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -286,33 +264,11 @@ private constructor(
             body.addScoringFunction(scoringFunction)
         }
 
-        fun taskConfig(taskConfig: EvalTaskConfig) = apply { body.taskConfig(taskConfig) }
+        fun taskConfig(taskConfig: BenchmarkConfig) = apply { body.taskConfig(taskConfig) }
 
-        fun taskConfig(taskConfig: JsonField<EvalTaskConfig>) = apply {
+        fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
             body.taskConfig(taskConfig)
         }
-
-        fun taskConfig(benchmark: EvalTaskConfig.BenchmarkEvalTaskConfig) = apply {
-            body.taskConfig(benchmark)
-        }
-
-        fun benchmarkTaskConfig(evalCandidate: EvalCandidate) = apply {
-            body.benchmarkTaskConfig(evalCandidate)
-        }
-
-        fun benchmarkTaskConfig(model: EvalCandidate.ModelCandidate) = apply {
-            body.benchmarkTaskConfig(model)
-        }
-
-        fun benchmarkTaskConfig(agent: EvalCandidate.AgentCandidate) = apply {
-            body.benchmarkTaskConfig(agent)
-        }
-
-        fun agentBenchmarkTaskConfig(config: AgentConfig) = apply {
-            body.agentBenchmarkTaskConfig(config)
-        }
-
-        fun taskConfig(app: EvalTaskConfig.AppEvalTaskConfig) = apply { body.taskConfig(app) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -445,7 +401,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

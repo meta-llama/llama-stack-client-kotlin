@@ -89,7 +89,7 @@ private constructor(
         fun build(): AgentCreateResponse =
             AgentCreateResponse(
                 checkRequired("agentId", agentId),
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

@@ -48,7 +48,9 @@ class ScoringFunctionRegisterParamsTest {
                 .providerId("provider_id")
                 .providerScoringFnId("provider_scoring_fn_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.description()).isEqualTo("description")
         assertThat(body.returnType())
@@ -79,7 +81,9 @@ class ScoringFunctionRegisterParamsTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.description()).isEqualTo("description")
         assertThat(body.returnType())

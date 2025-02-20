@@ -21,7 +21,7 @@ import java.util.Objects
 
 class ScoringFunctionRegisterParams
 private constructor(
-    private val body: ScoringFunctionRegisterBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -56,16 +56,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ScoringFunctionRegisterBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ScoringFunctionRegisterBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("description")
         @ExcludeMissing
         private val description: JsonField<String> = JsonMissing.of(),
@@ -129,7 +129,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ScoringFunctionRegisterBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -150,7 +150,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ScoringFunctionRegisterBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var description: JsonField<String>? = null
@@ -161,15 +161,14 @@ private constructor(
             private var providerScoringFnId: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(scoringFunctionRegisterBody: ScoringFunctionRegisterBody) = apply {
-                description = scoringFunctionRegisterBody.description
-                returnType = scoringFunctionRegisterBody.returnType
-                scoringFnId = scoringFunctionRegisterBody.scoringFnId
-                params = scoringFunctionRegisterBody.params
-                providerId = scoringFunctionRegisterBody.providerId
-                providerScoringFnId = scoringFunctionRegisterBody.providerScoringFnId
-                additionalProperties =
-                    scoringFunctionRegisterBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                description = body.description
+                returnType = body.returnType
+                scoringFnId = body.scoringFnId
+                params = body.params
+                providerId = body.providerId
+                providerScoringFnId = body.providerScoringFnId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun description(description: String) = description(JsonField.of(description))
@@ -240,8 +239,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ScoringFunctionRegisterBody =
-                ScoringFunctionRegisterBody(
+            fun build(): Body =
+                Body(
                     checkRequired("description", description),
                     checkRequired("returnType", returnType),
                     checkRequired("scoringFnId", scoringFnId),
@@ -257,7 +256,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ScoringFunctionRegisterBody && description == other.description && returnType == other.returnType && scoringFnId == other.scoringFnId && params == other.params && providerId == other.providerId && providerScoringFnId == other.providerScoringFnId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && description == other.description && returnType == other.returnType && scoringFnId == other.scoringFnId && params == other.params && providerId == other.providerId && providerScoringFnId == other.providerScoringFnId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -267,7 +266,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ScoringFunctionRegisterBody{description=$description, returnType=$returnType, scoringFnId=$scoringFnId, params=$params, providerId=$providerId, providerScoringFnId=$providerScoringFnId, additionalProperties=$additionalProperties}"
+            "Body{description=$description, returnType=$returnType, scoringFnId=$scoringFnId, params=$params, providerId=$providerId, providerScoringFnId=$providerScoringFnId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -281,8 +280,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ScoringFunctionRegisterBody.Builder =
-            ScoringFunctionRegisterBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

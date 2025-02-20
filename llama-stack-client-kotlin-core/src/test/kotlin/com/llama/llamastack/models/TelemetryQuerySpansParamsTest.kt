@@ -45,7 +45,7 @@ class TelemetryQuerySpansParamsTest {
                 .op(QueryCondition.Op.EQ)
                 .value(QueryCondition.Value.ofBoolean(true))
                 .build()
-                .toString()
+                .toString(),
         )
         expected.put("attributes_to_return", "string")
         expected.put("max_depth", "0")
@@ -73,7 +73,7 @@ class TelemetryQuerySpansParamsTest {
                 .op(QueryCondition.Op.EQ)
                 .value(QueryCondition.Value.ofBoolean(true))
                 .build()
-                .toString()
+                .toString(),
         )
         expected.put("attributes_to_return", "string")
         assertThat(params._queryParams()).isEqualTo(expected.build())

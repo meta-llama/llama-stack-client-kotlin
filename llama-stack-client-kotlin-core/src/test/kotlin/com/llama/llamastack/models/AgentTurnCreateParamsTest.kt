@@ -56,7 +56,9 @@ class AgentTurnCreateParamsTest {
                 )
                 .addToolgroup("string")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(
@@ -97,7 +99,9 @@ class AgentTurnCreateParamsTest {
                 .sessionId("session_id")
                 .addMessage(UserMessage.builder().content("string").build())
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(

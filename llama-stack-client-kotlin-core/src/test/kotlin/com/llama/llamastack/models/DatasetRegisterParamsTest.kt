@@ -47,7 +47,9 @@ class DatasetRegisterParamsTest {
                 .providerDatasetId("provider_dataset_id")
                 .providerId("provider_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.datasetSchema())
@@ -79,7 +81,9 @@ class DatasetRegisterParamsTest {
                 )
                 .url(DatasetRegisterParams.Url.builder().uri("uri").build())
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.datasetSchema())

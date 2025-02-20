@@ -14,17 +14,17 @@ interface TurnService {
 
     fun create(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Turn
 
     @MustBeClosed
     fun createStreaming(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): StreamResponse<AgentTurnResponseStreamChunk>
 
     fun retrieve(
         params: AgentTurnRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Turn
 }

@@ -49,7 +49,9 @@ class InferenceCompletionParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
@@ -81,7 +83,9 @@ class InferenceCompletionParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             InferenceCompletionParams.builder().content("string").modelId("model_id").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")

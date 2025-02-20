@@ -26,10 +26,8 @@ import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceCompletionParams
 import com.llama.llamastack.models.InferenceEmbeddingsParams
 
-class InferenceServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : InferenceService {
+class InferenceServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    InferenceService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -40,7 +38,7 @@ internal constructor(
     /** Generate a chat completion for the given messages using the specified model. */
     override fun chatCompletion(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ChatCompletionResponse {
         val request =
             HttpRequest.builder()
@@ -68,7 +66,7 @@ internal constructor(
     /** Generate a chat completion for the given messages using the specified model. */
     override fun chatCompletionStreaming(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<ChatCompletionResponseStreamChunk> {
         val request =
             HttpRequest.builder()
@@ -81,7 +79,7 @@ internal constructor(
                             ._body()
                             .toBuilder()
                             .putAdditionalProperty("stream", JsonValue.from(true))
-                            .build()
+                            .build(),
                     )
                 )
                 .build()
@@ -104,7 +102,7 @@ internal constructor(
     /** Generate a completion for the given content using the specified model. */
     override fun completion(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): CompletionResponse {
         val request =
             HttpRequest.builder()
@@ -131,7 +129,7 @@ internal constructor(
     /** Generate a completion for the given content using the specified model. */
     override fun completionStreaming(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<CompletionResponse> {
         val request =
             HttpRequest.builder()
@@ -144,7 +142,7 @@ internal constructor(
                             ._body()
                             .toBuilder()
                             .putAdditionalProperty("stream", JsonValue.from(true))
-                            .build()
+                            .build(),
                     )
                 )
                 .build()
@@ -167,7 +165,7 @@ internal constructor(
     /** Generate embeddings for content pieces using the specified model. */
     override fun embeddings(
         params: InferenceEmbeddingsParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): EmbeddingsResponse {
         val request =
             HttpRequest.builder()

@@ -11,11 +11,11 @@ interface VectorIoServiceAsync {
 
     suspend fun insert(
         params: VectorIoInsertParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     suspend fun query(
         params: VectorIoQueryParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): QueryChunksResponse
 }

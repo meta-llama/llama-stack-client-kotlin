@@ -25,7 +25,7 @@ class ScoringScoreBatchParamsTest {
                                 "judge_score_regexes" to listOf("string"),
                                 "prompt_template" to "prompt_template",
                             )
-                        )
+                        ),
                     )
                     .build()
             )
@@ -50,12 +50,14 @@ class ScoringScoreBatchParamsTest {
                                     "judge_score_regexes" to listOf("string"),
                                     "prompt_template" to "prompt_template",
                                 )
-                            )
+                            ),
                         )
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.saveResultsDataset()).isEqualTo(true)
@@ -72,7 +74,7 @@ class ScoringScoreBatchParamsTest {
                                 "judge_score_regexes" to listOf("string"),
                                 "prompt_template" to "prompt_template",
                             )
-                        )
+                        ),
                     )
                     .build()
             )
@@ -90,12 +92,14 @@ class ScoringScoreBatchParamsTest {
                             "foo",
                             JsonValue.from(
                                 mapOf("judge_model" to "judge_model", "type" to "llm_as_judge")
-                            )
+                            ),
                         )
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.saveResultsDataset()).isEqualTo(true)
@@ -106,7 +110,7 @@ class ScoringScoreBatchParamsTest {
                         "foo",
                         JsonValue.from(
                             mapOf("judge_model" to "judge_model", "type" to "llm_as_judge")
-                        )
+                        ),
                     )
                     .build()
             )

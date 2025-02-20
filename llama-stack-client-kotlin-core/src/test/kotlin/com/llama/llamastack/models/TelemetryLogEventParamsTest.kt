@@ -21,7 +21,7 @@ class TelemetryLogEventParamsTest {
                     .traceId("trace_id")
                     .attributes(
                         Event.UnstructuredLogEvent.Attributes.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
                     .build()
@@ -43,14 +43,16 @@ class TelemetryLogEventParamsTest {
                         .traceId("trace_id")
                         .attributes(
                             Event.UnstructuredLogEvent.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .build()
                 )
                 .ttlSeconds(0L)
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.event())
             .isEqualTo(
@@ -63,7 +65,7 @@ class TelemetryLogEventParamsTest {
                         .traceId("trace_id")
                         .attributes(
                             Event.UnstructuredLogEvent.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .build()
@@ -87,7 +89,9 @@ class TelemetryLogEventParamsTest {
                 )
                 .ttlSeconds(0L)
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.event())
             .isEqualTo(

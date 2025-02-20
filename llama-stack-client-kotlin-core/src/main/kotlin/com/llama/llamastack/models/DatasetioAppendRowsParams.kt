@@ -21,7 +21,7 @@ import java.util.Objects
 
 class DatasetioAppendRowsParams
 private constructor(
-    private val body: DatasetioAppendRowsBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -40,16 +40,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): DatasetioAppendRowsBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class DatasetioAppendRowsBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("dataset_id")
         @ExcludeMissing
         private val datasetId: JsonField<String> = JsonMissing.of(),
@@ -74,7 +74,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): DatasetioAppendRowsBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -91,17 +91,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [DatasetioAppendRowsBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var datasetId: JsonField<String>? = null
             private var rows: JsonField<MutableList<Row>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(datasetioAppendRowsBody: DatasetioAppendRowsBody) = apply {
-                datasetId = datasetioAppendRowsBody.datasetId
-                rows = datasetioAppendRowsBody.rows.map { it.toMutableList() }
-                additionalProperties = datasetioAppendRowsBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                datasetId = body.datasetId
+                rows = body.rows.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
@@ -144,8 +144,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): DatasetioAppendRowsBody =
-                DatasetioAppendRowsBody(
+            fun build(): Body =
+                Body(
                     checkRequired("datasetId", datasetId),
                     checkRequired("rows", rows).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
@@ -157,7 +157,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is DatasetioAppendRowsBody && datasetId == other.datasetId && rows == other.rows && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && datasetId == other.datasetId && rows == other.rows && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -167,7 +167,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "DatasetioAppendRowsBody{datasetId=$datasetId, rows=$rows, additionalProperties=$additionalProperties}"
+            "Body{datasetId=$datasetId, rows=$rows, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -181,7 +181,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: DatasetioAppendRowsBody.Builder = DatasetioAppendRowsBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -331,7 +331,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

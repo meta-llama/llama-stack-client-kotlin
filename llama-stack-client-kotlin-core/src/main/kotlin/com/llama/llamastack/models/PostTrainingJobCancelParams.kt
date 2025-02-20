@@ -21,7 +21,7 @@ import java.util.Objects
 
 class PostTrainingJobCancelParams
 private constructor(
-    private val body: PostTrainingJobCancelBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -36,16 +36,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): PostTrainingJobCancelBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class PostTrainingJobCancelBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("job_uuid")
         @ExcludeMissing
         private val jobUuid: JsonField<String> = JsonMissing.of(),
@@ -63,7 +63,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): PostTrainingJobCancelBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -79,15 +79,15 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [PostTrainingJobCancelBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var jobUuid: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(postTrainingJobCancelBody: PostTrainingJobCancelBody) = apply {
-                jobUuid = postTrainingJobCancelBody.jobUuid
-                additionalProperties = postTrainingJobCancelBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                jobUuid = body.jobUuid
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
@@ -113,11 +113,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): PostTrainingJobCancelBody =
-                PostTrainingJobCancelBody(
-                    checkRequired("jobUuid", jobUuid),
-                    additionalProperties.toImmutable()
-                )
+            fun build(): Body =
+                Body(checkRequired("jobUuid", jobUuid), additionalProperties.toImmutable())
         }
 
         override fun equals(other: Any?): Boolean {
@@ -125,7 +122,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is PostTrainingJobCancelBody && jobUuid == other.jobUuid && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && jobUuid == other.jobUuid && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -135,7 +132,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "PostTrainingJobCancelBody{jobUuid=$jobUuid, additionalProperties=$additionalProperties}"
+            "Body{jobUuid=$jobUuid, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -149,7 +146,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: PostTrainingJobCancelBody.Builder = PostTrainingJobCancelBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

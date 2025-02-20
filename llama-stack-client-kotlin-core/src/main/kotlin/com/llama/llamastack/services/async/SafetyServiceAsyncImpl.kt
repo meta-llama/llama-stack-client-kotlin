@@ -16,10 +16,8 @@ import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.RunShieldResponse
 import com.llama.llamastack.models.SafetyRunShieldParams
 
-class SafetyServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : SafetyServiceAsync {
+class SafetyServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    SafetyServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -29,7 +27,7 @@ internal constructor(
 
     override suspend fun runShield(
         params: SafetyRunShieldParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): RunShieldResponse {
         val request =
             HttpRequest.builder()

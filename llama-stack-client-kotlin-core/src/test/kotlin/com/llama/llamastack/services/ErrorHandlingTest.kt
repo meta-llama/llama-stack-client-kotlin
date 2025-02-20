@@ -33,6 +33,7 @@ import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.TokenLogProbs
 import com.llama.llamastack.models.ToolCall
 import com.llama.llamastack.models.UserMessage
+import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.api.InstanceOfAssertFactories
@@ -107,7 +108,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -139,6 +140,21 @@ class ErrorHandlingTest {
                         .logprobsByToken(
                             TokenLogProbs.LogprobsByToken.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(0))
+                                .build()
+                        )
+                        .build()
+                )
+                .addMetric(
+                    ChatCompletionResponse.Metric.builder()
+                        .metric("metric")
+                        .spanId("span_id")
+                        .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .traceId("trace_id")
+                        .unit("unit")
+                        .value(0.0)
+                        .attributes(
+                            ChatCompletionResponse.Metric.Attributes.builder()
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .build()
@@ -197,7 +213,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -217,7 +233,7 @@ class ErrorHandlingTest {
                 assertBadRequest(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -269,7 +285,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -289,7 +305,7 @@ class ErrorHandlingTest {
                 assertUnauthorized(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -341,7 +357,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -361,7 +377,7 @@ class ErrorHandlingTest {
                 assertPermissionDenied(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -413,7 +429,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -433,7 +449,7 @@ class ErrorHandlingTest {
                 assertNotFound(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -485,7 +501,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -505,7 +521,7 @@ class ErrorHandlingTest {
                 assertUnprocessableEntity(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -557,7 +573,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -577,7 +593,7 @@ class ErrorHandlingTest {
                 assertRateLimit(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -629,7 +645,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -649,7 +665,7 @@ class ErrorHandlingTest {
                 assertInternalServer(
                     e,
                     Headers.builder().put("Foo", "Bar").build(),
-                    LLAMA_STACK_CLIENT_ERROR
+                    LLAMA_STACK_CLIENT_ERROR,
                 )
             })
     }
@@ -701,7 +717,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -722,7 +738,7 @@ class ErrorHandlingTest {
                     e,
                     999,
                     Headers.builder().put("Foo", "Bar").build(),
-                    toJson(LLAMA_STACK_CLIENT_ERROR)
+                    toJson(LLAMA_STACK_CLIENT_ERROR),
                 )
             })
     }
@@ -774,7 +790,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -839,7 +855,7 @@ class ErrorHandlingTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -854,7 +870,7 @@ class ErrorHandlingTest {
                 assertBadRequest(
                     e,
                     Headers.builder().build(),
-                    LlamaStackClientError.builder().build()
+                    LlamaStackClientError.builder().build(),
                 )
             })
     }
@@ -867,7 +883,7 @@ class ErrorHandlingTest {
         throwable: Throwable,
         statusCode: Int,
         headers: Headers,
-        responseBody: ByteArray
+        responseBody: ByteArray,
     ) {
         assertThat(throwable)
             .asInstanceOf(
@@ -883,7 +899,7 @@ class ErrorHandlingTest {
     private fun assertBadRequest(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(InstanceOfAssertFactories.throwable(BadRequestException::class.java))
@@ -897,7 +913,7 @@ class ErrorHandlingTest {
     private fun assertUnauthorized(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(InstanceOfAssertFactories.throwable(UnauthorizedException::class.java))
@@ -911,7 +927,7 @@ class ErrorHandlingTest {
     private fun assertPermissionDenied(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(
@@ -927,7 +943,7 @@ class ErrorHandlingTest {
     private fun assertNotFound(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(InstanceOfAssertFactories.throwable(NotFoundException::class.java))
@@ -941,7 +957,7 @@ class ErrorHandlingTest {
     private fun assertUnprocessableEntity(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(
@@ -957,7 +973,7 @@ class ErrorHandlingTest {
     private fun assertRateLimit(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(InstanceOfAssertFactories.throwable(RateLimitException::class.java))
@@ -971,7 +987,7 @@ class ErrorHandlingTest {
     private fun assertInternalServer(
         throwable: Throwable,
         headers: Headers,
-        error: LlamaStackClientError
+        error: LlamaStackClientError,
     ) {
         assertThat(throwable)
             .asInstanceOf(InstanceOfAssertFactories.throwable(InternalServerException::class.java))

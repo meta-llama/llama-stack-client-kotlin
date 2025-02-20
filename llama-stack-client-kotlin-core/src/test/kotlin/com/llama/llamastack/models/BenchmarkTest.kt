@@ -6,16 +6,16 @@ import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class EvalTaskTest {
+class BenchmarkTest {
 
     @Test
-    fun createEvalTask() {
-        val evalTask =
-            EvalTask.builder()
+    fun createBenchmark() {
+        val benchmark =
+            Benchmark.builder()
                 .datasetId("dataset_id")
                 .identifier("identifier")
                 .metadata(
-                    EvalTask.Metadata.builder()
+                    Benchmark.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
@@ -23,17 +23,17 @@ class EvalTaskTest {
                 .providerResourceId("provider_resource_id")
                 .addScoringFunction("string")
                 .build()
-        assertThat(evalTask).isNotNull
-        assertThat(evalTask.datasetId()).isEqualTo("dataset_id")
-        assertThat(evalTask.identifier()).isEqualTo("identifier")
-        assertThat(evalTask.metadata())
+        assertThat(benchmark).isNotNull
+        assertThat(benchmark.datasetId()).isEqualTo("dataset_id")
+        assertThat(benchmark.identifier()).isEqualTo("identifier")
+        assertThat(benchmark.metadata())
             .isEqualTo(
-                EvalTask.Metadata.builder()
+                Benchmark.Metadata.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(evalTask.providerId()).isEqualTo("provider_id")
-        assertThat(evalTask.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(evalTask.scoringFunctions()).containsExactly("string")
+        assertThat(benchmark.providerId()).isEqualTo("provider_id")
+        assertThat(benchmark.providerResourceId()).isEqualTo("provider_resource_id")
+        assertThat(benchmark.scoringFunctions()).containsExactly("string")
     }
 }

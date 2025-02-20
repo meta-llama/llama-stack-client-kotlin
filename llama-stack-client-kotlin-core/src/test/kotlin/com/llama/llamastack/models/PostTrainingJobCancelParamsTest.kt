@@ -15,7 +15,9 @@ class PostTrainingJobCancelParamsTest {
     @Test
     fun body() {
         val params = PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }
@@ -23,7 +25,9 @@ class PostTrainingJobCancelParamsTest {
     @Test
     fun bodyWithoutOptionalFields() {
         val params = PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }

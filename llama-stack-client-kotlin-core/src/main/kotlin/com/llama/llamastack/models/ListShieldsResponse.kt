@@ -102,7 +102,7 @@ private constructor(
         fun build(): ListShieldsResponse =
             ListShieldsResponse(
                 checkRequired("data", data).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

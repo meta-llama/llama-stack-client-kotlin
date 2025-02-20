@@ -15,18 +15,18 @@ interface InferenceServiceAsync {
     /** Generate a chat completion for the given messages using the specified model. */
     suspend fun chatCompletion(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ChatCompletionResponse
 
     /** Generate a completion for the given content using the specified model. */
     suspend fun completion(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletionResponse
 
     /** Generate embeddings for content pieces using the specified model. */
     suspend fun embeddings(
         params: InferenceEmbeddingsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): EmbeddingsResponse
 }

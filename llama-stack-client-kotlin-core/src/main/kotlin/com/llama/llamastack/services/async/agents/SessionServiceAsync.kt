@@ -13,16 +13,16 @@ interface SessionServiceAsync {
 
     suspend fun create(
         params: AgentSessionCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentSessionCreateResponse
 
     suspend fun retrieve(
         params: AgentSessionRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Session
 
     suspend fun delete(
         params: AgentSessionDeleteParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

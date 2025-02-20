@@ -332,7 +332,7 @@ private constructor(
             override fun serialize(
                 value: Default,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.boolean != null -> generator.writeObject(value.boolean)

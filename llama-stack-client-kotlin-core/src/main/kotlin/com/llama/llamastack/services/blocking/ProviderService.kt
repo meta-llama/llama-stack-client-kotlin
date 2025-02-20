@@ -10,6 +10,6 @@ interface ProviderService {
 
     fun list(
         params: ProviderListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ProviderInfo>
 }

@@ -47,7 +47,9 @@ class ToolRuntimeRagToolInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.chunkSizeInTokens()).isEqualTo(0L)
         assertThat(body.documents())
@@ -86,7 +88,9 @@ class ToolRuntimeRagToolInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.chunkSizeInTokens()).isEqualTo(0L)
         assertThat(body.documents())

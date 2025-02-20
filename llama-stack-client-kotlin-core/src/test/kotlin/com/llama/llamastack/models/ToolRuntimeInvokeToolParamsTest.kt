@@ -31,7 +31,9 @@ class ToolRuntimeInvokeToolParamsTest {
                 )
                 .toolName("tool_name")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.kwargs())
             .isEqualTo(
@@ -53,7 +55,9 @@ class ToolRuntimeInvokeToolParamsTest {
                 )
                 .toolName("tool_name")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.kwargs())
             .isEqualTo(

@@ -22,7 +22,7 @@ import java.util.Objects
 /** Generate a completion for the given content using the specified model. */
 class InferenceCompletionParams
 private constructor(
-    private val body: InferenceCompletionBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -69,16 +69,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): InferenceCompletionBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class InferenceCompletionBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("content")
         @ExcludeMissing
         private val content: JsonField<InterleavedContent> = JsonMissing.of(),
@@ -146,7 +146,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): InferenceCompletionBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -166,7 +166,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [InferenceCompletionBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var content: JsonField<InterleavedContent>? = null
@@ -176,13 +176,13 @@ private constructor(
             private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(inferenceCompletionBody: InferenceCompletionBody) = apply {
-                content = inferenceCompletionBody.content
-                modelId = inferenceCompletionBody.modelId
-                logprobs = inferenceCompletionBody.logprobs
-                responseFormat = inferenceCompletionBody.responseFormat
-                samplingParams = inferenceCompletionBody.samplingParams
-                additionalProperties = inferenceCompletionBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                content = body.content
+                modelId = body.modelId
+                logprobs = body.logprobs
+                responseFormat = body.responseFormat
+                samplingParams = body.samplingParams
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             /** The content to generate a completion for */
@@ -285,8 +285,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): InferenceCompletionBody =
-                InferenceCompletionBody(
+            fun build(): Body =
+                Body(
                     checkRequired("content", content),
                     checkRequired("modelId", modelId),
                     logprobs,
@@ -301,7 +301,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InferenceCompletionBody && content == other.content && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && content == other.content && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -311,7 +311,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "InferenceCompletionBody{content=$content, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
+            "Body{content=$content, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -325,7 +325,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: InferenceCompletionBody.Builder = InferenceCompletionBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

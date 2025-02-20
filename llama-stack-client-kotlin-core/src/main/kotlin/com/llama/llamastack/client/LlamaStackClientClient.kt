@@ -4,6 +4,7 @@ package com.llama.llamastack.client
 
 import com.llama.llamastack.services.blocking.AgentService
 import com.llama.llamastack.services.blocking.BatchInferenceService
+import com.llama.llamastack.services.blocking.BenchmarkService
 import com.llama.llamastack.services.blocking.DatasetService
 import com.llama.llamastack.services.blocking.DatasetioService
 import com.llama.llamastack.services.blocking.EvalService
@@ -95,6 +96,8 @@ interface LlamaStackClientClient {
     fun scoringFunctions(): ScoringFunctionService
 
     fun evalTasks(): EvalTaskService
+
+    fun benchmarks(): BenchmarkService
 
     /**
      * Closes this client, relinquishing any underlying resources.

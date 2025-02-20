@@ -38,7 +38,7 @@ class ScoringServiceTest {
                                         "judge_score_regexes" to listOf("string"),
                                         "prompt_template" to "prompt_template",
                                     )
-                                )
+                                ),
                             )
                             .build()
                     )
@@ -70,7 +70,7 @@ class ScoringServiceTest {
                                         "judge_score_regexes" to listOf("string"),
                                         "prompt_template" to "prompt_template",
                                     )
-                                )
+                                ),
                             )
                             .build()
                     )

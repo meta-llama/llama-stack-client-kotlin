@@ -13,16 +13,16 @@ interface JobServiceAsync {
 
     suspend fun retrieve(
         params: EvalJobRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): EvaluateResponse
 
     suspend fun cancel(
         params: EvalJobCancelParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     suspend fun status(
         params: EvalJobStatusParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): EvalJobStatusResponse?
 }

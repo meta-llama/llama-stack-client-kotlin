@@ -23,10 +23,8 @@ import com.llama.llamastack.models.PostTrainingJobListParams
 import com.llama.llamastack.models.PostTrainingJobStatusParams
 import com.llama.llamastack.models.PostTrainingJobStatusResponse
 
-class JobServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : JobServiceAsync {
+class JobServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    JobServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -37,7 +35,7 @@ internal constructor(
 
     override suspend fun list(
         params: PostTrainingJobListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ListPostTrainingJobsResponse.Data> {
         val request =
             HttpRequest.builder()
@@ -62,7 +60,7 @@ internal constructor(
 
     override suspend fun artifacts(
         params: PostTrainingJobArtifactsParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): PostTrainingJobArtifactsResponse? {
         val request =
             HttpRequest.builder()
@@ -84,7 +82,7 @@ internal constructor(
 
     override suspend fun cancel(
         params: PostTrainingJobCancelParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ) {
         val request =
             HttpRequest.builder()
@@ -103,7 +101,7 @@ internal constructor(
 
     override suspend fun status(
         params: PostTrainingJobStatusParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): PostTrainingJobStatusResponse? {
         val request =
             HttpRequest.builder()

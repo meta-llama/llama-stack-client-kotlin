@@ -24,10 +24,8 @@ import com.llama.llamastack.services.async.agents.StepServiceAsyncImpl
 import com.llama.llamastack.services.async.agents.TurnServiceAsync
 import com.llama.llamastack.services.async.agents.TurnServiceAsyncImpl
 
-class AgentServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : AgentServiceAsync {
+class AgentServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    AgentServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -49,7 +47,7 @@ internal constructor(
 
     override suspend fun create(
         params: AgentCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): AgentCreateResponse {
         val request =
             HttpRequest.builder()

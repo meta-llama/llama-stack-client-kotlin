@@ -36,7 +36,9 @@ class ToolRuntimeRagToolQueryParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbIds()).isEqualTo(listOf("string"))
@@ -57,7 +59,9 @@ class ToolRuntimeRagToolQueryParamsTest {
                 .content("string")
                 .addVectorDbId("string")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbIds()).isEqualTo(listOf("string"))

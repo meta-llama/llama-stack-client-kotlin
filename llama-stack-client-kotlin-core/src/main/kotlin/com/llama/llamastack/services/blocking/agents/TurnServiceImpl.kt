@@ -23,10 +23,7 @@ import com.llama.llamastack.models.AgentTurnResponseStreamChunk
 import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.Turn
 
-class TurnServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : TurnService {
+class TurnServiceImpl internal constructor(private val clientOptions: ClientOptions) : TurnService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -44,7 +41,7 @@ internal constructor(
                     params.getPathParam(0),
                     "session",
                     params.getPathParam(1),
-                    "turn"
+                    "turn",
                 )
                 .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
@@ -66,7 +63,7 @@ internal constructor(
 
     override fun createStreaming(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<AgentTurnResponseStreamChunk> {
         val request =
             HttpRequest.builder()
@@ -77,7 +74,7 @@ internal constructor(
                     params.getPathParam(0),
                     "session",
                     params.getPathParam(1),
-                    "turn"
+                    "turn",
                 )
                 .body(
                     json(
@@ -86,7 +83,7 @@ internal constructor(
                             ._body()
                             .toBuilder()
                             .putAdditionalProperty("stream", JsonValue.from(true))
-                            .build()
+                            .build(),
                     )
                 )
                 .build()
@@ -117,7 +114,7 @@ internal constructor(
                     "session",
                     params.getPathParam(1),
                     "turn",
-                    params.getPathParam(2)
+                    params.getPathParam(2),
                 )
                 .build()
                 .prepare(clientOptions, params)

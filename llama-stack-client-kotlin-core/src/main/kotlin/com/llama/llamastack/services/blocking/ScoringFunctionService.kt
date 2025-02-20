@@ -12,16 +12,16 @@ interface ScoringFunctionService {
 
     fun retrieve(
         params: ScoringFunctionRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ScoringFn?
 
     fun list(
         params: ScoringFunctionListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ScoringFn>
 
     fun register(
         params: ScoringFunctionRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

@@ -15,10 +15,7 @@ import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentStepRetrieveParams
 import com.llama.llamastack.models.AgentStepRetrieveResponse
 
-class StepServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : StepService {
+class StepServiceImpl internal constructor(private val clientOptions: ClientOptions) : StepService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -29,7 +26,7 @@ internal constructor(
 
     override fun retrieve(
         params: AgentStepRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): AgentStepRetrieveResponse {
         val request =
             HttpRequest.builder()
@@ -43,7 +40,7 @@ internal constructor(
                     "turn",
                     params.getPathParam(2),
                     "step",
-                    params.getPathParam(3)
+                    params.getPathParam(3),
                 )
                 .build()
                 .prepare(clientOptions, params)

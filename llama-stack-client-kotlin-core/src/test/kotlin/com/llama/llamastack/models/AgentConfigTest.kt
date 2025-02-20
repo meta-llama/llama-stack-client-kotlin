@@ -12,7 +12,6 @@ class AgentConfigTest {
     fun createAgentConfig() {
         val agentConfig =
             AgentConfig.builder()
-                .enableSessionPersistence(true)
                 .instructions("instructions")
                 .model("model")
                 .addClientTool(
@@ -35,6 +34,7 @@ class AgentConfigTest {
                         )
                         .build()
                 )
+                .enableSessionPersistence(true)
                 .addInputShield("string")
                 .maxInferIters(0L)
                 .addOutputShield("string")
@@ -62,7 +62,6 @@ class AgentConfigTest {
                 .addToolgroup("string")
                 .build()
         assertThat(agentConfig).isNotNull
-        assertThat(agentConfig.enableSessionPersistence()).isEqualTo(true)
         assertThat(agentConfig.instructions()).isEqualTo("instructions")
         assertThat(agentConfig.model()).isEqualTo("model")
         assertThat(agentConfig.clientTools())
@@ -86,6 +85,7 @@ class AgentConfigTest {
                     )
                     .build()
             )
+        assertThat(agentConfig.enableSessionPersistence()).isEqualTo(true)
         assertThat(agentConfig.inputShields()).containsExactly("string")
         assertThat(agentConfig.maxInferIters()).isEqualTo(0L)
         assertThat(agentConfig.outputShields()).containsExactly("string")

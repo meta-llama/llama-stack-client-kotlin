@@ -43,7 +43,9 @@ class VectorIoInsertParamsTest {
                 .vectorDbId("vector_db_id")
                 .ttlSeconds(0L)
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.chunks())
             .isEqualTo(
@@ -78,7 +80,9 @@ class VectorIoInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.chunks())
             .isEqualTo(

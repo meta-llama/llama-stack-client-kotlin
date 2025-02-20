@@ -102,7 +102,7 @@ private constructor(
         fun build(): ListScoringFunctionsResponse =
             ListScoringFunctionsResponse(
                 checkRequired("data", data).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

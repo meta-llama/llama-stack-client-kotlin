@@ -22,10 +22,8 @@ import com.llama.llamastack.models.DatasetRetrieveResponse
 import com.llama.llamastack.models.DatasetUnregisterParams
 import com.llama.llamastack.models.ListDatasetsResponse
 
-class DatasetServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : DatasetService {
+class DatasetServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    DatasetService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -36,7 +34,7 @@ internal constructor(
 
     override fun retrieve(
         params: DatasetRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): DatasetRetrieveResponse? {
         val request =
             HttpRequest.builder()
@@ -60,7 +58,7 @@ internal constructor(
 
     override fun list(
         params: DatasetListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ListDatasetsResponse.Data> {
         val request =
             HttpRequest.builder()

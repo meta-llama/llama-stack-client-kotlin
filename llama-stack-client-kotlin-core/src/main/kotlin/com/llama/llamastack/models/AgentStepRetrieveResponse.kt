@@ -107,7 +107,7 @@ private constructor(
         fun build(): AgentStepRetrieveResponse =
             AgentStepRetrieveResponse(
                 checkRequired("step", step),
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 
@@ -289,7 +289,7 @@ private constructor(
             override fun serialize(
                 value: Step,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.inference != null -> generator.writeObject(value.inference)

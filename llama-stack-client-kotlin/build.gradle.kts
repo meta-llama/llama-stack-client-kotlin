@@ -5,5 +5,4 @@ plugins {
 
 dependencies {
     api(project(":llama-stack-client-kotlin-client-okhttp"))
-    api(project(":llama-stack-client-kotlin-client-local"))
 }

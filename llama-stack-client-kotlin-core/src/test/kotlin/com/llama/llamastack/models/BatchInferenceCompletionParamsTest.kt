@@ -49,7 +49,9 @@ class BatchInferenceCompletionParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.model()).isEqualTo("model")
@@ -84,7 +86,9 @@ class BatchInferenceCompletionParamsTest {
                 .addContentBatch("string")
                 .model("model")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.model()).isEqualTo("model")

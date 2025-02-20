@@ -21,10 +21,8 @@ import com.llama.llamastack.models.ToolgroupListParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 
-class ToolgroupServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ToolgroupServiceAsync {
+class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    ToolgroupServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -36,7 +34,7 @@ internal constructor(
     /** List tool groups with optional provider */
     override suspend fun list(
         params: ToolgroupListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ToolGroup> {
         val request =
             HttpRequest.builder()
@@ -60,7 +58,7 @@ internal constructor(
 
     override suspend fun get(
         params: ToolgroupGetParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ToolGroup {
         val request =
             HttpRequest.builder()
@@ -98,7 +96,7 @@ internal constructor(
     /** Unregister a tool group */
     override suspend fun unregister(
         params: ToolgroupUnregisterParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ) {
         val request =
             HttpRequest.builder()

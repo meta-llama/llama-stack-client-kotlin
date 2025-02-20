@@ -170,7 +170,7 @@ private constructor(
         override fun serialize(
             value: InterleavedContentItem,
             generator: JsonGenerator,
-            provider: SerializerProvider
+            provider: SerializerProvider,
         ) {
             when {
                 value.image != null -> generator.writeObject(value.image)
@@ -386,12 +386,7 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): Image =
-                    Image(
-                        data,
-                        url,
-                        additionalProperties.toImmutable(),
-                    )
+                fun build(): Image = Image(data, url, additionalProperties.toImmutable())
             }
 
             /**

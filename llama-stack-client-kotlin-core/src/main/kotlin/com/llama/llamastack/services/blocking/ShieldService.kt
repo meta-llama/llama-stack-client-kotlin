@@ -12,16 +12,16 @@ interface ShieldService {
 
     fun retrieve(
         params: ShieldRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Shield?
 
     fun list(
         params: ShieldListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Shield>
 
     fun register(
         params: ShieldRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Shield
 }

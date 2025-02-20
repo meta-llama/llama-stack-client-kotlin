@@ -18,12 +18,12 @@ interface ToolRuntimeService {
     /** Run a tool with the given arguments */
     fun invokeTool(
         params: ToolRuntimeInvokeToolParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolInvocationResult
 
     @MustBeClosed
     fun listToolsStreaming(
         params: ToolRuntimeListToolsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): StreamResponse<ToolDef>
 }

@@ -19,10 +19,8 @@ import com.llama.llamastack.models.ShieldListParams
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
 
-class ShieldServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ShieldServiceAsync {
+class ShieldServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    ShieldServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -32,7 +30,7 @@ internal constructor(
 
     override suspend fun retrieve(
         params: ShieldRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Shield? {
         val request =
             HttpRequest.builder()
@@ -56,7 +54,7 @@ internal constructor(
 
     override suspend fun list(
         params: ShieldListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<Shield> {
         val request =
             HttpRequest.builder()
@@ -80,7 +78,7 @@ internal constructor(
 
     override suspend fun register(
         params: ShieldRegisterParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Shield {
         val request =
             HttpRequest.builder()

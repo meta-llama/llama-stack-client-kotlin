@@ -33,7 +33,9 @@ class SafetyRunShieldParamsTest {
                 )
                 .shieldId("shield_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(
@@ -64,7 +66,9 @@ class SafetyRunShieldParamsTest {
                 )
                 .shieldId("shield_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))

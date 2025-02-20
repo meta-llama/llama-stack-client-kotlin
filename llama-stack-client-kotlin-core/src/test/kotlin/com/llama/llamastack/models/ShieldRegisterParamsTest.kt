@@ -35,7 +35,9 @@ class ShieldRegisterParamsTest {
                 .providerId("provider_id")
                 .providerShieldId("provider_shield_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.shieldId()).isEqualTo("shield_id")
         assertThat(body.params())
@@ -51,7 +53,9 @@ class ShieldRegisterParamsTest {
     @Test
     fun bodyWithoutOptionalFields() {
         val params = ShieldRegisterParams.builder().shieldId("shield_id").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.shieldId()).isEqualTo("shield_id")
     }

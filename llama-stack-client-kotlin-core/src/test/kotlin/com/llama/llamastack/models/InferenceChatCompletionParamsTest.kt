@@ -54,7 +54,7 @@ class InferenceChatCompletionParamsTest {
                                         "description" to "description",
                                         "required" to true,
                                     )
-                                )
+                                ),
                             )
                             .build()
                     )
@@ -110,14 +110,16 @@ class InferenceChatCompletionParamsTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(
@@ -182,7 +184,7 @@ class InferenceChatCompletionParamsTest {
                                             "description" to "description",
                                             "required" to true,
                                         )
-                                    )
+                                    ),
                                 )
                                 .build()
                         )
@@ -198,7 +200,9 @@ class InferenceChatCompletionParamsTest {
                 .addUserMessage("string")
                 .modelId("model_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.messages())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))

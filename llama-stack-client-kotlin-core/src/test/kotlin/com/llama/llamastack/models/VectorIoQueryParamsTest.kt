@@ -33,7 +33,9 @@ class VectorIoQueryParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.query()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
@@ -49,7 +51,9 @@ class VectorIoQueryParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             VectorIoQueryParams.builder().query("string").vectorDbId("vector_db_id").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.query()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")

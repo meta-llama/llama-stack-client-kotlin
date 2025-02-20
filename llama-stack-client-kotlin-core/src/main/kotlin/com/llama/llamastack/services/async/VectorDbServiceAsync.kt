@@ -15,21 +15,21 @@ interface VectorDbServiceAsync {
 
     suspend fun retrieve(
         params: VectorDbRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): VectorDbRetrieveResponse?
 
     suspend fun list(
         params: VectorDbListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ListVectorDbsResponse.Data>
 
     suspend fun register(
         params: VectorDbRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): VectorDbRegisterResponse
 
     suspend fun unregister(
         params: VectorDbUnregisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

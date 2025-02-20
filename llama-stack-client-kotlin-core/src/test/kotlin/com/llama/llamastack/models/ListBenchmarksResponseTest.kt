@@ -6,18 +6,18 @@ import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ListEvalTasksResponseTest {
+class ListBenchmarksResponseTest {
 
     @Test
-    fun createListEvalTasksResponse() {
-        val listEvalTasksResponse =
-            ListEvalTasksResponse.builder()
+    fun createListBenchmarksResponse() {
+        val listBenchmarksResponse =
+            ListBenchmarksResponse.builder()
                 .addData(
-                    EvalTask.builder()
+                    Benchmark.builder()
                         .datasetId("dataset_id")
                         .identifier("identifier")
                         .metadata(
-                            EvalTask.Metadata.builder()
+                            Benchmark.Metadata.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
@@ -27,14 +27,14 @@ class ListEvalTasksResponseTest {
                         .build()
                 )
                 .build()
-        assertThat(listEvalTasksResponse).isNotNull
-        assertThat(listEvalTasksResponse.data())
+        assertThat(listBenchmarksResponse).isNotNull
+        assertThat(listBenchmarksResponse.data())
             .containsExactly(
-                EvalTask.builder()
+                Benchmark.builder()
                     .datasetId("dataset_id")
                     .identifier("identifier")
                     .metadata(
-                        EvalTask.Metadata.builder()
+                        Benchmark.Metadata.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )

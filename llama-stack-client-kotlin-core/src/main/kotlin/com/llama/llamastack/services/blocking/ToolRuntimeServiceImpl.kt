@@ -23,10 +23,8 @@ import com.llama.llamastack.models.ToolRuntimeListToolsParams
 import com.llama.llamastack.services.blocking.toolRuntime.RagToolService
 import com.llama.llamastack.services.blocking.toolRuntime.RagToolServiceImpl
 
-class ToolRuntimeServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ToolRuntimeService {
+class ToolRuntimeServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    ToolRuntimeService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -41,7 +39,7 @@ internal constructor(
     /** Run a tool with the given arguments */
     override fun invokeTool(
         params: ToolRuntimeInvokeToolParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ToolInvocationResult {
         val request =
             HttpRequest.builder()
@@ -65,7 +63,7 @@ internal constructor(
 
     override fun listToolsStreaming(
         params: ToolRuntimeListToolsParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<ToolDef> {
         val request =
             HttpRequest.builder()

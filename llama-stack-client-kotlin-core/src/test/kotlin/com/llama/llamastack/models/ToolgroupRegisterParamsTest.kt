@@ -35,7 +35,9 @@ class ToolgroupRegisterParamsTest {
                 )
                 .mcpEndpoint(ToolgroupRegisterParams.McpEndpoint.builder().uri("uri").build())
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")
@@ -56,7 +58,9 @@ class ToolgroupRegisterParamsTest {
                 .providerId("provider_id")
                 .toolgroupId("toolgroup_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")

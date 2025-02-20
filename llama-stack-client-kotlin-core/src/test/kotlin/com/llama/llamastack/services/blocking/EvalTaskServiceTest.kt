@@ -5,7 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.EvalTask
+import com.llama.llamastack.models.Benchmark
 import com.llama.llamastack.models.EvalTaskListParams
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
@@ -20,12 +20,12 @@ class EvalTaskServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
-        val evalTask =
+        val benchmark =
             evalTaskService.retrieve(
                 EvalTaskRetrieveParams.builder().evalTaskId("eval_task_id").build()
             )
-        println(evalTask)
-        evalTask?.validate()
+        println(benchmark)
+        benchmark?.validate()
     }
 
     @Test
@@ -33,10 +33,10 @@ class EvalTaskServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val evalTaskService = client.evalTasks()
-        val listEvalTasksResponse = evalTaskService.list(EvalTaskListParams.builder().build())
-        println(listEvalTasksResponse)
-        for (evalTask: EvalTask in listEvalTasksResponse) {
-            evalTask.validate()
+        val listBenchmarksResponse = evalTaskService.list(EvalTaskListParams.builder().build())
+        println(listBenchmarksResponse)
+        for (benchmark: Benchmark in listBenchmarksResponse) {
+            benchmark.validate()
         }
     }
 
@@ -55,7 +55,7 @@ class EvalTaskServiceTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .providerEvalTaskId("provider_eval_task_id")
+                .providerBenchmarkId("provider_benchmark_id")
                 .providerId("provider_id")
                 .build()
         )

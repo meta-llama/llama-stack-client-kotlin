@@ -17,10 +17,8 @@ import com.llama.llamastack.models.InspectHealthParams
 import com.llama.llamastack.models.InspectVersionParams
 import com.llama.llamastack.models.VersionInfo
 
-class InspectServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : InspectServiceAsync {
+class InspectServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    InspectServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +28,7 @@ internal constructor(
 
     override suspend fun health(
         params: InspectHealthParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): HealthInfo {
         val request =
             HttpRequest.builder()
@@ -53,7 +51,7 @@ internal constructor(
 
     override suspend fun version(
         params: InspectVersionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): VersionInfo {
         val request =
             HttpRequest.builder()

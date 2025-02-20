@@ -65,7 +65,7 @@ class BatchInferenceServiceTest {
                                                 "description" to "description",
                                                 "required" to true,
                                             )
-                                        )
+                                        ),
                                     )
                                     .build()
                             )

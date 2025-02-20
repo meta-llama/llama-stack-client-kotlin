@@ -12,11 +12,11 @@ interface BatchInferenceService {
 
     fun chatCompletion(
         params: BatchInferenceChatCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): BatchInferenceChatCompletionResponse
 
     fun completion(
         params: BatchInferenceCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): BatchCompletion
 }

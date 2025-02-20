@@ -172,10 +172,7 @@ private constructor(
     }
 
     class McpEndpoint
-    private constructor(
-        private val uri: String,
-        private val additionalProperties: QueryParams,
-    ) {
+    private constructor(private val uri: String, private val additionalProperties: QueryParams) {
 
         fun uri(): String = uri
 

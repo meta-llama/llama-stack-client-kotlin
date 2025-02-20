@@ -13,7 +13,6 @@ class AgentCreateParamsTest {
         AgentCreateParams.builder()
             .agentConfig(
                 AgentConfig.builder()
-                    .enableSessionPersistence(true)
                     .instructions("instructions")
                     .model("model")
                     .addClientTool(
@@ -36,6 +35,7 @@ class AgentCreateParamsTest {
                             )
                             .build()
                     )
+                    .enableSessionPersistence(true)
                     .addInputShield("string")
                     .maxInferIters(0L)
                     .addOutputShield("string")
@@ -74,7 +74,6 @@ class AgentCreateParamsTest {
             AgentCreateParams.builder()
                 .agentConfig(
                     AgentConfig.builder()
-                        .enableSessionPersistence(true)
                         .instructions("instructions")
                         .model("model")
                         .addClientTool(
@@ -97,6 +96,7 @@ class AgentCreateParamsTest {
                                 )
                                 .build()
                         )
+                        .enableSessionPersistence(true)
                         .addInputShield("string")
                         .maxInferIters(0L)
                         .addOutputShield("string")
@@ -127,12 +127,13 @@ class AgentCreateParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.agentConfig())
             .isEqualTo(
                 AgentConfig.builder()
-                    .enableSessionPersistence(true)
                     .instructions("instructions")
                     .model("model")
                     .addClientTool(
@@ -155,6 +156,7 @@ class AgentCreateParamsTest {
                             )
                             .build()
                     )
+                    .enableSessionPersistence(true)
                     .addInputShield("string")
                     .maxInferIters(0L)
                     .addOutputShield("string")
@@ -191,22 +193,14 @@ class AgentCreateParamsTest {
         val params =
             AgentCreateParams.builder()
                 .agentConfig(
-                    AgentConfig.builder()
-                        .enableSessionPersistence(true)
-                        .instructions("instructions")
-                        .model("model")
-                        .build()
+                    AgentConfig.builder().instructions("instructions").model("model").build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.agentConfig())
-            .isEqualTo(
-                AgentConfig.builder()
-                    .enableSessionPersistence(true)
-                    .instructions("instructions")
-                    .model("model")
-                    .build()
-            )
+            .isEqualTo(AgentConfig.builder().instructions("instructions").model("model").build())
     }
 }

@@ -19,7 +19,7 @@ class EvalTaskRegisterParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .providerEvalTaskId("provider_eval_task_id")
+            .providerBenchmarkId("provider_benchmark_id")
             .providerId("provider_id")
             .build()
     }
@@ -36,10 +36,12 @@ class EvalTaskRegisterParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .providerEvalTaskId("provider_eval_task_id")
+                .providerBenchmarkId("provider_benchmark_id")
                 .providerId("provider_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.evalTaskId()).isEqualTo("eval_task_id")
@@ -50,7 +52,7 @@ class EvalTaskRegisterParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(body.providerEvalTaskId()).isEqualTo("provider_eval_task_id")
+        assertThat(body.providerBenchmarkId()).isEqualTo("provider_benchmark_id")
         assertThat(body.providerId()).isEqualTo("provider_id")
     }
 
@@ -62,7 +64,9 @@ class EvalTaskRegisterParamsTest {
                 .evalTaskId("eval_task_id")
                 .addScoringFunction("string")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.evalTaskId()).isEqualTo("eval_task_id")

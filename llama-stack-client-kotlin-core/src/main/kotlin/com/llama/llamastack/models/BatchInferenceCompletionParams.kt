@@ -21,7 +21,7 @@ import java.util.Objects
 
 class BatchInferenceCompletionParams
 private constructor(
-    private val body: BatchInferenceCompletionBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -54,16 +54,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): BatchInferenceCompletionBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class BatchInferenceCompletionBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("content_batch")
         @ExcludeMissing
         private val contentBatch: JsonField<List<InterleavedContent>> = JsonMissing.of(),
@@ -117,7 +117,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): BatchInferenceCompletionBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -137,7 +137,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [BatchInferenceCompletionBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var contentBatch: JsonField<MutableList<InterleavedContent>>? = null
@@ -147,14 +147,13 @@ private constructor(
             private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(batchInferenceCompletionBody: BatchInferenceCompletionBody) = apply {
-                contentBatch = batchInferenceCompletionBody.contentBatch.map { it.toMutableList() }
-                model = batchInferenceCompletionBody.model
-                logprobs = batchInferenceCompletionBody.logprobs
-                responseFormat = batchInferenceCompletionBody.responseFormat
-                samplingParams = batchInferenceCompletionBody.samplingParams
-                additionalProperties =
-                    batchInferenceCompletionBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                contentBatch = body.contentBatch.map { it.toMutableList() }
+                model = body.model
+                logprobs = body.logprobs
+                responseFormat = body.responseFormat
+                samplingParams = body.samplingParams
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun contentBatch(contentBatch: List<InterleavedContent>) =
@@ -252,8 +251,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): BatchInferenceCompletionBody =
-                BatchInferenceCompletionBody(
+            fun build(): Body =
+                Body(
                     checkRequired("contentBatch", contentBatch).map { it.toImmutable() },
                     checkRequired("model", model),
                     logprobs,
@@ -268,7 +267,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is BatchInferenceCompletionBody && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && contentBatch == other.contentBatch && model == other.model && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -278,7 +277,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "BatchInferenceCompletionBody{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
+            "Body{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -292,8 +291,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: BatchInferenceCompletionBody.Builder =
-            BatchInferenceCompletionBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

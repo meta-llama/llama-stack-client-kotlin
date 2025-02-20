@@ -11,13 +11,13 @@ import java.util.Objects
 
 class EvalJobStatusParams
 private constructor(
-    private val taskId: String,
+    private val benchmarkId: String,
     private val jobId: String,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun taskId(): String = taskId
+    fun benchmarkId(): String = benchmarkId
 
     fun jobId(): String = jobId
 
@@ -31,7 +31,7 @@ private constructor(
 
     fun getPathParam(index: Int): String {
         return when (index) {
-            0 -> taskId
+            0 -> benchmarkId
             1 -> jobId
             else -> ""
         }
@@ -48,19 +48,19 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var taskId: String? = null
+        private var benchmarkId: String? = null
         private var jobId: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalJobStatusParams: EvalJobStatusParams) = apply {
-            taskId = evalJobStatusParams.taskId
+            benchmarkId = evalJobStatusParams.benchmarkId
             jobId = evalJobStatusParams.jobId
             additionalHeaders = evalJobStatusParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalJobStatusParams.additionalQueryParams.toBuilder()
         }
 
-        fun taskId(taskId: String) = apply { this.taskId = taskId }
+        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
         fun jobId(jobId: String) = apply { this.jobId = jobId }
 
@@ -164,7 +164,7 @@ private constructor(
 
         fun build(): EvalJobStatusParams =
             EvalJobStatusParams(
-                checkRequired("taskId", taskId),
+                checkRequired("benchmarkId", benchmarkId),
                 checkRequired("jobId", jobId),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -176,11 +176,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalJobStatusParams && taskId == other.taskId && jobId == other.jobId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalJobStatusParams && benchmarkId == other.benchmarkId && jobId == other.jobId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, jobId, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmarkId, jobId, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalJobStatusParams{taskId=$taskId, jobId=$jobId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalJobStatusParams{benchmarkId=$benchmarkId, jobId=$jobId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

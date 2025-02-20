@@ -11,11 +11,11 @@ interface TurnServiceAsync {
 
     suspend fun create(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Turn
 
     suspend fun retrieve(
         params: AgentTurnRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Turn
 }

@@ -24,7 +24,9 @@ class SyntheticDataGenerationGenerateParamsTest {
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .model("model")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.dialogs())
             .isEqualTo(
@@ -46,7 +48,9 @@ class SyntheticDataGenerationGenerateParamsTest {
                 .addUserDialog("string")
                 .filteringFunction(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.dialogs())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))

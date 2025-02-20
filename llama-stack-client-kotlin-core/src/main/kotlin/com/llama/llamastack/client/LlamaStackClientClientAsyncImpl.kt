@@ -8,6 +8,8 @@ import com.llama.llamastack.services.async.AgentServiceAsync
 import com.llama.llamastack.services.async.AgentServiceAsyncImpl
 import com.llama.llamastack.services.async.BatchInferenceServiceAsync
 import com.llama.llamastack.services.async.BatchInferenceServiceAsyncImpl
+import com.llama.llamastack.services.async.BenchmarkServiceAsync
+import com.llama.llamastack.services.async.BenchmarkServiceAsyncImpl
 import com.llama.llamastack.services.async.DatasetServiceAsync
 import com.llama.llamastack.services.async.DatasetServiceAsyncImpl
 import com.llama.llamastack.services.async.DatasetioServiceAsync
@@ -51,9 +53,8 @@ import com.llama.llamastack.services.async.VectorDbServiceAsyncImpl
 import com.llama.llamastack.services.async.VectorIoServiceAsync
 import com.llama.llamastack.services.async.VectorIoServiceAsyncImpl
 
-class LlamaStackClientClientAsyncImpl(
-    private val clientOptions: ClientOptions,
-) : LlamaStackClientClientAsync {
+class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) :
+    LlamaStackClientClientAsync {
 
     private val clientOptionsWithUserAgent =
         if (clientOptions.headers.names().contains("User-Agent")) clientOptions
@@ -154,6 +155,10 @@ class LlamaStackClientClientAsyncImpl(
         EvalTaskServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
+    private val benchmarks: BenchmarkServiceAsync by lazy {
+        BenchmarkServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
+
     override fun sync(): LlamaStackClientClient = sync
 
     override fun toolgroups(): ToolgroupServiceAsync = toolgroups
@@ -202,6 +207,8 @@ class LlamaStackClientClientAsyncImpl(
     override fun scoringFunctions(): ScoringFunctionServiceAsync = scoringFunctions
 
     override fun evalTasks(): EvalTaskServiceAsync = evalTasks
+
+    override fun benchmarks(): BenchmarkServiceAsync = benchmarks
 
     override fun close() = clientOptions.httpClient.close()
 }

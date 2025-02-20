@@ -19,36 +19,36 @@ interface TelemetryServiceAsync {
 
     suspend fun getSpan(
         params: TelemetryGetSpanParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): TelemetryGetSpanResponse
 
     suspend fun getSpanTree(
         params: TelemetryGetSpanTreeParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): TelemetryGetSpanTreeResponse
 
     suspend fun getTrace(
         params: TelemetryGetTraceParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Trace
 
     suspend fun logEvent(
         params: TelemetryLogEventParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     suspend fun querySpans(
         params: TelemetryQuerySpansParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<QuerySpansResponse.Data>
 
     suspend fun queryTraces(
         params: TelemetryQueryTracesParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Trace>
 
     suspend fun saveSpansToDataset(
         params: TelemetrySaveSpansToDatasetParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

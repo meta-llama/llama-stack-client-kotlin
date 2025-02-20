@@ -21,7 +21,7 @@ import java.util.Objects
 
 class SafetyRunShieldParams
 private constructor(
-    private val body: SafetyRunShieldBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -44,16 +44,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): SafetyRunShieldBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class SafetyRunShieldBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         private val messages: JsonField<List<Message>> = JsonMissing.of(),
@@ -87,7 +87,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): SafetyRunShieldBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -105,7 +105,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [SafetyRunShieldBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
@@ -113,11 +113,11 @@ private constructor(
             private var shieldId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(safetyRunShieldBody: SafetyRunShieldBody) = apply {
-                messages = safetyRunShieldBody.messages.map { it.toMutableList() }
-                params = safetyRunShieldBody.params
-                shieldId = safetyRunShieldBody.shieldId
-                additionalProperties = safetyRunShieldBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                messages = body.messages.map { it.toMutableList() }
+                params = body.params
+                shieldId = body.shieldId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
@@ -217,8 +217,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): SafetyRunShieldBody =
-                SafetyRunShieldBody(
+            fun build(): Body =
+                Body(
                     checkRequired("messages", messages).map { it.toImmutable() },
                     checkRequired("params", params),
                     checkRequired("shieldId", shieldId),
@@ -231,7 +231,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is SafetyRunShieldBody && messages == other.messages && params == other.params && shieldId == other.shieldId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && messages == other.messages && params == other.params && shieldId == other.shieldId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -241,7 +241,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "SafetyRunShieldBody{messages=$messages, params=$params, shieldId=$shieldId, additionalProperties=$additionalProperties}"
+            "Body{messages=$messages, params=$params, shieldId=$shieldId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -255,7 +255,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: SafetyRunShieldBody.Builder = SafetyRunShieldBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -463,7 +463,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

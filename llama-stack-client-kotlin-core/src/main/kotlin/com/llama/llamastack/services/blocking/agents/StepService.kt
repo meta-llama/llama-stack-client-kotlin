@@ -10,6 +10,6 @@ interface StepService {
 
     fun retrieve(
         params: AgentStepRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentStepRetrieveResponse
 }

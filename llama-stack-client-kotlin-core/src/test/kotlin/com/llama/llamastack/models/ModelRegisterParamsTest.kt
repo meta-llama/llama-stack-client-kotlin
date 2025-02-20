@@ -37,7 +37,9 @@ class ModelRegisterParamsTest {
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.metadata())
@@ -54,7 +56,9 @@ class ModelRegisterParamsTest {
     @Test
     fun bodyWithoutOptionalFields() {
         val params = ModelRegisterParams.builder().modelId("model_id").build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.modelId()).isEqualTo("model_id")
     }

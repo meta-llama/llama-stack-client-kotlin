@@ -12,11 +12,11 @@ interface BatchInferenceServiceAsync {
 
     suspend fun chatCompletion(
         params: BatchInferenceChatCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): BatchInferenceChatCompletionResponse
 
     suspend fun completion(
         params: BatchInferenceCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): BatchCompletion
 }

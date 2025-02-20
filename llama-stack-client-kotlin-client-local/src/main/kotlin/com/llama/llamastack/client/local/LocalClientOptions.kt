@@ -10,7 +10,7 @@ private constructor(
     val modelPath: String,
     val tokenizerPath: String,
     val temperature: Float,
-    val llamaModule: LlamaModule
+    val llamaModule: LlamaModule,
 ) {
 
     companion object {
@@ -49,7 +49,7 @@ private constructor(
                     "ExecuTorch AAR file needs to be included in the libs/ for your app. " +
                         "Please see the README for more details: " +
                         "https://github.com/meta-llama/llama-stack-client-kotlin/tree/main",
-                    e
+                    e,
                 )
             }
         }

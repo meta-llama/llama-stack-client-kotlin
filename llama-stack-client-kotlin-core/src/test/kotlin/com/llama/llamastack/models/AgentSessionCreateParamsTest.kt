@@ -19,7 +19,9 @@ class AgentSessionCreateParamsTest {
                 .agentId("agent_id")
                 .sessionName("session_name")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.sessionName()).isEqualTo("session_name")
     }
@@ -31,7 +33,9 @@ class AgentSessionCreateParamsTest {
                 .agentId("agent_id")
                 .sessionName("session_name")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.sessionName()).isEqualTo("session_name")
     }

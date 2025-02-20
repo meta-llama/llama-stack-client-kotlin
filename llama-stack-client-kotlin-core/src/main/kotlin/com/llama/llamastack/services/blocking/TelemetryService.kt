@@ -19,36 +19,36 @@ interface TelemetryService {
 
     fun getSpan(
         params: TelemetryGetSpanParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): TelemetryGetSpanResponse
 
     fun getSpanTree(
         params: TelemetryGetSpanTreeParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): TelemetryGetSpanTreeResponse
 
     fun getTrace(
         params: TelemetryGetTraceParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Trace
 
     fun logEvent(
         params: TelemetryLogEventParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     fun querySpans(
         params: TelemetryQuerySpansParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<QuerySpansResponse.Data>
 
     fun queryTraces(
         params: TelemetryQueryTracesParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Trace>
 
     fun saveSpansToDataset(
         params: TelemetrySaveSpansToDatasetParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

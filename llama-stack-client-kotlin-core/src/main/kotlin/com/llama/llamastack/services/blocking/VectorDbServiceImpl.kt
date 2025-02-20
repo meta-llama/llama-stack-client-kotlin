@@ -23,10 +23,8 @@ import com.llama.llamastack.models.VectorDbRetrieveParams
 import com.llama.llamastack.models.VectorDbRetrieveResponse
 import com.llama.llamastack.models.VectorDbUnregisterParams
 
-class VectorDbServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : VectorDbService {
+class VectorDbServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    VectorDbService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -37,7 +35,7 @@ internal constructor(
 
     override fun retrieve(
         params: VectorDbRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): VectorDbRetrieveResponse? {
         val request =
             HttpRequest.builder()
@@ -61,7 +59,7 @@ internal constructor(
 
     override fun list(
         params: VectorDbListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ListVectorDbsResponse.Data> {
         val request =
             HttpRequest.builder()
@@ -86,7 +84,7 @@ internal constructor(
 
     override fun register(
         params: VectorDbRegisterParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): VectorDbRegisterResponse {
         val request =
             HttpRequest.builder()

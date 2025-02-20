@@ -14,27 +14,25 @@ import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
 import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.Benchmark
 import com.llama.llamastack.models.DataEnvelope
-import com.llama.llamastack.models.EvalTask
 import com.llama.llamastack.models.EvalTaskListParams
 import com.llama.llamastack.models.EvalTaskRegisterParams
 import com.llama.llamastack.models.EvalTaskRetrieveParams
 
-class EvalTaskServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : EvalTaskServiceAsync {
+class EvalTaskServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    EvalTaskServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val retrieveHandler: Handler<EvalTask?> =
-        jsonHandler<EvalTask?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val retrieveHandler: Handler<Benchmark?> =
+        jsonHandler<Benchmark?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
     override suspend fun retrieve(
         params: EvalTaskRetrieveParams,
-        requestOptions: RequestOptions
-    ): EvalTask? {
+        requestOptions: RequestOptions,
+    ): Benchmark? {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
@@ -51,14 +49,14 @@ internal constructor(
             }
     }
 
-    private val listHandler: Handler<DataEnvelope<List<EvalTask>>> =
-        jsonHandler<DataEnvelope<List<EvalTask>>>(clientOptions.jsonMapper)
+    private val listHandler: Handler<DataEnvelope<List<Benchmark>>> =
+        jsonHandler<DataEnvelope<List<Benchmark>>>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
     override suspend fun list(
         params: EvalTaskListParams,
-        requestOptions: RequestOptions
-    ): List<EvalTask> {
+        requestOptions: RequestOptions,
+    ): List<Benchmark> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)

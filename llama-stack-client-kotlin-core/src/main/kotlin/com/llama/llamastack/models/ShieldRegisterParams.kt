@@ -21,7 +21,7 @@ import java.util.Objects
 
 class ShieldRegisterParams
 private constructor(
-    private val body: ShieldRegisterBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -48,16 +48,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ShieldRegisterBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ShieldRegisterBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("shield_id")
         @ExcludeMissing
         private val shieldId: JsonField<String> = JsonMissing.of(),
@@ -100,7 +100,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ShieldRegisterBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -119,7 +119,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ShieldRegisterBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var shieldId: JsonField<String>? = null
@@ -128,12 +128,12 @@ private constructor(
             private var providerShieldId: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(shieldRegisterBody: ShieldRegisterBody) = apply {
-                shieldId = shieldRegisterBody.shieldId
-                params = shieldRegisterBody.params
-                providerId = shieldRegisterBody.providerId
-                providerShieldId = shieldRegisterBody.providerShieldId
-                additionalProperties = shieldRegisterBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                shieldId = body.shieldId
+                params = body.params
+                providerId = body.providerId
+                providerShieldId = body.providerShieldId
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun shieldId(shieldId: String) = shieldId(JsonField.of(shieldId))
@@ -174,8 +174,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ShieldRegisterBody =
-                ShieldRegisterBody(
+            fun build(): Body =
+                Body(
                     checkRequired("shieldId", shieldId),
                     params,
                     providerId,
@@ -189,7 +189,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ShieldRegisterBody && shieldId == other.shieldId && params == other.params && providerId == other.providerId && providerShieldId == other.providerShieldId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && shieldId == other.shieldId && params == other.params && providerId == other.providerId && providerShieldId == other.providerShieldId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -199,7 +199,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ShieldRegisterBody{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, additionalProperties=$additionalProperties}"
+            "Body{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -213,7 +213,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ShieldRegisterBody.Builder = ShieldRegisterBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -373,7 +373,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

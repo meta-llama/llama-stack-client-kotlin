@@ -18,10 +18,8 @@ import com.llama.llamastack.models.QueryResult
 import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
 import com.llama.llamastack.models.ToolRuntimeRagToolQueryParams
 
-class RagToolServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : RagToolServiceAsync {
+class RagToolServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    RagToolServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -31,7 +29,7 @@ internal constructor(
     /** Index documents so they can be used by the RAG system */
     override suspend fun insert(
         params: ToolRuntimeRagToolInsertParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ) {
         val request =
             HttpRequest.builder()
@@ -50,7 +48,7 @@ internal constructor(
     /** Query the RAG system for context; typically invoked by the agent */
     override suspend fun query(
         params: ToolRuntimeRagToolQueryParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): QueryResult {
         val request =
             HttpRequest.builder()

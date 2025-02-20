@@ -10,6 +10,6 @@ interface SyntheticDataGenerationServiceAsync {
 
     suspend fun generate(
         params: SyntheticDataGenerationGenerateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): SyntheticDataGenerationResponse
 }

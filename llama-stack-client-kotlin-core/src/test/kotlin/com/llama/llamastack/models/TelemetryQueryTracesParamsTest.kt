@@ -47,7 +47,7 @@ class TelemetryQueryTracesParamsTest {
                 .op(QueryCondition.Op.EQ)
                 .value(QueryCondition.Value.ofBoolean(true))
                 .build()
-                .toString()
+                .toString(),
         )
         expected.put("limit", "0")
         expected.put("offset", "0")

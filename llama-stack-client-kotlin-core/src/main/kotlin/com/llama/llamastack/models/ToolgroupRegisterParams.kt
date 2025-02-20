@@ -22,7 +22,7 @@ import java.util.Objects
 /** Register a tool group */
 class ToolgroupRegisterParams
 private constructor(
-    private val body: ToolgroupRegisterBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -49,16 +49,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ToolgroupRegisterBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ToolgroupRegisterBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         private val providerId: JsonField<String> = JsonMissing.of(),
@@ -101,7 +101,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ToolgroupRegisterBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -120,7 +120,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ToolgroupRegisterBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var providerId: JsonField<String>? = null
@@ -129,12 +129,12 @@ private constructor(
             private var mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(toolgroupRegisterBody: ToolgroupRegisterBody) = apply {
-                providerId = toolgroupRegisterBody.providerId
-                toolgroupId = toolgroupRegisterBody.toolgroupId
-                args = toolgroupRegisterBody.args
-                mcpEndpoint = toolgroupRegisterBody.mcpEndpoint
-                additionalProperties = toolgroupRegisterBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                providerId = body.providerId
+                toolgroupId = body.toolgroupId
+                args = body.args
+                mcpEndpoint = body.mcpEndpoint
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
@@ -176,8 +176,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ToolgroupRegisterBody =
-                ToolgroupRegisterBody(
+            fun build(): Body =
+                Body(
                     checkRequired("providerId", providerId),
                     checkRequired("toolgroupId", toolgroupId),
                     args,
@@ -191,7 +191,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolgroupRegisterBody && providerId == other.providerId && toolgroupId == other.toolgroupId && args == other.args && mcpEndpoint == other.mcpEndpoint && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && providerId == other.providerId && toolgroupId == other.toolgroupId && args == other.args && mcpEndpoint == other.mcpEndpoint && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -201,7 +201,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolgroupRegisterBody{providerId=$providerId, toolgroupId=$toolgroupId, args=$args, mcpEndpoint=$mcpEndpoint, additionalProperties=$additionalProperties}"
+            "Body{providerId=$providerId, toolgroupId=$toolgroupId, args=$args, mcpEndpoint=$mcpEndpoint, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -215,7 +215,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ToolgroupRegisterBody.Builder = ToolgroupRegisterBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -373,7 +373,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

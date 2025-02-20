@@ -16,10 +16,8 @@ import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ProviderInfo
 import com.llama.llamastack.models.ProviderListParams
 
-class ProviderServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ProviderService {
+class ProviderServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    ProviderService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +28,7 @@ internal constructor(
 
     override fun list(
         params: ProviderListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ProviderInfo> {
         val request =
             HttpRequest.builder()

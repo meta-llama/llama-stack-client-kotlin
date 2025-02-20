@@ -69,7 +69,7 @@ class InferenceServiceTest {
                                                 "description" to "description",
                                                 "required" to true,
                                             )
-                                        )
+                                        ),
                                     )
                                     .build()
                             )
@@ -134,7 +134,7 @@ class InferenceServiceTest {
                                                 "description" to "description",
                                                 "required" to true,
                                             )
-                                        )
+                                        ),
                                     )
                                     .build()
                             )

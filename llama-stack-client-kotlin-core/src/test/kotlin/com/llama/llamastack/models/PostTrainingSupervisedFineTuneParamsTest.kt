@@ -160,7 +160,9 @@ class PostTrainingSupervisedFineTuneParamsTest {
                 )
                 .checkpointDir("checkpoint_dir")
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
@@ -291,7 +293,9 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
+
         assertThat(body).isNotNull
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
