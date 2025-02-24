@@ -27,7 +27,7 @@ class EvalServiceTest {
         val evaluateResponse =
             evalService.evaluateRows(
                 EvalEvaluateRowsParams.builder()
-                    .taskId("task_id")
+                    .benchmarkId("benchmark_id")
                     .addInputRow(
                         EvalEvaluateRowsParams.InputRow.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
@@ -141,7 +141,7 @@ class EvalServiceTest {
         val job =
             evalService.runEval(
                 EvalRunEvalParams.builder()
-                    .taskId("task_id")
+                    .benchmarkId("benchmark_id")
                     .taskConfig(
                         BenchmarkConfig.builder()
                             .evalCandidate(

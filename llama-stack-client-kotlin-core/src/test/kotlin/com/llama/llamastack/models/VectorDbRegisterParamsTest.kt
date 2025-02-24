@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -31,7 +32,7 @@ class VectorDbRegisterParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.embeddingModel()).isEqualTo("embedding_model")
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
         assertThat(body.embeddingDimension()).isEqualTo(0L)
@@ -49,7 +50,7 @@ class VectorDbRegisterParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.embeddingModel()).isEqualTo("embedding_model")
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
     }

@@ -19,24 +19,32 @@ import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-class TelemetryQuerySpansParams
+/**
+ * Resume an agent turn with executed tool call responses. When a Turn has the status
+ * `awaiting_input` due to pending input from client side tool calls, this endpoint can be used to
+ * submit the outputs from the tool calls once they are ready.
+ */
+class AgentTurnResumeParams
 private constructor(
+    private val agentId: String,
+    private val sessionId: String,
+    private val turnId: String,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun attributeFilters(): List<QueryCondition> = body.attributeFilters()
+    fun agentId(): String = agentId
 
-    fun attributesToReturn(): List<String> = body.attributesToReturn()
+    fun sessionId(): String = sessionId
 
-    fun maxDepth(): Long? = body.maxDepth()
+    fun turnId(): String = turnId
 
-    fun _attributeFilters(): JsonField<List<QueryCondition>> = body._attributeFilters()
+    /** The tool call responses to resume the turn with. */
+    fun toolResponses(): List<ToolResponseMessage> = body.toolResponses()
 
-    fun _attributesToReturn(): JsonField<List<String>> = body._attributesToReturn()
-
-    fun _maxDepth(): JsonField<Long> = body._maxDepth()
+    /** The tool call responses to resume the turn with. */
+    fun _toolResponses(): JsonField<List<ToolResponseMessage>> = body._toolResponses()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -50,40 +58,33 @@ private constructor(
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
+    fun getPathParam(index: Int): String {
+        return when (index) {
+            0 -> agentId
+            1 -> sessionId
+            2 -> turnId
+            else -> ""
+        }
+    }
+
     @NoAutoDetect
     class Body
     @JsonCreator
     private constructor(
-        @JsonProperty("attribute_filters")
+        @JsonProperty("tool_responses")
         @ExcludeMissing
-        private val attributeFilters: JsonField<List<QueryCondition>> = JsonMissing.of(),
-        @JsonProperty("attributes_to_return")
-        @ExcludeMissing
-        private val attributesToReturn: JsonField<List<String>> = JsonMissing.of(),
-        @JsonProperty("max_depth")
-        @ExcludeMissing
-        private val maxDepth: JsonField<Long> = JsonMissing.of(),
+        private val toolResponses: JsonField<List<ToolResponseMessage>> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun attributeFilters(): List<QueryCondition> =
-            attributeFilters.getRequired("attribute_filters")
+        /** The tool call responses to resume the turn with. */
+        fun toolResponses(): List<ToolResponseMessage> = toolResponses.getRequired("tool_responses")
 
-        fun attributesToReturn(): List<String> =
-            attributesToReturn.getRequired("attributes_to_return")
-
-        fun maxDepth(): Long? = maxDepth.getNullable("max_depth")
-
-        @JsonProperty("attribute_filters")
+        /** The tool call responses to resume the turn with. */
+        @JsonProperty("tool_responses")
         @ExcludeMissing
-        fun _attributeFilters(): JsonField<List<QueryCondition>> = attributeFilters
-
-        @JsonProperty("attributes_to_return")
-        @ExcludeMissing
-        fun _attributesToReturn(): JsonField<List<String>> = attributesToReturn
-
-        @JsonProperty("max_depth") @ExcludeMissing fun _maxDepth(): JsonField<Long> = maxDepth
+        fun _toolResponses(): JsonField<List<ToolResponseMessage>> = toolResponses
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -96,9 +97,7 @@ private constructor(
                 return@apply
             }
 
-            attributeFilters().forEach { it.validate() }
-            //            attributesToReturn().forEach { it.validate() }
-            //            maxDepth()?.validate()
+            toolResponses().forEach { it.validate() }
             validated = true
         }
 
@@ -112,57 +111,34 @@ private constructor(
         /** A builder for [Body]. */
         class Builder internal constructor() {
 
-            private var attributeFilters: JsonField<MutableList<QueryCondition>>? = null
-            private var attributesToReturn: JsonField<MutableList<String>>? = null
-            private var maxDepth: JsonField<Long> = JsonMissing.of()
+            private var toolResponses: JsonField<MutableList<ToolResponseMessage>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(body: Body) = apply {
-                attributeFilters = body.attributeFilters.map { it.toMutableList() }
-                attributesToReturn = body.attributesToReturn.map { it.toMutableList() }
-                maxDepth = body.maxDepth
+                toolResponses = body.toolResponses.map { it.toMutableList() }
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            fun attributeFilters(attributeFilters: List<QueryCondition>) =
-                attributeFilters(JsonField.of(attributeFilters))
+            /** The tool call responses to resume the turn with. */
+            fun toolResponses(toolResponses: List<ToolResponseMessage>) =
+                toolResponses(JsonField.of(toolResponses))
 
-            fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
-                this.attributeFilters = attributeFilters.map { it.toMutableList() }
+            /** The tool call responses to resume the turn with. */
+            fun toolResponses(toolResponses: JsonField<List<ToolResponseMessage>>) = apply {
+                this.toolResponses = toolResponses.map { it.toMutableList() }
             }
 
-            fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
-                attributeFilters =
-                    (attributeFilters ?: JsonField.of(mutableListOf())).apply {
+            /** The tool call responses to resume the turn with. */
+            fun addToolResponse(toolResponse: ToolResponseMessage) = apply {
+                toolResponses =
+                    (toolResponses ?: JsonField.of(mutableListOf())).apply {
                         (asKnown()
                                 ?: throw IllegalStateException(
                                     "Field was set to non-list type: ${javaClass.simpleName}"
                                 ))
-                            .add(attributeFilter)
+                            .add(toolResponse)
                     }
             }
-
-            fun attributesToReturn(attributesToReturn: List<String>) =
-                attributesToReturn(JsonField.of(attributesToReturn))
-
-            fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
-                this.attributesToReturn = attributesToReturn.map { it.toMutableList() }
-            }
-
-            fun addAttributesToReturn(attributesToReturn: String) = apply {
-                this.attributesToReturn =
-                    (this.attributesToReturn ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributesToReturn)
-                    }
-            }
-
-            fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
-
-            fun maxDepth(maxDepth: JsonField<Long>) = apply { this.maxDepth = maxDepth }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -185,11 +161,7 @@ private constructor(
 
             fun build(): Body =
                 Body(
-                    checkRequired("attributeFilters", attributeFilters).map { it.toImmutable() },
-                    checkRequired("attributesToReturn", attributesToReturn).map {
-                        it.toImmutable()
-                    },
-                    maxDepth,
+                    checkRequired("toolResponses", toolResponses).map { it.toImmutable() },
                     additionalProperties.toImmutable(),
                 )
         }
@@ -199,17 +171,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Body && attributeFilters == other.attributeFilters && attributesToReturn == other.attributesToReturn && maxDepth == other.maxDepth && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && toolResponses == other.toolResponses && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(attributeFilters, attributesToReturn, maxDepth, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(toolResponses, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Body{attributeFilters=$attributeFilters, attributesToReturn=$attributesToReturn, maxDepth=$maxDepth, additionalProperties=$additionalProperties}"
+            "Body{toolResponses=$toolResponses, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -219,47 +191,46 @@ private constructor(
         fun builder() = Builder()
     }
 
-    /** A builder for [TelemetryQuerySpansParams]. */
+    /** A builder for [AgentTurnResumeParams]. */
     @NoAutoDetect
     class Builder internal constructor() {
 
+        private var agentId: String? = null
+        private var sessionId: String? = null
+        private var turnId: String? = null
         private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
-        internal fun from(telemetryQuerySpansParams: TelemetryQuerySpansParams) = apply {
-            body = telemetryQuerySpansParams.body.toBuilder()
-            additionalHeaders = telemetryQuerySpansParams.additionalHeaders.toBuilder()
-            additionalQueryParams = telemetryQuerySpansParams.additionalQueryParams.toBuilder()
+        internal fun from(agentTurnResumeParams: AgentTurnResumeParams) = apply {
+            agentId = agentTurnResumeParams.agentId
+            sessionId = agentTurnResumeParams.sessionId
+            turnId = agentTurnResumeParams.turnId
+            body = agentTurnResumeParams.body.toBuilder()
+            additionalHeaders = agentTurnResumeParams.additionalHeaders.toBuilder()
+            additionalQueryParams = agentTurnResumeParams.additionalQueryParams.toBuilder()
         }
 
-        fun attributeFilters(attributeFilters: List<QueryCondition>) = apply {
-            body.attributeFilters(attributeFilters)
+        fun agentId(agentId: String) = apply { this.agentId = agentId }
+
+        fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
+
+        fun turnId(turnId: String) = apply { this.turnId = turnId }
+
+        /** The tool call responses to resume the turn with. */
+        fun toolResponses(toolResponses: List<ToolResponseMessage>) = apply {
+            body.toolResponses(toolResponses)
         }
 
-        fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
-            body.attributeFilters(attributeFilters)
+        /** The tool call responses to resume the turn with. */
+        fun toolResponses(toolResponses: JsonField<List<ToolResponseMessage>>) = apply {
+            body.toolResponses(toolResponses)
         }
 
-        fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
-            body.addAttributeFilter(attributeFilter)
+        /** The tool call responses to resume the turn with. */
+        fun addToolResponse(toolResponse: ToolResponseMessage) = apply {
+            body.addToolResponse(toolResponse)
         }
-
-        fun attributesToReturn(attributesToReturn: List<String>) = apply {
-            body.attributesToReturn(attributesToReturn)
-        }
-
-        fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
-            body.attributesToReturn(attributesToReturn)
-        }
-
-        fun addAttributesToReturn(attributesToReturn: String) = apply {
-            body.addAttributesToReturn(attributesToReturn)
-        }
-
-        fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
-
-        fun maxDepth(maxDepth: JsonField<Long>) = apply { body.maxDepth(maxDepth) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -378,8 +349,11 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun build(): TelemetryQuerySpansParams =
-            TelemetryQuerySpansParams(
+        fun build(): AgentTurnResumeParams =
+            AgentTurnResumeParams(
+                checkRequired("agentId", agentId),
+                checkRequired("sessionId", sessionId),
+                checkRequired("turnId", turnId),
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -391,11 +365,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryQuerySpansParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is AgentTurnResumeParams && agentId == other.agentId && sessionId == other.sessionId && turnId == other.turnId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentId, sessionId, turnId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryQuerySpansParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "AgentTurnResumeParams{agentId=$agentId, sessionId=$sessionId, turnId=$turnId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

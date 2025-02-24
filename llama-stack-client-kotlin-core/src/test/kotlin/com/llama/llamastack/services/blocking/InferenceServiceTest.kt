@@ -222,7 +222,13 @@ class InferenceServiceTest {
         val inferenceService = client.inference()
         val embeddingsResponse =
             inferenceService.embeddings(
-                InferenceEmbeddingsParams.builder().addContent("string").modelId("model_id").build()
+                InferenceEmbeddingsParams.builder()
+                    .contentsOfStrings(listOf("string"))
+                    .modelId("model_id")
+                    .outputDimension(0L)
+                    .taskType(InferenceEmbeddingsParams.TaskType.QUERY)
+                    .textTruncation(InferenceEmbeddingsParams.TextTruncation.NONE)
+                    .build()
             )
         println(embeddingsResponse)
         embeddingsResponse.validate()

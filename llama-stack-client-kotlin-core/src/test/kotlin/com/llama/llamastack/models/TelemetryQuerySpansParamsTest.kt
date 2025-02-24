@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -24,7 +24,7 @@ class TelemetryQuerySpansParamsTest {
     }
 
     @Test
-    fun queryParams() {
+    fun body() {
         val params =
             TelemetryQuerySpansParams.builder()
                 .addAttributeFilter(
@@ -37,23 +37,26 @@ class TelemetryQuerySpansParamsTest {
                 .addAttributesToReturn("string")
                 .maxDepth(0L)
                 .build()
-        val expected = QueryParams.builder()
-        expected.put(
-            "attribute_filters",
-            QueryCondition.builder()
-                .key("key")
-                .op(QueryCondition.Op.EQ)
-                .value(QueryCondition.Value.ofBoolean(true))
-                .build()
-                .toString(),
-        )
-        expected.put("attributes_to_return", "string")
-        expected.put("max_depth", "0")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val body = params._body()
+
+        assertNotNull(body)
+        assertThat(body.attributeFilters())
+            .isEqualTo(
+                listOf(
+                    QueryCondition.builder()
+                        .key("key")
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
+                        .build()
+                )
+            )
+        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
+        assertThat(body.maxDepth()).isEqualTo(0L)
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params =
             TelemetryQuerySpansParams.builder()
                 .addAttributeFilter(
@@ -65,17 +68,20 @@ class TelemetryQuerySpansParamsTest {
                 )
                 .addAttributesToReturn("string")
                 .build()
-        val expected = QueryParams.builder()
-        expected.put(
-            "attribute_filters",
-            QueryCondition.builder()
-                .key("key")
-                .op(QueryCondition.Op.EQ)
-                .value(QueryCondition.Value.ofBoolean(true))
-                .build()
-                .toString(),
-        )
-        expected.put("attributes_to_return", "string")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val body = params._body()
+
+        assertNotNull(body)
+        assertThat(body.attributeFilters())
+            .isEqualTo(
+                listOf(
+                    QueryCondition.builder()
+                        .key("key")
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
+                        .build()
+                )
+            )
+        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
     }
 }

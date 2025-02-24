@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -40,7 +41,7 @@ class ModelRegisterParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.metadata())
             .isEqualTo(
@@ -59,7 +60,7 @@ class ModelRegisterParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

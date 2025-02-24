@@ -54,10 +54,6 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
         TODO("Not yet implemented")
     }
 
-    override fun evalTasks(): EvalTaskService {
-        TODO("Not yet implemented")
-    }
-
     override fun benchmarks(): BenchmarkService {
         TODO("Not yet implemented")
     }

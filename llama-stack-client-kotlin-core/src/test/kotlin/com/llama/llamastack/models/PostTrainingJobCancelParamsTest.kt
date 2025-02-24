@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -18,7 +19,7 @@ class PostTrainingJobCancelParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }
 
@@ -28,7 +29,7 @@ class PostTrainingJobCancelParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }
 }

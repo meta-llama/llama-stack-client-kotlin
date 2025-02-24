@@ -46,6 +46,8 @@ private constructor(
 
     fun messages(): List<Message> = body.messages()
 
+    fun allowTurnResume(): Boolean? = body.allowTurnResume()
+
     fun documents(): List<Document>? = body.documents()
 
     /** Configuration for tool use. */
@@ -54,6 +56,8 @@ private constructor(
     fun toolgroups(): List<Toolgroup>? = body.toolgroups()
 
     fun _messages(): JsonField<List<Message>> = body._messages()
+
+    fun _allowTurnResume(): JsonField<Boolean> = body._allowTurnResume()
 
     fun _documents(): JsonField<List<Document>> = body._documents()
 
@@ -89,6 +93,9 @@ private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         private val messages: JsonField<List<Message>> = JsonMissing.of(),
+        @JsonProperty("allow_turn_resume")
+        @ExcludeMissing
+        private val allowTurnResume: JsonField<Boolean> = JsonMissing.of(),
         @JsonProperty("documents")
         @ExcludeMissing
         private val documents: JsonField<List<Document>> = JsonMissing.of(),
@@ -104,6 +111,8 @@ private constructor(
 
         fun messages(): List<Message> = messages.getRequired("messages")
 
+        fun allowTurnResume(): Boolean? = allowTurnResume.getNullable("allow_turn_resume")
+
         fun documents(): List<Document>? = documents.getNullable("documents")
 
         /** Configuration for tool use. */
@@ -114,6 +123,10 @@ private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         fun _messages(): JsonField<List<Message>> = messages
+
+        @JsonProperty("allow_turn_resume")
+        @ExcludeMissing
+        fun _allowTurnResume(): JsonField<Boolean> = allowTurnResume
 
         @JsonProperty("documents")
         @ExcludeMissing
@@ -140,6 +153,7 @@ private constructor(
             }
 
             messages().forEach { it.validate() }
+            allowTurnResume()
             documents()?.forEach { it.validate() }
             toolConfig()?.validate()
             toolgroups()?.forEach { it.validate() }
@@ -157,6 +171,7 @@ private constructor(
         class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
+            private var allowTurnResume: JsonField<Boolean> = JsonMissing.of()
             private var documents: JsonField<MutableList<Document>>? = null
             private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
             private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
@@ -164,6 +179,7 @@ private constructor(
 
             internal fun from(body: Body) = apply {
                 messages = body.messages.map { it.toMutableList() }
+                allowTurnResume = body.allowTurnResume
                 documents = body.documents.map { it.toMutableList() }
                 toolConfig = body.toolConfig
                 toolgroups = body.toolgroups.map { it.toMutableList() }
@@ -193,6 +209,13 @@ private constructor(
             /** A message representing the result of a tool invocation. */
             fun addMessage(toolResponse: ToolResponseMessage) =
                 addMessage(Message.ofToolResponse(toolResponse))
+
+            fun allowTurnResume(allowTurnResume: Boolean) =
+                allowTurnResume(JsonField.of(allowTurnResume))
+
+            fun allowTurnResume(allowTurnResume: JsonField<Boolean>) = apply {
+                this.allowTurnResume = allowTurnResume
+            }
 
             fun documents(documents: List<Document>) = documents(JsonField.of(documents))
 
@@ -263,6 +286,7 @@ private constructor(
             fun build(): Body =
                 Body(
                     checkRequired("messages", messages).map { it.toImmutable() },
+                    allowTurnResume,
                     (documents ?: JsonMissing.of()).map { it.toImmutable() },
                     toolConfig,
                     (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
@@ -275,17 +299,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Body && messages == other.messages && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && messages == other.messages && allowTurnResume == other.allowTurnResume && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolConfig, toolgroups, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(messages, allowTurnResume, documents, toolConfig, toolgroups, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Body{messages=$messages, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+            "Body{messages=$messages, allowTurnResume=$allowTurnResume, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -328,6 +352,14 @@ private constructor(
 
         /** A message representing the result of a tool invocation. */
         fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
+
+        fun allowTurnResume(allowTurnResume: Boolean) = apply {
+            body.allowTurnResume(allowTurnResume)
+        }
+
+        fun allowTurnResume(allowTurnResume: JsonField<Boolean>) = apply {
+            body.allowTurnResume(allowTurnResume)
+        }
 
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
 

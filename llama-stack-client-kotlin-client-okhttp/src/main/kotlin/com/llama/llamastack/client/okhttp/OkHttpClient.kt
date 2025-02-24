@@ -68,7 +68,7 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
         val clientBuilder = okHttpClient.newBuilder()
 
         val logLevel =
-            when (System.getenv("LLAMA_STACK_CLIENT_LOG")?.lowercase()) {
+            when (System.getenv("LLAMA_STACK_LOG")?.lowercase()) {
                 "info" -> HttpLoggingInterceptor.Level.BASIC
                 "debug" -> HttpLoggingInterceptor.Level.BODY
                 else -> null

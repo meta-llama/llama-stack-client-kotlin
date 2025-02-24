@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -13,6 +14,7 @@ class AgentTurnCreateParamsTest {
             .agentId("agent_id")
             .sessionId("session_id")
             .addMessage(UserMessage.builder().content("string").context("string").build())
+            .allowTurnResume(true)
             .addDocument(
                 AgentTurnCreateParams.Document.builder()
                     .content("string")
@@ -39,6 +41,7 @@ class AgentTurnCreateParamsTest {
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .addMessage(UserMessage.builder().content("string").context("string").build())
+                .allowTurnResume(true)
                 .addDocument(
                     AgentTurnCreateParams.Document.builder()
                         .content("string")
@@ -59,7 +62,7 @@ class AgentTurnCreateParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
@@ -68,6 +71,7 @@ class AgentTurnCreateParamsTest {
                     )
                 )
             )
+        assertThat(body.allowTurnResume()).isEqualTo(true)
         assertThat(body.documents())
             .isEqualTo(
                 listOf(
@@ -102,7 +106,7 @@ class AgentTurnCreateParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.messages())
             .isEqualTo(
                 listOf(

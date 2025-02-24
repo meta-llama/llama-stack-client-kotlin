@@ -8,7 +8,6 @@ import com.llama.llamastack.services.blocking.BenchmarkService
 import com.llama.llamastack.services.blocking.DatasetService
 import com.llama.llamastack.services.blocking.DatasetioService
 import com.llama.llamastack.services.blocking.EvalService
-import com.llama.llamastack.services.blocking.EvalTaskService
 import com.llama.llamastack.services.blocking.InferenceService
 import com.llama.llamastack.services.blocking.InspectService
 import com.llama.llamastack.services.blocking.ModelService
@@ -94,8 +93,6 @@ interface LlamaStackClientClient {
     fun scoring(): ScoringService
 
     fun scoringFunctions(): ScoringFunctionService
-
-    fun evalTasks(): EvalTaskService
 
     fun benchmarks(): BenchmarkService
 

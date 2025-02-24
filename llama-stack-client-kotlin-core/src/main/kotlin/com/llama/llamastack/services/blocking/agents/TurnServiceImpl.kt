@@ -20,6 +20,7 @@ import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnResponseStreamChunk
+import com.llama.llamastack.models.AgentTurnResumeParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.Turn
 
@@ -124,6 +125,92 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
             .also {
                 if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
                     it.validate()
+                }
+            }
+    }
+
+    private val resumeHandler: Handler<Turn> =
+        jsonHandler<Turn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+
+    /**
+     * Resume an agent turn with executed tool call responses. When a Turn has the status
+     * `awaiting_input` due to pending input from client side tool calls, this endpoint can be used
+     * to submit the outputs from the tool calls once they are ready.
+     */
+    override fun resume(params: AgentTurnResumeParams, requestOptions: RequestOptions): Turn {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn",
+                    params.getPathParam(2),
+                    "resume",
+                )
+                .body(json(clientOptions.jsonMapper, params._body()))
+                .build()
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .use { resumeHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
+                }
+            }
+    }
+
+    private val resumeStreamingHandler: Handler<StreamResponse<AgentTurnResponseStreamChunk>> =
+        sseHandler(clientOptions.jsonMapper)
+            .mapJson<AgentTurnResponseStreamChunk>()
+            .withErrorHandler(errorHandler)
+
+    /**
+     * Resume an agent turn with executed tool call responses. When a Turn has the status
+     * `awaiting_input` due to pending input from client side tool calls, this endpoint can be used
+     * to submit the outputs from the tool calls once they are ready.
+     */
+    override fun resumeStreaming(
+        params: AgentTurnResumeParams,
+        requestOptions: RequestOptions,
+    ): StreamResponse<AgentTurnResponseStreamChunk> {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn",
+                    params.getPathParam(2),
+                    "resume",
+                )
+                .body(
+                    json(
+                        clientOptions.jsonMapper,
+                        params
+                            ._body()
+                            .toBuilder()
+                            .putAdditionalProperty("stream", JsonValue.from(true))
+                            .build(),
+                    )
+                )
+                .build()
+                .prepare(clientOptions, params)
+        val response = clientOptions.httpClient.execute(request, requestOptions)
+        return response
+            .let { resumeStreamingHandler.handle(it) }
+            .let { streamResponse ->
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    streamResponse.map { it.validate() }
+                } else {
+                    streamResponse
                 }
             }
     }

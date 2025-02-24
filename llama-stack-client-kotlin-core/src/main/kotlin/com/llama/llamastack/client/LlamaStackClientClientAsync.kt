@@ -8,7 +8,6 @@ import com.llama.llamastack.services.async.BenchmarkServiceAsync
 import com.llama.llamastack.services.async.DatasetServiceAsync
 import com.llama.llamastack.services.async.DatasetioServiceAsync
 import com.llama.llamastack.services.async.EvalServiceAsync
-import com.llama.llamastack.services.async.EvalTaskServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InspectServiceAsync
 import com.llama.llamastack.services.async.ModelServiceAsync
@@ -94,8 +93,6 @@ interface LlamaStackClientClientAsync {
     fun scoring(): ScoringServiceAsync
 
     fun scoringFunctions(): ScoringFunctionServiceAsync
-
-    fun evalTasks(): EvalTaskServiceAsync
 
     fun benchmarks(): BenchmarkServiceAsync
 

@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,7 +12,7 @@ class EvalEvaluateRowsParamsTest {
     @Test
     fun create() {
         EvalEvaluateRowsParams.builder()
-            .taskId("task_id")
+            .benchmarkId("benchmark_id")
             .addInputRow(
                 EvalEvaluateRowsParams.InputRow.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
@@ -59,7 +60,7 @@ class EvalEvaluateRowsParamsTest {
     fun body() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .taskId("task_id")
+                .benchmarkId("benchmark_id")
                 .addInputRow(
                     EvalEvaluateRowsParams.InputRow.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -104,7 +105,7 @@ class EvalEvaluateRowsParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.inputRows())
             .isEqualTo(
                 listOf(
@@ -155,7 +156,7 @@ class EvalEvaluateRowsParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .taskId("task_id")
+                .benchmarkId("benchmark_id")
                 .addInputRow(
                     EvalEvaluateRowsParams.InputRow.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -191,7 +192,7 @@ class EvalEvaluateRowsParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.inputRows())
             .isEqualTo(
                 listOf(
@@ -230,7 +231,7 @@ class EvalEvaluateRowsParamsTest {
     fun getPathParam() {
         val params =
             EvalEvaluateRowsParams.builder()
-                .taskId("task_id")
+                .benchmarkId("benchmark_id")
                 .addInputRow(
                     EvalEvaluateRowsParams.InputRow.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
@@ -264,8 +265,8 @@ class EvalEvaluateRowsParamsTest {
                 )
                 .build()
         assertThat(params).isNotNull
-        // path param "taskId"
-        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // path param "benchmarkId"
+        assertThat(params.getPathParam(0)).isEqualTo("benchmark_id")
         // out-of-bound path param
         assertThat(params.getPathParam(1)).isEqualTo("")
     }

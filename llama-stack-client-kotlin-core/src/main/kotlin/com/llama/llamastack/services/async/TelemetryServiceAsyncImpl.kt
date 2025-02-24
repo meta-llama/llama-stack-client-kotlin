@@ -74,8 +74,9 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
     ): TelemetryGetSpanTreeResponse {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans", params.getPathParam(0), "tree")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)
@@ -136,8 +137,9 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
     ): List<QuerySpansResponse.Data> {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)
@@ -161,8 +163,9 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
     ): List<Trace> {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "traces")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)

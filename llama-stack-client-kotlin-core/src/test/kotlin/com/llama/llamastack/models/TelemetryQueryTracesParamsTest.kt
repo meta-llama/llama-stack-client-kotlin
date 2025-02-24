@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -25,7 +25,7 @@ class TelemetryQueryTracesParamsTest {
     }
 
     @Test
-    fun queryParams() {
+    fun body() {
         val params =
             TelemetryQueryTracesParams.builder()
                 .addAttributeFilter(
@@ -39,26 +39,31 @@ class TelemetryQueryTracesParamsTest {
                 .offset(0L)
                 .addOrderBy("string")
                 .build()
-        val expected = QueryParams.builder()
-        expected.put(
-            "attribute_filters",
-            QueryCondition.builder()
-                .key("key")
-                .op(QueryCondition.Op.EQ)
-                .value(QueryCondition.Value.ofBoolean(true))
-                .build()
-                .toString(),
-        )
-        expected.put("limit", "0")
-        expected.put("offset", "0")
-        expected.put("order_by", "string")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val body = params._body()
+
+        assertNotNull(body)
+        assertThat(body.attributeFilters())
+            .isEqualTo(
+                listOf(
+                    QueryCondition.builder()
+                        .key("key")
+                        .op(QueryCondition.Op.EQ)
+                        .value(QueryCondition.Value.ofBoolean(true))
+                        .build()
+                )
+            )
+        assertThat(body.limit()).isEqualTo(0L)
+        assertThat(body.offset()).isEqualTo(0L)
+        assertThat(body.orderBy()).isEqualTo(listOf("string"))
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params = TelemetryQueryTracesParams.builder().build()
-        val expected = QueryParams.builder()
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val body = params._body()
+
+        assertNotNull(body)
     }
 }

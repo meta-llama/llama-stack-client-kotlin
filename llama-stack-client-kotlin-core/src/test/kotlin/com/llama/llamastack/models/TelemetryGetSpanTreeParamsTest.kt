@@ -2,7 +2,7 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.http.QueryParams
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -18,24 +18,28 @@ class TelemetryGetSpanTreeParamsTest {
     }
 
     @Test
-    fun queryParams() {
+    fun body() {
         val params =
             TelemetryGetSpanTreeParams.builder()
                 .spanId("span_id")
                 .addAttributesToReturn("string")
                 .maxDepth(0L)
                 .build()
-        val expected = QueryParams.builder()
-        expected.put("attributes_to_return", "string")
-        expected.put("max_depth", "0")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val body = params._body()
+
+        assertNotNull(body)
+        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
+        assertThat(body.maxDepth()).isEqualTo(0L)
     }
 
     @Test
-    fun queryParamsWithoutOptionalFields() {
+    fun bodyWithoutOptionalFields() {
         val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
-        val expected = QueryParams.builder()
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val body = params._body()
+
+        assertNotNull(body)
     }
 
     @Test

@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -50,7 +51,7 @@ class ToolRuntimeRagToolInsertParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.chunkSizeInTokens()).isEqualTo(0L)
         assertThat(body.documents())
             .isEqualTo(
@@ -91,7 +92,7 @@ class ToolRuntimeRagToolInsertParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.chunkSizeInTokens()).isEqualTo(0L)
         assertThat(body.documents())
             .isEqualTo(

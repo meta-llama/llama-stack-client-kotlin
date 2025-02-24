@@ -5,7 +5,9 @@ package com.llama.llamastack.services.blocking.agents
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.AgentTurnCreateParams
+import com.llama.llamastack.models.AgentTurnResumeParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
+import com.llama.llamastack.models.ToolResponseMessage
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -24,6 +26,7 @@ class TurnServiceTest {
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .addMessage(UserMessage.builder().content("string").context("string").build())
+                    .allowTurnResume(true)
                     .addDocument(
                         AgentTurnCreateParams.Document.builder()
                             .content("string")
@@ -60,6 +63,7 @@ class TurnServiceTest {
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .addMessage(UserMessage.builder().content("string").context("string").build())
+                    .allowTurnResume(true)
                     .addDocument(
                         AgentTurnCreateParams.Document.builder()
                             .content("string")
@@ -104,5 +108,59 @@ class TurnServiceTest {
             )
         println(turn)
         turn.validate()
+    }
+
+    @Test
+    fun callResume() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val turnService = client.agents().turn()
+        val turn =
+            turnService.resume(
+                AgentTurnResumeParams.builder()
+                    .agentId("agent_id")
+                    .sessionId("session_id")
+                    .turnId("turn_id")
+                    .addToolResponse(
+                        ToolResponseMessage.builder()
+                            .callId("call_id")
+                            .content("string")
+                            .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                            .build()
+                    )
+                    .build()
+            )
+        println(turn)
+        turn.validate()
+    }
+
+    @Test
+    fun callResumeStreaming() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val turnService = client.agents().turn()
+
+        val turnStream =
+            turnService.resumeStreaming(
+                AgentTurnResumeParams.builder()
+                    .agentId("agent_id")
+                    .sessionId("session_id")
+                    .turnId("turn_id")
+                    .addToolResponse(
+                        ToolResponseMessage.builder()
+                            .callId("call_id")
+                            .content("string")
+                            .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                            .build()
+                    )
+                    .build()
+            )
+
+        turnStream.use {
+            turnStream.asSequence().forEach {
+                println(it)
+                it.validate()
+            }
+        }
     }
 }

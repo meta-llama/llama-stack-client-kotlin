@@ -30,6 +30,11 @@ class ToolExecutionStepTest {
                         .callId("call_id")
                         .content("string")
                         .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                        .metadata(
+                            ToolResponse.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .build()
                 )
                 .turnId("turn_id")
@@ -56,6 +61,11 @@ class ToolExecutionStepTest {
                     .callId("call_id")
                     .content("string")
                     .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                    .metadata(
+                        ToolResponse.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .build()
             )
         assertThat(toolExecutionStep.turnId()).isEqualTo("turn_id")

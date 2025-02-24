@@ -14,7 +14,6 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -27,7 +26,6 @@ private constructor(
     @JsonProperty("scoring_params")
     @ExcludeMissing
     private val scoringParams: JsonField<ScoringParams> = JsonMissing.of(),
-    @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
     @JsonProperty("num_examples")
     @ExcludeMissing
     private val numExamples: JsonField<Long> = JsonMissing.of(),
@@ -37,8 +35,6 @@ private constructor(
     fun evalCandidate(): EvalCandidate = evalCandidate.getRequired("eval_candidate")
 
     fun scoringParams(): ScoringParams = scoringParams.getRequired("scoring_params")
-
-    @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
     fun numExamples(): Long? = numExamples.getNullable("num_examples")
 
@@ -65,11 +61,6 @@ private constructor(
 
         evalCandidate().validate()
         scoringParams().validate()
-        _type().let {
-            if (it != JsonValue.from("benchmark")) {
-                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-            }
-        }
         numExamples()
         validated = true
     }
@@ -86,14 +77,12 @@ private constructor(
 
         private var evalCandidate: JsonField<EvalCandidate>? = null
         private var scoringParams: JsonField<ScoringParams>? = null
-        private var type: JsonValue = JsonValue.from("benchmark")
         private var numExamples: JsonField<Long> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(benchmarkConfig: BenchmarkConfig) = apply {
             evalCandidate = benchmarkConfig.evalCandidate
             scoringParams = benchmarkConfig.scoringParams
-            type = benchmarkConfig.type
             numExamples = benchmarkConfig.numExamples
             additionalProperties = benchmarkConfig.additionalProperties.toMutableMap()
         }
@@ -118,8 +107,6 @@ private constructor(
         fun scoringParams(scoringParams: JsonField<ScoringParams>) = apply {
             this.scoringParams = scoringParams
         }
-
-        fun type(type: JsonValue) = apply { this.type = type }
 
         fun numExamples(numExamples: Long) = numExamples(JsonField.of(numExamples))
 
@@ -148,7 +135,6 @@ private constructor(
             BenchmarkConfig(
                 checkRequired("evalCandidate", evalCandidate),
                 checkRequired("scoringParams", scoringParams),
-                type,
                 numExamples,
                 additionalProperties.toImmutable(),
             )
@@ -236,15 +222,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is BenchmarkConfig && evalCandidate == other.evalCandidate && scoringParams == other.scoringParams && type == other.type && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is BenchmarkConfig && evalCandidate == other.evalCandidate && scoringParams == other.scoringParams && numExamples == other.numExamples && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(evalCandidate, scoringParams, type, numExamples, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(evalCandidate, scoringParams, numExamples, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "BenchmarkConfig{evalCandidate=$evalCandidate, scoringParams=$scoringParams, type=$type, numExamples=$numExamples, additionalProperties=$additionalProperties}"
+        "BenchmarkConfig{evalCandidate=$evalCandidate, scoringParams=$scoringParams, numExamples=$numExamples, additionalProperties=$additionalProperties}"
 }

@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -11,7 +12,7 @@ class EvalRunEvalParamsTest {
     @Test
     fun create() {
         EvalRunEvalParams.builder()
-            .taskId("task_id")
+            .benchmarkId("benchmark_id")
             .taskConfig(
                 BenchmarkConfig.builder()
                     .evalCandidate(
@@ -53,7 +54,7 @@ class EvalRunEvalParamsTest {
     fun body() {
         val params =
             EvalRunEvalParams.builder()
-                .taskId("task_id")
+                .benchmarkId("benchmark_id")
                 .taskConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
@@ -92,7 +93,7 @@ class EvalRunEvalParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.taskConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
@@ -134,7 +135,7 @@ class EvalRunEvalParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             EvalRunEvalParams.builder()
-                .taskId("task_id")
+                .benchmarkId("benchmark_id")
                 .taskConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
@@ -164,7 +165,7 @@ class EvalRunEvalParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.taskConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
@@ -194,7 +195,7 @@ class EvalRunEvalParamsTest {
     fun getPathParam() {
         val params =
             EvalRunEvalParams.builder()
-                .taskId("task_id")
+                .benchmarkId("benchmark_id")
                 .taskConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
@@ -222,8 +223,8 @@ class EvalRunEvalParamsTest {
                 )
                 .build()
         assertThat(params).isNotNull
-        // path param "taskId"
-        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // path param "benchmarkId"
+        assertThat(params.getPathParam(0)).isEqualTo("benchmark_id")
         // out-of-bound path param
         assertThat(params.getPathParam(1)).isEqualTo("")
     }

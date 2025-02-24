@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -39,7 +40,7 @@ class ToolRuntimeRagToolQueryParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbIds()).isEqualTo(listOf("string"))
         assertThat(body.queryConfig())
@@ -62,7 +63,7 @@ class ToolRuntimeRagToolQueryParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbIds()).isEqualTo(listOf("string"))
     }

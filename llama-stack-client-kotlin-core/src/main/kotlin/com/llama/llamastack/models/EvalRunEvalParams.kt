@@ -21,13 +21,13 @@ import java.util.Objects
 
 class EvalRunEvalParams
 private constructor(
-    private val taskId: String,
+    private val benchmarkId: String,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun taskId(): String = taskId
+    fun benchmarkId(): String = benchmarkId
 
     fun taskConfig(): BenchmarkConfig = body.taskConfig()
 
@@ -47,7 +47,7 @@ private constructor(
 
     fun getPathParam(index: Int): String {
         return when (index) {
-            0 -> taskId
+            0 -> benchmarkId
             else -> ""
         }
     }
@@ -160,19 +160,19 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var taskId: String? = null
+        private var benchmarkId: String? = null
         private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalRunEvalParams: EvalRunEvalParams) = apply {
-            taskId = evalRunEvalParams.taskId
+            benchmarkId = evalRunEvalParams.benchmarkId
             body = evalRunEvalParams.body.toBuilder()
             additionalHeaders = evalRunEvalParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalRunEvalParams.additionalQueryParams.toBuilder()
         }
 
-        fun taskId(taskId: String) = apply { this.taskId = taskId }
+        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
         fun taskConfig(taskConfig: BenchmarkConfig) = apply { body.taskConfig(taskConfig) }
 
@@ -299,7 +299,7 @@ private constructor(
 
         fun build(): EvalRunEvalParams =
             EvalRunEvalParams(
-                checkRequired("taskId", taskId),
+                checkRequired("benchmarkId", benchmarkId),
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -311,11 +311,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalRunEvalParams && taskId == other.taskId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalRunEvalParams && benchmarkId == other.benchmarkId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmarkId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalRunEvalParams{taskId=$taskId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalRunEvalParams{benchmarkId=$benchmarkId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

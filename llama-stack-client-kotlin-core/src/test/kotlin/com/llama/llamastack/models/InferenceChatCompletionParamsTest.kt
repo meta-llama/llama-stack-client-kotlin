@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -120,7 +121,7 @@ class InferenceChatCompletionParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.messages())
             .isEqualTo(
                 listOf(
@@ -203,7 +204,7 @@ class InferenceChatCompletionParamsTest {
 
         val body = params._body()
 
-        assertThat(body).isNotNull
+        assertNotNull(body)
         assertThat(body.messages())
             .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
         assertThat(body.modelId()).isEqualTo("model_id")

@@ -31,6 +31,9 @@ private constructor(
     @JsonProperty("tool_name")
     @ExcludeMissing
     private val toolName: JsonField<ToolName> = JsonMissing.of(),
+    @JsonProperty("metadata")
+    @ExcludeMissing
+    private val metadata: JsonField<Metadata> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
@@ -41,12 +44,16 @@ private constructor(
 
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
+    fun metadata(): Metadata? = metadata.getNullable("metadata")
+
     @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
     /** A image content item */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
     @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
+
+    @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -62,6 +69,7 @@ private constructor(
         callId()
         content().validate()
         toolName()
+        metadata()?.validate()
         validated = true
     }
 
@@ -78,12 +86,14 @@ private constructor(
         private var callId: JsonField<String>? = null
         private var content: JsonField<InterleavedContent>? = null
         private var toolName: JsonField<ToolName>? = null
+        private var metadata: JsonField<Metadata> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolResponse: ToolResponse) = apply {
             callId = toolResponse.callId
             content = toolResponse.content
             toolName = toolResponse.toolName
+            metadata = toolResponse.metadata
             additionalProperties = toolResponse.additionalProperties.toMutableMap()
         }
 
@@ -118,6 +128,10 @@ private constructor(
 
         fun toolName(value: String) = toolName(ToolName.of(value))
 
+        fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
+
+        fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)
@@ -142,6 +156,7 @@ private constructor(
                 checkRequired("callId", callId),
                 checkRequired("content", content),
                 checkRequired("toolName", toolName),
+                metadata,
                 additionalProperties.toImmutable(),
             )
     }
@@ -257,20 +272,97 @@ private constructor(
         override fun toString() = value.toString()
     }
 
+    @NoAutoDetect
+    class Metadata
+    @JsonCreator
+    private constructor(
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+    ) {
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Metadata = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Metadata]. */
+        class Builder internal constructor() {
+
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(metadata: Metadata) = apply {
+                additionalProperties = metadata.additionalProperties.toMutableMap()
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): Metadata = Metadata(additionalProperties.toImmutable())
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Metadata && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is ToolResponse && callId == other.callId && content == other.content && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ToolResponse && callId == other.callId && content == other.content && toolName == other.toolName && metadata == other.metadata && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(callId, content, toolName, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(callId, content, toolName, metadata, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ToolResponse{callId=$callId, content=$content, toolName=$toolName, additionalProperties=$additionalProperties}"
+        "ToolResponse{callId=$callId, content=$content, toolName=$toolName, metadata=$metadata, additionalProperties=$additionalProperties}"
 }

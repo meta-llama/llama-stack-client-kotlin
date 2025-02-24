@@ -41,7 +41,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("v1", "eval", "tasks", params.getPathParam(0), "evaluations")
+                .addPathSegments("v1", "eval", "benchmarks", params.getPathParam(0), "evaluations")
                 .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepare(clientOptions, params)
@@ -86,7 +86,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("v1", "eval", "tasks", params.getPathParam(0), "jobs")
+                .addPathSegments("v1", "eval", "benchmarks", params.getPathParam(0), "jobs")
                 .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepare(clientOptions, params)

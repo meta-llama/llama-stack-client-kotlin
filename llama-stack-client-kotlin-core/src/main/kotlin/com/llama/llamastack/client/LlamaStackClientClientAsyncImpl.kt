@@ -16,8 +16,6 @@ import com.llama.llamastack.services.async.DatasetioServiceAsync
 import com.llama.llamastack.services.async.DatasetioServiceAsyncImpl
 import com.llama.llamastack.services.async.EvalServiceAsync
 import com.llama.llamastack.services.async.EvalServiceAsyncImpl
-import com.llama.llamastack.services.async.EvalTaskServiceAsync
-import com.llama.llamastack.services.async.EvalTaskServiceAsyncImpl
 import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsyncImpl
 import com.llama.llamastack.services.async.InspectServiceAsync
@@ -151,10 +149,6 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
         ScoringFunctionServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val evalTasks: EvalTaskServiceAsync by lazy {
-        EvalTaskServiceAsyncImpl(clientOptionsWithUserAgent)
-    }
-
     private val benchmarks: BenchmarkServiceAsync by lazy {
         BenchmarkServiceAsyncImpl(clientOptionsWithUserAgent)
     }
@@ -205,8 +199,6 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
     override fun scoring(): ScoringServiceAsync = scoring
 
     override fun scoringFunctions(): ScoringFunctionServiceAsync = scoringFunctions
-
-    override fun evalTasks(): EvalTaskServiceAsync = evalTasks
 
     override fun benchmarks(): BenchmarkServiceAsync = benchmarks
 
