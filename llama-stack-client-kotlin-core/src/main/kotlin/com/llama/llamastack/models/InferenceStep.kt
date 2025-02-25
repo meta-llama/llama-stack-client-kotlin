@@ -50,9 +50,9 @@ private constructor(
 
     fun turnId(): String = turnId.getRequired("turn_id")
 
-    fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
+    fun completedAt(): OffsetDateTime? = null
 
-    fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
+    fun startedAt(): OffsetDateTime? = null
 
     /** A message containing the model's (assistant) response in a chat conversation. */
     @JsonProperty("model_response")
