@@ -14,11 +14,11 @@ interface PostTrainingService {
 
     fun preferenceOptimize(
         params: PostTrainingPreferenceOptimizeParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJob
 
     fun supervisedFineTune(
         params: PostTrainingSupervisedFineTuneParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJob
 }

@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -13,7 +14,6 @@ class AgentCreateParamsTest {
         AgentCreateParams.builder()
             .agentConfig(
                 AgentConfig.builder()
-                    .enableSessionPersistence(true)
                     .instructions("instructions")
                     .model("model")
                     .addClientTool(
@@ -36,6 +36,7 @@ class AgentCreateParamsTest {
                             )
                             .build()
                     )
+                    .enableSessionPersistence(true)
                     .addInputShield("string")
                     .maxInferIters(0L)
                     .addOutputShield("string")
@@ -74,7 +75,6 @@ class AgentCreateParamsTest {
             AgentCreateParams.builder()
                 .agentConfig(
                     AgentConfig.builder()
-                        .enableSessionPersistence(true)
                         .instructions("instructions")
                         .model("model")
                         .addClientTool(
@@ -97,6 +97,7 @@ class AgentCreateParamsTest {
                                 )
                                 .build()
                         )
+                        .enableSessionPersistence(true)
                         .addInputShield("string")
                         .maxInferIters(0L)
                         .addOutputShield("string")
@@ -127,12 +128,13 @@ class AgentCreateParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.agentConfig())
             .isEqualTo(
                 AgentConfig.builder()
-                    .enableSessionPersistence(true)
                     .instructions("instructions")
                     .model("model")
                     .addClientTool(
@@ -155,6 +157,7 @@ class AgentCreateParamsTest {
                             )
                             .build()
                     )
+                    .enableSessionPersistence(true)
                     .addInputShield("string")
                     .maxInferIters(0L)
                     .addOutputShield("string")
@@ -191,22 +194,14 @@ class AgentCreateParamsTest {
         val params =
             AgentCreateParams.builder()
                 .agentConfig(
-                    AgentConfig.builder()
-                        .enableSessionPersistence(true)
-                        .instructions("instructions")
-                        .model("model")
-                        .build()
+                    AgentConfig.builder().instructions("instructions").model("model").build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.agentConfig())
-            .isEqualTo(
-                AgentConfig.builder()
-                    .enableSessionPersistence(true)
-                    .instructions("instructions")
-                    .model("model")
-                    .build()
-            )
+            .isEqualTo(AgentConfig.builder().instructions("instructions").model("model").build())
     }
 }

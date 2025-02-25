@@ -21,7 +21,7 @@ import java.util.Objects
 
 class TelemetrySaveSpansToDatasetParams
 private constructor(
-    private val body: TelemetrySaveSpansToDatasetBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -48,16 +48,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): TelemetrySaveSpansToDatasetBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class TelemetrySaveSpansToDatasetBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("attribute_filters")
         @ExcludeMissing
         private val attributeFilters: JsonField<List<QueryCondition>> = JsonMissing.of(),
@@ -101,7 +101,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): TelemetrySaveSpansToDatasetBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -120,7 +120,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [TelemetrySaveSpansToDatasetBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var attributeFilters: JsonField<MutableList<QueryCondition>>? = null
@@ -129,17 +129,13 @@ private constructor(
             private var maxDepth: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(telemetrySaveSpansToDatasetBody: TelemetrySaveSpansToDatasetBody) =
-                apply {
-                    attributeFilters =
-                        telemetrySaveSpansToDatasetBody.attributeFilters.map { it.toMutableList() }
-                    attributesToSave =
-                        telemetrySaveSpansToDatasetBody.attributesToSave.map { it.toMutableList() }
-                    datasetId = telemetrySaveSpansToDatasetBody.datasetId
-                    maxDepth = telemetrySaveSpansToDatasetBody.maxDepth
-                    additionalProperties =
-                        telemetrySaveSpansToDatasetBody.additionalProperties.toMutableMap()
-                }
+            internal fun from(body: Body) = apply {
+                attributeFilters = body.attributeFilters.map { it.toMutableList() }
+                attributesToSave = body.attributesToSave.map { it.toMutableList() }
+                datasetId = body.datasetId
+                maxDepth = body.maxDepth
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
 
             fun attributeFilters(attributeFilters: List<QueryCondition>) =
                 attributeFilters(JsonField.of(attributeFilters))
@@ -204,8 +200,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): TelemetrySaveSpansToDatasetBody =
-                TelemetrySaveSpansToDatasetBody(
+            fun build(): Body =
+                Body(
                     checkRequired("attributeFilters", attributeFilters).map { it.toImmutable() },
                     checkRequired("attributesToSave", attributesToSave).map { it.toImmutable() },
                     checkRequired("datasetId", datasetId),
@@ -219,7 +215,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TelemetrySaveSpansToDatasetBody && attributeFilters == other.attributeFilters && attributesToSave == other.attributesToSave && datasetId == other.datasetId && maxDepth == other.maxDepth && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && attributeFilters == other.attributeFilters && attributesToSave == other.attributesToSave && datasetId == other.datasetId && maxDepth == other.maxDepth && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -229,7 +225,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TelemetrySaveSpansToDatasetBody{attributeFilters=$attributeFilters, attributesToSave=$attributesToSave, datasetId=$datasetId, maxDepth=$maxDepth, additionalProperties=$additionalProperties}"
+            "Body{attributeFilters=$attributeFilters, attributesToSave=$attributesToSave, datasetId=$datasetId, maxDepth=$maxDepth, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -243,8 +239,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: TelemetrySaveSpansToDatasetBody.Builder =
-            TelemetrySaveSpansToDatasetBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

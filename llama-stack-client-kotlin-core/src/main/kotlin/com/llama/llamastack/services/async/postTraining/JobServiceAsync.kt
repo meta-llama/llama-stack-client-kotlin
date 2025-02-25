@@ -15,21 +15,21 @@ interface JobServiceAsync {
 
     suspend fun list(
         params: PostTrainingJobListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ListPostTrainingJobsResponse.Data>
 
     suspend fun artifacts(
         params: PostTrainingJobArtifactsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJobArtifactsResponse?
 
     suspend fun cancel(
         params: PostTrainingJobCancelParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     suspend fun status(
         params: PostTrainingJobStatusParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJobStatusResponse?
 }

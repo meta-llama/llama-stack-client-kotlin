@@ -20,10 +20,8 @@ import com.llama.llamastack.models.AgentSessionDeleteParams
 import com.llama.llamastack.models.AgentSessionRetrieveParams
 import com.llama.llamastack.models.Session
 
-class SessionServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : SessionService {
+class SessionServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    SessionService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -34,7 +32,7 @@ internal constructor(
 
     override fun create(
         params: AgentSessionCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): AgentSessionCreateResponse {
         val request =
             HttpRequest.builder()
@@ -58,7 +56,7 @@ internal constructor(
 
     override fun retrieve(
         params: AgentSessionRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Session {
         val request =
             HttpRequest.builder()
@@ -68,7 +66,7 @@ internal constructor(
                     "agents",
                     params.getPathParam(0),
                     "session",
-                    params.getPathParam(1)
+                    params.getPathParam(1),
                 )
                 .build()
                 .prepare(clientOptions, params)
@@ -93,7 +91,7 @@ internal constructor(
                     "agents",
                     params.getPathParam(0),
                     "session",
-                    params.getPathParam(1)
+                    params.getPathParam(1),
                 )
                 .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                 .build()

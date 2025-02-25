@@ -13,21 +13,21 @@ interface ModelServiceAsync {
 
     suspend fun retrieve(
         params: ModelRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Model?
 
     suspend fun list(
         params: ModelListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Model>
 
     suspend fun register(
         params: ModelRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Model
 
     suspend fun unregister(
         params: ModelUnregisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

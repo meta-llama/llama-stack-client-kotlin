@@ -21,7 +21,7 @@ import java.util.Objects
 
 class ScoringScoreParams
 private constructor(
-    private val body: ScoringScoreBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -40,16 +40,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ScoringScoreBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ScoringScoreBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("input_rows")
         @ExcludeMissing
         private val inputRows: JsonField<List<InputRow>> = JsonMissing.of(),
@@ -78,7 +78,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ScoringScoreBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -95,17 +95,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ScoringScoreBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var inputRows: JsonField<MutableList<InputRow>>? = null
             private var scoringFunctions: JsonField<ScoringFunctions>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(scoringScoreBody: ScoringScoreBody) = apply {
-                inputRows = scoringScoreBody.inputRows.map { it.toMutableList() }
-                scoringFunctions = scoringScoreBody.scoringFunctions
-                additionalProperties = scoringScoreBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                inputRows = body.inputRows.map { it.toMutableList() }
+                scoringFunctions = body.scoringFunctions
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun inputRows(inputRows: List<InputRow>) = inputRows(JsonField.of(inputRows))
@@ -151,8 +151,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ScoringScoreBody =
-                ScoringScoreBody(
+            fun build(): Body =
+                Body(
                     checkRequired("inputRows", inputRows).map { it.toImmutable() },
                     checkRequired("scoringFunctions", scoringFunctions),
                     additionalProperties.toImmutable(),
@@ -164,7 +164,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ScoringScoreBody && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -174,7 +174,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ScoringScoreBody{inputRows=$inputRows, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
+            "Body{inputRows=$inputRows, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -188,7 +188,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ScoringScoreBody.Builder = ScoringScoreBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -342,7 +342,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter
@@ -419,7 +419,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

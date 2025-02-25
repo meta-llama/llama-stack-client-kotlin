@@ -12,7 +12,7 @@ import java.util.UUID
 fun buildInferenceChatCompletionResponse(
     response: String,
     stats: Float,
-    stopToken: String
+    stopToken: String,
 ): ChatCompletionResponse {
     // check for prefix [ and suffix ] if so then tool call.
     // parse for "toolName", "additionalProperties"
@@ -41,7 +41,7 @@ fun buildInferenceChatCompletionResponse(
 }
 
 fun buildInferenceChatCompletionResponseFromStream(
-    response: String,
+    response: String
 ): ChatCompletionResponseStreamChunk {
     return ChatCompletionResponseStreamChunk.builder()
         .event(
@@ -66,7 +66,7 @@ fun buildLastInferenceChatCompletionResponsesFromStream(
                 buildInferenceChatCompletionResponseForCustomToolCallStream(
                     toolCall,
                     stopToken,
-                    stats
+                    stats,
                 )
             )
         }
@@ -79,7 +79,7 @@ fun buildLastInferenceChatCompletionResponsesFromStream(
 fun buildInferenceChatCompletionResponseForCustomToolCallStream(
     toolCall: ToolCall,
     stopToken: String,
-    stats: Float
+    stats: Float,
 ): ChatCompletionResponseStreamChunk {
     val delta =
         ContentDelta.ToolCallDelta.builder()
@@ -101,7 +101,7 @@ fun buildInferenceChatCompletionResponseForCustomToolCallStream(
 fun buildInferenceChatCompletionResponseForStringStream(
     str: String,
     stopToken: String,
-    stats: Float
+    stats: Float,
 ): ChatCompletionResponseStreamChunk {
 
     return ChatCompletionResponseStreamChunk.builder()

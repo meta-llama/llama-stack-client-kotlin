@@ -127,6 +127,23 @@ private constructor(
                     .build()
             )
 
+        fun payload(
+            agentTurnResponseTurnAwaitingInput:
+                TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload
+        ) =
+            payload(
+                TurnResponseEventPayload.ofAgentTurnResponseTurnAwaitingInput(
+                    agentTurnResponseTurnAwaitingInput
+                )
+            )
+
+        fun agentTurnResponseTurnAwaitingInputPayload(turn: Turn) =
+            payload(
+                TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()
+                    .turn(turn)
+                    .build()
+            )
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)

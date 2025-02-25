@@ -25,7 +25,7 @@ class TelemetryGetSpanTreeResponseTest {
                             "parent_span_id" to "parent_span_id",
                             "status" to "ok",
                         )
-                    )
+                    ),
                 )
                 .build()
         assertThat(telemetryGetSpanTreeResponse).isNotNull

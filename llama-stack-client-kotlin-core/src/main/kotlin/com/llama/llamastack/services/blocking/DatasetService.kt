@@ -14,21 +14,21 @@ interface DatasetService {
 
     fun retrieve(
         params: DatasetRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): DatasetRetrieveResponse?
 
     fun list(
         params: DatasetListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ListDatasetsResponse.Data>
 
     fun register(
         params: DatasetRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     fun unregister(
         params: DatasetUnregisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

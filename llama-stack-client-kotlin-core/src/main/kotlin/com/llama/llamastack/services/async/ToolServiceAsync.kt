@@ -12,11 +12,11 @@ interface ToolServiceAsync {
     /** List tools with optional tool group */
     suspend fun list(
         params: ToolListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Tool>
 
     suspend fun get(
         params: ToolGetParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Tool
 }

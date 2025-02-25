@@ -23,7 +23,7 @@ import java.util.Objects
 
 class PostTrainingPreferenceOptimizeParams
 private constructor(
-    private val body: PostTrainingPreferenceOptimizeBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -59,16 +59,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): PostTrainingPreferenceOptimizeBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class PostTrainingPreferenceOptimizeBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("algorithm_config")
         @ExcludeMissing
         private val algorithmConfig: JsonField<AlgorithmConfig> = JsonMissing.of(),
@@ -132,7 +132,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): PostTrainingPreferenceOptimizeBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -153,7 +153,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [PostTrainingPreferenceOptimizeBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var algorithmConfig: JsonField<AlgorithmConfig>? = null
@@ -164,17 +164,14 @@ private constructor(
             private var trainingConfig: JsonField<TrainingConfig>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                postTrainingPreferenceOptimizeBody: PostTrainingPreferenceOptimizeBody
-            ) = apply {
-                algorithmConfig = postTrainingPreferenceOptimizeBody.algorithmConfig
-                finetunedModel = postTrainingPreferenceOptimizeBody.finetunedModel
-                hyperparamSearchConfig = postTrainingPreferenceOptimizeBody.hyperparamSearchConfig
-                jobUuid = postTrainingPreferenceOptimizeBody.jobUuid
-                loggerConfig = postTrainingPreferenceOptimizeBody.loggerConfig
-                trainingConfig = postTrainingPreferenceOptimizeBody.trainingConfig
-                additionalProperties =
-                    postTrainingPreferenceOptimizeBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                algorithmConfig = body.algorithmConfig
+                finetunedModel = body.finetunedModel
+                hyperparamSearchConfig = body.hyperparamSearchConfig
+                jobUuid = body.jobUuid
+                loggerConfig = body.loggerConfig
+                trainingConfig = body.trainingConfig
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
@@ -235,8 +232,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): PostTrainingPreferenceOptimizeBody =
-                PostTrainingPreferenceOptimizeBody(
+            fun build(): Body =
+                Body(
                     checkRequired("algorithmConfig", algorithmConfig),
                     checkRequired("finetunedModel", finetunedModel),
                     checkRequired("hyperparamSearchConfig", hyperparamSearchConfig),
@@ -252,7 +249,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is PostTrainingPreferenceOptimizeBody && algorithmConfig == other.algorithmConfig && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && trainingConfig == other.trainingConfig && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && algorithmConfig == other.algorithmConfig && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && trainingConfig == other.trainingConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -262,7 +259,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "PostTrainingPreferenceOptimizeBody{algorithmConfig=$algorithmConfig, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, additionalProperties=$additionalProperties}"
+            "Body{algorithmConfig=$algorithmConfig, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -276,8 +273,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: PostTrainingPreferenceOptimizeBody.Builder =
-            PostTrainingPreferenceOptimizeBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -608,7 +604,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter
@@ -687,7 +683,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter
@@ -1164,9 +1160,7 @@ private constructor(
 
             class DataFormat
             @JsonCreator
-            private constructor(
-                private val value: JsonField<String>,
-            ) : Enum {
+            private constructor(private val value: JsonField<String>) : Enum {
 
                 /**
                  * Returns this class instance's raw value.
@@ -1243,7 +1237,18 @@ private constructor(
                             throw LlamaStackClientInvalidDataException("Unknown DataFormat: $value")
                     }
 
-                fun asString(): String = _value().asStringOrThrow()
+                /**
+                 * Returns this class instance's primitive wire representation.
+                 *
+                 * This differs from the [toString] method because that method is primarily for
+                 * debugging and generally doesn't throw.
+                 *
+                 * @throws LlamaStackClientInvalidDataException if this class instance's value does
+                 *   not have the expected primitive type.
+                 */
+                fun asString(): String =
+                    _value().asString()
+                        ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
@@ -1418,9 +1423,7 @@ private constructor(
 
             class OptimizerType
             @JsonCreator
-            private constructor(
-                private val value: JsonField<String>,
-            ) : Enum {
+            private constructor(private val value: JsonField<String>) : Enum {
 
                 /**
                  * Returns this class instance's raw value.
@@ -1506,7 +1509,18 @@ private constructor(
                             )
                     }
 
-                fun asString(): String = _value().asStringOrThrow()
+                /**
+                 * Returns this class instance's primitive wire representation.
+                 *
+                 * This differs from the [toString] method because that method is primarily for
+                 * debugging and generally doesn't throw.
+                 *
+                 * @throws LlamaStackClientInvalidDataException if this class instance's value does
+                 *   not have the expected primitive type.
+                 */
+                fun asString(): String =
+                    _value().asString()
+                        ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {

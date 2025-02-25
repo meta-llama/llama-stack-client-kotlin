@@ -12,11 +12,11 @@ interface ScoringServiceAsync {
 
     suspend fun score(
         params: ScoringScoreParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ScoringScoreResponse
 
     suspend fun scoreBatch(
         params: ScoringScoreBatchParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ScoringScoreBatchResponse
 }

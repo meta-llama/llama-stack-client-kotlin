@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -49,8 +50,10 @@ class BatchInferenceCompletionParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.model()).isEqualTo("model")
         assertThat(body.logprobs())
@@ -84,8 +87,10 @@ class BatchInferenceCompletionParamsTest {
                 .addContentBatch("string")
                 .model("model")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
         assertThat(body.model()).isEqualTo("model")
     }

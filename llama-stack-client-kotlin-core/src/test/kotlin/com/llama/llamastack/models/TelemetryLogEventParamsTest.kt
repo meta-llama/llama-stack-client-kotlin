@@ -4,6 +4,7 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -21,7 +22,7 @@ class TelemetryLogEventParamsTest {
                     .traceId("trace_id")
                     .attributes(
                         Event.UnstructuredLogEvent.Attributes.builder()
-                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
                     .build()
@@ -43,15 +44,17 @@ class TelemetryLogEventParamsTest {
                         .traceId("trace_id")
                         .attributes(
                             Event.UnstructuredLogEvent.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .build()
                 )
                 .ttlSeconds(0L)
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.event())
             .isEqualTo(
                 Event.ofUnstructuredLog(
@@ -63,7 +66,7 @@ class TelemetryLogEventParamsTest {
                         .traceId("trace_id")
                         .attributes(
                             Event.UnstructuredLogEvent.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .build()
@@ -87,8 +90,10 @@ class TelemetryLogEventParamsTest {
                 )
                 .ttlSeconds(0L)
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.event())
             .isEqualTo(
                 Event.ofUnstructuredLog(

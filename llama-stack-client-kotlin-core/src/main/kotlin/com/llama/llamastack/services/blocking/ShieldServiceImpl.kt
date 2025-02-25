@@ -19,10 +19,8 @@ import com.llama.llamastack.models.ShieldListParams
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
 
-class ShieldServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ShieldService {
+class ShieldServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    ShieldService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)

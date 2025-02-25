@@ -13,13 +13,13 @@ interface JobService {
 
     fun retrieve(
         params: EvalJobRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): EvaluateResponse
 
     fun cancel(params: EvalJobCancelParams, requestOptions: RequestOptions = RequestOptions.none())
 
     fun status(
         params: EvalJobStatusParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): EvalJobStatusResponse?
 }

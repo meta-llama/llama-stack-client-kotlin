@@ -31,10 +31,7 @@ class OkHttpClient
 private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val baseUrl: HttpUrl) :
     HttpClient {
 
-    override fun execute(
-        request: HttpRequest,
-        requestOptions: RequestOptions,
-    ): HttpResponse {
+    override fun execute(request: HttpRequest, requestOptions: RequestOptions): HttpResponse {
         val call = newCall(request, requestOptions)
 
         return try {
@@ -71,7 +68,7 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
         val clientBuilder = okHttpClient.newBuilder()
 
         val logLevel =
-            when (System.getenv("LLAMA_STACK_CLIENT_LOG")?.lowercase()) {
+            when (System.getenv("LLAMA_STACK_LOG")?.lowercase()) {
                 "info" -> HttpLoggingInterceptor.Level.BASIC
                 "debug" -> HttpLoggingInterceptor.Level.BODY
                 else -> null
@@ -128,13 +125,13 @@ private constructor(private val okHttpClient: okhttp3.OkHttpClient, private val 
         ) {
             builder.header(
                 "X-Stainless-Read-Timeout",
-                Duration.ofMillis(client.readTimeoutMillis.toLong()).seconds.toString()
+                Duration.ofMillis(client.readTimeoutMillis.toLong()).seconds.toString(),
             )
         }
         if (!headers.names().contains("X-Stainless-Timeout") && client.callTimeoutMillis != 0) {
             builder.header(
                 "X-Stainless-Timeout",
-                Duration.ofMillis(client.callTimeoutMillis.toLong()).seconds.toString()
+                Duration.ofMillis(client.callTimeoutMillis.toLong()).seconds.toString(),
             )
         }
 

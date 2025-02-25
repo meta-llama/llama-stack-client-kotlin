@@ -20,10 +20,8 @@ import com.llama.llamastack.models.ScoringFunctionListParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
 
-class ScoringFunctionServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ScoringFunctionService {
+class ScoringFunctionServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    ScoringFunctionService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -33,7 +31,7 @@ internal constructor(
 
     override fun retrieve(
         params: ScoringFunctionRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ScoringFn? {
         val request =
             HttpRequest.builder()
@@ -57,7 +55,7 @@ internal constructor(
 
     override fun list(
         params: ScoringFunctionListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<ScoringFn> {
         val request =
             HttpRequest.builder()

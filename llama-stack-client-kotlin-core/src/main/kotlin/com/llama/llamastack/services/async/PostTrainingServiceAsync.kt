@@ -14,11 +14,11 @@ interface PostTrainingServiceAsync {
 
     suspend fun preferenceOptimize(
         params: PostTrainingPreferenceOptimizeParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJob
 
     suspend fun supervisedFineTune(
         params: PostTrainingSupervisedFineTuneParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJob
 }

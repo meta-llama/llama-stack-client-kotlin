@@ -12,11 +12,11 @@ interface ScoringService {
 
     fun score(
         params: ScoringScoreParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ScoringScoreResponse
 
     fun scoreBatch(
         params: ScoringScoreBatchParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ScoringScoreBatchResponse
 }

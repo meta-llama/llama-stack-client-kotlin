@@ -9,15 +9,16 @@ class EvalJobStatusParamsTest {
 
     @Test
     fun create() {
-        EvalJobStatusParams.builder().taskId("task_id").jobId("job_id").build()
+        EvalJobStatusParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
     }
 
     @Test
     fun getPathParam() {
-        val params = EvalJobStatusParams.builder().taskId("task_id").jobId("job_id").build()
+        val params =
+            EvalJobStatusParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
         assertThat(params).isNotNull
-        // path param "taskId"
-        assertThat(params.getPathParam(0)).isEqualTo("task_id")
+        // path param "benchmarkId"
+        assertThat(params.getPathParam(0)).isEqualTo("benchmark_id")
         // path param "jobId"
         assertThat(params.getPathParam(1)).isEqualTo("job_id")
         // out-of-bound path param

@@ -16,11 +16,11 @@ interface ToolRuntimeServiceAsync {
     /** Run a tool with the given arguments */
     suspend fun invokeTool(
         params: ToolRuntimeInvokeToolParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolInvocationResult
 
     suspend fun listTools(
         params: ToolRuntimeListToolsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolDef
 }

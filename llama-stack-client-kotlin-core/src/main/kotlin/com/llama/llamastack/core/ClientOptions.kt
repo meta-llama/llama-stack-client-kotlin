@@ -156,7 +156,7 @@ private constructor(
 
         fun removeAllQueryParams(keys: Set<String>) = apply { queryParams.removeAll(keys) }
 
-        fun fromEnv() = apply { System.getenv("LLAMA_STACK_CLIENT_API_KEY")?.let { apiKey(it) } }
+        fun fromEnv() = apply { System.getenv("LLAMA_STACK_API_KEY")?.let { apiKey(it) } }
 
         fun build(): ClientOptions {
             val httpClient = checkRequired("httpClient", httpClient)

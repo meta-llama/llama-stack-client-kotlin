@@ -23,7 +23,7 @@ import java.util.Objects
 
 class BatchInferenceChatCompletionParams
 private constructor(
-    private val body: BatchInferenceChatCompletionBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -78,16 +78,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): BatchInferenceChatCompletionBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class BatchInferenceChatCompletionBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("messages_batch")
         @ExcludeMissing
         private val messagesBatch: JsonField<List<List<Message>>> = JsonMissing.of(),
@@ -177,7 +177,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): BatchInferenceChatCompletionBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -200,7 +200,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [BatchInferenceChatCompletionBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var messagesBatch: JsonField<MutableList<List<Message>>>? = null
@@ -213,20 +213,17 @@ private constructor(
             private var tools: JsonField<MutableList<Tool>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(batchInferenceChatCompletionBody: BatchInferenceChatCompletionBody) =
-                apply {
-                    messagesBatch =
-                        batchInferenceChatCompletionBody.messagesBatch.map { it.toMutableList() }
-                    model = batchInferenceChatCompletionBody.model
-                    logprobs = batchInferenceChatCompletionBody.logprobs
-                    responseFormat = batchInferenceChatCompletionBody.responseFormat
-                    samplingParams = batchInferenceChatCompletionBody.samplingParams
-                    toolChoice = batchInferenceChatCompletionBody.toolChoice
-                    toolPromptFormat = batchInferenceChatCompletionBody.toolPromptFormat
-                    tools = batchInferenceChatCompletionBody.tools.map { it.toMutableList() }
-                    additionalProperties =
-                        batchInferenceChatCompletionBody.additionalProperties.toMutableMap()
-                }
+            internal fun from(body: Body) = apply {
+                messagesBatch = body.messagesBatch.map { it.toMutableList() }
+                model = body.model
+                logprobs = body.logprobs
+                responseFormat = body.responseFormat
+                samplingParams = body.samplingParams
+                toolChoice = body.toolChoice
+                toolPromptFormat = body.toolPromptFormat
+                tools = body.tools.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
 
             fun messagesBatch(messagesBatch: List<List<Message>>) =
                 messagesBatch(JsonField.of(messagesBatch))
@@ -349,8 +346,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): BatchInferenceChatCompletionBody =
-                BatchInferenceChatCompletionBody(
+            fun build(): Body =
+                Body(
                     checkRequired("messagesBatch", messagesBatch).map { it.toImmutable() },
                     checkRequired("model", model),
                     logprobs,
@@ -368,7 +365,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is BatchInferenceChatCompletionBody && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && messagesBatch == other.messagesBatch && model == other.model && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -378,7 +375,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "BatchInferenceChatCompletionBody{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
+            "Body{messagesBatch=$messagesBatch, model=$model, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -392,8 +389,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: BatchInferenceChatCompletionBody.Builder =
-            BatchInferenceChatCompletionBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -713,11 +709,7 @@ private constructor(
      * Whether tool use is required or automatic. This is a hint to the model which may not be
      * followed. It depends on the Instruction Following capabilities of the model.
      */
-    class ToolChoice
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
+    class ToolChoice @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
         /**
          * Returns this class instance's raw value.
@@ -735,6 +727,8 @@ private constructor(
 
             val REQUIRED = of("required")
 
+            val NONE = of("none")
+
             fun of(value: String) = ToolChoice(JsonField.of(value))
         }
 
@@ -742,6 +736,7 @@ private constructor(
         enum class Known {
             AUTO,
             REQUIRED,
+            NONE,
         }
 
         /**
@@ -756,6 +751,7 @@ private constructor(
         enum class Value {
             AUTO,
             REQUIRED,
+            NONE,
             /**
              * An enum member indicating that [ToolChoice] was instantiated with an unknown value.
              */
@@ -773,6 +769,7 @@ private constructor(
             when (this) {
                 AUTO -> Value.AUTO
                 REQUIRED -> Value.REQUIRED
+                NONE -> Value.NONE
                 else -> Value._UNKNOWN
             }
 
@@ -789,10 +786,22 @@ private constructor(
             when (this) {
                 AUTO -> Known.AUTO
                 REQUIRED -> Known.REQUIRED
+                NONE -> Known.NONE
                 else -> throw LlamaStackClientInvalidDataException("Unknown ToolChoice: $value")
             }
 
-        fun asString(): String = _value().asStringOrThrow()
+        /**
+         * Returns this class instance's primitive wire representation.
+         *
+         * This differs from the [toString] method because that method is primarily for debugging
+         * and generally doesn't throw.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
+         *   the expected primitive type.
+         */
+        fun asString(): String =
+            _value().asString()
+                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -808,11 +817,8 @@ private constructor(
     }
 
     /** Prompt format for calling custom / zero shot tools. */
-    class ToolPromptFormat
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
+    class ToolPromptFormat @JsonCreator private constructor(private val value: JsonField<String>) :
+        Enum {
 
         /**
          * Returns this class instance's raw value.
@@ -895,7 +901,18 @@ private constructor(
                     throw LlamaStackClientInvalidDataException("Unknown ToolPromptFormat: $value")
             }
 
-        fun asString(): String = _value().asStringOrThrow()
+        /**
+         * Returns this class instance's primitive wire representation.
+         *
+         * This differs from the [toString] method because that method is primarily for debugging
+         * and generally doesn't throw.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
+         *   the expected primitive type.
+         */
+        fun asString(): String =
+            _value().asString()
+                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1028,11 +1045,8 @@ private constructor(
                 )
         }
 
-        class ToolName
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        class ToolName @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1119,7 +1133,18 @@ private constructor(
                     else -> throw LlamaStackClientInvalidDataException("Unknown ToolName: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1139,7 +1164,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter

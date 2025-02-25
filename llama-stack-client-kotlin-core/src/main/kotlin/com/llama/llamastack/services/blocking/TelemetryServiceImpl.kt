@@ -27,10 +27,8 @@ import com.llama.llamastack.models.TelemetryQueryTracesParams
 import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
 import com.llama.llamastack.models.Trace
 
-class TelemetryServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : TelemetryService {
+class TelemetryServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    TelemetryService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -41,7 +39,7 @@ internal constructor(
 
     override fun getSpan(
         params: TelemetryGetSpanParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): TelemetryGetSpanResponse {
         val request =
             HttpRequest.builder()
@@ -52,7 +50,7 @@ internal constructor(
                     "traces",
                     params.getPathParam(0),
                     "spans",
-                    params.getPathParam(1)
+                    params.getPathParam(1),
                 )
                 .build()
                 .prepare(clientOptions, params)
@@ -72,12 +70,13 @@ internal constructor(
 
     override fun getSpanTree(
         params: TelemetryGetSpanTreeParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): TelemetryGetSpanTreeResponse {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans", params.getPathParam(0), "tree")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepare(clientOptions, params)
         val response = clientOptions.httpClient.execute(request, requestOptions)
@@ -131,12 +130,13 @@ internal constructor(
 
     override fun querySpans(
         params: TelemetryQuerySpansParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<QuerySpansResponse.Data> {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepare(clientOptions, params)
         val response = clientOptions.httpClient.execute(request, requestOptions)
@@ -156,12 +156,13 @@ internal constructor(
 
     override fun queryTraces(
         params: TelemetryQueryTracesParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<Trace> {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "traces")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepare(clientOptions, params)
         val response = clientOptions.httpClient.execute(request, requestOptions)
@@ -180,7 +181,7 @@ internal constructor(
 
     override fun saveSpansToDataset(
         params: TelemetrySaveSpansToDatasetParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ) {
         val request =
             HttpRequest.builder()

@@ -130,7 +130,7 @@ private constructor(
         fun build(): EmbeddingsResponse =
             EmbeddingsResponse(
                 checkRequired("embeddings", embeddings).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

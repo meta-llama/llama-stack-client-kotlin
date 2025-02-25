@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -160,8 +161,10 @@ class PostTrainingSupervisedFineTuneParamsTest {
                 )
                 .checkpointDir("checkpoint_dir")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
                 PostTrainingSupervisedFineTuneParams.HyperparamSearchConfig.builder()
@@ -291,8 +294,10 @@ class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.hyperparamSearchConfig())
             .isEqualTo(
                 PostTrainingSupervisedFineTuneParams.HyperparamSearchConfig.builder()

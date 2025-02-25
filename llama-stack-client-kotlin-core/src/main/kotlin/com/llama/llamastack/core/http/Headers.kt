@@ -70,7 +70,7 @@ class Headers private constructor(private val map: Map<String, List<String>>, va
                         values.toImmutable()
                     }
                     .toImmutable(),
-                size
+                size,
             )
     }
 

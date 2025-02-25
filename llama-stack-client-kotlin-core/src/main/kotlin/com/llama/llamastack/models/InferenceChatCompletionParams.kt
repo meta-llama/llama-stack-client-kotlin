@@ -24,7 +24,7 @@ import java.util.Objects
 /** Generate a chat completion for the given messages using the specified model. */
 class InferenceChatCompletionParams
 private constructor(
-    private val body: InferenceChatCompletionBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -125,16 +125,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): InferenceChatCompletionBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class InferenceChatCompletionBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         private val messages: JsonField<List<Message>> = JsonMissing.of(),
@@ -275,7 +275,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): InferenceChatCompletionBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -299,7 +299,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [InferenceChatCompletionBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
@@ -313,18 +313,17 @@ private constructor(
             private var tools: JsonField<MutableList<Tool>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(inferenceChatCompletionBody: InferenceChatCompletionBody) = apply {
-                messages = inferenceChatCompletionBody.messages.map { it.toMutableList() }
-                modelId = inferenceChatCompletionBody.modelId
-                logprobs = inferenceChatCompletionBody.logprobs
-                responseFormat = inferenceChatCompletionBody.responseFormat
-                samplingParams = inferenceChatCompletionBody.samplingParams
-                toolChoice = inferenceChatCompletionBody.toolChoice
-                toolConfig = inferenceChatCompletionBody.toolConfig
-                toolPromptFormat = inferenceChatCompletionBody.toolPromptFormat
-                tools = inferenceChatCompletionBody.tools.map { it.toMutableList() }
-                additionalProperties =
-                    inferenceChatCompletionBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                messages = body.messages.map { it.toMutableList() }
+                modelId = body.modelId
+                logprobs = body.logprobs
+                responseFormat = body.responseFormat
+                samplingParams = body.samplingParams
+                toolChoice = body.toolChoice
+                toolConfig = body.toolConfig
+                toolPromptFormat = body.toolPromptFormat
+                tools = body.tools.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             /** List of messages in the conversation */
@@ -554,8 +553,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): InferenceChatCompletionBody =
-                InferenceChatCompletionBody(
+            fun build(): Body =
+                Body(
                     checkRequired("messages", messages).map { it.toImmutable() },
                     checkRequired("modelId", modelId),
                     logprobs,
@@ -574,7 +573,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is InferenceChatCompletionBody && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -584,7 +583,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "InferenceChatCompletionBody{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
+            "Body{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -598,8 +597,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: InferenceChatCompletionBody.Builder =
-            InferenceChatCompletionBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -1014,11 +1012,7 @@ private constructor(
      * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. ..
      * deprecated:: Use tool_config instead.
      */
-    class ToolChoice
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
+    class ToolChoice @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
         /**
          * Returns this class instance's raw value.
@@ -1036,6 +1030,8 @@ private constructor(
 
             val REQUIRED = of("required")
 
+            val NONE = of("none")
+
             fun of(value: String) = ToolChoice(JsonField.of(value))
         }
 
@@ -1043,6 +1039,7 @@ private constructor(
         enum class Known {
             AUTO,
             REQUIRED,
+            NONE,
         }
 
         /**
@@ -1057,6 +1054,7 @@ private constructor(
         enum class Value {
             AUTO,
             REQUIRED,
+            NONE,
             /**
              * An enum member indicating that [ToolChoice] was instantiated with an unknown value.
              */
@@ -1074,6 +1072,7 @@ private constructor(
             when (this) {
                 AUTO -> Value.AUTO
                 REQUIRED -> Value.REQUIRED
+                NONE -> Value.NONE
                 else -> Value._UNKNOWN
             }
 
@@ -1090,10 +1089,22 @@ private constructor(
             when (this) {
                 AUTO -> Known.AUTO
                 REQUIRED -> Known.REQUIRED
+                NONE -> Known.NONE
                 else -> throw LlamaStackClientInvalidDataException("Unknown ToolChoice: $value")
             }
 
-        fun asString(): String = _value().asStringOrThrow()
+        /**
+         * Returns this class instance's primitive wire representation.
+         *
+         * This differs from the [toString] method because that method is primarily for debugging
+         * and generally doesn't throw.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
+         *   the expected primitive type.
+         */
+        fun asString(): String =
+            _value().asString()
+                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1133,10 +1144,13 @@ private constructor(
          * provided system message. The system message can include the string
          * '{{function_definitions}}' to indicate where the function definitions should be inserted.
          */
-        fun systemMessageBehavior(): SystemMessageBehavior =
-            systemMessageBehavior.getRequired("system_message_behavior")
+        fun systemMessageBehavior(): SystemMessageBehavior? =
+            systemMessageBehavior.getNullable("system_message_behavior")
 
-        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        /**
+         * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool name
+         * to use a specific tool. Defaults to ToolChoice.auto.
+         */
         fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
 
         /**
@@ -1160,7 +1174,10 @@ private constructor(
         @ExcludeMissing
         fun _systemMessageBehavior(): JsonField<SystemMessageBehavior> = systemMessageBehavior
 
-        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        /**
+         * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool name
+         * to use a specific tool. Defaults to ToolChoice.auto.
+         */
         @JsonProperty("tool_choice")
         @ExcludeMissing
         fun _toolChoice(): JsonField<ToolChoice> = toolChoice
@@ -1203,7 +1220,7 @@ private constructor(
         /** A builder for [ToolConfig]. */
         class Builder internal constructor() {
 
-            private var systemMessageBehavior: JsonField<SystemMessageBehavior>? = null
+            private var systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of()
             private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
             private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -1240,16 +1257,24 @@ private constructor(
                 }
 
             /**
-             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
+             * name to use a specific tool. Defaults to ToolChoice.auto.
              */
             fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
 
             /**
-             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
+             * name to use a specific tool. Defaults to ToolChoice.auto.
              */
             fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
                 this.toolChoice = toolChoice
             }
+
+            /**
+             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
+             * name to use a specific tool. Defaults to ToolChoice.auto.
+             */
+            fun toolChoice(value: String) = toolChoice(ToolChoice.of(value))
 
             /**
              * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
@@ -1295,7 +1320,7 @@ private constructor(
 
             fun build(): ToolConfig =
                 ToolConfig(
-                    checkRequired("systemMessageBehavior", systemMessageBehavior),
+                    systemMessageBehavior,
                     toolChoice,
                     toolPromptFormat,
                     additionalProperties.toImmutable(),
@@ -1311,9 +1336,7 @@ private constructor(
          */
         class SystemMessageBehavior
         @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        private constructor(private val value: JsonField<String>) : Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1394,7 +1417,18 @@ private constructor(
                         )
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1409,12 +1443,12 @@ private constructor(
             override fun toString() = value.toString()
         }
 
-        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
-        class ToolChoice
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        /**
+         * Whether tool use is required or automatic. This is a hint to the model which may not be
+         * followed. It depends on the Instruction Following capabilities of the model.
+         */
+        class ToolChoice @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1432,6 +1466,8 @@ private constructor(
 
                 val REQUIRED = of("required")
 
+                val NONE = of("none")
+
                 fun of(value: String) = ToolChoice(JsonField.of(value))
             }
 
@@ -1439,6 +1475,7 @@ private constructor(
             enum class Known {
                 AUTO,
                 REQUIRED,
+                NONE,
             }
 
             /**
@@ -1453,6 +1490,7 @@ private constructor(
             enum class Value {
                 AUTO,
                 REQUIRED,
+                NONE,
                 /**
                  * An enum member indicating that [ToolChoice] was instantiated with an unknown
                  * value.
@@ -1471,6 +1509,7 @@ private constructor(
                 when (this) {
                     AUTO -> Value.AUTO
                     REQUIRED -> Value.REQUIRED
+                    NONE -> Value.NONE
                     else -> Value._UNKNOWN
                 }
 
@@ -1487,10 +1526,22 @@ private constructor(
                 when (this) {
                     AUTO -> Known.AUTO
                     REQUIRED -> Known.REQUIRED
+                    NONE -> Known.NONE
                     else -> throw LlamaStackClientInvalidDataException("Unknown ToolChoice: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1514,9 +1565,7 @@ private constructor(
          */
         class ToolPromptFormat
         @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        private constructor(private val value: JsonField<String>) : Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1602,7 +1651,18 @@ private constructor(
                         )
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1643,11 +1703,8 @@ private constructor(
      * are output as Python syntax -- a list of function calls. .. deprecated:: Use tool_config
      * instead.
      */
-    class ToolPromptFormat
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
+    class ToolPromptFormat @JsonCreator private constructor(private val value: JsonField<String>) :
+        Enum {
 
         /**
          * Returns this class instance's raw value.
@@ -1730,7 +1787,18 @@ private constructor(
                     throw LlamaStackClientInvalidDataException("Unknown ToolPromptFormat: $value")
             }
 
-        fun asString(): String = _value().asStringOrThrow()
+        /**
+         * Returns this class instance's primitive wire representation.
+         *
+         * This differs from the [toString] method because that method is primarily for debugging
+         * and generally doesn't throw.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
+         *   the expected primitive type.
+         */
+        fun asString(): String =
+            _value().asString()
+                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1863,11 +1931,8 @@ private constructor(
                 )
         }
 
-        class ToolName
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        class ToolName @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1954,7 +2019,18 @@ private constructor(
                     else -> throw LlamaStackClientInvalidDataException("Unknown ToolName: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1974,7 +2050,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter

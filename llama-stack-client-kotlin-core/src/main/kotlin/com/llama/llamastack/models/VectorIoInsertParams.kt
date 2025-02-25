@@ -21,7 +21,7 @@ import java.util.Objects
 
 class VectorIoInsertParams
 private constructor(
-    private val body: VectorIoInsertBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -44,16 +44,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): VectorIoInsertBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class VectorIoInsertBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("chunks")
         @ExcludeMissing
         private val chunks: JsonField<List<Chunk>> = JsonMissing.of(),
@@ -87,7 +87,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): VectorIoInsertBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -105,7 +105,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [VectorIoInsertBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var chunks: JsonField<MutableList<Chunk>>? = null
@@ -113,11 +113,11 @@ private constructor(
             private var ttlSeconds: JsonField<Long> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(vectorIoInsertBody: VectorIoInsertBody) = apply {
-                chunks = vectorIoInsertBody.chunks.map { it.toMutableList() }
-                vectorDbId = vectorIoInsertBody.vectorDbId
-                ttlSeconds = vectorIoInsertBody.ttlSeconds
-                additionalProperties = vectorIoInsertBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                chunks = body.chunks.map { it.toMutableList() }
+                vectorDbId = body.vectorDbId
+                ttlSeconds = body.ttlSeconds
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
@@ -164,8 +164,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): VectorIoInsertBody =
-                VectorIoInsertBody(
+            fun build(): Body =
+                Body(
                     checkRequired("chunks", chunks).map { it.toImmutable() },
                     checkRequired("vectorDbId", vectorDbId),
                     ttlSeconds,
@@ -178,7 +178,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is VectorIoInsertBody && chunks == other.chunks && vectorDbId == other.vectorDbId && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && chunks == other.chunks && vectorDbId == other.vectorDbId && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -188,7 +188,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "VectorIoInsertBody{chunks=$chunks, vectorDbId=$vectorDbId, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
+            "Body{chunks=$chunks, vectorDbId=$vectorDbId, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -202,7 +202,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: VectorIoInsertBody.Builder = VectorIoInsertBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -470,7 +470,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter

@@ -153,11 +153,7 @@ private constructor(
         }
 
         fun build(): ToolListParams =
-            ToolListParams(
-                toolgroupId,
-                additionalHeaders.build(),
-                additionalQueryParams.build(),
-            )
+            ToolListParams(toolgroupId, additionalHeaders.build(), additionalQueryParams.build())
     }
 
     override fun equals(other: Any?): Boolean {

@@ -12,11 +12,11 @@ interface InspectServiceAsync {
 
     suspend fun health(
         params: InspectHealthParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): HealthInfo
 
     suspend fun version(
         params: InspectVersionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): VersionInfo
 }

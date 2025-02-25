@@ -165,7 +165,7 @@ private constructor(
         override fun serialize(
             value: QueryGeneratorConfig,
             generator: JsonGenerator,
-            provider: SerializerProvider
+            provider: SerializerProvider,
         ) {
             when {
                 value.defaultRag != null -> generator.writeObject(value.defaultRag)

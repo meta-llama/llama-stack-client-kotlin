@@ -1,6 +1,6 @@
 // File generated from our OpenAPI spec by Stainless.
 
-package com.llama.llamastack.services.blocking
+package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
@@ -12,36 +12,34 @@ import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.json
-import com.llama.llamastack.core.prepare
+import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.Benchmark
+import com.llama.llamastack.models.BenchmarkListParams
+import com.llama.llamastack.models.BenchmarkRegisterParams
+import com.llama.llamastack.models.BenchmarkRetrieveParams
 import com.llama.llamastack.models.DataEnvelope
-import com.llama.llamastack.models.EvalTask
-import com.llama.llamastack.models.EvalTaskListParams
-import com.llama.llamastack.models.EvalTaskRegisterParams
-import com.llama.llamastack.models.EvalTaskRetrieveParams
 
-class EvalTaskServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : EvalTaskService {
+class BenchmarkServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    BenchmarkServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
 
-    private val retrieveHandler: Handler<EvalTask?> =
-        jsonHandler<EvalTask?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    private val retrieveHandler: Handler<Benchmark?> =
+        jsonHandler<Benchmark?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
-    override fun retrieve(
-        params: EvalTaskRetrieveParams,
-        requestOptions: RequestOptions
-    ): EvalTask? {
+    override suspend fun retrieve(
+        params: BenchmarkRetrieveParams,
+        requestOptions: RequestOptions,
+    ): Benchmark? {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("v1", "eval-tasks", params.getPathParam(0))
+                .addPathSegments("v1", "eval", "benchmarks", params.getPathParam(0))
                 .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
         return response
             .use { retrieveHandler.handle(it) }
             .also {
@@ -51,18 +49,21 @@ internal constructor(
             }
     }
 
-    private val listHandler: Handler<DataEnvelope<List<EvalTask>>> =
-        jsonHandler<DataEnvelope<List<EvalTask>>>(clientOptions.jsonMapper)
+    private val listHandler: Handler<DataEnvelope<List<Benchmark>>> =
+        jsonHandler<DataEnvelope<List<Benchmark>>>(clientOptions.jsonMapper)
             .withErrorHandler(errorHandler)
 
-    override fun list(params: EvalTaskListParams, requestOptions: RequestOptions): List<EvalTask> {
+    override suspend fun list(
+        params: BenchmarkListParams,
+        requestOptions: RequestOptions,
+    ): List<Benchmark> {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.GET)
-                .addPathSegments("v1", "eval-tasks")
+                .addPathSegments("v1", "eval", "benchmarks")
                 .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
         return response
             .use { listHandler.handle(it) }
             .also {
@@ -75,15 +76,15 @@ internal constructor(
 
     private val registerHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
 
-    override fun register(params: EvalTaskRegisterParams, requestOptions: RequestOptions) {
+    override suspend fun register(params: BenchmarkRegisterParams, requestOptions: RequestOptions) {
         val request =
             HttpRequest.builder()
                 .method(HttpMethod.POST)
-                .addPathSegments("v1", "eval-tasks")
+                .addPathSegments("v1", "eval", "benchmarks")
                 .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
         response.use { registerHandler.handle(it) }
     }
 }

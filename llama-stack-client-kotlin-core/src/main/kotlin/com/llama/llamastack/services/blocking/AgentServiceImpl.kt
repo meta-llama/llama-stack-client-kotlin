@@ -24,10 +24,8 @@ import com.llama.llamastack.services.blocking.agents.StepServiceImpl
 import com.llama.llamastack.services.blocking.agents.TurnService
 import com.llama.llamastack.services.blocking.agents.TurnServiceImpl
 
-class AgentServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : AgentService {
+class AgentServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    AgentService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -49,7 +47,7 @@ internal constructor(
 
     override fun create(
         params: AgentCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): AgentCreateResponse {
         val request =
             HttpRequest.builder()

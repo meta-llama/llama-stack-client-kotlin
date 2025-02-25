@@ -81,7 +81,7 @@ class TelemetryServiceTest {
                         .traceId("trace_id")
                         .attributes(
                             Event.UnstructuredLogEvent.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
                         .build()

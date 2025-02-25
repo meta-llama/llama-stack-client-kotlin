@@ -19,10 +19,8 @@ import com.llama.llamastack.models.PostTrainingSupervisedFineTuneParams
 import com.llama.llamastack.services.blocking.postTraining.JobService
 import com.llama.llamastack.services.blocking.postTraining.JobServiceImpl
 
-class PostTrainingServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : PostTrainingService {
+class PostTrainingServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    PostTrainingService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -36,7 +34,7 @@ internal constructor(
 
     override fun preferenceOptimize(
         params: PostTrainingPreferenceOptimizeParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): PostTrainingJob {
         val request =
             HttpRequest.builder()
@@ -60,7 +58,7 @@ internal constructor(
 
     override fun supervisedFineTune(
         params: PostTrainingSupervisedFineTuneParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): PostTrainingJob {
         val request =
             HttpRequest.builder()

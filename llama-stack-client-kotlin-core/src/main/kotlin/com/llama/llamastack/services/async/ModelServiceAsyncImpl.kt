@@ -21,10 +21,8 @@ import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
 
-class ModelServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ModelServiceAsync {
+class ModelServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    ModelServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -34,7 +32,7 @@ internal constructor(
 
     override suspend fun retrieve(
         params: ModelRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Model? {
         val request =
             HttpRequest.builder()
@@ -58,7 +56,7 @@ internal constructor(
 
     override suspend fun list(
         params: ModelListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<Model> {
         val request =
             HttpRequest.builder()
@@ -82,7 +80,7 @@ internal constructor(
 
     override suspend fun register(
         params: ModelRegisterParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Model {
         val request =
             HttpRequest.builder()

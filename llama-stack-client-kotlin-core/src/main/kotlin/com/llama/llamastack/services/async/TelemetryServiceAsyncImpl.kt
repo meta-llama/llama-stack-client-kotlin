@@ -27,10 +27,8 @@ import com.llama.llamastack.models.TelemetryQueryTracesParams
 import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
 import com.llama.llamastack.models.Trace
 
-class TelemetryServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : TelemetryServiceAsync {
+class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    TelemetryServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -41,7 +39,7 @@ internal constructor(
 
     override suspend fun getSpan(
         params: TelemetryGetSpanParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): TelemetryGetSpanResponse {
         val request =
             HttpRequest.builder()
@@ -52,7 +50,7 @@ internal constructor(
                     "traces",
                     params.getPathParam(0),
                     "spans",
-                    params.getPathParam(1)
+                    params.getPathParam(1),
                 )
                 .build()
                 .prepareAsync(clientOptions, params)
@@ -72,12 +70,13 @@ internal constructor(
 
     override suspend fun getSpanTree(
         params: TelemetryGetSpanTreeParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): TelemetryGetSpanTreeResponse {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans", params.getPathParam(0), "tree")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)
@@ -96,7 +95,7 @@ internal constructor(
 
     override suspend fun getTrace(
         params: TelemetryGetTraceParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Trace {
         val request =
             HttpRequest.builder()
@@ -134,12 +133,13 @@ internal constructor(
 
     override suspend fun querySpans(
         params: TelemetryQuerySpansParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<QuerySpansResponse.Data> {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "spans")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)
@@ -159,12 +159,13 @@ internal constructor(
 
     override suspend fun queryTraces(
         params: TelemetryQueryTracesParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<Trace> {
         val request =
             HttpRequest.builder()
-                .method(HttpMethod.GET)
+                .method(HttpMethod.POST)
                 .addPathSegments("v1", "telemetry", "traces")
+                .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)
@@ -183,7 +184,7 @@ internal constructor(
 
     override suspend fun saveSpansToDataset(
         params: TelemetrySaveSpansToDatasetParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ) {
         val request =
             HttpRequest.builder()

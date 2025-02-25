@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -35,8 +36,10 @@ class ToolgroupRegisterParamsTest {
                 )
                 .mcpEndpoint(ToolgroupRegisterParams.McpEndpoint.builder().uri("uri").build())
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")
         assertThat(body.args())
@@ -56,8 +59,10 @@ class ToolgroupRegisterParamsTest {
                 .providerId("provider_id")
                 .toolgroupId("toolgroup_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.providerId()).isEqualTo("provider_id")
         assertThat(body.toolgroupId()).isEqualTo("toolgroup_id")
     }

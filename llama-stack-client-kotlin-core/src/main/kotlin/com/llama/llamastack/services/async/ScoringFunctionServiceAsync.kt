@@ -12,16 +12,16 @@ interface ScoringFunctionServiceAsync {
 
     suspend fun retrieve(
         params: ScoringFunctionRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ScoringFn?
 
     suspend fun list(
         params: ScoringFunctionListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ScoringFn>
 
     suspend fun register(
         params: ScoringFunctionRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

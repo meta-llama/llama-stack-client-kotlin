@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -28,7 +29,7 @@ class ScoringScoreParamsTest {
                                 "judge_score_regexes" to listOf("string"),
                                 "prompt_template" to "prompt_template",
                             )
-                        )
+                        ),
                     )
                     .build()
             )
@@ -56,13 +57,15 @@ class ScoringScoreParamsTest {
                                     "judge_score_regexes" to listOf("string"),
                                     "prompt_template" to "prompt_template",
                                 )
-                            )
+                            ),
                         )
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.inputRows())
             .isEqualTo(
                 listOf(
@@ -84,7 +87,7 @@ class ScoringScoreParamsTest {
                                 "judge_score_regexes" to listOf("string"),
                                 "prompt_template" to "prompt_template",
                             )
-                        )
+                        ),
                     )
                     .build()
             )
@@ -105,13 +108,15 @@ class ScoringScoreParamsTest {
                             "foo",
                             JsonValue.from(
                                 mapOf("judge_model" to "judge_model", "type" to "llm_as_judge")
-                            )
+                            ),
                         )
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.inputRows())
             .isEqualTo(
                 listOf(
@@ -127,7 +132,7 @@ class ScoringScoreParamsTest {
                         "foo",
                         JsonValue.from(
                             mapOf("judge_model" to "judge_model", "type" to "llm_as_judge")
-                        )
+                        ),
                     )
                     .build()
             )

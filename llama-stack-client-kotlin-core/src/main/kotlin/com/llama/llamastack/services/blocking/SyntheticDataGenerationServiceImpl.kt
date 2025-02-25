@@ -17,9 +17,7 @@ import com.llama.llamastack.models.SyntheticDataGenerationGenerateParams
 import com.llama.llamastack.models.SyntheticDataGenerationResponse
 
 class SyntheticDataGenerationServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : SyntheticDataGenerationService {
+internal constructor(private val clientOptions: ClientOptions) : SyntheticDataGenerationService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +28,7 @@ internal constructor(
 
     override fun generate(
         params: SyntheticDataGenerationGenerateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): SyntheticDataGenerationResponse {
         val request =
             HttpRequest.builder()

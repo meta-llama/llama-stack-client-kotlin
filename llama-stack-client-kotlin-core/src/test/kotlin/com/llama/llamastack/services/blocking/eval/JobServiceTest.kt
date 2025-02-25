@@ -20,7 +20,7 @@ class JobServiceTest {
         val jobService = client.eval().jobs()
         val evaluateResponse =
             jobService.retrieve(
-                EvalJobRetrieveParams.builder().taskId("task_id").jobId("job_id").build()
+                EvalJobRetrieveParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
             )
         println(evaluateResponse)
         evaluateResponse.validate()
@@ -31,7 +31,9 @@ class JobServiceTest {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.eval().jobs()
-        jobService.cancel(EvalJobCancelParams.builder().taskId("task_id").jobId("job_id").build())
+        jobService.cancel(
+            EvalJobCancelParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
+        )
     }
 
     @Test
@@ -41,7 +43,7 @@ class JobServiceTest {
         val jobService = client.eval().jobs()
         val evalJobStatusResponse =
             jobService.status(
-                EvalJobStatusParams.builder().taskId("task_id").jobId("job_id").build()
+                EvalJobStatusParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
             )
         println(evalJobStatusResponse)
     }

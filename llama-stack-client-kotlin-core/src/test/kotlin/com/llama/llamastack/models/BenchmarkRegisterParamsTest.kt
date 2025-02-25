@@ -3,23 +3,24 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class EvalTaskRegisterParamsTest {
+class BenchmarkRegisterParamsTest {
 
     @Test
     fun create() {
-        EvalTaskRegisterParams.builder()
+        BenchmarkRegisterParams.builder()
+            .benchmarkId("benchmark_id")
             .datasetId("dataset_id")
-            .evalTaskId("eval_task_id")
             .addScoringFunction("string")
             .metadata(
-                EvalTaskRegisterParams.Metadata.builder()
+                BenchmarkRegisterParams.Metadata.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .providerEvalTaskId("provider_eval_task_id")
+            .providerBenchmarkId("provider_benchmark_id")
             .providerId("provider_id")
             .build()
     }
@@ -27,45 +28,49 @@ class EvalTaskRegisterParamsTest {
     @Test
     fun body() {
         val params =
-            EvalTaskRegisterParams.builder()
+            BenchmarkRegisterParams.builder()
+                .benchmarkId("benchmark_id")
                 .datasetId("dataset_id")
-                .evalTaskId("eval_task_id")
                 .addScoringFunction("string")
                 .metadata(
-                    EvalTaskRegisterParams.Metadata.builder()
+                    BenchmarkRegisterParams.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .providerEvalTaskId("provider_eval_task_id")
+                .providerBenchmarkId("provider_benchmark_id")
                 .providerId("provider_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
+        assertThat(body.benchmarkId()).isEqualTo("benchmark_id")
         assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.evalTaskId()).isEqualTo("eval_task_id")
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
         assertThat(body.metadata())
             .isEqualTo(
-                EvalTaskRegisterParams.Metadata.builder()
+                BenchmarkRegisterParams.Metadata.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(body.providerEvalTaskId()).isEqualTo("provider_eval_task_id")
+        assertThat(body.providerBenchmarkId()).isEqualTo("provider_benchmark_id")
         assertThat(body.providerId()).isEqualTo("provider_id")
     }
 
     @Test
     fun bodyWithoutOptionalFields() {
         val params =
-            EvalTaskRegisterParams.builder()
+            BenchmarkRegisterParams.builder()
+                .benchmarkId("benchmark_id")
                 .datasetId("dataset_id")
-                .evalTaskId("eval_task_id")
                 .addScoringFunction("string")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
+        assertThat(body.benchmarkId()).isEqualTo("benchmark_id")
         assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.evalTaskId()).isEqualTo("eval_task_id")
         assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
     }
 }

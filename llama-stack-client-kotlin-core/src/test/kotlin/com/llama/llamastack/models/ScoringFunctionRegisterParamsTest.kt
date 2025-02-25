@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -48,8 +49,10 @@ class ScoringFunctionRegisterParamsTest {
                 .providerId("provider_id")
                 .providerScoringFnId("provider_scoring_fn_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.description()).isEqualTo("description")
         assertThat(body.returnType())
             .isEqualTo(ReturnType.builder().type(ReturnType.Type.STRING).build())
@@ -79,8 +82,10 @@ class ScoringFunctionRegisterParamsTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.description()).isEqualTo("description")
         assertThat(body.returnType())
             .isEqualTo(ReturnType.builder().type(ReturnType.Type.STRING).build())

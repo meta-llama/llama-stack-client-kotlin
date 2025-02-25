@@ -19,9 +19,7 @@ import com.llama.llamastack.models.BatchInferenceChatCompletionResponse
 import com.llama.llamastack.models.BatchInferenceCompletionParams
 
 class BatchInferenceServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : BatchInferenceServiceAsync {
+internal constructor(private val clientOptions: ClientOptions) : BatchInferenceServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -32,7 +30,7 @@ internal constructor(
 
     override suspend fun chatCompletion(
         params: BatchInferenceChatCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): BatchInferenceChatCompletionResponse {
         val request =
             HttpRequest.builder()
@@ -56,7 +54,7 @@ internal constructor(
 
     override suspend fun completion(
         params: BatchInferenceCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): BatchCompletion {
         val request =
             HttpRequest.builder()

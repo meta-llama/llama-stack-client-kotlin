@@ -7,10 +7,8 @@ import com.llama.llamastack.client.LlamaStackClientClientAsync
 import com.llama.llamastack.models.*
 import com.llama.llamastack.services.blocking.*
 
-class LlamaStackClientClientLocalImpl
-constructor(
-    private val clientOptions: LocalClientOptions,
-) : LlamaStackClientClient {
+class LlamaStackClientClientLocalImpl constructor(private val clientOptions: LocalClientOptions) :
+    LlamaStackClientClient {
 
     private val inference: InferenceService by lazy { InferenceServiceLocalImpl(clientOptions) }
 
@@ -56,7 +54,7 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    override fun evalTasks(): EvalTaskService {
+    override fun benchmarks(): BenchmarkService {
         TODO("Not yet implemented")
     }
 

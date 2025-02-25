@@ -18,10 +18,8 @@ import com.llama.llamastack.models.QueryChunksResponse
 import com.llama.llamastack.models.VectorIoInsertParams
 import com.llama.llamastack.models.VectorIoQueryParams
 
-class VectorIoServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : VectorIoServiceAsync {
+class VectorIoServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    VectorIoServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -45,7 +43,7 @@ internal constructor(
 
     override suspend fun query(
         params: VectorIoQueryParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): QueryChunksResponse {
         val request =
             HttpRequest.builder()

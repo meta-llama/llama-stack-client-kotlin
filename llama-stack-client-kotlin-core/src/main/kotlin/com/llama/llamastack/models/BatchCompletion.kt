@@ -102,7 +102,7 @@ private constructor(
         fun build(): BatchCompletion =
             BatchCompletion(
                 checkRequired("batch", batch).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

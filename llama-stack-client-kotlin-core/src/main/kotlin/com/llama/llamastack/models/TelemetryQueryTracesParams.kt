@@ -2,47 +2,226 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.annotation.JsonAnyGetter
+import com.fasterxml.jackson.annotation.JsonAnySetter
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonProperty
+import com.llama.llamastack.core.ExcludeMissing
+import com.llama.llamastack.core.JsonField
+import com.llama.llamastack.core.JsonMissing
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
+import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 class TelemetryQueryTracesParams
 private constructor(
-    private val attributeFilters: List<QueryCondition>?,
-    private val limit: Long?,
-    private val offset: Long?,
-    private val orderBy: List<String>?,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun attributeFilters(): List<QueryCondition>? = attributeFilters
+    fun attributeFilters(): List<QueryCondition>? = body.attributeFilters()
 
-    fun limit(): Long? = limit
+    fun limit(): Long? = body.limit()
 
-    fun offset(): Long? = offset
+    fun offset(): Long? = body.offset()
 
-    fun orderBy(): List<String>? = orderBy
+    fun orderBy(): List<String>? = body.orderBy()
+
+    fun _attributeFilters(): JsonField<List<QueryCondition>> = body._attributeFilters()
+
+    fun _limit(): JsonField<Long> = body._limit()
+
+    fun _offset(): JsonField<Long> = body._offset()
+
+    fun _orderBy(): JsonField<List<String>> = body._orderBy()
+
+    fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
+    internal fun _body(): Body = body
+
     override fun _headers(): Headers = additionalHeaders
 
-    override fun _queryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.attributeFilters?.let {
-            queryParams.put("attribute_filters", listOf(it.joinToString(separator = ",")))
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    @NoAutoDetect
+    class Body
+    @JsonCreator
+    private constructor(
+        @JsonProperty("attribute_filters")
+        @ExcludeMissing
+        private val attributeFilters: JsonField<List<QueryCondition>> = JsonMissing.of(),
+        @JsonProperty("limit")
+        @ExcludeMissing
+        private val limit: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("offset")
+        @ExcludeMissing
+        private val offset: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("order_by")
+        @ExcludeMissing
+        private val orderBy: JsonField<List<String>> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        fun attributeFilters(): List<QueryCondition>? =
+            attributeFilters.getNullable("attribute_filters")
+
+        fun limit(): Long? = limit.getNullable("limit")
+
+        fun offset(): Long? = offset.getNullable("offset")
+
+        fun orderBy(): List<String>? = orderBy.getNullable("order_by")
+
+        @JsonProperty("attribute_filters")
+        @ExcludeMissing
+        fun _attributeFilters(): JsonField<List<QueryCondition>> = attributeFilters
+
+        @JsonProperty("limit") @ExcludeMissing fun _limit(): JsonField<Long> = limit
+
+        @JsonProperty("offset") @ExcludeMissing fun _offset(): JsonField<Long> = offset
+
+        @JsonProperty("order_by") @ExcludeMissing fun _orderBy(): JsonField<List<String>> = orderBy
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            attributeFilters()?.forEach { it.validate() }
+            limit()
+            offset()
+            orderBy()
+            validated = true
         }
-        this.limit?.let { queryParams.put("limit", listOf(it.toString())) }
-        this.offset?.let { queryParams.put("offset", listOf(it.toString())) }
-        this.orderBy?.let { queryParams.put("order_by", listOf(it.joinToString(separator = ","))) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var attributeFilters: JsonField<MutableList<QueryCondition>>? = null
+            private var limit: JsonField<Long> = JsonMissing.of()
+            private var offset: JsonField<Long> = JsonMissing.of()
+            private var orderBy: JsonField<MutableList<String>>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                attributeFilters = body.attributeFilters.map { it.toMutableList() }
+                limit = body.limit
+                offset = body.offset
+                orderBy = body.orderBy.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            fun attributeFilters(attributeFilters: List<QueryCondition>) =
+                attributeFilters(JsonField.of(attributeFilters))
+
+            fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
+                this.attributeFilters = attributeFilters.map { it.toMutableList() }
+            }
+
+            fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
+                attributeFilters =
+                    (attributeFilters ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(attributeFilter)
+                    }
+            }
+
+            fun limit(limit: Long) = limit(JsonField.of(limit))
+
+            fun limit(limit: JsonField<Long>) = apply { this.limit = limit }
+
+            fun offset(offset: Long) = offset(JsonField.of(offset))
+
+            fun offset(offset: JsonField<Long>) = apply { this.offset = offset }
+
+            fun orderBy(orderBy: List<String>) = orderBy(JsonField.of(orderBy))
+
+            fun orderBy(orderBy: JsonField<List<String>>) = apply {
+                this.orderBy = orderBy.map { it.toMutableList() }
+            }
+
+            fun addOrderBy(orderBy: String) = apply {
+                this.orderBy =
+                    (this.orderBy ?: JsonField.of(mutableListOf())).apply {
+                        (asKnown()
+                                ?: throw IllegalStateException(
+                                    "Field was set to non-list type: ${javaClass.simpleName}"
+                                ))
+                            .add(orderBy)
+                    }
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): Body =
+                Body(
+                    (attributeFilters ?: JsonMissing.of()).map { it.toImmutable() },
+                    limit,
+                    offset,
+                    (orderBy ?: JsonMissing.of()).map { it.toImmutable() },
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && attributeFilters == other.attributeFilters && limit == other.limit && offset == other.offset && orderBy == other.orderBy && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(attributeFilters, limit, offset, orderBy, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{attributeFilters=$attributeFilters, limit=$limit, offset=$offset, orderBy=$orderBy, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -56,42 +235,59 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var attributeFilters: MutableList<QueryCondition>? = null
-        private var limit: Long? = null
-        private var offset: Long? = null
-        private var orderBy: MutableList<String>? = null
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(telemetryQueryTracesParams: TelemetryQueryTracesParams) = apply {
-            attributeFilters = telemetryQueryTracesParams.attributeFilters?.toMutableList()
-            limit = telemetryQueryTracesParams.limit
-            offset = telemetryQueryTracesParams.offset
-            orderBy = telemetryQueryTracesParams.orderBy?.toMutableList()
+            body = telemetryQueryTracesParams.body.toBuilder()
             additionalHeaders = telemetryQueryTracesParams.additionalHeaders.toBuilder()
             additionalQueryParams = telemetryQueryTracesParams.additionalQueryParams.toBuilder()
         }
 
-        fun attributeFilters(attributeFilters: List<QueryCondition>?) = apply {
-            this.attributeFilters = attributeFilters?.toMutableList()
+        fun attributeFilters(attributeFilters: List<QueryCondition>) = apply {
+            body.attributeFilters(attributeFilters)
+        }
+
+        fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
+            body.attributeFilters(attributeFilters)
         }
 
         fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
-            attributeFilters = (attributeFilters ?: mutableListOf()).apply { add(attributeFilter) }
+            body.addAttributeFilter(attributeFilter)
         }
 
-        fun limit(limit: Long?) = apply { this.limit = limit }
+        fun limit(limit: Long) = apply { body.limit(limit) }
 
-        fun limit(limit: Long) = limit(limit as Long?)
+        fun limit(limit: JsonField<Long>) = apply { body.limit(limit) }
 
-        fun offset(offset: Long?) = apply { this.offset = offset }
+        fun offset(offset: Long) = apply { body.offset(offset) }
 
-        fun offset(offset: Long) = offset(offset as Long?)
+        fun offset(offset: JsonField<Long>) = apply { body.offset(offset) }
 
-        fun orderBy(orderBy: List<String>?) = apply { this.orderBy = orderBy?.toMutableList() }
+        fun orderBy(orderBy: List<String>) = apply { body.orderBy(orderBy) }
 
-        fun addOrderBy(orderBy: String) = apply {
-            this.orderBy = (this.orderBy ?: mutableListOf()).apply { add(orderBy) }
+        fun orderBy(orderBy: JsonField<List<String>>) = apply { body.orderBy(orderBy) }
+
+        fun addOrderBy(orderBy: String) = apply { body.addOrderBy(orderBy) }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
         }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -194,10 +390,7 @@ private constructor(
 
         fun build(): TelemetryQueryTracesParams =
             TelemetryQueryTracesParams(
-                attributeFilters?.toImmutable(),
-                limit,
-                offset,
-                orderBy?.toImmutable(),
+                body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -208,11 +401,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is TelemetryQueryTracesParams && attributeFilters == other.attributeFilters && limit == other.limit && offset == other.offset && orderBy == other.orderBy && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is TelemetryQueryTracesParams && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(attributeFilters, limit, offset, orderBy, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "TelemetryQueryTracesParams{attributeFilters=$attributeFilters, limit=$limit, offset=$offset, orderBy=$orderBy, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "TelemetryQueryTracesParams{body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

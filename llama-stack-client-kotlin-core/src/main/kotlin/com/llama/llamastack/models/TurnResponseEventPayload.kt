@@ -37,6 +37,8 @@ private constructor(
     private val agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload? = null,
     private val agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload? = null,
     private val agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload? = null,
+    private val agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload? =
+        null,
     private val _json: JsonValue? = null,
 ) {
 
@@ -55,6 +57,9 @@ private constructor(
     fun agentTurnResponseTurnComplete(): AgentTurnResponseTurnCompletePayload? =
         agentTurnResponseTurnComplete
 
+    fun agentTurnResponseTurnAwaitingInput(): AgentTurnResponseTurnAwaitingInputPayload? =
+        agentTurnResponseTurnAwaitingInput
+
     fun isAgentTurnResponseStepStart(): Boolean = agentTurnResponseStepStart != null
 
     fun isAgentTurnResponseStepProgress(): Boolean = agentTurnResponseStepProgress != null
@@ -64,6 +69,8 @@ private constructor(
     fun isAgentTurnResponseTurnStart(): Boolean = agentTurnResponseTurnStart != null
 
     fun isAgentTurnResponseTurnComplete(): Boolean = agentTurnResponseTurnComplete != null
+
+    fun isAgentTurnResponseTurnAwaitingInput(): Boolean = agentTurnResponseTurnAwaitingInput != null
 
     fun asAgentTurnResponseStepStart(): AgentTurnResponseStepStartPayload =
         agentTurnResponseStepStart.getOrThrow("agentTurnResponseStepStart")
@@ -80,6 +87,9 @@ private constructor(
     fun asAgentTurnResponseTurnComplete(): AgentTurnResponseTurnCompletePayload =
         agentTurnResponseTurnComplete.getOrThrow("agentTurnResponseTurnComplete")
 
+    fun asAgentTurnResponseTurnAwaitingInput(): AgentTurnResponseTurnAwaitingInputPayload =
+        agentTurnResponseTurnAwaitingInput.getOrThrow("agentTurnResponseTurnAwaitingInput")
+
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T {
@@ -94,6 +104,8 @@ private constructor(
                 visitor.visitAgentTurnResponseTurnStart(agentTurnResponseTurnStart)
             agentTurnResponseTurnComplete != null ->
                 visitor.visitAgentTurnResponseTurnComplete(agentTurnResponseTurnComplete)
+            agentTurnResponseTurnAwaitingInput != null ->
+                visitor.visitAgentTurnResponseTurnAwaitingInput(agentTurnResponseTurnAwaitingInput)
             else -> visitor.unknown(_json)
         }
     }
@@ -136,6 +148,12 @@ private constructor(
                 ) {
                     agentTurnResponseTurnComplete.validate()
                 }
+
+                override fun visitAgentTurnResponseTurnAwaitingInput(
+                    agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
+                ) {
+                    agentTurnResponseTurnAwaitingInput.validate()
+                }
             }
         )
         validated = true
@@ -146,10 +164,10 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is TurnResponseEventPayload && agentTurnResponseStepStart == other.agentTurnResponseStepStart && agentTurnResponseStepProgress == other.agentTurnResponseStepProgress && agentTurnResponseStepComplete == other.agentTurnResponseStepComplete && agentTurnResponseTurnStart == other.agentTurnResponseTurnStart && agentTurnResponseTurnComplete == other.agentTurnResponseTurnComplete /* spotless:on */
+        return /* spotless:off */ other is TurnResponseEventPayload && agentTurnResponseStepStart == other.agentTurnResponseStepStart && agentTurnResponseStepProgress == other.agentTurnResponseStepProgress && agentTurnResponseStepComplete == other.agentTurnResponseStepComplete && agentTurnResponseTurnStart == other.agentTurnResponseTurnStart && agentTurnResponseTurnComplete == other.agentTurnResponseTurnComplete && agentTurnResponseTurnAwaitingInput == other.agentTurnResponseTurnAwaitingInput /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentTurnResponseStepStart, agentTurnResponseStepProgress, agentTurnResponseStepComplete, agentTurnResponseTurnStart, agentTurnResponseTurnComplete) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentTurnResponseStepStart, agentTurnResponseStepProgress, agentTurnResponseStepComplete, agentTurnResponseTurnStart, agentTurnResponseTurnComplete, agentTurnResponseTurnAwaitingInput) /* spotless:on */
 
     override fun toString(): String =
         when {
@@ -163,6 +181,8 @@ private constructor(
                 "TurnResponseEventPayload{agentTurnResponseTurnStart=$agentTurnResponseTurnStart}"
             agentTurnResponseTurnComplete != null ->
                 "TurnResponseEventPayload{agentTurnResponseTurnComplete=$agentTurnResponseTurnComplete}"
+            agentTurnResponseTurnAwaitingInput != null ->
+                "TurnResponseEventPayload{agentTurnResponseTurnAwaitingInput=$agentTurnResponseTurnAwaitingInput}"
             _json != null -> "TurnResponseEventPayload{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid TurnResponseEventPayload")
         }
@@ -188,6 +208,13 @@ private constructor(
         fun ofAgentTurnResponseTurnComplete(
             agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
         ) = TurnResponseEventPayload(agentTurnResponseTurnComplete = agentTurnResponseTurnComplete)
+
+        fun ofAgentTurnResponseTurnAwaitingInput(
+            agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
+        ) =
+            TurnResponseEventPayload(
+                agentTurnResponseTurnAwaitingInput = agentTurnResponseTurnAwaitingInput
+            )
     }
 
     /**
@@ -214,6 +241,10 @@ private constructor(
 
         fun visitAgentTurnResponseTurnComplete(
             agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
+        ): T
+
+        fun visitAgentTurnResponseTurnAwaitingInput(
+            agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
         ): T
 
         /**
@@ -246,7 +277,7 @@ private constructor(
                         ?.let {
                             return TurnResponseEventPayload(
                                 agentTurnResponseStepStart = it,
-                                _json = json
+                                _json = json,
                             )
                         }
                 }
@@ -257,7 +288,7 @@ private constructor(
                         ?.let {
                             return TurnResponseEventPayload(
                                 agentTurnResponseStepProgress = it,
-                                _json = json
+                                _json = json,
                             )
                         }
                 }
@@ -268,7 +299,7 @@ private constructor(
                         ?.let {
                             return TurnResponseEventPayload(
                                 agentTurnResponseStepComplete = it,
-                                _json = json
+                                _json = json,
                             )
                         }
                 }
@@ -279,7 +310,7 @@ private constructor(
                         ?.let {
                             return TurnResponseEventPayload(
                                 agentTurnResponseTurnStart = it,
-                                _json = json
+                                _json = json,
                             )
                         }
                 }
@@ -290,7 +321,21 @@ private constructor(
                         ?.let {
                             return TurnResponseEventPayload(
                                 agentTurnResponseTurnComplete = it,
-                                _json = json
+                                _json = json,
+                            )
+                        }
+                }
+                "turn_awaiting_input" -> {
+                    tryDeserialize(
+                            node,
+                            jacksonTypeRef<AgentTurnResponseTurnAwaitingInputPayload>(),
+                        ) {
+                            it.validate()
+                        }
+                        ?.let {
+                            return TurnResponseEventPayload(
+                                agentTurnResponseTurnAwaitingInput = it,
+                                _json = json,
                             )
                         }
                 }
@@ -306,7 +351,7 @@ private constructor(
         override fun serialize(
             value: TurnResponseEventPayload,
             generator: JsonGenerator,
-            provider: SerializerProvider
+            provider: SerializerProvider,
         ) {
             when {
                 value.agentTurnResponseStepStart != null ->
@@ -319,6 +364,8 @@ private constructor(
                     generator.writeObject(value.agentTurnResponseTurnStart)
                 value.agentTurnResponseTurnComplete != null ->
                     generator.writeObject(value.agentTurnResponseTurnComplete)
+                value.agentTurnResponseTurnAwaitingInput != null ->
+                    generator.writeObject(value.agentTurnResponseTurnAwaitingInput)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid TurnResponseEventPayload")
             }
@@ -453,11 +500,8 @@ private constructor(
                 )
         }
 
-        class StepType
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -544,7 +588,18 @@ private constructor(
                     else -> throw LlamaStackClientInvalidDataException("Unknown StepType: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -564,7 +619,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter
@@ -797,11 +852,8 @@ private constructor(
                 )
         }
 
-        class StepType
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -888,7 +940,18 @@ private constructor(
                     else -> throw LlamaStackClientInvalidDataException("Unknown StepType: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1257,7 +1320,7 @@ private constructor(
                 override fun serialize(
                     value: StepDetails,
                     generator: JsonGenerator,
-                    provider: SerializerProvider
+                    provider: SerializerProvider,
                 ) {
                     when {
                         value.inferenceStep != null -> generator.writeObject(value.inferenceStep)
@@ -1273,11 +1336,8 @@ private constructor(
             }
         }
 
-        class StepType
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1364,7 +1424,18 @@ private constructor(
                     else -> throw LlamaStackClientInvalidDataException("Unknown StepType: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1629,5 +1700,123 @@ private constructor(
 
         override fun toString() =
             "AgentTurnResponseTurnCompletePayload{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
+    }
+
+    @NoAutoDetect
+    class AgentTurnResponseTurnAwaitingInputPayload
+    @JsonCreator
+    private constructor(
+        @JsonProperty("event_type")
+        @ExcludeMissing
+        private val eventType: JsonValue = JsonMissing.of(),
+        @JsonProperty("turn") @ExcludeMissing private val turn: JsonField<Turn> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
+
+        /** A single turn in an interaction with an Agentic System. */
+        fun turn(): Turn = turn.getRequired("turn")
+
+        /** A single turn in an interaction with an Agentic System. */
+        @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseTurnAwaitingInputPayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _eventType().let {
+                if (it != JsonValue.from("turn_awaiting_input")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            turn().validate()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            fun builder() = Builder()
+        }
+
+        /** A builder for [AgentTurnResponseTurnAwaitingInputPayload]. */
+        class Builder internal constructor() {
+
+            private var eventType: JsonValue = JsonValue.from("turn_awaiting_input")
+            private var turn: JsonField<Turn>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(
+                agentTurnResponseTurnAwaitingInputPayload: AgentTurnResponseTurnAwaitingInputPayload
+            ) = apply {
+                eventType = agentTurnResponseTurnAwaitingInputPayload.eventType
+                turn = agentTurnResponseTurnAwaitingInputPayload.turn
+                additionalProperties =
+                    agentTurnResponseTurnAwaitingInputPayload.additionalProperties.toMutableMap()
+            }
+
+            fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
+
+            /** A single turn in an interaction with an Agentic System. */
+            fun turn(turn: Turn) = turn(JsonField.of(turn))
+
+            /** A single turn in an interaction with an Agentic System. */
+            fun turn(turn: JsonField<Turn>) = apply { this.turn = turn }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): AgentTurnResponseTurnAwaitingInputPayload =
+                AgentTurnResponseTurnAwaitingInputPayload(
+                    eventType,
+                    checkRequired("turn", turn),
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is AgentTurnResponseTurnAwaitingInputPayload && eventType == other.eventType && turn == other.turn && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(eventType, turn, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "AgentTurnResponseTurnAwaitingInputPayload{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
     }
 }

@@ -377,7 +377,7 @@ private constructor(
             override fun serialize(
                 value: Content,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.string != null -> generator.writeObject(value.string)
@@ -604,12 +604,7 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
-                    fun build(): Image =
-                        Image(
-                            data,
-                            url,
-                            additionalProperties.toImmutable(),
-                        )
+                    fun build(): Image = Image(data, url, additionalProperties.toImmutable())
                 }
 
                 /**
@@ -971,7 +966,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

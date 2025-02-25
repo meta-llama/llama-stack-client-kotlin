@@ -14,13 +14,12 @@ import com.llama.llamastack.core.json
 import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentTurnCreateParams
+import com.llama.llamastack.models.AgentTurnResumeParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
 import com.llama.llamastack.models.Turn
 
-class TurnServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : TurnServiceAsync {
+class TurnServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    TurnServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +29,7 @@ internal constructor(
 
     override suspend fun create(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Turn {
         val request =
             HttpRequest.builder()
@@ -41,7 +40,7 @@ internal constructor(
                     params.getPathParam(0),
                     "session",
                     params.getPathParam(1),
-                    "turn"
+                    "turn",
                 )
                 .body(json(clientOptions.jsonMapper, params._body()))
                 .build()
@@ -61,7 +60,7 @@ internal constructor(
 
     override suspend fun retrieve(
         params: AgentTurnRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): Turn {
         val request =
             HttpRequest.builder()
@@ -73,13 +72,51 @@ internal constructor(
                     "session",
                     params.getPathParam(1),
                     "turn",
-                    params.getPathParam(2)
+                    params.getPathParam(2),
                 )
                 .build()
                 .prepareAsync(clientOptions, params)
         val response = clientOptions.httpClient.executeAsync(request, requestOptions)
         return response
             .use { retrieveHandler.handle(it) }
+            .also {
+                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
+                    it.validate()
+                }
+            }
+    }
+
+    private val resumeHandler: Handler<Turn> =
+        jsonHandler<Turn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+
+    /**
+     * Resume an agent turn with executed tool call responses. When a Turn has the status
+     * `awaiting_input` due to pending input from client side tool calls, this endpoint can be used
+     * to submit the outputs from the tool calls once they are ready.
+     */
+    override suspend fun resume(
+        params: AgentTurnResumeParams,
+        requestOptions: RequestOptions,
+    ): Turn {
+        val request =
+            HttpRequest.builder()
+                .method(HttpMethod.POST)
+                .addPathSegments(
+                    "v1",
+                    "agents",
+                    params.getPathParam(0),
+                    "session",
+                    params.getPathParam(1),
+                    "turn",
+                    params.getPathParam(2),
+                    "resume",
+                )
+                .body(json(clientOptions.jsonMapper, params._body()))
+                .build()
+                .prepareAsync(clientOptions, params)
+        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+        return response
+            .use { resumeHandler.handle(it) }
             .also {
                 if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
                     it.validate()

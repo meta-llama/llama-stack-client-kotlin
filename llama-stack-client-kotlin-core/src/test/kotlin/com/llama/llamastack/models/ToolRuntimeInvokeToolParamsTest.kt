@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -31,8 +32,10 @@ class ToolRuntimeInvokeToolParamsTest {
                 )
                 .toolName("tool_name")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.kwargs())
             .isEqualTo(
                 ToolRuntimeInvokeToolParams.Kwargs.builder()
@@ -53,8 +56,10 @@ class ToolRuntimeInvokeToolParamsTest {
                 )
                 .toolName("tool_name")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.kwargs())
             .isEqualTo(
                 ToolRuntimeInvokeToolParams.Kwargs.builder()

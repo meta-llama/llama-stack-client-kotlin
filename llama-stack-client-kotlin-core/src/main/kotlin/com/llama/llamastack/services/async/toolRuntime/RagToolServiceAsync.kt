@@ -12,12 +12,12 @@ interface RagToolServiceAsync {
     /** Index documents so they can be used by the RAG system */
     suspend fun insert(
         params: ToolRuntimeRagToolInsertParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     /** Query the RAG system for context; typically invoked by the agent */
     suspend fun query(
         params: ToolRuntimeRagToolQueryParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): QueryResult
 }

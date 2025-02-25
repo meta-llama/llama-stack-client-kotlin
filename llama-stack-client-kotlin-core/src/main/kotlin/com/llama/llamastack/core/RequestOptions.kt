@@ -2,15 +2,11 @@ package com.llama.llamastack.core
 
 import java.time.Duration
 
-class RequestOptions
-private constructor(
-    val responseValidation: Boolean?,
-    val timeout: Duration?,
-) {
+class RequestOptions private constructor(val responseValidation: Boolean?, val timeout: Duration?) {
     fun applyDefaults(options: RequestOptions): RequestOptions {
         return RequestOptions(
             responseValidation = this.responseValidation ?: options.responseValidation,
-            timeout = this.timeout ?: options.timeout
+            timeout = this.timeout ?: options.timeout,
         )
     }
 

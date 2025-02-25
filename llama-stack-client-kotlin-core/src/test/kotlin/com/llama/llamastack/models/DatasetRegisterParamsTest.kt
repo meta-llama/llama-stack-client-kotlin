@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -47,8 +48,10 @@ class DatasetRegisterParamsTest {
                 .providerDatasetId("provider_dataset_id")
                 .providerId("provider_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.datasetSchema())
             .isEqualTo(
@@ -79,8 +82,10 @@ class DatasetRegisterParamsTest {
                 )
                 .url(DatasetRegisterParams.Url.builder().uri("uri").build())
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.datasetSchema())
             .isEqualTo(

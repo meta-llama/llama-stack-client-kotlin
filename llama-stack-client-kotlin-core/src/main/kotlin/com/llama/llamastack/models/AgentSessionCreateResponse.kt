@@ -89,7 +89,7 @@ private constructor(
         fun build(): AgentSessionCreateResponse =
             AgentSessionCreateResponse(
                 checkRequired("sessionId", sessionId),
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 

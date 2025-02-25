@@ -23,7 +23,7 @@ import java.util.Objects
 
 class SyntheticDataGenerationGenerateParams
 private constructor(
-    private val body: SyntheticDataGenerationGenerateBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -48,16 +48,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): SyntheticDataGenerationGenerateBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class SyntheticDataGenerationGenerateBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("dialogs")
         @ExcludeMissing
         private val dialogs: JsonField<List<Message>> = JsonMissing.of(),
@@ -94,7 +94,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): SyntheticDataGenerationGenerateBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -112,7 +112,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [SyntheticDataGenerationGenerateBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var dialogs: JsonField<MutableList<Message>>? = null
@@ -120,14 +120,11 @@ private constructor(
             private var model: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                syntheticDataGenerationGenerateBody: SyntheticDataGenerationGenerateBody
-            ) = apply {
-                dialogs = syntheticDataGenerationGenerateBody.dialogs.map { it.toMutableList() }
-                filteringFunction = syntheticDataGenerationGenerateBody.filteringFunction
-                model = syntheticDataGenerationGenerateBody.model
-                additionalProperties =
-                    syntheticDataGenerationGenerateBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                dialogs = body.dialogs.map { it.toMutableList() }
+                filteringFunction = body.filteringFunction
+                model = body.model
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun dialogs(dialogs: List<Message>) = dialogs(JsonField.of(dialogs))
@@ -232,8 +229,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): SyntheticDataGenerationGenerateBody =
-                SyntheticDataGenerationGenerateBody(
+            fun build(): Body =
+                Body(
                     checkRequired("dialogs", dialogs).map { it.toImmutable() },
                     checkRequired("filteringFunction", filteringFunction),
                     model,
@@ -246,7 +243,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is SyntheticDataGenerationGenerateBody && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -256,7 +253,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "SyntheticDataGenerationGenerateBody{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalProperties=$additionalProperties}"
+            "Body{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -270,8 +267,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: SyntheticDataGenerationGenerateBody.Builder =
-            SyntheticDataGenerationGenerateBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -484,11 +480,8 @@ private constructor(
     }
 
     /** The type of filtering function. */
-    class FilteringFunction
-    @JsonCreator
-    private constructor(
-        private val value: JsonField<String>,
-    ) : Enum {
+    class FilteringFunction @JsonCreator private constructor(private val value: JsonField<String>) :
+        Enum {
 
         /**
          * Returns this class instance's raw value.
@@ -589,7 +582,18 @@ private constructor(
                     throw LlamaStackClientInvalidDataException("Unknown FilteringFunction: $value")
             }
 
-        fun asString(): String = _value().asStringOrThrow()
+        /**
+         * Returns this class instance's primitive wire representation.
+         *
+         * This differs from the [toString] method because that method is primarily for debugging
+         * and generally doesn't throw.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
+         *   the expected primitive type.
+         */
+        fun asString(): String =
+            _value().asString()
+                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

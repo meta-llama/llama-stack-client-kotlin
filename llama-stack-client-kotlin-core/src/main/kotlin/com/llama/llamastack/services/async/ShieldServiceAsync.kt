@@ -12,16 +12,16 @@ interface ShieldServiceAsync {
 
     suspend fun retrieve(
         params: ShieldRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Shield?
 
     suspend fun list(
         params: ShieldListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Shield>
 
     suspend fun register(
         params: ShieldRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Shield
 }

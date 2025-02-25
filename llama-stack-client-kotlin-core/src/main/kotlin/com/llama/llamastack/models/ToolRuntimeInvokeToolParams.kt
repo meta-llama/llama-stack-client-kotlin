@@ -22,7 +22,7 @@ import java.util.Objects
 /** Run a tool with the given arguments */
 class ToolRuntimeInvokeToolParams
 private constructor(
-    private val body: ToolRuntimeInvokeToolBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -41,16 +41,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): ToolRuntimeInvokeToolBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class ToolRuntimeInvokeToolBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("kwargs")
         @ExcludeMissing
         private val kwargs: JsonField<Kwargs> = JsonMissing.of(),
@@ -75,7 +75,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ToolRuntimeInvokeToolBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -92,17 +92,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ToolRuntimeInvokeToolBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var kwargs: JsonField<Kwargs>? = null
             private var toolName: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(toolRuntimeInvokeToolBody: ToolRuntimeInvokeToolBody) = apply {
-                kwargs = toolRuntimeInvokeToolBody.kwargs
-                toolName = toolRuntimeInvokeToolBody.toolName
-                additionalProperties = toolRuntimeInvokeToolBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                kwargs = body.kwargs
+                toolName = body.toolName
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun kwargs(kwargs: Kwargs) = kwargs(JsonField.of(kwargs))
@@ -132,8 +132,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): ToolRuntimeInvokeToolBody =
-                ToolRuntimeInvokeToolBody(
+            fun build(): Body =
+                Body(
                     checkRequired("kwargs", kwargs),
                     checkRequired("toolName", toolName),
                     additionalProperties.toImmutable(),
@@ -145,7 +145,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolRuntimeInvokeToolBody && kwargs == other.kwargs && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && kwargs == other.kwargs && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -155,7 +155,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolRuntimeInvokeToolBody{kwargs=$kwargs, toolName=$toolName, additionalProperties=$additionalProperties}"
+            "Body{kwargs=$kwargs, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -169,7 +169,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: ToolRuntimeInvokeToolBody.Builder = ToolRuntimeInvokeToolBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -317,7 +317,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

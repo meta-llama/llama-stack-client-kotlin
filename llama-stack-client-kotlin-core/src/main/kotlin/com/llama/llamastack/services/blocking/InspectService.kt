@@ -12,11 +12,11 @@ interface InspectService {
 
     fun health(
         params: InspectHealthParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): HealthInfo
 
     fun version(
         params: InspectVersionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): VersionInfo
 }

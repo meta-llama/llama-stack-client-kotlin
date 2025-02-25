@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -38,8 +39,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
                 .datasetId("dataset_id")
                 .maxDepth(0L)
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.attributeFilters())
             .isEqualTo(
                 listOf(
@@ -69,8 +72,10 @@ class TelemetrySaveSpansToDatasetParamsTest {
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.attributeFilters())
             .isEqualTo(
                 listOf(

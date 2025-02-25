@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -43,8 +44,10 @@ class VectorIoInsertParamsTest {
                 .vectorDbId("vector_db_id")
                 .ttlSeconds(0L)
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.chunks())
             .isEqualTo(
                 listOf(
@@ -78,8 +81,10 @@ class VectorIoInsertParamsTest {
                 )
                 .vectorDbId("vector_db_id")
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.chunks())
             .isEqualTo(
                 listOf(

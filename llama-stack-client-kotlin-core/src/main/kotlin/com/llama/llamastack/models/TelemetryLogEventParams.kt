@@ -21,7 +21,7 @@ import java.util.Objects
 
 class TelemetryLogEventParams
 private constructor(
-    private val body: TelemetryLogEventBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -40,16 +40,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): TelemetryLogEventBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class TelemetryLogEventBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("event")
         @ExcludeMissing
         private val event: JsonField<Event> = JsonMissing.of(),
@@ -74,7 +74,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): TelemetryLogEventBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -91,17 +91,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [TelemetryLogEventBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var event: JsonField<Event>? = null
             private var ttlSeconds: JsonField<Long>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(telemetryLogEventBody: TelemetryLogEventBody) = apply {
-                event = telemetryLogEventBody.event
-                ttlSeconds = telemetryLogEventBody.ttlSeconds
-                additionalProperties = telemetryLogEventBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                event = body.event
+                ttlSeconds = body.ttlSeconds
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun event(event: Event) = event(JsonField.of(event))
@@ -139,8 +139,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): TelemetryLogEventBody =
-                TelemetryLogEventBody(
+            fun build(): Body =
+                Body(
                     checkRequired("event", event),
                     checkRequired("ttlSeconds", ttlSeconds),
                     additionalProperties.toImmutable(),
@@ -152,7 +152,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TelemetryLogEventBody && event == other.event && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && event == other.event && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -162,7 +162,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TelemetryLogEventBody{event=$event, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
+            "Body{event=$event, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -176,7 +176,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: TelemetryLogEventBody.Builder = TelemetryLogEventBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 

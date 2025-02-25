@@ -18,10 +18,8 @@ import com.llama.llamastack.models.DatasetioAppendRowsParams
 import com.llama.llamastack.models.DatasetioGetRowsPaginatedParams
 import com.llama.llamastack.models.PaginatedRowsResult
 
-class DatasetioServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : DatasetioServiceAsync {
+class DatasetioServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    DatasetioServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +28,7 @@ internal constructor(
 
     override suspend fun appendRows(
         params: DatasetioAppendRowsParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ) {
         val request =
             HttpRequest.builder()
@@ -48,7 +46,7 @@ internal constructor(
 
     override suspend fun getRowsPaginated(
         params: DatasetioGetRowsPaginatedParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): PaginatedRowsResult {
         val request =
             HttpRequest.builder()

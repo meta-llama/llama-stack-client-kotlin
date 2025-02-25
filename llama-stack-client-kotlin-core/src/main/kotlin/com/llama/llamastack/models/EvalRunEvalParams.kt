@@ -21,17 +21,17 @@ import java.util.Objects
 
 class EvalRunEvalParams
 private constructor(
-    private val taskId: String,
-    private val body: EvalRunEvalBody,
+    private val benchmarkId: String,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun taskId(): String = taskId
+    fun benchmarkId(): String = benchmarkId
 
-    fun taskConfig(): EvalTaskConfig = body.taskConfig()
+    fun taskConfig(): BenchmarkConfig = body.taskConfig()
 
-    fun _taskConfig(): JsonField<EvalTaskConfig> = body._taskConfig()
+    fun _taskConfig(): JsonField<BenchmarkConfig> = body._taskConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -39,7 +39,7 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): EvalRunEvalBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
@@ -47,27 +47,27 @@ private constructor(
 
     fun getPathParam(index: Int): String {
         return when (index) {
-            0 -> taskId
+            0 -> benchmarkId
             else -> ""
         }
     }
 
     @NoAutoDetect
-    class EvalRunEvalBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("task_config")
         @ExcludeMissing
-        private val taskConfig: JsonField<EvalTaskConfig> = JsonMissing.of(),
+        private val taskConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun taskConfig(): EvalTaskConfig = taskConfig.getRequired("task_config")
+        fun taskConfig(): BenchmarkConfig = taskConfig.getRequired("task_config")
 
         @JsonProperty("task_config")
         @ExcludeMissing
-        fun _taskConfig(): JsonField<EvalTaskConfig> = taskConfig
+        fun _taskConfig(): JsonField<BenchmarkConfig> = taskConfig
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -75,7 +75,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): EvalRunEvalBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -91,44 +91,22 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [EvalRunEvalBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
-            private var taskConfig: JsonField<EvalTaskConfig>? = null
+            private var taskConfig: JsonField<BenchmarkConfig>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(evalRunEvalBody: EvalRunEvalBody) = apply {
-                taskConfig = evalRunEvalBody.taskConfig
-                additionalProperties = evalRunEvalBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                taskConfig = body.taskConfig
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            fun taskConfig(taskConfig: EvalTaskConfig) = taskConfig(JsonField.of(taskConfig))
+            fun taskConfig(taskConfig: BenchmarkConfig) = taskConfig(JsonField.of(taskConfig))
 
-            fun taskConfig(taskConfig: JsonField<EvalTaskConfig>) = apply {
+            fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
                 this.taskConfig = taskConfig
             }
-
-            fun taskConfig(benchmark: EvalTaskConfig.BenchmarkEvalTaskConfig) =
-                taskConfig(EvalTaskConfig.ofBenchmark(benchmark))
-
-            fun benchmarkTaskConfig(evalCandidate: EvalCandidate) =
-                taskConfig(
-                    EvalTaskConfig.BenchmarkEvalTaskConfig.builder()
-                        .evalCandidate(evalCandidate)
-                        .build()
-                )
-
-            fun benchmarkTaskConfig(model: EvalCandidate.ModelCandidate) =
-                benchmarkTaskConfig(EvalCandidate.ofModel(model))
-
-            fun benchmarkTaskConfig(agent: EvalCandidate.AgentCandidate) =
-                benchmarkTaskConfig(EvalCandidate.ofAgent(agent))
-
-            fun agentBenchmarkTaskConfig(config: AgentConfig) =
-                benchmarkTaskConfig(EvalCandidate.AgentCandidate.builder().config(config).build())
-
-            fun taskConfig(app: EvalTaskConfig.AppEvalTaskConfig) =
-                taskConfig(EvalTaskConfig.ofApp(app))
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -149,11 +127,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): EvalRunEvalBody =
-                EvalRunEvalBody(
-                    checkRequired("taskConfig", taskConfig),
-                    additionalProperties.toImmutable()
-                )
+            fun build(): Body =
+                Body(checkRequired("taskConfig", taskConfig), additionalProperties.toImmutable())
         }
 
         override fun equals(other: Any?): Boolean {
@@ -161,7 +136,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is EvalRunEvalBody && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -171,7 +146,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "EvalRunEvalBody{taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
+            "Body{taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -185,47 +160,25 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var taskId: String? = null
-        private var body: EvalRunEvalBody.Builder = EvalRunEvalBody.builder()
+        private var benchmarkId: String? = null
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
         internal fun from(evalRunEvalParams: EvalRunEvalParams) = apply {
-            taskId = evalRunEvalParams.taskId
+            benchmarkId = evalRunEvalParams.benchmarkId
             body = evalRunEvalParams.body.toBuilder()
             additionalHeaders = evalRunEvalParams.additionalHeaders.toBuilder()
             additionalQueryParams = evalRunEvalParams.additionalQueryParams.toBuilder()
         }
 
-        fun taskId(taskId: String) = apply { this.taskId = taskId }
+        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
-        fun taskConfig(taskConfig: EvalTaskConfig) = apply { body.taskConfig(taskConfig) }
+        fun taskConfig(taskConfig: BenchmarkConfig) = apply { body.taskConfig(taskConfig) }
 
-        fun taskConfig(taskConfig: JsonField<EvalTaskConfig>) = apply {
+        fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
             body.taskConfig(taskConfig)
         }
-
-        fun taskConfig(benchmark: EvalTaskConfig.BenchmarkEvalTaskConfig) = apply {
-            body.taskConfig(benchmark)
-        }
-
-        fun benchmarkTaskConfig(evalCandidate: EvalCandidate) = apply {
-            body.benchmarkTaskConfig(evalCandidate)
-        }
-
-        fun benchmarkTaskConfig(model: EvalCandidate.ModelCandidate) = apply {
-            body.benchmarkTaskConfig(model)
-        }
-
-        fun benchmarkTaskConfig(agent: EvalCandidate.AgentCandidate) = apply {
-            body.benchmarkTaskConfig(agent)
-        }
-
-        fun agentBenchmarkTaskConfig(config: AgentConfig) = apply {
-            body.agentBenchmarkTaskConfig(config)
-        }
-
-        fun taskConfig(app: EvalTaskConfig.AppEvalTaskConfig) = apply { body.taskConfig(app) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -346,7 +299,7 @@ private constructor(
 
         fun build(): EvalRunEvalParams =
             EvalRunEvalParams(
-                checkRequired("taskId", taskId),
+                checkRequired("benchmarkId", benchmarkId),
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -358,11 +311,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalRunEvalParams && taskId == other.taskId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is EvalRunEvalParams && benchmarkId == other.benchmarkId && body == other.body && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(taskId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(benchmarkId, body, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalRunEvalParams{taskId=$taskId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "EvalRunEvalParams{benchmarkId=$benchmarkId, body=$body, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -33,8 +34,10 @@ class VectorIoQueryParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.query()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
         assertThat(body.params())
@@ -49,8 +52,10 @@ class VectorIoQueryParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             VectorIoQueryParams.builder().query("string").vectorDbId("vector_db_id").build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.query()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
     }

@@ -35,7 +35,7 @@ class AgentTurnCreateParams
 private constructor(
     private val agentId: String,
     private val sessionId: String,
-    private val body: AgentTurnCreateBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -46,6 +46,8 @@ private constructor(
 
     fun messages(): List<Message> = body.messages()
 
+    fun allowTurnResume(): Boolean? = body.allowTurnResume()
+
     fun documents(): List<Document>? = body.documents()
 
     /** Configuration for tool use. */
@@ -54,6 +56,8 @@ private constructor(
     fun toolgroups(): List<Toolgroup>? = body.toolgroups()
 
     fun _messages(): JsonField<List<Message>> = body._messages()
+
+    fun _allowTurnResume(): JsonField<Boolean> = body._allowTurnResume()
 
     fun _documents(): JsonField<List<Document>> = body._documents()
 
@@ -68,7 +72,7 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): AgentTurnCreateBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
@@ -83,12 +87,15 @@ private constructor(
     }
 
     @NoAutoDetect
-    class AgentTurnCreateBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         private val messages: JsonField<List<Message>> = JsonMissing.of(),
+        @JsonProperty("allow_turn_resume")
+        @ExcludeMissing
+        private val allowTurnResume: JsonField<Boolean> = JsonMissing.of(),
         @JsonProperty("documents")
         @ExcludeMissing
         private val documents: JsonField<List<Document>> = JsonMissing.of(),
@@ -104,6 +111,8 @@ private constructor(
 
         fun messages(): List<Message> = messages.getRequired("messages")
 
+        fun allowTurnResume(): Boolean? = allowTurnResume.getNullable("allow_turn_resume")
+
         fun documents(): List<Document>? = documents.getNullable("documents")
 
         /** Configuration for tool use. */
@@ -114,6 +123,10 @@ private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         fun _messages(): JsonField<List<Message>> = messages
+
+        @JsonProperty("allow_turn_resume")
+        @ExcludeMissing
+        fun _allowTurnResume(): JsonField<Boolean> = allowTurnResume
 
         @JsonProperty("documents")
         @ExcludeMissing
@@ -134,12 +147,13 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnCreateBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
 
             messages().forEach { it.validate() }
+            allowTurnResume()
             documents()?.forEach { it.validate() }
             toolConfig()?.validate()
             toolgroups()?.forEach { it.validate() }
@@ -153,21 +167,23 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnCreateBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
+            private var allowTurnResume: JsonField<Boolean> = JsonMissing.of()
             private var documents: JsonField<MutableList<Document>>? = null
             private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
             private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(agentTurnCreateBody: AgentTurnCreateBody) = apply {
-                messages = agentTurnCreateBody.messages.map { it.toMutableList() }
-                documents = agentTurnCreateBody.documents.map { it.toMutableList() }
-                toolConfig = agentTurnCreateBody.toolConfig
-                toolgroups = agentTurnCreateBody.toolgroups.map { it.toMutableList() }
-                additionalProperties = agentTurnCreateBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                messages = body.messages.map { it.toMutableList() }
+                allowTurnResume = body.allowTurnResume
+                documents = body.documents.map { it.toMutableList() }
+                toolConfig = body.toolConfig
+                toolgroups = body.toolgroups.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
@@ -193,6 +209,13 @@ private constructor(
             /** A message representing the result of a tool invocation. */
             fun addMessage(toolResponse: ToolResponseMessage) =
                 addMessage(Message.ofToolResponse(toolResponse))
+
+            fun allowTurnResume(allowTurnResume: Boolean) =
+                allowTurnResume(JsonField.of(allowTurnResume))
+
+            fun allowTurnResume(allowTurnResume: JsonField<Boolean>) = apply {
+                this.allowTurnResume = allowTurnResume
+            }
 
             fun documents(documents: List<Document>) = documents(JsonField.of(documents))
 
@@ -238,8 +261,8 @@ private constructor(
 
             fun addToolgroup(string: String) = addToolgroup(Toolgroup.ofString(string))
 
-            fun addToolgroup(unionMember1: Toolgroup.UnionMember1) =
-                addToolgroup(Toolgroup.ofUnionMember1(unionMember1))
+            fun addToolgroup(agentToolGroupWithArgs: Toolgroup.AgentToolGroupWithArgs) =
+                addToolgroup(Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs))
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -260,9 +283,10 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): AgentTurnCreateBody =
-                AgentTurnCreateBody(
+            fun build(): Body =
+                Body(
                     checkRequired("messages", messages).map { it.toImmutable() },
+                    allowTurnResume,
                     (documents ?: JsonMissing.of()).map { it.toImmutable() },
                     toolConfig,
                     (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
@@ -275,17 +299,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnCreateBody && messages == other.messages && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && messages == other.messages && allowTurnResume == other.allowTurnResume && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolConfig, toolgroups, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(messages, allowTurnResume, documents, toolConfig, toolgroups, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnCreateBody{messages=$messages, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+            "Body{messages=$messages, allowTurnResume=$allowTurnResume, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -301,7 +325,7 @@ private constructor(
 
         private var agentId: String? = null
         private var sessionId: String? = null
-        private var body: AgentTurnCreateBody.Builder = AgentTurnCreateBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -329,6 +353,14 @@ private constructor(
         /** A message representing the result of a tool invocation. */
         fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
+        fun allowTurnResume(allowTurnResume: Boolean) = apply {
+            body.allowTurnResume(allowTurnResume)
+        }
+
+        fun allowTurnResume(allowTurnResume: JsonField<Boolean>) = apply {
+            body.allowTurnResume(allowTurnResume)
+        }
+
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
 
         fun documents(documents: JsonField<List<Document>>) = apply { body.documents(documents) }
@@ -351,8 +383,8 @@ private constructor(
 
         fun addToolgroup(string: String) = apply { body.addToolgroup(string) }
 
-        fun addToolgroup(unionMember1: Toolgroup.UnionMember1) = apply {
-            body.addToolgroup(unionMember1)
+        fun addToolgroup(agentToolGroupWithArgs: Toolgroup.AgentToolGroupWithArgs) = apply {
+            body.addToolgroup(agentToolGroupWithArgs)
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -616,7 +648,7 @@ private constructor(
             override fun serialize(
                 value: Message,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.user != null -> generator.writeObject(value.user)
@@ -952,7 +984,7 @@ private constructor(
                 override fun serialize(
                     value: Content,
                     generator: JsonGenerator,
-                    provider: SerializerProvider
+                    provider: SerializerProvider,
                 ) {
                     when {
                         value.string != null -> generator.writeObject(value.string)
@@ -1184,12 +1216,7 @@ private constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): Image =
-                            Image(
-                                data,
-                                url,
-                                additionalProperties.toImmutable(),
-                            )
+                        fun build(): Image = Image(data, url, additionalProperties.toImmutable())
                     }
 
                     /**
@@ -1593,10 +1620,13 @@ private constructor(
          * provided system message. The system message can include the string
          * '{{function_definitions}}' to indicate where the function definitions should be inserted.
          */
-        fun systemMessageBehavior(): SystemMessageBehavior =
-            systemMessageBehavior.getRequired("system_message_behavior")
+        fun systemMessageBehavior(): SystemMessageBehavior? =
+            systemMessageBehavior.getNullable("system_message_behavior")
 
-        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        /**
+         * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool name
+         * to use a specific tool. Defaults to ToolChoice.auto.
+         */
         fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
 
         /**
@@ -1620,7 +1650,10 @@ private constructor(
         @ExcludeMissing
         fun _systemMessageBehavior(): JsonField<SystemMessageBehavior> = systemMessageBehavior
 
-        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
+        /**
+         * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool name
+         * to use a specific tool. Defaults to ToolChoice.auto.
+         */
         @JsonProperty("tool_choice")
         @ExcludeMissing
         fun _toolChoice(): JsonField<ToolChoice> = toolChoice
@@ -1663,7 +1696,7 @@ private constructor(
         /** A builder for [ToolConfig]. */
         class Builder internal constructor() {
 
-            private var systemMessageBehavior: JsonField<SystemMessageBehavior>? = null
+            private var systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of()
             private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
             private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -1700,16 +1733,24 @@ private constructor(
                 }
 
             /**
-             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
+             * name to use a specific tool. Defaults to ToolChoice.auto.
              */
             fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
 
             /**
-             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto.
+             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
+             * name to use a specific tool. Defaults to ToolChoice.auto.
              */
             fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
                 this.toolChoice = toolChoice
             }
+
+            /**
+             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
+             * name to use a specific tool. Defaults to ToolChoice.auto.
+             */
+            fun toolChoice(value: String) = toolChoice(ToolChoice.of(value))
 
             /**
              * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
@@ -1755,7 +1796,7 @@ private constructor(
 
             fun build(): ToolConfig =
                 ToolConfig(
-                    checkRequired("systemMessageBehavior", systemMessageBehavior),
+                    systemMessageBehavior,
                     toolChoice,
                     toolPromptFormat,
                     additionalProperties.toImmutable(),
@@ -1771,9 +1812,7 @@ private constructor(
          */
         class SystemMessageBehavior
         @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        private constructor(private val value: JsonField<String>) : Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1854,7 +1893,18 @@ private constructor(
                         )
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1869,12 +1919,12 @@ private constructor(
             override fun toString() = value.toString()
         }
 
-        /** (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. */
-        class ToolChoice
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        /**
+         * Whether tool use is required or automatic. This is a hint to the model which may not be
+         * followed. It depends on the Instruction Following capabilities of the model.
+         */
+        class ToolChoice @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -1892,6 +1942,8 @@ private constructor(
 
                 val REQUIRED = of("required")
 
+                val NONE = of("none")
+
                 fun of(value: String) = ToolChoice(JsonField.of(value))
             }
 
@@ -1899,6 +1951,7 @@ private constructor(
             enum class Known {
                 AUTO,
                 REQUIRED,
+                NONE,
             }
 
             /**
@@ -1913,6 +1966,7 @@ private constructor(
             enum class Value {
                 AUTO,
                 REQUIRED,
+                NONE,
                 /**
                  * An enum member indicating that [ToolChoice] was instantiated with an unknown
                  * value.
@@ -1931,6 +1985,7 @@ private constructor(
                 when (this) {
                     AUTO -> Value.AUTO
                     REQUIRED -> Value.REQUIRED
+                    NONE -> Value.NONE
                     else -> Value._UNKNOWN
                 }
 
@@ -1947,10 +2002,22 @@ private constructor(
                 when (this) {
                     AUTO -> Known.AUTO
                     REQUIRED -> Known.REQUIRED
+                    NONE -> Known.NONE
                     else -> throw LlamaStackClientInvalidDataException("Unknown ToolChoice: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1974,9 +2041,7 @@ private constructor(
          */
         class ToolPromptFormat
         @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        private constructor(private val value: JsonField<String>) : Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -2062,7 +2127,18 @@ private constructor(
                         )
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -2100,28 +2176,30 @@ private constructor(
     class Toolgroup
     private constructor(
         private val string: String? = null,
-        private val unionMember1: UnionMember1? = null,
+        private val agentToolGroupWithArgs: AgentToolGroupWithArgs? = null,
         private val _json: JsonValue? = null,
     ) {
 
         fun string(): String? = string
 
-        fun unionMember1(): UnionMember1? = unionMember1
+        fun agentToolGroupWithArgs(): AgentToolGroupWithArgs? = agentToolGroupWithArgs
 
         fun isString(): Boolean = string != null
 
-        fun isUnionMember1(): Boolean = unionMember1 != null
+        fun isAgentToolGroupWithArgs(): Boolean = agentToolGroupWithArgs != null
 
         fun asString(): String = string.getOrThrow("string")
 
-        fun asUnionMember1(): UnionMember1 = unionMember1.getOrThrow("unionMember1")
+        fun asAgentToolGroupWithArgs(): AgentToolGroupWithArgs =
+            agentToolGroupWithArgs.getOrThrow("agentToolGroupWithArgs")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T {
             return when {
                 string != null -> visitor.visitString(string)
-                unionMember1 != null -> visitor.visitUnionMember1(unionMember1)
+                agentToolGroupWithArgs != null ->
+                    visitor.visitAgentToolGroupWithArgs(agentToolGroupWithArgs)
                 else -> visitor.unknown(_json)
             }
         }
@@ -2137,8 +2215,10 @@ private constructor(
                 object : Visitor<Unit> {
                     override fun visitString(string: String) {}
 
-                    override fun visitUnionMember1(unionMember1: UnionMember1) {
-                        unionMember1.validate()
+                    override fun visitAgentToolGroupWithArgs(
+                        agentToolGroupWithArgs: AgentToolGroupWithArgs
+                    ) {
+                        agentToolGroupWithArgs.validate()
                     }
                 }
             )
@@ -2150,15 +2230,16 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Toolgroup && string == other.string && unionMember1 == other.unionMember1 /* spotless:on */
+            return /* spotless:off */ other is Toolgroup && string == other.string && agentToolGroupWithArgs == other.agentToolGroupWithArgs /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, unionMember1) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, agentToolGroupWithArgs) /* spotless:on */
 
         override fun toString(): String =
             when {
                 string != null -> "Toolgroup{string=$string}"
-                unionMember1 != null -> "Toolgroup{unionMember1=$unionMember1}"
+                agentToolGroupWithArgs != null ->
+                    "Toolgroup{agentToolGroupWithArgs=$agentToolGroupWithArgs}"
                 _json != null -> "Toolgroup{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Toolgroup")
             }
@@ -2167,7 +2248,8 @@ private constructor(
 
             fun ofString(string: String) = Toolgroup(string = string)
 
-            fun ofUnionMember1(unionMember1: UnionMember1) = Toolgroup(unionMember1 = unionMember1)
+            fun ofAgentToolGroupWithArgs(agentToolGroupWithArgs: AgentToolGroupWithArgs) =
+                Toolgroup(agentToolGroupWithArgs = agentToolGroupWithArgs)
         }
 
         /**
@@ -2177,7 +2259,7 @@ private constructor(
 
             fun visitString(string: String): T
 
-            fun visitUnionMember1(unionMember1: UnionMember1): T
+            fun visitAgentToolGroupWithArgs(agentToolGroupWithArgs: AgentToolGroupWithArgs): T
 
             /**
              * Maps an unknown variant of [Toolgroup] to a value of type [T].
@@ -2202,9 +2284,9 @@ private constructor(
                 tryDeserialize(node, jacksonTypeRef<String>())?.let {
                     return Toolgroup(string = it, _json = json)
                 }
-                tryDeserialize(node, jacksonTypeRef<UnionMember1>()) { it.validate() }
+                tryDeserialize(node, jacksonTypeRef<AgentToolGroupWithArgs>()) { it.validate() }
                     ?.let {
-                        return Toolgroup(unionMember1 = it, _json = json)
+                        return Toolgroup(agentToolGroupWithArgs = it, _json = json)
                     }
 
                 return Toolgroup(_json = json)
@@ -2216,11 +2298,12 @@ private constructor(
             override fun serialize(
                 value: Toolgroup,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.string != null -> generator.writeObject(value.string)
-                    value.unionMember1 != null -> generator.writeObject(value.unionMember1)
+                    value.agentToolGroupWithArgs != null ->
+                        generator.writeObject(value.agentToolGroupWithArgs)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Toolgroup")
                 }
@@ -2228,7 +2311,7 @@ private constructor(
         }
 
         @NoAutoDetect
-        class UnionMember1
+        class AgentToolGroupWithArgs
         @JsonCreator
         private constructor(
             @JsonProperty("args")
@@ -2255,7 +2338,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): UnionMember1 = apply {
+            fun validate(): AgentToolGroupWithArgs = apply {
                 if (validated) {
                     return@apply
                 }
@@ -2272,17 +2355,18 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            /** A builder for [UnionMember1]. */
+            /** A builder for [AgentToolGroupWithArgs]. */
             class Builder internal constructor() {
 
                 private var args: JsonField<Args>? = null
                 private var name: JsonField<String>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(unionMember1: UnionMember1) = apply {
-                    args = unionMember1.args
-                    name = unionMember1.name
-                    additionalProperties = unionMember1.additionalProperties.toMutableMap()
+                internal fun from(agentToolGroupWithArgs: AgentToolGroupWithArgs) = apply {
+                    args = agentToolGroupWithArgs.args
+                    name = agentToolGroupWithArgs.name
+                    additionalProperties =
+                        agentToolGroupWithArgs.additionalProperties.toMutableMap()
                 }
 
                 fun args(args: Args) = args(JsonField.of(args))
@@ -2315,8 +2399,8 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
-                fun build(): UnionMember1 =
-                    UnionMember1(
+                fun build(): AgentToolGroupWithArgs =
+                    AgentToolGroupWithArgs(
                         checkRequired("args", args),
                         checkRequired("name", name),
                         additionalProperties.toImmutable(),
@@ -2328,7 +2412,7 @@ private constructor(
             @JsonCreator
             private constructor(
                 @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
             ) {
 
                 @JsonAnyGetter
@@ -2408,7 +2492,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UnionMember1 && args == other.args && name == other.name && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is AgentToolGroupWithArgs && args == other.args && name == other.name && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -2418,7 +2502,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "UnionMember1{args=$args, name=$name, additionalProperties=$additionalProperties}"
+                "AgentToolGroupWithArgs{args=$args, name=$name, additionalProperties=$additionalProperties}"
         }
     }
 

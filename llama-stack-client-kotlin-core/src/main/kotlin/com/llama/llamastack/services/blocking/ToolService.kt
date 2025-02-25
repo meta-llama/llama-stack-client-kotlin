@@ -12,7 +12,7 @@ interface ToolService {
     /** List tools with optional tool group */
     fun list(
         params: ToolListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Tool>
 
     fun get(params: ToolGetParams, requestOptions: RequestOptions = RequestOptions.none()): Tool

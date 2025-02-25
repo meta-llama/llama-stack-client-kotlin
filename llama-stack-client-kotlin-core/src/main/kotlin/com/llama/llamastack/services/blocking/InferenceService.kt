@@ -18,32 +18,32 @@ interface InferenceService {
     /** Generate a chat completion for the given messages using the specified model. */
     fun chatCompletion(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ChatCompletionResponse
 
     /** Generate a chat completion for the given messages using the specified model. */
     @MustBeClosed
     fun chatCompletionStreaming(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): StreamResponse<ChatCompletionResponseStreamChunk>
 
     /** Generate a completion for the given content using the specified model. */
     fun completion(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): CompletionResponse
 
     /** Generate a completion for the given content using the specified model. */
     @MustBeClosed
     fun completionStreaming(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): StreamResponse<CompletionResponse>
 
     /** Generate embeddings for content pieces using the specified model. */
     fun embeddings(
         params: InferenceEmbeddingsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): EmbeddingsResponse
 }

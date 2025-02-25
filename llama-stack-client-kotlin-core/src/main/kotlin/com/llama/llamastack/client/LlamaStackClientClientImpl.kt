@@ -8,14 +8,14 @@ import com.llama.llamastack.services.blocking.AgentService
 import com.llama.llamastack.services.blocking.AgentServiceImpl
 import com.llama.llamastack.services.blocking.BatchInferenceService
 import com.llama.llamastack.services.blocking.BatchInferenceServiceImpl
+import com.llama.llamastack.services.blocking.BenchmarkService
+import com.llama.llamastack.services.blocking.BenchmarkServiceImpl
 import com.llama.llamastack.services.blocking.DatasetService
 import com.llama.llamastack.services.blocking.DatasetServiceImpl
 import com.llama.llamastack.services.blocking.DatasetioService
 import com.llama.llamastack.services.blocking.DatasetioServiceImpl
 import com.llama.llamastack.services.blocking.EvalService
 import com.llama.llamastack.services.blocking.EvalServiceImpl
-import com.llama.llamastack.services.blocking.EvalTaskService
-import com.llama.llamastack.services.blocking.EvalTaskServiceImpl
 import com.llama.llamastack.services.blocking.InferenceService
 import com.llama.llamastack.services.blocking.InferenceServiceImpl
 import com.llama.llamastack.services.blocking.InspectService
@@ -51,9 +51,8 @@ import com.llama.llamastack.services.blocking.VectorDbServiceImpl
 import com.llama.llamastack.services.blocking.VectorIoService
 import com.llama.llamastack.services.blocking.VectorIoServiceImpl
 
-class LlamaStackClientClientImpl(
-    private val clientOptions: ClientOptions,
-) : LlamaStackClientClient {
+class LlamaStackClientClientImpl(private val clientOptions: ClientOptions) :
+    LlamaStackClientClient {
 
     private val clientOptionsWithUserAgent =
         if (clientOptions.headers.names().contains("User-Agent")) clientOptions
@@ -136,8 +135,8 @@ class LlamaStackClientClientImpl(
         ScoringFunctionServiceImpl(clientOptionsWithUserAgent)
     }
 
-    private val evalTasks: EvalTaskService by lazy {
-        EvalTaskServiceImpl(clientOptionsWithUserAgent)
+    private val benchmarks: BenchmarkService by lazy {
+        BenchmarkServiceImpl(clientOptionsWithUserAgent)
     }
 
     override fun async(): LlamaStackClientClientAsync = async
@@ -186,7 +185,7 @@ class LlamaStackClientClientImpl(
 
     override fun scoringFunctions(): ScoringFunctionService = scoringFunctions
 
-    override fun evalTasks(): EvalTaskService = evalTasks
+    override fun benchmarks(): BenchmarkService = benchmarks
 
     override fun close() = clientOptions.httpClient.close()
 }

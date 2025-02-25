@@ -5,19 +5,19 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class EvalTaskRetrieveParamsTest {
+class BenchmarkRetrieveParamsTest {
 
     @Test
     fun create() {
-        EvalTaskRetrieveParams.builder().evalTaskId("eval_task_id").build()
+        BenchmarkRetrieveParams.builder().benchmarkId("benchmark_id").build()
     }
 
     @Test
     fun getPathParam() {
-        val params = EvalTaskRetrieveParams.builder().evalTaskId("eval_task_id").build()
+        val params = BenchmarkRetrieveParams.builder().benchmarkId("benchmark_id").build()
         assertThat(params).isNotNull
-        // path param "evalTaskId"
-        assertThat(params.getPathParam(0)).isEqualTo("eval_task_id")
+        // path param "benchmarkId"
+        assertThat(params.getPathParam(0)).isEqualTo("benchmark_id")
         // out-of-bound path param
         assertThat(params.getPathParam(1)).isEqualTo("")
     }

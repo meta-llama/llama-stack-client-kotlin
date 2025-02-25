@@ -182,7 +182,7 @@ private constructor(
         override fun serialize(
             value: Event,
             generator: JsonGenerator,
-            provider: SerializerProvider
+            provider: SerializerProvider,
         ) {
             when {
                 value.unstructuredLog != null -> generator.writeObject(value.unstructuredLog)
@@ -368,11 +368,8 @@ private constructor(
                 )
         }
 
-        class Severity
-        @JsonCreator
-        private constructor(
-            private val value: JsonField<String>,
-        ) : Enum {
+        class Severity @JsonCreator private constructor(private val value: JsonField<String>) :
+            Enum {
 
             /**
              * Returns this class instance's raw value.
@@ -471,7 +468,18 @@ private constructor(
                     else -> throw LlamaStackClientInvalidDataException("Unknown Severity: $value")
                 }
 
-            fun asString(): String = _value().asStringOrThrow()
+            /**
+             * Returns this class instance's primitive wire representation.
+             *
+             * This differs from the [toString] method because that method is primarily for
+             * debugging and generally doesn't throw.
+             *
+             * @throws LlamaStackClientInvalidDataException if this class instance's value does not
+             *   have the expected primitive type.
+             */
+            fun asString(): String =
+                _value().asString()
+                    ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -491,7 +499,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter
@@ -778,7 +786,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter
@@ -1175,7 +1183,7 @@ private constructor(
                 override fun serialize(
                     value: Payload,
                     generator: JsonGenerator,
-                    provider: SerializerProvider
+                    provider: SerializerProvider,
                 ) {
                     when {
                         value.spanStart != null -> generator.writeObject(value.spanStart)
@@ -1422,9 +1430,7 @@ private constructor(
 
                 class Status
                 @JsonCreator
-                private constructor(
-                    private val value: JsonField<String>,
-                ) : Enum {
+                private constructor(private val value: JsonField<String>) : Enum {
 
                     /**
                      * Returns this class instance's raw value.
@@ -1502,7 +1508,18 @@ private constructor(
                                 throw LlamaStackClientInvalidDataException("Unknown Status: $value")
                         }
 
-                    fun asString(): String = _value().asStringOrThrow()
+                    /**
+                     * Returns this class instance's primitive wire representation.
+                     *
+                     * This differs from the [toString] method because that method is primarily for
+                     * debugging and generally doesn't throw.
+                     *
+                     * @throws LlamaStackClientInvalidDataException if this class instance's value
+                     *   does not have the expected primitive type.
+                     */
+                    fun asString(): String =
+                        _value().asString()
+                            ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
                     override fun equals(other: Any?): Boolean {
                         if (this === other) {
@@ -1541,7 +1558,7 @@ private constructor(
         @JsonCreator
         private constructor(
             @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
         ) {
 
             @JsonAnyGetter

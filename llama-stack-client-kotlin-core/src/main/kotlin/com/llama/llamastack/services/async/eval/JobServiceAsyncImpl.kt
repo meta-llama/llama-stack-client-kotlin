@@ -20,10 +20,8 @@ import com.llama.llamastack.models.EvalJobStatusParams
 import com.llama.llamastack.models.EvalJobStatusResponse
 import com.llama.llamastack.models.EvaluateResponse
 
-class JobServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : JobServiceAsync {
+class JobServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    JobServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -33,7 +31,7 @@ internal constructor(
 
     override suspend fun retrieve(
         params: EvalJobRetrieveParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): EvaluateResponse {
         val request =
             HttpRequest.builder()
@@ -41,11 +39,11 @@ internal constructor(
                 .addPathSegments(
                     "v1",
                     "eval",
-                    "tasks",
+                    "benchmarks",
                     params.getPathParam(0),
                     "jobs",
                     params.getPathParam(1),
-                    "result"
+                    "result",
                 )
                 .build()
                 .prepareAsync(clientOptions, params)
@@ -68,10 +66,10 @@ internal constructor(
                 .addPathSegments(
                     "v1",
                     "eval",
-                    "tasks",
+                    "benchmarks",
                     params.getPathParam(0),
                     "jobs",
-                    params.getPathParam(1)
+                    params.getPathParam(1),
                 )
                 .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                 .build()
@@ -85,7 +83,7 @@ internal constructor(
 
     override suspend fun status(
         params: EvalJobStatusParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): EvalJobStatusResponse? {
         val request =
             HttpRequest.builder()
@@ -93,10 +91,10 @@ internal constructor(
                 .addPathSegments(
                     "v1",
                     "eval",
-                    "tasks",
+                    "benchmarks",
                     params.getPathParam(0),
                     "jobs",
-                    params.getPathParam(1)
+                    params.getPathParam(1),
                 )
                 .build()
                 .prepareAsync(clientOptions, params)

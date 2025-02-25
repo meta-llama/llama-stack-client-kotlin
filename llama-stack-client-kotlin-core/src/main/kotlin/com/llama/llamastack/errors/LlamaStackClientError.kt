@@ -19,7 +19,7 @@ private constructor(
     @JsonAnyGetter
     @ExcludeMissing
     @JsonAnySetter
-    val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
 ) {
 
     fun toBuilder() = Builder().from(this)

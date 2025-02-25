@@ -16,10 +16,8 @@ import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.RouteInfo
 import com.llama.llamastack.models.RouteListParams
 
-class RouteServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : RouteService {
+class RouteServiceImpl internal constructor(private val clientOptions: ClientOptions) :
+    RouteService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)

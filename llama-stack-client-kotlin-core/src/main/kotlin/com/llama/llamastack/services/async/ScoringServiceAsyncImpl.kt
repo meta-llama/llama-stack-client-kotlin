@@ -18,10 +18,8 @@ import com.llama.llamastack.models.ScoringScoreBatchResponse
 import com.llama.llamastack.models.ScoringScoreParams
 import com.llama.llamastack.models.ScoringScoreResponse
 
-class ScoringServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ScoringServiceAsync {
+class ScoringServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    ScoringServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -31,7 +29,7 @@ internal constructor(
 
     override suspend fun score(
         params: ScoringScoreParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ScoringScoreResponse {
         val request =
             HttpRequest.builder()
@@ -56,7 +54,7 @@ internal constructor(
 
     override suspend fun scoreBatch(
         params: ScoringScoreBatchParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ScoringScoreBatchResponse {
         val request =
             HttpRequest.builder()

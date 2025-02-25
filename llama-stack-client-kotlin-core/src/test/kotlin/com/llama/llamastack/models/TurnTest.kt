@@ -45,7 +45,7 @@ class TurnTest {
                                             ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
-                                                    JsonValue.from("string")
+                                                    JsonValue.from("string"),
                                                 )
                                                 .build()
                                         )
@@ -108,7 +108,7 @@ class TurnTest {
                                             ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
-                                                    JsonValue.from("string")
+                                                    JsonValue.from("string"),
                                                 )
                                                 .build()
                                         )

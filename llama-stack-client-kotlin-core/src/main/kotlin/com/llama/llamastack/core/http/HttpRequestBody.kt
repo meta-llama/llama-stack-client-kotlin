@@ -1,12 +1,11 @@
 package com.llama.llamastack.core.http
 
-import java.io.IOException
 import java.io.OutputStream
 import java.lang.AutoCloseable
 
 interface HttpRequestBody : AutoCloseable {
 
-    @Throws(IOException::class) fun writeTo(outputStream: OutputStream)
+    fun writeTo(outputStream: OutputStream)
 
     fun contentType(): String?
 
@@ -20,6 +19,4 @@ interface HttpRequestBody : AutoCloseable {
      * streamed. In this case the body data isn't available on subsequent attempts.
      */
     fun repeatable(): Boolean
-
-    override fun close()
 }

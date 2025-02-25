@@ -18,7 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
-class EvalTask
+class Benchmark
 @JsonCreator
 private constructor(
     @JsonProperty("dataset_id")
@@ -79,7 +79,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): EvalTask = apply {
+    fun validate(): Benchmark = apply {
         if (validated) {
             return@apply
         }
@@ -91,7 +91,7 @@ private constructor(
         providerResourceId()
         scoringFunctions()
         _type().let {
-            if (it != JsonValue.from("eval_task")) {
+            if (it != JsonValue.from("benchmark")) {
                 throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
             }
         }
@@ -105,7 +105,7 @@ private constructor(
         fun builder() = Builder()
     }
 
-    /** A builder for [EvalTask]. */
+    /** A builder for [Benchmark]. */
     class Builder internal constructor() {
 
         private var datasetId: JsonField<String>? = null
@@ -114,18 +114,18 @@ private constructor(
         private var providerId: JsonField<String>? = null
         private var providerResourceId: JsonField<String>? = null
         private var scoringFunctions: JsonField<MutableList<String>>? = null
-        private var type: JsonValue = JsonValue.from("eval_task")
+        private var type: JsonValue = JsonValue.from("benchmark")
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(evalTask: EvalTask) = apply {
-            datasetId = evalTask.datasetId
-            identifier = evalTask.identifier
-            metadata = evalTask.metadata
-            providerId = evalTask.providerId
-            providerResourceId = evalTask.providerResourceId
-            scoringFunctions = evalTask.scoringFunctions.map { it.toMutableList() }
-            type = evalTask.type
-            additionalProperties = evalTask.additionalProperties.toMutableMap()
+        internal fun from(benchmark: Benchmark) = apply {
+            datasetId = benchmark.datasetId
+            identifier = benchmark.identifier
+            metadata = benchmark.metadata
+            providerId = benchmark.providerId
+            providerResourceId = benchmark.providerResourceId
+            scoringFunctions = benchmark.scoringFunctions.map { it.toMutableList() }
+            type = benchmark.type
+            additionalProperties = benchmark.additionalProperties.toMutableMap()
         }
 
         fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
@@ -190,8 +190,8 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): EvalTask =
-            EvalTask(
+        fun build(): Benchmark =
+            Benchmark(
                 checkRequired("datasetId", datasetId),
                 checkRequired("identifier", identifier),
                 checkRequired("metadata", metadata),
@@ -208,7 +208,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter
@@ -285,7 +285,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTask && datasetId == other.datasetId && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && scoringFunctions == other.scoringFunctions && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Benchmark && datasetId == other.datasetId && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && scoringFunctions == other.scoringFunctions && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -295,5 +295,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "EvalTask{datasetId=$datasetId, identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, scoringFunctions=$scoringFunctions, type=$type, additionalProperties=$additionalProperties}"
+        "Benchmark{datasetId=$datasetId, identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, scoringFunctions=$scoringFunctions, type=$type, additionalProperties=$additionalProperties}"
 }

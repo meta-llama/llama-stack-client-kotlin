@@ -16,10 +16,8 @@ import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.RouteInfo
 import com.llama.llamastack.models.RouteListParams
 
-class RouteServiceAsyncImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : RouteServiceAsync {
+class RouteServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
+    RouteServiceAsync {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)
@@ -30,7 +28,7 @@ internal constructor(
 
     override suspend fun list(
         params: RouteListParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): List<RouteInfo> {
         val request =
             HttpRequest.builder()

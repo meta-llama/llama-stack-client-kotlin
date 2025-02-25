@@ -3,6 +3,7 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
+import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -49,8 +50,10 @@ class InferenceCompletionParamsTest {
                         .build()
                 )
                 .build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
@@ -81,8 +84,10 @@ class InferenceCompletionParamsTest {
     fun bodyWithoutOptionalFields() {
         val params =
             InferenceCompletionParams.builder().content("string").modelId("model_id").build()
+
         val body = params._body()
-        assertThat(body).isNotNull
+
+        assertNotNull(body)
         assertThat(body.content()).isEqualTo(InterleavedContent.ofString("string"))
         assertThat(body.modelId()).isEqualTo("model_id")
     }

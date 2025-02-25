@@ -14,23 +14,23 @@ interface ToolgroupServiceAsync {
     /** List tool groups with optional provider */
     suspend fun list(
         params: ToolgroupListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ToolGroup>
 
     suspend fun get(
         params: ToolgroupGetParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolGroup
 
     /** Register a tool group */
     suspend fun register(
         params: ToolgroupRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     /** Unregister a tool group */
     suspend fun unregister(
         params: ToolgroupUnregisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

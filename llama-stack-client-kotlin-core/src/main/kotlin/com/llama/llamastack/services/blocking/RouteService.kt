@@ -10,6 +10,6 @@ interface RouteService {
 
     fun list(
         params: RouteListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<RouteInfo>
 }

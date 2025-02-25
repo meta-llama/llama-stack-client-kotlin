@@ -17,10 +17,7 @@ import com.llama.llamastack.models.Tool
 import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
 
-class ToolServiceImpl
-internal constructor(
-    private val clientOptions: ClientOptions,
-) : ToolService {
+class ToolServiceImpl internal constructor(private val clientOptions: ClientOptions) : ToolService {
 
     private val errorHandler: Handler<LlamaStackClientError> =
         errorHandler(clientOptions.jsonMapper)

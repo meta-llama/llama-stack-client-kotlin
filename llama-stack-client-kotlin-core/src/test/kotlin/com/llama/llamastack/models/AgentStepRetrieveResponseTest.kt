@@ -25,7 +25,7 @@ class AgentStepRetrieveResponseTest {
                                             ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
-                                                    JsonValue.from("string")
+                                                    JsonValue.from("string"),
                                                 )
                                                 .build()
                                         )
@@ -57,7 +57,7 @@ class AgentStepRetrieveResponseTest {
                                             ToolCall.Arguments.builder()
                                                 .putAdditionalProperty(
                                                     "foo",
-                                                    JsonValue.from("string")
+                                                    JsonValue.from("string"),
                                                 )
                                                 .build()
                                         )

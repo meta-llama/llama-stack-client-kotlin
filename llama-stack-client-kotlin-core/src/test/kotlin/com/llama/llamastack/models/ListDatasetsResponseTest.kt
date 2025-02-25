@@ -18,7 +18,7 @@ class ListDatasetsResponseTest {
                             ListDatasetsResponse.Data.DatasetSchema.builder()
                                 .putAdditionalProperty(
                                     "foo",
-                                    JsonValue.from(mapOf("type" to "string"))
+                                    JsonValue.from(mapOf("type" to "string")),
                                 )
                                 .build()
                         )

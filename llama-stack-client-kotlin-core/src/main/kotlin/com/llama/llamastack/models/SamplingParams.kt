@@ -325,7 +325,7 @@ private constructor(
             override fun serialize(
                 value: Strategy,
                 generator: JsonGenerator,
-                provider: SerializerProvider
+                provider: SerializerProvider,
             ) {
                 when {
                     value.greedySampling != null -> generator.writeObject(value.greedySampling)

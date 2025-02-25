@@ -23,8 +23,8 @@ class JobServiceTest {
         val listPostTrainingJobsResponse =
             jobService.list(PostTrainingJobListParams.builder().build())
         println(listPostTrainingJobsResponse)
-        for (element: ListPostTrainingJobsResponse.Data in listPostTrainingJobsResponse) {
-            element.validate()
+        for (postTrainingJob: ListPostTrainingJobsResponse.Data in listPostTrainingJobsResponse) {
+            postTrainingJob.validate()
         }
     }
 

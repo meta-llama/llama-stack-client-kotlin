@@ -13,6 +13,6 @@ interface VectorIoService {
 
     fun query(
         params: VectorIoQueryParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): QueryChunksResponse
 }

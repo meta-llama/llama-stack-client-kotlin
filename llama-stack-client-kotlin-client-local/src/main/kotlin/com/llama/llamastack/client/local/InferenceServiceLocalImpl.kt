@@ -18,10 +18,8 @@ import com.llama.llamastack.models.InferenceEmbeddingsParams
 import com.llama.llamastack.services.blocking.InferenceService
 import org.pytorch.executorch.LlamaCallback
 
-class InferenceServiceLocalImpl
-constructor(
-    private val clientOptions: LocalClientOptions,
-) : InferenceService, LlamaCallback {
+class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClientOptions) :
+    InferenceService, LlamaCallback {
 
     private var resultMessage: String = ""
     private var onResultComplete: Boolean = false
@@ -69,7 +67,7 @@ constructor(
 
     override fun chatCompletion(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): ChatCompletionResponse {
         isStreaming = false
         clearElements()
@@ -132,7 +130,7 @@ constructor(
 
     override fun chatCompletionStreaming(
         params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<ChatCompletionResponseStreamChunk> {
         isStreaming = true
         streamingResponseList.clear()
@@ -156,21 +154,21 @@ constructor(
 
     override fun completion(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): CompletionResponse {
         TODO("Not yet implemented")
     }
 
     override fun completionStreaming(
         params: InferenceCompletionParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<CompletionResponse> {
         TODO("Not yet implemented")
     }
 
     override fun embeddings(
         params: InferenceEmbeddingsParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): EmbeddingsResponse {
         TODO("Not yet implemented")
     }

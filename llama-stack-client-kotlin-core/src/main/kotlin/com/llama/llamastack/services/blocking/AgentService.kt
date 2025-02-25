@@ -20,7 +20,7 @@ interface AgentService {
 
     fun create(
         params: AgentCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentCreateResponse
 
     fun delete(params: AgentDeleteParams, requestOptions: RequestOptions = RequestOptions.none())

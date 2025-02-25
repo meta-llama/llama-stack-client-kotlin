@@ -15,21 +15,21 @@ interface JobService {
 
     fun list(
         params: PostTrainingJobListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ListPostTrainingJobsResponse.Data>
 
     fun artifacts(
         params: PostTrainingJobArtifactsParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJobArtifactsResponse?
 
     fun cancel(
         params: PostTrainingJobCancelParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     fun status(
         params: PostTrainingJobStatusParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJobStatusResponse?
 }

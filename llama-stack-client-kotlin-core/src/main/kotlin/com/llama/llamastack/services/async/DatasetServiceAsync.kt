@@ -14,21 +14,21 @@ interface DatasetServiceAsync {
 
     suspend fun retrieve(
         params: DatasetRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): DatasetRetrieveResponse?
 
     suspend fun list(
         params: DatasetListParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): List<ListDatasetsResponse.Data>
 
     suspend fun register(
         params: DatasetRegisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 
     suspend fun unregister(
         params: DatasetUnregisterParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

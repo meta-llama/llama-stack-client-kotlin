@@ -13,16 +13,16 @@ interface SessionService {
 
     fun create(
         params: AgentSessionCreateParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentSessionCreateResponse
 
     fun retrieve(
         params: AgentSessionRetrieveParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     ): Session
 
     fun delete(
         params: AgentSessionDeleteParams,
-        requestOptions: RequestOptions = RequestOptions.none()
+        requestOptions: RequestOptions = RequestOptions.none(),
     )
 }

@@ -21,7 +21,7 @@ import java.util.Objects
 
 class VectorIoQueryParams
 private constructor(
-    private val body: VectorIoQueryBody,
+    private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -46,16 +46,16 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): VectorIoQueryBody = body
+    internal fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
     @NoAutoDetect
-    class VectorIoQueryBody
+    class Body
     @JsonCreator
-    internal constructor(
+    private constructor(
         @JsonProperty("query")
         @ExcludeMissing
         private val query: JsonField<InterleavedContent> = JsonMissing.of(),
@@ -91,7 +91,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): VectorIoQueryBody = apply {
+        fun validate(): Body = apply {
             if (validated) {
                 return@apply
             }
@@ -109,7 +109,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [VectorIoQueryBody]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
             private var query: JsonField<InterleavedContent>? = null
@@ -117,11 +117,11 @@ private constructor(
             private var params: JsonField<Params> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(vectorIoQueryBody: VectorIoQueryBody) = apply {
-                query = vectorIoQueryBody.query
-                vectorDbId = vectorIoQueryBody.vectorDbId
-                params = vectorIoQueryBody.params
-                additionalProperties = vectorIoQueryBody.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                query = body.query
+                vectorDbId = body.vectorDbId
+                params = body.params
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
             /** A image content item */
@@ -172,8 +172,8 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): VectorIoQueryBody =
-                VectorIoQueryBody(
+            fun build(): Body =
+                Body(
                     checkRequired("query", query),
                     checkRequired("vectorDbId", vectorDbId),
                     params,
@@ -186,7 +186,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is VectorIoQueryBody && query == other.query && vectorDbId == other.vectorDbId && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && query == other.query && vectorDbId == other.vectorDbId && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -196,7 +196,7 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "VectorIoQueryBody{query=$query, vectorDbId=$vectorDbId, params=$params, additionalProperties=$additionalProperties}"
+            "Body{query=$query, vectorDbId=$vectorDbId, params=$params, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
@@ -210,7 +210,7 @@ private constructor(
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var body: VectorIoQueryBody.Builder = VectorIoQueryBody.builder()
+        private var body: Body.Builder = Body.builder()
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
@@ -380,7 +380,7 @@ private constructor(
     @JsonCreator
     private constructor(
         @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
     ) {
 
         @JsonAnyGetter

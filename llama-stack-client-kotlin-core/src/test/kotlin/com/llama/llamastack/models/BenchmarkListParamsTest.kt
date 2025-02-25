@@ -4,10 +4,10 @@ package com.llama.llamastack.models
 
 import org.junit.jupiter.api.Test
 
-class EvalTaskListParamsTest {
+class BenchmarkListParamsTest {
 
     @Test
     fun create() {
-        EvalTaskListParams.builder().build()
+        BenchmarkListParams.builder().build()
     }
 }

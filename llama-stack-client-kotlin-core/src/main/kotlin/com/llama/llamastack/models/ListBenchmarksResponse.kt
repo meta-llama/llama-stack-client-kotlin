@@ -17,18 +17,18 @@ import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
 @NoAutoDetect
-class ListEvalTasksResponse
+class ListBenchmarksResponse
 @JsonCreator
 private constructor(
     @JsonProperty("data")
     @ExcludeMissing
-    private val data: JsonField<List<EvalTask>> = JsonMissing.of(),
+    private val data: JsonField<List<Benchmark>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    fun data(): List<EvalTask> = data.getRequired("data")
+    fun data(): List<Benchmark> = data.getRequired("data")
 
-    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<EvalTask>> = data
+    @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<Benchmark>> = data
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -36,7 +36,7 @@ private constructor(
 
     private var validated: Boolean = false
 
-    fun validate(): ListEvalTasksResponse = apply {
+    fun validate(): ListBenchmarksResponse = apply {
         if (validated) {
             return@apply
         }
@@ -52,24 +52,24 @@ private constructor(
         fun builder() = Builder()
     }
 
-    /** A builder for [ListEvalTasksResponse]. */
+    /** A builder for [ListBenchmarksResponse]. */
     class Builder internal constructor() {
 
-        private var data: JsonField<MutableList<EvalTask>>? = null
+        private var data: JsonField<MutableList<Benchmark>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-        internal fun from(listEvalTasksResponse: ListEvalTasksResponse) = apply {
-            data = listEvalTasksResponse.data.map { it.toMutableList() }
-            additionalProperties = listEvalTasksResponse.additionalProperties.toMutableMap()
+        internal fun from(listBenchmarksResponse: ListBenchmarksResponse) = apply {
+            data = listBenchmarksResponse.data.map { it.toMutableList() }
+            additionalProperties = listBenchmarksResponse.additionalProperties.toMutableMap()
         }
 
-        fun data(data: List<EvalTask>) = data(JsonField.of(data))
+        fun data(data: List<Benchmark>) = data(JsonField.of(data))
 
-        fun data(data: JsonField<List<EvalTask>>) = apply {
+        fun data(data: JsonField<List<Benchmark>>) = apply {
             this.data = data.map { it.toMutableList() }
         }
 
-        fun addData(data: EvalTask) = apply {
+        fun addData(data: Benchmark) = apply {
             this.data =
                 (this.data ?: JsonField.of(mutableListOf())).apply {
                     (asKnown()
@@ -99,10 +99,10 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
-        fun build(): ListEvalTasksResponse =
-            ListEvalTasksResponse(
+        fun build(): ListBenchmarksResponse =
+            ListBenchmarksResponse(
                 checkRequired("data", data).map { it.toImmutable() },
-                additionalProperties.toImmutable()
+                additionalProperties.toImmutable(),
             )
     }
 
@@ -111,7 +111,7 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ListEvalTasksResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ListBenchmarksResponse && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
@@ -121,5 +121,5 @@ private constructor(
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ListEvalTasksResponse{data=$data, additionalProperties=$additionalProperties}"
+        "ListBenchmarksResponse{data=$data, additionalProperties=$additionalProperties}"
 }

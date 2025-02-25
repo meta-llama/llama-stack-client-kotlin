@@ -4,19 +4,15 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
-class EvalTaskRetrieveParams
+class BenchmarkListParams
 private constructor(
-    private val evalTaskId: String,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
-
-    fun evalTaskId(): String = evalTaskId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -26,13 +22,6 @@ private constructor(
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> evalTaskId
-            else -> ""
-        }
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -40,21 +29,17 @@ private constructor(
         fun builder() = Builder()
     }
 
-    /** A builder for [EvalTaskRetrieveParams]. */
+    /** A builder for [BenchmarkListParams]. */
     @NoAutoDetect
     class Builder internal constructor() {
 
-        private var evalTaskId: String? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
-        internal fun from(evalTaskRetrieveParams: EvalTaskRetrieveParams) = apply {
-            evalTaskId = evalTaskRetrieveParams.evalTaskId
-            additionalHeaders = evalTaskRetrieveParams.additionalHeaders.toBuilder()
-            additionalQueryParams = evalTaskRetrieveParams.additionalQueryParams.toBuilder()
+        internal fun from(benchmarkListParams: BenchmarkListParams) = apply {
+            additionalHeaders = benchmarkListParams.additionalHeaders.toBuilder()
+            additionalQueryParams = benchmarkListParams.additionalQueryParams.toBuilder()
         }
-
-        fun evalTaskId(evalTaskId: String) = apply { this.evalTaskId = evalTaskId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -154,12 +139,8 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun build(): EvalTaskRetrieveParams =
-            EvalTaskRetrieveParams(
-                checkRequired("evalTaskId", evalTaskId),
-                additionalHeaders.build(),
-                additionalQueryParams.build(),
-            )
+        fun build(): BenchmarkListParams =
+            BenchmarkListParams(additionalHeaders.build(), additionalQueryParams.build())
     }
 
     override fun equals(other: Any?): Boolean {
@@ -167,11 +148,11 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is EvalTaskRetrieveParams && evalTaskId == other.evalTaskId && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is BenchmarkListParams && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(evalTaskId, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "EvalTaskRetrieveParams{evalTaskId=$evalTaskId, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "BenchmarkListParams{additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }
