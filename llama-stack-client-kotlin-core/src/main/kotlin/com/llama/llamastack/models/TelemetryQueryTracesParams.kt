@@ -104,9 +104,9 @@ private constructor(
             }
 
             attributeFilters()?.forEach { it.validate() }
-            //            limit()?.validate()
-            //            offset()?.validate()
-            //            orderBy()?.forEach { it.validate() }
+            limit()
+            offset()
+            orderBy()
             validated = true
         }
 

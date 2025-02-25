@@ -92,8 +92,8 @@ private constructor(
                 return@apply
             }
 
-            //            attributesToReturn()?.forEach { it.validate() }
-            //            maxDepth()?.validate()
+            attributesToReturn()
+            maxDepth()
             validated = true
         }
 

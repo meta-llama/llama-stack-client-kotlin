@@ -97,8 +97,8 @@ private constructor(
             }
 
             attributeFilters().forEach { it.validate() }
-            //            attributesToReturn().forEach { it.validate() }
-            //            maxDepth()?.validate()
+            attributesToReturn()
+            maxDepth()
             validated = true
         }
 
