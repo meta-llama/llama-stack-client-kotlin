@@ -62,10 +62,10 @@ Start a Llama Stack server on localhost. Here is an example of how you can do th
 ```
 conda create -n stack-fireworks python=3.10 
 conda activate stack-fireworks
-pip install llama-stack=0.1.4.1
+pip install --no-cache llama-stack==0.1.4.1
 llama stack build --template fireworks --image-type conda
 export FIREWORKS_API_KEY=<SOME_KEY>
-llama stack run /Users/<your_username>/.llama/distributions/llamastack-fireworks/fireworks-run.yaml --port=5050
+llama stack run fireworks --port 5050
 ```
 
 Ensure the Llama Stack server version is the same as the Kotlin SDK Library for maximum compatibility.
