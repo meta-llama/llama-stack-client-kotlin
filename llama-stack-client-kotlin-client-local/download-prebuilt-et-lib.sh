@@ -9,12 +9,12 @@
 # How to run:
 # - `sh download-prebuild-et-lib.sh` : download ExecuTorch AAR in apps/libs (meant to be run in Android App environment)
 # - `sh download-prebuild-et-lib.sh` : download+unzip ExecuTorch AAR in working directory and clean-up.
-# Based on ExecuTorch Commit ID: 0a12e33d22a3d44d1aa2af5f0d0673d45b962553
+# Based on ExecuTorch Commit ID: 80ca4ac3ea3ea96a3d6cf327286e2208b99a0dc8
 
 set -eu
 
-AAR_URL="https://ossci-android.s3.amazonaws.com/executorch/release/executorch-20241202/executorch.aar"
-AAR_SHASUM_URL="https://ossci-android.s3.amazonaws.com/executorch/release/executorch-20241202/executorch.aar.sha256sums"
+AAR_URL="https://ossci-android.s3.us-west-1.amazonaws.com/executorch/release/v0.5.0-rc3/executorch.aar"
+AAR_SHASUM_URL="https://ossci-android.s3.us-west-1.amazonaws.com/executorch/release/v0.5.0-rc3/executorch.aar.sha256sums"
 LIBS_PATH="$(dirname "$0")/app/libs"
 UNZIP=false
 while [[ $# -gt 0 ]]; do
