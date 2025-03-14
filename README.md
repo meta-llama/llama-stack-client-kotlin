@@ -8,9 +8,9 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest Release Notes: [v0.1.4.1](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.4.1) 
+Latest Release Notes: [v0.1.4.2](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.4.2) 
 
-Note: The current recommended version is 0.1.4 Llama Stack server with 0.1.4.1 Kotlin client SDK. Kotlin SDK 0.1.4 has a known bug on tool calling, which will be fixed in upcoming Llama Stack server release.
+Note: The current recommended version is 0.1.4 Llama Stack server with 0.1.4.2 Kotlin client SDK. Kotlin SDK 0.1.4 has a known bug on tool calling, which will be fixed in upcoming Llama Stack server release.
 
 *Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.*
 
@@ -26,7 +26,7 @@ The key files in the app are `ExampleLlamaStackLocalInference.kt`, `ExampleLlama
 Add the following dependency in your `build.gradle.kts` file:
 ```
 dependencies {
- implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.4.1")
+ implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.4.2")
 }
 ```
 This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/` 
@@ -41,7 +41,7 @@ Include the ExecuTorch library by:
 1. Download the `download-prebuilt-et-lib.sh` script file from the [llama-stack-client-kotlin-client-local](https://github.com/meta-llama/llama-stack-client-kotlin/blob/release/0.0.58/llama-stack-client-kotlin-client-local/download-prebuilt-et-lib.sh) directory to your local machine.
 2. Move the script to the top level of your Android app where the app directory resides:
 <p align="center">
-<img src="https://raw.githubusercontent.com/meta-llama/llama-stack-client-kotlin/refs/heads/release/0.0.58/doc/img/example_android_app_directory.png" style="width:300px">
+<img src="https://raw.githubusercontent.com/meta-llama/llama-stack-client-kotlin/refs/heads/latest-release/doc/img/example_android_app_directory.png" style="width:300px">
 </p>
 
 3. Run `sh download-prebuilt-et-lib.sh` to create an `app/libs` directory and download the `executorch.aar` in that path. This generates an ExecuTorch library for the XNNPACK delegate with commit: [0a12e33](https://github.com/pytorch/executorch/commit/0a12e33d22a3d44d1aa2af5f0d0673d45b962553).
