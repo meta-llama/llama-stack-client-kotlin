@@ -30,7 +30,7 @@ git clone https://github.com/meta-llama/llama-stack-client-kotlin.git --branch=l
 2. Add executorch.aar file for local inference. This will download the .aar file into a newly created app/libs directory in the Android app. 
 ```
 cd llama-stack-client-kotlin
-cp download-prebuilt-et-lib.sh examples/android_app
+cp llama-stack-client-kotlin-client-local/download-prebuilt-et-lib.sh examples/android_app
 cd examples/android_app
 sh download-prebuilt-et-lib.sh
 -or-
