@@ -8,6 +8,8 @@ This app serves as a valuable resource to inspire your creativity and provide fo
 
 Please dive in and start exploring our demo app today! We look forward to any feedback and are excited to see your innovative ideas to build agentic apps with Llama models. The current demo app is built using both Java and Kotlin. The majority of the activities are built with Java but the interfacing with Llama Stack APIs are in Kotlin. 
 
+**Latest Update**:
+(02/25/2025) We have updated the demo app to be compatible with Llama Stack Kotlin SDK [v0.1.4.1](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.4.1) and Llama Stack version [v0.1.4](https://github.com/meta-llama/llama-stack/releases/tag/v0.1.4).
 
 ## Key Concepts
 From this demo app, you will learn many key concepts of building a GenAI Andrioid app with Llama Stack libraries:
@@ -23,28 +25,25 @@ The goal is for you to see the type of support Llama Stack Kotlin SDK provides a
 
 1. Clone the repo with lastest kotlin app tag
 ```
-git clone https://github.com/meta-llama/llama-stack-apps.git --branch=android-kotlin-app-latest
+git clone https://github.com/meta-llama/llama-stack-client-kotlin.git --branch=latest-release
 ```
-2. Move to `examples/android_app` directory
-3. Open the project in Android Studio
-4. Add .aar file for local inference: Download the `download-prebuilt-et-lib.sh` script file from the [Llama Stack Kotlin SDK](https://github.com/meta-llama/llama-stack-client-kotlin/blob/release/0.1.4.1/llama-stack-client-kotlin-client-local/download-prebuilt-et-lib.sh) directory. Place the script in the top level of your Android app in the same level where the `app/` directory is located.
+2. Add executorch.aar file for local inference. This will download the .aar file into a newly created app/libs directory in the Android app. 
 ```
-# downloads the executorch.aar. The aar file will be located in the newly created directory app/libs
+cd llama-stack-client-kotlin
+cp download-prebuilt-et-lib.sh examples/android_app
+cd examples/android_app
 sh download-prebuilt-et-lib.sh
 -or-
 bash download-prebuilt-et-lib.sh
 ```
-4. Wait until the gradle sync finished or in File -> `Sync Project with Gradle Files`
-5. Attach your mobile phone with ADB available
-6. Run the app (^R). This builds and launches the app on the phone
-
-
-## Updates
-
-[02/25/2025] We have updated the demo app to be compatible with Llama Stack Kotlin SDK [v0.1.4.1](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.4.1) and Llama Stack version [v0.1.4](https://github.com/meta-llama/llama-stack/releases/tag/v0.1.4). This includes work for:
- - Remote agents
- - Remote image reasoning
- - Local inference streaming
+3. Move to `examples/android_app` directory
+```
+cd examples/android_app
+```
+4. Open the project in Android Studio
+5. Wait until the gradle sync finished or in File -> `Sync Project with Gradle Files`
+6. Attach your mobile phone with ADB available
+7. Run the app (^R). This builds and launches the app on the phone
 
 ## Supporting Models
 As a whole, the models that this app supports vary by remote or local.
@@ -239,4 +238,4 @@ https://github.com/user-attachments/assets/b4037778-0189-4e3e-b19e-4ca2c9efbdfd
 
 
 ## Reporting Issues
-If you encountered any bugs or issues following this tutorial please file a bug/issue here on [Github](https://github.com/meta-llama/llama-stack-apps/issues/).
+If you encountered any bugs or issues following this tutorial please file a bug/issue here on [Github](https://github.com/meta-llama/llama-stack-client-kotlin/issues)).
