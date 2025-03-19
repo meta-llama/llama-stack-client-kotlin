@@ -1,10 +1,9 @@
 package com.llama.llamastack.client.local.services.agents
 
+import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.util.PromptFormatLocal
-import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
-import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStream
-import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponsesFromStream
-import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.client.local.util.buildAgentTurnResponseFromStream
+import com.llama.llamastack.client.local.util.buildLastAgentTurnResponsesFromStream
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.AgentTurnCreateParams
@@ -15,7 +14,7 @@ import com.llama.llamastack.models.Turn
 import com.llama.llamastack.services.blocking.agents.TurnService
 import org.pytorch.executorch.LlamaCallback
 
-class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions) :
+class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOptions) :
     TurnService, LlamaCallback {
 
     private var resultMessage: String = ""
@@ -33,12 +32,18 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
     private val waitTime: Long = 100
 
     override fun create(params: AgentTurnCreateParams, requestOptions: RequestOptions): Turn {
-        isStreaming = false
+        TODO("Not yet implemented")
+        /* isStreaming = false
         clearElements()
         val mModule = clientOptions.llamaModule
-        modelName = params.modelId()
+        modelName = "LLAMA_3_2" // TODO: cmodiii get this from db
+        val instruction = "Be concise" // TODO: cmodiii get this from db
         val formattedPrompt =
-            PromptFormatLocal.getTotalFormattedPrompt(params.messages(), modelName)
+            PromptFormatLocal.getTotalFormattedPromptForAgent(
+                instruction,
+                params.messages(),
+                modelName
+            )
 
         // Developer can pass in their sequence length but if not then it will default to a
         // particular dynamic value. This is to ensure enough value is provided to give a reasonably
@@ -58,7 +63,7 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
         onResultComplete = false
         onStatsComplete = false
 
-        return buildAgentTurnResponsesFromStream(resultMessage, statsMetric, stopToken)
+        return buildAgentTurnResponses(resultMessage, statsMetric, stopToken)*/
     }
 
     private val streamResponse =
@@ -67,6 +72,7 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
                 return sequence {
                     while (!onResultComplete || streamingResponseList.isNotEmpty()) {
                         if (streamingResponseList.isNotEmpty()) {
+                            println("cmodiii streamResponse yield. I'm here!")
                             yield(streamingResponseList.removeAt(0))
                         } else {
                             Thread.sleep(waitTime)
@@ -76,11 +82,8 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
                         Thread.sleep(waitTime)
                     }
                     val agentTurnResponses =
-                        buildLastAgentTurnResponsesFromStream(
-                            resultMessage,
-                            statsMetric,
-                            stopToken,
-                        )
+                        buildLastAgentTurnResponsesFromStream(resultMessage, statsMetric, stopToken)
+                    println("cmodiii streamResponse yield. tool call: $agentTurnResponses")
                     for (atr in agentTurnResponses) {
                         yield(atr)
                     }
@@ -94,23 +97,29 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
 
     override fun createStreaming(
         params: AgentTurnCreateParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<AgentTurnResponseStreamChunk> {
         isStreaming = true
         streamingResponseList.clear()
         resultMessage = ""
         val mModule = clientOptions.llamaModule
-        modelName = params.modelId()
+        modelName = clientOptions.getModelName()!! // TODO: cmodiii get this from db
+        val instruction = clientOptions.getInstruction()!! // TODO: cmodiii get this from db
+        println("cmodiii createStreaming: $modelName , $instruction , $mModule")
         val formattedPrompt =
-            PromptFormatLocal.getTotalFormattedPrompt(params.messages(), modelName)
+            PromptFormatLocal.getTotalFormattedPromptForAgent(
+                instruction,
+                params.messages(),
+                modelName,
+            )
 
         val seqLength =
             params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
                 ?: ((formattedPrompt.length * 0.75) + 64).toInt()
 
-        println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
+        println("Agent Turn Response Prompt is: $formattedPrompt with seqLength of $seqLength")
         onResultComplete = false
-        val thread = Thread { mModule.generate(formattedPrompt, seqLength, this, false) }
+        val thread = Thread { mModule!!.generate(formattedPrompt, seqLength, this, false) }
         thread.start()
 
         return streamResponse
@@ -126,7 +135,7 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
 
     override fun resumeStreaming(
         params: AgentTurnResumeParams,
-        requestOptions: RequestOptions
+        requestOptions: RequestOptions,
     ): StreamResponse<AgentTurnResponseStreamChunk> {
         TODO("Not yet implemented")
     }
@@ -142,13 +151,15 @@ class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions)
             if (resultMessage.isNotEmpty()) {
                 resultMessage += p0
                 if (p0 != null && isStreaming) {
-                    streamingResponseList.add(buildAgentTurnResponsesFromStream(p0))
+                    println("cmodiii turn: $p0")
+                    streamingResponseList.add(buildAgentTurnResponseFromStream(p0))
                 }
             }
         } else {
             resultMessage += p0
             if (p0 != null && isStreaming) {
-                streamingResponseList.add(buildAgentTurnResponsesFromStream(p0))
+                println("cmodiii turn last: $p0")
+                streamingResponseList.add(buildAgentTurnResponseFromStream(p0))
             }
         }
     }
