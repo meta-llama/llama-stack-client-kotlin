@@ -8,9 +8,9 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest Release Notes: [v0.1.4.2](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.4.2) 
+Latest Release Notes: [v0.1.7](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.7) 
 
-Note: The current recommended version is 0.1.4 Llama Stack server with 0.1.4.2 Kotlin client SDK. Kotlin SDK 0.1.4 has a known bug on tool calling, which will be fixed in upcoming Llama Stack server release.
+Note: The current recommended version is 0.1.7 Llama Stack server with 0.1.7 Kotlin client SDK.
 
 *Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.*
 
@@ -26,7 +26,7 @@ The key files in the app are `ExampleLlamaStackLocalInference.kt`, `ExampleLlama
 Add the following dependency in your `build.gradle.kts` file:
 ```
 dependencies {
- implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.4.2")
+ implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.7")
 }
 ```
 This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/` 
@@ -62,7 +62,7 @@ Start a Llama Stack server on localhost. Here is an example of how you can do th
 ```
 conda create -n stack-fireworks python=3.10 
 conda activate stack-fireworks
-pip install --no-cache llama-stack==0.1.4
+pip install --no-cache llama-stack==0.1.7
 llama stack build --template fireworks --image-type conda
 export FIREWORKS_API_KEY=<SOME_KEY>
 llama stack run fireworks --port 5050
