@@ -12,11 +12,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import java.time.OffsetDateTime
 import java.util.Objects
 
 /** A chunk of a streamed chat completion response. */
@@ -31,14 +31,32 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** The event containing the new content */
+    /**
+     * The event containing the new content
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun event(): Event = event.getRequired("event")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metrics(): List<Metric>? = metrics.getNullable("metrics")
 
-    /** The event containing the new content */
+    /**
+     * Returns the raw JSON value of [event].
+     *
+     * Unlike [event], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<Event> = event
 
+    /**
+     * Returns the raw JSON value of [metrics].
+     *
+     * Unlike [metrics], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metrics") @ExcludeMissing fun _metrics(): JsonField<List<Metric>> = metrics
 
     @JsonAnyGetter
@@ -61,6 +79,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [ChatCompletionResponseStreamChunk].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .event()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -82,23 +109,36 @@ private constructor(
         /** The event containing the new content */
         fun event(event: Event) = event(JsonField.of(event))
 
-        /** The event containing the new content */
+        /**
+         * Sets [Builder.event] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.event] with a well-typed [Event] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun event(event: JsonField<Event>) = apply { this.event = event }
 
         fun metrics(metrics: List<Metric>) = metrics(JsonField.of(metrics))
 
+        /**
+         * Sets [Builder.metrics] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metrics] with a well-typed `List<Metric>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metrics(metrics: JsonField<List<Metric>>) = apply {
             this.metrics = metrics.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [Metric] to [metrics].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addMetric(metric: Metric) = apply {
             metrics =
-                (metrics ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(metric)
+                (metrics ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("metrics", it).add(metric)
                 }
         }
 
@@ -150,32 +190,70 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** Content generated since last event. This can be one or more tokens, or a tool call. */
+        /**
+         * Content generated since last event. This can be one or more tokens, or a tool call.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun delta(): ContentDelta = delta.getRequired("delta")
 
-        /** Type of the event */
+        /**
+         * Type of the event
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun eventType(): EventType = eventType.getRequired("event_type")
 
-        /** Optional log probabilities for generated tokens */
+        /**
+         * Optional log probabilities for generated tokens
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun logprobs(): List<TokenLogProbs>? = logprobs.getNullable("logprobs")
 
-        /** Optional reason why generation stopped, if complete */
+        /**
+         * Optional reason why generation stopped, if complete
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun stopReason(): StopReason? = stopReason.getNullable("stop_reason")
 
-        /** Content generated since last event. This can be one or more tokens, or a tool call. */
+        /**
+         * Returns the raw JSON value of [delta].
+         *
+         * Unlike [delta], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("delta") @ExcludeMissing fun _delta(): JsonField<ContentDelta> = delta
 
-        /** Type of the event */
+        /**
+         * Returns the raw JSON value of [eventType].
+         *
+         * Unlike [eventType], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("event_type")
         @ExcludeMissing
         fun _eventType(): JsonField<EventType> = eventType
 
-        /** Optional log probabilities for generated tokens */
+        /**
+         * Returns the raw JSON value of [logprobs].
+         *
+         * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("logprobs")
         @ExcludeMissing
         fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
 
-        /** Optional reason why generation stopped, if complete */
+        /**
+         * Returns the raw JSON value of [stopReason].
+         *
+         * Unlike [stopReason], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("stop_reason")
         @ExcludeMissing
         fun _stopReason(): JsonField<StopReason> = stopReason
@@ -202,6 +280,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Event].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .delta()
+             * .eventType()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -228,67 +315,93 @@ private constructor(
             fun delta(delta: ContentDelta) = delta(JsonField.of(delta))
 
             /**
-             * Content generated since last event. This can be one or more tokens, or a tool call.
+             * Sets [Builder.delta] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.delta] with a well-typed [ContentDelta] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun delta(delta: JsonField<ContentDelta>) = apply { this.delta = delta }
 
-            /**
-             * Content generated since last event. This can be one or more tokens, or a tool call.
-             */
+            /** Alias for calling [delta] with `ContentDelta.ofText(text)`. */
             fun delta(text: ContentDelta.TextDelta) = delta(ContentDelta.ofText(text))
 
             /**
-             * Content generated since last event. This can be one or more tokens, or a tool call.
+             * Alias for calling [delta] with the following:
+             * ```kotlin
+             * ContentDelta.TextDelta.builder()
+             *     .text(text)
+             *     .build()
+             * ```
              */
             fun textDelta(text: String) = delta(ContentDelta.TextDelta.builder().text(text).build())
 
-            /**
-             * Content generated since last event. This can be one or more tokens, or a tool call.
-             */
+            /** Alias for calling [delta] with `ContentDelta.ofImage(image)`. */
             fun delta(image: ContentDelta.ImageDelta) = delta(ContentDelta.ofImage(image))
 
             /**
-             * Content generated since last event. This can be one or more tokens, or a tool call.
+             * Alias for calling [delta] with the following:
+             * ```kotlin
+             * ContentDelta.ImageDelta.builder()
+             *     .image(image)
+             *     .build()
+             * ```
              */
             fun imageDelta(image: String) =
                 delta(ContentDelta.ImageDelta.builder().image(image).build())
 
-            /**
-             * Content generated since last event. This can be one or more tokens, or a tool call.
-             */
+            /** Alias for calling [delta] with `ContentDelta.ofToolCall(toolCall)`. */
             fun delta(toolCall: ContentDelta.ToolCallDelta) =
                 delta(ContentDelta.ofToolCall(toolCall))
 
             /** Type of the event */
             fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))
 
-            /** Type of the event */
+            /**
+             * Sets [Builder.eventType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.eventType] with a well-typed [EventType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonField<EventType>) = apply { this.eventType = eventType }
 
             /** Optional log probabilities for generated tokens */
             fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
-            /** Optional log probabilities for generated tokens */
+            /**
+             * Sets [Builder.logprobs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.logprobs] with a well-typed `List<TokenLogProbs>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
                 this.logprobs = logprobs.map { it.toMutableList() }
             }
 
-            /** Optional log probabilities for generated tokens */
+            /**
+             * Adds a single [TokenLogProbs] to [logprobs].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addLogprob(logprob: TokenLogProbs) = apply {
                 logprobs =
-                    (logprobs ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(logprob)
+                    (logprobs ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("logprobs", it).add(logprob)
                     }
             }
 
             /** Optional reason why generation stopped, if complete */
             fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
-            /** Optional reason why generation stopped, if complete */
+            /**
+             * Sets [Builder.stopReason] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stopReason] with a well-typed [StopReason] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stopReason(stopReason: JsonField<StopReason>) = apply {
                 this.stopReason = stopReason
             }
@@ -567,62 +680,56 @@ private constructor(
         @JsonProperty("metric")
         @ExcludeMissing
         private val metric: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("span_id")
-        @ExcludeMissing
-        private val spanId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("timestamp")
-        @ExcludeMissing
-        private val timestamp: JsonField<OffsetDateTime> = JsonMissing.of(),
-        @JsonProperty("trace_id")
-        @ExcludeMissing
-        private val traceId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonProperty("unit")
-        @ExcludeMissing
-        private val unit: JsonField<String> = JsonMissing.of(),
         @JsonProperty("value")
         @ExcludeMissing
         private val value: JsonField<Double> = JsonMissing.of(),
-        @JsonProperty("attributes")
+        @JsonProperty("unit")
         @ExcludeMissing
-        private val attributes: JsonField<Attributes> = JsonMissing.of(),
+        private val unit: JsonField<String> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun metric(): String = metric.getRequired("metric")
 
-        fun spanId(): String = spanId.getRequired("span_id")
-
-        fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
-
-        fun traceId(): String = traceId.getRequired("trace_id")
-
-        @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
-
-        fun unit(): String = unit.getRequired("unit")
-
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun value(): Double = value.getRequired("value")
 
-        fun attributes(): Attributes? = attributes.getNullable("attributes")
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun unit(): String? = unit.getNullable("unit")
 
+        /**
+         * Returns the raw JSON value of [metric].
+         *
+         * Unlike [metric], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metric") @ExcludeMissing fun _metric(): JsonField<String> = metric
 
-        @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
-
-        @JsonProperty("timestamp")
-        @ExcludeMissing
-        fun _timestamp(): JsonField<OffsetDateTime> = timestamp
-
-        @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
-
-        @JsonProperty("unit") @ExcludeMissing fun _unit(): JsonField<String> = unit
-
+        /**
+         * Returns the raw JSON value of [value].
+         *
+         * Unlike [value], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Double> = value
 
-        @JsonProperty("attributes")
-        @ExcludeMissing
-        fun _attributes(): JsonField<Attributes> = attributes
+        /**
+         * Returns the raw JSON value of [unit].
+         *
+         * Unlike [unit], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("unit") @ExcludeMissing fun _unit(): JsonField<String> = unit
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -636,17 +743,8 @@ private constructor(
             }
 
             metric()
-            spanId()
-            timestamp()
-            traceId()
-            _type().let {
-                if (it != JsonValue.from("metric")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            unit()
             value()
-            attributes()?.validate()
+            unit()
             validated = true
         }
 
@@ -654,6 +752,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Metric].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .metric()
+             * .value()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -661,60 +768,49 @@ private constructor(
         class Builder internal constructor() {
 
             private var metric: JsonField<String>? = null
-            private var spanId: JsonField<String>? = null
-            private var timestamp: JsonField<OffsetDateTime>? = null
-            private var traceId: JsonField<String>? = null
-            private var type: JsonValue = JsonValue.from("metric")
-            private var unit: JsonField<String>? = null
             private var value: JsonField<Double>? = null
-            private var attributes: JsonField<Attributes> = JsonMissing.of()
+            private var unit: JsonField<String> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(metric: Metric) = apply {
                 this.metric = metric.metric
-                spanId = metric.spanId
-                timestamp = metric.timestamp
-                traceId = metric.traceId
-                type = metric.type
-                unit = metric.unit
                 value = metric.value
-                attributes = metric.attributes
+                unit = metric.unit
                 additionalProperties = metric.additionalProperties.toMutableMap()
             }
 
             fun metric(metric: String) = metric(JsonField.of(metric))
 
+            /**
+             * Sets [Builder.metric] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metric] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metric(metric: JsonField<String>) = apply { this.metric = metric }
-
-            fun spanId(spanId: String) = spanId(JsonField.of(spanId))
-
-            fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
-
-            fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
-
-            fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
-                this.timestamp = timestamp
-            }
-
-            fun traceId(traceId: String) = traceId(JsonField.of(traceId))
-
-            fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
-
-            fun type(type: JsonValue) = apply { this.type = type }
-
-            fun unit(unit: String) = unit(JsonField.of(unit))
-
-            fun unit(unit: JsonField<String>) = apply { this.unit = unit }
 
             fun value(value: Double) = value(JsonField.of(value))
 
+            /**
+             * Sets [Builder.value] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.value] with a well-typed [Double] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun value(value: JsonField<Double>) = apply { this.value = value }
 
-            fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
+            fun unit(unit: String) = unit(JsonField.of(unit))
 
-            fun attributes(attributes: JsonField<Attributes>) = apply {
-                this.attributes = attributes
-            }
+            /**
+             * Sets [Builder.unit] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.unit] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
+            fun unit(unit: JsonField<String>) = apply { this.unit = unit }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -738,95 +834,10 @@ private constructor(
             fun build(): Metric =
                 Metric(
                     checkRequired("metric", metric),
-                    checkRequired("spanId", spanId),
-                    checkRequired("timestamp", timestamp),
-                    checkRequired("traceId", traceId),
-                    type,
-                    checkRequired("unit", unit),
                     checkRequired("value", value),
-                    attributes,
+                    unit,
                     additionalProperties.toImmutable(),
                 )
-        }
-
-        @NoAutoDetect
-        class Attributes
-        @JsonCreator
-        private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
-        ) {
-
-            @JsonAnyGetter
-            @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Attributes = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
-
-            fun toBuilder() = Builder().from(this)
-
-            companion object {
-
-                fun builder() = Builder()
-            }
-
-            /** A builder for [Attributes]. */
-            class Builder internal constructor() {
-
-                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-                internal fun from(attributes: Attributes) = apply {
-                    additionalProperties = attributes.additionalProperties.toMutableMap()
-                }
-
-                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                    this.additionalProperties.clear()
-                    putAllAdditionalProperties(additionalProperties)
-                }
-
-                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                    additionalProperties.put(key, value)
-                }
-
-                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
-                    apply {
-                        this.additionalProperties.putAll(additionalProperties)
-                    }
-
-                fun removeAdditionalProperty(key: String) = apply {
-                    additionalProperties.remove(key)
-                }
-
-                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                    keys.forEach(::removeAdditionalProperty)
-                }
-
-                fun build(): Attributes = Attributes(additionalProperties.toImmutable())
-            }
-
-            override fun equals(other: Any?): Boolean {
-                if (this === other) {
-                    return true
-                }
-
-                return /* spotless:off */ other is Attributes && additionalProperties == other.additionalProperties /* spotless:on */
-            }
-
-            /* spotless:off */
-            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
-            /* spotless:on */
-
-            override fun hashCode(): Int = hashCode
-
-            override fun toString() = "Attributes{additionalProperties=$additionalProperties}"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -834,17 +845,17 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Metric && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Metric && metric == other.metric && value == other.value && unit == other.unit && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(metric, spanId, timestamp, traceId, type, unit, value, attributes, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(metric, value, unit, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Metric{metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, attributes=$attributes, additionalProperties=$additionalProperties}"
+            "Metric{metric=$metric, value=$value, unit=$unit, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

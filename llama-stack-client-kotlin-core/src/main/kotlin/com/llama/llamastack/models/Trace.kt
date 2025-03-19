@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
@@ -36,22 +37,58 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun rootSpanId(): String = rootSpanId.getRequired("root_span_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun startTime(): OffsetDateTime = startTime.getRequired("start_time")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun traceId(): String = traceId.getRequired("trace_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun endTime(): OffsetDateTime? = endTime.getNullable("end_time")
 
+    /**
+     * Returns the raw JSON value of [rootSpanId].
+     *
+     * Unlike [rootSpanId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("root_span_id") @ExcludeMissing fun _rootSpanId(): JsonField<String> = rootSpanId
 
+    /**
+     * Returns the raw JSON value of [startTime].
+     *
+     * Unlike [startTime], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("start_time")
     @ExcludeMissing
     fun _startTime(): JsonField<OffsetDateTime> = startTime
 
+    /**
+     * Returns the raw JSON value of [traceId].
+     *
+     * Unlike [traceId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
 
+    /**
+     * Returns the raw JSON value of [endTime].
+     *
+     * Unlike [endTime], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("end_time") @ExcludeMissing fun _endTime(): JsonField<OffsetDateTime> = endTime
 
     @JsonAnyGetter
@@ -76,6 +113,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [Trace].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .rootSpanId()
+         * .startTime()
+         * .traceId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -98,18 +145,45 @@ private constructor(
 
         fun rootSpanId(rootSpanId: String) = rootSpanId(JsonField.of(rootSpanId))
 
+        /**
+         * Sets [Builder.rootSpanId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.rootSpanId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun rootSpanId(rootSpanId: JsonField<String>) = apply { this.rootSpanId = rootSpanId }
 
         fun startTime(startTime: OffsetDateTime) = startTime(JsonField.of(startTime))
 
+        /**
+         * Sets [Builder.startTime] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.startTime] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun startTime(startTime: JsonField<OffsetDateTime>) = apply { this.startTime = startTime }
 
         fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
+        /**
+         * Sets [Builder.traceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.traceId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
 
         fun endTime(endTime: OffsetDateTime) = endTime(JsonField.of(endTime))
 
+        /**
+         * Sets [Builder.endTime] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.endTime] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun endTime(endTime: JsonField<OffsetDateTime>) = apply { this.endTime = endTime }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

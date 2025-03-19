@@ -9,6 +9,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Retrieve an agent step by its ID. */
 class AgentStepRetrieveParams
 private constructor(
     private val agentId: String,
@@ -49,6 +50,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentStepRetrieveParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * .turnId()
+         * .stepId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

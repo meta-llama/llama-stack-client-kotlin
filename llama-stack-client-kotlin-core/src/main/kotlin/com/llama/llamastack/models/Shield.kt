@@ -38,24 +38,70 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun identifier(): String = identifier.getRequired("identifier")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerId(): String = providerId.getRequired("provider_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
+    /**
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("shield")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun params(): Params? = params.getNullable("params")
 
+    /**
+     * Returns the raw JSON value of [identifier].
+     *
+     * Unlike [identifier], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
     fun _providerResourceId(): JsonField<String> = providerResourceId
 
+    /**
+     * Returns the raw JSON value of [params].
+     *
+     * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
     @JsonAnyGetter
@@ -85,6 +131,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [Shield].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .identifier()
+         * .providerId()
+         * .providerResourceId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -109,23 +165,62 @@ private constructor(
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
+        /**
+         * Sets [Builder.identifier] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.identifier] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerResourceId(providerResourceId: String) =
             providerResourceId(JsonField.of(providerResourceId))
 
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerResourceId(providerResourceId: JsonField<String>) = apply {
             this.providerResourceId = providerResourceId
         }
 
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("shield")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun type(type: JsonValue) = apply { this.type = type }
 
         fun params(params: Params) = params(JsonField.of(params))
 
+        /**
+         * Sets [Builder.params] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.params] with a well-typed [Params] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun params(params: JsonField<Params>) = apply { this.params = params }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -184,6 +279,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Params]. */
             fun builder() = Builder()
         }
 

@@ -11,11 +11,14 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** The response from an evaluation. */
 @NoAutoDetect
 class EvaluateResponse
 @JsonCreator
@@ -29,14 +32,36 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * The generations from the evaluation.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun generations(): List<Generation> = generations.getRequired("generations")
 
+    /**
+     * The scores from the evaluation.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scores(): Scores = scores.getRequired("scores")
 
+    /**
+     * Returns the raw JSON value of [generations].
+     *
+     * Unlike [generations], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("generations")
     @ExcludeMissing
     fun _generations(): JsonField<List<Generation>> = generations
 
+    /**
+     * Returns the raw JSON value of [scores].
+     *
+     * Unlike [scores], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("scores") @ExcludeMissing fun _scores(): JsonField<Scores> = scores
 
     @JsonAnyGetter
@@ -59,6 +84,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [EvaluateResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .generations()
+         * .scores()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -75,25 +109,41 @@ private constructor(
             additionalProperties = evaluateResponse.additionalProperties.toMutableMap()
         }
 
+        /** The generations from the evaluation. */
         fun generations(generations: List<Generation>) = generations(JsonField.of(generations))
 
+        /**
+         * Sets [Builder.generations] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.generations] with a well-typed `List<Generation>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun generations(generations: JsonField<List<Generation>>) = apply {
             this.generations = generations.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [Generation] to [generations].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addGeneration(generation: Generation) = apply {
             generations =
-                (generations ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(generation)
+                (generations ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("generations", it).add(generation)
                 }
         }
 
+        /** The scores from the evaluation. */
         fun scores(scores: Scores) = scores(JsonField.of(scores))
 
+        /**
+         * Sets [Builder.scores] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scores] with a well-typed [Scores] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun scores(scores: JsonField<Scores>) = apply { this.scores = scores }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -149,6 +199,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Generation]. */
             fun builder() = Builder()
         }
 
@@ -200,6 +251,7 @@ private constructor(
         override fun toString() = "Generation{additionalProperties=$additionalProperties}"
     }
 
+    /** The scores from the evaluation. */
     @NoAutoDetect
     class Scores
     @JsonCreator
@@ -226,6 +278,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Scores]. */
             fun builder() = Builder()
         }
 

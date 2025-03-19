@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
@@ -37,24 +39,60 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun sessionId(): String = sessionId.getRequired("session_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun sessionName(): String = sessionName.getRequired("session_name")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun startedAt(): OffsetDateTime = startedAt.getRequired("started_at")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun turns(): List<Turn> = turns.getRequired("turns")
 
+    /**
+     * Returns the raw JSON value of [sessionId].
+     *
+     * Unlike [sessionId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("session_id") @ExcludeMissing fun _sessionId(): JsonField<String> = sessionId
 
+    /**
+     * Returns the raw JSON value of [sessionName].
+     *
+     * Unlike [sessionName], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("session_name")
     @ExcludeMissing
     fun _sessionName(): JsonField<String> = sessionName
 
+    /**
+     * Returns the raw JSON value of [startedAt].
+     *
+     * Unlike [startedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("started_at")
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
+    /**
+     * Returns the raw JSON value of [turns].
+     *
+     * Unlike [turns], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("turns") @ExcludeMissing fun _turns(): JsonField<List<Turn>> = turns
 
     @JsonAnyGetter
@@ -79,6 +117,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [Session].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .sessionId()
+         * .sessionName()
+         * .startedAt()
+         * .turns()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -101,31 +150,58 @@ private constructor(
 
         fun sessionId(sessionId: String) = sessionId(JsonField.of(sessionId))
 
+        /**
+         * Sets [Builder.sessionId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.sessionId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun sessionId(sessionId: JsonField<String>) = apply { this.sessionId = sessionId }
 
         fun sessionName(sessionName: String) = sessionName(JsonField.of(sessionName))
 
+        /**
+         * Sets [Builder.sessionName] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.sessionName] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun sessionName(sessionName: JsonField<String>) = apply { this.sessionName = sessionName }
 
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
+        /**
+         * Sets [Builder.startedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.startedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun turns(turns: List<Turn>) = turns(JsonField.of(turns))
 
+        /**
+         * Sets [Builder.turns] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.turns] with a well-typed `List<Turn>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun turns(turns: JsonField<List<Turn>>) = apply {
             this.turns = turns.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [Turn] to [turns].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addTurn(turn: Turn) = apply {
             turns =
-                (turns ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(turn)
-                }
+                (turns ?: JsonField.of(mutableListOf())).also { checkKnown("turns", it).add(turn) }
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

@@ -46,22 +46,58 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** A image content item */
+    /**
+     * A image content item
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): Content = content.getRequired("content")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun documentId(): String = documentId.getRequired("document_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata = metadata.getRequired("metadata")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun mimeType(): String? = mimeType.getNullable("mime_type")
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
 
+    /**
+     * Returns the raw JSON value of [documentId].
+     *
+     * Unlike [documentId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("document_id") @ExcludeMissing fun _documentId(): JsonField<String> = documentId
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+    /**
+     * Returns the raw JSON value of [mimeType].
+     *
+     * Unlike [mimeType], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
 
     @JsonAnyGetter
@@ -86,6 +122,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [Document].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * .documentId()
+         * .metadata()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -109,38 +155,66 @@ private constructor(
         /** A image content item */
         fun content(content: Content) = content(JsonField.of(content))
 
-        /** A image content item */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [Content] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun content(content: JsonField<Content>) = apply { this.content = content }
 
-        /** A image content item */
+        /** Alias for calling [content] with `Content.ofString(string)`. */
         fun content(string: String) = content(Content.ofString(string))
 
-        /** A image content item */
+        /** Alias for calling [content] with `Content.ofImageContentItem(imageContentItem)`. */
         fun content(imageContentItem: Content.ImageContentItem) =
             content(Content.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /** Alias for calling [content] with `Content.ofTextContentItem(textContentItem)`. */
         fun content(textContentItem: Content.TextContentItem) =
             content(Content.ofTextContentItem(textContentItem))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `Content.ofInterleavedContentItems(interleavedContentItems)`.
+         */
         fun contentOfInterleavedContentItems(
             interleavedContentItems: List<InterleavedContentItem>
         ) = content(Content.ofInterleavedContentItems(interleavedContentItems))
 
-        /** A image content item */
+        /** Alias for calling [content] with `Content.ofUrl(url)`. */
         fun content(url: Content.Url) = content(Content.ofUrl(url))
 
         fun documentId(documentId: String) = documentId(JsonField.of(documentId))
 
+        /**
+         * Sets [Builder.documentId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.documentId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun documentId(documentId: JsonField<String>) = apply { this.documentId = documentId }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
 
+        /**
+         * Sets [Builder.mimeType] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.mimeType] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun mimeType(mimeType: JsonField<String>) = apply { this.mimeType = mimeType }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -405,13 +479,33 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            /** Image as a base64 encoded string or an URL */
+            /**
+             * Image as a base64 encoded string or an URL
+             *
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun image(): Image = image.getRequired("image")
 
-            /** Discriminator type of the content item. Always "image" */
+            /**
+             * Discriminator type of the content item. Always "image"
+             *
+             * Expected to always return the following:
+             * ```kotlin
+             * JsonValue.from("image")
+             * ```
+             *
+             * However, this method can be useful for debugging and logging (e.g. if the server
+             * responded with an unexpected value).
+             */
             @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-            /** Image as a base64 encoded string or an URL */
+            /**
+             * Returns the raw JSON value of [image].
+             *
+             * Unlike [image], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
             @JsonAnyGetter
@@ -440,6 +534,14 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [ImageContentItem].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .image()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -459,10 +561,27 @@ private constructor(
                 /** Image as a base64 encoded string or an URL */
                 fun image(image: Image) = image(JsonField.of(image))
 
-                /** Image as a base64 encoded string or an URL */
+                /**
+                 * Sets [Builder.image] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.image] with a well-typed [Image] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun image(image: JsonField<Image>) = apply { this.image = image }
 
-                /** Discriminator type of the content item. Always "image" */
+                /**
+                 * Sets the field to an arbitrary JSON value.
+                 *
+                 * It is usually unnecessary to call this method because the field defaults to the
+                 * following:
+                 * ```kotlin
+                 * JsonValue.from("image")
+                 * ```
+                 *
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun type(type: JsonValue) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -510,21 +629,35 @@ private constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
-                /** base64 encoded image data as string */
+                /**
+                 * base64 encoded image data as string
+                 *
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type (e.g. if the server responded with an unexpected value).
+                 */
                 fun data(): String? = data.getNullable("data")
 
                 /**
                  * A URL of the image or data URL in the format of data:image/{type};base64,{data}.
                  * Note that URL could have length limits.
+                 *
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type (e.g. if the server responded with an unexpected value).
                  */
                 fun url(): Url? = url.getNullable("url")
 
-                /** base64 encoded image data as string */
+                /**
+                 * Returns the raw JSON value of [data].
+                 *
+                 * Unlike [data], this method doesn't throw if the JSON field has an unexpected
+                 * type.
+                 */
                 @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
 
                 /**
-                 * A URL of the image or data URL in the format of data:image/{type};base64,{data}.
-                 * Note that URL could have length limits.
+                 * Returns the raw JSON value of [url].
+                 *
+                 * Unlike [url], this method doesn't throw if the JSON field has an unexpected type.
                  */
                 @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
@@ -548,6 +681,7 @@ private constructor(
 
                 companion object {
 
+                    /** Returns a mutable builder for constructing an instance of [Image]. */
                     fun builder() = Builder()
                 }
 
@@ -567,7 +701,13 @@ private constructor(
                     /** base64 encoded image data as string */
                     fun data(data: String) = data(JsonField.of(data))
 
-                    /** base64 encoded image data as string */
+                    /**
+                     * Sets [Builder.data] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.data] with a well-typed [String] value
+                     * instead. This method is primarily for setting the field to an undocumented or
+                     * not yet supported value.
+                     */
                     fun data(data: JsonField<String>) = apply { this.data = data }
 
                     /**
@@ -577,8 +717,11 @@ private constructor(
                     fun url(url: Url) = url(JsonField.of(url))
 
                     /**
-                     * A URL of the image or data URL in the format of
-                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     * Sets [Builder.url] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.url] with a well-typed [Url] value instead.
+                     * This method is primarily for setting the field to an undocumented or not yet
+                     * supported value.
                      */
                     fun url(url: JsonField<Url>) = apply { this.url = url }
 
@@ -622,8 +765,19 @@ private constructor(
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
+                    /**
+                     * @throws LlamaStackClientInvalidDataException if the JSON field has an
+                     *   unexpected type or is unexpectedly missing or null (e.g. if the server
+                     *   responded with an unexpected value).
+                     */
                     fun uri(): String = uri.getRequired("uri")
 
+                    /**
+                     * Returns the raw JSON value of [uri].
+                     *
+                     * Unlike [uri], this method doesn't throw if the JSON field has an unexpected
+                     * type.
+                     */
                     @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
                     @JsonAnyGetter
@@ -645,6 +799,14 @@ private constructor(
 
                     companion object {
 
+                        /**
+                         * Returns a mutable builder for constructing an instance of [Url].
+                         *
+                         * The following fields are required:
+                         * ```kotlin
+                         * .uri()
+                         * ```
+                         */
                         fun builder() = Builder()
                     }
 
@@ -662,6 +824,13 @@ private constructor(
 
                         fun uri(uri: String) = uri(JsonField.of(uri))
 
+                        /**
+                         * Sets [Builder.uri] to an arbitrary JSON value.
+                         *
+                         * You should usually call [Builder.uri] with a well-typed [String] value
+                         * instead. This method is primarily for setting the field to an
+                         * undocumented or not yet supported value.
+                         */
                         fun uri(uri: JsonField<String>) = apply { this.uri = uri }
 
                         fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -757,13 +926,33 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
-            /** Text content */
+            /**
+             * Text content
+             *
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun text(): String = text.getRequired("text")
 
-            /** Discriminator type of the content item. Always "text" */
+            /**
+             * Discriminator type of the content item. Always "text"
+             *
+             * Expected to always return the following:
+             * ```kotlin
+             * JsonValue.from("text")
+             * ```
+             *
+             * However, this method can be useful for debugging and logging (e.g. if the server
+             * responded with an unexpected value).
+             */
             @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-            /** Text content */
+            /**
+             * Returns the raw JSON value of [text].
+             *
+             * Unlike [text], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
             @JsonAnyGetter
@@ -792,6 +981,14 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [TextContentItem].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .text()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -811,10 +1008,27 @@ private constructor(
                 /** Text content */
                 fun text(text: String) = text(JsonField.of(text))
 
-                /** Text content */
+                /**
+                 * Sets [Builder.text] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.text] with a well-typed [String] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun text(text: JsonField<String>) = apply { this.text = text }
 
-                /** Discriminator type of the content item. Always "text" */
+                /**
+                 * Sets the field to an arbitrary JSON value.
+                 *
+                 * It is usually unnecessary to call this method because the field defaults to the
+                 * following:
+                 * ```kotlin
+                 * JsonValue.from("text")
+                 * ```
+                 *
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun type(type: JsonValue) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -876,8 +1090,18 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun uri(): String = uri.getRequired("uri")
 
+            /**
+             * Returns the raw JSON value of [uri].
+             *
+             * Unlike [uri], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
             @JsonAnyGetter
@@ -899,6 +1123,14 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [Url].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .uri()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -915,6 +1147,13 @@ private constructor(
 
                 fun uri(uri: String) = uri(JsonField.of(uri))
 
+                /**
+                 * Sets [Builder.uri] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.uri] with a well-typed [String] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun uri(uri: JsonField<String>) = apply { this.uri = uri }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -987,6 +1226,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

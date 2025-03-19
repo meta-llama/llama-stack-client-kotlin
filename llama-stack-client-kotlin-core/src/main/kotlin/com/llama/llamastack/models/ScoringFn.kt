@@ -46,38 +46,111 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun identifier(): String = identifier.getRequired("identifier")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata = metadata.getRequired("metadata")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerId(): String = providerId.getRequired("provider_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun returnType(): ReturnType = returnType.getRequired("return_type")
 
+    /**
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("scoring_function")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun description(): String? = description.getNullable("description")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun params(): ScoringFnParams? = params.getNullable("params")
 
+    /**
+     * Returns the raw JSON value of [identifier].
+     *
+     * Unlike [identifier], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
     fun _providerResourceId(): JsonField<String> = providerResourceId
 
+    /**
+     * Returns the raw JSON value of [returnType].
+     *
+     * Unlike [returnType], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("return_type")
     @ExcludeMissing
     fun _returnType(): JsonField<ReturnType> = returnType
 
+    /**
+     * Returns the raw JSON value of [description].
+     *
+     * Unlike [description], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("description") @ExcludeMissing fun _description(): JsonField<String> = description
 
+    /**
+     * Returns the raw JSON value of [params].
+     *
+     * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<ScoringFnParams> = params
 
     @JsonAnyGetter
@@ -110,6 +183,18 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringFn].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .identifier()
+         * .metadata()
+         * .providerId()
+         * .providerResourceId()
+         * .returnType()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -140,48 +225,120 @@ private constructor(
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
+        /**
+         * Sets [Builder.identifier] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.identifier] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerResourceId(providerResourceId: String) =
             providerResourceId(JsonField.of(providerResourceId))
 
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerResourceId(providerResourceId: JsonField<String>) = apply {
             this.providerResourceId = providerResourceId
         }
 
         fun returnType(returnType: ReturnType) = returnType(JsonField.of(returnType))
 
+        /**
+         * Sets [Builder.returnType] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.returnType] with a well-typed [ReturnType] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun returnType(returnType: JsonField<ReturnType>) = apply { this.returnType = returnType }
 
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("scoring_function")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun type(type: JsonValue) = apply { this.type = type }
 
         fun description(description: String) = description(JsonField.of(description))
 
+        /**
+         * Sets [Builder.description] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.description] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun description(description: JsonField<String>) = apply { this.description = description }
 
         fun params(params: ScoringFnParams) = params(JsonField.of(params))
 
+        /**
+         * Sets [Builder.params] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.params] with a well-typed [ScoringFnParams] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun params(params: JsonField<ScoringFnParams>) = apply { this.params = params }
 
+        /** Alias for calling [params] with `ScoringFnParams.ofLlmAsJudge(llmAsJudge)`. */
         fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) =
             params(ScoringFnParams.ofLlmAsJudge(llmAsJudge))
 
+        /**
+         * Alias for calling [params] with the following:
+         * ```kotlin
+         * ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
+         *     .judgeModel(judgeModel)
+         *     .build()
+         * ```
+         */
         fun llmAsJudgeParams(judgeModel: String) =
             params(
                 ScoringFnParams.LlmAsJudgeScoringFnParams.builder().judgeModel(judgeModel).build()
             )
 
+        /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
         fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) =
             params(ScoringFnParams.ofRegexParser(regexParser))
 
+        /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
         fun params(basic: ScoringFnParams.BasicScoringFnParams) =
             params(ScoringFnParams.ofBasic(basic))
 
@@ -244,6 +401,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

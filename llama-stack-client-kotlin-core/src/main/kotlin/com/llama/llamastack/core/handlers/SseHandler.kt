@@ -8,7 +8,6 @@ import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.SseMessage
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.core.http.map
-import com.llama.llamastack.errors.LlamaStackClientException
 
 internal fun sseHandler(jsonMapper: JsonMapper): Handler<StreamResponse<SseMessage>> =
     streamHandler { lines ->
@@ -96,11 +95,5 @@ internal inline fun <reified T> Handler<StreamResponse<SseMessage>>.mapJson():
     Handler<StreamResponse<T>> =
     object : Handler<StreamResponse<T>> {
         override fun handle(response: HttpResponse): StreamResponse<T> =
-            this@mapJson.handle(response).map {
-                try {
-                    it.json<T>()
-                } catch (e: Exception) {
-                    throw LlamaStackClientException("Error reading response", e)
-                }
-            }
+            this@mapJson.handle(response).map { it.json<T>() }
     }

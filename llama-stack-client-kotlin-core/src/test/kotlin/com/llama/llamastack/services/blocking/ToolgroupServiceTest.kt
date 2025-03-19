@@ -5,9 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.ToolGroup
 import com.llama.llamastack.models.ToolgroupGetParams
-import com.llama.llamastack.models.ToolgroupListParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
 import com.llama.llamastack.models.ToolgroupUnregisterParams
 import org.junit.jupiter.api.Test
@@ -17,33 +15,34 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToolgroupServiceTest {
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
-        val listToolGroupsResponse = toolgroupService.list(ToolgroupListParams.builder().build())
-        println(listToolGroupsResponse)
-        for (toolGroup: ToolGroup in listToolGroupsResponse) {
-            toolGroup.validate()
-        }
+
+        val toolGroups = toolgroupService.list()
+
+        toolGroups.forEach { it.validate() }
     }
 
     @Test
-    fun callGet() {
+    fun get() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
+
         val toolGroup =
             toolgroupService.get(ToolgroupGetParams.builder().toolgroupId("toolgroup_id").build())
-        println(toolGroup)
+
         toolGroup.validate()
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
+
         toolgroupService.register(
             ToolgroupRegisterParams.builder()
                 .providerId("provider_id")
@@ -59,10 +58,11 @@ class ToolgroupServiceTest {
     }
 
     @Test
-    fun callUnregister() {
+    fun unregister() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolgroupService = client.toolgroups()
+
         toolgroupService.unregister(
             ToolgroupUnregisterParams.builder().toolgroupId("toolgroup_id").build()
         )

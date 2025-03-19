@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
@@ -15,10 +16,15 @@ class AgentTurnResumeParamsTest {
             .sessionId("session_id")
             .turnId("turn_id")
             .addToolResponse(
-                ToolResponseMessage.builder()
+                ToolResponse.builder()
                     .callId("call_id")
                     .content("string")
-                    .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                    .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                    .metadata(
+                        ToolResponse.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .build()
             )
             .build()
@@ -32,10 +38,15 @@ class AgentTurnResumeParamsTest {
                 .sessionId("session_id")
                 .turnId("turn_id")
                 .addToolResponse(
-                    ToolResponseMessage.builder()
+                    ToolResponse.builder()
                         .callId("call_id")
                         .content("string")
-                        .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                        .metadata(
+                            ToolResponse.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .build()
                 )
                 .build()
@@ -46,10 +57,15 @@ class AgentTurnResumeParamsTest {
         assertThat(body.toolResponses())
             .isEqualTo(
                 listOf(
-                    ToolResponseMessage.builder()
+                    ToolResponse.builder()
                         .callId("call_id")
                         .content("string")
-                        .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                        .metadata(
+                            ToolResponse.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .build()
                 )
             )
@@ -63,10 +79,10 @@ class AgentTurnResumeParamsTest {
                 .sessionId("session_id")
                 .turnId("turn_id")
                 .addToolResponse(
-                    ToolResponseMessage.builder()
+                    ToolResponse.builder()
                         .callId("call_id")
                         .content("string")
-                        .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                         .build()
                 )
                 .build()
@@ -77,10 +93,10 @@ class AgentTurnResumeParamsTest {
         assertThat(body.toolResponses())
             .isEqualTo(
                 listOf(
-                    ToolResponseMessage.builder()
+                    ToolResponse.builder()
                         .callId("call_id")
                         .content("string")
-                        .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                         .build()
                 )
             )
@@ -94,10 +110,10 @@ class AgentTurnResumeParamsTest {
                 .sessionId("session_id")
                 .turnId("turn_id")
                 .addToolResponse(
-                    ToolResponseMessage.builder()
+                    ToolResponse.builder()
                         .callId("call_id")
                         .content("string")
-                        .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
                         .build()
                 )
                 .build()

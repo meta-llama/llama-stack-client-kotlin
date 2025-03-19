@@ -37,6 +37,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolgroupGetParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .toolgroupId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

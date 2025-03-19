@@ -32,24 +32,47 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** The content of the message, which can include text and other media */
+    /**
+     * The content of the message, which can include text and other media
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent = content.getRequired("content")
 
-    /** Must be "user" to identify this as a user message */
+    /**
+     * Must be "user" to identify this as a user message
+     *
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("user")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
     /**
      * (Optional) This field is used internally by Llama Stack to pass RAG context. This field may
      * be removed in the API in the future.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
      */
     fun context(): InterleavedContent? = context.getNullable("context")
 
-    /** The content of the message, which can include text and other media */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
     /**
-     * (Optional) This field is used internally by Llama Stack to pass RAG context. This field may
-     * be removed in the API in the future.
+     * Returns the raw JSON value of [context].
+     *
+     * Unlike [context], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("context") @ExcludeMissing fun _context(): JsonField<InterleavedContent> = context
 
@@ -78,6 +101,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [UserMessage].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -99,25 +130,47 @@ private constructor(
         /** The content of the message, which can include text and other media */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-        /** The content of the message, which can include text and other media */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        /** The content of the message, which can include text and other media */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /** The content of the message, which can include text and other media */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
-        /** Must be "user" to identify this as a user message */
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("user")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun role(role: JsonValue) = apply { this.role = role }
 
         /**
@@ -127,29 +180,31 @@ private constructor(
         fun context(context: InterleavedContent) = context(JsonField.of(context))
 
         /**
-         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
-         * may be removed in the API in the future.
+         * Sets [Builder.context] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.context] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
         fun context(context: JsonField<InterleavedContent>) = apply { this.context = context }
 
-        /**
-         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
-         * may be removed in the API in the future.
-         */
+        /** Alias for calling [context] with `InterleavedContent.ofString(string)`. */
         fun context(string: String) = context(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [context] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun context(imageContentItem: InterleavedContent.ImageContentItem) =
             context(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [context] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun context(textContentItem: InterleavedContent.TextContentItem) =
             context(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /**
-         * (Optional) This field is used internally by Llama Stack to pass RAG context. This field
-         * may be removed in the API in the future.
-         */
+        /** Alias for calling [context] with `InterleavedContent.ofItems(items)`. */
         fun contextOfItems(items: List<InterleavedContentItem>) =
             context(InterleavedContent.ofItems(items))
 

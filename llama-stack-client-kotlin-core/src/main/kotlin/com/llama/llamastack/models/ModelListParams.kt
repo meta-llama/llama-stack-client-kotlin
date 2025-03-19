@@ -26,6 +26,9 @@ private constructor(
 
     companion object {
 
+        fun none(): ModelListParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ModelListParams]. */
         fun builder() = Builder()
     }
 

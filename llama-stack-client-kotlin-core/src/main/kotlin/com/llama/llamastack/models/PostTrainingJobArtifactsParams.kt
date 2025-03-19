@@ -35,6 +35,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [PostTrainingJobArtifactsParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .jobUuid()
+         * ```
+         */
         fun builder() = Builder()
     }
 

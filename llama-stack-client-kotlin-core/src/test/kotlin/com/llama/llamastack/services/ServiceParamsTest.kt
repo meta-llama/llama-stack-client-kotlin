@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.services
 
-import com.fasterxml.jackson.databind.json.JsonMapper
 import com.github.tomakehurst.wiremock.client.WireMock.anyUrl
 import com.github.tomakehurst.wiremock.client.WireMock.equalTo
 import com.github.tomakehurst.wiremock.client.WireMock.matchingJsonPath
@@ -16,52 +15,30 @@ import com.github.tomakehurst.wiremock.junit5.WireMockTest
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.jsonMapper
-import com.llama.llamastack.models.ChatCompletionResponse
-import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.InferenceChatCompletionParams
-import com.llama.llamastack.models.Model
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
-import com.llama.llamastack.models.TokenLogProbs
-import com.llama.llamastack.models.ToolCall
 import com.llama.llamastack.models.UserMessage
-import java.time.OffsetDateTime
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @WireMockTest
-class ServiceParamsTest {
-
-    private val JSON_MAPPER: JsonMapper = jsonMapper()
+internal class ServiceParamsTest {
 
     private lateinit var client: LlamaStackClientClient
 
     @BeforeEach
     fun beforeEach(wmRuntimeInfo: WireMockRuntimeInfo) {
-        client =
-            LlamaStackClientOkHttpClient.builder()
-                .apiKey("My API Key")
-                .baseUrl(wmRuntimeInfo.getHttpBaseUrl())
-                .build()
+        client = LlamaStackClientOkHttpClient.builder().baseUrl(wmRuntimeInfo.httpBaseUrl).build()
     }
 
     @Test
-    fun inferencesChatCompletionWithAdditionalParams() {
-        val additionalHeaders = mutableMapOf<String, List<String>>()
+    fun chatCompletion() {
+        val inferenceService = client.inference()
+        stubFor(post(anyUrl()).willReturn(ok("{}")))
 
-        additionalHeaders.put("x-test-header", listOf("abc1234"))
-
-        val additionalQueryParams = mutableMapOf<String, List<String>>()
-
-        additionalQueryParams.put("test_query_param", listOf("def567"))
-
-        val additionalBodyProperties = mutableMapOf<String, JsonValue>()
-
-        additionalBodyProperties.put("testBodyProperty", JsonValue.from("ghi890"))
-
-        val params =
+        inferenceService.chatCompletion(
             InferenceChatCompletionParams.builder()
                 .addMessage(UserMessage.builder().content("string").context("string").build())
                 .modelId("model_id")
@@ -112,84 +89,26 @@ class ServiceParamsTest {
                         )
                         .build()
                 )
-                .additionalHeaders(additionalHeaders)
-                .additionalBodyProperties(additionalBodyProperties)
-                .additionalQueryParams(additionalQueryParams)
+                .putAdditionalHeader("Secret-Header", "42")
+                .putAdditionalQueryParam("secret_query_param", "42")
+                .putAdditionalBodyProperty("secretProperty", JsonValue.from("42"))
                 .build()
-
-        val apiResponse =
-            ChatCompletionResponse.builder()
-                .completionMessage(
-                    CompletionMessage.builder()
-                        .content("string")
-                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
-                        .addToolCall(
-                            ToolCall.builder()
-                                .arguments(
-                                    ToolCall.Arguments.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from("string"))
-                                        .build()
-                                )
-                                .callId("call_id")
-                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
-                                .build()
-                        )
-                        .build()
-                )
-                .addLogprob(
-                    TokenLogProbs.builder()
-                        .logprobsByToken(
-                            TokenLogProbs.LogprobsByToken.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(0))
-                                .build()
-                        )
-                        .build()
-                )
-                .addMetric(
-                    ChatCompletionResponse.Metric.builder()
-                        .metric("metric")
-                        .spanId("span_id")
-                        .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                        .traceId("trace_id")
-                        .unit("unit")
-                        .value(0.0)
-                        .attributes(
-                            ChatCompletionResponse.Metric.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from("string"))
-                                .build()
-                        )
-                        .build()
-                )
-                .build()
-
-        stubFor(
-            post(anyUrl())
-                .withHeader("x-test-header", equalTo("abc1234"))
-                .withQueryParam("test_query_param", equalTo("def567"))
-                .withRequestBody(matchingJsonPath("$.testBodyProperty", equalTo("ghi890")))
-                .willReturn(ok(JSON_MAPPER.writeValueAsString(apiResponse)))
         )
 
-        client.inference().chatCompletion(params)
-
-        verify(postRequestedFor(anyUrl()))
+        verify(
+            postRequestedFor(anyUrl())
+                .withHeader("Secret-Header", equalTo("42"))
+                .withQueryParam("secret_query_param", equalTo("42"))
+                .withRequestBody(matchingJsonPath("$.secretProperty", equalTo("42")))
+        )
     }
 
     @Test
-    fun modelsRegisterWithAdditionalParams() {
-        val additionalHeaders = mutableMapOf<String, List<String>>()
+    fun register() {
+        val modelService = client.models()
+        stubFor(post(anyUrl()).willReturn(ok("{}")))
 
-        additionalHeaders.put("x-test-header", listOf("abc1234"))
-
-        val additionalQueryParams = mutableMapOf<String, List<String>>()
-
-        additionalQueryParams.put("test_query_param", listOf("def567"))
-
-        val additionalBodyProperties = mutableMapOf<String, JsonValue>()
-
-        additionalBodyProperties.put("testBodyProperty", JsonValue.from("ghi890"))
-
-        val params =
+        modelService.register(
             ModelRegisterParams.builder()
                 .modelId("model_id")
                 .metadata(
@@ -200,34 +119,17 @@ class ServiceParamsTest {
                 .modelType(ModelRegisterParams.ModelType.LLM)
                 .providerId("provider_id")
                 .providerModelId("provider_model_id")
-                .additionalHeaders(additionalHeaders)
-                .additionalBodyProperties(additionalBodyProperties)
-                .additionalQueryParams(additionalQueryParams)
+                .putAdditionalHeader("Secret-Header", "42")
+                .putAdditionalQueryParam("secret_query_param", "42")
+                .putAdditionalBodyProperty("secretProperty", JsonValue.from("42"))
                 .build()
-
-        val apiResponse =
-            Model.builder()
-                .identifier("identifier")
-                .metadata(
-                    Model.Metadata.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .modelType(Model.ModelType.LLM)
-                .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
-                .build()
-
-        stubFor(
-            post(anyUrl())
-                .withHeader("x-test-header", equalTo("abc1234"))
-                .withQueryParam("test_query_param", equalTo("def567"))
-                .withRequestBody(matchingJsonPath("$.testBodyProperty", equalTo("ghi890")))
-                .willReturn(ok(JSON_MAPPER.writeValueAsString(apiResponse)))
         )
 
-        client.models().register(params)
-
-        verify(postRequestedFor(anyUrl()))
+        verify(
+            postRequestedFor(anyUrl())
+                .withHeader("Secret-Header", equalTo("42"))
+                .withQueryParam("secret_query_param", equalTo("42"))
+                .withRequestBody(matchingJsonPath("$.secretProperty", equalTo("42")))
+        )
     }
 }

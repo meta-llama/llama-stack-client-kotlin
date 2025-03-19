@@ -14,26 +14,28 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SessionServiceTest {
 
     @Test
-    fun callCreate() {
+    fun create() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val sessionService = client.agents().session()
-        val agentSessionCreateResponse =
+
+        val session =
             sessionService.create(
                 AgentSessionCreateParams.builder()
                     .agentId("agent_id")
                     .sessionName("session_name")
                     .build()
             )
-        println(agentSessionCreateResponse)
-        agentSessionCreateResponse.validate()
+
+        session.validate()
     }
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val sessionService = client.agents().session()
+
         val session =
             sessionService.retrieve(
                 AgentSessionRetrieveParams.builder()
@@ -42,15 +44,16 @@ class SessionServiceTest {
                     .addTurnId("string")
                     .build()
             )
-        println(session)
+
         session.validate()
     }
 
     @Test
-    fun callDelete() {
+    fun delete() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val sessionService = client.agents().session()
+
         sessionService.delete(
             AgentSessionDeleteParams.builder().agentId("agent_id").sessionId("session_id").build()
         )

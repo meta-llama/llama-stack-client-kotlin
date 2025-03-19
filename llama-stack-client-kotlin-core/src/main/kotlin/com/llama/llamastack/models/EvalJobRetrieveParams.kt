@@ -9,6 +9,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get the result of a job. */
 class EvalJobRetrieveParams
 private constructor(
     private val benchmarkId: String,
@@ -41,6 +42,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [EvalJobRetrieveParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .jobId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

@@ -12,13 +12,16 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Score a list of rows. */
 class ScoringScoreParams
 private constructor(
     private val body: Body,
@@ -26,12 +29,35 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * The rows to score.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun inputRows(): List<InputRow> = body.inputRows()
 
+    /**
+     * The scoring functions to use for the scoring.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scoringFunctions(): ScoringFunctions = body.scoringFunctions()
 
+    /**
+     * Returns the raw JSON value of [inputRows].
+     *
+     * Unlike [inputRows], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _inputRows(): JsonField<List<InputRow>> = body._inputRows()
 
+    /**
+     * Returns the raw JSON value of [scoringFunctions].
+     *
+     * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _scoringFunctions(): JsonField<ScoringFunctions> = body._scoringFunctions()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -60,14 +86,39 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The rows to score.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun inputRows(): List<InputRow> = inputRows.getRequired("input_rows")
 
+        /**
+         * The scoring functions to use for the scoring.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun scoringFunctions(): ScoringFunctions = scoringFunctions.getRequired("scoring_functions")
 
+        /**
+         * Returns the raw JSON value of [inputRows].
+         *
+         * Unlike [inputRows], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("input_rows")
         @ExcludeMissing
         fun _inputRows(): JsonField<List<InputRow>> = inputRows
 
+        /**
+         * Returns the raw JSON value of [scoringFunctions].
+         *
+         * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("scoring_functions")
         @ExcludeMissing
         fun _scoringFunctions(): JsonField<ScoringFunctions> = scoringFunctions
@@ -92,6 +143,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .inputRows()
+             * .scoringFunctions()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -108,26 +168,43 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The rows to score. */
             fun inputRows(inputRows: List<InputRow>) = inputRows(JsonField.of(inputRows))
 
+            /**
+             * Sets [Builder.inputRows] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.inputRows] with a well-typed `List<InputRow>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun inputRows(inputRows: JsonField<List<InputRow>>) = apply {
                 this.inputRows = inputRows.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [InputRow] to [inputRows].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addInputRow(inputRow: InputRow) = apply {
                 inputRows =
-                    (inputRows ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(inputRow)
+                    (inputRows ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("inputRows", it).add(inputRow)
                     }
             }
 
+            /** The scoring functions to use for the scoring. */
             fun scoringFunctions(scoringFunctions: ScoringFunctions) =
                 scoringFunctions(JsonField.of(scoringFunctions))
 
+            /**
+             * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.scoringFunctions] with a well-typed
+             * [ScoringFunctions] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
             fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
                 this.scoringFunctions = scoringFunctions
             }
@@ -181,6 +258,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringScoreParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .inputRows()
+         * .scoringFunctions()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -198,16 +284,37 @@ private constructor(
             additionalQueryParams = scoringScoreParams.additionalQueryParams.toBuilder()
         }
 
+        /** The rows to score. */
         fun inputRows(inputRows: List<InputRow>) = apply { body.inputRows(inputRows) }
 
+        /**
+         * Sets [Builder.inputRows] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.inputRows] with a well-typed `List<InputRow>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun inputRows(inputRows: JsonField<List<InputRow>>) = apply { body.inputRows(inputRows) }
 
+        /**
+         * Adds a single [InputRow] to [inputRows].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addInputRow(inputRow: InputRow) = apply { body.addInputRow(inputRow) }
 
+        /** The scoring functions to use for the scoring. */
         fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
             body.scoringFunctions(scoringFunctions)
         }
 
+        /**
+         * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scoringFunctions] with a well-typed [ScoringFunctions]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
@@ -363,6 +470,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [InputRow]. */
             fun builder() = Builder()
         }
 
@@ -414,6 +522,7 @@ private constructor(
         override fun toString() = "InputRow{additionalProperties=$additionalProperties}"
     }
 
+    /** The scoring functions to use for the scoring. */
     @NoAutoDetect
     class ScoringFunctions
     @JsonCreator
@@ -440,6 +549,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [ScoringFunctions]. */
             fun builder() = Builder()
         }
 

@@ -14,8 +14,10 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** The response from scoring. */
 @NoAutoDetect
 class ScoringScoreResponse
 @JsonCreator
@@ -26,8 +28,19 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * A map of scoring function name to ScoringResult.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun results(): Results = results.getRequired("results")
 
+    /**
+     * Returns the raw JSON value of [results].
+     *
+     * Unlike [results], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("results") @ExcludeMissing fun _results(): JsonField<Results> = results
 
     @JsonAnyGetter
@@ -49,6 +62,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringScoreResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .results()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -63,8 +84,15 @@ private constructor(
             additionalProperties = scoringScoreResponse.additionalProperties.toMutableMap()
         }
 
+        /** A map of scoring function name to ScoringResult. */
         fun results(results: Results) = results(JsonField.of(results))
 
+        /**
+         * Sets [Builder.results] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.results] with a well-typed [Results] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun results(results: JsonField<Results>) = apply { this.results = results }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -93,6 +121,7 @@ private constructor(
             )
     }
 
+    /** A map of scoring function name to ScoringResult. */
     @NoAutoDetect
     class Results
     @JsonCreator
@@ -119,6 +148,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Results]. */
             fun builder() = Builder()
         }
 

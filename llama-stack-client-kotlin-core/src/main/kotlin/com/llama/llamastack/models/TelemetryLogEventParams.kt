@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class TelemetryLogEventParams
@@ -26,12 +27,30 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun event(): Event = body.event()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun ttlSeconds(): Long = body.ttlSeconds()
 
+    /**
+     * Returns the raw JSON value of [event].
+     *
+     * Unlike [event], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _event(): JsonField<Event> = body._event()
 
+    /**
+     * Returns the raw JSON value of [ttlSeconds].
+     *
+     * Unlike [ttlSeconds], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _ttlSeconds(): JsonField<Long> = body._ttlSeconds()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -60,12 +79,32 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun event(): Event = event.getRequired("event")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun ttlSeconds(): Long = ttlSeconds.getRequired("ttl_seconds")
 
+        /**
+         * Returns the raw JSON value of [event].
+         *
+         * Unlike [event], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<Event> = event
 
+        /**
+         * Returns the raw JSON value of [ttlSeconds].
+         *
+         * Unlike [ttlSeconds], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("ttl_seconds") @ExcludeMissing fun _ttlSeconds(): JsonField<Long> = ttlSeconds
 
         @JsonAnyGetter
@@ -88,6 +127,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .event()
+             * .ttlSeconds()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -106,18 +154,35 @@ private constructor(
 
             fun event(event: Event) = event(JsonField.of(event))
 
+            /**
+             * Sets [Builder.event] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.event] with a well-typed [Event] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun event(event: JsonField<Event>) = apply { this.event = event }
 
+            /** Alias for calling [event] with `Event.ofUnstructuredLog(unstructuredLog)`. */
             fun event(unstructuredLog: Event.UnstructuredLogEvent) =
                 event(Event.ofUnstructuredLog(unstructuredLog))
 
+            /** Alias for calling [event] with `Event.ofMetric(metric)`. */
             fun event(metric: Event.MetricEvent) = event(Event.ofMetric(metric))
 
+            /** Alias for calling [event] with `Event.ofStructuredLog(structuredLog)`. */
             fun event(structuredLog: Event.StructuredLogEvent) =
                 event(Event.ofStructuredLog(structuredLog))
 
             fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
 
+            /**
+             * Sets [Builder.ttlSeconds] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.ttlSeconds] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { this.ttlSeconds = ttlSeconds }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -169,6 +234,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [TelemetryLogEventParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .event()
+         * .ttlSeconds()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -188,18 +262,33 @@ private constructor(
 
         fun event(event: Event) = apply { body.event(event) }
 
+        /**
+         * Sets [Builder.event] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.event] with a well-typed [Event] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun event(event: JsonField<Event>) = apply { body.event(event) }
 
+        /** Alias for calling [event] with `Event.ofUnstructuredLog(unstructuredLog)`. */
         fun event(unstructuredLog: Event.UnstructuredLogEvent) = apply {
             body.event(unstructuredLog)
         }
 
+        /** Alias for calling [event] with `Event.ofMetric(metric)`. */
         fun event(metric: Event.MetricEvent) = apply { body.event(metric) }
 
+        /** Alias for calling [event] with `Event.ofStructuredLog(structuredLog)`. */
         fun event(structuredLog: Event.StructuredLogEvent) = apply { body.event(structuredLog) }
 
         fun ttlSeconds(ttlSeconds: Long) = apply { body.ttlSeconds(ttlSeconds) }
 
+        /**
+         * Sets [Builder.ttlSeconds] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.ttlSeconds] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { body.ttlSeconds(ttlSeconds) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

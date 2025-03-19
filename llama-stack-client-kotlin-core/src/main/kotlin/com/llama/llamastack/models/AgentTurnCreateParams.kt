@@ -22,6 +22,7 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
@@ -31,6 +32,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Create a new turn for an agent. */
 class AgentTurnCreateParams
 private constructor(
     private val agentId: String,
@@ -44,26 +46,66 @@ private constructor(
 
     fun sessionId(): String = sessionId
 
+    /**
+     * List of messages to start the turn with.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun messages(): List<Message> = body.messages()
 
-    fun allowTurnResume(): Boolean? = body.allowTurnResume()
-
+    /**
+     * (Optional) List of documents to create the turn with.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun documents(): List<Document>? = body.documents()
 
-    /** Configuration for tool use. */
+    /**
+     * (Optional) The tool configuration to create the turn with, will be used to override the
+     * agent's tool_config.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun toolConfig(): ToolConfig? = body.toolConfig()
 
+    /**
+     * (Optional) List of toolgroups to create the turn with, will be used in addition to the
+     * agent's config toolgroups for the request.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun toolgroups(): List<Toolgroup>? = body.toolgroups()
 
+    /**
+     * Returns the raw JSON value of [messages].
+     *
+     * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _messages(): JsonField<List<Message>> = body._messages()
 
-    fun _allowTurnResume(): JsonField<Boolean> = body._allowTurnResume()
-
+    /**
+     * Returns the raw JSON value of [documents].
+     *
+     * Unlike [documents], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _documents(): JsonField<List<Document>> = body._documents()
 
-    /** Configuration for tool use. */
+    /**
+     * Returns the raw JSON value of [toolConfig].
+     *
+     * Unlike [toolConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _toolConfig(): JsonField<ToolConfig> = body._toolConfig()
 
+    /**
+     * Returns the raw JSON value of [toolgroups].
+     *
+     * Unlike [toolgroups], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _toolgroups(): JsonField<List<Toolgroup>> = body._toolgroups()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -93,9 +135,6 @@ private constructor(
         @JsonProperty("messages")
         @ExcludeMissing
         private val messages: JsonField<List<Message>> = JsonMissing.of(),
-        @JsonProperty("allow_turn_resume")
-        @ExcludeMissing
-        private val allowTurnResume: JsonField<Boolean> = JsonMissing.of(),
         @JsonProperty("documents")
         @ExcludeMissing
         private val documents: JsonField<List<Document>> = JsonMissing.of(),
@@ -109,34 +148,73 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * List of messages to start the turn with.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun messages(): List<Message> = messages.getRequired("messages")
 
-        fun allowTurnResume(): Boolean? = allowTurnResume.getNullable("allow_turn_resume")
-
+        /**
+         * (Optional) List of documents to create the turn with.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun documents(): List<Document>? = documents.getNullable("documents")
 
-        /** Configuration for tool use. */
+        /**
+         * (Optional) The tool configuration to create the turn with, will be used to override the
+         * agent's tool_config.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
 
+        /**
+         * (Optional) List of toolgroups to create the turn with, will be used in addition to the
+         * agent's config toolgroups for the request.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
 
+        /**
+         * Returns the raw JSON value of [messages].
+         *
+         * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("messages")
         @ExcludeMissing
         fun _messages(): JsonField<List<Message>> = messages
 
-        @JsonProperty("allow_turn_resume")
-        @ExcludeMissing
-        fun _allowTurnResume(): JsonField<Boolean> = allowTurnResume
-
+        /**
+         * Returns the raw JSON value of [documents].
+         *
+         * Unlike [documents], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("documents")
         @ExcludeMissing
         fun _documents(): JsonField<List<Document>> = documents
 
-        /** Configuration for tool use. */
+        /**
+         * Returns the raw JSON value of [toolConfig].
+         *
+         * Unlike [toolConfig], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("tool_config")
         @ExcludeMissing
         fun _toolConfig(): JsonField<ToolConfig> = toolConfig
 
+        /**
+         * Returns the raw JSON value of [toolgroups].
+         *
+         * Unlike [toolgroups], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("toolgroups")
         @ExcludeMissing
         fun _toolgroups(): JsonField<List<Toolgroup>> = toolgroups
@@ -153,7 +231,6 @@ private constructor(
             }
 
             messages().forEach { it.validate() }
-            allowTurnResume()
             documents()?.forEach { it.validate() }
             toolConfig()?.validate()
             toolgroups()?.forEach { it.validate() }
@@ -164,6 +241,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messages()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -171,7 +256,6 @@ private constructor(
         class Builder internal constructor() {
 
             private var messages: JsonField<MutableList<Message>>? = null
-            private var allowTurnResume: JsonField<Boolean> = JsonMissing.of()
             private var documents: JsonField<MutableList<Document>>? = null
             private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
             private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
@@ -179,88 +263,124 @@ private constructor(
 
             internal fun from(body: Body) = apply {
                 messages = body.messages.map { it.toMutableList() }
-                allowTurnResume = body.allowTurnResume
                 documents = body.documents.map { it.toMutableList() }
                 toolConfig = body.toolConfig
                 toolgroups = body.toolgroups.map { it.toMutableList() }
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** List of messages to start the turn with. */
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
 
+            /**
+             * Sets [Builder.messages] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.messages] with a well-typed `List<Message>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun messages(messages: JsonField<List<Message>>) = apply {
                 this.messages = messages.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Message] to [messages].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addMessage(message: Message) = apply {
                 messages =
-                    (messages ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(message)
+                    (messages ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("messages", it).add(message)
                     }
             }
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
             fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
 
-            /** A message representing the result of a tool invocation. */
+            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
             fun addMessage(toolResponse: ToolResponseMessage) =
                 addMessage(Message.ofToolResponse(toolResponse))
 
-            fun allowTurnResume(allowTurnResume: Boolean) =
-                allowTurnResume(JsonField.of(allowTurnResume))
-
-            fun allowTurnResume(allowTurnResume: JsonField<Boolean>) = apply {
-                this.allowTurnResume = allowTurnResume
-            }
-
+            /** (Optional) List of documents to create the turn with. */
             fun documents(documents: List<Document>) = documents(JsonField.of(documents))
 
+            /**
+             * Sets [Builder.documents] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.documents] with a well-typed `List<Document>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun documents(documents: JsonField<List<Document>>) = apply {
                 this.documents = documents.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Document] to [documents].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addDocument(document: Document) = apply {
                 documents =
-                    (documents ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(document)
+                    (documents ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("documents", it).add(document)
                     }
             }
 
-            /** Configuration for tool use. */
+            /**
+             * (Optional) The tool configuration to create the turn with, will be used to override
+             * the agent's tool_config.
+             */
             fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
 
-            /** Configuration for tool use. */
+            /**
+             * Sets [Builder.toolConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolConfig] with a well-typed [ToolConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply {
                 this.toolConfig = toolConfig
             }
 
+            /**
+             * (Optional) List of toolgroups to create the turn with, will be used in addition to
+             * the agent's config toolgroups for the request.
+             */
             fun toolgroups(toolgroups: List<Toolgroup>) = toolgroups(JsonField.of(toolgroups))
 
+            /**
+             * Sets [Builder.toolgroups] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolgroups] with a well-typed `List<Toolgroup>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun toolgroups(toolgroups: JsonField<List<Toolgroup>>) = apply {
                 this.toolgroups = toolgroups.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Toolgroup] to [toolgroups].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addToolgroup(toolgroup: Toolgroup) = apply {
                 toolgroups =
-                    (toolgroups ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(toolgroup)
+                    (toolgroups ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("toolgroups", it).add(toolgroup)
                     }
             }
 
+            /** Alias for calling [addToolgroup] with `Toolgroup.ofString(string)`. */
             fun addToolgroup(string: String) = addToolgroup(Toolgroup.ofString(string))
 
+            /**
+             * Alias for calling [addToolgroup] with
+             * `Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs)`.
+             */
             fun addToolgroup(agentToolGroupWithArgs: Toolgroup.AgentToolGroupWithArgs) =
                 addToolgroup(Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs))
 
@@ -286,7 +406,6 @@ private constructor(
             fun build(): Body =
                 Body(
                     checkRequired("messages", messages).map { it.toImmutable() },
-                    allowTurnResume,
                     (documents ?: JsonMissing.of()).map { it.toImmutable() },
                     toolConfig,
                     (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
@@ -299,23 +418,33 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Body && messages == other.messages && allowTurnResume == other.allowTurnResume && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && messages == other.messages && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, allowTurnResume, documents, toolConfig, toolgroups, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolConfig, toolgroups, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Body{messages=$messages, allowTurnResume=$allowTurnResume, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+            "Body{messages=$messages, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentTurnCreateParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * .messages()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -341,48 +470,96 @@ private constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
+        /** List of messages to start the turn with. */
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
+        /**
+         * Sets [Builder.messages] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.messages] with a well-typed `List<Message>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun messages(messages: JsonField<List<Message>>) = apply { body.messages(messages) }
 
+        /**
+         * Adds a single [Message] to [messages].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addMessage(message: Message) = apply { body.addMessage(message) }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
         fun addMessage(user: UserMessage) = apply { body.addMessage(user) }
 
-        /** A message representing the result of a tool invocation. */
+        /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
         fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
-        fun allowTurnResume(allowTurnResume: Boolean) = apply {
-            body.allowTurnResume(allowTurnResume)
-        }
-
-        fun allowTurnResume(allowTurnResume: JsonField<Boolean>) = apply {
-            body.allowTurnResume(allowTurnResume)
-        }
-
+        /** (Optional) List of documents to create the turn with. */
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
 
+        /**
+         * Sets [Builder.documents] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.documents] with a well-typed `List<Document>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun documents(documents: JsonField<List<Document>>) = apply { body.documents(documents) }
 
+        /**
+         * Adds a single [Document] to [documents].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addDocument(document: Document) = apply { body.addDocument(document) }
 
-        /** Configuration for tool use. */
+        /**
+         * (Optional) The tool configuration to create the turn with, will be used to override the
+         * agent's tool_config.
+         */
         fun toolConfig(toolConfig: ToolConfig) = apply { body.toolConfig(toolConfig) }
 
-        /** Configuration for tool use. */
+        /**
+         * Sets [Builder.toolConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolConfig] with a well-typed [ToolConfig] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply { body.toolConfig(toolConfig) }
 
+        /**
+         * (Optional) List of toolgroups to create the turn with, will be used in addition to the
+         * agent's config toolgroups for the request.
+         */
         fun toolgroups(toolgroups: List<Toolgroup>) = apply { body.toolgroups(toolgroups) }
 
+        /**
+         * Sets [Builder.toolgroups] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolgroups] with a well-typed `List<Toolgroup>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun toolgroups(toolgroups: JsonField<List<Toolgroup>>) = apply {
             body.toolgroups(toolgroups)
         }
 
+        /**
+         * Adds a single [Toolgroup] to [toolgroups].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addToolgroup(toolgroup: Toolgroup) = apply { body.addToolgroup(toolgroup) }
 
+        /** Alias for calling [addToolgroup] with `Toolgroup.ofString(string)`. */
         fun addToolgroup(string: String) = apply { body.addToolgroup(string) }
 
+        /**
+         * Alias for calling [addToolgroup] with
+         * `Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs)`.
+         */
         fun addToolgroup(agentToolGroupWithArgs: Toolgroup.AgentToolGroupWithArgs) = apply {
             body.addToolgroup(agentToolGroupWithArgs)
         }
@@ -660,6 +837,7 @@ private constructor(
         }
     }
 
+    /** A document to be used by an agent. */
     @NoAutoDetect
     class Document
     @JsonCreator
@@ -674,14 +852,36 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** A image content item */
+        /**
+         * The content of the document.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun content(): Content = content.getRequired("content")
 
+        /**
+         * The MIME type of the document.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun mimeType(): String = mimeType.getRequired("mime_type")
 
-        /** A image content item */
+        /**
+         * Returns the raw JSON value of [content].
+         *
+         * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<Content> = content
 
+        /**
+         * Returns the raw JSON value of [mimeType].
+         *
+         * Unlike [mimeType], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
 
         @JsonAnyGetter
@@ -704,6 +904,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Document].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .mimeType()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -720,33 +929,50 @@ private constructor(
                 additionalProperties = document.additionalProperties.toMutableMap()
             }
 
-            /** A image content item */
+            /** The content of the document. */
             fun content(content: Content) = content(JsonField.of(content))
 
-            /** A image content item */
+            /**
+             * Sets [Builder.content] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.content] with a well-typed [Content] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun content(content: JsonField<Content>) = apply { this.content = content }
 
-            /** A image content item */
+            /** Alias for calling [content] with `Content.ofString(string)`. */
             fun content(string: String) = content(Content.ofString(string))
 
-            /** A image content item */
+            /** Alias for calling [content] with `Content.ofImageContentItem(imageContentItem)`. */
             fun content(imageContentItem: Content.ImageContentItem) =
                 content(Content.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /** Alias for calling [content] with `Content.ofTextContentItem(textContentItem)`. */
             fun content(textContentItem: Content.TextContentItem) =
                 content(Content.ofTextContentItem(textContentItem))
 
-            /** A image content item */
+            /**
+             * Alias for calling [content] with
+             * `Content.ofInterleavedContentItems(interleavedContentItems)`.
+             */
             fun contentOfInterleavedContentItems(
                 interleavedContentItems: List<InterleavedContentItem>
             ) = content(Content.ofInterleavedContentItems(interleavedContentItems))
 
-            /** A image content item */
+            /** Alias for calling [content] with `Content.ofUrl(url)`. */
             fun content(url: Content.Url) = content(Content.ofUrl(url))
 
+            /** The MIME type of the document. */
             fun mimeType(mimeType: String) = mimeType(JsonField.of(mimeType))
 
+            /**
+             * Sets [Builder.mimeType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.mimeType] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun mimeType(mimeType: JsonField<String>) = apply { this.mimeType = mimeType }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -776,7 +1002,7 @@ private constructor(
                 )
         }
 
-        /** A image content item */
+        /** The content of the document. */
         @JsonDeserialize(using = Content.Deserializer::class)
         @JsonSerialize(using = Content.Serializer::class)
         class Content
@@ -1016,13 +1242,34 @@ private constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
-                /** Image as a base64 encoded string or an URL */
+                /**
+                 * Image as a base64 encoded string or an URL
+                 *
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type or is unexpectedly missing or null (e.g. if the server responded with an
+                 *   unexpected value).
+                 */
                 fun image(): Image = image.getRequired("image")
 
-                /** Discriminator type of the content item. Always "image" */
+                /**
+                 * Discriminator type of the content item. Always "image"
+                 *
+                 * Expected to always return the following:
+                 * ```kotlin
+                 * JsonValue.from("image")
+                 * ```
+                 *
+                 * However, this method can be useful for debugging and logging (e.g. if the server
+                 * responded with an unexpected value).
+                 */
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-                /** Image as a base64 encoded string or an URL */
+                /**
+                 * Returns the raw JSON value of [image].
+                 *
+                 * Unlike [image], this method doesn't throw if the JSON field has an unexpected
+                 * type.
+                 */
                 @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
                 @JsonAnyGetter
@@ -1051,6 +1298,14 @@ private constructor(
 
                 companion object {
 
+                    /**
+                     * Returns a mutable builder for constructing an instance of [ImageContentItem].
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .image()
+                     * ```
+                     */
                     fun builder() = Builder()
                 }
 
@@ -1070,10 +1325,27 @@ private constructor(
                     /** Image as a base64 encoded string or an URL */
                     fun image(image: Image) = image(JsonField.of(image))
 
-                    /** Image as a base64 encoded string or an URL */
+                    /**
+                     * Sets [Builder.image] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.image] with a well-typed [Image] value
+                     * instead. This method is primarily for setting the field to an undocumented or
+                     * not yet supported value.
+                     */
                     fun image(image: JsonField<Image>) = apply { this.image = image }
 
-                    /** Discriminator type of the content item. Always "image" */
+                    /**
+                     * Sets the field to an arbitrary JSON value.
+                     *
+                     * It is usually unnecessary to call this method because the field defaults to
+                     * the following:
+                     * ```kotlin
+                     * JsonValue.from("image")
+                     * ```
+                     *
+                     * This method is primarily for setting the field to an undocumented or not yet
+                     * supported value.
+                     */
                     fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1121,21 +1393,36 @@ private constructor(
                     private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
                 ) {
 
-                    /** base64 encoded image data as string */
+                    /**
+                     * base64 encoded image data as string
+                     *
+                     * @throws LlamaStackClientInvalidDataException if the JSON field has an
+                     *   unexpected type (e.g. if the server responded with an unexpected value).
+                     */
                     fun data(): String? = data.getNullable("data")
 
                     /**
                      * A URL of the image or data URL in the format of
                      * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     *
+                     * @throws LlamaStackClientInvalidDataException if the JSON field has an
+                     *   unexpected type (e.g. if the server responded with an unexpected value).
                      */
                     fun url(): Url? = url.getNullable("url")
 
-                    /** base64 encoded image data as string */
+                    /**
+                     * Returns the raw JSON value of [data].
+                     *
+                     * Unlike [data], this method doesn't throw if the JSON field has an unexpected
+                     * type.
+                     */
                     @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<String> = data
 
                     /**
-                     * A URL of the image or data URL in the format of
-                     * data:image/{type};base64,{data}. Note that URL could have length limits.
+                     * Returns the raw JSON value of [url].
+                     *
+                     * Unlike [url], this method doesn't throw if the JSON field has an unexpected
+                     * type.
                      */
                     @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
@@ -1159,6 +1446,7 @@ private constructor(
 
                     companion object {
 
+                        /** Returns a mutable builder for constructing an instance of [Image]. */
                         fun builder() = Builder()
                     }
 
@@ -1179,7 +1467,13 @@ private constructor(
                         /** base64 encoded image data as string */
                         fun data(data: String) = data(JsonField.of(data))
 
-                        /** base64 encoded image data as string */
+                        /**
+                         * Sets [Builder.data] to an arbitrary JSON value.
+                         *
+                         * You should usually call [Builder.data] with a well-typed [String] value
+                         * instead. This method is primarily for setting the field to an
+                         * undocumented or not yet supported value.
+                         */
                         fun data(data: JsonField<String>) = apply { this.data = data }
 
                         /**
@@ -1189,8 +1483,11 @@ private constructor(
                         fun url(url: Url) = url(JsonField.of(url))
 
                         /**
-                         * A URL of the image or data URL in the format of
-                         * data:image/{type};base64,{data}. Note that URL could have length limits.
+                         * Sets [Builder.url] to an arbitrary JSON value.
+                         *
+                         * You should usually call [Builder.url] with a well-typed [Url] value
+                         * instead. This method is primarily for setting the field to an
+                         * undocumented or not yet supported value.
                          */
                         fun url(url: JsonField<Url>) = apply { this.url = url }
 
@@ -1235,8 +1532,19 @@ private constructor(
                             immutableEmptyMap(),
                     ) {
 
+                        /**
+                         * @throws LlamaStackClientInvalidDataException if the JSON field has an
+                         *   unexpected type or is unexpectedly missing or null (e.g. if the server
+                         *   responded with an unexpected value).
+                         */
                         fun uri(): String = uri.getRequired("uri")
 
+                        /**
+                         * Returns the raw JSON value of [uri].
+                         *
+                         * Unlike [uri], this method doesn't throw if the JSON field has an
+                         * unexpected type.
+                         */
                         @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
                         @JsonAnyGetter
@@ -1258,6 +1566,14 @@ private constructor(
 
                         companion object {
 
+                            /**
+                             * Returns a mutable builder for constructing an instance of [Url].
+                             *
+                             * The following fields are required:
+                             * ```kotlin
+                             * .uri()
+                             * ```
+                             */
                             fun builder() = Builder()
                         }
 
@@ -1275,6 +1591,13 @@ private constructor(
 
                             fun uri(uri: String) = uri(JsonField.of(uri))
 
+                            /**
+                             * Sets [Builder.uri] to an arbitrary JSON value.
+                             *
+                             * You should usually call [Builder.uri] with a well-typed [String]
+                             * value instead. This method is primarily for setting the field to an
+                             * undocumented or not yet supported value.
+                             */
                             fun uri(uri: JsonField<String>) = apply { this.uri = uri }
 
                             fun additionalProperties(additionalProperties: Map<String, JsonValue>) =
@@ -1372,13 +1695,34 @@ private constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
-                /** Text content */
+                /**
+                 * Text content
+                 *
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type or is unexpectedly missing or null (e.g. if the server responded with an
+                 *   unexpected value).
+                 */
                 fun text(): String = text.getRequired("text")
 
-                /** Discriminator type of the content item. Always "text" */
+                /**
+                 * Discriminator type of the content item. Always "text"
+                 *
+                 * Expected to always return the following:
+                 * ```kotlin
+                 * JsonValue.from("text")
+                 * ```
+                 *
+                 * However, this method can be useful for debugging and logging (e.g. if the server
+                 * responded with an unexpected value).
+                 */
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-                /** Text content */
+                /**
+                 * Returns the raw JSON value of [text].
+                 *
+                 * Unlike [text], this method doesn't throw if the JSON field has an unexpected
+                 * type.
+                 */
                 @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
                 @JsonAnyGetter
@@ -1407,6 +1751,14 @@ private constructor(
 
                 companion object {
 
+                    /**
+                     * Returns a mutable builder for constructing an instance of [TextContentItem].
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .text()
+                     * ```
+                     */
                     fun builder() = Builder()
                 }
 
@@ -1426,10 +1778,27 @@ private constructor(
                     /** Text content */
                     fun text(text: String) = text(JsonField.of(text))
 
-                    /** Text content */
+                    /**
+                     * Sets [Builder.text] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.text] with a well-typed [String] value
+                     * instead. This method is primarily for setting the field to an undocumented or
+                     * not yet supported value.
+                     */
                     fun text(text: JsonField<String>) = apply { this.text = text }
 
-                    /** Discriminator type of the content item. Always "text" */
+                    /**
+                     * Sets the field to an arbitrary JSON value.
+                     *
+                     * It is usually unnecessary to call this method because the field defaults to
+                     * the following:
+                     * ```kotlin
+                     * JsonValue.from("text")
+                     * ```
+                     *
+                     * This method is primarily for setting the field to an undocumented or not yet
+                     * supported value.
+                     */
                     fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1491,8 +1860,18 @@ private constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
+                /**
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type or is unexpectedly missing or null (e.g. if the server responded with an
+                 *   unexpected value).
+                 */
                 fun uri(): String = uri.getRequired("uri")
 
+                /**
+                 * Returns the raw JSON value of [uri].
+                 *
+                 * Unlike [uri], this method doesn't throw if the JSON field has an unexpected type.
+                 */
                 @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
                 @JsonAnyGetter
@@ -1514,6 +1893,14 @@ private constructor(
 
                 companion object {
 
+                    /**
+                     * Returns a mutable builder for constructing an instance of [Url].
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .uri()
+                     * ```
+                     */
                     fun builder() = Builder()
                 }
 
@@ -1530,6 +1917,13 @@ private constructor(
 
                     fun uri(uri: String) = uri(JsonField.of(uri))
 
+                    /**
+                     * Sets [Builder.uri] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.uri] with a well-typed [String] value
+                     * instead. This method is primarily for setting the field to an undocumented or
+                     * not yet supported value.
+                     */
                     fun uri(uri: JsonField<String>) = apply { this.uri = uri }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1595,7 +1989,10 @@ private constructor(
             "Document{content=$content, mimeType=$mimeType, additionalProperties=$additionalProperties}"
     }
 
-    /** Configuration for tool use. */
+    /**
+     * (Optional) The tool configuration to create the turn with, will be used to override the
+     * agent's tool_config.
+     */
     @NoAutoDetect
     class ToolConfig
     @JsonCreator
@@ -1619,6 +2016,9 @@ private constructor(
          * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
          * provided system message. The system message can include the string
          * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun systemMessageBehavior(): SystemMessageBehavior? =
             systemMessageBehavior.getNullable("system_message_behavior")
@@ -1626,6 +2026,9 @@ private constructor(
         /**
          * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool name
          * to use a specific tool. Defaults to ToolChoice.auto.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
 
@@ -1635,35 +2038,37 @@ private constructor(
          * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
          * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
          * The tool calls are output as Python syntax -- a list of function calls.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun toolPromptFormat(): ToolPromptFormat? =
             toolPromptFormat.getNullable("tool_prompt_format")
 
         /**
-         * (Optional) Config for how to override the default system prompt. -
-         * `SystemMessageBehavior.append`: Appends the provided system message to the default system
-         * prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt with the
-         * provided system message. The system message can include the string
-         * '{{function_definitions}}' to indicate where the function definitions should be inserted.
+         * Returns the raw JSON value of [systemMessageBehavior].
+         *
+         * Unlike [systemMessageBehavior], this method doesn't throw if the JSON field has an
+         * unexpected type.
          */
         @JsonProperty("system_message_behavior")
         @ExcludeMissing
         fun _systemMessageBehavior(): JsonField<SystemMessageBehavior> = systemMessageBehavior
 
         /**
-         * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool name
-         * to use a specific tool. Defaults to ToolChoice.auto.
+         * Returns the raw JSON value of [toolChoice].
+         *
+         * Unlike [toolChoice], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("tool_choice")
         @ExcludeMissing
         fun _toolChoice(): JsonField<ToolChoice> = toolChoice
 
         /**
-         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
-         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
-         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
-         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
-         * The tool calls are output as Python syntax -- a list of function calls.
+         * Returns the raw JSON value of [toolPromptFormat].
+         *
+         * Unlike [toolPromptFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
          */
         @JsonProperty("tool_prompt_format")
         @ExcludeMissing
@@ -1690,6 +2095,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [ToolConfig]. */
             fun builder() = Builder()
         }
 
@@ -1720,12 +2126,11 @@ private constructor(
                 systemMessageBehavior(JsonField.of(systemMessageBehavior))
 
             /**
-             * (Optional) Config for how to override the default system prompt. -
-             * `SystemMessageBehavior.append`: Appends the provided system message to the default
-             * system prompt. - `SystemMessageBehavior.replace`: Replaces the default system prompt
-             * with the provided system message. The system message can include the string
-             * '{{function_definitions}}' to indicate where the function definitions should be
-             * inserted.
+             * Sets [Builder.systemMessageBehavior] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.systemMessageBehavior] with a well-typed
+             * [SystemMessageBehavior] value instead. This method is primarily for setting the field
+             * to an undocumented or not yet supported value.
              */
             fun systemMessageBehavior(systemMessageBehavior: JsonField<SystemMessageBehavior>) =
                 apply {
@@ -1739,16 +2144,22 @@ private constructor(
             fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
 
             /**
-             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
-             * name to use a specific tool. Defaults to ToolChoice.auto.
+             * Sets [Builder.toolChoice] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolChoice] with a well-typed [ToolChoice] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
                 this.toolChoice = toolChoice
             }
 
             /**
-             * (Optional) Whether tool use is automatic, required, or none. Can also specify a tool
-             * name to use a specific tool. Defaults to ToolChoice.auto.
+             * Sets [toolChoice] to an arbitrary [String].
+             *
+             * You should usually call [toolChoice] with a well-typed [ToolChoice] constant instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun toolChoice(value: String) = toolChoice(ToolChoice.of(value))
 
@@ -1764,12 +2175,11 @@ private constructor(
                 toolPromptFormat(JsonField.of(toolPromptFormat))
 
             /**
-             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
-             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
-             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
-             * tool calls are enclosed in a <function=function_name> tag. -
-             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
-             * of function calls.
+             * Sets [Builder.toolPromptFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolPromptFormat] with a well-typed
+             * [ToolPromptFormat] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
              */
             fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
                 this.toolPromptFormat = toolPromptFormat
@@ -2324,12 +2734,32 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun args(): Args = args.getRequired("args")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun name(): String = name.getRequired("name")
 
+            /**
+             * Returns the raw JSON value of [args].
+             *
+             * Unlike [args], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("args") @ExcludeMissing fun _args(): JsonField<Args> = args
 
+            /**
+             * Returns the raw JSON value of [name].
+             *
+             * Unlike [name], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
             @JsonAnyGetter
@@ -2352,6 +2782,16 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of
+                 * [AgentToolGroupWithArgs].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .args()
+                 * .name()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -2371,10 +2811,24 @@ private constructor(
 
                 fun args(args: Args) = args(JsonField.of(args))
 
+                /**
+                 * Sets [Builder.args] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.args] with a well-typed [Args] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun args(args: JsonField<Args>) = apply { this.args = args }
 
                 fun name(name: String) = name(JsonField.of(name))
 
+                /**
+                 * Sets [Builder.name] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.name] with a well-typed [String] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun name(name: JsonField<String>) = apply { this.name = name }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -2433,6 +2887,7 @@ private constructor(
 
                 companion object {
 
+                    /** Returns a mutable builder for constructing an instance of [Args]. */
                     fun builder() = Builder()
                 }
 

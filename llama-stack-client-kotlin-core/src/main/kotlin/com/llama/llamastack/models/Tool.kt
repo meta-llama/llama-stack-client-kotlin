@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
@@ -60,44 +61,126 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun description(): String = description.getRequired("description")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun identifier(): String = identifier.getRequired("identifier")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun parameters(): List<Parameter> = parameters.getRequired("parameters")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerId(): String = providerId.getRequired("provider_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun toolHost(): ToolHost = toolHost.getRequired("tool_host")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun toolgroupId(): String = toolgroupId.getRequired("toolgroup_id")
 
+    /**
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("tool")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata? = metadata.getNullable("metadata")
 
+    /**
+     * Returns the raw JSON value of [description].
+     *
+     * Unlike [description], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("description") @ExcludeMissing fun _description(): JsonField<String> = description
 
+    /**
+     * Returns the raw JSON value of [identifier].
+     *
+     * Unlike [identifier], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("identifier") @ExcludeMissing fun _identifier(): JsonField<String> = identifier
 
+    /**
+     * Returns the raw JSON value of [parameters].
+     *
+     * Unlike [parameters], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("parameters")
     @ExcludeMissing
     fun _parameters(): JsonField<List<Parameter>> = parameters
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
     fun _providerResourceId(): JsonField<String> = providerResourceId
 
+    /**
+     * Returns the raw JSON value of [toolHost].
+     *
+     * Unlike [toolHost], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("tool_host") @ExcludeMissing fun _toolHost(): JsonField<ToolHost> = toolHost
 
+    /**
+     * Returns the raw JSON value of [toolgroupId].
+     *
+     * Unlike [toolgroupId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("toolgroup_id")
     @ExcludeMissing
     fun _toolgroupId(): JsonField<String> = toolgroupId
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
     @JsonAnyGetter
@@ -131,6 +214,20 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [Tool].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .description()
+         * .identifier()
+         * .parameters()
+         * .providerId()
+         * .providerResourceId()
+         * .toolHost()
+         * .toolgroupId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -163,52 +260,121 @@ private constructor(
 
         fun description(description: String) = description(JsonField.of(description))
 
+        /**
+         * Sets [Builder.description] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.description] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun description(description: JsonField<String>) = apply { this.description = description }
 
         fun identifier(identifier: String) = identifier(JsonField.of(identifier))
 
+        /**
+         * Sets [Builder.identifier] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.identifier] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun identifier(identifier: JsonField<String>) = apply { this.identifier = identifier }
 
         fun parameters(parameters: List<Parameter>) = parameters(JsonField.of(parameters))
 
+        /**
+         * Sets [Builder.parameters] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.parameters] with a well-typed `List<Parameter>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun parameters(parameters: JsonField<List<Parameter>>) = apply {
             this.parameters = parameters.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [Parameter] to [parameters].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addParameter(parameter: Parameter) = apply {
             parameters =
-                (parameters ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(parameter)
+                (parameters ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("parameters", it).add(parameter)
                 }
         }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
         fun providerResourceId(providerResourceId: String) =
             providerResourceId(JsonField.of(providerResourceId))
 
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerResourceId(providerResourceId: JsonField<String>) = apply {
             this.providerResourceId = providerResourceId
         }
 
         fun toolHost(toolHost: ToolHost) = toolHost(JsonField.of(toolHost))
 
+        /**
+         * Sets [Builder.toolHost] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolHost] with a well-typed [ToolHost] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun toolHost(toolHost: JsonField<ToolHost>) = apply { this.toolHost = toolHost }
 
         fun toolgroupId(toolgroupId: String) = toolgroupId(JsonField.of(toolgroupId))
 
+        /**
+         * Sets [Builder.toolgroupId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolgroupId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun toolgroupId(toolgroupId: JsonField<String>) = apply { this.toolgroupId = toolgroupId }
 
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("tool")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun type(type: JsonValue) = apply { this.type = type }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -268,28 +434,78 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun description(): String = description.getRequired("description")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun name(): String = name.getRequired("name")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun parameterType(): String = parameterType.getRequired("parameter_type")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun required(): Boolean = required.getRequired("required")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun default(): Default? = default.getNullable("default")
 
+        /**
+         * Returns the raw JSON value of [description].
+         *
+         * Unlike [description], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("description")
         @ExcludeMissing
         fun _description(): JsonField<String> = description
 
+        /**
+         * Returns the raw JSON value of [name].
+         *
+         * Unlike [name], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
+        /**
+         * Returns the raw JSON value of [parameterType].
+         *
+         * Unlike [parameterType], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("parameter_type")
         @ExcludeMissing
         fun _parameterType(): JsonField<String> = parameterType
 
+        /**
+         * Returns the raw JSON value of [required].
+         *
+         * Unlike [required], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("required") @ExcludeMissing fun _required(): JsonField<Boolean> = required
 
+        /**
+         * Returns the raw JSON value of [default].
+         *
+         * Unlike [default], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("default") @ExcludeMissing fun _default(): JsonField<Default> = default
 
         @JsonAnyGetter
@@ -315,6 +531,17 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Parameter].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .description()
+             * .name()
+             * .parameterType()
+             * .required()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -339,37 +566,77 @@ private constructor(
 
             fun description(description: String) = description(JsonField.of(description))
 
+            /**
+             * Sets [Builder.description] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.description] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun description(description: JsonField<String>) = apply {
                 this.description = description
             }
 
             fun name(name: String) = name(JsonField.of(name))
 
+            /**
+             * Sets [Builder.name] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.name] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun name(name: JsonField<String>) = apply { this.name = name }
 
             fun parameterType(parameterType: String) = parameterType(JsonField.of(parameterType))
 
+            /**
+             * Sets [Builder.parameterType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.parameterType] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun parameterType(parameterType: JsonField<String>) = apply {
                 this.parameterType = parameterType
             }
 
             fun required(required: Boolean) = required(JsonField.of(required))
 
+            /**
+             * Sets [Builder.required] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.required] with a well-typed [Boolean] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun required(required: JsonField<Boolean>) = apply { this.required = required }
 
             fun default(default: Default?) = default(JsonField.ofNullable(default))
 
+            /**
+             * Sets [Builder.default] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.default] with a well-typed [Default] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun default(default: JsonField<Default>) = apply { this.default = default }
 
+            /** Alias for calling [default] with `Default.ofBoolean(boolean)`. */
             fun default(boolean: Boolean) = default(Default.ofBoolean(boolean))
 
+            /** Alias for calling [default] with `Default.ofDouble(double)`. */
             fun default(double: Double) = default(Default.ofDouble(double))
 
+            /** Alias for calling [default] with `Default.ofString(string)`. */
             fun default(string: String) = default(Default.ofString(string))
 
+            /** Alias for calling [default] with `Default.ofJsonValues(jsonValues)`. */
             fun defaultOfJsonValues(jsonValues: List<JsonValue>) =
                 default(Default.ofJsonValues(jsonValues))
 
+            /** Alias for calling [default] with `Default.ofJsonValue(jsonValue)`. */
             fun default(jsonValue: JsonValue) = default(Default.ofJsonValue(jsonValue))
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -739,6 +1006,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

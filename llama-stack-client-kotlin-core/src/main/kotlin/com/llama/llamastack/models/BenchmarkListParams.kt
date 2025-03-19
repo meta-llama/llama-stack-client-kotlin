@@ -26,6 +26,9 @@ private constructor(
 
     companion object {
 
+        fun none(): BenchmarkListParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [BenchmarkListParams]. */
         fun builder() = Builder()
     }
 

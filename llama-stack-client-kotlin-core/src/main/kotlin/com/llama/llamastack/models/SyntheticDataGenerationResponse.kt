@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /**
@@ -33,14 +35,32 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun syntheticData(): List<SyntheticData> = syntheticData.getRequired("synthetic_data")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun statistics(): Statistics? = statistics.getNullable("statistics")
 
+    /**
+     * Returns the raw JSON value of [syntheticData].
+     *
+     * Unlike [syntheticData], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("synthetic_data")
     @ExcludeMissing
     fun _syntheticData(): JsonField<List<SyntheticData>> = syntheticData
 
+    /**
+     * Returns the raw JSON value of [statistics].
+     *
+     * Unlike [statistics], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("statistics")
     @ExcludeMissing
     fun _statistics(): JsonField<Statistics> = statistics
@@ -65,6 +85,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [SyntheticDataGenerationResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .syntheticData()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -87,23 +116,38 @@ private constructor(
         fun syntheticData(syntheticData: List<SyntheticData>) =
             syntheticData(JsonField.of(syntheticData))
 
+        /**
+         * Sets [Builder.syntheticData] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.syntheticData] with a well-typed `List<SyntheticData>`
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun syntheticData(syntheticData: JsonField<List<SyntheticData>>) = apply {
             this.syntheticData = syntheticData.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [SyntheticData] to [Builder.syntheticData].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addSyntheticData(syntheticData: SyntheticData) = apply {
             this.syntheticData =
-                (this.syntheticData ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(syntheticData)
+                (this.syntheticData ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("syntheticData", it).add(syntheticData)
                 }
         }
 
         fun statistics(statistics: Statistics) = statistics(JsonField.of(statistics))
 
+        /**
+         * Sets [Builder.statistics] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.statistics] with a well-typed [Statistics] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun statistics(statistics: JsonField<Statistics>) = apply { this.statistics = statistics }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -159,6 +203,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [SyntheticData]. */
             fun builder() = Builder()
         }
 
@@ -236,6 +281,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Statistics]. */
             fun builder() = Builder()
         }
 

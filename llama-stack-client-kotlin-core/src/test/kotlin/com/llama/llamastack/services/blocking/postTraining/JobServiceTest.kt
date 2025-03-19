@@ -4,11 +4,10 @@ package com.llama.llamastack.services.blocking.postTraining
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.ListPostTrainingJobsResponse
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobCancelParams
-import com.llama.llamastack.models.PostTrainingJobListParams
 import com.llama.llamastack.models.PostTrainingJobStatusParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -16,47 +15,50 @@ import org.junit.jupiter.api.extension.ExtendWith
 class JobServiceTest {
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.postTraining().job()
-        val listPostTrainingJobsResponse =
-            jobService.list(PostTrainingJobListParams.builder().build())
-        println(listPostTrainingJobsResponse)
-        for (postTrainingJob: ListPostTrainingJobsResponse.Data in listPostTrainingJobsResponse) {
-            postTrainingJob.validate()
-        }
+
+        val jobs = jobService.list()
+
+        jobs.forEach { it.validate() }
     }
 
     @Test
-    fun callArtifacts() {
+    fun artifacts() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.postTraining().job()
-        val postTrainingJobArtifactsResponse =
+
+        val response =
             jobService.artifacts(
                 PostTrainingJobArtifactsParams.builder().jobUuid("job_uuid").build()
             )
-        println(postTrainingJobArtifactsResponse)
-        postTrainingJobArtifactsResponse?.validate()
+
+        assertNotNull(response)
+        response.validate()
     }
 
     @Test
-    fun callCancel() {
+    fun cancel() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.postTraining().job()
+
         jobService.cancel(PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build())
     }
 
     @Test
-    fun callStatus() {
+    fun status() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.postTraining().job()
-        val postTrainingJobStatusResponse =
+
+        val response =
             jobService.status(PostTrainingJobStatusParams.builder().jobUuid("job_uuid").build())
-        println(postTrainingJobStatusResponse)
-        postTrainingJobStatusResponse?.validate()
+
+        assertNotNull(response)
+        response.validate()
     }
 }

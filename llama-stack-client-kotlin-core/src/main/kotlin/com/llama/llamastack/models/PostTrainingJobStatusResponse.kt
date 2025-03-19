@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -48,41 +49,105 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun checkpoints(): List<JsonValue> = checkpoints.getRequired("checkpoints")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun status(): Status = status.getRequired("status")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun resourcesAllocated(): ResourcesAllocated? =
         resourcesAllocated.getNullable("resources_allocated")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun scheduledAt(): OffsetDateTime? = scheduledAt.getNullable("scheduled_at")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
+    /**
+     * Returns the raw JSON value of [checkpoints].
+     *
+     * Unlike [checkpoints], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("checkpoints")
     @ExcludeMissing
     fun _checkpoints(): JsonField<List<JsonValue>> = checkpoints
 
+    /**
+     * Returns the raw JSON value of [jobUuid].
+     *
+     * Unlike [jobUuid], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
+    /**
+     * Returns the raw JSON value of [status].
+     *
+     * Unlike [status], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("status") @ExcludeMissing fun _status(): JsonField<Status> = status
 
+    /**
+     * Returns the raw JSON value of [completedAt].
+     *
+     * Unlike [completedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("completed_at")
     @ExcludeMissing
     fun _completedAt(): JsonField<OffsetDateTime> = completedAt
 
+    /**
+     * Returns the raw JSON value of [resourcesAllocated].
+     *
+     * Unlike [resourcesAllocated], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("resources_allocated")
     @ExcludeMissing
     fun _resourcesAllocated(): JsonField<ResourcesAllocated> = resourcesAllocated
 
+    /**
+     * Returns the raw JSON value of [scheduledAt].
+     *
+     * Unlike [scheduledAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("scheduled_at")
     @ExcludeMissing
     fun _scheduledAt(): JsonField<OffsetDateTime> = scheduledAt
 
+    /**
+     * Returns the raw JSON value of [startedAt].
+     *
+     * Unlike [startedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("started_at")
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
@@ -112,6 +177,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [PostTrainingJobStatusResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .checkpoints()
+         * .jobUuid()
+         * .status()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -140,31 +216,58 @@ private constructor(
 
         fun checkpoints(checkpoints: List<JsonValue>) = checkpoints(JsonField.of(checkpoints))
 
+        /**
+         * Sets [Builder.checkpoints] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.checkpoints] with a well-typed `List<JsonValue>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun checkpoints(checkpoints: JsonField<List<JsonValue>>) = apply {
             this.checkpoints = checkpoints.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [JsonValue] to [checkpoints].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addCheckpoint(checkpoint: JsonValue) = apply {
             checkpoints =
-                (checkpoints ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(checkpoint)
+                (checkpoints ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("checkpoints", it).add(checkpoint)
                 }
         }
 
         fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
+        /**
+         * Sets [Builder.jobUuid] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.jobUuid] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
         fun status(status: Status) = status(JsonField.of(status))
 
+        /**
+         * Sets [Builder.status] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.status] with a well-typed [Status] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun status(status: JsonField<Status>) = apply { this.status = status }
 
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
+        /**
+         * Sets [Builder.completedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.completedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
@@ -172,18 +275,39 @@ private constructor(
         fun resourcesAllocated(resourcesAllocated: ResourcesAllocated) =
             resourcesAllocated(JsonField.of(resourcesAllocated))
 
+        /**
+         * Sets [Builder.resourcesAllocated] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.resourcesAllocated] with a well-typed
+         * [ResourcesAllocated] value instead. This method is primarily for setting the field to an
+         * undocumented or not yet supported value.
+         */
         fun resourcesAllocated(resourcesAllocated: JsonField<ResourcesAllocated>) = apply {
             this.resourcesAllocated = resourcesAllocated
         }
 
         fun scheduledAt(scheduledAt: OffsetDateTime) = scheduledAt(JsonField.of(scheduledAt))
 
+        /**
+         * Sets [Builder.scheduledAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scheduledAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun scheduledAt(scheduledAt: JsonField<OffsetDateTime>) = apply {
             this.scheduledAt = scheduledAt
         }
 
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
+        /**
+         * Sets [Builder.startedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.startedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -355,6 +479,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [ResourcesAllocated]. */
             fun builder() = Builder()
         }
 

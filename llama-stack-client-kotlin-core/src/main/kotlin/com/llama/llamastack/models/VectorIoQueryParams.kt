@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class VectorIoQueryParams
@@ -26,18 +27,45 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** A image content item */
+    /**
+     * A image content item
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun query(): InterleavedContent = body.query()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun vectorDbId(): String = body.vectorDbId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun params(): Params? = body.params()
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [query].
+     *
+     * Unlike [query], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _query(): JsonField<InterleavedContent> = body._query()
 
+    /**
+     * Returns the raw JSON value of [vectorDbId].
+     *
+     * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _vectorDbId(): JsonField<String> = body._vectorDbId()
 
+    /**
+     * Returns the raw JSON value of [params].
+     *
+     * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _params(): JsonField<Params> = body._params()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -69,20 +97,49 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** A image content item */
+        /**
+         * A image content item
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun query(): InterleavedContent = query.getRequired("query")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun params(): Params? = params.getNullable("params")
 
-        /** A image content item */
+        /**
+         * Returns the raw JSON value of [query].
+         *
+         * Unlike [query], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("query") @ExcludeMissing fun _query(): JsonField<InterleavedContent> = query
 
+        /**
+         * Returns the raw JSON value of [vectorDbId].
+         *
+         * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("vector_db_id")
         @ExcludeMissing
         fun _vectorDbId(): JsonField<String> = vectorDbId
 
+        /**
+         * Returns the raw JSON value of [params].
+         *
+         * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
         @JsonAnyGetter
@@ -106,6 +163,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .query()
+             * .vectorDbId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -127,30 +193,56 @@ private constructor(
             /** A image content item */
             fun query(query: InterleavedContent) = query(JsonField.of(query))
 
-            /** A image content item */
+            /**
+             * Sets [Builder.query] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.query] with a well-typed [InterleavedContent] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun query(query: JsonField<InterleavedContent>) = apply { this.query = query }
 
-            /** A image content item */
+            /** Alias for calling [query] with `InterleavedContent.ofString(string)`. */
             fun query(string: String) = query(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [query] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun query(imageContentItem: InterleavedContent.ImageContentItem) =
                 query(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [query] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun query(textContentItem: InterleavedContent.TextContentItem) =
                 query(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A image content item */
+            /** Alias for calling [query] with `InterleavedContent.ofItems(items)`. */
             fun queryOfItems(items: List<InterleavedContentItem>) =
                 query(InterleavedContent.ofItems(items))
 
             fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
 
+            /**
+             * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.vectorDbId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
 
             fun params(params: Params) = params(JsonField.of(params))
 
+            /**
+             * Sets [Builder.params] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.params] with a well-typed [Params] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun params(params: JsonField<Params>) = apply { this.params = params }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -203,6 +295,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [VectorIoQueryParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .query()
+         * .vectorDbId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -223,31 +324,54 @@ private constructor(
         /** A image content item */
         fun query(query: InterleavedContent) = apply { body.query(query) }
 
-        /** A image content item */
+        /**
+         * Sets [Builder.query] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.query] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun query(query: JsonField<InterleavedContent>) = apply { body.query(query) }
 
-        /** A image content item */
+        /** Alias for calling [query] with `InterleavedContent.ofString(string)`. */
         fun query(string: String) = apply { body.query(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [query] with `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun query(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.query(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [query] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun query(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.query(textContentItem)
         }
 
-        /** A image content item */
+        /** Alias for calling [query] with `InterleavedContent.ofItems(items)`. */
         fun queryOfItems(items: List<InterleavedContentItem>) = apply { body.queryOfItems(items) }
 
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
 
+        /**
+         * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.vectorDbId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun vectorDbId(vectorDbId: JsonField<String>) = apply { body.vectorDbId(vectorDbId) }
 
         fun params(params: Params) = apply { body.params(params) }
 
+        /**
+         * Sets [Builder.params] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.params] with a well-typed [Params] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun params(params: JsonField<Params>) = apply { body.params(params) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -401,6 +525,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Params]. */
             fun builder() = Builder()
         }
 

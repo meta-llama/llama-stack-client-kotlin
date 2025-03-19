@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -30,18 +32,45 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun method(): String = method.getRequired("method")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerTypes(): List<String> = providerTypes.getRequired("provider_types")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun route(): String = route.getRequired("route")
 
+    /**
+     * Returns the raw JSON value of [method].
+     *
+     * Unlike [method], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("method") @ExcludeMissing fun _method(): JsonField<String> = method
 
+    /**
+     * Returns the raw JSON value of [providerTypes].
+     *
+     * Unlike [providerTypes], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("provider_types")
     @ExcludeMissing
     fun _providerTypes(): JsonField<List<String>> = providerTypes
 
+    /**
+     * Returns the raw JSON value of [route].
+     *
+     * Unlike [route], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("route") @ExcludeMissing fun _route(): JsonField<String> = route
 
     @JsonAnyGetter
@@ -65,6 +94,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [RouteInfo].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .method()
+         * .providerTypes()
+         * .route()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -85,27 +124,47 @@ private constructor(
 
         fun method(method: String) = method(JsonField.of(method))
 
+        /**
+         * Sets [Builder.method] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.method] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun method(method: JsonField<String>) = apply { this.method = method }
 
         fun providerTypes(providerTypes: List<String>) = providerTypes(JsonField.of(providerTypes))
 
+        /**
+         * Sets [Builder.providerTypes] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerTypes] with a well-typed `List<String>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerTypes(providerTypes: JsonField<List<String>>) = apply {
             this.providerTypes = providerTypes.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [String] to [providerTypes].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addProviderType(providerType: String) = apply {
             providerTypes =
-                (providerTypes ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(providerType)
+                (providerTypes ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("providerTypes", it).add(providerType)
                 }
         }
 
         fun route(route: String) = route(JsonField.of(route))
 
+        /**
+         * Sets [Builder.route] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.route] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun route(route: JsonField<String>) = apply { this.route = route }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

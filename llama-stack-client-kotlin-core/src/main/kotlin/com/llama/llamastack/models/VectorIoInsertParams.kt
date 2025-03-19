@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class VectorIoInsertParams
@@ -26,16 +28,43 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun chunks(): List<Chunk> = body.chunks()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun vectorDbId(): String = body.vectorDbId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun ttlSeconds(): Long? = body.ttlSeconds()
 
+    /**
+     * Returns the raw JSON value of [chunks].
+     *
+     * Unlike [chunks], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _chunks(): JsonField<List<Chunk>> = body._chunks()
 
+    /**
+     * Returns the raw JSON value of [vectorDbId].
+     *
+     * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _vectorDbId(): JsonField<String> = body._vectorDbId()
 
+    /**
+     * Returns the raw JSON value of [ttlSeconds].
+     *
+     * Unlike [ttlSeconds], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _ttlSeconds(): JsonField<Long> = body._ttlSeconds()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -67,18 +96,47 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun chunks(): List<Chunk> = chunks.getRequired("chunks")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun ttlSeconds(): Long? = ttlSeconds.getNullable("ttl_seconds")
 
+        /**
+         * Returns the raw JSON value of [chunks].
+         *
+         * Unlike [chunks], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("chunks") @ExcludeMissing fun _chunks(): JsonField<List<Chunk>> = chunks
 
+        /**
+         * Returns the raw JSON value of [vectorDbId].
+         *
+         * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("vector_db_id")
         @ExcludeMissing
         fun _vectorDbId(): JsonField<String> = vectorDbId
 
+        /**
+         * Returns the raw JSON value of [ttlSeconds].
+         *
+         * Unlike [ttlSeconds], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("ttl_seconds") @ExcludeMissing fun _ttlSeconds(): JsonField<Long> = ttlSeconds
 
         @JsonAnyGetter
@@ -102,6 +160,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .chunks()
+             * .vectorDbId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -122,27 +189,49 @@ private constructor(
 
             fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
 
+            /**
+             * Sets [Builder.chunks] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.chunks] with a well-typed `List<Chunk>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun chunks(chunks: JsonField<List<Chunk>>) = apply {
                 this.chunks = chunks.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Chunk] to [chunks].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addChunk(chunk: Chunk) = apply {
                 chunks =
-                    (chunks ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(chunk)
+                    (chunks ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("chunks", it).add(chunk)
                     }
             }
 
             fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
 
+            /**
+             * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.vectorDbId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
 
             fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
 
+            /**
+             * Sets [Builder.ttlSeconds] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.ttlSeconds] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { this.ttlSeconds = ttlSeconds }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -195,6 +284,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [VectorIoInsertParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .chunks()
+         * .vectorDbId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -214,16 +312,41 @@ private constructor(
 
         fun chunks(chunks: List<Chunk>) = apply { body.chunks(chunks) }
 
+        /**
+         * Sets [Builder.chunks] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.chunks] with a well-typed `List<Chunk>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun chunks(chunks: JsonField<List<Chunk>>) = apply { body.chunks(chunks) }
 
+        /**
+         * Adds a single [Chunk] to [chunks].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addChunk(chunk: Chunk) = apply { body.addChunk(chunk) }
 
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
 
+        /**
+         * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.vectorDbId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun vectorDbId(vectorDbId: JsonField<String>) = apply { body.vectorDbId(vectorDbId) }
 
         fun ttlSeconds(ttlSeconds: Long) = apply { body.ttlSeconds(ttlSeconds) }
 
+        /**
+         * Sets [Builder.ttlSeconds] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.ttlSeconds] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { body.ttlSeconds(ttlSeconds) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -365,16 +488,36 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** A image content item */
+        /**
+         * A image content item
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun content(): InterleavedContent = content.getRequired("content")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun metadata(): Metadata = metadata.getRequired("metadata")
 
-        /** A image content item */
+        /**
+         * Returns the raw JSON value of [content].
+         *
+         * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
 
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
         @JsonAnyGetter
@@ -397,6 +540,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Chunk].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .metadata()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -416,26 +568,45 @@ private constructor(
             /** A image content item */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-            /** A image content item */
+            /**
+             * Sets [Builder.content] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.content] with a well-typed [InterleavedContent]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-            /** A image content item */
+            /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A image content item */
+            /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -491,6 +662,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Metadata]. */
                 fun builder() = Builder()
             }
 

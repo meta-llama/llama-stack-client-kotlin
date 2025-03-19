@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -36,10 +37,25 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** The content of the model's response */
+    /**
+     * The content of the model's response
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent = content.getRequired("content")
 
-    /** Must be "assistant" to identify this as the model's response */
+    /**
+     * Must be "assistant" to identify this as the model's response
+     *
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("assistant")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
     /**
@@ -48,27 +64,41 @@ private constructor(
      * generating but generated a partial response -- usually, a tool call. The user may call the
      * tool and continue the conversation with the tool's response. - `StopReason.out_of_tokens`:
      * The model ran out of token budget.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
 
-    /** List of tool calls. Each tool call is a ToolCall object. */
+    /**
+     * List of tool calls. Each tool call is a ToolCall object.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun toolCalls(): List<ToolCall>? = toolCalls.getNullable("tool_calls")
 
-    /** The content of the model's response */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
     /**
-     * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The model
-     * finished generating the entire response. - `StopReason.end_of_message`: The model finished
-     * generating but generated a partial response -- usually, a tool call. The user may call the
-     * tool and continue the conversation with the tool's response. - `StopReason.out_of_tokens`:
-     * The model ran out of token budget.
+     * Returns the raw JSON value of [stopReason].
+     *
+     * Unlike [stopReason], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("stop_reason")
     @ExcludeMissing
     fun _stopReason(): JsonField<StopReason> = stopReason
 
-    /** List of tool calls. Each tool call is a ToolCall object. */
+    /**
+     * Returns the raw JSON value of [toolCalls].
+     *
+     * Unlike [toolCalls], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("tool_calls")
     @ExcludeMissing
     fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
@@ -99,6 +129,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [CompletionMessage].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * .stopReason()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -122,25 +161,47 @@ private constructor(
         /** The content of the model's response */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-        /** The content of the model's response */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        /** The content of the model's response */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /** The content of the model's response */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
-        /** Must be "assistant" to identify this as the model's response */
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("assistant")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun role(role: JsonValue) = apply { this.role = role }
 
         /**
@@ -153,31 +214,37 @@ private constructor(
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
         /**
-         * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The
-         * model finished generating the entire response. - `StopReason.end_of_message`: The model
-         * finished generating but generated a partial response -- usually, a tool call. The user
-         * may call the tool and continue the conversation with the tool's response. -
-         * `StopReason.out_of_tokens`: The model ran out of token budget.
+         * Sets [Builder.stopReason] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.stopReason] with a well-typed [StopReason] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
 
         /** List of tool calls. Each tool call is a ToolCall object. */
         fun toolCalls(toolCalls: List<ToolCall>) = toolCalls(JsonField.of(toolCalls))
 
-        /** List of tool calls. Each tool call is a ToolCall object. */
+        /**
+         * Sets [Builder.toolCalls] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolCalls] with a well-typed `List<ToolCall>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun toolCalls(toolCalls: JsonField<List<ToolCall>>) = apply {
             this.toolCalls = toolCalls.map { it.toMutableList() }
         }
 
-        /** List of tool calls. Each tool call is a ToolCall object. */
+        /**
+         * Adds a single [ToolCall] to [toolCalls].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addToolCall(toolCall: ToolCall) = apply {
             toolCalls =
-                (toolCalls ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(toolCall)
+                (toolCalls ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("toolCalls", it).add(toolCall)
                 }
         }
 

@@ -37,6 +37,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [ScoringFunctionRetrieveParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .scoringFnId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

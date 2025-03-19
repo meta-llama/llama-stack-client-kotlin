@@ -10,7 +10,9 @@ import com.llama.llamastack.core.handlers.withErrorHandler
 import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
-import com.llama.llamastack.core.json
+import com.llama.llamastack.core.http.HttpResponseFor
+import com.llama.llamastack.core.http.json
+import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.ScoringScoreBatchParams
@@ -21,55 +23,86 @@ import com.llama.llamastack.models.ScoringScoreResponse
 class ScoringServiceAsyncImpl internal constructor(private val clientOptions: ClientOptions) :
     ScoringServiceAsync {
 
-    private val errorHandler: Handler<LlamaStackClientError> =
-        errorHandler(clientOptions.jsonMapper)
+    private val withRawResponse: ScoringServiceAsync.WithRawResponse by lazy {
+        WithRawResponseImpl(clientOptions)
+    }
 
-    private val scoreHandler: Handler<ScoringScoreResponse> =
-        jsonHandler<ScoringScoreResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    override fun withRawResponse(): ScoringServiceAsync.WithRawResponse = withRawResponse
 
     override suspend fun score(
         params: ScoringScoreParams,
         requestOptions: RequestOptions,
-    ): ScoringScoreResponse {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("v1", "scoring", "score")
-                .body(json(clientOptions.jsonMapper, params._body()))
-                .build()
-                .prepareAsync(clientOptions, params)
-        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
-        return response
-            .use { scoreHandler.handle(it) }
-            .also {
-                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                    it.validate()
-                }
-            }
-    }
-
-    private val scoreBatchHandler: Handler<ScoringScoreBatchResponse> =
-        jsonHandler<ScoringScoreBatchResponse>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
+    ): ScoringScoreResponse =
+        // post /v1/scoring/score
+        withRawResponse().score(params, requestOptions).parse()
 
     override suspend fun scoreBatch(
         params: ScoringScoreBatchParams,
         requestOptions: RequestOptions,
-    ): ScoringScoreBatchResponse {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("v1", "scoring", "score-batch")
-                .body(json(clientOptions.jsonMapper, params._body()))
-                .build()
-                .prepareAsync(clientOptions, params)
-        val response = clientOptions.httpClient.executeAsync(request, requestOptions)
-        return response
-            .use { scoreBatchHandler.handle(it) }
-            .also {
-                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                    it.validate()
-                }
+    ): ScoringScoreBatchResponse =
+        // post /v1/scoring/score-batch
+        withRawResponse().scoreBatch(params, requestOptions).parse()
+
+    class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
+        ScoringServiceAsync.WithRawResponse {
+
+        private val errorHandler: Handler<LlamaStackClientError> =
+            errorHandler(clientOptions.jsonMapper)
+
+        private val scoreHandler: Handler<ScoringScoreResponse> =
+            jsonHandler<ScoringScoreResponse>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
+
+        override suspend fun score(
+            params: ScoringScoreParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<ScoringScoreResponse> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .addPathSegments("v1", "scoring", "score")
+                    .body(json(clientOptions.jsonMapper, params._body()))
+                    .build()
+                    .prepareAsync(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { scoreHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
             }
+        }
+
+        private val scoreBatchHandler: Handler<ScoringScoreBatchResponse> =
+            jsonHandler<ScoringScoreBatchResponse>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
+
+        override suspend fun scoreBatch(
+            params: ScoringScoreBatchParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<ScoringScoreBatchResponse> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .addPathSegments("v1", "scoring", "score-batch")
+                    .body(json(clientOptions.jsonMapper, params._body()))
+                    .build()
+                    .prepareAsync(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.executeAsync(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { scoreBatchHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+            }
+        }
     }
 }

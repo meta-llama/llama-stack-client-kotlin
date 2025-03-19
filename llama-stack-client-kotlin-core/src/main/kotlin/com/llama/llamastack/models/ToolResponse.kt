@@ -37,22 +37,58 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun callId(): String = callId.getRequired("call_id")
 
-    /** A image content item */
+    /**
+     * A image content item
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent = content.getRequired("content")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata? = metadata.getNullable("metadata")
 
+    /**
+     * Returns the raw JSON value of [callId].
+     *
+     * Unlike [callId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
+    /**
+     * Returns the raw JSON value of [toolName].
+     *
+     * Unlike [toolName], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
     @JsonAnyGetter
@@ -77,6 +113,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .callId()
+         * .content()
+         * .toolName()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -99,37 +145,74 @@ private constructor(
 
         fun callId(callId: String) = callId(JsonField.of(callId))
 
+        /**
+         * Sets [Builder.callId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.callId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun callId(callId: JsonField<String>) = apply { this.callId = callId }
 
         /** A image content item */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-        /** A image content item */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
         fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
+        /**
+         * Sets [Builder.toolName] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolName] with a well-typed [ToolName] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
 
+        /**
+         * Sets [toolName] to an arbitrary [String].
+         *
+         * You should usually call [toolName] with a well-typed [ToolName] constant instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun toolName(value: String) = toolName(ToolName.of(value))
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -298,6 +381,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

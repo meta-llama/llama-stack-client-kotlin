@@ -33,16 +33,29 @@ private constructor(
      * The content of the "system prompt". If multiple system messages are provided, they are
      * concatenated. The underlying Llama Stack code may also add other system messages (for
      * example, for formatting tool definitions).
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun content(): InterleavedContent = content.getRequired("content")
 
-    /** Must be "system" to identify this as a system message */
+    /**
+     * Must be "system" to identify this as a system message
+     *
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("system")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("role") @ExcludeMissing fun _role(): JsonValue = role
 
     /**
-     * The content of the "system prompt". If multiple system messages are provided, they are
-     * concatenated. The underlying Llama Stack code may also add other system messages (for
-     * example, for formatting tool definitions).
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
@@ -70,6 +83,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [SystemMessage].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -94,36 +115,46 @@ private constructor(
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
         /**
-         * The content of the "system prompt". If multiple system messages are provided, they are
-         * concatenated. The underlying Llama Stack code may also add other system messages (for
-         * example, for formatting tool definitions).
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        /**
-         * The content of the "system prompt". If multiple system messages are provided, they are
-         * concatenated. The underlying Llama Stack code may also add other system messages (for
-         * example, for formatting tool definitions).
-         */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /**
-         * The content of the "system prompt". If multiple system messages are provided, they are
-         * concatenated. The underlying Llama Stack code may also add other system messages (for
-         * example, for formatting tool definitions).
-         */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
-        /** Must be "system" to identify this as a system message */
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("system")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun role(role: JsonValue) = apply { this.role = role }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

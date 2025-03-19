@@ -12,11 +12,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 class StepServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val stepService = client.agents().steps()
-        val agentStepRetrieveResponse =
+
+        val step =
             stepService.retrieve(
                 AgentStepRetrieveParams.builder()
                     .agentId("agent_id")
@@ -25,7 +26,7 @@ class StepServiceTest {
                     .stepId("step_id")
                     .build()
             )
-        println(agentStepRetrieveResponse)
-        agentStepRetrieveResponse.validate()
+
+        step.validate()
     }
 }

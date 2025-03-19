@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class DatasetioAppendRowsParams
@@ -26,12 +28,30 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun datasetId(): String = body.datasetId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun rows(): List<Row> = body.rows()
 
+    /**
+     * Returns the raw JSON value of [datasetId].
+     *
+     * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _datasetId(): JsonField<String> = body._datasetId()
 
+    /**
+     * Returns the raw JSON value of [rows].
+     *
+     * Unlike [rows], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _rows(): JsonField<List<Row>> = body._rows()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -60,12 +80,32 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun rows(): List<Row> = rows.getRequired("rows")
 
+        /**
+         * Returns the raw JSON value of [datasetId].
+         *
+         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
+        /**
+         * Returns the raw JSON value of [rows].
+         *
+         * Unlike [rows], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("rows") @ExcludeMissing fun _rows(): JsonField<List<Row>> = rows
 
         @JsonAnyGetter
@@ -88,6 +128,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .datasetId()
+             * .rows()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -106,23 +155,36 @@ private constructor(
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+            /**
+             * Sets [Builder.datasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
             fun rows(rows: List<Row>) = rows(JsonField.of(rows))
 
+            /**
+             * Sets [Builder.rows] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.rows] with a well-typed `List<Row>` value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun rows(rows: JsonField<List<Row>>) = apply {
                 this.rows = rows.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Row] to [rows].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addRow(row: Row) = apply {
                 rows =
-                    (rows ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(row)
-                    }
+                    (rows ?: JsonField.of(mutableListOf())).also { checkKnown("rows", it).add(row) }
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -174,6 +236,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [DatasetioAppendRowsParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .datasetId()
+         * .rows()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -193,12 +264,30 @@ private constructor(
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        /**
+         * Sets [Builder.datasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
         fun rows(rows: List<Row>) = apply { body.rows(rows) }
 
+        /**
+         * Sets [Builder.rows] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.rows] with a well-typed `List<Row>` value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun rows(rows: JsonField<List<Row>>) = apply { body.rows(rows) }
 
+        /**
+         * Adds a single [Row] to [rows].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addRow(row: Row) = apply { body.addRow(row) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -352,6 +441,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Row]. */
             fun builder() = Builder()
         }
 

@@ -13,6 +13,7 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -28,18 +29,46 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun dialogs(): List<Message> = body.dialogs()
 
-    /** The type of filtering function. */
+    /**
+     * The type of filtering function.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun filteringFunction(): FilteringFunction = body.filteringFunction()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun model(): String? = body.model()
 
+    /**
+     * Returns the raw JSON value of [dialogs].
+     *
+     * Unlike [dialogs], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _dialogs(): JsonField<List<Message>> = body._dialogs()
 
-    /** The type of filtering function. */
+    /**
+     * Returns the raw JSON value of [filteringFunction].
+     *
+     * Unlike [filteringFunction], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _filteringFunction(): JsonField<FilteringFunction> = body._filteringFunction()
 
+    /**
+     * Returns the raw JSON value of [model].
+     *
+     * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _model(): JsonField<String> = body._model()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -71,21 +100,51 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun dialogs(): List<Message> = dialogs.getRequired("dialogs")
 
-        /** The type of filtering function. */
+        /**
+         * The type of filtering function.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun filteringFunction(): FilteringFunction =
             filteringFunction.getRequired("filtering_function")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun model(): String? = model.getNullable("model")
 
+        /**
+         * Returns the raw JSON value of [dialogs].
+         *
+         * Unlike [dialogs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dialogs") @ExcludeMissing fun _dialogs(): JsonField<List<Message>> = dialogs
 
-        /** The type of filtering function. */
+        /**
+         * Returns the raw JSON value of [filteringFunction].
+         *
+         * Unlike [filteringFunction], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("filtering_function")
         @ExcludeMissing
         fun _filteringFunction(): JsonField<FilteringFunction> = filteringFunction
 
+        /**
+         * Returns the raw JSON value of [model].
+         *
+         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
         @JsonAnyGetter
@@ -109,6 +168,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .dialogs()
+             * .filteringFunction()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -129,71 +197,105 @@ private constructor(
 
             fun dialogs(dialogs: List<Message>) = dialogs(JsonField.of(dialogs))
 
+            /**
+             * Sets [Builder.dialogs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.dialogs] with a well-typed `List<Message>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun dialogs(dialogs: JsonField<List<Message>>) = apply {
                 this.dialogs = dialogs.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Message] to [dialogs].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addDialog(dialog: Message) = apply {
                 dialogs =
-                    (dialogs ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(dialog)
+                    (dialogs ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("dialogs", it).add(dialog)
                     }
             }
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addDialog] with `Message.ofUser(user)`. */
             fun addDialog(user: UserMessage) = addDialog(Message.ofUser(user))
 
-            /** A message from the user in a chat conversation. */
+            /**
+             * Alias for calling [addDialog] with the following:
+             * ```kotlin
+             * UserMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
             fun addUserDialog(content: InterleavedContent) =
                 addDialog(UserMessage.builder().content(content).build())
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addUserDialog] with `InterleavedContent.ofString(string)`. */
             fun addUserDialog(string: String) = addUserDialog(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [addUserDialog] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun addUserDialog(imageContentItem: InterleavedContent.ImageContentItem) =
                 addUserDialog(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [addUserDialog] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun addUserDialog(textContentItem: InterleavedContent.TextContentItem) =
                 addUserDialog(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addUserDialog] with `InterleavedContent.ofItems(items)`. */
             fun addUserDialogOfItems(items: List<InterleavedContentItem>) =
                 addUserDialog(InterleavedContent.ofItems(items))
 
-            /** A system message providing instructions or context to the model. */
+            /** Alias for calling [addDialog] with `Message.ofSystem(system)`. */
             fun addDialog(system: SystemMessage) = addDialog(Message.ofSystem(system))
 
-            /** A system message providing instructions or context to the model. */
+            /**
+             * Alias for calling [addDialog] with the following:
+             * ```kotlin
+             * SystemMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
             fun addSystemDialog(content: InterleavedContent) =
                 addDialog(SystemMessage.builder().content(content).build())
 
-            /** A system message providing instructions or context to the model. */
+            /** Alias for calling [addSystemDialog] with `InterleavedContent.ofString(string)`. */
             fun addSystemDialog(string: String) =
                 addSystemDialog(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [addSystemDialog] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun addSystemDialog(imageContentItem: InterleavedContent.ImageContentItem) =
                 addSystemDialog(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [addSystemDialog] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun addSystemDialog(textContentItem: InterleavedContent.TextContentItem) =
                 addSystemDialog(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A system message providing instructions or context to the model. */
+            /** Alias for calling [addSystemDialog] with `InterleavedContent.ofItems(items)`. */
             fun addSystemDialogOfItems(items: List<InterleavedContentItem>) =
                 addSystemDialog(InterleavedContent.ofItems(items))
 
-            /** A message representing the result of a tool invocation. */
+            /** Alias for calling [addDialog] with `Message.ofToolResponse(toolResponse)`. */
             fun addDialog(toolResponse: ToolResponseMessage) =
                 addDialog(Message.ofToolResponse(toolResponse))
 
-            /** A message containing the model's (assistant) response in a chat conversation. */
+            /** Alias for calling [addDialog] with `Message.ofCompletion(completion)`. */
             fun addDialog(completion: CompletionMessage) =
                 addDialog(Message.ofCompletion(completion))
 
@@ -201,13 +303,26 @@ private constructor(
             fun filteringFunction(filteringFunction: FilteringFunction) =
                 filteringFunction(JsonField.of(filteringFunction))
 
-            /** The type of filtering function. */
+            /**
+             * Sets [Builder.filteringFunction] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.filteringFunction] with a well-typed
+             * [FilteringFunction] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
             fun filteringFunction(filteringFunction: JsonField<FilteringFunction>) = apply {
                 this.filteringFunction = filteringFunction
             }
 
             fun model(model: String) = model(JsonField.of(model))
 
+            /**
+             * Sets [Builder.model] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.model] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun model(model: JsonField<String>) = apply { this.model = model }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -260,6 +375,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [SyntheticDataGenerationGenerateParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .dialogs()
+         * .filteringFunction()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -282,62 +407,100 @@ private constructor(
 
         fun dialogs(dialogs: List<Message>) = apply { body.dialogs(dialogs) }
 
+        /**
+         * Sets [Builder.dialogs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.dialogs] with a well-typed `List<Message>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun dialogs(dialogs: JsonField<List<Message>>) = apply { body.dialogs(dialogs) }
 
+        /**
+         * Adds a single [Message] to [dialogs].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addDialog(dialog: Message) = apply { body.addDialog(dialog) }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addDialog] with `Message.ofUser(user)`. */
         fun addDialog(user: UserMessage) = apply { body.addDialog(user) }
 
-        /** A message from the user in a chat conversation. */
+        /**
+         * Alias for calling [addDialog] with the following:
+         * ```kotlin
+         * UserMessage.builder()
+         *     .content(content)
+         *     .build()
+         * ```
+         */
         fun addUserDialog(content: InterleavedContent) = apply { body.addUserDialog(content) }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addUserDialog] with `InterleavedContent.ofString(string)`. */
         fun addUserDialog(string: String) = apply { body.addUserDialog(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [addUserDialog] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun addUserDialog(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addUserDialog(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [addUserDialog] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun addUserDialog(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addUserDialog(textContentItem)
         }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addUserDialog] with `InterleavedContent.ofItems(items)`. */
         fun addUserDialogOfItems(items: List<InterleavedContentItem>) = apply {
             body.addUserDialogOfItems(items)
         }
 
-        /** A system message providing instructions or context to the model. */
+        /** Alias for calling [addDialog] with `Message.ofSystem(system)`. */
         fun addDialog(system: SystemMessage) = apply { body.addDialog(system) }
 
-        /** A system message providing instructions or context to the model. */
+        /**
+         * Alias for calling [addDialog] with the following:
+         * ```kotlin
+         * SystemMessage.builder()
+         *     .content(content)
+         *     .build()
+         * ```
+         */
         fun addSystemDialog(content: InterleavedContent) = apply { body.addSystemDialog(content) }
 
-        /** A system message providing instructions or context to the model. */
+        /** Alias for calling [addSystemDialog] with `InterleavedContent.ofString(string)`. */
         fun addSystemDialog(string: String) = apply { body.addSystemDialog(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [addSystemDialog] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun addSystemDialog(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addSystemDialog(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [addSystemDialog] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun addSystemDialog(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addSystemDialog(textContentItem)
         }
 
-        /** A system message providing instructions or context to the model. */
+        /** Alias for calling [addSystemDialog] with `InterleavedContent.ofItems(items)`. */
         fun addSystemDialogOfItems(items: List<InterleavedContentItem>) = apply {
             body.addSystemDialogOfItems(items)
         }
 
-        /** A message representing the result of a tool invocation. */
+        /** Alias for calling [addDialog] with `Message.ofToolResponse(toolResponse)`. */
         fun addDialog(toolResponse: ToolResponseMessage) = apply { body.addDialog(toolResponse) }
 
-        /** A message containing the model's (assistant) response in a chat conversation. */
+        /** Alias for calling [addDialog] with `Message.ofCompletion(completion)`. */
         fun addDialog(completion: CompletionMessage) = apply { body.addDialog(completion) }
 
         /** The type of filtering function. */
@@ -345,13 +508,25 @@ private constructor(
             body.filteringFunction(filteringFunction)
         }
 
-        /** The type of filtering function. */
+        /**
+         * Sets [Builder.filteringFunction] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.filteringFunction] with a well-typed [FilteringFunction]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun filteringFunction(filteringFunction: JsonField<FilteringFunction>) = apply {
             body.filteringFunction(filteringFunction)
         }
 
         fun model(model: String) = apply { body.model(model) }
 
+        /**
+         * Sets [Builder.model] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.model] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun model(model: JsonField<String>) = apply { body.model(model) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

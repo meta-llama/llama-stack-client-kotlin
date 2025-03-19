@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -42,16 +41,8 @@ class ChatCompletionResponseTest {
                 .addMetric(
                     ChatCompletionResponse.Metric.builder()
                         .metric("metric")
-                        .spanId("span_id")
-                        .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                        .traceId("trace_id")
-                        .unit("unit")
                         .value(0.0)
-                        .attributes(
-                            ChatCompletionResponse.Metric.Attributes.builder()
-                                .putAdditionalProperty("foo", JsonValue.from("string"))
-                                .build()
-                        )
+                        .unit("unit")
                         .build()
                 )
                 .build()
@@ -88,16 +79,8 @@ class ChatCompletionResponseTest {
             .containsExactly(
                 ChatCompletionResponse.Metric.builder()
                     .metric("metric")
-                    .spanId("span_id")
-                    .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
-                    .traceId("trace_id")
-                    .unit("unit")
                     .value(0.0)
-                    .attributes(
-                        ChatCompletionResponse.Metric.Attributes.builder()
-                            .putAdditionalProperty("foo", JsonValue.from("string"))
-                            .build()
-                    )
+                    .unit("unit")
                     .build()
             )
     }

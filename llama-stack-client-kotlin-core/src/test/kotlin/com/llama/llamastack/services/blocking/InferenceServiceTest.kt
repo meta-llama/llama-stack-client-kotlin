@@ -18,10 +18,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class InferenceServiceTest {
 
     @Test
-    fun callChatCompletion() {
+    fun chatCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
+
         val chatCompletionResponse =
             inferenceService.chatCompletion(
                 InferenceChatCompletionParams.builder()
@@ -77,17 +78,17 @@ class InferenceServiceTest {
                     )
                     .build()
             )
-        println(chatCompletionResponse)
+
         chatCompletionResponse.validate()
     }
 
     @Test
-    fun callChatCompletionStreaming() {
+    fun chatCompletionStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
 
-        val chatCompletionResponseStream =
+        val chatCompletionResponseStreamResponse =
             inferenceService.chatCompletionStreaming(
                 InferenceChatCompletionParams.builder()
                     .addMessage(UserMessage.builder().content("string").context("string").build())
@@ -143,19 +144,19 @@ class InferenceServiceTest {
                     .build()
             )
 
-        chatCompletionResponseStream.use {
-            chatCompletionResponseStream.asSequence().forEach {
-                println(it)
-                it.validate()
+        chatCompletionResponseStreamResponse.use {
+            chatCompletionResponseStreamResponse.asSequence().forEach { chatCompletionResponse ->
+                chatCompletionResponse.validate()
             }
         }
     }
 
     @Test
-    fun callCompletion() {
+    fun completion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
+
         val completionResponse =
             inferenceService.completion(
                 InferenceCompletionParams.builder()
@@ -176,17 +177,17 @@ class InferenceServiceTest {
                     )
                     .build()
             )
-        println(completionResponse)
+
         completionResponse.validate()
     }
 
     @Test
-    fun callCompletionStreaming() {
+    fun completionStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
 
-        val completionResponseStream =
+        val completionResponseStreamResponse =
             inferenceService.completionStreaming(
                 InferenceCompletionParams.builder()
                     .content("string")
@@ -207,19 +208,19 @@ class InferenceServiceTest {
                     .build()
             )
 
-        completionResponseStream.use {
-            completionResponseStream.asSequence().forEach {
-                println(it)
-                it.validate()
+        completionResponseStreamResponse.use {
+            completionResponseStreamResponse.asSequence().forEach { completionResponse ->
+                completionResponse.validate()
             }
         }
     }
 
     @Test
-    fun callEmbeddings() {
+    fun embeddings() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inferenceService = client.inference()
+
         val embeddingsResponse =
             inferenceService.embeddings(
                 InferenceEmbeddingsParams.builder()
@@ -230,7 +231,7 @@ class InferenceServiceTest {
                     .textTruncation(InferenceEmbeddingsParams.TextTruncation.NONE)
                     .build()
             )
-        println(embeddingsResponse)
+
         embeddingsResponse.validate()
     }
 }

@@ -10,8 +10,11 @@ import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
 import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
+import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponse.Handler
-import com.llama.llamastack.core.json
+import com.llama.llamastack.core.http.HttpResponseFor
+import com.llama.llamastack.core.http.json
+import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
@@ -26,94 +29,144 @@ import com.llama.llamastack.models.VectorDbUnregisterParams
 class VectorDbServiceImpl internal constructor(private val clientOptions: ClientOptions) :
     VectorDbService {
 
-    private val errorHandler: Handler<LlamaStackClientError> =
-        errorHandler(clientOptions.jsonMapper)
+    private val withRawResponse: VectorDbService.WithRawResponse by lazy {
+        WithRawResponseImpl(clientOptions)
+    }
 
-    private val retrieveHandler: Handler<VectorDbRetrieveResponse?> =
-        jsonHandler<VectorDbRetrieveResponse?>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
+    override fun withRawResponse(): VectorDbService.WithRawResponse = withRawResponse
 
     override fun retrieve(
         params: VectorDbRetrieveParams,
         requestOptions: RequestOptions,
-    ): VectorDbRetrieveResponse? {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .addPathSegments("v1", "vector-dbs", params.getPathParam(0))
-                .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
-        return response
-            .use { retrieveHandler.handle(it) }
-            .also {
-                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                    it?.validate()
-                }
-            }
-    }
-
-    private val listHandler: Handler<DataEnvelope<List<ListVectorDbsResponse.Data>>> =
-        jsonHandler<DataEnvelope<List<ListVectorDbsResponse.Data>>>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
+    ): VectorDbRetrieveResponse? =
+        // get /v1/vector-dbs/{vector_db_id}
+        withRawResponse().retrieve(params, requestOptions).parse()
 
     override fun list(
         params: VectorDbListParams,
         requestOptions: RequestOptions,
-    ): List<ListVectorDbsResponse.Data> {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.GET)
-                .addPathSegments("v1", "vector-dbs")
-                .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
-        return response
-            .use { listHandler.handle(it) }
-            .also {
-                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                    it.validate()
-                }
-            }
-            .data()
-    }
-
-    private val registerHandler: Handler<VectorDbRegisterResponse> =
-        jsonHandler<VectorDbRegisterResponse>(clientOptions.jsonMapper)
-            .withErrorHandler(errorHandler)
+    ): List<ListVectorDbsResponse.Data> =
+        // get /v1/vector-dbs
+        withRawResponse().list(params, requestOptions).parse()
 
     override fun register(
         params: VectorDbRegisterParams,
         requestOptions: RequestOptions,
-    ): VectorDbRegisterResponse {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("v1", "vector-dbs")
-                .body(json(clientOptions.jsonMapper, params._body()))
-                .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
-        return response
-            .use { registerHandler.handle(it) }
-            .also {
-                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                    it.validate()
-                }
-            }
-    }
-
-    private val unregisterHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+    ): VectorDbRegisterResponse =
+        // post /v1/vector-dbs
+        withRawResponse().register(params, requestOptions).parse()
 
     override fun unregister(params: VectorDbUnregisterParams, requestOptions: RequestOptions) {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.DELETE)
-                .addPathSegments("v1", "vector-dbs", params.getPathParam(0))
-                .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
-                .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
-        response.use { unregisterHandler.handle(it) }
+        // delete /v1/vector-dbs/{vector_db_id}
+        withRawResponse().unregister(params, requestOptions)
+    }
+
+    class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
+        VectorDbService.WithRawResponse {
+
+        private val errorHandler: Handler<LlamaStackClientError> =
+            errorHandler(clientOptions.jsonMapper)
+
+        private val retrieveHandler: Handler<VectorDbRetrieveResponse?> =
+            jsonHandler<VectorDbRetrieveResponse?>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
+
+        override fun retrieve(
+            params: VectorDbRetrieveParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<VectorDbRetrieveResponse?> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.GET)
+                    .addPathSegments("v1", "vector-dbs", params.getPathParam(0))
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { retrieveHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it?.validate()
+                        }
+                    }
+            }
+        }
+
+        private val listHandler: Handler<DataEnvelope<List<ListVectorDbsResponse.Data>>> =
+            jsonHandler<DataEnvelope<List<ListVectorDbsResponse.Data>>>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
+
+        override fun list(
+            params: VectorDbListParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<List<ListVectorDbsResponse.Data>> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.GET)
+                    .addPathSegments("v1", "vector-dbs")
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { listHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+                    .data()
+            }
+        }
+
+        private val registerHandler: Handler<VectorDbRegisterResponse> =
+            jsonHandler<VectorDbRegisterResponse>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
+
+        override fun register(
+            params: VectorDbRegisterParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<VectorDbRegisterResponse> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .addPathSegments("v1", "vector-dbs")
+                    .body(json(clientOptions.jsonMapper, params._body()))
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { registerHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+            }
+        }
+
+        private val unregisterHandler: Handler<Void?> =
+            emptyHandler().withErrorHandler(errorHandler)
+
+        override fun unregister(
+            params: VectorDbUnregisterParams,
+            requestOptions: RequestOptions,
+        ): HttpResponse {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.DELETE)
+                    .addPathSegments("v1", "vector-dbs", params.getPathParam(0))
+                    .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable { response.use { unregisterHandler.handle(it) } }
+        }
     }
 }

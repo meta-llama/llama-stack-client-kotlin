@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class VectorDbRegisterParams
@@ -26,24 +27,71 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun embeddingModel(): String = body.embeddingModel()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun vectorDbId(): String = body.vectorDbId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun embeddingDimension(): Long? = body.embeddingDimension()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerId(): String? = body.providerId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerVectorDbId(): String? = body.providerVectorDbId()
 
+    /**
+     * Returns the raw JSON value of [embeddingModel].
+     *
+     * Unlike [embeddingModel], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _embeddingModel(): JsonField<String> = body._embeddingModel()
 
+    /**
+     * Returns the raw JSON value of [vectorDbId].
+     *
+     * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _vectorDbId(): JsonField<String> = body._vectorDbId()
 
+    /**
+     * Returns the raw JSON value of [embeddingDimension].
+     *
+     * Unlike [embeddingDimension], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _embeddingDimension(): JsonField<Long> = body._embeddingDimension()
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _providerId(): JsonField<String> = body._providerId()
 
+    /**
+     * Returns the raw JSON value of [providerVectorDbId].
+     *
+     * Unlike [providerVectorDbId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _providerVectorDbId(): JsonField<String> = body._providerVectorDbId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -81,32 +129,82 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun embeddingModel(): String = embeddingModel.getRequired("embedding_model")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun embeddingDimension(): Long? = embeddingDimension.getNullable("embedding_dimension")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerVectorDbId(): String? = providerVectorDbId.getNullable("provider_vector_db_id")
 
+        /**
+         * Returns the raw JSON value of [embeddingModel].
+         *
+         * Unlike [embeddingModel], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("embedding_model")
         @ExcludeMissing
         fun _embeddingModel(): JsonField<String> = embeddingModel
 
+        /**
+         * Returns the raw JSON value of [vectorDbId].
+         *
+         * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("vector_db_id")
         @ExcludeMissing
         fun _vectorDbId(): JsonField<String> = vectorDbId
 
+        /**
+         * Returns the raw JSON value of [embeddingDimension].
+         *
+         * Unlike [embeddingDimension], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("embedding_dimension")
         @ExcludeMissing
         fun _embeddingDimension(): JsonField<Long> = embeddingDimension
 
+        /**
+         * Returns the raw JSON value of [providerId].
+         *
+         * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("provider_id")
         @ExcludeMissing
         fun _providerId(): JsonField<String> = providerId
 
+        /**
+         * Returns the raw JSON value of [providerVectorDbId].
+         *
+         * Unlike [providerVectorDbId], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("provider_vector_db_id")
         @ExcludeMissing
         fun _providerVectorDbId(): JsonField<String> = providerVectorDbId
@@ -134,6 +232,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .embeddingModel()
+             * .vectorDbId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -159,28 +266,63 @@ private constructor(
             fun embeddingModel(embeddingModel: String) =
                 embeddingModel(JsonField.of(embeddingModel))
 
+            /**
+             * Sets [Builder.embeddingModel] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.embeddingModel] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun embeddingModel(embeddingModel: JsonField<String>) = apply {
                 this.embeddingModel = embeddingModel
             }
 
             fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
 
+            /**
+             * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.vectorDbId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
 
             fun embeddingDimension(embeddingDimension: Long) =
                 embeddingDimension(JsonField.of(embeddingDimension))
 
+            /**
+             * Sets [Builder.embeddingDimension] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.embeddingDimension] with a well-typed [Long] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun embeddingDimension(embeddingDimension: JsonField<Long>) = apply {
                 this.embeddingDimension = embeddingDimension
             }
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+            /**
+             * Sets [Builder.providerId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
             fun providerVectorDbId(providerVectorDbId: String) =
                 providerVectorDbId(JsonField.of(providerVectorDbId))
 
+            /**
+             * Sets [Builder.providerVectorDbId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerVectorDbId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerVectorDbId(providerVectorDbId: JsonField<String>) = apply {
                 this.providerVectorDbId = providerVectorDbId
             }
@@ -237,6 +379,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [VectorDbRegisterParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .embeddingModel()
+         * .vectorDbId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -256,30 +407,65 @@ private constructor(
 
         fun embeddingModel(embeddingModel: String) = apply { body.embeddingModel(embeddingModel) }
 
+        /**
+         * Sets [Builder.embeddingModel] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.embeddingModel] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun embeddingModel(embeddingModel: JsonField<String>) = apply {
             body.embeddingModel(embeddingModel)
         }
 
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
 
+        /**
+         * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.vectorDbId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun vectorDbId(vectorDbId: JsonField<String>) = apply { body.vectorDbId(vectorDbId) }
 
         fun embeddingDimension(embeddingDimension: Long) = apply {
             body.embeddingDimension(embeddingDimension)
         }
 
+        /**
+         * Sets [Builder.embeddingDimension] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.embeddingDimension] with a well-typed [Long] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun embeddingDimension(embeddingDimension: JsonField<Long>) = apply {
             body.embeddingDimension(embeddingDimension)
         }
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun providerVectorDbId(providerVectorDbId: String) = apply {
             body.providerVectorDbId(providerVectorDbId)
         }
 
+        /**
+         * Sets [Builder.providerVectorDbId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerVectorDbId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerVectorDbId(providerVectorDbId: JsonField<String>) = apply {
             body.providerVectorDbId(providerVectorDbId)
         }

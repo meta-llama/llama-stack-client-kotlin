@@ -7,6 +7,7 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.EvalJobCancelParams
 import com.llama.llamastack.models.EvalJobRetrieveParams
 import com.llama.llamastack.models.EvalJobStatusParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -14,37 +15,41 @@ import org.junit.jupiter.api.extension.ExtendWith
 class JobServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.eval().jobs()
+
         val evaluateResponse =
             jobService.retrieve(
                 EvalJobRetrieveParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
             )
-        println(evaluateResponse)
+
         evaluateResponse.validate()
     }
 
     @Test
-    fun callCancel() {
+    fun cancel() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.eval().jobs()
+
         jobService.cancel(
             EvalJobCancelParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
         )
     }
 
     @Test
-    fun callStatus() {
+    fun status() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val jobService = client.eval().jobs()
-        val evalJobStatusResponse =
+
+        val response =
             jobService.status(
                 EvalJobStatusParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
             )
-        println(evalJobStatusResponse)
+
+        assertNotNull(response)
     }
 }

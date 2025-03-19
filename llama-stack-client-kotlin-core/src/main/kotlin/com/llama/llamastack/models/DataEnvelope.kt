@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.contentEquals
+import com.llama.llamastack.core.contentHash
+import com.llama.llamastack.core.contentToString
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
-import java.util.Objects
 
 @NoAutoDetect
 class DataEnvelope<T : Any>
@@ -49,12 +51,13 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is DataEnvelope<*> && data == other.data && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is DataEnvelope<*> && data contentEquals other.data && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(data, additionalProperties) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ contentHash(data, additionalProperties) /* spotless:on */
 
-    override fun toString() = "DataEnvelope{data=$data, additionalProperties=$additionalProperties}"
+    override fun toString() =
+        "DataEnvelope{data=${data.contentToString()}, additionalProperties=$additionalProperties}"
 
     companion object {
 

@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class ScoringScoreBatchParams
@@ -26,16 +27,45 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun datasetId(): String = body.datasetId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun saveResultsDataset(): Boolean = body.saveResultsDataset()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scoringFunctions(): ScoringFunctions = body.scoringFunctions()
 
+    /**
+     * Returns the raw JSON value of [datasetId].
+     *
+     * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _datasetId(): JsonField<String> = body._datasetId()
 
+    /**
+     * Returns the raw JSON value of [saveResultsDataset].
+     *
+     * Unlike [saveResultsDataset], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _saveResultsDataset(): JsonField<Boolean> = body._saveResultsDataset()
 
+    /**
+     * Returns the raw JSON value of [scoringFunctions].
+     *
+     * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _scoringFunctions(): JsonField<ScoringFunctions> = body._scoringFunctions()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -67,18 +97,50 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun saveResultsDataset(): Boolean = saveResultsDataset.getRequired("save_results_dataset")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun scoringFunctions(): ScoringFunctions = scoringFunctions.getRequired("scoring_functions")
 
+        /**
+         * Returns the raw JSON value of [datasetId].
+         *
+         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
+        /**
+         * Returns the raw JSON value of [saveResultsDataset].
+         *
+         * Unlike [saveResultsDataset], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("save_results_dataset")
         @ExcludeMissing
         fun _saveResultsDataset(): JsonField<Boolean> = saveResultsDataset
 
+        /**
+         * Returns the raw JSON value of [scoringFunctions].
+         *
+         * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("scoring_functions")
         @ExcludeMissing
         fun _scoringFunctions(): JsonField<ScoringFunctions> = scoringFunctions
@@ -104,6 +166,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .datasetId()
+             * .saveResultsDataset()
+             * .scoringFunctions()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -124,11 +196,25 @@ private constructor(
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+            /**
+             * Sets [Builder.datasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
             fun saveResultsDataset(saveResultsDataset: Boolean) =
                 saveResultsDataset(JsonField.of(saveResultsDataset))
 
+            /**
+             * Sets [Builder.saveResultsDataset] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.saveResultsDataset] with a well-typed [Boolean]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun saveResultsDataset(saveResultsDataset: JsonField<Boolean>) = apply {
                 this.saveResultsDataset = saveResultsDataset
             }
@@ -136,6 +222,13 @@ private constructor(
             fun scoringFunctions(scoringFunctions: ScoringFunctions) =
                 scoringFunctions(JsonField.of(scoringFunctions))
 
+            /**
+             * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.scoringFunctions] with a well-typed
+             * [ScoringFunctions] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
             fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
                 this.scoringFunctions = scoringFunctions
             }
@@ -190,6 +283,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringScoreBatchParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .datasetId()
+         * .saveResultsDataset()
+         * .scoringFunctions()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -209,12 +312,26 @@ private constructor(
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        /**
+         * Sets [Builder.datasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
         fun saveResultsDataset(saveResultsDataset: Boolean) = apply {
             body.saveResultsDataset(saveResultsDataset)
         }
 
+        /**
+         * Sets [Builder.saveResultsDataset] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.saveResultsDataset] with a well-typed [Boolean] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun saveResultsDataset(saveResultsDataset: JsonField<Boolean>) = apply {
             body.saveResultsDataset(saveResultsDataset)
         }
@@ -223,6 +340,13 @@ private constructor(
             body.scoringFunctions(scoringFunctions)
         }
 
+        /**
+         * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scoringFunctions] with a well-typed [ScoringFunctions]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun scoringFunctions(scoringFunctions: JsonField<ScoringFunctions>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
@@ -378,6 +502,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [ScoringFunctions]. */
             fun builder() = Builder()
         }
 

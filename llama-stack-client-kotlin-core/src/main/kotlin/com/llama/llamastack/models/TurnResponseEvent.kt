@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -26,8 +27,17 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun payload(): TurnResponseEventPayload = payload.getRequired("payload")
 
+    /**
+     * Returns the raw JSON value of [payload].
+     *
+     * Unlike [payload], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("payload")
     @ExcludeMissing
     fun _payload(): JsonField<TurnResponseEventPayload> = payload
@@ -51,6 +61,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [TurnResponseEvent].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .payload()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -67,8 +85,19 @@ private constructor(
 
         fun payload(payload: TurnResponseEventPayload) = payload(JsonField.of(payload))
 
+        /**
+         * Sets [Builder.payload] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.payload] with a well-typed [TurnResponseEventPayload]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun payload(payload: JsonField<TurnResponseEventPayload>) = apply { this.payload = payload }
 
+        /**
+         * Alias for calling [payload] with
+         * `TurnResponseEventPayload.ofAgentTurnResponseStepStart(agentTurnResponseStepStart)`.
+         */
         fun payload(
             agentTurnResponseStepStart: TurnResponseEventPayload.AgentTurnResponseStepStartPayload
         ) =
@@ -76,6 +105,10 @@ private constructor(
                 TurnResponseEventPayload.ofAgentTurnResponseStepStart(agentTurnResponseStepStart)
             )
 
+        /**
+         * Alias for calling [payload] with
+         * `TurnResponseEventPayload.ofAgentTurnResponseStepProgress(agentTurnResponseStepProgress)`.
+         */
         fun payload(
             agentTurnResponseStepProgress:
                 TurnResponseEventPayload.AgentTurnResponseStepProgressPayload
@@ -86,6 +119,10 @@ private constructor(
                 )
             )
 
+        /**
+         * Alias for calling [payload] with
+         * `TurnResponseEventPayload.ofAgentTurnResponseStepComplete(agentTurnResponseStepComplete)`.
+         */
         fun payload(
             agentTurnResponseStepComplete:
                 TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
@@ -96,6 +133,10 @@ private constructor(
                 )
             )
 
+        /**
+         * Alias for calling [payload] with
+         * `TurnResponseEventPayload.ofAgentTurnResponseTurnStart(agentTurnResponseTurnStart)`.
+         */
         fun payload(
             agentTurnResponseTurnStart: TurnResponseEventPayload.AgentTurnResponseTurnStartPayload
         ) =
@@ -103,6 +144,14 @@ private constructor(
                 TurnResponseEventPayload.ofAgentTurnResponseTurnStart(agentTurnResponseTurnStart)
             )
 
+        /**
+         * Alias for calling [payload] with the following:
+         * ```kotlin
+         * TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
+         *     .turnId(turnId)
+         *     .build()
+         * ```
+         */
         fun agentTurnResponseTurnStartPayload(turnId: String) =
             payload(
                 TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
@@ -110,6 +159,10 @@ private constructor(
                     .build()
             )
 
+        /**
+         * Alias for calling [payload] with
+         * `TurnResponseEventPayload.ofAgentTurnResponseTurnComplete(agentTurnResponseTurnComplete)`.
+         */
         fun payload(
             agentTurnResponseTurnComplete:
                 TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload
@@ -120,6 +173,14 @@ private constructor(
                 )
             )
 
+        /**
+         * Alias for calling [payload] with the following:
+         * ```kotlin
+         * TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
+         *     .turn(turn)
+         *     .build()
+         * ```
+         */
         fun agentTurnResponseTurnCompletePayload(turn: Turn) =
             payload(
                 TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
@@ -127,6 +188,10 @@ private constructor(
                     .build()
             )
 
+        /**
+         * Alias for calling [payload] with
+         * `TurnResponseEventPayload.ofAgentTurnResponseTurnAwaitingInput(agentTurnResponseTurnAwaitingInput)`.
+         */
         fun payload(
             agentTurnResponseTurnAwaitingInput:
                 TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload
@@ -137,6 +202,14 @@ private constructor(
                 )
             )
 
+        /**
+         * Alias for calling [payload] with the following:
+         * ```kotlin
+         * TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()
+         *     .turn(turn)
+         *     .build()
+         * ```
+         */
         fun agentTurnResponseTurnAwaitingInputPayload(turn: Turn) =
             payload(
                 TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()

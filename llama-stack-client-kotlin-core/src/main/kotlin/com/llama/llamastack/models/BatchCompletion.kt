@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -26,8 +28,17 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun batch(): List<CompletionResponse> = batch.getRequired("batch")
 
+    /**
+     * Returns the raw JSON value of [batch].
+     *
+     * Unlike [batch], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("batch") @ExcludeMissing fun _batch(): JsonField<List<CompletionResponse>> = batch
 
     @JsonAnyGetter
@@ -49,6 +60,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [BatchCompletion].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .batch()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -65,18 +84,26 @@ private constructor(
 
         fun batch(batch: List<CompletionResponse>) = batch(JsonField.of(batch))
 
+        /**
+         * Sets [Builder.batch] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.batch] with a well-typed `List<CompletionResponse>`
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun batch(batch: JsonField<List<CompletionResponse>>) = apply {
             this.batch = batch.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [CompletionResponse] to [Builder.batch].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addBatch(batch: CompletionResponse) = apply {
             this.batch =
-                (this.batch ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(batch)
+                (this.batch ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("batch", it).add(batch)
                 }
         }
 

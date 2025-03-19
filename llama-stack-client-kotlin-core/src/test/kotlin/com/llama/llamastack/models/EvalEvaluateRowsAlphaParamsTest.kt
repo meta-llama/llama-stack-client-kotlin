@@ -13,13 +13,7 @@ class EvalEvaluateRowsAlphaParamsTest {
     fun create() {
         EvalEvaluateRowsAlphaParams.builder()
             .benchmarkId("benchmark_id")
-            .addInputRow(
-                EvalEvaluateRowsAlphaParams.InputRow.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(true))
-                    .build()
-            )
-            .addScoringFunction("string")
-            .taskConfig(
+            .benchmarkConfig(
                 BenchmarkConfig.builder()
                     .evalCandidate(
                         EvalCandidate.ModelCandidate.builder()
@@ -53,6 +47,12 @@ class EvalEvaluateRowsAlphaParamsTest {
                     .numExamples(0L)
                     .build()
             )
+            .addInputRow(
+                EvalEvaluateRowsAlphaParams.InputRow.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+            .addScoringFunction("string")
             .build()
     }
 
@@ -61,13 +61,7 @@ class EvalEvaluateRowsAlphaParamsTest {
         val params =
             EvalEvaluateRowsAlphaParams.builder()
                 .benchmarkId("benchmark_id")
-                .addInputRow(
-                    EvalEvaluateRowsAlphaParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .addScoringFunction("string")
-                .taskConfig(
+                .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
@@ -101,21 +95,18 @@ class EvalEvaluateRowsAlphaParamsTest {
                         .numExamples(0L)
                         .build()
                 )
+                .addInputRow(
+                    EvalEvaluateRowsAlphaParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoringFunction("string")
                 .build()
 
         val body = params._body()
 
         assertNotNull(body)
-        assertThat(body.inputRows())
-            .isEqualTo(
-                listOf(
-                    EvalEvaluateRowsAlphaParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-            )
-        assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
-        assertThat(body.taskConfig())
+        assertThat(body.benchmarkConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
@@ -150,6 +141,15 @@ class EvalEvaluateRowsAlphaParamsTest {
                     .numExamples(0L)
                     .build()
             )
+        assertThat(body.inputRows())
+            .isEqualTo(
+                listOf(
+                    EvalEvaluateRowsAlphaParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
+        assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
     }
 
     @Test
@@ -157,13 +157,7 @@ class EvalEvaluateRowsAlphaParamsTest {
         val params =
             EvalEvaluateRowsAlphaParams.builder()
                 .benchmarkId("benchmark_id")
-                .addInputRow(
-                    EvalEvaluateRowsAlphaParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .addScoringFunction("string")
-                .taskConfig(
+                .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
@@ -188,21 +182,18 @@ class EvalEvaluateRowsAlphaParamsTest {
                         )
                         .build()
                 )
+                .addInputRow(
+                    EvalEvaluateRowsAlphaParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoringFunction("string")
                 .build()
 
         val body = params._body()
 
         assertNotNull(body)
-        assertThat(body.inputRows())
-            .isEqualTo(
-                listOf(
-                    EvalEvaluateRowsAlphaParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-            )
-        assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
-        assertThat(body.taskConfig())
+        assertThat(body.benchmarkConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
@@ -225,6 +216,15 @@ class EvalEvaluateRowsAlphaParamsTest {
                     )
                     .build()
             )
+        assertThat(body.inputRows())
+            .isEqualTo(
+                listOf(
+                    EvalEvaluateRowsAlphaParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+            )
+        assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
     }
 
     @Test
@@ -232,13 +232,7 @@ class EvalEvaluateRowsAlphaParamsTest {
         val params =
             EvalEvaluateRowsAlphaParams.builder()
                 .benchmarkId("benchmark_id")
-                .addInputRow(
-                    EvalEvaluateRowsAlphaParams.InputRow.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .addScoringFunction("string")
-                .taskConfig(
+                .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
@@ -263,6 +257,12 @@ class EvalEvaluateRowsAlphaParamsTest {
                         )
                         .build()
                 )
+                .addInputRow(
+                    EvalEvaluateRowsAlphaParams.InputRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoringFunction("string")
                 .build()
         assertThat(params).isNotNull
         // path param "benchmarkId"

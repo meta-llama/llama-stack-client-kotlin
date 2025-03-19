@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class TelemetryGetSpanTreeParams
@@ -29,12 +31,31 @@ private constructor(
 
     fun spanId(): String = spanId
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun attributesToReturn(): List<String>? = body.attributesToReturn()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun maxDepth(): Long? = body.maxDepth()
 
+    /**
+     * Returns the raw JSON value of [attributesToReturn].
+     *
+     * Unlike [attributesToReturn], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _attributesToReturn(): JsonField<List<String>> = body._attributesToReturn()
 
+    /**
+     * Returns the raw JSON value of [maxDepth].
+     *
+     * Unlike [maxDepth], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _maxDepth(): JsonField<Long> = body._maxDepth()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -70,15 +91,34 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun attributesToReturn(): List<String>? =
             attributesToReturn.getNullable("attributes_to_return")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun maxDepth(): Long? = maxDepth.getNullable("max_depth")
 
+        /**
+         * Returns the raw JSON value of [attributesToReturn].
+         *
+         * Unlike [attributesToReturn], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("attributes_to_return")
         @ExcludeMissing
         fun _attributesToReturn(): JsonField<List<String>> = attributesToReturn
 
+        /**
+         * Returns the raw JSON value of [maxDepth].
+         *
+         * Unlike [maxDepth], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("max_depth") @ExcludeMissing fun _maxDepth(): JsonField<Long> = maxDepth
 
         @JsonAnyGetter
@@ -101,6 +141,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Body]. */
             fun builder() = Builder()
         }
 
@@ -120,23 +161,38 @@ private constructor(
             fun attributesToReturn(attributesToReturn: List<String>) =
                 attributesToReturn(JsonField.of(attributesToReturn))
 
+            /**
+             * Sets [Builder.attributesToReturn] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributesToReturn] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
                 this.attributesToReturn = attributesToReturn.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [Builder.attributesToReturn].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAttributesToReturn(attributesToReturn: String) = apply {
                 this.attributesToReturn =
-                    (this.attributesToReturn ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributesToReturn)
+                    (this.attributesToReturn ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("attributesToReturn", it).add(attributesToReturn)
                     }
             }
 
             fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
 
+            /**
+             * Sets [Builder.maxDepth] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.maxDepth] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun maxDepth(maxDepth: JsonField<Long>) = apply { this.maxDepth = maxDepth }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -188,6 +244,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [TelemetryGetSpanTreeParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .spanId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -213,16 +277,34 @@ private constructor(
             body.attributesToReturn(attributesToReturn)
         }
 
+        /**
+         * Sets [Builder.attributesToReturn] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.attributesToReturn] with a well-typed `List<String>`
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun attributesToReturn(attributesToReturn: JsonField<List<String>>) = apply {
             body.attributesToReturn(attributesToReturn)
         }
 
+        /**
+         * Adds a single [String] to [Builder.attributesToReturn].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addAttributesToReturn(attributesToReturn: String) = apply {
             body.addAttributesToReturn(attributesToReturn)
         }
 
         fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
 
+        /**
+         * Sets [Builder.maxDepth] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.maxDepth] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun maxDepth(maxDepth: JsonField<Long>) = apply { body.maxDepth(maxDepth) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

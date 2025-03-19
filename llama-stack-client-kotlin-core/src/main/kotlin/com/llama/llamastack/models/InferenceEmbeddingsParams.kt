@@ -43,55 +43,79 @@ private constructor(
      * List of contents to generate embeddings for. Each content can be a string or an
      * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model and
      * provider. Some models may only support text.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun contents(): Contents = body.contents()
 
     /**
      * The identifier of the model to use. The model must be an embedding model registered with
      * Llama Stack and available via the /models endpoint.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun modelId(): String = body.modelId()
 
-    /** (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models. */
+    /**
+     * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun outputDimension(): Long? = body.outputDimension()
 
     /**
      * (Optional) How is the embedding being used? This is only supported by asymmetric embedding
      * models.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
      */
     fun taskType(): TaskType? = body.taskType()
 
     /**
      * (Optional) Config for how to truncate text for embedding when text is longer than the model's
      * max sequence length.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
      */
     fun textTruncation(): TextTruncation? = body.textTruncation()
 
     /**
-     * List of contents to generate embeddings for. Each content can be a string or an
-     * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model and
-     * provider. Some models may only support text.
+     * Returns the raw JSON value of [contents].
+     *
+     * Unlike [contents], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _contents(): JsonField<Contents> = body._contents()
 
     /**
-     * The identifier of the model to use. The model must be an embedding model registered with
-     * Llama Stack and available via the /models endpoint.
+     * Returns the raw JSON value of [modelId].
+     *
+     * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _modelId(): JsonField<String> = body._modelId()
 
-    /** (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models. */
+    /**
+     * Returns the raw JSON value of [outputDimension].
+     *
+     * Unlike [outputDimension], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _outputDimension(): JsonField<Long> = body._outputDimension()
 
     /**
-     * (Optional) How is the embedding being used? This is only supported by asymmetric embedding
-     * models.
+     * Returns the raw JSON value of [taskType].
+     *
+     * Unlike [taskType], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _taskType(): JsonField<TaskType> = body._taskType()
 
     /**
-     * (Optional) Config for how to truncate text for embedding when text is longer than the model's
-     * max sequence length.
+     * Returns the raw JSON value of [textTruncation].
+     *
+     * Unlike [textTruncation], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _textTruncation(): JsonField<TextTruncation> = body._textTruncation()
 
@@ -134,61 +158,85 @@ private constructor(
          * List of contents to generate embeddings for. Each content can be a string or an
          * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
          * and provider. Some models may only support text.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
          */
         fun contents(): Contents = contents.getRequired("contents")
 
         /**
          * The identifier of the model to use. The model must be an embedding model registered with
          * Llama Stack and available via the /models endpoint.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
          */
         fun modelId(): String = modelId.getRequired("model_id")
 
         /**
          * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun outputDimension(): Long? = outputDimension.getNullable("output_dimension")
 
         /**
          * (Optional) How is the embedding being used? This is only supported by asymmetric
          * embedding models.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun taskType(): TaskType? = taskType.getNullable("task_type")
 
         /**
          * (Optional) Config for how to truncate text for embedding when text is longer than the
          * model's max sequence length.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun textTruncation(): TextTruncation? = textTruncation.getNullable("text_truncation")
 
         /**
-         * List of contents to generate embeddings for. Each content can be a string or an
-         * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
-         * and provider. Some models may only support text.
+         * Returns the raw JSON value of [contents].
+         *
+         * Unlike [contents], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("contents") @ExcludeMissing fun _contents(): JsonField<Contents> = contents
 
         /**
-         * The identifier of the model to use. The model must be an embedding model registered with
-         * Llama Stack and available via the /models endpoint.
+         * Returns the raw JSON value of [modelId].
+         *
+         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
 
         /**
-         * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models.
+         * Returns the raw JSON value of [outputDimension].
+         *
+         * Unlike [outputDimension], this method doesn't throw if the JSON field has an unexpected
+         * type.
          */
         @JsonProperty("output_dimension")
         @ExcludeMissing
         fun _outputDimension(): JsonField<Long> = outputDimension
 
         /**
-         * (Optional) How is the embedding being used? This is only supported by asymmetric
-         * embedding models.
+         * Returns the raw JSON value of [taskType].
+         *
+         * Unlike [taskType], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("task_type") @ExcludeMissing fun _taskType(): JsonField<TaskType> = taskType
 
         /**
-         * (Optional) Config for how to truncate text for embedding when text is longer than the
-         * model's max sequence length.
+         * Returns the raw JSON value of [textTruncation].
+         *
+         * Unlike [textTruncation], this method doesn't throw if the JSON field has an unexpected
+         * type.
          */
         @JsonProperty("text_truncation")
         @ExcludeMissing
@@ -217,6 +265,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .contents()
+             * .modelId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -247,23 +304,20 @@ private constructor(
             fun contents(contents: Contents) = contents(JsonField.of(contents))
 
             /**
-             * List of contents to generate embeddings for. Each content can be a string or an
-             * InterleavedContentItem (and hence can be multimodal). The behavior depends on the
-             * model and provider. Some models may only support text.
+             * Sets [Builder.contents] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.contents] with a well-typed [Contents] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun contents(contents: JsonField<Contents>) = apply { this.contents = contents }
 
-            /**
-             * List of contents to generate embeddings for. Each content can be a string or an
-             * InterleavedContentItem (and hence can be multimodal). The behavior depends on the
-             * model and provider. Some models may only support text.
-             */
+            /** Alias for calling [contents] with `Contents.ofStrings(strings)`. */
             fun contentsOfStrings(strings: List<String>) = contents(Contents.ofStrings(strings))
 
             /**
-             * List of contents to generate embeddings for. Each content can be a string or an
-             * InterleavedContentItem (and hence can be multimodal). The behavior depends on the
-             * model and provider. Some models may only support text.
+             * Alias for calling [contents] with
+             * `Contents.ofInterleavedContentItems(interleavedContentItems)`.
              */
             fun contentsOfInterleavedContentItems(
                 interleavedContentItems: List<InterleavedContentItem>
@@ -276,8 +330,11 @@ private constructor(
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
             /**
-             * The identifier of the model to use. The model must be an embedding model registered
-             * with Llama Stack and available via the /models endpoint.
+             * Sets [Builder.modelId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
@@ -289,8 +346,11 @@ private constructor(
                 outputDimension(JsonField.of(outputDimension))
 
             /**
-             * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka
-             * models.
+             * Sets [Builder.outputDimension] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.outputDimension] with a well-typed [Long] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun outputDimension(outputDimension: JsonField<Long>) = apply {
                 this.outputDimension = outputDimension
@@ -303,8 +363,11 @@ private constructor(
             fun taskType(taskType: TaskType) = taskType(JsonField.of(taskType))
 
             /**
-             * (Optional) How is the embedding being used? This is only supported by asymmetric
-             * embedding models.
+             * Sets [Builder.taskType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.taskType] with a well-typed [TaskType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun taskType(taskType: JsonField<TaskType>) = apply { this.taskType = taskType }
 
@@ -316,8 +379,11 @@ private constructor(
                 textTruncation(JsonField.of(textTruncation))
 
             /**
-             * (Optional) Config for how to truncate text for embedding when text is longer than the
-             * model's max sequence length.
+             * Sets [Builder.textTruncation] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.textTruncation] with a well-typed [TextTruncation]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
              */
             fun textTruncation(textTruncation: JsonField<TextTruncation>) = apply {
                 this.textTruncation = textTruncation
@@ -375,6 +441,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [InferenceEmbeddingsParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .contents()
+         * .modelId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -400,23 +475,20 @@ private constructor(
         fun contents(contents: Contents) = apply { body.contents(contents) }
 
         /**
-         * List of contents to generate embeddings for. Each content can be a string or an
-         * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
-         * and provider. Some models may only support text.
+         * Sets [Builder.contents] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.contents] with a well-typed [Contents] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
          */
         fun contents(contents: JsonField<Contents>) = apply { body.contents(contents) }
 
-        /**
-         * List of contents to generate embeddings for. Each content can be a string or an
-         * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
-         * and provider. Some models may only support text.
-         */
+        /** Alias for calling [contents] with `Contents.ofStrings(strings)`. */
         fun contentsOfStrings(strings: List<String>) = apply { body.contentsOfStrings(strings) }
 
         /**
-         * List of contents to generate embeddings for. Each content can be a string or an
-         * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
-         * and provider. Some models may only support text.
+         * Alias for calling [contents] with
+         * `Contents.ofInterleavedContentItems(interleavedContentItems)`.
          */
         fun contentsOfInterleavedContentItems(
             interleavedContentItems: List<InterleavedContentItem>
@@ -429,8 +501,10 @@ private constructor(
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
         /**
-         * The identifier of the model to use. The model must be an embedding model registered with
-         * Llama Stack and available via the /models endpoint.
+         * Sets [Builder.modelId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.modelId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
          */
         fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
 
@@ -440,7 +514,11 @@ private constructor(
         fun outputDimension(outputDimension: Long) = apply { body.outputDimension(outputDimension) }
 
         /**
-         * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models.
+         * Sets [Builder.outputDimension] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.outputDimension] with a well-typed [Long] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
          */
         fun outputDimension(outputDimension: JsonField<Long>) = apply {
             body.outputDimension(outputDimension)
@@ -453,8 +531,11 @@ private constructor(
         fun taskType(taskType: TaskType) = apply { body.taskType(taskType) }
 
         /**
-         * (Optional) How is the embedding being used? This is only supported by asymmetric
-         * embedding models.
+         * Sets [Builder.taskType] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.taskType] with a well-typed [TaskType] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
          */
         fun taskType(taskType: JsonField<TaskType>) = apply { body.taskType(taskType) }
 
@@ -467,8 +548,11 @@ private constructor(
         }
 
         /**
-         * (Optional) Config for how to truncate text for embedding when text is longer than the
-         * model's max sequence length.
+         * Sets [Builder.textTruncation] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.textTruncation] with a well-typed [TextTruncation] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
         fun textTruncation(textTruncation: JsonField<TextTruncation>) = apply {
             body.textTruncation(textTruncation)

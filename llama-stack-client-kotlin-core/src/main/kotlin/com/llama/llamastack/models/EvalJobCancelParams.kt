@@ -11,6 +11,7 @@ import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Cancel a job. */
 class EvalJobCancelParams
 private constructor(
     private val benchmarkId: String,
@@ -48,6 +49,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [EvalJobCancelParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .jobId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

@@ -26,6 +26,11 @@ private constructor(
 
     companion object {
 
+        fun none(): PostTrainingJobListParams = builder().build()
+
+        /**
+         * Returns a mutable builder for constructing an instance of [PostTrainingJobListParams].
+         */
         fun builder() = Builder()
     }
 

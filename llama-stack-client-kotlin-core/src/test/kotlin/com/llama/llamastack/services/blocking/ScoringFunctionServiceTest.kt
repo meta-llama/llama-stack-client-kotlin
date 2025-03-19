@@ -5,11 +5,10 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.ReturnType
-import com.llama.llamastack.models.ScoringFn
 import com.llama.llamastack.models.ScoringFnParams
-import com.llama.llamastack.models.ScoringFunctionListParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -17,36 +16,37 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ScoringFunctionServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val scoringFunctionService = client.scoringFunctions()
+
         val scoringFn =
             scoringFunctionService.retrieve(
                 ScoringFunctionRetrieveParams.builder().scoringFnId("scoring_fn_id").build()
             )
-        println(scoringFn)
-        scoringFn?.validate()
+
+        assertNotNull(scoringFn)
+        scoringFn.validate()
     }
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val scoringFunctionService = client.scoringFunctions()
-        val listScoringFunctionsResponse =
-            scoringFunctionService.list(ScoringFunctionListParams.builder().build())
-        println(listScoringFunctionsResponse)
-        for (scoringFn: ScoringFn in listScoringFunctionsResponse) {
-            scoringFn.validate()
-        }
+
+        val scoringFns = scoringFunctionService.list()
+
+        scoringFns.forEach { it.validate() }
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val scoringFunctionService = client.scoringFunctions()
+
         scoringFunctionService.register(
             ScoringFunctionRegisterParams.builder()
                 .description("description")

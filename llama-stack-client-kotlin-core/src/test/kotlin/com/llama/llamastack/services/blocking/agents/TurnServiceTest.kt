@@ -4,10 +4,11 @@ package com.llama.llamastack.services.blocking.agents
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnResumeParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
-import com.llama.llamastack.models.ToolResponseMessage
+import com.llama.llamastack.models.ToolResponse
 import com.llama.llamastack.models.UserMessage
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -16,17 +17,17 @@ import org.junit.jupiter.api.extension.ExtendWith
 class TurnServiceTest {
 
     @Test
-    fun callCreate() {
+    fun create() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
+
         val turn =
             turnService.create(
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .addMessage(UserMessage.builder().content("string").context("string").build())
-                    .allowTurnResume(true)
                     .addDocument(
                         AgentTurnCreateParams.Document.builder()
                             .content("string")
@@ -47,23 +48,22 @@ class TurnServiceTest {
                     .addToolgroup("string")
                     .build()
             )
-        println(turn)
+
         turn.validate()
     }
 
     @Test
-    fun callCreateStreaming() {
+    fun createStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
 
-        val turnStream =
+        val turnStreamResponse =
             turnService.createStreaming(
                 AgentTurnCreateParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .addMessage(UserMessage.builder().content("string").context("string").build())
-                    .allowTurnResume(true)
                     .addDocument(
                         AgentTurnCreateParams.Document.builder()
                             .content("string")
@@ -85,19 +85,17 @@ class TurnServiceTest {
                     .build()
             )
 
-        turnStream.use {
-            turnStream.asSequence().forEach {
-                println(it)
-                it.validate()
-            }
+        turnStreamResponse.use {
+            turnStreamResponse.asSequence().forEach { turn -> turn.validate() }
         }
     }
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
+
         val turn =
             turnService.retrieve(
                 AgentTurnRetrieveParams.builder()
@@ -106,15 +104,16 @@ class TurnServiceTest {
                     .turnId("turn_id")
                     .build()
             )
-        println(turn)
+
         turn.validate()
     }
 
     @Test
-    fun callResume() {
+    fun resume() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
+
         val turn =
             turnService.resume(
                 AgentTurnResumeParams.builder()
@@ -122,45 +121,52 @@ class TurnServiceTest {
                     .sessionId("session_id")
                     .turnId("turn_id")
                     .addToolResponse(
-                        ToolResponseMessage.builder()
+                        ToolResponse.builder()
                             .callId("call_id")
                             .content("string")
-                            .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                            .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                            .metadata(
+                                ToolResponse.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
                             .build()
                     )
                     .build()
             )
-        println(turn)
+
         turn.validate()
     }
 
     @Test
-    fun callResumeStreaming() {
+    fun resumeStreaming() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val turnService = client.agents().turn()
 
-        val turnStream =
+        val turnStreamResponse =
             turnService.resumeStreaming(
                 AgentTurnResumeParams.builder()
                     .agentId("agent_id")
                     .sessionId("session_id")
                     .turnId("turn_id")
                     .addToolResponse(
-                        ToolResponseMessage.builder()
+                        ToolResponse.builder()
                             .callId("call_id")
                             .content("string")
-                            .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
+                            .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                            .metadata(
+                                ToolResponse.Metadata.builder()
+                                    .putAdditionalProperty("foo", JsonValue.from(true))
+                                    .build()
+                            )
                             .build()
                     )
                     .build()
             )
 
-        turnStream.use {
-            turnStream.asSequence().forEach {
-                println(it)
-                it.validate()
-            }
+        turnStreamResponse.use {
+            turnStreamResponse.asSequence().forEach { turn -> turn.validate() }
         }
     }
 }

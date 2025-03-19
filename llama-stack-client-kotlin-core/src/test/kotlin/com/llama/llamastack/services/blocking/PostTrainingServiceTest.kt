@@ -15,10 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class PostTrainingServiceTest {
 
     @Test
-    fun callPreferenceOptimize() {
+    fun preferenceOptimize() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val postTrainingService = client.postTraining()
+
         val postTrainingJob =
             postTrainingService.preferenceOptimize(
                 PostTrainingPreferenceOptimizeParams.builder()
@@ -93,15 +94,16 @@ class PostTrainingServiceTest {
                     )
                     .build()
             )
-        println(postTrainingJob)
+
         postTrainingJob.validate()
     }
 
     @Test
-    fun callSupervisedFineTune() {
+    fun supervisedFineTune() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val postTrainingService = client.postTraining()
+
         val postTrainingJob =
             postTrainingService.supervisedFineTune(
                 PostTrainingSupervisedFineTuneParams.builder()
@@ -180,7 +182,7 @@ class PostTrainingServiceTest {
                     .checkpointDir("checkpoint_dir")
                     .build()
             )
-        println(postTrainingJob)
+
         postTrainingJob.validate()
     }
 }

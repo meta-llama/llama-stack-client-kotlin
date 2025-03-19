@@ -18,6 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
+/** A memory retrieval step in an agent turn. */
 @NoAutoDetect
 class MemoryRetrievalStep
 @JsonCreator
@@ -44,38 +45,111 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** A image content item */
+    /**
+     * The context retrieved from the vector databases.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun insertedContext(): InterleavedContent = insertedContext.getRequired("inserted_context")
 
+    /**
+     * The ID of the step.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun stepId(): String = stepId.getRequired("step_id")
 
+    /**
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("memory_retrieval")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonValue = stepType
 
+    /**
+     * The ID of the turn.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun turnId(): String = turnId.getRequired("turn_id")
 
+    /**
+     * The IDs of the vector databases to retrieve context from.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun vectorDbIds(): String = vectorDbIds.getRequired("vector_db_ids")
 
+    /**
+     * The time the step completed.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
+    /**
+     * The time the step started.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [insertedContext].
+     *
+     * Unlike [insertedContext], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("inserted_context")
     @ExcludeMissing
     fun _insertedContext(): JsonField<InterleavedContent> = insertedContext
 
+    /**
+     * Returns the raw JSON value of [stepId].
+     *
+     * Unlike [stepId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
+    /**
+     * Returns the raw JSON value of [turnId].
+     *
+     * Unlike [turnId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
+    /**
+     * Returns the raw JSON value of [vectorDbIds].
+     *
+     * Unlike [vectorDbIds], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("vector_db_ids")
     @ExcludeMissing
     fun _vectorDbIds(): JsonField<String> = vectorDbIds
 
+    /**
+     * Returns the raw JSON value of [completedAt].
+     *
+     * Unlike [completedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("completed_at")
     @ExcludeMissing
     fun _completedAt(): JsonField<OffsetDateTime> = completedAt
 
+    /**
+     * Returns the raw JSON value of [startedAt].
+     *
+     * Unlike [startedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("started_at")
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
@@ -109,6 +183,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [MemoryRetrievalStep].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .insertedContext()
+         * .stepId()
+         * .turnId()
+         * .vectorDbIds()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -135,52 +220,114 @@ private constructor(
             additionalProperties = memoryRetrievalStep.additionalProperties.toMutableMap()
         }
 
-        /** A image content item */
+        /** The context retrieved from the vector databases. */
         fun insertedContext(insertedContext: InterleavedContent) =
             insertedContext(JsonField.of(insertedContext))
 
-        /** A image content item */
+        /**
+         * Sets [Builder.insertedContext] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.insertedContext] with a well-typed [InterleavedContent]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun insertedContext(insertedContext: JsonField<InterleavedContent>) = apply {
             this.insertedContext = insertedContext
         }
 
-        /** A image content item */
+        /** Alias for calling [insertedContext] with `InterleavedContent.ofString(string)`. */
         fun insertedContext(string: String) = insertedContext(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [insertedContext] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun insertedContext(imageContentItem: InterleavedContent.ImageContentItem) =
             insertedContext(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [insertedContext] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun insertedContext(textContentItem: InterleavedContent.TextContentItem) =
             insertedContext(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /** A image content item */
+        /** Alias for calling [insertedContext] with `InterleavedContent.ofItems(items)`. */
         fun insertedContextOfItems(items: List<InterleavedContentItem>) =
             insertedContext(InterleavedContent.ofItems(items))
 
+        /** The ID of the step. */
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
+        /**
+         * Sets [Builder.stepId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.stepId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("memory_retrieval")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun stepType(stepType: JsonValue) = apply { this.stepType = stepType }
 
+        /** The ID of the turn. */
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
+        /**
+         * Sets [Builder.turnId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.turnId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
 
+        /** The IDs of the vector databases to retrieve context from. */
         fun vectorDbIds(vectorDbIds: String) = vectorDbIds(JsonField.of(vectorDbIds))
 
+        /**
+         * Sets [Builder.vectorDbIds] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.vectorDbIds] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun vectorDbIds(vectorDbIds: JsonField<String>) = apply { this.vectorDbIds = vectorDbIds }
 
+        /** The time the step completed. */
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
+        /**
+         * Sets [Builder.completedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.completedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
 
+        /** The time the step started. */
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
+        /**
+         * Sets [Builder.startedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.startedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

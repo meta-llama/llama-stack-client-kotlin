@@ -65,6 +65,10 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
     // Pass the original clientOptions so that this client sets its own User-Agent.
     private val sync: LlamaStackClientClient by lazy { LlamaStackClientClientImpl(clientOptions) }
 
+    private val withRawResponse: LlamaStackClientClientAsync.WithRawResponse by lazy {
+        WithRawResponseImpl(clientOptions)
+    }
+
     private val toolgroups: ToolgroupServiceAsync by lazy {
         ToolgroupServiceAsyncImpl(clientOptionsWithUserAgent)
     }
@@ -155,6 +159,8 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
 
     override fun sync(): LlamaStackClientClient = sync
 
+    override fun withRawResponse(): LlamaStackClientClientAsync.WithRawResponse = withRawResponse
+
     override fun toolgroups(): ToolgroupServiceAsync = toolgroups
 
     override fun tools(): ToolServiceAsync = tools
@@ -203,4 +209,149 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
     override fun benchmarks(): BenchmarkServiceAsync = benchmarks
 
     override fun close() = clientOptions.httpClient.close()
+
+    class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
+        LlamaStackClientClientAsync.WithRawResponse {
+
+        private val toolgroups: ToolgroupServiceAsync.WithRawResponse by lazy {
+            ToolgroupServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val tools: ToolServiceAsync.WithRawResponse by lazy {
+            ToolServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val toolRuntime: ToolRuntimeServiceAsync.WithRawResponse by lazy {
+            ToolRuntimeServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val agents: AgentServiceAsync.WithRawResponse by lazy {
+            AgentServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val batchInference: BatchInferenceServiceAsync.WithRawResponse by lazy {
+            BatchInferenceServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val datasets: DatasetServiceAsync.WithRawResponse by lazy {
+            DatasetServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val eval: EvalServiceAsync.WithRawResponse by lazy {
+            EvalServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val inspect: InspectServiceAsync.WithRawResponse by lazy {
+            InspectServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val inference: InferenceServiceAsync.WithRawResponse by lazy {
+            InferenceServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val vectorIo: VectorIoServiceAsync.WithRawResponse by lazy {
+            VectorIoServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val vectorDbs: VectorDbServiceAsync.WithRawResponse by lazy {
+            VectorDbServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val models: ModelServiceAsync.WithRawResponse by lazy {
+            ModelServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val postTraining: PostTrainingServiceAsync.WithRawResponse by lazy {
+            PostTrainingServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val providers: ProviderServiceAsync.WithRawResponse by lazy {
+            ProviderServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val routes: RouteServiceAsync.WithRawResponse by lazy {
+            RouteServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val safety: SafetyServiceAsync.WithRawResponse by lazy {
+            SafetyServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val shields: ShieldServiceAsync.WithRawResponse by lazy {
+            ShieldServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val syntheticDataGeneration:
+            SyntheticDataGenerationServiceAsync.WithRawResponse by lazy {
+            SyntheticDataGenerationServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val telemetry: TelemetryServiceAsync.WithRawResponse by lazy {
+            TelemetryServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val datasetio: DatasetioServiceAsync.WithRawResponse by lazy {
+            DatasetioServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val scoring: ScoringServiceAsync.WithRawResponse by lazy {
+            ScoringServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val scoringFunctions: ScoringFunctionServiceAsync.WithRawResponse by lazy {
+            ScoringFunctionServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val benchmarks: BenchmarkServiceAsync.WithRawResponse by lazy {
+            BenchmarkServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        override fun toolgroups(): ToolgroupServiceAsync.WithRawResponse = toolgroups
+
+        override fun tools(): ToolServiceAsync.WithRawResponse = tools
+
+        override fun toolRuntime(): ToolRuntimeServiceAsync.WithRawResponse = toolRuntime
+
+        override fun agents(): AgentServiceAsync.WithRawResponse = agents
+
+        override fun batchInference(): BatchInferenceServiceAsync.WithRawResponse = batchInference
+
+        override fun datasets(): DatasetServiceAsync.WithRawResponse = datasets
+
+        override fun eval(): EvalServiceAsync.WithRawResponse = eval
+
+        override fun inspect(): InspectServiceAsync.WithRawResponse = inspect
+
+        override fun inference(): InferenceServiceAsync.WithRawResponse = inference
+
+        override fun vectorIo(): VectorIoServiceAsync.WithRawResponse = vectorIo
+
+        override fun vectorDbs(): VectorDbServiceAsync.WithRawResponse = vectorDbs
+
+        override fun models(): ModelServiceAsync.WithRawResponse = models
+
+        override fun postTraining(): PostTrainingServiceAsync.WithRawResponse = postTraining
+
+        override fun providers(): ProviderServiceAsync.WithRawResponse = providers
+
+        override fun routes(): RouteServiceAsync.WithRawResponse = routes
+
+        override fun safety(): SafetyServiceAsync.WithRawResponse = safety
+
+        override fun shields(): ShieldServiceAsync.WithRawResponse = shields
+
+        override fun syntheticDataGeneration():
+            SyntheticDataGenerationServiceAsync.WithRawResponse = syntheticDataGeneration
+
+        override fun telemetry(): TelemetryServiceAsync.WithRawResponse = telemetry
+
+        override fun datasetio(): DatasetioServiceAsync.WithRawResponse = datasetio
+
+        override fun scoring(): ScoringServiceAsync.WithRawResponse = scoring
+
+        override fun scoringFunctions(): ScoringFunctionServiceAsync.WithRawResponse =
+            scoringFunctions
+
+        override fun benchmarks(): BenchmarkServiceAsync.WithRawResponse = benchmarks
+    }
 }

@@ -12,10 +12,12 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class TelemetryQueryTracesParams
@@ -25,20 +27,57 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun attributeFilters(): List<QueryCondition>? = body.attributeFilters()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun limit(): Long? = body.limit()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun offset(): Long? = body.offset()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun orderBy(): List<String>? = body.orderBy()
 
+    /**
+     * Returns the raw JSON value of [attributeFilters].
+     *
+     * Unlike [attributeFilters], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _attributeFilters(): JsonField<List<QueryCondition>> = body._attributeFilters()
 
+    /**
+     * Returns the raw JSON value of [limit].
+     *
+     * Unlike [limit], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _limit(): JsonField<Long> = body._limit()
 
+    /**
+     * Returns the raw JSON value of [offset].
+     *
+     * Unlike [offset], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _offset(): JsonField<Long> = body._offset()
 
+    /**
+     * Returns the raw JSON value of [orderBy].
+     *
+     * Unlike [orderBy], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _orderBy(): JsonField<List<String>> = body._orderBy()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -73,23 +112,60 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun attributeFilters(): List<QueryCondition>? =
             attributeFilters.getNullable("attribute_filters")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun limit(): Long? = limit.getNullable("limit")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun offset(): Long? = offset.getNullable("offset")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun orderBy(): List<String>? = orderBy.getNullable("order_by")
 
+        /**
+         * Returns the raw JSON value of [attributeFilters].
+         *
+         * Unlike [attributeFilters], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("attribute_filters")
         @ExcludeMissing
         fun _attributeFilters(): JsonField<List<QueryCondition>> = attributeFilters
 
+        /**
+         * Returns the raw JSON value of [limit].
+         *
+         * Unlike [limit], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("limit") @ExcludeMissing fun _limit(): JsonField<Long> = limit
 
+        /**
+         * Returns the raw JSON value of [offset].
+         *
+         * Unlike [offset], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("offset") @ExcludeMissing fun _offset(): JsonField<Long> = offset
 
+        /**
+         * Returns the raw JSON value of [orderBy].
+         *
+         * Unlike [orderBy], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("order_by") @ExcludeMissing fun _orderBy(): JsonField<List<String>> = orderBy
 
         @JsonAnyGetter
@@ -114,6 +190,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Body]. */
             fun builder() = Builder()
         }
 
@@ -137,43 +214,73 @@ private constructor(
             fun attributeFilters(attributeFilters: List<QueryCondition>) =
                 attributeFilters(JsonField.of(attributeFilters))
 
+            /**
+             * Sets [Builder.attributeFilters] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributeFilters] with a well-typed
+             * `List<QueryCondition>` value instead. This method is primarily for setting the field
+             * to an undocumented or not yet supported value.
+             */
             fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
                 this.attributeFilters = attributeFilters.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [QueryCondition] to [attributeFilters].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
                 attributeFilters =
-                    (attributeFilters ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributeFilter)
+                    (attributeFilters ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("attributeFilters", it).add(attributeFilter)
                     }
             }
 
             fun limit(limit: Long) = limit(JsonField.of(limit))
 
+            /**
+             * Sets [Builder.limit] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.limit] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun limit(limit: JsonField<Long>) = apply { this.limit = limit }
 
             fun offset(offset: Long) = offset(JsonField.of(offset))
 
+            /**
+             * Sets [Builder.offset] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.offset] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun offset(offset: JsonField<Long>) = apply { this.offset = offset }
 
             fun orderBy(orderBy: List<String>) = orderBy(JsonField.of(orderBy))
 
+            /**
+             * Sets [Builder.orderBy] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.orderBy] with a well-typed `List<String>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun orderBy(orderBy: JsonField<List<String>>) = apply {
                 this.orderBy = orderBy.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [Builder.orderBy].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addOrderBy(orderBy: String) = apply {
                 this.orderBy =
-                    (this.orderBy ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(orderBy)
+                    (this.orderBy ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("orderBy", it).add(orderBy)
                     }
             }
 
@@ -228,6 +335,9 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [TelemetryQueryTracesParams].
+         */
         fun builder() = Builder()
     }
 
@@ -249,26 +359,62 @@ private constructor(
             body.attributeFilters(attributeFilters)
         }
 
+        /**
+         * Sets [Builder.attributeFilters] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.attributeFilters] with a well-typed
+         * `List<QueryCondition>` value instead. This method is primarily for setting the field to
+         * an undocumented or not yet supported value.
+         */
         fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
             body.attributeFilters(attributeFilters)
         }
 
+        /**
+         * Adds a single [QueryCondition] to [attributeFilters].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
             body.addAttributeFilter(attributeFilter)
         }
 
         fun limit(limit: Long) = apply { body.limit(limit) }
 
+        /**
+         * Sets [Builder.limit] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.limit] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun limit(limit: JsonField<Long>) = apply { body.limit(limit) }
 
         fun offset(offset: Long) = apply { body.offset(offset) }
 
+        /**
+         * Sets [Builder.offset] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.offset] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun offset(offset: JsonField<Long>) = apply { body.offset(offset) }
 
         fun orderBy(orderBy: List<String>) = apply { body.orderBy(orderBy) }
 
+        /**
+         * Sets [Builder.orderBy] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.orderBy] with a well-typed `List<String>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun orderBy(orderBy: JsonField<List<String>>) = apply { body.orderBy(orderBy) }
 
+        /**
+         * Adds a single [String] to [Builder.orderBy].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addOrderBy(orderBy: String) = apply { body.addOrderBy(orderBy) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

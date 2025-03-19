@@ -28,24 +28,69 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun modelId(): String = body.modelId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata? = body.metadata()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun modelType(): ModelType? = body.modelType()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerId(): String? = body.providerId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerModelId(): String? = body.providerModelId()
 
+    /**
+     * Returns the raw JSON value of [modelId].
+     *
+     * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _modelId(): JsonField<String> = body._modelId()
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _metadata(): JsonField<Metadata> = body._metadata()
 
+    /**
+     * Returns the raw JSON value of [modelType].
+     *
+     * Unlike [modelType], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _modelType(): JsonField<ModelType> = body._modelType()
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _providerId(): JsonField<String> = body._providerId()
 
+    /**
+     * Returns the raw JSON value of [providerModelId].
+     *
+     * Unlike [providerModelId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _providerModelId(): JsonField<String> = body._providerModelId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -83,28 +128,75 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun modelId(): String = modelId.getRequired("model_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun modelType(): ModelType? = modelType.getNullable("model_type")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerModelId(): String? = providerModelId.getNullable("provider_model_id")
 
+        /**
+         * Returns the raw JSON value of [modelId].
+         *
+         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
 
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+        /**
+         * Returns the raw JSON value of [modelType].
+         *
+         * Unlike [modelType], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model_type")
         @ExcludeMissing
         fun _modelType(): JsonField<ModelType> = modelType
 
+        /**
+         * Returns the raw JSON value of [providerId].
+         *
+         * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("provider_id")
         @ExcludeMissing
         fun _providerId(): JsonField<String> = providerId
 
+        /**
+         * Returns the raw JSON value of [providerModelId].
+         *
+         * Unlike [providerModelId], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("provider_model_id")
         @ExcludeMissing
         fun _providerModelId(): JsonField<String> = providerModelId
@@ -132,6 +224,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .modelId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -156,23 +256,58 @@ private constructor(
 
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
+            /**
+             * Sets [Builder.modelId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun modelType(modelType: ModelType) = modelType(JsonField.of(modelType))
 
+            /**
+             * Sets [Builder.modelType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.modelType] with a well-typed [ModelType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun modelType(modelType: JsonField<ModelType>) = apply { this.modelType = modelType }
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+            /**
+             * Sets [Builder.providerId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
             fun providerModelId(providerModelId: String) =
                 providerModelId(JsonField.of(providerModelId))
 
+            /**
+             * Sets [Builder.providerModelId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerModelId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerModelId(providerModelId: JsonField<String>) = apply {
                 this.providerModelId = providerModelId
             }
@@ -229,6 +364,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ModelRegisterParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .modelId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -248,24 +391,58 @@ private constructor(
 
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
+        /**
+         * Sets [Builder.modelId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.modelId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
 
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
         fun modelType(modelType: ModelType) = apply { body.modelType(modelType) }
 
+        /**
+         * Sets [Builder.modelType] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.modelType] with a well-typed [ModelType] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun modelType(modelType: JsonField<ModelType>) = apply { body.modelType(modelType) }
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun providerModelId(providerModelId: String) = apply {
             body.providerModelId(providerModelId)
         }
 
+        /**
+         * Sets [Builder.providerModelId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerModelId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerModelId(providerModelId: JsonField<String>) = apply {
             body.providerModelId(providerModelId)
         }
@@ -421,6 +598,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

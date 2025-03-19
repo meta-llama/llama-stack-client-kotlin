@@ -23,6 +23,13 @@ class CompletionResponseTest {
                         )
                         .build()
                 )
+                .addMetric(
+                    CompletionResponse.Metric.builder()
+                        .metric("metric")
+                        .value(0.0)
+                        .unit("unit")
+                        .build()
+                )
                 .build()
         assertThat(completionResponse).isNotNull
         assertThat(completionResponse.content()).isEqualTo("content")
@@ -37,6 +44,10 @@ class CompletionResponseTest {
                             .build()
                     )
                     .build()
+            )
+        assertThat(completionResponse.metrics())
+            .containsExactly(
+                CompletionResponse.Metric.builder().metric("metric").value(0.0).unit("unit").build()
             )
     }
 }

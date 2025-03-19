@@ -205,10 +205,29 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun text(): String = text.getRequired("text")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("text")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [text].
+         *
+         * Unlike [text], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
         @JsonAnyGetter
@@ -235,6 +254,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [TextDelta].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .text()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -253,8 +280,27 @@ private constructor(
 
             fun text(text: String) = text(JsonField.of(text))
 
+            /**
+             * Sets [Builder.text] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.text] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun text(text: JsonField<String>) = apply { this.text = text }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("text")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -310,10 +356,29 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun image(): String = image.getRequired("image")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("image")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [image].
+         *
+         * Unlike [image], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<String> = image
 
         @JsonAnyGetter
@@ -340,6 +405,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [ImageDelta].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .image()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -358,8 +431,27 @@ private constructor(
 
             fun image(image: String) = image(JsonField.of(image))
 
+            /**
+             * Sets [Builder.image] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.image] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun image(image: JsonField<String>) = apply { this.image = image }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("image")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -418,16 +510,45 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun parseStatus(): ParseStatus = parseStatus.getRequired("parse_status")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun toolCall(): ToolCallOrString = toolCall.getRequired("tool_call")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("tool_call")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [parseStatus].
+         *
+         * Unlike [parseStatus], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("parse_status")
         @ExcludeMissing
         fun _parseStatus(): JsonField<ParseStatus> = parseStatus
 
+        /**
+         * Returns the raw JSON value of [toolCall].
+         *
+         * Unlike [toolCall], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("tool_call")
         @ExcludeMissing
         fun _toolCall(): JsonField<ToolCallOrString> = toolCall
@@ -457,6 +578,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [ToolCallDelta].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .parseStatus()
+             * .toolCall()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -477,18 +607,48 @@ private constructor(
 
             fun parseStatus(parseStatus: ParseStatus) = parseStatus(JsonField.of(parseStatus))
 
+            /**
+             * Sets [Builder.parseStatus] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.parseStatus] with a well-typed [ParseStatus] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun parseStatus(parseStatus: JsonField<ParseStatus>) = apply {
                 this.parseStatus = parseStatus
             }
 
             fun toolCall(toolCall: ToolCallOrString) = toolCall(JsonField.of(toolCall))
 
+            /**
+             * Sets [Builder.toolCall] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolCall] with a well-typed [ToolCallOrString] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun toolCall(toolCall: JsonField<ToolCallOrString>) = apply { this.toolCall = toolCall }
 
+            /** Alias for calling [toolCall] with `ToolCallOrString.ofString(string)`. */
             fun toolCall(string: String) = toolCall(ToolCallOrString.ofString(string))
 
+            /**
+             * Alias for calling [Builder.toolCall] with `ToolCallOrString.ofToolCall(toolCall)`.
+             */
             fun toolCall(toolCall: ToolCall) = toolCall(ToolCallOrString.ofToolCall(toolCall))
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("tool_call")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

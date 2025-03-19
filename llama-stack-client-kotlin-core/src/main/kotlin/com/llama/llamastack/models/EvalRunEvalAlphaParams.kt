@@ -17,8 +17,10 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Run an evaluation on a benchmark. */
 class EvalRunEvalAlphaParams
 private constructor(
     private val benchmarkId: String,
@@ -29,9 +31,20 @@ private constructor(
 
     fun benchmarkId(): String = benchmarkId
 
-    fun taskConfig(): BenchmarkConfig = body.taskConfig()
+    /**
+     * The configuration for the benchmark.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
+    fun benchmarkConfig(): BenchmarkConfig = body.benchmarkConfig()
 
-    fun _taskConfig(): JsonField<BenchmarkConfig> = body._taskConfig()
+    /**
+     * Returns the raw JSON value of [benchmarkConfig].
+     *
+     * Unlike [benchmarkConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    fun _benchmarkConfig(): JsonField<BenchmarkConfig> = body._benchmarkConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -56,18 +69,31 @@ private constructor(
     class Body
     @JsonCreator
     private constructor(
-        @JsonProperty("task_config")
+        @JsonProperty("benchmark_config")
         @ExcludeMissing
-        private val taskConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
+        private val benchmarkConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        fun taskConfig(): BenchmarkConfig = taskConfig.getRequired("task_config")
+        /**
+         * The configuration for the benchmark.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun benchmarkConfig(): BenchmarkConfig = benchmarkConfig.getRequired("benchmark_config")
 
-        @JsonProperty("task_config")
+        /**
+         * Returns the raw JSON value of [benchmarkConfig].
+         *
+         * Unlike [benchmarkConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("benchmark_config")
         @ExcludeMissing
-        fun _taskConfig(): JsonField<BenchmarkConfig> = taskConfig
+        fun _benchmarkConfig(): JsonField<BenchmarkConfig> = benchmarkConfig
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -80,7 +106,7 @@ private constructor(
                 return@apply
             }
 
-            taskConfig().validate()
+            benchmarkConfig().validate()
             validated = true
         }
 
@@ -88,24 +114,41 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .benchmarkConfig()
+             * ```
+             */
             fun builder() = Builder()
         }
 
         /** A builder for [Body]. */
         class Builder internal constructor() {
 
-            private var taskConfig: JsonField<BenchmarkConfig>? = null
+            private var benchmarkConfig: JsonField<BenchmarkConfig>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(body: Body) = apply {
-                taskConfig = body.taskConfig
+                benchmarkConfig = body.benchmarkConfig
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            fun taskConfig(taskConfig: BenchmarkConfig) = taskConfig(JsonField.of(taskConfig))
+            /** The configuration for the benchmark. */
+            fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) =
+                benchmarkConfig(JsonField.of(benchmarkConfig))
 
-            fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
-                this.taskConfig = taskConfig
+            /**
+             * Sets [Builder.benchmarkConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.benchmarkConfig] with a well-typed [BenchmarkConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun benchmarkConfig(benchmarkConfig: JsonField<BenchmarkConfig>) = apply {
+                this.benchmarkConfig = benchmarkConfig
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -128,7 +171,10 @@ private constructor(
             }
 
             fun build(): Body =
-                Body(checkRequired("taskConfig", taskConfig), additionalProperties.toImmutable())
+                Body(
+                    checkRequired("benchmarkConfig", benchmarkConfig),
+                    additionalProperties.toImmutable(),
+                )
         }
 
         override fun equals(other: Any?): Boolean {
@@ -136,23 +182,32 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Body && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && benchmarkConfig == other.benchmarkConfig && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(taskConfig, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(benchmarkConfig, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Body{taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
+            "Body{benchmarkConfig=$benchmarkConfig, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [EvalRunEvalAlphaParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .benchmarkConfig()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -174,10 +229,20 @@ private constructor(
 
         fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
-        fun taskConfig(taskConfig: BenchmarkConfig) = apply { body.taskConfig(taskConfig) }
+        /** The configuration for the benchmark. */
+        fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) = apply {
+            body.benchmarkConfig(benchmarkConfig)
+        }
 
-        fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
-            body.taskConfig(taskConfig)
+        /**
+         * Sets [Builder.benchmarkConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.benchmarkConfig] with a well-typed [BenchmarkConfig]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
+        fun benchmarkConfig(benchmarkConfig: JsonField<BenchmarkConfig>) = apply {
+            body.benchmarkConfig(benchmarkConfig)
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

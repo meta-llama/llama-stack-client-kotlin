@@ -41,6 +41,11 @@ private constructor(
 
     companion object {
 
+        fun none(): ToolRuntimeListToolsParams = builder().build()
+
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolRuntimeListToolsParams].
+         */
         fun builder() = Builder()
     }
 
@@ -187,6 +192,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [McpEndpoint].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .uri()
+             * ```
+             */
             fun builder() = Builder()
         }
 

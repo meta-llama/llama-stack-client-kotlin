@@ -28,29 +28,84 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun algorithmConfig(): AlgorithmConfig = body.algorithmConfig()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun finetunedModel(): String = body.finetunedModel()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun hyperparamSearchConfig(): HyperparamSearchConfig = body.hyperparamSearchConfig()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun jobUuid(): String = body.jobUuid()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun loggerConfig(): LoggerConfig = body.loggerConfig()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun trainingConfig(): TrainingConfig = body.trainingConfig()
 
+    /**
+     * Returns the raw JSON value of [algorithmConfig].
+     *
+     * Unlike [algorithmConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _algorithmConfig(): JsonField<AlgorithmConfig> = body._algorithmConfig()
 
+    /**
+     * Returns the raw JSON value of [finetunedModel].
+     *
+     * Unlike [finetunedModel], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _finetunedModel(): JsonField<String> = body._finetunedModel()
 
+    /**
+     * Returns the raw JSON value of [hyperparamSearchConfig].
+     *
+     * Unlike [hyperparamSearchConfig], this method doesn't throw if the JSON field has an
+     * unexpected type.
+     */
     fun _hyperparamSearchConfig(): JsonField<HyperparamSearchConfig> =
         body._hyperparamSearchConfig()
 
+    /**
+     * Returns the raw JSON value of [jobUuid].
+     *
+     * Unlike [jobUuid], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _jobUuid(): JsonField<String> = body._jobUuid()
 
+    /**
+     * Returns the raw JSON value of [loggerConfig].
+     *
+     * Unlike [loggerConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _loggerConfig(): JsonField<LoggerConfig> = body._loggerConfig()
 
+    /**
+     * Returns the raw JSON value of [trainingConfig].
+     *
+     * Unlike [trainingConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _trainingConfig(): JsonField<TrainingConfig> = body._trainingConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -91,37 +146,102 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun algorithmConfig(): AlgorithmConfig = algorithmConfig.getRequired("algorithm_config")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun finetunedModel(): String = finetunedModel.getRequired("finetuned_model")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun hyperparamSearchConfig(): HyperparamSearchConfig =
             hyperparamSearchConfig.getRequired("hyperparam_search_config")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun loggerConfig(): LoggerConfig = loggerConfig.getRequired("logger_config")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun trainingConfig(): TrainingConfig = trainingConfig.getRequired("training_config")
 
+        /**
+         * Returns the raw JSON value of [algorithmConfig].
+         *
+         * Unlike [algorithmConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("algorithm_config")
         @ExcludeMissing
         fun _algorithmConfig(): JsonField<AlgorithmConfig> = algorithmConfig
 
+        /**
+         * Returns the raw JSON value of [finetunedModel].
+         *
+         * Unlike [finetunedModel], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("finetuned_model")
         @ExcludeMissing
         fun _finetunedModel(): JsonField<String> = finetunedModel
 
+        /**
+         * Returns the raw JSON value of [hyperparamSearchConfig].
+         *
+         * Unlike [hyperparamSearchConfig], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("hyperparam_search_config")
         @ExcludeMissing
         fun _hyperparamSearchConfig(): JsonField<HyperparamSearchConfig> = hyperparamSearchConfig
 
+        /**
+         * Returns the raw JSON value of [jobUuid].
+         *
+         * Unlike [jobUuid], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
+        /**
+         * Returns the raw JSON value of [loggerConfig].
+         *
+         * Unlike [loggerConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("logger_config")
         @ExcludeMissing
         fun _loggerConfig(): JsonField<LoggerConfig> = loggerConfig
 
+        /**
+         * Returns the raw JSON value of [trainingConfig].
+         *
+         * Unlike [trainingConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("training_config")
         @ExcludeMissing
         fun _trainingConfig(): JsonField<TrainingConfig> = trainingConfig
@@ -150,6 +270,19 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .algorithmConfig()
+             * .finetunedModel()
+             * .hyperparamSearchConfig()
+             * .jobUuid()
+             * .loggerConfig()
+             * .trainingConfig()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -177,6 +310,13 @@ private constructor(
             fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
                 algorithmConfig(JsonField.of(algorithmConfig))
 
+            /**
+             * Sets [Builder.algorithmConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.algorithmConfig] with a well-typed [AlgorithmConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun algorithmConfig(algorithmConfig: JsonField<AlgorithmConfig>) = apply {
                 this.algorithmConfig = algorithmConfig
             }
@@ -184,6 +324,13 @@ private constructor(
             fun finetunedModel(finetunedModel: String) =
                 finetunedModel(JsonField.of(finetunedModel))
 
+            /**
+             * Sets [Builder.finetunedModel] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.finetunedModel] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun finetunedModel(finetunedModel: JsonField<String>) = apply {
                 this.finetunedModel = finetunedModel
             }
@@ -191,6 +338,13 @@ private constructor(
             fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) =
                 hyperparamSearchConfig(JsonField.of(hyperparamSearchConfig))
 
+            /**
+             * Sets [Builder.hyperparamSearchConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.hyperparamSearchConfig] with a well-typed
+             * [HyperparamSearchConfig] value instead. This method is primarily for setting the
+             * field to an undocumented or not yet supported value.
+             */
             fun hyperparamSearchConfig(hyperparamSearchConfig: JsonField<HyperparamSearchConfig>) =
                 apply {
                     this.hyperparamSearchConfig = hyperparamSearchConfig
@@ -198,10 +352,24 @@ private constructor(
 
             fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
+            /**
+             * Sets [Builder.jobUuid] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.jobUuid] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
             fun loggerConfig(loggerConfig: LoggerConfig) = loggerConfig(JsonField.of(loggerConfig))
 
+            /**
+             * Sets [Builder.loggerConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.loggerConfig] with a well-typed [LoggerConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun loggerConfig(loggerConfig: JsonField<LoggerConfig>) = apply {
                 this.loggerConfig = loggerConfig
             }
@@ -209,6 +377,13 @@ private constructor(
             fun trainingConfig(trainingConfig: TrainingConfig) =
                 trainingConfig(JsonField.of(trainingConfig))
 
+            /**
+             * Sets [Builder.trainingConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.trainingConfig] with a well-typed [TrainingConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun trainingConfig(trainingConfig: JsonField<TrainingConfig>) = apply {
                 this.trainingConfig = trainingConfig
             }
@@ -266,6 +441,20 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [PostTrainingPreferenceOptimizeParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .algorithmConfig()
+         * .finetunedModel()
+         * .hyperparamSearchConfig()
+         * .jobUuid()
+         * .loggerConfig()
+         * .trainingConfig()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -290,12 +479,26 @@ private constructor(
             body.algorithmConfig(algorithmConfig)
         }
 
+        /**
+         * Sets [Builder.algorithmConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.algorithmConfig] with a well-typed [AlgorithmConfig]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun algorithmConfig(algorithmConfig: JsonField<AlgorithmConfig>) = apply {
             body.algorithmConfig(algorithmConfig)
         }
 
         fun finetunedModel(finetunedModel: String) = apply { body.finetunedModel(finetunedModel) }
 
+        /**
+         * Sets [Builder.finetunedModel] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.finetunedModel] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun finetunedModel(finetunedModel: JsonField<String>) = apply {
             body.finetunedModel(finetunedModel)
         }
@@ -304,6 +507,13 @@ private constructor(
             body.hyperparamSearchConfig(hyperparamSearchConfig)
         }
 
+        /**
+         * Sets [Builder.hyperparamSearchConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.hyperparamSearchConfig] with a well-typed
+         * [HyperparamSearchConfig] value instead. This method is primarily for setting the field to
+         * an undocumented or not yet supported value.
+         */
         fun hyperparamSearchConfig(hyperparamSearchConfig: JsonField<HyperparamSearchConfig>) =
             apply {
                 body.hyperparamSearchConfig(hyperparamSearchConfig)
@@ -311,10 +521,23 @@ private constructor(
 
         fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
 
+        /**
+         * Sets [Builder.jobUuid] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.jobUuid] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun jobUuid(jobUuid: JsonField<String>) = apply { body.jobUuid(jobUuid) }
 
         fun loggerConfig(loggerConfig: LoggerConfig) = apply { body.loggerConfig(loggerConfig) }
 
+        /**
+         * Sets [Builder.loggerConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.loggerConfig] with a well-typed [LoggerConfig] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun loggerConfig(loggerConfig: JsonField<LoggerConfig>) = apply {
             body.loggerConfig(loggerConfig)
         }
@@ -323,6 +546,13 @@ private constructor(
             body.trainingConfig(trainingConfig)
         }
 
+        /**
+         * Sets [Builder.trainingConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.trainingConfig] with a well-typed [TrainingConfig] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun trainingConfig(trainingConfig: JsonField<TrainingConfig>) = apply {
             body.trainingConfig(trainingConfig)
         }
@@ -472,22 +702,62 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun epsilon(): Double = epsilon.getRequired("epsilon")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun gamma(): Double = gamma.getRequired("gamma")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun rewardClip(): Double = rewardClip.getRequired("reward_clip")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun rewardScale(): Double = rewardScale.getRequired("reward_scale")
 
+        /**
+         * Returns the raw JSON value of [epsilon].
+         *
+         * Unlike [epsilon], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("epsilon") @ExcludeMissing fun _epsilon(): JsonField<Double> = epsilon
 
+        /**
+         * Returns the raw JSON value of [gamma].
+         *
+         * Unlike [gamma], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("gamma") @ExcludeMissing fun _gamma(): JsonField<Double> = gamma
 
+        /**
+         * Returns the raw JSON value of [rewardClip].
+         *
+         * Unlike [rewardClip], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("reward_clip")
         @ExcludeMissing
         fun _rewardClip(): JsonField<Double> = rewardClip
 
+        /**
+         * Returns the raw JSON value of [rewardScale].
+         *
+         * Unlike [rewardScale], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("reward_scale")
         @ExcludeMissing
         fun _rewardScale(): JsonField<Double> = rewardScale
@@ -514,6 +784,17 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [AlgorithmConfig].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .epsilon()
+             * .gamma()
+             * .rewardClip()
+             * .rewardScale()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -536,18 +817,46 @@ private constructor(
 
             fun epsilon(epsilon: Double) = epsilon(JsonField.of(epsilon))
 
+            /**
+             * Sets [Builder.epsilon] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.epsilon] with a well-typed [Double] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun epsilon(epsilon: JsonField<Double>) = apply { this.epsilon = epsilon }
 
             fun gamma(gamma: Double) = gamma(JsonField.of(gamma))
 
+            /**
+             * Sets [Builder.gamma] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.gamma] with a well-typed [Double] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun gamma(gamma: JsonField<Double>) = apply { this.gamma = gamma }
 
             fun rewardClip(rewardClip: Double) = rewardClip(JsonField.of(rewardClip))
 
+            /**
+             * Sets [Builder.rewardClip] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.rewardClip] with a well-typed [Double] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun rewardClip(rewardClip: JsonField<Double>) = apply { this.rewardClip = rewardClip }
 
             fun rewardScale(rewardScale: Double) = rewardScale(JsonField.of(rewardScale))
 
+            /**
+             * Sets [Builder.rewardScale] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.rewardScale] with a well-typed [Double] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun rewardScale(rewardScale: JsonField<Double>) = apply {
                 this.rewardScale = rewardScale
             }
@@ -625,6 +934,9 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [HyperparamSearchConfig].
+             */
             fun builder() = Builder()
         }
 
@@ -704,6 +1016,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [LoggerConfig]. */
             fun builder() = Builder()
         }
 
@@ -787,48 +1100,131 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun dataConfig(): DataConfig = dataConfig.getRequired("data_config")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun gradientAccumulationSteps(): Long =
             gradientAccumulationSteps.getRequired("gradient_accumulation_steps")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun maxStepsPerEpoch(): Long = maxStepsPerEpoch.getRequired("max_steps_per_epoch")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun maxValidationSteps(): Long = maxValidationSteps.getRequired("max_validation_steps")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun nEpochs(): Long = nEpochs.getRequired("n_epochs")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun optimizerConfig(): OptimizerConfig = optimizerConfig.getRequired("optimizer_config")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun dtype(): String? = dtype.getNullable("dtype")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun efficiencyConfig(): EfficiencyConfig? =
             efficiencyConfig.getNullable("efficiency_config")
 
+        /**
+         * Returns the raw JSON value of [dataConfig].
+         *
+         * Unlike [dataConfig], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("data_config")
         @ExcludeMissing
         fun _dataConfig(): JsonField<DataConfig> = dataConfig
 
+        /**
+         * Returns the raw JSON value of [gradientAccumulationSteps].
+         *
+         * Unlike [gradientAccumulationSteps], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("gradient_accumulation_steps")
         @ExcludeMissing
         fun _gradientAccumulationSteps(): JsonField<Long> = gradientAccumulationSteps
 
+        /**
+         * Returns the raw JSON value of [maxStepsPerEpoch].
+         *
+         * Unlike [maxStepsPerEpoch], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("max_steps_per_epoch")
         @ExcludeMissing
         fun _maxStepsPerEpoch(): JsonField<Long> = maxStepsPerEpoch
 
+        /**
+         * Returns the raw JSON value of [maxValidationSteps].
+         *
+         * Unlike [maxValidationSteps], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("max_validation_steps")
         @ExcludeMissing
         fun _maxValidationSteps(): JsonField<Long> = maxValidationSteps
 
+        /**
+         * Returns the raw JSON value of [nEpochs].
+         *
+         * Unlike [nEpochs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("n_epochs") @ExcludeMissing fun _nEpochs(): JsonField<Long> = nEpochs
 
+        /**
+         * Returns the raw JSON value of [optimizerConfig].
+         *
+         * Unlike [optimizerConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("optimizer_config")
         @ExcludeMissing
         fun _optimizerConfig(): JsonField<OptimizerConfig> = optimizerConfig
 
+        /**
+         * Returns the raw JSON value of [dtype].
+         *
+         * Unlike [dtype], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dtype") @ExcludeMissing fun _dtype(): JsonField<String> = dtype
 
+        /**
+         * Returns the raw JSON value of [efficiencyConfig].
+         *
+         * Unlike [efficiencyConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("efficiency_config")
         @ExcludeMissing
         fun _efficiencyConfig(): JsonField<EfficiencyConfig> = efficiencyConfig
@@ -859,6 +1255,19 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [TrainingConfig].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .dataConfig()
+             * .gradientAccumulationSteps()
+             * .maxStepsPerEpoch()
+             * .maxValidationSteps()
+             * .nEpochs()
+             * .optimizerConfig()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -889,6 +1298,13 @@ private constructor(
 
             fun dataConfig(dataConfig: DataConfig) = dataConfig(JsonField.of(dataConfig))
 
+            /**
+             * Sets [Builder.dataConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.dataConfig] with a well-typed [DataConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun dataConfig(dataConfig: JsonField<DataConfig>) = apply {
                 this.dataConfig = dataConfig
             }
@@ -896,6 +1312,13 @@ private constructor(
             fun gradientAccumulationSteps(gradientAccumulationSteps: Long) =
                 gradientAccumulationSteps(JsonField.of(gradientAccumulationSteps))
 
+            /**
+             * Sets [Builder.gradientAccumulationSteps] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.gradientAccumulationSteps] with a well-typed [Long]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun gradientAccumulationSteps(gradientAccumulationSteps: JsonField<Long>) = apply {
                 this.gradientAccumulationSteps = gradientAccumulationSteps
             }
@@ -903,6 +1326,13 @@ private constructor(
             fun maxStepsPerEpoch(maxStepsPerEpoch: Long) =
                 maxStepsPerEpoch(JsonField.of(maxStepsPerEpoch))
 
+            /**
+             * Sets [Builder.maxStepsPerEpoch] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.maxStepsPerEpoch] with a well-typed [Long] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun maxStepsPerEpoch(maxStepsPerEpoch: JsonField<Long>) = apply {
                 this.maxStepsPerEpoch = maxStepsPerEpoch
             }
@@ -910,28 +1340,63 @@ private constructor(
             fun maxValidationSteps(maxValidationSteps: Long) =
                 maxValidationSteps(JsonField.of(maxValidationSteps))
 
+            /**
+             * Sets [Builder.maxValidationSteps] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.maxValidationSteps] with a well-typed [Long] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun maxValidationSteps(maxValidationSteps: JsonField<Long>) = apply {
                 this.maxValidationSteps = maxValidationSteps
             }
 
             fun nEpochs(nEpochs: Long) = nEpochs(JsonField.of(nEpochs))
 
+            /**
+             * Sets [Builder.nEpochs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.nEpochs] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun nEpochs(nEpochs: JsonField<Long>) = apply { this.nEpochs = nEpochs }
 
             fun optimizerConfig(optimizerConfig: OptimizerConfig) =
                 optimizerConfig(JsonField.of(optimizerConfig))
 
+            /**
+             * Sets [Builder.optimizerConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.optimizerConfig] with a well-typed [OptimizerConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun optimizerConfig(optimizerConfig: JsonField<OptimizerConfig>) = apply {
                 this.optimizerConfig = optimizerConfig
             }
 
             fun dtype(dtype: String) = dtype(JsonField.of(dtype))
 
+            /**
+             * Sets [Builder.dtype] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.dtype] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun dtype(dtype: JsonField<String>) = apply { this.dtype = dtype }
 
             fun efficiencyConfig(efficiencyConfig: EfficiencyConfig) =
                 efficiencyConfig(JsonField.of(efficiencyConfig))
 
+            /**
+             * Sets [Builder.efficiencyConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.efficiencyConfig] with a well-typed
+             * [EfficiencyConfig] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
             fun efficiencyConfig(efficiencyConfig: JsonField<EfficiencyConfig>) = apply {
                 this.efficiencyConfig = efficiencyConfig
             }
@@ -998,41 +1463,113 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun batchSize(): Long = batchSize.getRequired("batch_size")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun dataFormat(): DataFormat = dataFormat.getRequired("data_format")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun datasetId(): String = datasetId.getRequired("dataset_id")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun shuffle(): Boolean = shuffle.getRequired("shuffle")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun packed(): Boolean? = packed.getNullable("packed")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun trainOnInput(): Boolean? = trainOnInput.getNullable("train_on_input")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun validationDatasetId(): String? =
                 validationDatasetId.getNullable("validation_dataset_id")
 
+            /**
+             * Returns the raw JSON value of [batchSize].
+             *
+             * Unlike [batchSize], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("batch_size")
             @ExcludeMissing
             fun _batchSize(): JsonField<Long> = batchSize
 
+            /**
+             * Returns the raw JSON value of [dataFormat].
+             *
+             * Unlike [dataFormat], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("data_format")
             @ExcludeMissing
             fun _dataFormat(): JsonField<DataFormat> = dataFormat
 
+            /**
+             * Returns the raw JSON value of [datasetId].
+             *
+             * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("dataset_id")
             @ExcludeMissing
             fun _datasetId(): JsonField<String> = datasetId
 
+            /**
+             * Returns the raw JSON value of [shuffle].
+             *
+             * Unlike [shuffle], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("shuffle") @ExcludeMissing fun _shuffle(): JsonField<Boolean> = shuffle
 
+            /**
+             * Returns the raw JSON value of [packed].
+             *
+             * Unlike [packed], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("packed") @ExcludeMissing fun _packed(): JsonField<Boolean> = packed
 
+            /**
+             * Returns the raw JSON value of [trainOnInput].
+             *
+             * Unlike [trainOnInput], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("train_on_input")
             @ExcludeMissing
             fun _trainOnInput(): JsonField<Boolean> = trainOnInput
 
+            /**
+             * Returns the raw JSON value of [validationDatasetId].
+             *
+             * Unlike [validationDatasetId], this method doesn't throw if the JSON field has an
+             * unexpected type.
+             */
             @JsonProperty("validation_dataset_id")
             @ExcludeMissing
             fun _validationDatasetId(): JsonField<String> = validationDatasetId
@@ -1062,6 +1599,17 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [DataConfig].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .batchSize()
+                 * .dataFormat()
+                 * .datasetId()
+                 * .shuffle()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -1090,28 +1638,70 @@ private constructor(
 
                 fun batchSize(batchSize: Long) = batchSize(JsonField.of(batchSize))
 
+                /**
+                 * Sets [Builder.batchSize] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.batchSize] with a well-typed [Long] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun batchSize(batchSize: JsonField<Long>) = apply { this.batchSize = batchSize }
 
                 fun dataFormat(dataFormat: DataFormat) = dataFormat(JsonField.of(dataFormat))
 
+                /**
+                 * Sets [Builder.dataFormat] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.dataFormat] with a well-typed [DataFormat] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun dataFormat(dataFormat: JsonField<DataFormat>) = apply {
                     this.dataFormat = dataFormat
                 }
 
                 fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+                /**
+                 * Sets [Builder.datasetId] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.datasetId] with a well-typed [String] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
                 fun shuffle(shuffle: Boolean) = shuffle(JsonField.of(shuffle))
 
+                /**
+                 * Sets [Builder.shuffle] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.shuffle] with a well-typed [Boolean] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun shuffle(shuffle: JsonField<Boolean>) = apply { this.shuffle = shuffle }
 
                 fun packed(packed: Boolean) = packed(JsonField.of(packed))
 
+                /**
+                 * Sets [Builder.packed] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.packed] with a well-typed [Boolean] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun packed(packed: JsonField<Boolean>) = apply { this.packed = packed }
 
                 fun trainOnInput(trainOnInput: Boolean) = trainOnInput(JsonField.of(trainOnInput))
 
+                /**
+                 * Sets [Builder.trainOnInput] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.trainOnInput] with a well-typed [Boolean] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun trainOnInput(trainOnInput: JsonField<Boolean>) = apply {
                     this.trainOnInput = trainOnInput
                 }
@@ -1119,6 +1709,13 @@ private constructor(
                 fun validationDatasetId(validationDatasetId: String) =
                     validationDatasetId(JsonField.of(validationDatasetId))
 
+                /**
+                 * Sets [Builder.validationDatasetId] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.validationDatasetId] with a well-typed [String]
+                 * value instead. This method is primarily for setting the field to an undocumented
+                 * or not yet supported value.
+                 */
                 fun validationDatasetId(validationDatasetId: JsonField<String>) = apply {
                     this.validationDatasetId = validationDatasetId
                 }
@@ -1301,24 +1898,67 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun lr(): Double = lr.getRequired("lr")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun numWarmupSteps(): Long = numWarmupSteps.getRequired("num_warmup_steps")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun optimizerType(): OptimizerType = optimizerType.getRequired("optimizer_type")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun weightDecay(): Double = weightDecay.getRequired("weight_decay")
 
+            /**
+             * Returns the raw JSON value of [lr].
+             *
+             * Unlike [lr], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("lr") @ExcludeMissing fun _lr(): JsonField<Double> = lr
 
+            /**
+             * Returns the raw JSON value of [numWarmupSteps].
+             *
+             * Unlike [numWarmupSteps], this method doesn't throw if the JSON field has an
+             * unexpected type.
+             */
             @JsonProperty("num_warmup_steps")
             @ExcludeMissing
             fun _numWarmupSteps(): JsonField<Long> = numWarmupSteps
 
+            /**
+             * Returns the raw JSON value of [optimizerType].
+             *
+             * Unlike [optimizerType], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("optimizer_type")
             @ExcludeMissing
             fun _optimizerType(): JsonField<OptimizerType> = optimizerType
 
+            /**
+             * Returns the raw JSON value of [weightDecay].
+             *
+             * Unlike [weightDecay], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("weight_decay")
             @ExcludeMissing
             fun _weightDecay(): JsonField<Double> = weightDecay
@@ -1345,6 +1985,17 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [OptimizerConfig].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .lr()
+                 * .numWarmupSteps()
+                 * .optimizerType()
+                 * .weightDecay()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -1367,11 +2018,25 @@ private constructor(
 
                 fun lr(lr: Double) = lr(JsonField.of(lr))
 
+                /**
+                 * Sets [Builder.lr] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.lr] with a well-typed [Double] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun lr(lr: JsonField<Double>) = apply { this.lr = lr }
 
                 fun numWarmupSteps(numWarmupSteps: Long) =
                     numWarmupSteps(JsonField.of(numWarmupSteps))
 
+                /**
+                 * Sets [Builder.numWarmupSteps] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.numWarmupSteps] with a well-typed [Long] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun numWarmupSteps(numWarmupSteps: JsonField<Long>) = apply {
                     this.numWarmupSteps = numWarmupSteps
                 }
@@ -1379,12 +2044,26 @@ private constructor(
                 fun optimizerType(optimizerType: OptimizerType) =
                     optimizerType(JsonField.of(optimizerType))
 
+                /**
+                 * Sets [Builder.optimizerType] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.optimizerType] with a well-typed [OptimizerType]
+                 * value instead. This method is primarily for setting the field to an undocumented
+                 * or not yet supported value.
+                 */
                 fun optimizerType(optimizerType: JsonField<OptimizerType>) = apply {
                     this.optimizerType = optimizerType
                 }
 
                 fun weightDecay(weightDecay: Double) = weightDecay(JsonField.of(weightDecay))
 
+                /**
+                 * Sets [Builder.weightDecay] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.weightDecay] with a well-typed [Double] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun weightDecay(weightDecay: JsonField<Double>) = apply {
                     this.weightDecay = weightDecay
                 }
@@ -1573,29 +2252,69 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun enableActivationCheckpointing(): Boolean? =
                 enableActivationCheckpointing.getNullable("enable_activation_checkpointing")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun enableActivationOffloading(): Boolean? =
                 enableActivationOffloading.getNullable("enable_activation_offloading")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun fsdpCpuOffload(): Boolean? = fsdpCpuOffload.getNullable("fsdp_cpu_offload")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun memoryEfficientFsdpWrap(): Boolean? =
                 memoryEfficientFsdpWrap.getNullable("memory_efficient_fsdp_wrap")
 
+            /**
+             * Returns the raw JSON value of [enableActivationCheckpointing].
+             *
+             * Unlike [enableActivationCheckpointing], this method doesn't throw if the JSON field
+             * has an unexpected type.
+             */
             @JsonProperty("enable_activation_checkpointing")
             @ExcludeMissing
             fun _enableActivationCheckpointing(): JsonField<Boolean> = enableActivationCheckpointing
 
+            /**
+             * Returns the raw JSON value of [enableActivationOffloading].
+             *
+             * Unlike [enableActivationOffloading], this method doesn't throw if the JSON field has
+             * an unexpected type.
+             */
             @JsonProperty("enable_activation_offloading")
             @ExcludeMissing
             fun _enableActivationOffloading(): JsonField<Boolean> = enableActivationOffloading
 
+            /**
+             * Returns the raw JSON value of [fsdpCpuOffload].
+             *
+             * Unlike [fsdpCpuOffload], this method doesn't throw if the JSON field has an
+             * unexpected type.
+             */
             @JsonProperty("fsdp_cpu_offload")
             @ExcludeMissing
             fun _fsdpCpuOffload(): JsonField<Boolean> = fsdpCpuOffload
 
+            /**
+             * Returns the raw JSON value of [memoryEfficientFsdpWrap].
+             *
+             * Unlike [memoryEfficientFsdpWrap], this method doesn't throw if the JSON field has an
+             * unexpected type.
+             */
             @JsonProperty("memory_efficient_fsdp_wrap")
             @ExcludeMissing
             fun _memoryEfficientFsdpWrap(): JsonField<Boolean> = memoryEfficientFsdpWrap
@@ -1622,6 +2341,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [EfficiencyConfig]. */
                 fun builder() = Builder()
             }
 
@@ -1645,6 +2365,13 @@ private constructor(
                 fun enableActivationCheckpointing(enableActivationCheckpointing: Boolean) =
                     enableActivationCheckpointing(JsonField.of(enableActivationCheckpointing))
 
+                /**
+                 * Sets [Builder.enableActivationCheckpointing] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.enableActivationCheckpointing] with a well-typed
+                 * [Boolean] value instead. This method is primarily for setting the field to an
+                 * undocumented or not yet supported value.
+                 */
                 fun enableActivationCheckpointing(
                     enableActivationCheckpointing: JsonField<Boolean>
                 ) = apply { this.enableActivationCheckpointing = enableActivationCheckpointing }
@@ -1652,6 +2379,13 @@ private constructor(
                 fun enableActivationOffloading(enableActivationOffloading: Boolean) =
                     enableActivationOffloading(JsonField.of(enableActivationOffloading))
 
+                /**
+                 * Sets [Builder.enableActivationOffloading] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.enableActivationOffloading] with a well-typed
+                 * [Boolean] value instead. This method is primarily for setting the field to an
+                 * undocumented or not yet supported value.
+                 */
                 fun enableActivationOffloading(enableActivationOffloading: JsonField<Boolean>) =
                     apply {
                         this.enableActivationOffloading = enableActivationOffloading
@@ -1660,6 +2394,13 @@ private constructor(
                 fun fsdpCpuOffload(fsdpCpuOffload: Boolean) =
                     fsdpCpuOffload(JsonField.of(fsdpCpuOffload))
 
+                /**
+                 * Sets [Builder.fsdpCpuOffload] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.fsdpCpuOffload] with a well-typed [Boolean]
+                 * value instead. This method is primarily for setting the field to an undocumented
+                 * or not yet supported value.
+                 */
                 fun fsdpCpuOffload(fsdpCpuOffload: JsonField<Boolean>) = apply {
                     this.fsdpCpuOffload = fsdpCpuOffload
                 }
@@ -1667,6 +2408,13 @@ private constructor(
                 fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: Boolean) =
                     memoryEfficientFsdpWrap(JsonField.of(memoryEfficientFsdpWrap))
 
+                /**
+                 * Sets [Builder.memoryEfficientFsdpWrap] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.memoryEfficientFsdpWrap] with a well-typed
+                 * [Boolean] value instead. This method is primarily for setting the field to an
+                 * undocumented or not yet supported value.
+                 */
                 fun memoryEfficientFsdpWrap(memoryEfficientFsdpWrap: JsonField<Boolean>) = apply {
                     this.memoryEfficientFsdpWrap = memoryEfficientFsdpWrap
                 }

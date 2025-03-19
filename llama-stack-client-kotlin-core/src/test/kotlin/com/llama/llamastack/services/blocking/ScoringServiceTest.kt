@@ -14,11 +14,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ScoringServiceTest {
 
     @Test
-    fun callScore() {
+    fun score() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val scoringService = client.scoring()
-        val scoringScoreResponse =
+
+        val response =
             scoringService.score(
                 ScoringScoreParams.builder()
                     .addInputRow(
@@ -44,16 +45,17 @@ class ScoringServiceTest {
                     )
                     .build()
             )
-        println(scoringScoreResponse)
-        scoringScoreResponse.validate()
+
+        response.validate()
     }
 
     @Test
-    fun callScoreBatch() {
+    fun scoreBatch() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val scoringService = client.scoring()
-        val scoringScoreBatchResponse =
+
+        val response =
             scoringService.scoreBatch(
                 ScoringScoreBatchParams.builder()
                     .datasetId("dataset_id")
@@ -76,7 +78,7 @@ class ScoringServiceTest {
                     )
                     .build()
             )
-        println(scoringScoreBatchResponse)
-        scoringScoreBatchResponse.validate()
+
+        response.validate()
     }
 }

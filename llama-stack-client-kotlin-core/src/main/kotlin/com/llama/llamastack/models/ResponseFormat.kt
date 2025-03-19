@@ -197,15 +197,30 @@ private constructor(
         /**
          * The JSON schema the response should conform to. In a Python SDK, this is often a
          * `pydantic` model.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
          */
         fun jsonSchema(): JsonSchema = jsonSchema.getRequired("json_schema")
 
-        /** Must be "json_schema" to identify this format type */
+        /**
+         * Must be "json_schema" to identify this format type
+         *
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("json_schema")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
         /**
-         * The JSON schema the response should conform to. In a Python SDK, this is often a
-         * `pydantic` model.
+         * Returns the raw JSON value of [jsonSchema].
+         *
+         * Unlike [jsonSchema], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("json_schema")
         @ExcludeMissing
@@ -235,6 +250,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [JsonSchemaResponseFormat].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .jsonSchema()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -258,14 +281,28 @@ private constructor(
             fun jsonSchema(jsonSchema: JsonSchema) = jsonSchema(JsonField.of(jsonSchema))
 
             /**
-             * The JSON schema the response should conform to. In a Python SDK, this is often a
-             * `pydantic` model.
+             * Sets [Builder.jsonSchema] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.jsonSchema] with a well-typed [JsonSchema] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun jsonSchema(jsonSchema: JsonField<JsonSchema>) = apply {
                 this.jsonSchema = jsonSchema
             }
 
-            /** Must be "json_schema" to identify this format type */
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("json_schema")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -325,6 +362,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [JsonSchema]. */
                 fun builder() = Builder()
             }
 
@@ -408,13 +446,33 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** The BNF grammar specification the response should conform to */
+        /**
+         * The BNF grammar specification the response should conform to
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun bnf(): Bnf = bnf.getRequired("bnf")
 
-        /** Must be "grammar" to identify this format type */
+        /**
+         * Must be "grammar" to identify this format type
+         *
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("grammar")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-        /** The BNF grammar specification the response should conform to */
+        /**
+         * Returns the raw JSON value of [bnf].
+         *
+         * Unlike [bnf], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("bnf") @ExcludeMissing fun _bnf(): JsonField<Bnf> = bnf
 
         @JsonAnyGetter
@@ -441,6 +499,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [GrammarResponseFormat].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .bnf()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -460,10 +526,27 @@ private constructor(
             /** The BNF grammar specification the response should conform to */
             fun bnf(bnf: Bnf) = bnf(JsonField.of(bnf))
 
-            /** The BNF grammar specification the response should conform to */
+            /**
+             * Sets [Builder.bnf] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.bnf] with a well-typed [Bnf] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun bnf(bnf: JsonField<Bnf>) = apply { this.bnf = bnf }
 
-            /** Must be "grammar" to identify this format type */
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("grammar")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -520,6 +603,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Bnf]. */
                 fun builder() = Builder()
             }
 

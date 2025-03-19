@@ -18,11 +18,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 class AgentServiceTest {
 
     @Test
-    fun callCreate() {
+    fun create() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val agentService = client.agents()
-        val agentCreateResponse =
+
+        val agent =
             agentService.create(
                 AgentCreateParams.builder()
                     .agentConfig(
@@ -81,15 +82,16 @@ class AgentServiceTest {
                     )
                     .build()
             )
-        println(agentCreateResponse)
-        agentCreateResponse.validate()
+
+        agent.validate()
     }
 
     @Test
-    fun callDelete() {
+    fun delete() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val agentService = client.agents()
+
         agentService.delete(AgentDeleteParams.builder().agentId("agent_id").build())
     }
 }

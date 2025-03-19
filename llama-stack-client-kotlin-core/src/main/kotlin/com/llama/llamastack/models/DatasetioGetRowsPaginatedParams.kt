@@ -9,6 +9,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a paginated list of rows from a dataset. */
 class DatasetioGetRowsPaginatedParams
 private constructor(
     private val datasetId: String,
@@ -19,12 +20,16 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /** The ID of the dataset to get the rows from. */
     fun datasetId(): String = datasetId
 
+    /** The number of rows to get per page. */
     fun rowsInPage(): Long = rowsInPage
 
+    /** (Optional) A condition to filter the rows by. */
     fun filterCondition(): String? = filterCondition
 
+    /** The token to get the next page of rows. */
     fun pageToken(): String? = pageToken
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -47,6 +52,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [DatasetioGetRowsPaginatedParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .datasetId()
+         * .rowsInPage()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -72,14 +87,18 @@ private constructor(
                     datasetioGetRowsPaginatedParams.additionalQueryParams.toBuilder()
             }
 
+        /** The ID of the dataset to get the rows from. */
         fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
 
+        /** The number of rows to get per page. */
         fun rowsInPage(rowsInPage: Long) = apply { this.rowsInPage = rowsInPage }
 
+        /** (Optional) A condition to filter the rows by. */
         fun filterCondition(filterCondition: String?) = apply {
             this.filterCondition = filterCondition
         }
 
+        /** The token to get the next page of rows. */
         fun pageToken(pageToken: String?) = apply { this.pageToken = pageToken }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {

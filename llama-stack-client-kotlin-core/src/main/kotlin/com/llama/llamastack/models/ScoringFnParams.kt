@@ -21,6 +21,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
@@ -222,30 +223,79 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun judgeModel(): String = judgeModel.getRequired("judge_model")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("llm_as_judge")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun aggregationFunctions(): List<AggregationFunction>? =
             aggregationFunctions.getNullable("aggregation_functions")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun judgeScoreRegexes(): List<String>? =
             judgeScoreRegexes.getNullable("judge_score_regexes")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun promptTemplate(): String? = promptTemplate.getNullable("prompt_template")
 
+        /**
+         * Returns the raw JSON value of [judgeModel].
+         *
+         * Unlike [judgeModel], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("judge_model")
         @ExcludeMissing
         fun _judgeModel(): JsonField<String> = judgeModel
 
+        /**
+         * Returns the raw JSON value of [aggregationFunctions].
+         *
+         * Unlike [aggregationFunctions], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("aggregation_functions")
         @ExcludeMissing
         fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
 
+        /**
+         * Returns the raw JSON value of [judgeScoreRegexes].
+         *
+         * Unlike [judgeScoreRegexes], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("judge_score_regexes")
         @ExcludeMissing
         fun _judgeScoreRegexes(): JsonField<List<String>> = judgeScoreRegexes
 
+        /**
+         * Returns the raw JSON value of [promptTemplate].
+         *
+         * Unlike [promptTemplate], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("prompt_template")
         @ExcludeMissing
         fun _promptTemplate(): JsonField<String> = promptTemplate
@@ -277,6 +327,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [LlmAsJudgeScoringFnParams].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .judgeModel()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -303,50 +362,92 @@ private constructor(
 
             fun judgeModel(judgeModel: String) = judgeModel(JsonField.of(judgeModel))
 
+            /**
+             * Sets [Builder.judgeModel] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.judgeModel] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun judgeModel(judgeModel: JsonField<String>) = apply { this.judgeModel = judgeModel }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("llm_as_judge")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
                 aggregationFunctions(JsonField.of(aggregationFunctions))
 
+            /**
+             * Sets [Builder.aggregationFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.aggregationFunctions] with a well-typed
+             * `List<AggregationFunction>` value instead. This method is primarily for setting the
+             * field to an undocumented or not yet supported value.
+             */
             fun aggregationFunctions(aggregationFunctions: JsonField<List<AggregationFunction>>) =
                 apply {
                     this.aggregationFunctions = aggregationFunctions.map { it.toMutableList() }
                 }
 
+            /**
+             * Adds a single [AggregationFunction] to [aggregationFunctions].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAggregationFunction(aggregationFunction: AggregationFunction) = apply {
                 aggregationFunctions =
-                    (aggregationFunctions ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(aggregationFunction)
+                    (aggregationFunctions ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("aggregationFunctions", it).add(aggregationFunction)
                     }
             }
 
             fun judgeScoreRegexes(judgeScoreRegexes: List<String>) =
                 judgeScoreRegexes(JsonField.of(judgeScoreRegexes))
 
+            /**
+             * Sets [Builder.judgeScoreRegexes] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.judgeScoreRegexes] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun judgeScoreRegexes(judgeScoreRegexes: JsonField<List<String>>) = apply {
                 this.judgeScoreRegexes = judgeScoreRegexes.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [judgeScoreRegexes].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addJudgeScoreRegex(judgeScoreRegex: String) = apply {
                 judgeScoreRegexes =
-                    (judgeScoreRegexes ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(judgeScoreRegex)
+                    (judgeScoreRegexes ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("judgeScoreRegexes", it).add(judgeScoreRegex)
                     }
             }
 
             fun promptTemplate(promptTemplate: String) =
                 promptTemplate(JsonField.of(promptTemplate))
 
+            /**
+             * Sets [Builder.promptTemplate] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.promptTemplate] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun promptTemplate(promptTemplate: JsonField<String>) = apply {
                 this.promptTemplate = promptTemplate
             }
@@ -535,17 +636,46 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("regex_parser")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun aggregationFunctions(): List<AggregationFunction>? =
             aggregationFunctions.getNullable("aggregation_functions")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun parsingRegexes(): List<String>? = parsingRegexes.getNullable("parsing_regexes")
 
+        /**
+         * Returns the raw JSON value of [aggregationFunctions].
+         *
+         * Unlike [aggregationFunctions], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("aggregation_functions")
         @ExcludeMissing
         fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
 
+        /**
+         * Returns the raw JSON value of [parsingRegexes].
+         *
+         * Unlike [parsingRegexes], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("parsing_regexes")
         @ExcludeMissing
         fun _parsingRegexes(): JsonField<List<String>> = parsingRegexes
@@ -575,6 +705,10 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [RegexParserScoringFnParams].
+             */
             fun builder() = Builder()
         }
 
@@ -596,42 +730,70 @@ private constructor(
                     regexParserScoringFnParams.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("regex_parser")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
                 aggregationFunctions(JsonField.of(aggregationFunctions))
 
+            /**
+             * Sets [Builder.aggregationFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.aggregationFunctions] with a well-typed
+             * `List<AggregationFunction>` value instead. This method is primarily for setting the
+             * field to an undocumented or not yet supported value.
+             */
             fun aggregationFunctions(aggregationFunctions: JsonField<List<AggregationFunction>>) =
                 apply {
                     this.aggregationFunctions = aggregationFunctions.map { it.toMutableList() }
                 }
 
+            /**
+             * Adds a single [AggregationFunction] to [aggregationFunctions].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAggregationFunction(aggregationFunction: AggregationFunction) = apply {
                 aggregationFunctions =
-                    (aggregationFunctions ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(aggregationFunction)
+                    (aggregationFunctions ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("aggregationFunctions", it).add(aggregationFunction)
                     }
             }
 
             fun parsingRegexes(parsingRegexes: List<String>) =
                 parsingRegexes(JsonField.of(parsingRegexes))
 
+            /**
+             * Sets [Builder.parsingRegexes] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.parsingRegexes] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun parsingRegexes(parsingRegexes: JsonField<List<String>>) = apply {
                 this.parsingRegexes = parsingRegexes.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [parsingRegexes].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addParsingRegex(parsingRegex: String) = apply {
                 parsingRegexes =
-                    (parsingRegexes ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(parsingRegex)
+                    (parsingRegexes ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("parsingRegexes", it).add(parsingRegex)
                     }
             }
 
@@ -814,11 +976,30 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("basic")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun aggregationFunctions(): List<AggregationFunction>? =
             aggregationFunctions.getNullable("aggregation_functions")
 
+        /**
+         * Returns the raw JSON value of [aggregationFunctions].
+         *
+         * Unlike [aggregationFunctions], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("aggregation_functions")
         @ExcludeMissing
         fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
@@ -847,6 +1028,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [BasicScoringFnParams]. */
             fun builder() = Builder()
         }
 
@@ -864,24 +1046,44 @@ private constructor(
                 additionalProperties = basicScoringFnParams.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("basic")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun aggregationFunctions(aggregationFunctions: List<AggregationFunction>) =
                 aggregationFunctions(JsonField.of(aggregationFunctions))
 
+            /**
+             * Sets [Builder.aggregationFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.aggregationFunctions] with a well-typed
+             * `List<AggregationFunction>` value instead. This method is primarily for setting the
+             * field to an undocumented or not yet supported value.
+             */
             fun aggregationFunctions(aggregationFunctions: JsonField<List<AggregationFunction>>) =
                 apply {
                     this.aggregationFunctions = aggregationFunctions.map { it.toMutableList() }
                 }
 
+            /**
+             * Adds a single [AggregationFunction] to [aggregationFunctions].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAggregationFunction(aggregationFunction: AggregationFunction) = apply {
                 aggregationFunctions =
-                    (aggregationFunctions ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(aggregationFunction)
+                    (aggregationFunctions ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("aggregationFunctions", it).add(aggregationFunction)
                     }
             }
 

@@ -43,16 +43,44 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun strategy(): Strategy = strategy.getRequired("strategy")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun maxTokens(): Long? = maxTokens.getNullable("max_tokens")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun repetitionPenalty(): Double? = repetitionPenalty.getNullable("repetition_penalty")
 
+    /**
+     * Returns the raw JSON value of [strategy].
+     *
+     * Unlike [strategy], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("strategy") @ExcludeMissing fun _strategy(): JsonField<Strategy> = strategy
 
+    /**
+     * Returns the raw JSON value of [maxTokens].
+     *
+     * Unlike [maxTokens], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("max_tokens") @ExcludeMissing fun _maxTokens(): JsonField<Long> = maxTokens
 
+    /**
+     * Returns the raw JSON value of [repetitionPenalty].
+     *
+     * Unlike [repetitionPenalty], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("repetition_penalty")
     @ExcludeMissing
     fun _repetitionPenalty(): JsonField<Double> = repetitionPenalty
@@ -78,6 +106,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [SamplingParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .strategy()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -98,26 +134,57 @@ private constructor(
 
         fun strategy(strategy: Strategy) = strategy(JsonField.of(strategy))
 
+        /**
+         * Sets [Builder.strategy] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.strategy] with a well-typed [Strategy] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
+        /** Alias for calling [strategy] with `Strategy.ofGreedySampling()`. */
         fun strategyGreedySampling() = strategy(Strategy.ofGreedySampling())
 
+        /** Alias for calling [strategy] with `Strategy.ofTopPSampling(topPSampling)`. */
         fun strategy(topPSampling: Strategy.TopPSamplingStrategy) =
             strategy(Strategy.ofTopPSampling(topPSampling))
 
+        /** Alias for calling [strategy] with `Strategy.ofTopKSampling(topKSampling)`. */
         fun strategy(topKSampling: Strategy.TopKSamplingStrategy) =
             strategy(Strategy.ofTopKSampling(topKSampling))
 
+        /**
+         * Alias for calling [strategy] with the following:
+         * ```kotlin
+         * Strategy.TopKSamplingStrategy.builder()
+         *     .topK(topK)
+         *     .build()
+         * ```
+         */
         fun topKSamplingStrategy(topK: Long) =
             strategy(Strategy.TopKSamplingStrategy.builder().topK(topK).build())
 
         fun maxTokens(maxTokens: Long) = maxTokens(JsonField.of(maxTokens))
 
+        /**
+         * Sets [Builder.maxTokens] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.maxTokens] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun maxTokens(maxTokens: JsonField<Long>) = apply { this.maxTokens = maxTokens }
 
         fun repetitionPenalty(repetitionPenalty: Double) =
             repetitionPenalty(JsonField.of(repetitionPenalty))
 
+        /**
+         * Sets [Builder.repetitionPenalty] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.repetitionPenalty] with a well-typed [Double] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun repetitionPenalty(repetitionPenalty: JsonField<Double>) = apply {
             this.repetitionPenalty = repetitionPenalty
         }
@@ -352,16 +419,44 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * Expected to always return the following:
+             * ```kotlin
+             * JsonValue.from("top_p")
+             * ```
+             *
+             * However, this method can be useful for debugging and logging (e.g. if the server
+             * responded with an unexpected value).
+             */
             @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun temperature(): Double? = temperature.getNullable("temperature")
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   (e.g. if the server responded with an unexpected value).
+             */
             fun topP(): Double? = topP.getNullable("top_p")
 
+            /**
+             * Returns the raw JSON value of [temperature].
+             *
+             * Unlike [temperature], this method doesn't throw if the JSON field has an unexpected
+             * type.
+             */
             @JsonProperty("temperature")
             @ExcludeMissing
             fun _temperature(): JsonField<Double> = temperature
 
+            /**
+             * Returns the raw JSON value of [topP].
+             *
+             * Unlike [topP], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("top_p") @ExcludeMissing fun _topP(): JsonField<Double> = topP
 
             @JsonAnyGetter
@@ -391,6 +486,9 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [TopPSamplingStrategy].
+                 */
                 fun builder() = Builder()
             }
 
@@ -409,16 +507,42 @@ private constructor(
                     additionalProperties = topPSamplingStrategy.additionalProperties.toMutableMap()
                 }
 
+                /**
+                 * Sets the field to an arbitrary JSON value.
+                 *
+                 * It is usually unnecessary to call this method because the field defaults to the
+                 * following:
+                 * ```kotlin
+                 * JsonValue.from("top_p")
+                 * ```
+                 *
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun type(type: JsonValue) = apply { this.type = type }
 
                 fun temperature(temperature: Double) = temperature(JsonField.of(temperature))
 
+                /**
+                 * Sets [Builder.temperature] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.temperature] with a well-typed [Double] value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
                 fun temperature(temperature: JsonField<Double>) = apply {
                     this.temperature = temperature
                 }
 
                 fun topP(topP: Double) = topP(JsonField.of(topP))
 
+                /**
+                 * Sets [Builder.topP] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.topP] with a well-typed [Double] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun topP(topP: JsonField<Double>) = apply { this.topP = topP }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -482,10 +606,29 @@ private constructor(
             private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
         ) {
 
+            /**
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
             fun topK(): Long = topK.getRequired("top_k")
 
+            /**
+             * Expected to always return the following:
+             * ```kotlin
+             * JsonValue.from("top_k")
+             * ```
+             *
+             * However, this method can be useful for debugging and logging (e.g. if the server
+             * responded with an unexpected value).
+             */
             @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+            /**
+             * Returns the raw JSON value of [topK].
+             *
+             * Unlike [topK], this method doesn't throw if the JSON field has an unexpected type.
+             */
             @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
             @JsonAnyGetter
@@ -514,6 +657,14 @@ private constructor(
 
             companion object {
 
+                /**
+                 * Returns a mutable builder for constructing an instance of [TopKSamplingStrategy].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .topK()
+                 * ```
+                 */
                 fun builder() = Builder()
             }
 
@@ -532,8 +683,27 @@ private constructor(
 
                 fun topK(topK: Long) = topK(JsonField.of(topK))
 
+                /**
+                 * Sets [Builder.topK] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.topK] with a well-typed [Long] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
+                /**
+                 * Sets the field to an arbitrary JSON value.
+                 *
+                 * It is usually unnecessary to call this method because the field defaults to the
+                 * following:
+                 * ```kotlin
+                 * JsonValue.from("top_k")
+                 * ```
+                 *
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
                 fun type(type: JsonValue) = apply { this.type = type }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
