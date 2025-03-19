@@ -26,6 +26,11 @@ private constructor(
 
     companion object {
 
+        fun none(): ScoringFunctionListParams = builder().build()
+
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringFunctionListParams].
+         */
         fun builder() = Builder()
     }
 

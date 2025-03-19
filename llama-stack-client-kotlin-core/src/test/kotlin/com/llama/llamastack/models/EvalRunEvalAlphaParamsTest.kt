@@ -13,7 +13,7 @@ class EvalRunEvalAlphaParamsTest {
     fun create() {
         EvalRunEvalAlphaParams.builder()
             .benchmarkId("benchmark_id")
-            .taskConfig(
+            .benchmarkConfig(
                 BenchmarkConfig.builder()
                     .evalCandidate(
                         EvalCandidate.ModelCandidate.builder()
@@ -55,7 +55,7 @@ class EvalRunEvalAlphaParamsTest {
         val params =
             EvalRunEvalAlphaParams.builder()
                 .benchmarkId("benchmark_id")
-                .taskConfig(
+                .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
@@ -94,7 +94,7 @@ class EvalRunEvalAlphaParamsTest {
         val body = params._body()
 
         assertNotNull(body)
-        assertThat(body.taskConfig())
+        assertThat(body.benchmarkConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
@@ -136,7 +136,7 @@ class EvalRunEvalAlphaParamsTest {
         val params =
             EvalRunEvalAlphaParams.builder()
                 .benchmarkId("benchmark_id")
-                .taskConfig(
+                .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
@@ -166,7 +166,7 @@ class EvalRunEvalAlphaParamsTest {
         val body = params._body()
 
         assertNotNull(body)
-        assertThat(body.taskConfig())
+        assertThat(body.benchmarkConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
@@ -196,7 +196,7 @@ class EvalRunEvalAlphaParamsTest {
         val params =
             EvalRunEvalAlphaParams.builder()
                 .benchmarkId("benchmark_id")
-                .taskConfig(
+                .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()

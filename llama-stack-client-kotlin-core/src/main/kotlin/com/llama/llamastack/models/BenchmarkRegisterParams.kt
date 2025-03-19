@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class BenchmarkRegisterParams
@@ -26,28 +28,84 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun benchmarkId(): String = body.benchmarkId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun datasetId(): String = body.datasetId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scoringFunctions(): List<String> = body.scoringFunctions()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata? = body.metadata()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerBenchmarkId(): String? = body.providerBenchmarkId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerId(): String? = body.providerId()
 
+    /**
+     * Returns the raw JSON value of [benchmarkId].
+     *
+     * Unlike [benchmarkId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _benchmarkId(): JsonField<String> = body._benchmarkId()
 
+    /**
+     * Returns the raw JSON value of [datasetId].
+     *
+     * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _datasetId(): JsonField<String> = body._datasetId()
 
+    /**
+     * Returns the raw JSON value of [scoringFunctions].
+     *
+     * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _scoringFunctions(): JsonField<List<String>> = body._scoringFunctions()
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _metadata(): JsonField<Metadata> = body._metadata()
 
+    /**
+     * Returns the raw JSON value of [providerBenchmarkId].
+     *
+     * Unlike [providerBenchmarkId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _providerBenchmarkId(): JsonField<String> = body._providerBenchmarkId()
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _providerId(): JsonField<String> = body._providerId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -88,35 +146,94 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun benchmarkId(): String = benchmarkId.getRequired("benchmark_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerBenchmarkId(): String? =
             providerBenchmarkId.getNullable("provider_benchmark_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
+        /**
+         * Returns the raw JSON value of [benchmarkId].
+         *
+         * Unlike [benchmarkId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("benchmark_id")
         @ExcludeMissing
         fun _benchmarkId(): JsonField<String> = benchmarkId
 
+        /**
+         * Returns the raw JSON value of [datasetId].
+         *
+         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
+        /**
+         * Returns the raw JSON value of [scoringFunctions].
+         *
+         * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("scoring_functions")
         @ExcludeMissing
         fun _scoringFunctions(): JsonField<List<String>> = scoringFunctions
 
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+        /**
+         * Returns the raw JSON value of [providerBenchmarkId].
+         *
+         * Unlike [providerBenchmarkId], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
         @JsonProperty("provider_benchmark_id")
         @ExcludeMissing
         fun _providerBenchmarkId(): JsonField<String> = providerBenchmarkId
 
+        /**
+         * Returns the raw JSON value of [providerId].
+         *
+         * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("provider_id")
         @ExcludeMissing
         fun _providerId(): JsonField<String> = providerId
@@ -145,6 +262,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .benchmarkId()
+             * .datasetId()
+             * .scoringFunctions()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -171,45 +298,88 @@ private constructor(
 
             fun benchmarkId(benchmarkId: String) = benchmarkId(JsonField.of(benchmarkId))
 
+            /**
+             * Sets [Builder.benchmarkId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.benchmarkId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun benchmarkId(benchmarkId: JsonField<String>) = apply {
                 this.benchmarkId = benchmarkId
             }
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+            /**
+             * Sets [Builder.datasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
             fun scoringFunctions(scoringFunctions: List<String>) =
                 scoringFunctions(JsonField.of(scoringFunctions))
 
+            /**
+             * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.scoringFunctions] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
                 this.scoringFunctions = scoringFunctions.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [scoringFunctions].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addScoringFunction(scoringFunction: String) = apply {
                 scoringFunctions =
-                    (scoringFunctions ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(scoringFunction)
+                    (scoringFunctions ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("scoringFunctions", it).add(scoringFunction)
                     }
             }
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun providerBenchmarkId(providerBenchmarkId: String) =
                 providerBenchmarkId(JsonField.of(providerBenchmarkId))
 
+            /**
+             * Sets [Builder.providerBenchmarkId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerBenchmarkId] with a well-typed [String]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun providerBenchmarkId(providerBenchmarkId: JsonField<String>) = apply {
                 this.providerBenchmarkId = providerBenchmarkId
             }
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+            /**
+             * Sets [Builder.providerId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -265,6 +435,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [BenchmarkRegisterParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .datasetId()
+         * .scoringFunctions()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -284,38 +464,85 @@ private constructor(
 
         fun benchmarkId(benchmarkId: String) = apply { body.benchmarkId(benchmarkId) }
 
+        /**
+         * Sets [Builder.benchmarkId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.benchmarkId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun benchmarkId(benchmarkId: JsonField<String>) = apply { body.benchmarkId(benchmarkId) }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        /**
+         * Sets [Builder.datasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
         fun scoringFunctions(scoringFunctions: List<String>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
 
+        /**
+         * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scoringFunctions] with a well-typed `List<String>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
 
+        /**
+         * Adds a single [String] to [scoringFunctions].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addScoringFunction(scoringFunction: String) = apply {
             body.addScoringFunction(scoringFunction)
         }
 
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
         fun providerBenchmarkId(providerBenchmarkId: String) = apply {
             body.providerBenchmarkId(providerBenchmarkId)
         }
 
+        /**
+         * Sets [Builder.providerBenchmarkId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerBenchmarkId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerBenchmarkId(providerBenchmarkId: JsonField<String>) = apply {
             body.providerBenchmarkId(providerBenchmarkId)
         }
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -469,6 +696,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

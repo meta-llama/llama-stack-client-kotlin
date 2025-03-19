@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /**
@@ -40,11 +42,20 @@ private constructor(
 
     fun turnId(): String = turnId
 
-    /** The tool call responses to resume the turn with. */
-    fun toolResponses(): List<ToolResponseMessage> = body.toolResponses()
+    /**
+     * The tool call responses to resume the turn with.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
+    fun toolResponses(): List<ToolResponse> = body.toolResponses()
 
-    /** The tool call responses to resume the turn with. */
-    fun _toolResponses(): JsonField<List<ToolResponseMessage>> = body._toolResponses()
+    /**
+     * Returns the raw JSON value of [toolResponses].
+     *
+     * Unlike [toolResponses], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    fun _toolResponses(): JsonField<List<ToolResponse>> = body._toolResponses()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -73,18 +84,29 @@ private constructor(
     private constructor(
         @JsonProperty("tool_responses")
         @ExcludeMissing
-        private val toolResponses: JsonField<List<ToolResponseMessage>> = JsonMissing.of(),
+        private val toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** The tool call responses to resume the turn with. */
-        fun toolResponses(): List<ToolResponseMessage> = toolResponses.getRequired("tool_responses")
+        /**
+         * The tool call responses to resume the turn with.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun toolResponses(): List<ToolResponse> = toolResponses.getRequired("tool_responses")
 
-        /** The tool call responses to resume the turn with. */
+        /**
+         * Returns the raw JSON value of [toolResponses].
+         *
+         * Unlike [toolResponses], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("tool_responses")
         @ExcludeMissing
-        fun _toolResponses(): JsonField<List<ToolResponseMessage>> = toolResponses
+        fun _toolResponses(): JsonField<List<ToolResponse>> = toolResponses
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -105,13 +127,21 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .toolResponses()
+             * ```
+             */
             fun builder() = Builder()
         }
 
         /** A builder for [Body]. */
         class Builder internal constructor() {
 
-            private var toolResponses: JsonField<MutableList<ToolResponseMessage>>? = null
+            private var toolResponses: JsonField<MutableList<ToolResponse>>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(body: Body) = apply {
@@ -120,23 +150,29 @@ private constructor(
             }
 
             /** The tool call responses to resume the turn with. */
-            fun toolResponses(toolResponses: List<ToolResponseMessage>) =
+            fun toolResponses(toolResponses: List<ToolResponse>) =
                 toolResponses(JsonField.of(toolResponses))
 
-            /** The tool call responses to resume the turn with. */
-            fun toolResponses(toolResponses: JsonField<List<ToolResponseMessage>>) = apply {
+            /**
+             * Sets [Builder.toolResponses] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolResponses] with a well-typed
+             * `List<ToolResponse>` value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
+            fun toolResponses(toolResponses: JsonField<List<ToolResponse>>) = apply {
                 this.toolResponses = toolResponses.map { it.toMutableList() }
             }
 
-            /** The tool call responses to resume the turn with. */
-            fun addToolResponse(toolResponse: ToolResponseMessage) = apply {
+            /**
+             * Adds a single [ToolResponse] to [toolResponses].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addToolResponse(toolResponse: ToolResponse) = apply {
                 toolResponses =
-                    (toolResponses ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(toolResponse)
+                    (toolResponses ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("toolResponses", it).add(toolResponse)
                     }
             }
 
@@ -188,6 +224,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentTurnResumeParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * .turnId()
+         * .toolResponses()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -218,17 +265,27 @@ private constructor(
         fun turnId(turnId: String) = apply { this.turnId = turnId }
 
         /** The tool call responses to resume the turn with. */
-        fun toolResponses(toolResponses: List<ToolResponseMessage>) = apply {
+        fun toolResponses(toolResponses: List<ToolResponse>) = apply {
             body.toolResponses(toolResponses)
         }
 
-        /** The tool call responses to resume the turn with. */
-        fun toolResponses(toolResponses: JsonField<List<ToolResponseMessage>>) = apply {
+        /**
+         * Sets [Builder.toolResponses] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolResponses] with a well-typed `List<ToolResponse>`
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
+        fun toolResponses(toolResponses: JsonField<List<ToolResponse>>) = apply {
             body.toolResponses(toolResponses)
         }
 
-        /** The tool call responses to resume the turn with. */
-        fun addToolResponse(toolResponse: ToolResponseMessage) = apply {
+        /**
+         * Adds a single [ToolResponse] to [toolResponses].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
+        fun addToolResponse(toolResponse: ToolResponse) = apply {
             body.addToolResponse(toolResponse)
         }
 

@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -26,8 +27,17 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun sessionId(): String = sessionId.getRequired("session_id")
 
+    /**
+     * Returns the raw JSON value of [sessionId].
+     *
+     * Unlike [sessionId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("session_id") @ExcludeMissing fun _sessionId(): JsonField<String> = sessionId
 
     @JsonAnyGetter
@@ -49,6 +59,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentSessionCreateResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .sessionId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -65,6 +83,13 @@ private constructor(
 
         fun sessionId(sessionId: String) = sessionId(JsonField.of(sessionId))
 
+        /**
+         * Sets [Builder.sessionId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.sessionId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun sessionId(sessionId: JsonField<String>) = apply { this.sessionId = sessionId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

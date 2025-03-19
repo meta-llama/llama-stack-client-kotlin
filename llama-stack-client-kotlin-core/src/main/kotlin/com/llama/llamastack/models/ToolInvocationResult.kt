@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -35,24 +36,60 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** A image content item */
+    /**
+     * A image content item
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent = content.getRequired("content")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun errorCode(): Long? = errorCode.getNullable("error_code")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun errorMessage(): String? = errorMessage.getNullable("error_message")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata? = metadata.getNullable("metadata")
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
+    /**
+     * Returns the raw JSON value of [errorCode].
+     *
+     * Unlike [errorCode], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("error_code") @ExcludeMissing fun _errorCode(): JsonField<Long> = errorCode
 
+    /**
+     * Returns the raw JSON value of [errorMessage].
+     *
+     * Unlike [errorMessage], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("error_message")
     @ExcludeMissing
     fun _errorMessage(): JsonField<String> = errorMessage
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
     @JsonAnyGetter
@@ -77,6 +114,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolInvocationResult].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -100,36 +145,67 @@ private constructor(
         /** A image content item */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-        /** A image content item */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
         fun errorCode(errorCode: Long) = errorCode(JsonField.of(errorCode))
 
+        /**
+         * Sets [Builder.errorCode] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.errorCode] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun errorCode(errorCode: JsonField<Long>) = apply { this.errorCode = errorCode }
 
         fun errorMessage(errorMessage: String) = errorMessage(JsonField.of(errorMessage))
 
+        /**
+         * Sets [Builder.errorMessage] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.errorMessage] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun errorMessage(errorMessage: JsonField<String>) = apply {
             this.errorMessage = errorMessage
         }
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -187,6 +263,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

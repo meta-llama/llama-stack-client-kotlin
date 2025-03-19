@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class DatasetRegisterParams
@@ -26,28 +27,83 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun datasetId(): String = body.datasetId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun datasetSchema(): DatasetSchema = body.datasetSchema()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun url(): Url = body.url()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata? = body.metadata()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerDatasetId(): String? = body.providerDatasetId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun providerId(): String? = body.providerId()
 
+    /**
+     * Returns the raw JSON value of [datasetId].
+     *
+     * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _datasetId(): JsonField<String> = body._datasetId()
 
+    /**
+     * Returns the raw JSON value of [datasetSchema].
+     *
+     * Unlike [datasetSchema], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _datasetSchema(): JsonField<DatasetSchema> = body._datasetSchema()
 
+    /**
+     * Returns the raw JSON value of [url].
+     *
+     * Unlike [url], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _url(): JsonField<Url> = body._url()
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _metadata(): JsonField<Metadata> = body._metadata()
 
+    /**
+     * Returns the raw JSON value of [providerDatasetId].
+     *
+     * Unlike [providerDatasetId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _providerDatasetId(): JsonField<String> = body._providerDatasetId()
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _providerId(): JsonField<String> = body._providerId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -86,32 +142,91 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun datasetSchema(): DatasetSchema = datasetSchema.getRequired("dataset_schema")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun url(): Url = url.getRequired("url")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerDatasetId(): String? = providerDatasetId.getNullable("provider_dataset_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
+        /**
+         * Returns the raw JSON value of [datasetId].
+         *
+         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
+        /**
+         * Returns the raw JSON value of [datasetSchema].
+         *
+         * Unlike [datasetSchema], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("dataset_schema")
         @ExcludeMissing
         fun _datasetSchema(): JsonField<DatasetSchema> = datasetSchema
 
+        /**
+         * Returns the raw JSON value of [url].
+         *
+         * Unlike [url], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+        /**
+         * Returns the raw JSON value of [providerDatasetId].
+         *
+         * Unlike [providerDatasetId], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("provider_dataset_id")
         @ExcludeMissing
         fun _providerDatasetId(): JsonField<String> = providerDatasetId
 
+        /**
+         * Returns the raw JSON value of [providerId].
+         *
+         * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("provider_id")
         @ExcludeMissing
         fun _providerId(): JsonField<String> = providerId
@@ -140,6 +255,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .datasetId()
+             * .datasetSchema()
+             * .url()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -166,32 +291,74 @@ private constructor(
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+            /**
+             * Sets [Builder.datasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
             fun datasetSchema(datasetSchema: DatasetSchema) =
                 datasetSchema(JsonField.of(datasetSchema))
 
+            /**
+             * Sets [Builder.datasetSchema] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetSchema] with a well-typed [DatasetSchema]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
                 this.datasetSchema = datasetSchema
             }
 
             fun url(url: Url) = url(JsonField.of(url))
 
+            /**
+             * Sets [Builder.url] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.url] with a well-typed [Url] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun url(url: JsonField<Url>) = apply { this.url = url }
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun providerDatasetId(providerDatasetId: String) =
                 providerDatasetId(JsonField.of(providerDatasetId))
 
+            /**
+             * Sets [Builder.providerDatasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerDatasetId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerDatasetId(providerDatasetId: JsonField<String>) = apply {
                 this.providerDatasetId = providerDatasetId
             }
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+            /**
+             * Sets [Builder.providerId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -247,6 +414,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [DatasetRegisterParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .datasetId()
+         * .datasetSchema()
+         * .url()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -266,34 +443,75 @@ private constructor(
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        /**
+         * Sets [Builder.datasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
         fun datasetSchema(datasetSchema: DatasetSchema) = apply {
             body.datasetSchema(datasetSchema)
         }
 
+        /**
+         * Sets [Builder.datasetSchema] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetSchema] with a well-typed [DatasetSchema] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
             body.datasetSchema(datasetSchema)
         }
 
         fun url(url: Url) = apply { body.url(url) }
 
+        /**
+         * Sets [Builder.url] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.url] with a well-typed [Url] value instead. This method
+         * is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun url(url: JsonField<Url>) = apply { body.url(url) }
 
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
         fun providerDatasetId(providerDatasetId: String) = apply {
             body.providerDatasetId(providerDatasetId)
         }
 
+        /**
+         * Sets [Builder.providerDatasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerDatasetId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun providerDatasetId(providerDatasetId: JsonField<String>) = apply {
             body.providerDatasetId(providerDatasetId)
         }
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -447,6 +665,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [DatasetSchema]. */
             fun builder() = Builder()
         }
 
@@ -507,8 +726,18 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun uri(): String = uri.getRequired("uri")
 
+        /**
+         * Returns the raw JSON value of [uri].
+         *
+         * Unlike [uri], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
         @JsonAnyGetter
@@ -530,6 +759,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Url].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .uri()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -546,6 +783,13 @@ private constructor(
 
             fun uri(uri: String) = uri(JsonField.of(uri))
 
+            /**
+             * Sets [Builder.uri] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.uri] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun uri(uri: JsonField<String>) = apply { this.uri = uri }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -613,6 +857,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

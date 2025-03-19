@@ -20,6 +20,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.immutableEmptyMap
@@ -200,42 +201,123 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun alpha(): Long = alpha.getRequired("alpha")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun applyLoraToMlp(): Boolean = applyLoraToMlp.getRequired("apply_lora_to_mlp")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun applyLoraToOutput(): Boolean = applyLoraToOutput.getRequired("apply_lora_to_output")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun loraAttnModules(): List<String> = loraAttnModules.getRequired("lora_attn_modules")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun rank(): Long = rank.getRequired("rank")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("LoRA")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun quantizeBase(): Boolean? = quantizeBase.getNullable("quantize_base")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun useDora(): Boolean? = useDora.getNullable("use_dora")
 
+        /**
+         * Returns the raw JSON value of [alpha].
+         *
+         * Unlike [alpha], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("alpha") @ExcludeMissing fun _alpha(): JsonField<Long> = alpha
 
+        /**
+         * Returns the raw JSON value of [applyLoraToMlp].
+         *
+         * Unlike [applyLoraToMlp], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("apply_lora_to_mlp")
         @ExcludeMissing
         fun _applyLoraToMlp(): JsonField<Boolean> = applyLoraToMlp
 
+        /**
+         * Returns the raw JSON value of [applyLoraToOutput].
+         *
+         * Unlike [applyLoraToOutput], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("apply_lora_to_output")
         @ExcludeMissing
         fun _applyLoraToOutput(): JsonField<Boolean> = applyLoraToOutput
 
+        /**
+         * Returns the raw JSON value of [loraAttnModules].
+         *
+         * Unlike [loraAttnModules], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("lora_attn_modules")
         @ExcludeMissing
         fun _loraAttnModules(): JsonField<List<String>> = loraAttnModules
 
+        /**
+         * Returns the raw JSON value of [rank].
+         *
+         * Unlike [rank], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("rank") @ExcludeMissing fun _rank(): JsonField<Long> = rank
 
+        /**
+         * Returns the raw JSON value of [quantizeBase].
+         *
+         * Unlike [quantizeBase], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("quantize_base")
         @ExcludeMissing
         fun _quantizeBase(): JsonField<Boolean> = quantizeBase
 
+        /**
+         * Returns the raw JSON value of [useDora].
+         *
+         * Unlike [useDora], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("use_dora") @ExcludeMissing fun _useDora(): JsonField<Boolean> = useDora
 
         @JsonAnyGetter
@@ -268,6 +350,18 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [LoraFinetuningConfig].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .alpha()
+             * .applyLoraToMlp()
+             * .applyLoraToOutput()
+             * .loraAttnModules()
+             * .rank()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -298,11 +392,25 @@ private constructor(
 
             fun alpha(alpha: Long) = alpha(JsonField.of(alpha))
 
+            /**
+             * Sets [Builder.alpha] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.alpha] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun alpha(alpha: JsonField<Long>) = apply { this.alpha = alpha }
 
             fun applyLoraToMlp(applyLoraToMlp: Boolean) =
                 applyLoraToMlp(JsonField.of(applyLoraToMlp))
 
+            /**
+             * Sets [Builder.applyLoraToMlp] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.applyLoraToMlp] with a well-typed [Boolean] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun applyLoraToMlp(applyLoraToMlp: JsonField<Boolean>) = apply {
                 this.applyLoraToMlp = applyLoraToMlp
             }
@@ -310,6 +418,13 @@ private constructor(
             fun applyLoraToOutput(applyLoraToOutput: Boolean) =
                 applyLoraToOutput(JsonField.of(applyLoraToOutput))
 
+            /**
+             * Sets [Builder.applyLoraToOutput] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.applyLoraToOutput] with a well-typed [Boolean] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun applyLoraToOutput(applyLoraToOutput: JsonField<Boolean>) = apply {
                 this.applyLoraToOutput = applyLoraToOutput
             }
@@ -317,35 +432,76 @@ private constructor(
             fun loraAttnModules(loraAttnModules: List<String>) =
                 loraAttnModules(JsonField.of(loraAttnModules))
 
+            /**
+             * Sets [Builder.loraAttnModules] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.loraAttnModules] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun loraAttnModules(loraAttnModules: JsonField<List<String>>) = apply {
                 this.loraAttnModules = loraAttnModules.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [loraAttnModules].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addLoraAttnModule(loraAttnModule: String) = apply {
                 loraAttnModules =
-                    (loraAttnModules ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(loraAttnModule)
+                    (loraAttnModules ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("loraAttnModules", it).add(loraAttnModule)
                     }
             }
 
             fun rank(rank: Long) = rank(JsonField.of(rank))
 
+            /**
+             * Sets [Builder.rank] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.rank] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun rank(rank: JsonField<Long>) = apply { this.rank = rank }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("LoRA")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun quantizeBase(quantizeBase: Boolean) = quantizeBase(JsonField.of(quantizeBase))
 
+            /**
+             * Sets [Builder.quantizeBase] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.quantizeBase] with a well-typed [Boolean] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun quantizeBase(quantizeBase: JsonField<Boolean>) = apply {
                 this.quantizeBase = quantizeBase
             }
 
             fun useDora(useDora: Boolean) = useDora(JsonField.of(useDora))
 
+            /**
+             * Sets [Builder.useDora] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.useDora] with a well-typed [Boolean] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun useDora(useDora: JsonField<Boolean>) = apply { this.useDora = useDora }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -414,14 +570,44 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun groupSize(): Long = groupSize.getRequired("group_size")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun quantizerName(): String = quantizerName.getRequired("quantizer_name")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("QAT")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [groupSize].
+         *
+         * Unlike [groupSize], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("group_size") @ExcludeMissing fun _groupSize(): JsonField<Long> = groupSize
 
+        /**
+         * Returns the raw JSON value of [quantizerName].
+         *
+         * Unlike [quantizerName], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("quantizer_name")
         @ExcludeMissing
         fun _quantizerName(): JsonField<String> = quantizerName
@@ -451,6 +637,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [QatFinetuningConfig].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .groupSize()
+             * .quantizerName()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -471,14 +666,40 @@ private constructor(
 
             fun groupSize(groupSize: Long) = groupSize(JsonField.of(groupSize))
 
+            /**
+             * Sets [Builder.groupSize] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.groupSize] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun groupSize(groupSize: JsonField<Long>) = apply { this.groupSize = groupSize }
 
             fun quantizerName(quantizerName: String) = quantizerName(JsonField.of(quantizerName))
 
+            /**
+             * Sets [Builder.quantizerName] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.quantizerName] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun quantizerName(quantizerName: JsonField<String>) = apply {
                 this.quantizerName = quantizerName
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("QAT")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

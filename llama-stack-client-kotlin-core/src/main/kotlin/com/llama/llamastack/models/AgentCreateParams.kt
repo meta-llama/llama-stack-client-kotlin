@@ -17,8 +17,10 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Create an agent with the given configuration. */
 class AgentCreateParams
 private constructor(
     private val body: Body,
@@ -26,8 +28,19 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * The configuration for the agent.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun agentConfig(): AgentConfig = body.agentConfig()
 
+    /**
+     * Returns the raw JSON value of [agentConfig].
+     *
+     * Unlike [agentConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _agentConfig(): JsonField<AgentConfig> = body._agentConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -53,8 +66,20 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The configuration for the agent.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun agentConfig(): AgentConfig = agentConfig.getRequired("agent_config")
 
+        /**
+         * Returns the raw JSON value of [agentConfig].
+         *
+         * Unlike [agentConfig], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("agent_config")
         @ExcludeMissing
         fun _agentConfig(): JsonField<AgentConfig> = agentConfig
@@ -78,6 +103,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .agentConfig()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -92,8 +125,16 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The configuration for the agent. */
             fun agentConfig(agentConfig: AgentConfig) = agentConfig(JsonField.of(agentConfig))
 
+            /**
+             * Sets [Builder.agentConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.agentConfig] with a well-typed [AgentConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun agentConfig(agentConfig: JsonField<AgentConfig>) = apply {
                 this.agentConfig = agentConfig
             }
@@ -143,6 +184,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentCreateParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentConfig()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -160,8 +209,16 @@ private constructor(
             additionalQueryParams = agentCreateParams.additionalQueryParams.toBuilder()
         }
 
+        /** The configuration for the agent. */
         fun agentConfig(agentConfig: AgentConfig) = apply { body.agentConfig(agentConfig) }
 
+        /**
+         * Sets [Builder.agentConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.agentConfig] with a well-typed [AgentConfig] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun agentConfig(agentConfig: JsonField<AgentConfig>) = apply {
             body.agentConfig(agentConfig)
         }

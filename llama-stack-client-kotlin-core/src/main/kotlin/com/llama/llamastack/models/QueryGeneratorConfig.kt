@@ -188,10 +188,29 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun separator(): String = separator.getRequired("separator")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("default")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [separator].
+         *
+         * Unlike [separator], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("separator") @ExcludeMissing fun _separator(): JsonField<String> = separator
 
         @JsonAnyGetter
@@ -218,6 +237,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [DefaultRagQueryGeneratorConfig].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .separator()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -238,8 +266,27 @@ private constructor(
 
             fun separator(separator: String) = separator(JsonField.of(separator))
 
+            /**
+             * Sets [Builder.separator] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.separator] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun separator(separator: JsonField<String>) = apply { this.separator = separator }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("default")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -302,14 +349,43 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun model(): String = model.getRequired("model")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun template(): String = template.getRequired("template")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("llm")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [model].
+         *
+         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
+        /**
+         * Returns the raw JSON value of [template].
+         *
+         * Unlike [template], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("template") @ExcludeMissing fun _template(): JsonField<String> = template
 
         @JsonAnyGetter
@@ -337,6 +413,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [LlmragQueryGeneratorConfig].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .model()
+             * .template()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -358,12 +444,38 @@ private constructor(
 
             fun model(model: String) = model(JsonField.of(model))
 
+            /**
+             * Sets [Builder.model] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.model] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun model(model: JsonField<String>) = apply { this.model = model }
 
             fun template(template: String) = template(JsonField.of(template))
 
+            /**
+             * Sets [Builder.template] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.template] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun template(template: JsonField<String>) = apply { this.template = template }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("llm")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

@@ -18,11 +18,12 @@ import org.junit.jupiter.api.extension.ExtendWith
 class BatchInferenceServiceTest {
 
     @Test
-    fun callChatCompletion() {
+    fun chatCompletion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val batchInferenceService = client.batchInference()
-        val batchInferenceChatCompletionResponse =
+
+        val response =
             batchInferenceService.chatCompletion(
                 BatchInferenceChatCompletionParams.builder()
                     .addMessagesBatch(
@@ -73,15 +74,16 @@ class BatchInferenceServiceTest {
                     )
                     .build()
             )
-        println(batchInferenceChatCompletionResponse)
-        batchInferenceChatCompletionResponse.validate()
+
+        response.validate()
     }
 
     @Test
-    fun callCompletion() {
+    fun completion() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val batchInferenceService = client.batchInference()
+
         val batchCompletion =
             batchInferenceService.completion(
                 BatchInferenceCompletionParams.builder()
@@ -102,7 +104,7 @@ class BatchInferenceServiceTest {
                     )
                     .build()
             )
-        println(batchCompletion)
+
         batchCompletion.validate()
     }
 }

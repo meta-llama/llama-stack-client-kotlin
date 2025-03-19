@@ -10,15 +10,9 @@ class ToolResponseMessageTest {
     @Test
     fun createToolResponseMessage() {
         val toolResponseMessage =
-            ToolResponseMessage.builder()
-                .callId("call_id")
-                .content("string")
-                .toolName(ToolResponseMessage.ToolName.BRAVE_SEARCH)
-                .build()
+            ToolResponseMessage.builder().callId("call_id").content("string").build()
         assertThat(toolResponseMessage).isNotNull
         assertThat(toolResponseMessage.callId()).isEqualTo("call_id")
         assertThat(toolResponseMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
-        assertThat(toolResponseMessage.toolName())
-            .isEqualTo(ToolResponseMessage.ToolName.BRAVE_SEARCH)
     }
 }

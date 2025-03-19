@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Response containing generated embeddings. */
@@ -31,13 +33,16 @@ private constructor(
      * List of embedding vectors, one per input content. Each embedding is a list of floats. The
      * dimensionality of the embedding is model-specific; you can check model metadata using
      * /models/{model_id}
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun embeddings(): List<List<Double>> = embeddings.getRequired("embeddings")
 
     /**
-     * List of embedding vectors, one per input content. Each embedding is a list of floats. The
-     * dimensionality of the embedding is model-specific; you can check model metadata using
-     * /models/{model_id}
+     * Returns the raw JSON value of [embeddings].
+     *
+     * Unlike [embeddings], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("embeddings")
     @ExcludeMissing
@@ -62,6 +67,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [EmbeddingsResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .embeddings()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -84,27 +97,25 @@ private constructor(
         fun embeddings(embeddings: List<List<Double>>) = embeddings(JsonField.of(embeddings))
 
         /**
-         * List of embedding vectors, one per input content. Each embedding is a list of floats. The
-         * dimensionality of the embedding is model-specific; you can check model metadata using
-         * /models/{model_id}
+         * Sets [Builder.embeddings] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.embeddings] with a well-typed `List<List<Double>>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
         fun embeddings(embeddings: JsonField<List<List<Double>>>) = apply {
             this.embeddings = embeddings.map { it.toMutableList() }
         }
 
         /**
-         * List of embedding vectors, one per input content. Each embedding is a list of floats. The
-         * dimensionality of the embedding is model-specific; you can check model metadata using
-         * /models/{model_id}
+         * Adds a single [List<Double>] to [embeddings].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
          */
         fun addEmbedding(embedding: List<Double>) = apply {
             embeddings =
-                (embeddings ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(embedding)
+                (embeddings ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("embeddings", it).add(embedding)
                 }
         }
 

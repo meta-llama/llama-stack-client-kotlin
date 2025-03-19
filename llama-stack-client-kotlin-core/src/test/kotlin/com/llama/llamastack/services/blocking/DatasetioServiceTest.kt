@@ -14,10 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class DatasetioServiceTest {
 
     @Test
-    fun callAppendRows() {
+    fun appendRows() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetioService = client.datasetio()
+
         datasetioService.appendRows(
             DatasetioAppendRowsParams.builder()
                 .datasetId("dataset_id")
@@ -31,10 +32,11 @@ class DatasetioServiceTest {
     }
 
     @Test
-    fun callGetRowsPaginated() {
+    fun getRowsPaginated() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetioService = client.datasetio()
+
         val paginatedRowsResult =
             datasetioService.getRowsPaginated(
                 DatasetioGetRowsPaginatedParams.builder()
@@ -44,7 +46,7 @@ class DatasetioServiceTest {
                     .pageToken("page_token")
                     .build()
             )
-        println(paginatedRowsResult)
+
         paginatedRowsResult.validate()
     }
 }

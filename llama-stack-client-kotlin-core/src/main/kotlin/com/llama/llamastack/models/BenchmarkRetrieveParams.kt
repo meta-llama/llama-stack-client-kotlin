@@ -37,6 +37,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [BenchmarkRetrieveParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

@@ -4,11 +4,10 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.ListVectorDbsResponse
-import com.llama.llamastack.models.VectorDbListParams
 import com.llama.llamastack.models.VectorDbRegisterParams
 import com.llama.llamastack.models.VectorDbRetrieveParams
 import com.llama.llamastack.models.VectorDbUnregisterParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -16,36 +15,38 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VectorDbServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
-        val vectorDbRetrieveResponse =
+
+        val vectorDb =
             vectorDbService.retrieve(
                 VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
             )
-        println(vectorDbRetrieveResponse)
-        vectorDbRetrieveResponse?.validate()
+
+        assertNotNull(vectorDb)
+        vectorDb.validate()
     }
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
-        val listVectorDbsResponse = vectorDbService.list(VectorDbListParams.builder().build())
-        println(listVectorDbsResponse)
-        for (vectorDb: ListVectorDbsResponse.Data in listVectorDbsResponse) {
-            vectorDb.validate()
-        }
+
+        val vectorDbs = vectorDbService.list()
+
+        vectorDbs.forEach { it.validate() }
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
-        val vectorDbRegisterResponse =
+
+        val response =
             vectorDbService.register(
                 VectorDbRegisterParams.builder()
                     .embeddingModel("embedding_model")
@@ -55,15 +56,16 @@ class VectorDbServiceTest {
                     .providerVectorDbId("provider_vector_db_id")
                     .build()
             )
-        println(vectorDbRegisterResponse)
-        vectorDbRegisterResponse.validate()
+
+        response.validate()
     }
 
     @Test
-    fun callUnregister() {
+    fun unregister() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
+
         vectorDbService.unregister(
             VectorDbUnregisterParams.builder().vectorDbId("vector_db_id").build()
         )

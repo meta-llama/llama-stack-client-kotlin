@@ -28,10 +28,9 @@ import com.fasterxml.jackson.databind.node.JsonNodeType.STRING
 import com.fasterxml.jackson.databind.ser.std.NullSerializer
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
-import java.nio.charset.Charset
+import java.io.InputStream
 import java.util.Objects
 import kotlin.reflect.KClass
-import org.apache.hc.core5.http.ContentType
 
 @JsonDeserialize(using = JsonField.Deserializer::class)
 sealed class JsonField<out T : Any> {
@@ -281,12 +280,12 @@ private constructor(
             return true
         }
 
-        return other is KnownValue<*> && value == other.value
+        return other is KnownValue<*> && value contentEquals other.value
     }
 
-    override fun hashCode() = value.hashCode()
+    override fun hashCode() = contentHash(value)
 
-    override fun toString() = value.toString()
+    override fun toString() = value.contentToString()
 
     companion object {
         @JsonCreator fun <T : Any> of(value: T) = KnownValue(value)
@@ -454,101 +453,71 @@ annotation class ExcludeMissing
 )
 annotation class NoAutoDetect
 
-class MultipartFormValue<T>
-internal constructor(
-    val name: String,
-    val value: T,
-    val contentType: ContentType,
-    val filename: String? = null,
-) {
+class MultipartField<T : Any>
+private constructor(val value: JsonField<T>, val contentType: String, val filename: String?) {
 
-    private var hashCode: Int = 0
+    companion object {
 
-    override fun hashCode(): Int {
-        if (hashCode == 0) {
-            hashCode =
-                Objects.hash(
-                    name,
-                    contentType,
-                    filename,
-                    when (value) {
-                        is ByteArray -> value.contentHashCode()
-                        is String -> value
-                        is Boolean -> value
-                        is Long -> value
-                        is Double -> value
-                        else -> value?.hashCode()
-                    },
-                )
-        }
-        return hashCode
+        fun <T : Any> of(value: T?) = builder<T>().value(value).build()
+
+        fun <T : Any> of(value: JsonField<T>) = builder<T>().value(value).build()
+
+        fun <T : Any> builder() = Builder<T>()
     }
 
-    override fun equals(other: Any?): Boolean {
-        if (this === other) return true
-        if (other == null || this.javaClass != other.javaClass) return false
+    internal fun <R : Any> map(transform: (T) -> R): MultipartField<R> =
+        MultipartField.builder<R>()
+            .value(value.map(transform))
+            .contentType(contentType)
+            .filename(filename)
+            .build()
 
-        other as MultipartFormValue<*>
+    /** A builder for [MultipartField]. */
+    class Builder<T : Any> internal constructor() {
 
-        if (name != other.name || contentType != other.contentType || filename != other.filename)
-            return false
+        private var value: JsonField<T>? = null
+        private var contentType: String? = null
+        private var filename: String? = null
 
-        return when {
-            value is ByteArray && other.value is ByteArray -> value contentEquals other.value
-            else -> value?.equals(other.value) ?: (other.value == null)
+        fun value(value: JsonField<T>) = apply { this.value = value }
+
+        fun value(value: T?) = value(JsonField.ofNullable(value))
+
+        fun contentType(contentType: String) = apply { this.contentType = contentType }
+
+        fun filename(filename: String?) = apply { this.filename = filename }
+
+        fun build(): MultipartField<T> {
+            val value = checkRequired("value", value)
+            return MultipartField(
+                value,
+                contentType
+                    ?: if (
+                        value is KnownValue &&
+                            (value.value is InputStream || value.value is ByteArray)
+                    )
+                        "application/octet-stream"
+                    else "text/plain; charset=utf-8",
+                filename,
+            )
         }
+    }
+
+    private val hashCode: Int by lazy { contentHash(value, contentType, filename) }
+
+    override fun hashCode(): Int = hashCode
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) {
+            return true
+        }
+
+        return other is MultipartField<*> &&
+            value == other.value &&
+            contentType == other.contentType &&
+            filename == other.filename
     }
 
     override fun toString(): String =
-        "MultipartFormValue{name=$name, contentType=$contentType, filename=$filename, value=${valueToString()}}"
-
-    private fun valueToString(): String =
-        when (value) {
-            is ByteArray -> "ByteArray of size ${value.size}"
-            else -> value.toString()
-        }
-
-    companion object {
-        internal fun fromString(
-            name: String,
-            value: String,
-            contentType: ContentType,
-        ): MultipartFormValue<String> = MultipartFormValue(name, value, contentType)
-
-        internal fun fromBoolean(
-            name: String,
-            value: Boolean,
-            contentType: ContentType,
-        ): MultipartFormValue<Boolean> = MultipartFormValue(name, value, contentType)
-
-        internal fun fromLong(
-            name: String,
-            value: Long,
-            contentType: ContentType,
-        ): MultipartFormValue<Long> = MultipartFormValue(name, value, contentType)
-
-        internal fun fromDouble(
-            name: String,
-            value: Double,
-            contentType: ContentType,
-        ): MultipartFormValue<Double> = MultipartFormValue(name, value, contentType)
-
-        internal fun <T : Enum> fromEnum(
-            name: String,
-            value: T,
-            contentType: ContentType,
-        ): MultipartFormValue<T> = MultipartFormValue(name, value, contentType)
-
-        internal fun fromByteArray(
-            name: String,
-            value: ByteArray,
-            contentType: ContentType,
-            filename: String? = null,
-        ): MultipartFormValue<ByteArray> = MultipartFormValue(name, value, contentType, filename)
-    }
-}
-
-internal object ContentTypes {
-    val DefaultText = ContentType.create(ContentType.TEXT_PLAIN.mimeType, Charset.forName("UTF-8"))
-    val DefaultBinary = ContentType.DEFAULT_BINARY
+        "MultipartField{value=$value, contentType=$contentType, filename=$filename}"
 }

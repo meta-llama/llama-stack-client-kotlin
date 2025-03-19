@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** streamed agent turn completion response. */
@@ -27,8 +28,17 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun event(): TurnResponseEvent = event.getRequired("event")
 
+    /**
+     * Returns the raw JSON value of [event].
+     *
+     * Unlike [event], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("event") @ExcludeMissing fun _event(): JsonField<TurnResponseEvent> = event
 
     @JsonAnyGetter
@@ -50,6 +60,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentTurnResponseStreamChunk].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .event()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -66,6 +84,13 @@ private constructor(
 
         fun event(event: TurnResponseEvent) = event(JsonField.of(event))
 
+        /**
+         * Sets [Builder.event] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.event] with a well-typed [TurnResponseEvent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun event(event: JsonField<TurnResponseEvent>) = apply { this.event = event }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

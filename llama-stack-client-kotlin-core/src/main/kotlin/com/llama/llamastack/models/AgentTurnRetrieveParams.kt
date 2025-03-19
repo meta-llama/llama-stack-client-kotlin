@@ -9,6 +9,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Retrieve an agent turn by its ID. */
 class AgentTurnRetrieveParams
 private constructor(
     private val agentId: String,
@@ -45,6 +46,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentTurnRetrieveParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * .turnId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

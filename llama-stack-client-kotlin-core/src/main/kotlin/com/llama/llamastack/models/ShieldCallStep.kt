@@ -18,6 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
 import java.util.Objects
 
+/** A shield call step in an agent turn. */
 @NoAutoDetect
 class ShieldCallStep
 @JsonCreator
@@ -41,30 +42,94 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * The ID of the step.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun stepId(): String = stepId.getRequired("step_id")
 
+    /**
+     * Expected to always return the following:
+     * ```kotlin
+     * JsonValue.from("shield_call")
+     * ```
+     *
+     * However, this method can be useful for debugging and logging (e.g. if the server responded
+     * with an unexpected value).
+     */
     @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonValue = stepType
 
+    /**
+     * The ID of the turn.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun turnId(): String = turnId.getRequired("turn_id")
 
+    /**
+     * The time the step completed.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun completedAt(): OffsetDateTime? = completedAt.getNullable("completed_at")
 
+    /**
+     * The time the step started.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun startedAt(): OffsetDateTime? = startedAt.getNullable("started_at")
 
+    /**
+     * The violation from the shield call.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun violation(): SafetyViolation? = violation.getNullable("violation")
 
+    /**
+     * Returns the raw JSON value of [stepId].
+     *
+     * Unlike [stepId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
+    /**
+     * Returns the raw JSON value of [turnId].
+     *
+     * Unlike [turnId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
+    /**
+     * Returns the raw JSON value of [completedAt].
+     *
+     * Unlike [completedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("completed_at")
     @ExcludeMissing
     fun _completedAt(): JsonField<OffsetDateTime> = completedAt
 
+    /**
+     * Returns the raw JSON value of [startedAt].
+     *
+     * Unlike [startedAt], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("started_at")
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
+    /**
+     * Returns the raw JSON value of [violation].
+     *
+     * Unlike [violation], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("violation")
     @ExcludeMissing
     fun _violation(): JsonField<SafetyViolation> = violation
@@ -97,6 +162,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ShieldCallStep].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .stepId()
+         * .turnId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -121,28 +195,78 @@ private constructor(
             additionalProperties = shieldCallStep.additionalProperties.toMutableMap()
         }
 
+        /** The ID of the step. */
         fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
+        /**
+         * Sets [Builder.stepId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.stepId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
+        /**
+         * Sets the field to an arbitrary JSON value.
+         *
+         * It is usually unnecessary to call this method because the field defaults to the
+         * following:
+         * ```kotlin
+         * JsonValue.from("shield_call")
+         * ```
+         *
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun stepType(stepType: JsonValue) = apply { this.stepType = stepType }
 
+        /** The ID of the turn. */
         fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
+        /**
+         * Sets [Builder.turnId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.turnId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
 
+        /** The time the step completed. */
         fun completedAt(completedAt: OffsetDateTime) = completedAt(JsonField.of(completedAt))
 
+        /**
+         * Sets [Builder.completedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.completedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun completedAt(completedAt: JsonField<OffsetDateTime>) = apply {
             this.completedAt = completedAt
         }
 
+        /** The time the step started. */
         fun startedAt(startedAt: OffsetDateTime) = startedAt(JsonField.of(startedAt))
 
+        /**
+         * Sets [Builder.startedAt] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.startedAt] with a well-typed [OffsetDateTime] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun startedAt(startedAt: JsonField<OffsetDateTime>) = apply { this.startedAt = startedAt }
 
+        /** The violation from the shield call. */
         fun violation(violation: SafetyViolation) = violation(JsonField.of(violation))
 
+        /**
+         * Sets [Builder.violation] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.violation] with a well-typed [SafetyViolation] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun violation(violation: JsonField<SafetyViolation>) = apply { this.violation = violation }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

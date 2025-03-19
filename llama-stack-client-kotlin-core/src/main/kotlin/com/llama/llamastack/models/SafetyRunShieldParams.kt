@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class SafetyRunShieldParams
@@ -26,16 +28,43 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun messages(): List<Message> = body.messages()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun params(): Params = body.params()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun shieldId(): String = body.shieldId()
 
+    /**
+     * Returns the raw JSON value of [messages].
+     *
+     * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _messages(): JsonField<List<Message>> = body._messages()
 
+    /**
+     * Returns the raw JSON value of [params].
+     *
+     * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _params(): JsonField<Params> = body._params()
 
+    /**
+     * Returns the raw JSON value of [shieldId].
+     *
+     * Unlike [shieldId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _shieldId(): JsonField<String> = body._shieldId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -67,18 +96,48 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun messages(): List<Message> = messages.getRequired("messages")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun params(): Params = params.getRequired("params")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun shieldId(): String = shieldId.getRequired("shield_id")
 
+        /**
+         * Returns the raw JSON value of [messages].
+         *
+         * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("messages")
         @ExcludeMissing
         fun _messages(): JsonField<List<Message>> = messages
 
+        /**
+         * Returns the raw JSON value of [params].
+         *
+         * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
+        /**
+         * Returns the raw JSON value of [shieldId].
+         *
+         * Unlike [shieldId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("shield_id") @ExcludeMissing fun _shieldId(): JsonField<String> = shieldId
 
         @JsonAnyGetter
@@ -102,6 +161,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messages()
+             * .params()
+             * .shieldId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -122,80 +191,128 @@ private constructor(
 
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
 
+            /**
+             * Sets [Builder.messages] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.messages] with a well-typed `List<Message>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun messages(messages: JsonField<List<Message>>) = apply {
                 this.messages = messages.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Message] to [messages].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addMessage(message: Message) = apply {
                 messages =
-                    (messages ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(message)
+                    (messages ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("messages", it).add(message)
                     }
             }
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
             fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
 
-            /** A message from the user in a chat conversation. */
+            /**
+             * Alias for calling [addMessage] with the following:
+             * ```kotlin
+             * UserMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
             fun addUserMessage(content: InterleavedContent) =
                 addMessage(UserMessage.builder().content(content).build())
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addUserMessage] with `InterleavedContent.ofString(string)`. */
             fun addUserMessage(string: String) = addUserMessage(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [addUserMessage] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun addUserMessage(imageContentItem: InterleavedContent.ImageContentItem) =
                 addUserMessage(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [addUserMessage] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun addUserMessage(textContentItem: InterleavedContent.TextContentItem) =
                 addUserMessage(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A message from the user in a chat conversation. */
+            /** Alias for calling [addUserMessage] with `InterleavedContent.ofItems(items)`. */
             fun addUserMessageOfItems(items: List<InterleavedContentItem>) =
                 addUserMessage(InterleavedContent.ofItems(items))
 
-            /** A system message providing instructions or context to the model. */
+            /** Alias for calling [addMessage] with `Message.ofSystem(system)`. */
             fun addMessage(system: SystemMessage) = addMessage(Message.ofSystem(system))
 
-            /** A system message providing instructions or context to the model. */
+            /**
+             * Alias for calling [addMessage] with the following:
+             * ```kotlin
+             * SystemMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
             fun addSystemMessage(content: InterleavedContent) =
                 addMessage(SystemMessage.builder().content(content).build())
 
-            /** A system message providing instructions or context to the model. */
+            /** Alias for calling [addSystemMessage] with `InterleavedContent.ofString(string)`. */
             fun addSystemMessage(string: String) =
                 addSystemMessage(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [addSystemMessage] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun addSystemMessage(imageContentItem: InterleavedContent.ImageContentItem) =
                 addSystemMessage(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [addSystemMessage] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun addSystemMessage(textContentItem: InterleavedContent.TextContentItem) =
                 addSystemMessage(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A system message providing instructions or context to the model. */
+            /** Alias for calling [addSystemMessage] with `InterleavedContent.ofItems(items)`. */
             fun addSystemMessageOfItems(items: List<InterleavedContentItem>) =
                 addSystemMessage(InterleavedContent.ofItems(items))
 
-            /** A message representing the result of a tool invocation. */
+            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
             fun addMessage(toolResponse: ToolResponseMessage) =
                 addMessage(Message.ofToolResponse(toolResponse))
 
-            /** A message containing the model's (assistant) response in a chat conversation. */
+            /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
             fun addMessage(completion: CompletionMessage) =
                 addMessage(Message.ofCompletion(completion))
 
             fun params(params: Params) = params(JsonField.of(params))
 
+            /**
+             * Sets [Builder.params] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.params] with a well-typed [Params] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun params(params: JsonField<Params>) = apply { this.params = params }
 
             fun shieldId(shieldId: String) = shieldId(JsonField.of(shieldId))
 
+            /**
+             * Sets [Builder.shieldId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.shieldId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun shieldId(shieldId: JsonField<String>) = apply { this.shieldId = shieldId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -248,6 +365,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [SafetyRunShieldParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .messages()
+         * .params()
+         * .shieldId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -267,70 +394,120 @@ private constructor(
 
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
+        /**
+         * Sets [Builder.messages] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.messages] with a well-typed `List<Message>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun messages(messages: JsonField<List<Message>>) = apply { body.messages(messages) }
 
+        /**
+         * Adds a single [Message] to [messages].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addMessage(message: Message) = apply { body.addMessage(message) }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
         fun addMessage(user: UserMessage) = apply { body.addMessage(user) }
 
-        /** A message from the user in a chat conversation. */
+        /**
+         * Alias for calling [addMessage] with the following:
+         * ```kotlin
+         * UserMessage.builder()
+         *     .content(content)
+         *     .build()
+         * ```
+         */
         fun addUserMessage(content: InterleavedContent) = apply { body.addUserMessage(content) }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addUserMessage] with `InterleavedContent.ofString(string)`. */
         fun addUserMessage(string: String) = apply { body.addUserMessage(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [addUserMessage] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun addUserMessage(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addUserMessage(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [addUserMessage] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun addUserMessage(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addUserMessage(textContentItem)
         }
 
-        /** A message from the user in a chat conversation. */
+        /** Alias for calling [addUserMessage] with `InterleavedContent.ofItems(items)`. */
         fun addUserMessageOfItems(items: List<InterleavedContentItem>) = apply {
             body.addUserMessageOfItems(items)
         }
 
-        /** A system message providing instructions or context to the model. */
+        /** Alias for calling [addMessage] with `Message.ofSystem(system)`. */
         fun addMessage(system: SystemMessage) = apply { body.addMessage(system) }
 
-        /** A system message providing instructions or context to the model. */
+        /**
+         * Alias for calling [addMessage] with the following:
+         * ```kotlin
+         * SystemMessage.builder()
+         *     .content(content)
+         *     .build()
+         * ```
+         */
         fun addSystemMessage(content: InterleavedContent) = apply { body.addSystemMessage(content) }
 
-        /** A system message providing instructions or context to the model. */
+        /** Alias for calling [addSystemMessage] with `InterleavedContent.ofString(string)`. */
         fun addSystemMessage(string: String) = apply { body.addSystemMessage(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [addSystemMessage] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun addSystemMessage(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addSystemMessage(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [addSystemMessage] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun addSystemMessage(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addSystemMessage(textContentItem)
         }
 
-        /** A system message providing instructions or context to the model. */
+        /** Alias for calling [addSystemMessage] with `InterleavedContent.ofItems(items)`. */
         fun addSystemMessageOfItems(items: List<InterleavedContentItem>) = apply {
             body.addSystemMessageOfItems(items)
         }
 
-        /** A message representing the result of a tool invocation. */
+        /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
         fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
 
-        /** A message containing the model's (assistant) response in a chat conversation. */
+        /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
         fun addMessage(completion: CompletionMessage) = apply { body.addMessage(completion) }
 
         fun params(params: Params) = apply { body.params(params) }
 
+        /**
+         * Sets [Builder.params] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.params] with a well-typed [Params] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun params(params: JsonField<Params>) = apply { body.params(params) }
 
         fun shieldId(shieldId: String) = apply { body.shieldId(shieldId) }
 
+        /**
+         * Sets [Builder.shieldId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.shieldId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun shieldId(shieldId: JsonField<String>) = apply { body.shieldId(shieldId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -484,6 +661,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Params]. */
             fun builder() = Builder()
         }
 

@@ -26,6 +26,9 @@ private constructor(
 
     companion object {
 
+        fun none(): InspectVersionParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [InspectVersionParams]. */
         fun builder() = Builder()
     }
 

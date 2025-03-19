@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Index documents so they can be used by the RAG system */
@@ -27,16 +29,44 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun chunkSizeInTokens(): Long = body.chunkSizeInTokens()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun documents(): List<Document> = body.documents()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun vectorDbId(): String = body.vectorDbId()
 
+    /**
+     * Returns the raw JSON value of [chunkSizeInTokens].
+     *
+     * Unlike [chunkSizeInTokens], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _chunkSizeInTokens(): JsonField<Long> = body._chunkSizeInTokens()
 
+    /**
+     * Returns the raw JSON value of [documents].
+     *
+     * Unlike [documents], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _documents(): JsonField<List<Document>> = body._documents()
 
+    /**
+     * Returns the raw JSON value of [vectorDbId].
+     *
+     * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _vectorDbId(): JsonField<String> = body._vectorDbId()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -68,20 +98,51 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun chunkSizeInTokens(): Long = chunkSizeInTokens.getRequired("chunk_size_in_tokens")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun documents(): List<Document> = documents.getRequired("documents")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
+        /**
+         * Returns the raw JSON value of [chunkSizeInTokens].
+         *
+         * Unlike [chunkSizeInTokens], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("chunk_size_in_tokens")
         @ExcludeMissing
         fun _chunkSizeInTokens(): JsonField<Long> = chunkSizeInTokens
 
+        /**
+         * Returns the raw JSON value of [documents].
+         *
+         * Unlike [documents], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("documents")
         @ExcludeMissing
         fun _documents(): JsonField<List<Document>> = documents
 
+        /**
+         * Returns the raw JSON value of [vectorDbId].
+         *
+         * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("vector_db_id")
         @ExcludeMissing
         fun _vectorDbId(): JsonField<String> = vectorDbId
@@ -107,6 +168,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .chunkSizeInTokens()
+             * .documents()
+             * .vectorDbId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -128,29 +199,51 @@ private constructor(
             fun chunkSizeInTokens(chunkSizeInTokens: Long) =
                 chunkSizeInTokens(JsonField.of(chunkSizeInTokens))
 
+            /**
+             * Sets [Builder.chunkSizeInTokens] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.chunkSizeInTokens] with a well-typed [Long] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun chunkSizeInTokens(chunkSizeInTokens: JsonField<Long>) = apply {
                 this.chunkSizeInTokens = chunkSizeInTokens
             }
 
             fun documents(documents: List<Document>) = documents(JsonField.of(documents))
 
+            /**
+             * Sets [Builder.documents] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.documents] with a well-typed `List<Document>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun documents(documents: JsonField<List<Document>>) = apply {
                 this.documents = documents.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Document] to [documents].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addDocument(document: Document) = apply {
                 documents =
-                    (documents ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(document)
+                    (documents ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("documents", it).add(document)
                     }
             }
 
             fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
 
+            /**
+             * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.vectorDbId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -203,6 +296,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [ToolRuntimeRagToolInsertParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .chunkSizeInTokens()
+         * .documents()
+         * .vectorDbId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -224,18 +328,44 @@ private constructor(
             body.chunkSizeInTokens(chunkSizeInTokens)
         }
 
+        /**
+         * Sets [Builder.chunkSizeInTokens] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.chunkSizeInTokens] with a well-typed [Long] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun chunkSizeInTokens(chunkSizeInTokens: JsonField<Long>) = apply {
             body.chunkSizeInTokens(chunkSizeInTokens)
         }
 
         fun documents(documents: List<Document>) = apply { body.documents(documents) }
 
+        /**
+         * Sets [Builder.documents] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.documents] with a well-typed `List<Document>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun documents(documents: JsonField<List<Document>>) = apply { body.documents(documents) }
 
+        /**
+         * Adds a single [Document] to [documents].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addDocument(document: Document) = apply { body.addDocument(document) }
 
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
 
+        /**
+         * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.vectorDbId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun vectorDbId(vectorDbId: JsonField<String>) = apply { body.vectorDbId(vectorDbId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

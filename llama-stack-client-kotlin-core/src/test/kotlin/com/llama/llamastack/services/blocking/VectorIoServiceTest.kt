@@ -14,10 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class VectorIoServiceTest {
 
     @Test
-    fun callInsert() {
+    fun insert() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorIoService = client.vectorIo()
+
         vectorIoService.insert(
             VectorIoInsertParams.builder()
                 .addChunk(
@@ -37,10 +38,11 @@ class VectorIoServiceTest {
     }
 
     @Test
-    fun callQuery() {
+    fun query() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorIoService = client.vectorIo()
+
         val queryChunksResponse =
             vectorIoService.query(
                 VectorIoQueryParams.builder()
@@ -53,7 +55,7 @@ class VectorIoServiceTest {
                     )
                     .build()
             )
-        println(queryChunksResponse)
+
         queryChunksResponse.validate()
     }
 }

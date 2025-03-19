@@ -11,6 +11,7 @@ import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Delete an agent by its ID. */
 class AgentDeleteParams
 private constructor(
     private val agentId: String,
@@ -44,6 +45,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentDeleteParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

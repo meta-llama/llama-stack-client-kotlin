@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Log probabilities for generated tokens. */
@@ -27,10 +28,19 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** Dictionary mapping tokens to their log probabilities */
+    /**
+     * Dictionary mapping tokens to their log probabilities
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun logprobsByToken(): LogprobsByToken = logprobsByToken.getRequired("logprobs_by_token")
 
-    /** Dictionary mapping tokens to their log probabilities */
+    /**
+     * Returns the raw JSON value of [logprobsByToken].
+     *
+     * Unlike [logprobsByToken], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("logprobs_by_token")
     @ExcludeMissing
     fun _logprobsByToken(): JsonField<LogprobsByToken> = logprobsByToken
@@ -54,6 +64,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [TokenLogProbs].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .logprobsByToken()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -72,7 +90,13 @@ private constructor(
         fun logprobsByToken(logprobsByToken: LogprobsByToken) =
             logprobsByToken(JsonField.of(logprobsByToken))
 
-        /** Dictionary mapping tokens to their log probabilities */
+        /**
+         * Sets [Builder.logprobsByToken] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.logprobsByToken] with a well-typed [LogprobsByToken]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun logprobsByToken(logprobsByToken: JsonField<LogprobsByToken>) = apply {
             this.logprobsByToken = logprobsByToken
         }
@@ -130,6 +154,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [LogprobsByToken]. */
             fun builder() = Builder()
         }
 

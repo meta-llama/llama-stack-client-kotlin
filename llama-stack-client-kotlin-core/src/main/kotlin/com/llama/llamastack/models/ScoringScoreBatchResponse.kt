@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -29,12 +30,30 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun results(): Results = results.getRequired("results")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun datasetId(): String? = datasetId.getNullable("dataset_id")
 
+    /**
+     * Returns the raw JSON value of [results].
+     *
+     * Unlike [results], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("results") @ExcludeMissing fun _results(): JsonField<Results> = results
 
+    /**
+     * Returns the raw JSON value of [datasetId].
+     *
+     * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
     @JsonAnyGetter
@@ -57,6 +76,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringScoreBatchResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .results()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -75,10 +102,23 @@ private constructor(
 
         fun results(results: Results) = results(JsonField.of(results))
 
+        /**
+         * Sets [Builder.results] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.results] with a well-typed [Results] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun results(results: JsonField<Results>) = apply { this.results = results }
 
         fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+        /**
+         * Sets [Builder.datasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -134,6 +174,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Results]. */
             fun builder() = Builder()
         }
 

@@ -44,6 +44,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [VectorDbUnregisterParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .vectorDbId()
+         * ```
+         */
         fun builder() = Builder()
     }
 

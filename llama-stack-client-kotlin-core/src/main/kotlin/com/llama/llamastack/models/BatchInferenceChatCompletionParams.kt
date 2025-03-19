@@ -13,6 +13,7 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -28,48 +29,116 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun messagesBatch(): List<List<Message>> = body.messagesBatch()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun model(): String = body.model()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun logprobs(): Logprobs? = body.logprobs()
 
-    /** Configuration for JSON schema-guided response generation. */
+    /**
+     * Configuration for JSON schema-guided response generation.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
     /**
      * Whether tool use is required or automatic. This is a hint to the model which may not be
      * followed. It depends on the Instruction Following capabilities of the model.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
      */
     fun toolChoice(): ToolChoice? = body.toolChoice()
 
-    /** Prompt format for calling custom / zero shot tools. */
+    /**
+     * Prompt format for calling custom / zero shot tools.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun toolPromptFormat(): ToolPromptFormat? = body.toolPromptFormat()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun tools(): List<Tool>? = body.tools()
 
+    /**
+     * Returns the raw JSON value of [messagesBatch].
+     *
+     * Unlike [messagesBatch], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _messagesBatch(): JsonField<List<List<Message>>> = body._messagesBatch()
 
+    /**
+     * Returns the raw JSON value of [model].
+     *
+     * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _model(): JsonField<String> = body._model()
 
+    /**
+     * Returns the raw JSON value of [logprobs].
+     *
+     * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _logprobs(): JsonField<Logprobs> = body._logprobs()
 
-    /** Configuration for JSON schema-guided response generation. */
+    /**
+     * Returns the raw JSON value of [responseFormat].
+     *
+     * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
 
+    /**
+     * Returns the raw JSON value of [samplingParams].
+     *
+     * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
 
     /**
-     * Whether tool use is required or automatic. This is a hint to the model which may not be
-     * followed. It depends on the Instruction Following capabilities of the model.
+     * Returns the raw JSON value of [toolChoice].
+     *
+     * Unlike [toolChoice], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _toolChoice(): JsonField<ToolChoice> = body._toolChoice()
 
-    /** Prompt format for calling custom / zero shot tools. */
+    /**
+     * Returns the raw JSON value of [toolPromptFormat].
+     *
+     * Unlike [toolPromptFormat], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _toolPromptFormat(): JsonField<ToolPromptFormat> = body._toolPromptFormat()
 
+    /**
+     * Returns the raw JSON value of [tools].
+     *
+     * Unlike [tools], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _tools(): JsonField<List<Tool>> = body._tools()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -116,59 +185,132 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun messagesBatch(): List<List<Message>> = messagesBatch.getRequired("messages_batch")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun model(): String = model.getRequired("model")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Configuration for JSON schema-guided response generation.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
         /**
          * Whether tool use is required or automatic. This is a hint to the model which may not be
          * followed. It depends on the Instruction Following capabilities of the model.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
          */
         fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
 
-        /** Prompt format for calling custom / zero shot tools. */
+        /**
+         * Prompt format for calling custom / zero shot tools.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun toolPromptFormat(): ToolPromptFormat? =
             toolPromptFormat.getNullable("tool_prompt_format")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun tools(): List<Tool>? = tools.getNullable("tools")
 
+        /**
+         * Returns the raw JSON value of [messagesBatch].
+         *
+         * Unlike [messagesBatch], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("messages_batch")
         @ExcludeMissing
         fun _messagesBatch(): JsonField<List<List<Message>>> = messagesBatch
 
+        /**
+         * Returns the raw JSON value of [model].
+         *
+         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
+        /**
+         * Returns the raw JSON value of [logprobs].
+         *
+         * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Returns the raw JSON value of [responseFormat].
+         *
+         * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("response_format")
         @ExcludeMissing
         fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
 
+        /**
+         * Returns the raw JSON value of [samplingParams].
+         *
+         * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("sampling_params")
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
         /**
-         * Whether tool use is required or automatic. This is a hint to the model which may not be
-         * followed. It depends on the Instruction Following capabilities of the model.
+         * Returns the raw JSON value of [toolChoice].
+         *
+         * Unlike [toolChoice], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("tool_choice")
         @ExcludeMissing
         fun _toolChoice(): JsonField<ToolChoice> = toolChoice
 
-        /** Prompt format for calling custom / zero shot tools. */
+        /**
+         * Returns the raw JSON value of [toolPromptFormat].
+         *
+         * Unlike [toolPromptFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("tool_prompt_format")
         @ExcludeMissing
         fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
 
+        /**
+         * Returns the raw JSON value of [tools].
+         *
+         * Unlike [tools], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("tools") @ExcludeMissing fun _tools(): JsonField<List<Tool>> = tools
 
         @JsonAnyGetter
@@ -197,6 +339,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messagesBatch()
+             * .model()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -228,43 +379,80 @@ private constructor(
             fun messagesBatch(messagesBatch: List<List<Message>>) =
                 messagesBatch(JsonField.of(messagesBatch))
 
+            /**
+             * Sets [Builder.messagesBatch] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.messagesBatch] with a well-typed
+             * `List<List<Message>>` value instead. This method is primarily for setting the field
+             * to an undocumented or not yet supported value.
+             */
             fun messagesBatch(messagesBatch: JsonField<List<List<Message>>>) = apply {
                 this.messagesBatch = messagesBatch.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [List<Message>] to [Builder.messagesBatch].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addMessagesBatch(messagesBatch: List<Message>) = apply {
                 this.messagesBatch =
-                    (this.messagesBatch ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(messagesBatch)
+                    (this.messagesBatch ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("messagesBatch", it).add(messagesBatch)
                     }
             }
 
             fun model(model: String) = model(JsonField.of(model))
 
+            /**
+             * Sets [Builder.model] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.model] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun model(model: JsonField<String>) = apply { this.model = model }
 
             fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
 
+            /**
+             * Sets [Builder.logprobs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
 
             /** Configuration for JSON schema-guided response generation. */
             fun responseFormat(responseFormat: ResponseFormat) =
                 responseFormat(JsonField.of(responseFormat))
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Sets [Builder.responseFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
                 this.responseFormat = responseFormat
             }
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
+             */
             fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
                 responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.JsonSchemaResponseFormat.builder()
+             *     .jsonSchema(jsonSchema)
+             *     .build()
+             * ```
+             */
             fun jsonSchemaResponseFormat(
                 jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
             ) =
@@ -272,17 +460,31 @@ private constructor(
                     ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
                 )
 
-            /** Configuration for grammar-guided response generation. */
+            /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
             fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
                 responseFormat(ResponseFormat.ofGrammar(grammar))
 
-            /** Configuration for grammar-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.GrammarResponseFormat.builder()
+             *     .bnf(bnf)
+             *     .build()
+             * ```
+             */
             fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
                 responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
 
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
+            /**
+             * Sets [Builder.samplingParams] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
@@ -294,8 +496,11 @@ private constructor(
             fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
 
             /**
-             * Whether tool use is required or automatic. This is a hint to the model which may not
-             * be followed. It depends on the Instruction Following capabilities of the model.
+             * Sets [Builder.toolChoice] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolChoice] with a well-typed [ToolChoice] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
                 this.toolChoice = toolChoice
@@ -305,25 +510,39 @@ private constructor(
             fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
                 toolPromptFormat(JsonField.of(toolPromptFormat))
 
-            /** Prompt format for calling custom / zero shot tools. */
+            /**
+             * Sets [Builder.toolPromptFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolPromptFormat] with a well-typed
+             * [ToolPromptFormat] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
             fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
                 this.toolPromptFormat = toolPromptFormat
             }
 
             fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
 
+            /**
+             * Sets [Builder.tools] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.tools] with a well-typed `List<Tool>` value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun tools(tools: JsonField<List<Tool>>) = apply {
                 this.tools = tools.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [Tool] to [tools].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addTool(tool: Tool) = apply {
                 tools =
-                    (tools ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(tool)
+                    (tools ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("tools", it).add(tool)
                     }
             }
 
@@ -382,6 +601,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [BatchInferenceChatCompletionParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .messagesBatch()
+         * .model()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -405,20 +634,45 @@ private constructor(
             body.messagesBatch(messagesBatch)
         }
 
+        /**
+         * Sets [Builder.messagesBatch] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.messagesBatch] with a well-typed `List<List<Message>>`
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun messagesBatch(messagesBatch: JsonField<List<List<Message>>>) = apply {
             body.messagesBatch(messagesBatch)
         }
 
+        /**
+         * Adds a single [List<Message>] to [Builder.messagesBatch].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addMessagesBatch(messagesBatch: List<Message>) = apply {
             body.addMessagesBatch(messagesBatch)
         }
 
         fun model(model: String) = apply { body.model(model) }
 
+        /**
+         * Sets [Builder.model] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.model] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun model(model: JsonField<String>) = apply { body.model(model) }
 
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
+        /**
+         * Sets [Builder.logprobs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
 
         /** Configuration for JSON schema-guided response generation. */
@@ -426,27 +680,47 @@ private constructor(
             body.responseFormat(responseFormat)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Sets [Builder.responseFormat] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
             body.responseFormat(responseFormat)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
         fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
             body.responseFormat(jsonSchema)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         *     .jsonSchema(jsonSchema)
+         *     .build()
+         * ```
+         */
         fun jsonSchemaResponseFormat(
             jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
         ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
 
-        /** Configuration for grammar-guided response generation. */
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
         fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
             body.responseFormat(grammar)
         }
 
-        /** Configuration for grammar-guided response generation. */
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.GrammarResponseFormat.builder()
+         *     .bnf(bnf)
+         *     .build()
+         * ```
+         */
         fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
             body.grammarResponseFormat(bnf)
         }
@@ -455,6 +729,13 @@ private constructor(
             body.samplingParams(samplingParams)
         }
 
+        /**
+         * Sets [Builder.samplingParams] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
             body.samplingParams(samplingParams)
         }
@@ -466,8 +747,11 @@ private constructor(
         fun toolChoice(toolChoice: ToolChoice) = apply { body.toolChoice(toolChoice) }
 
         /**
-         * Whether tool use is required or automatic. This is a hint to the model which may not be
-         * followed. It depends on the Instruction Following capabilities of the model.
+         * Sets [Builder.toolChoice] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolChoice] with a well-typed [ToolChoice] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
          */
         fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply { body.toolChoice(toolChoice) }
 
@@ -476,15 +760,33 @@ private constructor(
             body.toolPromptFormat(toolPromptFormat)
         }
 
-        /** Prompt format for calling custom / zero shot tools. */
+        /**
+         * Sets [Builder.toolPromptFormat] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolPromptFormat] with a well-typed [ToolPromptFormat]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
             body.toolPromptFormat(toolPromptFormat)
         }
 
         fun tools(tools: List<Tool>) = apply { body.tools(tools) }
 
+        /**
+         * Sets [Builder.tools] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.tools] with a well-typed `List<Tool>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun tools(tools: JsonField<List<Tool>>) = apply { body.tools(tools) }
 
+        /**
+         * Adds a single [Tool] to [tools].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addTool(tool: Tool) = apply { body.addTool(tool) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -621,10 +923,19 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** How many tokens (for each position) to return log probabilities for. */
+        /**
+         * How many tokens (for each position) to return log probabilities for.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun topK(): Long? = topK.getNullable("top_k")
 
-        /** How many tokens (for each position) to return log probabilities for. */
+        /**
+         * Returns the raw JSON value of [topK].
+         *
+         * Unlike [topK], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
@@ -646,6 +957,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Logprobs]. */
             fun builder() = Builder()
         }
 
@@ -663,7 +975,13 @@ private constructor(
             /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: Long) = topK(JsonField.of(topK))
 
-            /** How many tokens (for each position) to return log probabilities for. */
+            /**
+             * Sets [Builder.topK] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.topK] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -944,18 +1262,46 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun toolName(): ToolName = toolName.getRequired("tool_name")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun description(): String? = description.getNullable("description")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun parameters(): Parameters? = parameters.getNullable("parameters")
 
+        /**
+         * Returns the raw JSON value of [toolName].
+         *
+         * Unlike [toolName], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
+        /**
+         * Returns the raw JSON value of [description].
+         *
+         * Unlike [description], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("description")
         @ExcludeMissing
         fun _description(): JsonField<String> = description
 
+        /**
+         * Returns the raw JSON value of [parameters].
+         *
+         * Unlike [parameters], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("parameters")
         @ExcludeMissing
         fun _parameters(): JsonField<Parameters> = parameters
@@ -981,6 +1327,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Tool].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .toolName()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -1001,18 +1355,46 @@ private constructor(
 
             fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
+            /**
+             * Sets [Builder.toolName] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolName] with a well-typed [ToolName] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
 
+            /**
+             * Sets [toolName] to an arbitrary [String].
+             *
+             * You should usually call [toolName] with a well-typed [ToolName] constant instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun toolName(value: String) = toolName(ToolName.of(value))
 
             fun description(description: String) = description(JsonField.of(description))
 
+            /**
+             * Sets [Builder.description] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.description] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun description(description: JsonField<String>) = apply {
                 this.description = description
             }
 
             fun parameters(parameters: Parameters) = parameters(JsonField.of(parameters))
 
+            /**
+             * Sets [Builder.parameters] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.parameters] with a well-typed [Parameters] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun parameters(parameters: JsonField<Parameters>) = apply {
                 this.parameters = parameters
             }
@@ -1185,6 +1567,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Parameters]. */
                 fun builder() = Builder()
             }
 

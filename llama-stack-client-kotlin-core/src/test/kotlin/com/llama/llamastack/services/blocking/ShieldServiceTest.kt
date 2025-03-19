@@ -5,10 +5,9 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.Shield
-import com.llama.llamastack.models.ShieldListParams
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -16,33 +15,35 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ShieldServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
+
         val shield =
             shieldService.retrieve(ShieldRetrieveParams.builder().identifier("identifier").build())
-        println(shield)
-        shield?.validate()
+
+        assertNotNull(shield)
+        shield.validate()
     }
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
-        val listShieldsResponse = shieldService.list(ShieldListParams.builder().build())
-        println(listShieldsResponse)
-        for (shield: Shield in listShieldsResponse) {
-            shield.validate()
-        }
+
+        val shields = shieldService.list()
+
+        shields.forEach { it.validate() }
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val shieldService = client.shields()
+
         val shield =
             shieldService.register(
                 ShieldRegisterParams.builder()
@@ -56,7 +57,7 @@ class ShieldServiceTest {
                     .providerShieldId("provider_shield_id")
                     .build()
             )
-        println(shield)
+
         shield.validate()
     }
 }

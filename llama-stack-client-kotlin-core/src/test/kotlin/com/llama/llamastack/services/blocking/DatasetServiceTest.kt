@@ -5,11 +5,10 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.DatasetListParams
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetUnregisterParams
-import com.llama.llamastack.models.ListDatasetsResponse
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -17,33 +16,35 @@ import org.junit.jupiter.api.extension.ExtendWith
 class DatasetServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
-        val datasetRetrieveResponse =
+
+        val dataset =
             datasetService.retrieve(DatasetRetrieveParams.builder().datasetId("dataset_id").build())
-        println(datasetRetrieveResponse)
-        datasetRetrieveResponse?.validate()
+
+        assertNotNull(dataset)
+        dataset.validate()
     }
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
-        val listDatasetsResponse = datasetService.list(DatasetListParams.builder().build())
-        println(listDatasetsResponse)
-        for (dataset: ListDatasetsResponse.Data in listDatasetsResponse) {
-            dataset.validate()
-        }
+
+        val datasets = datasetService.list()
+
+        datasets.forEach { it.validate() }
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
+
         datasetService.register(
             DatasetRegisterParams.builder()
                 .datasetId("dataset_id")
@@ -65,10 +66,11 @@ class DatasetServiceTest {
     }
 
     @Test
-    fun callUnregister() {
+    fun unregister() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
+
         datasetService.unregister(DatasetUnregisterParams.builder().datasetId("dataset_id").build())
     }
 }

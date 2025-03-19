@@ -37,6 +37,9 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [TelemetryGetSpanTreeResponse].
+         */
         fun builder() = Builder()
     }
 

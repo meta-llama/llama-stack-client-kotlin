@@ -12,13 +12,16 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Evaluate a list of rows on a benchmark. */
 class EvalEvaluateRowsParams
 private constructor(
     private val benchmarkId: String,
@@ -29,17 +32,51 @@ private constructor(
 
     fun benchmarkId(): String = benchmarkId
 
+    /**
+     * The configuration for the benchmark.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
+    fun benchmarkConfig(): BenchmarkConfig = body.benchmarkConfig()
+
+    /**
+     * The rows to evaluate.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun inputRows(): List<InputRow> = body.inputRows()
 
+    /**
+     * The scoring functions to use for the evaluation.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scoringFunctions(): List<String> = body.scoringFunctions()
 
-    fun taskConfig(): BenchmarkConfig = body.taskConfig()
+    /**
+     * Returns the raw JSON value of [benchmarkConfig].
+     *
+     * Unlike [benchmarkConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    fun _benchmarkConfig(): JsonField<BenchmarkConfig> = body._benchmarkConfig()
 
+    /**
+     * Returns the raw JSON value of [inputRows].
+     *
+     * Unlike [inputRows], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _inputRows(): JsonField<List<InputRow>> = body._inputRows()
 
+    /**
+     * Returns the raw JSON value of [scoringFunctions].
+     *
+     * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _scoringFunctions(): JsonField<List<String>> = body._scoringFunctions()
-
-    fun _taskConfig(): JsonField<BenchmarkConfig> = body._taskConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
@@ -64,36 +101,74 @@ private constructor(
     class Body
     @JsonCreator
     private constructor(
+        @JsonProperty("benchmark_config")
+        @ExcludeMissing
+        private val benchmarkConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
         @JsonProperty("input_rows")
         @ExcludeMissing
         private val inputRows: JsonField<List<InputRow>> = JsonMissing.of(),
         @JsonProperty("scoring_functions")
         @ExcludeMissing
         private val scoringFunctions: JsonField<List<String>> = JsonMissing.of(),
-        @JsonProperty("task_config")
-        @ExcludeMissing
-        private val taskConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
         @JsonAnySetter
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The configuration for the benchmark.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun benchmarkConfig(): BenchmarkConfig = benchmarkConfig.getRequired("benchmark_config")
+
+        /**
+         * The rows to evaluate.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun inputRows(): List<InputRow> = inputRows.getRequired("input_rows")
 
+        /**
+         * The scoring functions to use for the evaluation.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
-        fun taskConfig(): BenchmarkConfig = taskConfig.getRequired("task_config")
+        /**
+         * Returns the raw JSON value of [benchmarkConfig].
+         *
+         * Unlike [benchmarkConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("benchmark_config")
+        @ExcludeMissing
+        fun _benchmarkConfig(): JsonField<BenchmarkConfig> = benchmarkConfig
 
+        /**
+         * Returns the raw JSON value of [inputRows].
+         *
+         * Unlike [inputRows], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("input_rows")
         @ExcludeMissing
         fun _inputRows(): JsonField<List<InputRow>> = inputRows
 
+        /**
+         * Returns the raw JSON value of [scoringFunctions].
+         *
+         * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("scoring_functions")
         @ExcludeMissing
         fun _scoringFunctions(): JsonField<List<String>> = scoringFunctions
-
-        @JsonProperty("task_config")
-        @ExcludeMissing
-        fun _taskConfig(): JsonField<BenchmarkConfig> = taskConfig
 
         @JsonAnyGetter
         @ExcludeMissing
@@ -106,9 +181,9 @@ private constructor(
                 return@apply
             }
 
+            benchmarkConfig().validate()
             inputRows().forEach { it.validate() }
             scoringFunctions()
-            taskConfig().validate()
             validated = true
         }
 
@@ -116,63 +191,100 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .benchmarkConfig()
+             * .inputRows()
+             * .scoringFunctions()
+             * ```
+             */
             fun builder() = Builder()
         }
 
         /** A builder for [Body]. */
         class Builder internal constructor() {
 
+            private var benchmarkConfig: JsonField<BenchmarkConfig>? = null
             private var inputRows: JsonField<MutableList<InputRow>>? = null
             private var scoringFunctions: JsonField<MutableList<String>>? = null
-            private var taskConfig: JsonField<BenchmarkConfig>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
             internal fun from(body: Body) = apply {
+                benchmarkConfig = body.benchmarkConfig
                 inputRows = body.inputRows.map { it.toMutableList() }
                 scoringFunctions = body.scoringFunctions.map { it.toMutableList() }
-                taskConfig = body.taskConfig
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The configuration for the benchmark. */
+            fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) =
+                benchmarkConfig(JsonField.of(benchmarkConfig))
+
+            /**
+             * Sets [Builder.benchmarkConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.benchmarkConfig] with a well-typed [BenchmarkConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun benchmarkConfig(benchmarkConfig: JsonField<BenchmarkConfig>) = apply {
+                this.benchmarkConfig = benchmarkConfig
+            }
+
+            /** The rows to evaluate. */
             fun inputRows(inputRows: List<InputRow>) = inputRows(JsonField.of(inputRows))
 
+            /**
+             * Sets [Builder.inputRows] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.inputRows] with a well-typed `List<InputRow>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun inputRows(inputRows: JsonField<List<InputRow>>) = apply {
                 this.inputRows = inputRows.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [InputRow] to [inputRows].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addInputRow(inputRow: InputRow) = apply {
                 inputRows =
-                    (inputRows ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(inputRow)
+                    (inputRows ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("inputRows", it).add(inputRow)
                     }
             }
 
+            /** The scoring functions to use for the evaluation. */
             fun scoringFunctions(scoringFunctions: List<String>) =
                 scoringFunctions(JsonField.of(scoringFunctions))
 
+            /**
+             * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.scoringFunctions] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
                 this.scoringFunctions = scoringFunctions.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [scoringFunctions].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addScoringFunction(scoringFunction: String) = apply {
                 scoringFunctions =
-                    (scoringFunctions ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(scoringFunction)
+                    (scoringFunctions ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("scoringFunctions", it).add(scoringFunction)
                     }
-            }
-
-            fun taskConfig(taskConfig: BenchmarkConfig) = taskConfig(JsonField.of(taskConfig))
-
-            fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
-                this.taskConfig = taskConfig
             }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -196,9 +308,9 @@ private constructor(
 
             fun build(): Body =
                 Body(
+                    checkRequired("benchmarkConfig", benchmarkConfig),
                     checkRequired("inputRows", inputRows).map { it.toImmutable() },
                     checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
-                    checkRequired("taskConfig", taskConfig),
                     additionalProperties.toImmutable(),
                 )
         }
@@ -208,23 +320,34 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Body && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && taskConfig == other.taskConfig && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && benchmarkConfig == other.benchmarkConfig && inputRows == other.inputRows && scoringFunctions == other.scoringFunctions && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(inputRows, scoringFunctions, taskConfig, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(benchmarkConfig, inputRows, scoringFunctions, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "Body{inputRows=$inputRows, scoringFunctions=$scoringFunctions, taskConfig=$taskConfig, additionalProperties=$additionalProperties}"
+            "Body{benchmarkConfig=$benchmarkConfig, inputRows=$inputRows, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
     }
 
     fun toBuilder() = Builder().from(this)
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [EvalEvaluateRowsParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .benchmarkConfig()
+         * .inputRows()
+         * .scoringFunctions()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -246,28 +369,64 @@ private constructor(
 
         fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
+        /** The configuration for the benchmark. */
+        fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) = apply {
+            body.benchmarkConfig(benchmarkConfig)
+        }
+
+        /**
+         * Sets [Builder.benchmarkConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.benchmarkConfig] with a well-typed [BenchmarkConfig]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
+        fun benchmarkConfig(benchmarkConfig: JsonField<BenchmarkConfig>) = apply {
+            body.benchmarkConfig(benchmarkConfig)
+        }
+
+        /** The rows to evaluate. */
         fun inputRows(inputRows: List<InputRow>) = apply { body.inputRows(inputRows) }
 
+        /**
+         * Sets [Builder.inputRows] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.inputRows] with a well-typed `List<InputRow>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun inputRows(inputRows: JsonField<List<InputRow>>) = apply { body.inputRows(inputRows) }
 
+        /**
+         * Adds a single [InputRow] to [inputRows].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addInputRow(inputRow: InputRow) = apply { body.addInputRow(inputRow) }
 
+        /** The scoring functions to use for the evaluation. */
         fun scoringFunctions(scoringFunctions: List<String>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
 
+        /**
+         * Sets [Builder.scoringFunctions] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scoringFunctions] with a well-typed `List<String>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun scoringFunctions(scoringFunctions: JsonField<List<String>>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
 
+        /**
+         * Adds a single [String] to [scoringFunctions].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addScoringFunction(scoringFunction: String) = apply {
             body.addScoringFunction(scoringFunction)
-        }
-
-        fun taskConfig(taskConfig: BenchmarkConfig) = apply { body.taskConfig(taskConfig) }
-
-        fun taskConfig(taskConfig: JsonField<BenchmarkConfig>) = apply {
-            body.taskConfig(taskConfig)
         }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -422,6 +581,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [InputRow]. */
             fun builder() = Builder()
         }
 

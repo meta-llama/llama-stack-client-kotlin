@@ -13,6 +13,7 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -25,8 +26,17 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun violation(): SafetyViolation? = violation.getNullable("violation")
 
+    /**
+     * Returns the raw JSON value of [violation].
+     *
+     * Unlike [violation], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("violation")
     @ExcludeMissing
     fun _violation(): JsonField<SafetyViolation> = violation
@@ -50,6 +60,7 @@ private constructor(
 
     companion object {
 
+        /** Returns a mutable builder for constructing an instance of [RunShieldResponse]. */
         fun builder() = Builder()
     }
 
@@ -66,6 +77,13 @@ private constructor(
 
         fun violation(violation: SafetyViolation) = violation(JsonField.of(violation))
 
+        /**
+         * Sets [Builder.violation] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.violation] with a well-typed [SafetyViolation] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun violation(violation: JsonField<SafetyViolation>) = apply { this.violation = violation }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

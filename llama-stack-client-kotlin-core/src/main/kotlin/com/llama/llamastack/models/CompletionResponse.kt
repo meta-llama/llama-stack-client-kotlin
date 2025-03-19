@@ -12,6 +12,7 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
@@ -32,30 +33,73 @@ private constructor(
     @JsonProperty("logprobs")
     @ExcludeMissing
     private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
+    @JsonProperty("metrics")
+    @ExcludeMissing
+    private val metrics: JsonField<List<Metric>> = JsonMissing.of(),
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
-    /** The generated completion text */
+    /**
+     * The generated completion text
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): String = content.getRequired("content")
 
-    /** Reason why generation stopped */
+    /**
+     * Reason why generation stopped
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun stopReason(): StopReason = stopReason.getRequired("stop_reason")
 
-    /** Optional log probabilities for generated tokens */
+    /**
+     * Optional log probabilities for generated tokens
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun logprobs(): List<TokenLogProbs>? = logprobs.getNullable("logprobs")
 
-    /** The generated completion text */
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun metrics(): List<Metric>? = metrics.getNullable("metrics")
+
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<String> = content
 
-    /** Reason why generation stopped */
+    /**
+     * Returns the raw JSON value of [stopReason].
+     *
+     * Unlike [stopReason], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("stop_reason")
     @ExcludeMissing
     fun _stopReason(): JsonField<StopReason> = stopReason
 
-    /** Optional log probabilities for generated tokens */
+    /**
+     * Returns the raw JSON value of [logprobs].
+     *
+     * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("logprobs")
     @ExcludeMissing
     fun _logprobs(): JsonField<List<TokenLogProbs>> = logprobs
+
+    /**
+     * Returns the raw JSON value of [metrics].
+     *
+     * Unlike [metrics], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("metrics") @ExcludeMissing fun _metrics(): JsonField<List<Metric>> = metrics
 
     @JsonAnyGetter
     @ExcludeMissing
@@ -71,6 +115,7 @@ private constructor(
         content()
         stopReason()
         logprobs()?.forEach { it.validate() }
+        metrics()?.forEach { it.validate() }
         validated = true
     }
 
@@ -78,6 +123,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [CompletionResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * .stopReason()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -87,44 +141,88 @@ private constructor(
         private var content: JsonField<String>? = null
         private var stopReason: JsonField<StopReason>? = null
         private var logprobs: JsonField<MutableList<TokenLogProbs>>? = null
+        private var metrics: JsonField<MutableList<Metric>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(completionResponse: CompletionResponse) = apply {
             content = completionResponse.content
             stopReason = completionResponse.stopReason
             logprobs = completionResponse.logprobs.map { it.toMutableList() }
+            metrics = completionResponse.metrics.map { it.toMutableList() }
             additionalProperties = completionResponse.additionalProperties.toMutableMap()
         }
 
         /** The generated completion text */
         fun content(content: String) = content(JsonField.of(content))
 
-        /** The generated completion text */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun content(content: JsonField<String>) = apply { this.content = content }
 
         /** Reason why generation stopped */
         fun stopReason(stopReason: StopReason) = stopReason(JsonField.of(stopReason))
 
-        /** Reason why generation stopped */
+        /**
+         * Sets [Builder.stopReason] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.stopReason] with a well-typed [StopReason] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun stopReason(stopReason: JsonField<StopReason>) = apply { this.stopReason = stopReason }
 
         /** Optional log probabilities for generated tokens */
         fun logprobs(logprobs: List<TokenLogProbs>) = logprobs(JsonField.of(logprobs))
 
-        /** Optional log probabilities for generated tokens */
+        /**
+         * Sets [Builder.logprobs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.logprobs] with a well-typed `List<TokenLogProbs>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun logprobs(logprobs: JsonField<List<TokenLogProbs>>) = apply {
             this.logprobs = logprobs.map { it.toMutableList() }
         }
 
-        /** Optional log probabilities for generated tokens */
+        /**
+         * Adds a single [TokenLogProbs] to [logprobs].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addLogprob(logprob: TokenLogProbs) = apply {
             logprobs =
-                (logprobs ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(logprob)
+                (logprobs ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("logprobs", it).add(logprob)
+                }
+        }
+
+        fun metrics(metrics: List<Metric>) = metrics(JsonField.of(metrics))
+
+        /**
+         * Sets [Builder.metrics] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metrics] with a well-typed `List<Metric>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
+        fun metrics(metrics: JsonField<List<Metric>>) = apply {
+            this.metrics = metrics.map { it.toMutableList() }
+        }
+
+        /**
+         * Adds a single [Metric] to [metrics].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
+        fun addMetric(metric: Metric) = apply {
+            metrics =
+                (metrics ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("metrics", it).add(metric)
                 }
         }
 
@@ -152,6 +250,7 @@ private constructor(
                 checkRequired("content", content),
                 checkRequired("stopReason", stopReason),
                 (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
+                (metrics ?: JsonMissing.of()).map { it.toImmutable() },
                 additionalProperties.toImmutable(),
             )
     }
@@ -264,20 +363,205 @@ private constructor(
         override fun toString() = value.toString()
     }
 
+    @NoAutoDetect
+    class Metric
+    @JsonCreator
+    private constructor(
+        @JsonProperty("metric")
+        @ExcludeMissing
+        private val metric: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("value")
+        @ExcludeMissing
+        private val value: JsonField<Double> = JsonMissing.of(),
+        @JsonProperty("unit")
+        @ExcludeMissing
+        private val unit: JsonField<String> = JsonMissing.of(),
+        @JsonAnySetter
+        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    ) {
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun metric(): String = metric.getRequired("metric")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun value(): Double = value.getRequired("value")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun unit(): String? = unit.getNullable("unit")
+
+        /**
+         * Returns the raw JSON value of [metric].
+         *
+         * Unlike [metric], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("metric") @ExcludeMissing fun _metric(): JsonField<String> = metric
+
+        /**
+         * Returns the raw JSON value of [value].
+         *
+         * Unlike [value], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Double> = value
+
+        /**
+         * Returns the raw JSON value of [unit].
+         *
+         * Unlike [unit], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("unit") @ExcludeMissing fun _unit(): JsonField<String> = unit
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        private var validated: Boolean = false
+
+        fun validate(): Metric = apply {
+            if (validated) {
+                return@apply
+            }
+
+            metric()
+            value()
+            unit()
+            validated = true
+        }
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Metric].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .metric()
+             * .value()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Metric]. */
+        class Builder internal constructor() {
+
+            private var metric: JsonField<String>? = null
+            private var value: JsonField<Double>? = null
+            private var unit: JsonField<String> = JsonMissing.of()
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(metric: Metric) = apply {
+                this.metric = metric.metric
+                value = metric.value
+                unit = metric.unit
+                additionalProperties = metric.additionalProperties.toMutableMap()
+            }
+
+            fun metric(metric: String) = metric(JsonField.of(metric))
+
+            /**
+             * Sets [Builder.metric] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metric] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun metric(metric: JsonField<String>) = apply { this.metric = metric }
+
+            fun value(value: Double) = value(JsonField.of(value))
+
+            /**
+             * Sets [Builder.value] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.value] with a well-typed [Double] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun value(value: JsonField<Double>) = apply { this.value = value }
+
+            fun unit(unit: String) = unit(JsonField.of(unit))
+
+            /**
+             * Sets [Builder.unit] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.unit] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
+            fun unit(unit: JsonField<String>) = apply { this.unit = unit }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            fun build(): Metric =
+                Metric(
+                    checkRequired("metric", metric),
+                    checkRequired("value", value),
+                    unit,
+                    additionalProperties.toImmutable(),
+                )
+        }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Metric && metric == other.metric && value == other.value && unit == other.unit && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(metric, value, unit, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Metric{metric=$metric, value=$value, unit=$unit, additionalProperties=$additionalProperties}"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is CompletionResponse && content == other.content && stopReason == other.stopReason && logprobs == other.logprobs && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is CompletionResponse && content == other.content && stopReason == other.stopReason && logprobs == other.logprobs && metrics == other.metrics && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(content, stopReason, logprobs, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(content, stopReason, logprobs, metrics, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "CompletionResponse{content=$content, stopReason=$stopReason, logprobs=$logprobs, additionalProperties=$additionalProperties}"
+        "CompletionResponse{content=$content, stopReason=$stopReason, logprobs=$logprobs, metrics=$metrics, additionalProperties=$additionalProperties}"
 }

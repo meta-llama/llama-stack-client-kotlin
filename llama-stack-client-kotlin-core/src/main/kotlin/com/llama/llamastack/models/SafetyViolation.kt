@@ -34,18 +34,45 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata = metadata.getRequired("metadata")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun violationLevel(): ViolationLevel = violationLevel.getRequired("violation_level")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun userMessage(): String? = userMessage.getNullable("user_message")
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+    /**
+     * Returns the raw JSON value of [violationLevel].
+     *
+     * Unlike [violationLevel], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("violation_level")
     @ExcludeMissing
     fun _violationLevel(): JsonField<ViolationLevel> = violationLevel
 
+    /**
+     * Returns the raw JSON value of [userMessage].
+     *
+     * Unlike [userMessage], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("user_message")
     @ExcludeMissing
     fun _userMessage(): JsonField<String> = userMessage
@@ -71,6 +98,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [SafetyViolation].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .metadata()
+         * .violationLevel()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -91,17 +127,38 @@ private constructor(
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         fun violationLevel(violationLevel: ViolationLevel) =
             violationLevel(JsonField.of(violationLevel))
 
+        /**
+         * Sets [Builder.violationLevel] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.violationLevel] with a well-typed [ViolationLevel] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun violationLevel(violationLevel: JsonField<ViolationLevel>) = apply {
             this.violationLevel = violationLevel
         }
 
         fun userMessage(userMessage: String) = userMessage(JsonField.of(userMessage))
 
+        /**
+         * Sets [Builder.userMessage] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.userMessage] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun userMessage(userMessage: JsonField<String>) = apply { this.userMessage = userMessage }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -158,6 +215,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

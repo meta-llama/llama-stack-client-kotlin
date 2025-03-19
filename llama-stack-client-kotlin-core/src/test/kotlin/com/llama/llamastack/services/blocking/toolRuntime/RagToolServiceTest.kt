@@ -16,10 +16,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class RagToolServiceTest {
 
     @Test
-    fun callInsert() {
+    fun insert() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val ragToolService = client.toolRuntime().ragTool()
+
         ragToolService.insert(
             ToolRuntimeRagToolInsertParams.builder()
                 .chunkSizeInTokens(0L)
@@ -41,10 +42,11 @@ class RagToolServiceTest {
     }
 
     @Test
-    fun callQuery() {
+    fun query() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val ragToolService = client.toolRuntime().ragTool()
+
         val queryResult =
             ragToolService.query(
                 ToolRuntimeRagToolQueryParams.builder()
@@ -59,7 +61,7 @@ class RagToolServiceTest {
                     )
                     .build()
             )
-        println(queryResult)
+
         queryResult.validate()
     }
 }

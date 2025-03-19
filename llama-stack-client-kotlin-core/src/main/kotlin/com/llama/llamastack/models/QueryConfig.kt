@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -32,19 +33,48 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun maxChunks(): Long = maxChunks.getRequired("max_chunks")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun maxTokensInContext(): Long = maxTokensInContext.getRequired("max_tokens_in_context")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun queryGeneratorConfig(): QueryGeneratorConfig =
         queryGeneratorConfig.getRequired("query_generator_config")
 
+    /**
+     * Returns the raw JSON value of [maxChunks].
+     *
+     * Unlike [maxChunks], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("max_chunks") @ExcludeMissing fun _maxChunks(): JsonField<Long> = maxChunks
 
+    /**
+     * Returns the raw JSON value of [maxTokensInContext].
+     *
+     * Unlike [maxTokensInContext], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("max_tokens_in_context")
     @ExcludeMissing
     fun _maxTokensInContext(): JsonField<Long> = maxTokensInContext
 
+    /**
+     * Returns the raw JSON value of [queryGeneratorConfig].
+     *
+     * Unlike [queryGeneratorConfig], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("query_generator_config")
     @ExcludeMissing
     fun _queryGeneratorConfig(): JsonField<QueryGeneratorConfig> = queryGeneratorConfig
@@ -70,6 +100,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [QueryConfig].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .maxChunks()
+         * .maxTokensInContext()
+         * .queryGeneratorConfig()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -90,11 +130,24 @@ private constructor(
 
         fun maxChunks(maxChunks: Long) = maxChunks(JsonField.of(maxChunks))
 
+        /**
+         * Sets [Builder.maxChunks] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.maxChunks] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun maxChunks(maxChunks: JsonField<Long>) = apply { this.maxChunks = maxChunks }
 
         fun maxTokensInContext(maxTokensInContext: Long) =
             maxTokensInContext(JsonField.of(maxTokensInContext))
 
+        /**
+         * Sets [Builder.maxTokensInContext] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.maxTokensInContext] with a well-typed [Long] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun maxTokensInContext(maxTokensInContext: JsonField<Long>) = apply {
             this.maxTokensInContext = maxTokensInContext
         }
@@ -102,13 +155,32 @@ private constructor(
         fun queryGeneratorConfig(queryGeneratorConfig: QueryGeneratorConfig) =
             queryGeneratorConfig(JsonField.of(queryGeneratorConfig))
 
+        /**
+         * Sets [Builder.queryGeneratorConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.queryGeneratorConfig] with a well-typed
+         * [QueryGeneratorConfig] value instead. This method is primarily for setting the field to
+         * an undocumented or not yet supported value.
+         */
         fun queryGeneratorConfig(queryGeneratorConfig: JsonField<QueryGeneratorConfig>) = apply {
             this.queryGeneratorConfig = queryGeneratorConfig
         }
 
+        /**
+         * Alias for calling [queryGeneratorConfig] with
+         * `QueryGeneratorConfig.ofDefaultRag(defaultRag)`.
+         */
         fun queryGeneratorConfig(defaultRag: QueryGeneratorConfig.DefaultRagQueryGeneratorConfig) =
             queryGeneratorConfig(QueryGeneratorConfig.ofDefaultRag(defaultRag))
 
+        /**
+         * Alias for calling [queryGeneratorConfig] with the following:
+         * ```kotlin
+         * QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
+         *     .separator(separator)
+         *     .build()
+         * ```
+         */
         fun defaultRagQueryGeneratorConfig(separator: String) =
             queryGeneratorConfig(
                 QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
@@ -116,6 +188,9 @@ private constructor(
                     .build()
             )
 
+        /**
+         * Alias for calling [queryGeneratorConfig] with `QueryGeneratorConfig.ofLlmrag(llmrag)`.
+         */
         fun queryGeneratorConfig(llmrag: QueryGeneratorConfig.LlmragQueryGeneratorConfig) =
             queryGeneratorConfig(QueryGeneratorConfig.ofLlmrag(llmrag))
 

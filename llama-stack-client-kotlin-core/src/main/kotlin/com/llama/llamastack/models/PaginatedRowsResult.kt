@@ -11,11 +11,14 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A paginated list of rows from a dataset. */
 @NoAutoDetect
 class PaginatedRowsResult
 @JsonCreator
@@ -30,16 +33,49 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * The rows in the current page.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun rows(): List<Row> = rows.getRequired("rows")
 
+    /**
+     * The total number of rows in the dataset.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun totalCount(): Long = totalCount.getRequired("total_count")
 
+    /**
+     * The token to get the next page of rows.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun nextPageToken(): String? = nextPageToken.getNullable("next_page_token")
 
+    /**
+     * Returns the raw JSON value of [rows].
+     *
+     * Unlike [rows], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("rows") @ExcludeMissing fun _rows(): JsonField<List<Row>> = rows
 
+    /**
+     * Returns the raw JSON value of [totalCount].
+     *
+     * Unlike [totalCount], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("total_count") @ExcludeMissing fun _totalCount(): JsonField<Long> = totalCount
 
+    /**
+     * Returns the raw JSON value of [nextPageToken].
+     *
+     * Unlike [nextPageToken], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("next_page_token")
     @ExcludeMissing
     fun _nextPageToken(): JsonField<String> = nextPageToken
@@ -65,6 +101,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [PaginatedRowsResult].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .rows()
+         * .totalCount()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -83,27 +128,47 @@ private constructor(
             additionalProperties = paginatedRowsResult.additionalProperties.toMutableMap()
         }
 
+        /** The rows in the current page. */
         fun rows(rows: List<Row>) = rows(JsonField.of(rows))
 
+        /**
+         * Sets [Builder.rows] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.rows] with a well-typed `List<Row>` value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun rows(rows: JsonField<List<Row>>) = apply { this.rows = rows.map { it.toMutableList() } }
 
+        /**
+         * Adds a single [Row] to [rows].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addRow(row: Row) = apply {
-            rows =
-                (rows ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(row)
-                }
+            rows = (rows ?: JsonField.of(mutableListOf())).also { checkKnown("rows", it).add(row) }
         }
 
+        /** The total number of rows in the dataset. */
         fun totalCount(totalCount: Long) = totalCount(JsonField.of(totalCount))
 
+        /**
+         * Sets [Builder.totalCount] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.totalCount] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun totalCount(totalCount: JsonField<Long>) = apply { this.totalCount = totalCount }
 
+        /** The token to get the next page of rows. */
         fun nextPageToken(nextPageToken: String) = nextPageToken(JsonField.of(nextPageToken))
 
+        /**
+         * Sets [Builder.nextPageToken] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.nextPageToken] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun nextPageToken(nextPageToken: JsonField<String>) = apply {
             this.nextPageToken = nextPageToken
         }
@@ -162,6 +227,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Row]. */
             fun builder() = Builder()
         }
 

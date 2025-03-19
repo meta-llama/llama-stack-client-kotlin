@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Generate a completion for the given content using the specified model. */
@@ -27,40 +28,80 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** The content to generate a completion for */
+    /**
+     * The content to generate a completion for
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent = body.content()
 
     /**
      * The identifier of the model to use. The model must be registered with Llama Stack and
      * available via the /models endpoint.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun modelId(): String = body.modelId()
 
-    /** (Optional) If specified, log probabilities for each token position will be returned. */
+    /**
+     * (Optional) If specified, log probabilities for each token position will be returned.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun logprobs(): Logprobs? = body.logprobs()
 
-    /** (Optional) Grammar specification for guided (structured) decoding */
+    /**
+     * (Optional) Grammar specification for guided (structured) decoding
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
-    /** (Optional) Parameters to control the sampling strategy */
+    /**
+     * (Optional) Parameters to control the sampling strategy
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
-    /** The content to generate a completion for */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _content(): JsonField<InterleavedContent> = body._content()
 
     /**
-     * The identifier of the model to use. The model must be registered with Llama Stack and
-     * available via the /models endpoint.
+     * Returns the raw JSON value of [modelId].
+     *
+     * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _modelId(): JsonField<String> = body._modelId()
 
-    /** (Optional) If specified, log probabilities for each token position will be returned. */
+    /**
+     * Returns the raw JSON value of [logprobs].
+     *
+     * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _logprobs(): JsonField<Logprobs> = body._logprobs()
 
-    /** (Optional) Grammar specification for guided (structured) decoding */
+    /**
+     * Returns the raw JSON value of [responseFormat].
+     *
+     * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
 
-    /** (Optional) Parameters to control the sampling strategy */
+    /**
+     * Returns the raw JSON value of [samplingParams].
+     *
+     * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -98,44 +139,88 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** The content to generate a completion for */
+        /**
+         * The content to generate a completion for
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun content(): InterleavedContent = content.getRequired("content")
 
         /**
          * The identifier of the model to use. The model must be registered with Llama Stack and
          * available via the /models endpoint.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
          */
         fun modelId(): String = modelId.getRequired("model_id")
 
-        /** (Optional) If specified, log probabilities for each token position will be returned. */
+        /**
+         * (Optional) If specified, log probabilities for each token position will be returned.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
-        /** (Optional) Grammar specification for guided (structured) decoding */
+        /**
+         * (Optional) Grammar specification for guided (structured) decoding
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
-        /** (Optional) Parameters to control the sampling strategy */
+        /**
+         * (Optional) Parameters to control the sampling strategy
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
-        /** The content to generate a completion for */
+        /**
+         * Returns the raw JSON value of [content].
+         *
+         * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
 
         /**
-         * The identifier of the model to use. The model must be registered with Llama Stack and
-         * available via the /models endpoint.
+         * Returns the raw JSON value of [modelId].
+         *
+         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
          */
         @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
 
-        /** (Optional) If specified, log probabilities for each token position will be returned. */
+        /**
+         * Returns the raw JSON value of [logprobs].
+         *
+         * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
 
-        /** (Optional) Grammar specification for guided (structured) decoding */
+        /**
+         * Returns the raw JSON value of [responseFormat].
+         *
+         * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("response_format")
         @ExcludeMissing
         fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
 
-        /** (Optional) Parameters to control the sampling strategy */
+        /**
+         * Returns the raw JSON value of [samplingParams].
+         *
+         * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("sampling_params")
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
@@ -163,6 +248,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .modelId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -188,21 +282,33 @@ private constructor(
             /** The content to generate a completion for */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-            /** The content to generate a completion for */
+            /**
+             * Sets [Builder.content] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.content] with a well-typed [InterleavedContent]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-            /** The content to generate a completion for */
+            /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** The content to generate a completion for */
+            /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
@@ -213,8 +319,11 @@ private constructor(
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
             /**
-             * The identifier of the model to use. The model must be registered with Llama Stack and
-             * available via the /models endpoint.
+             * Sets [Builder.modelId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
@@ -224,7 +333,11 @@ private constructor(
             fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
 
             /**
-             * (Optional) If specified, log probabilities for each token position will be returned.
+             * Sets [Builder.logprobs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
             fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
 
@@ -232,16 +345,31 @@ private constructor(
             fun responseFormat(responseFormat: ResponseFormat) =
                 responseFormat(JsonField.of(responseFormat))
 
-            /** (Optional) Grammar specification for guided (structured) decoding */
+            /**
+             * Sets [Builder.responseFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
                 this.responseFormat = responseFormat
             }
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
+             */
             fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
                 responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.JsonSchemaResponseFormat.builder()
+             *     .jsonSchema(jsonSchema)
+             *     .build()
+             * ```
+             */
             fun jsonSchemaResponseFormat(
                 jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
             ) =
@@ -249,11 +377,18 @@ private constructor(
                     ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
                 )
 
-            /** Configuration for grammar-guided response generation. */
+            /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
             fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
                 responseFormat(ResponseFormat.ofGrammar(grammar))
 
-            /** Configuration for grammar-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.GrammarResponseFormat.builder()
+             *     .bnf(bnf)
+             *     .build()
+             * ```
+             */
             fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
                 responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
 
@@ -261,7 +396,13 @@ private constructor(
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
-            /** (Optional) Parameters to control the sampling strategy */
+            /**
+             * Sets [Builder.samplingParams] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
@@ -318,6 +459,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [InferenceCompletionParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * .modelId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -338,23 +488,34 @@ private constructor(
         /** The content to generate a completion for */
         fun content(content: InterleavedContent) = apply { body.content(content) }
 
-        /** The content to generate a completion for */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { body.content(content) }
 
-        /** The content to generate a completion for */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = apply { body.content(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.content(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.content(textContentItem)
         }
 
-        /** The content to generate a completion for */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) = apply {
             body.contentOfItems(items)
         }
@@ -366,15 +527,23 @@ private constructor(
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
         /**
-         * The identifier of the model to use. The model must be registered with Llama Stack and
-         * available via the /models endpoint.
+         * Sets [Builder.modelId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.modelId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
          */
         fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
 
         /** (Optional) If specified, log probabilities for each token position will be returned. */
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
-        /** (Optional) If specified, log probabilities for each token position will be returned. */
+        /**
+         * Sets [Builder.logprobs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
 
         /** (Optional) Grammar specification for guided (structured) decoding */
@@ -382,27 +551,47 @@ private constructor(
             body.responseFormat(responseFormat)
         }
 
-        /** (Optional) Grammar specification for guided (structured) decoding */
+        /**
+         * Sets [Builder.responseFormat] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
             body.responseFormat(responseFormat)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
         fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
             body.responseFormat(jsonSchema)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         *     .jsonSchema(jsonSchema)
+         *     .build()
+         * ```
+         */
         fun jsonSchemaResponseFormat(
             jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
         ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
 
-        /** Configuration for grammar-guided response generation. */
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
         fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
             body.responseFormat(grammar)
         }
 
-        /** Configuration for grammar-guided response generation. */
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.GrammarResponseFormat.builder()
+         *     .bnf(bnf)
+         *     .build()
+         * ```
+         */
         fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
             body.grammarResponseFormat(bnf)
         }
@@ -412,7 +601,13 @@ private constructor(
             body.samplingParams(samplingParams)
         }
 
-        /** (Optional) Parameters to control the sampling strategy */
+        /**
+         * Sets [Builder.samplingParams] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
             body.samplingParams(samplingParams)
         }
@@ -552,10 +747,19 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** How many tokens (for each position) to return log probabilities for. */
+        /**
+         * How many tokens (for each position) to return log probabilities for.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun topK(): Long? = topK.getNullable("top_k")
 
-        /** How many tokens (for each position) to return log probabilities for. */
+        /**
+         * Returns the raw JSON value of [topK].
+         *
+         * Unlike [topK], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
@@ -577,6 +781,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Logprobs]. */
             fun builder() = Builder()
         }
 
@@ -594,7 +799,13 @@ private constructor(
             /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: Long) = topK(JsonField.of(topK))
 
-            /** How many tokens (for each position) to return log probabilities for. */
+            /**
+             * Sets [Builder.topK] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.topK] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

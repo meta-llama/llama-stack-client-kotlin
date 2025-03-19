@@ -17,8 +17,10 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** Create a new session for an agent. */
 class AgentSessionCreateParams
 private constructor(
     private val agentId: String,
@@ -29,8 +31,19 @@ private constructor(
 
     fun agentId(): String = agentId
 
+    /**
+     * The name of the session to create.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun sessionName(): String = body.sessionName()
 
+    /**
+     * Returns the raw JSON value of [sessionName].
+     *
+     * Unlike [sessionName], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _sessionName(): JsonField<String> = body._sessionName()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -63,8 +76,20 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The name of the session to create.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun sessionName(): String = sessionName.getRequired("session_name")
 
+        /**
+         * Returns the raw JSON value of [sessionName].
+         *
+         * Unlike [sessionName], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("session_name")
         @ExcludeMissing
         fun _sessionName(): JsonField<String> = sessionName
@@ -88,6 +113,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .sessionName()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -102,8 +135,16 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The name of the session to create. */
             fun sessionName(sessionName: String) = sessionName(JsonField.of(sessionName))
 
+            /**
+             * Sets [Builder.sessionName] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.sessionName] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun sessionName(sessionName: JsonField<String>) = apply {
                 this.sessionName = sessionName
             }
@@ -153,6 +194,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentSessionCreateParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionName()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -174,8 +224,16 @@ private constructor(
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
+        /** The name of the session to create. */
         fun sessionName(sessionName: String) = apply { body.sessionName(sessionName) }
 
+        /**
+         * Sets [Builder.sessionName] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.sessionName] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun sessionName(sessionName: JsonField<String>) = apply { body.sessionName(sessionName) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

@@ -2,6 +2,7 @@
 
 package com.llama.llamastack.models
 
+import com.llama.llamastack.core.JsonValue
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
@@ -14,6 +15,11 @@ class ListProvidersResponseTest {
                 .addData(
                     ProviderInfo.builder()
                         .api("api")
+                        .config(
+                            ProviderInfo.Config.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .providerId("provider_id")
                         .providerType("provider_type")
                         .build()
@@ -24,6 +30,11 @@ class ListProvidersResponseTest {
             .containsExactly(
                 ProviderInfo.builder()
                     .api("api")
+                    .config(
+                        ProviderInfo.Config.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
                     .providerId("provider_id")
                     .providerType("provider_type")
                     .build()

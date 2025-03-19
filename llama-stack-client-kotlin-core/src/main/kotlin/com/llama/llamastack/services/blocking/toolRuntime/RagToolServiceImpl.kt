@@ -10,8 +10,11 @@ import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
 import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
+import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponse.Handler
-import com.llama.llamastack.core.json
+import com.llama.llamastack.core.http.HttpResponseFor
+import com.llama.llamastack.core.http.json
+import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
 import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.QueryResult
@@ -21,46 +24,73 @@ import com.llama.llamastack.models.ToolRuntimeRagToolQueryParams
 class RagToolServiceImpl internal constructor(private val clientOptions: ClientOptions) :
     RagToolService {
 
-    private val errorHandler: Handler<LlamaStackClientError> =
-        errorHandler(clientOptions.jsonMapper)
-
-    private val insertHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
-
-    /** Index documents so they can be used by the RAG system */
-    override fun insert(params: ToolRuntimeRagToolInsertParams, requestOptions: RequestOptions) {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("v1", "tool-runtime", "rag-tool", "insert")
-                .body(json(clientOptions.jsonMapper, params._body()))
-                .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
-        response.use { insertHandler.handle(it) }
+    private val withRawResponse: RagToolService.WithRawResponse by lazy {
+        WithRawResponseImpl(clientOptions)
     }
 
-    private val queryHandler: Handler<QueryResult> =
-        jsonHandler<QueryResult>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+    override fun withRawResponse(): RagToolService.WithRawResponse = withRawResponse
 
-    /** Query the RAG system for context; typically invoked by the agent */
+    override fun insert(params: ToolRuntimeRagToolInsertParams, requestOptions: RequestOptions) {
+        // post /v1/tool-runtime/rag-tool/insert
+        withRawResponse().insert(params, requestOptions)
+    }
+
     override fun query(
         params: ToolRuntimeRagToolQueryParams,
         requestOptions: RequestOptions,
-    ): QueryResult {
-        val request =
-            HttpRequest.builder()
-                .method(HttpMethod.POST)
-                .addPathSegments("v1", "tool-runtime", "rag-tool", "query")
-                .body(json(clientOptions.jsonMapper, params._body()))
-                .build()
-                .prepare(clientOptions, params)
-        val response = clientOptions.httpClient.execute(request, requestOptions)
-        return response
-            .use { queryHandler.handle(it) }
-            .also {
-                if (requestOptions.responseValidation ?: clientOptions.responseValidation) {
-                    it.validate()
-                }
+    ): QueryResult =
+        // post /v1/tool-runtime/rag-tool/query
+        withRawResponse().query(params, requestOptions).parse()
+
+    class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
+        RagToolService.WithRawResponse {
+
+        private val errorHandler: Handler<LlamaStackClientError> =
+            errorHandler(clientOptions.jsonMapper)
+
+        private val insertHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+
+        override fun insert(
+            params: ToolRuntimeRagToolInsertParams,
+            requestOptions: RequestOptions,
+        ): HttpResponse {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .addPathSegments("v1", "tool-runtime", "rag-tool", "insert")
+                    .body(json(clientOptions.jsonMapper, params._body()))
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable { response.use { insertHandler.handle(it) } }
+        }
+
+        private val queryHandler: Handler<QueryResult> =
+            jsonHandler<QueryResult>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+
+        override fun query(
+            params: ToolRuntimeRagToolQueryParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<QueryResult> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.POST)
+                    .addPathSegments("v1", "tool-runtime", "rag-tool", "query")
+                    .body(json(clientOptions.jsonMapper, params._body()))
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { queryHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
             }
+        }
     }
 }

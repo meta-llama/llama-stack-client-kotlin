@@ -35,6 +35,9 @@ private constructor(
 
     companion object {
 
+        fun none(): ToolListParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ToolListParams]. */
         fun builder() = Builder()
     }
 

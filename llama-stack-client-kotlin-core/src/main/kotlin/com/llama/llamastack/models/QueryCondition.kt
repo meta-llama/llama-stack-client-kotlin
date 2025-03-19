@@ -38,16 +38,43 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun key(): String = key.getRequired("key")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun op(): Op = op.getRequired("op")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun value(): Value? = value.getNullable("value")
 
+    /**
+     * Returns the raw JSON value of [key].
+     *
+     * Unlike [key], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("key") @ExcludeMissing fun _key(): JsonField<String> = key
 
+    /**
+     * Returns the raw JSON value of [op].
+     *
+     * Unlike [op], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("op") @ExcludeMissing fun _op(): JsonField<Op> = op
 
+    /**
+     * Returns the raw JSON value of [value].
+     *
+     * Unlike [value], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Value> = value
 
     @JsonAnyGetter
@@ -71,6 +98,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [QueryCondition].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .key()
+         * .op()
+         * .value()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -91,24 +128,47 @@ private constructor(
 
         fun key(key: String) = key(JsonField.of(key))
 
+        /**
+         * Sets [Builder.key] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.key] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun key(key: JsonField<String>) = apply { this.key = key }
 
         fun op(op: Op) = op(JsonField.of(op))
 
+        /**
+         * Sets [Builder.op] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.op] with a well-typed [Op] value instead. This method is
+         * primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun op(op: JsonField<Op>) = apply { this.op = op }
 
         fun value(value: Value?) = value(JsonField.ofNullable(value))
 
+        /**
+         * Sets [Builder.value] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.value] with a well-typed [Value] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun value(value: JsonField<Value>) = apply { this.value = value }
 
+        /** Alias for calling [value] with `Value.ofBoolean(boolean)`. */
         fun value(boolean: Boolean) = value(Value.ofBoolean(boolean))
 
+        /** Alias for calling [value] with `Value.ofDouble(double)`. */
         fun value(double: Double) = value(Value.ofDouble(double))
 
+        /** Alias for calling [value] with `Value.ofString(string)`. */
         fun value(string: String) = value(Value.ofString(string))
 
+        /** Alias for calling [value] with `Value.ofJsonValues(jsonValues)`. */
         fun valueOfJsonValues(jsonValues: List<JsonValue>) = value(Value.ofJsonValues(jsonValues))
 
+        /** Alias for calling [value] with `Value.ofJson(json)`. */
         fun value(json: JsonValue) = value(Value.ofJson(json))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

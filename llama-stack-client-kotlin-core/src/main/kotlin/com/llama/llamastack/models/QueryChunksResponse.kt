@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -29,12 +31,30 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun chunks(): List<Chunk> = chunks.getRequired("chunks")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scores(): List<Double> = scores.getRequired("scores")
 
+    /**
+     * Returns the raw JSON value of [chunks].
+     *
+     * Unlike [chunks], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("chunks") @ExcludeMissing fun _chunks(): JsonField<List<Chunk>> = chunks
 
+    /**
+     * Returns the raw JSON value of [scores].
+     *
+     * Unlike [scores], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("scores") @ExcludeMissing fun _scores(): JsonField<List<Double>> = scores
 
     @JsonAnyGetter
@@ -57,6 +77,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [QueryChunksResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .chunks()
+         * .scores()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -75,35 +104,51 @@ private constructor(
 
         fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
 
+        /**
+         * Sets [Builder.chunks] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.chunks] with a well-typed `List<Chunk>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun chunks(chunks: JsonField<List<Chunk>>) = apply {
             this.chunks = chunks.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [Chunk] to [chunks].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addChunk(chunk: Chunk) = apply {
             chunks =
-                (chunks ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(chunk)
+                (chunks ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("chunks", it).add(chunk)
                 }
         }
 
         fun scores(scores: List<Double>) = scores(JsonField.of(scores))
 
+        /**
+         * Sets [Builder.scores] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scores] with a well-typed `List<Double>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun scores(scores: JsonField<List<Double>>) = apply {
             this.scores = scores.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [Double] to [scores].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addScore(score: Double) = apply {
             scores =
-                (scores ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(score)
+                (scores ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("scores", it).add(score)
                 }
         }
 
@@ -148,16 +193,36 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** A image content item */
+        /**
+         * A image content item
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun content(): InterleavedContent = content.getRequired("content")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun metadata(): Metadata = metadata.getRequired("metadata")
 
-        /** A image content item */
+        /**
+         * Returns the raw JSON value of [content].
+         *
+         * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
 
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
         @JsonAnyGetter
@@ -180,6 +245,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Chunk].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .metadata()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -199,26 +273,45 @@ private constructor(
             /** A image content item */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-            /** A image content item */
+            /**
+             * Sets [Builder.content] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.content] with a well-typed [InterleavedContent]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-            /** A image content item */
+            /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A image content item */
+            /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -274,6 +367,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Metadata]. */
                 fun builder() = Builder()
             }
 

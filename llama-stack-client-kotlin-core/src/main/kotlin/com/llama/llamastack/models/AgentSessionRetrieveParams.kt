@@ -10,6 +10,7 @@ import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Retrieve an agent session by its ID. */
 class AgentSessionRetrieveParams
 private constructor(
     private val agentId: String,
@@ -23,6 +24,7 @@ private constructor(
 
     fun sessionId(): String = sessionId
 
+    /** (Optional) List of turn IDs to filter the session by. */
     fun turnIds(): List<String>? = turnIds
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -50,6 +52,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentSessionRetrieveParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -75,8 +86,14 @@ private constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
+        /** (Optional) List of turn IDs to filter the session by. */
         fun turnIds(turnIds: List<String>?) = apply { this.turnIds = turnIds?.toMutableList() }
 
+        /**
+         * Adds a single [String] to [turnIds].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addTurnId(turnId: String) = apply {
             turnIds = (turnIds ?: mutableListOf()).apply { add(turnId) }
         }

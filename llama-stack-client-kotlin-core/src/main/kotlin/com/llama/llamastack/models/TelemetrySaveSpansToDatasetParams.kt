@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class TelemetrySaveSpansToDatasetParams
@@ -26,20 +28,58 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun attributeFilters(): List<QueryCondition> = body.attributeFilters()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun attributesToSave(): List<String> = body.attributesToSave()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun datasetId(): String = body.datasetId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun maxDepth(): Long? = body.maxDepth()
 
+    /**
+     * Returns the raw JSON value of [attributeFilters].
+     *
+     * Unlike [attributeFilters], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _attributeFilters(): JsonField<List<QueryCondition>> = body._attributeFilters()
 
+    /**
+     * Returns the raw JSON value of [attributesToSave].
+     *
+     * Unlike [attributesToSave], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     fun _attributesToSave(): JsonField<List<String>> = body._attributesToSave()
 
+    /**
+     * Returns the raw JSON value of [datasetId].
+     *
+     * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _datasetId(): JsonField<String> = body._datasetId()
 
+    /**
+     * Returns the raw JSON value of [maxDepth].
+     *
+     * Unlike [maxDepth], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _maxDepth(): JsonField<Long> = body._maxDepth()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -74,25 +114,66 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun attributeFilters(): List<QueryCondition> =
             attributeFilters.getRequired("attribute_filters")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun attributesToSave(): List<String> = attributesToSave.getRequired("attributes_to_save")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun maxDepth(): Long? = maxDepth.getNullable("max_depth")
 
+        /**
+         * Returns the raw JSON value of [attributeFilters].
+         *
+         * Unlike [attributeFilters], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("attribute_filters")
         @ExcludeMissing
         fun _attributeFilters(): JsonField<List<QueryCondition>> = attributeFilters
 
+        /**
+         * Returns the raw JSON value of [attributesToSave].
+         *
+         * Unlike [attributesToSave], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("attributes_to_save")
         @ExcludeMissing
         fun _attributesToSave(): JsonField<List<String>> = attributesToSave
 
+        /**
+         * Returns the raw JSON value of [datasetId].
+         *
+         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
 
+        /**
+         * Returns the raw JSON value of [maxDepth].
+         *
+         * Unlike [maxDepth], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("max_depth") @ExcludeMissing fun _maxDepth(): JsonField<Long> = maxDepth
 
         @JsonAnyGetter
@@ -117,6 +198,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .attributeFilters()
+             * .attributesToSave()
+             * .datasetId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -140,45 +231,75 @@ private constructor(
             fun attributeFilters(attributeFilters: List<QueryCondition>) =
                 attributeFilters(JsonField.of(attributeFilters))
 
+            /**
+             * Sets [Builder.attributeFilters] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributeFilters] with a well-typed
+             * `List<QueryCondition>` value instead. This method is primarily for setting the field
+             * to an undocumented or not yet supported value.
+             */
             fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
                 this.attributeFilters = attributeFilters.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [QueryCondition] to [attributeFilters].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
                 attributeFilters =
-                    (attributeFilters ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributeFilter)
+                    (attributeFilters ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("attributeFilters", it).add(attributeFilter)
                     }
             }
 
             fun attributesToSave(attributesToSave: List<String>) =
                 attributesToSave(JsonField.of(attributesToSave))
 
+            /**
+             * Sets [Builder.attributesToSave] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributesToSave] with a well-typed `List<String>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun attributesToSave(attributesToSave: JsonField<List<String>>) = apply {
                 this.attributesToSave = attributesToSave.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [Builder.attributesToSave].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addAttributesToSave(attributesToSave: String) = apply {
                 this.attributesToSave =
-                    (this.attributesToSave ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(attributesToSave)
+                    (this.attributesToSave ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("attributesToSave", it).add(attributesToSave)
                     }
             }
 
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
+            /**
+             * Sets [Builder.datasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
             fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
 
+            /**
+             * Sets [Builder.maxDepth] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.maxDepth] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun maxDepth(maxDepth: JsonField<Long>) = apply { this.maxDepth = maxDepth }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -232,6 +353,17 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [TelemetrySaveSpansToDatasetParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .attributeFilters()
+         * .attributesToSave()
+         * .datasetId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -255,10 +387,22 @@ private constructor(
             body.attributeFilters(attributeFilters)
         }
 
+        /**
+         * Sets [Builder.attributeFilters] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.attributeFilters] with a well-typed
+         * `List<QueryCondition>` value instead. This method is primarily for setting the field to
+         * an undocumented or not yet supported value.
+         */
         fun attributeFilters(attributeFilters: JsonField<List<QueryCondition>>) = apply {
             body.attributeFilters(attributeFilters)
         }
 
+        /**
+         * Adds a single [QueryCondition] to [attributeFilters].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addAttributeFilter(attributeFilter: QueryCondition) = apply {
             body.addAttributeFilter(attributeFilter)
         }
@@ -267,20 +411,45 @@ private constructor(
             body.attributesToSave(attributesToSave)
         }
 
+        /**
+         * Sets [Builder.attributesToSave] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.attributesToSave] with a well-typed `List<String>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun attributesToSave(attributesToSave: JsonField<List<String>>) = apply {
             body.attributesToSave(attributesToSave)
         }
 
+        /**
+         * Adds a single [String] to [Builder.attributesToSave].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addAttributesToSave(attributesToSave: String) = apply {
             body.addAttributesToSave(attributesToSave)
         }
 
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
+        /**
+         * Sets [Builder.datasetId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
         fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
 
+        /**
+         * Sets [Builder.maxDepth] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.maxDepth] with a well-typed [Long] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun maxDepth(maxDepth: JsonField<Long>) = apply { body.maxDepth(maxDepth) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {

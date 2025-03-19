@@ -11,11 +11,14 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A scoring result for a single row. */
 @NoAutoDetect
 class ScoringResult
 @JsonCreator
@@ -29,14 +32,37 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * Map of metric name to aggregated value
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun aggregatedResults(): AggregatedResults = aggregatedResults.getRequired("aggregated_results")
 
+    /**
+     * The scoring result for each row. Each row is a map of column name to value.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun scoreRows(): List<ScoreRow> = scoreRows.getRequired("score_rows")
 
+    /**
+     * Returns the raw JSON value of [aggregatedResults].
+     *
+     * Unlike [aggregatedResults], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
     @JsonProperty("aggregated_results")
     @ExcludeMissing
     fun _aggregatedResults(): JsonField<AggregatedResults> = aggregatedResults
 
+    /**
+     * Returns the raw JSON value of [scoreRows].
+     *
+     * Unlike [scoreRows], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("score_rows")
     @ExcludeMissing
     fun _scoreRows(): JsonField<List<ScoreRow>> = scoreRows
@@ -61,6 +87,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ScoringResult].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .aggregatedResults()
+         * .scoreRows()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -77,27 +112,44 @@ private constructor(
             additionalProperties = scoringResult.additionalProperties.toMutableMap()
         }
 
+        /** Map of metric name to aggregated value */
         fun aggregatedResults(aggregatedResults: AggregatedResults) =
             aggregatedResults(JsonField.of(aggregatedResults))
 
+        /**
+         * Sets [Builder.aggregatedResults] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.aggregatedResults] with a well-typed [AggregatedResults]
+         * value instead. This method is primarily for setting the field to an undocumented or not
+         * yet supported value.
+         */
         fun aggregatedResults(aggregatedResults: JsonField<AggregatedResults>) = apply {
             this.aggregatedResults = aggregatedResults
         }
 
+        /** The scoring result for each row. Each row is a map of column name to value. */
         fun scoreRows(scoreRows: List<ScoreRow>) = scoreRows(JsonField.of(scoreRows))
 
+        /**
+         * Sets [Builder.scoreRows] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.scoreRows] with a well-typed `List<ScoreRow>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun scoreRows(scoreRows: JsonField<List<ScoreRow>>) = apply {
             this.scoreRows = scoreRows.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [ScoreRow] to [scoreRows].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addScoreRow(scoreRow: ScoreRow) = apply {
             scoreRows =
-                (scoreRows ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(scoreRow)
+                (scoreRows ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("scoreRows", it).add(scoreRow)
                 }
         }
 
@@ -128,6 +180,7 @@ private constructor(
             )
     }
 
+    /** Map of metric name to aggregated value */
     @NoAutoDetect
     class AggregatedResults
     @JsonCreator
@@ -154,6 +207,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [AggregatedResults]. */
             fun builder() = Builder()
         }
 
@@ -231,6 +285,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [ScoreRow]. */
             fun builder() = Builder()
         }
 

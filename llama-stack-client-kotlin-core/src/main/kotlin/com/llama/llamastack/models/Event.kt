@@ -221,32 +221,100 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun message(): String = message.getRequired("message")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun severity(): Severity = severity.getRequired("severity")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun spanId(): String = spanId.getRequired("span_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun traceId(): String = traceId.getRequired("trace_id")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("unstructured_log")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun attributes(): Attributes? = attributes.getNullable("attributes")
 
+        /**
+         * Returns the raw JSON value of [message].
+         *
+         * Unlike [message], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("message") @ExcludeMissing fun _message(): JsonField<String> = message
 
+        /**
+         * Returns the raw JSON value of [severity].
+         *
+         * Unlike [severity], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("severity") @ExcludeMissing fun _severity(): JsonField<Severity> = severity
 
+        /**
+         * Returns the raw JSON value of [spanId].
+         *
+         * Unlike [spanId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
 
+        /**
+         * Returns the raw JSON value of [timestamp].
+         *
+         * Unlike [timestamp], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("timestamp")
         @ExcludeMissing
         fun _timestamp(): JsonField<OffsetDateTime> = timestamp
 
+        /**
+         * Returns the raw JSON value of [traceId].
+         *
+         * Unlike [traceId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
 
+        /**
+         * Returns the raw JSON value of [attributes].
+         *
+         * Unlike [attributes], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("attributes")
         @ExcludeMissing
         fun _attributes(): JsonField<Attributes> = attributes
@@ -280,6 +348,18 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [UnstructuredLogEvent].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .message()
+             * .severity()
+             * .spanId()
+             * .timestamp()
+             * .traceId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -308,30 +388,84 @@ private constructor(
 
             fun message(message: String) = message(JsonField.of(message))
 
+            /**
+             * Sets [Builder.message] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.message] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun message(message: JsonField<String>) = apply { this.message = message }
 
             fun severity(severity: Severity) = severity(JsonField.of(severity))
 
+            /**
+             * Sets [Builder.severity] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.severity] with a well-typed [Severity] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun severity(severity: JsonField<Severity>) = apply { this.severity = severity }
 
             fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
+            /**
+             * Sets [Builder.spanId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.spanId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
 
             fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
 
+            /**
+             * Sets [Builder.timestamp] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.timestamp] with a well-typed [OffsetDateTime] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
                 this.timestamp = timestamp
             }
 
             fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
+            /**
+             * Sets [Builder.traceId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.traceId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("unstructured_log")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
 
+            /**
+             * Sets [Builder.attributes] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributes] with a well-typed [Attributes] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun attributes(attributes: JsonField<Attributes>) = apply {
                 this.attributes = attributes
             }
@@ -520,6 +654,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Attributes]. */
                 fun builder() = Builder()
             }
 
@@ -622,36 +757,114 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun metric(): String = metric.getRequired("metric")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun spanId(): String = spanId.getRequired("span_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun traceId(): String = traceId.getRequired("trace_id")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("metric")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun unit(): String = unit.getRequired("unit")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun value(): Double = value.getRequired("value")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun attributes(): Attributes? = attributes.getNullable("attributes")
 
+        /**
+         * Returns the raw JSON value of [metric].
+         *
+         * Unlike [metric], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metric") @ExcludeMissing fun _metric(): JsonField<String> = metric
 
+        /**
+         * Returns the raw JSON value of [spanId].
+         *
+         * Unlike [spanId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
 
+        /**
+         * Returns the raw JSON value of [timestamp].
+         *
+         * Unlike [timestamp], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("timestamp")
         @ExcludeMissing
         fun _timestamp(): JsonField<OffsetDateTime> = timestamp
 
+        /**
+         * Returns the raw JSON value of [traceId].
+         *
+         * Unlike [traceId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
 
+        /**
+         * Returns the raw JSON value of [unit].
+         *
+         * Unlike [unit], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("unit") @ExcludeMissing fun _unit(): JsonField<String> = unit
 
+        /**
+         * Returns the raw JSON value of [value].
+         *
+         * Unlike [value], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("value") @ExcludeMissing fun _value(): JsonField<Double> = value
 
+        /**
+         * Returns the raw JSON value of [attributes].
+         *
+         * Unlike [attributes], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("attributes")
         @ExcludeMissing
         fun _attributes(): JsonField<Attributes> = attributes
@@ -686,6 +899,19 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [MetricEvent].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .metric()
+             * .spanId()
+             * .timestamp()
+             * .traceId()
+             * .unit()
+             * .value()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -716,34 +942,95 @@ private constructor(
 
             fun metric(metric: String) = metric(JsonField.of(metric))
 
+            /**
+             * Sets [Builder.metric] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metric] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metric(metric: JsonField<String>) = apply { this.metric = metric }
 
             fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
+            /**
+             * Sets [Builder.spanId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.spanId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
 
             fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
 
+            /**
+             * Sets [Builder.timestamp] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.timestamp] with a well-typed [OffsetDateTime] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
                 this.timestamp = timestamp
             }
 
             fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
+            /**
+             * Sets [Builder.traceId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.traceId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("metric")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun unit(unit: String) = unit(JsonField.of(unit))
 
+            /**
+             * Sets [Builder.unit] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.unit] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun unit(unit: JsonField<String>) = apply { this.unit = unit }
 
             fun value(value: Double) = value(JsonField.of(value))
 
+            /**
+             * Sets [Builder.value] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.value] with a well-typed [Double] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun value(value: JsonField<Double>) = apply { this.value = value }
 
             fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
 
+            /**
+             * Sets [Builder.attributes] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributes] with a well-typed [Attributes] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun attributes(attributes: JsonField<Attributes>) = apply {
                 this.attributes = attributes
             }
@@ -807,6 +1094,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Attributes]. */
                 fun builder() = Builder()
             }
 
@@ -903,28 +1191,86 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun payload(): Payload = payload.getRequired("payload")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun spanId(): String = spanId.getRequired("span_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun timestamp(): OffsetDateTime = timestamp.getRequired("timestamp")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun traceId(): String = traceId.getRequired("trace_id")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("structured_log")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun attributes(): Attributes? = attributes.getNullable("attributes")
 
+        /**
+         * Returns the raw JSON value of [payload].
+         *
+         * Unlike [payload], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("payload") @ExcludeMissing fun _payload(): JsonField<Payload> = payload
 
+        /**
+         * Returns the raw JSON value of [spanId].
+         *
+         * Unlike [spanId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("span_id") @ExcludeMissing fun _spanId(): JsonField<String> = spanId
 
+        /**
+         * Returns the raw JSON value of [timestamp].
+         *
+         * Unlike [timestamp], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("timestamp")
         @ExcludeMissing
         fun _timestamp(): JsonField<OffsetDateTime> = timestamp
 
+        /**
+         * Returns the raw JSON value of [traceId].
+         *
+         * Unlike [traceId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("trace_id") @ExcludeMissing fun _traceId(): JsonField<String> = traceId
 
+        /**
+         * Returns the raw JSON value of [attributes].
+         *
+         * Unlike [attributes], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("attributes")
         @ExcludeMissing
         fun _attributes(): JsonField<Attributes> = attributes
@@ -957,6 +1303,17 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [StructuredLogEvent].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .payload()
+             * .spanId()
+             * .timestamp()
+             * .traceId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -983,37 +1340,102 @@ private constructor(
 
             fun payload(payload: Payload) = payload(JsonField.of(payload))
 
+            /**
+             * Sets [Builder.payload] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.payload] with a well-typed [Payload] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun payload(payload: JsonField<Payload>) = apply { this.payload = payload }
 
+            /** Alias for calling [payload] with `Payload.ofSpanStart(spanStart)`. */
             fun payload(spanStart: Payload.SpanStartPayload) =
                 payload(Payload.ofSpanStart(spanStart))
 
+            /**
+             * Alias for calling [payload] with the following:
+             * ```kotlin
+             * Payload.SpanStartPayload.builder()
+             *     .name(name)
+             *     .build()
+             * ```
+             */
             fun spanStartPayload(name: String) =
                 payload(Payload.SpanStartPayload.builder().name(name).build())
 
+            /** Alias for calling [payload] with `Payload.ofSpanEnd(spanEnd)`. */
             fun payload(spanEnd: Payload.SpanEndPayload) = payload(Payload.ofSpanEnd(spanEnd))
 
+            /**
+             * Alias for calling [payload] with the following:
+             * ```kotlin
+             * Payload.SpanEndPayload.builder()
+             *     .status(status)
+             *     .build()
+             * ```
+             */
             fun spanEndPayload(status: Payload.SpanEndPayload.Status) =
                 payload(Payload.SpanEndPayload.builder().status(status).build())
 
             fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
+            /**
+             * Sets [Builder.spanId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.spanId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun spanId(spanId: JsonField<String>) = apply { this.spanId = spanId }
 
             fun timestamp(timestamp: OffsetDateTime) = timestamp(JsonField.of(timestamp))
 
+            /**
+             * Sets [Builder.timestamp] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.timestamp] with a well-typed [OffsetDateTime] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun timestamp(timestamp: JsonField<OffsetDateTime>) = apply {
                 this.timestamp = timestamp
             }
 
             fun traceId(traceId: String) = traceId(JsonField.of(traceId))
 
+            /**
+             * Sets [Builder.traceId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.traceId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun traceId(traceId: JsonField<String>) = apply { this.traceId = traceId }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("structured_log")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun attributes(attributes: Attributes) = attributes(JsonField.of(attributes))
 
+            /**
+             * Sets [Builder.attributes] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.attributes] with a well-typed [Attributes] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun attributes(attributes: JsonField<Attributes>) = apply {
                 this.attributes = attributes
             }
@@ -1211,14 +1633,44 @@ private constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
+                /**
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type or is unexpectedly missing or null (e.g. if the server responded with an
+                 *   unexpected value).
+                 */
                 fun name(): String = name.getRequired("name")
 
+                /**
+                 * Expected to always return the following:
+                 * ```kotlin
+                 * JsonValue.from("span_start")
+                 * ```
+                 *
+                 * However, this method can be useful for debugging and logging (e.g. if the server
+                 * responded with an unexpected value).
+                 */
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+                /**
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type (e.g. if the server responded with an unexpected value).
+                 */
                 fun parentSpanId(): String? = parentSpanId.getNullable("parent_span_id")
 
+                /**
+                 * Returns the raw JSON value of [name].
+                 *
+                 * Unlike [name], this method doesn't throw if the JSON field has an unexpected
+                 * type.
+                 */
                 @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
+                /**
+                 * Returns the raw JSON value of [parentSpanId].
+                 *
+                 * Unlike [parentSpanId], this method doesn't throw if the JSON field has an
+                 * unexpected type.
+                 */
                 @JsonProperty("parent_span_id")
                 @ExcludeMissing
                 fun _parentSpanId(): JsonField<String> = parentSpanId
@@ -1250,6 +1702,14 @@ private constructor(
 
                 companion object {
 
+                    /**
+                     * Returns a mutable builder for constructing an instance of [SpanStartPayload].
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .name()
+                     * ```
+                     */
                     fun builder() = Builder()
                 }
 
@@ -1270,13 +1730,39 @@ private constructor(
 
                     fun name(name: String) = name(JsonField.of(name))
 
+                    /**
+                     * Sets [Builder.name] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.name] with a well-typed [String] value
+                     * instead. This method is primarily for setting the field to an undocumented or
+                     * not yet supported value.
+                     */
                     fun name(name: JsonField<String>) = apply { this.name = name }
 
+                    /**
+                     * Sets the field to an arbitrary JSON value.
+                     *
+                     * It is usually unnecessary to call this method because the field defaults to
+                     * the following:
+                     * ```kotlin
+                     * JsonValue.from("span_start")
+                     * ```
+                     *
+                     * This method is primarily for setting the field to an undocumented or not yet
+                     * supported value.
+                     */
                     fun type(type: JsonValue) = apply { this.type = type }
 
                     fun parentSpanId(parentSpanId: String) =
                         parentSpanId(JsonField.of(parentSpanId))
 
+                    /**
+                     * Sets [Builder.parentSpanId] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.parentSpanId] with a well-typed [String]
+                     * value instead. This method is primarily for setting the field to an
+                     * undocumented or not yet supported value.
+                     */
                     fun parentSpanId(parentSpanId: JsonField<String>) = apply {
                         this.parentSpanId = parentSpanId
                     }
@@ -1344,10 +1830,30 @@ private constructor(
                 private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
             ) {
 
+                /**
+                 * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
+                 *   type or is unexpectedly missing or null (e.g. if the server responded with an
+                 *   unexpected value).
+                 */
                 fun status(): Status = status.getRequired("status")
 
+                /**
+                 * Expected to always return the following:
+                 * ```kotlin
+                 * JsonValue.from("span_end")
+                 * ```
+                 *
+                 * However, this method can be useful for debugging and logging (e.g. if the server
+                 * responded with an unexpected value).
+                 */
                 @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+                /**
+                 * Returns the raw JSON value of [status].
+                 *
+                 * Unlike [status], this method doesn't throw if the JSON field has an unexpected
+                 * type.
+                 */
                 @JsonProperty("status") @ExcludeMissing fun _status(): JsonField<Status> = status
 
                 @JsonAnyGetter
@@ -1376,6 +1882,14 @@ private constructor(
 
                 companion object {
 
+                    /**
+                     * Returns a mutable builder for constructing an instance of [SpanEndPayload].
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .status()
+                     * ```
+                     */
                     fun builder() = Builder()
                 }
 
@@ -1394,8 +1908,27 @@ private constructor(
 
                     fun status(status: Status) = status(JsonField.of(status))
 
+                    /**
+                     * Sets [Builder.status] to an arbitrary JSON value.
+                     *
+                     * You should usually call [Builder.status] with a well-typed [Status] value
+                     * instead. This method is primarily for setting the field to an undocumented or
+                     * not yet supported value.
+                     */
                     fun status(status: JsonField<Status>) = apply { this.status = status }
 
+                    /**
+                     * Sets the field to an arbitrary JSON value.
+                     *
+                     * It is usually unnecessary to call this method because the field defaults to
+                     * the following:
+                     * ```kotlin
+                     * JsonValue.from("span_end")
+                     * ```
+                     *
+                     * This method is primarily for setting the field to an undocumented or not yet
+                     * supported value.
+                     */
                     fun type(type: JsonValue) = apply { this.type = type }
 
                     fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1579,6 +2112,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Attributes]. */
                 fun builder() = Builder()
             }
 

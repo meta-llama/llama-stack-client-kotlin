@@ -4,8 +4,6 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.InspectHealthParams
-import com.llama.llamastack.models.InspectVersionParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -13,22 +11,24 @@ import org.junit.jupiter.api.extension.ExtendWith
 class InspectServiceTest {
 
     @Test
-    fun callHealth() {
+    fun health() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inspectService = client.inspect()
-        val healthInfo = inspectService.health(InspectHealthParams.builder().build())
-        println(healthInfo)
+
+        val healthInfo = inspectService.health()
+
         healthInfo.validate()
     }
 
     @Test
-    fun callVersion() {
+    fun version() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val inspectService = client.inspect()
-        val versionInfo = inspectService.version(InspectVersionParams.builder().build())
-        println(versionInfo)
+
+        val versionInfo = inspectService.version()
+
         versionInfo.validate()
     }
 }

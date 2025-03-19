@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 class BatchInferenceCompletionParams
@@ -26,26 +28,71 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun contentBatch(): List<InterleavedContent> = body.contentBatch()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun model(): String = body.model()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun logprobs(): Logprobs? = body.logprobs()
 
-    /** Configuration for JSON schema-guided response generation. */
+    /**
+     * Configuration for JSON schema-guided response generation.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun samplingParams(): SamplingParams? = body.samplingParams()
 
+    /**
+     * Returns the raw JSON value of [contentBatch].
+     *
+     * Unlike [contentBatch], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _contentBatch(): JsonField<List<InterleavedContent>> = body._contentBatch()
 
+    /**
+     * Returns the raw JSON value of [model].
+     *
+     * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _model(): JsonField<String> = body._model()
 
+    /**
+     * Returns the raw JSON value of [logprobs].
+     *
+     * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _logprobs(): JsonField<Logprobs> = body._logprobs()
 
-    /** Configuration for JSON schema-guided response generation. */
+    /**
+     * Returns the raw JSON value of [responseFormat].
+     *
+     * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _responseFormat(): JsonField<ResponseFormat> = body._responseFormat()
 
+    /**
+     * Returns the raw JSON value of [samplingParams].
+     *
+     * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _samplingParams(): JsonField<SamplingParams> = body._samplingParams()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -83,30 +130,80 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun contentBatch(): List<InterleavedContent> = contentBatch.getRequired("content_batch")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun model(): String = model.getRequired("model")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Configuration for JSON schema-guided response generation.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
 
+        /**
+         * Returns the raw JSON value of [contentBatch].
+         *
+         * Unlike [contentBatch], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("content_batch")
         @ExcludeMissing
         fun _contentBatch(): JsonField<List<InterleavedContent>> = contentBatch
 
+        /**
+         * Returns the raw JSON value of [model].
+         *
+         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
+        /**
+         * Returns the raw JSON value of [logprobs].
+         *
+         * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Returns the raw JSON value of [responseFormat].
+         *
+         * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("response_format")
         @ExcludeMissing
         fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
 
+        /**
+         * Returns the raw JSON value of [samplingParams].
+         *
+         * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("sampling_params")
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
@@ -134,6 +231,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .contentBatch()
+             * .model()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -159,57 +265,102 @@ private constructor(
             fun contentBatch(contentBatch: List<InterleavedContent>) =
                 contentBatch(JsonField.of(contentBatch))
 
+            /**
+             * Sets [Builder.contentBatch] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.contentBatch] with a well-typed
+             * `List<InterleavedContent>` value instead. This method is primarily for setting the
+             * field to an undocumented or not yet supported value.
+             */
             fun contentBatch(contentBatch: JsonField<List<InterleavedContent>>) = apply {
                 this.contentBatch = contentBatch.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [InterleavedContent] to [Builder.contentBatch].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addContentBatch(contentBatch: InterleavedContent) = apply {
                 this.contentBatch =
-                    (this.contentBatch ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(contentBatch)
+                    (this.contentBatch ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("contentBatch", it).add(contentBatch)
                     }
             }
 
+            /** Alias for calling [addContentBatch] with `InterleavedContent.ofString(string)`. */
             fun addContentBatch(string: String) =
                 addContentBatch(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [addContentBatch] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) =
                 addContentBatch(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [addContentBatch] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) =
                 addContentBatch(InterleavedContent.ofTextContentItem(textContentItem))
 
+            /** Alias for calling [addContentBatch] with `InterleavedContent.ofItems(items)`. */
             fun addContentBatchOfItems(items: List<InterleavedContentItem>) =
                 addContentBatch(InterleavedContent.ofItems(items))
 
             fun model(model: String) = model(JsonField.of(model))
 
+            /**
+             * Sets [Builder.model] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.model] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun model(model: JsonField<String>) = apply { this.model = model }
 
             fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
 
+            /**
+             * Sets [Builder.logprobs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
 
             /** Configuration for JSON schema-guided response generation. */
             fun responseFormat(responseFormat: ResponseFormat) =
                 responseFormat(JsonField.of(responseFormat))
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Sets [Builder.responseFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
                 this.responseFormat = responseFormat
             }
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
+             */
             fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
                 responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
-            /** Configuration for JSON schema-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.JsonSchemaResponseFormat.builder()
+             *     .jsonSchema(jsonSchema)
+             *     .build()
+             * ```
+             */
             fun jsonSchemaResponseFormat(
                 jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
             ) =
@@ -217,17 +368,31 @@ private constructor(
                     ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
                 )
 
-            /** Configuration for grammar-guided response generation. */
+            /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
             fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
                 responseFormat(ResponseFormat.ofGrammar(grammar))
 
-            /** Configuration for grammar-guided response generation. */
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.GrammarResponseFormat.builder()
+             *     .bnf(bnf)
+             *     .build()
+             * ```
+             */
             fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
                 responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
 
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
+            /**
+             * Sets [Builder.samplingParams] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
@@ -284,6 +449,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [BatchInferenceCompletionParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .contentBatch()
+         * .model()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -305,36 +480,69 @@ private constructor(
             body.contentBatch(contentBatch)
         }
 
+        /**
+         * Sets [Builder.contentBatch] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.contentBatch] with a well-typed
+         * `List<InterleavedContent>` value instead. This method is primarily for setting the field
+         * to an undocumented or not yet supported value.
+         */
         fun contentBatch(contentBatch: JsonField<List<InterleavedContent>>) = apply {
             body.contentBatch(contentBatch)
         }
 
+        /**
+         * Adds a single [InterleavedContent] to [Builder.contentBatch].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addContentBatch(contentBatch: InterleavedContent) = apply {
             body.addContentBatch(contentBatch)
         }
 
+        /** Alias for calling [addContentBatch] with `InterleavedContent.ofString(string)`. */
         fun addContentBatch(string: String) = apply { body.addContentBatch(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [addContentBatch] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.addContentBatch(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [addContentBatch] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.addContentBatch(textContentItem)
         }
 
+        /** Alias for calling [addContentBatch] with `InterleavedContent.ofItems(items)`. */
         fun addContentBatchOfItems(items: List<InterleavedContentItem>) = apply {
             body.addContentBatchOfItems(items)
         }
 
         fun model(model: String) = apply { body.model(model) }
 
+        /**
+         * Sets [Builder.model] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.model] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun model(model: JsonField<String>) = apply { body.model(model) }
 
         fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
 
+        /**
+         * Sets [Builder.logprobs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
 
         /** Configuration for JSON schema-guided response generation. */
@@ -342,27 +550,47 @@ private constructor(
             body.responseFormat(responseFormat)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Sets [Builder.responseFormat] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
             body.responseFormat(responseFormat)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
         fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
             body.responseFormat(jsonSchema)
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         *     .jsonSchema(jsonSchema)
+         *     .build()
+         * ```
+         */
         fun jsonSchemaResponseFormat(
             jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
         ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
 
-        /** Configuration for grammar-guided response generation. */
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
         fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
             body.responseFormat(grammar)
         }
 
-        /** Configuration for grammar-guided response generation. */
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.GrammarResponseFormat.builder()
+         *     .bnf(bnf)
+         *     .build()
+         * ```
+         */
         fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
             body.grammarResponseFormat(bnf)
         }
@@ -371,6 +599,13 @@ private constructor(
             body.samplingParams(samplingParams)
         }
 
+        /**
+         * Sets [Builder.samplingParams] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
             body.samplingParams(samplingParams)
         }
@@ -509,10 +744,19 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** How many tokens (for each position) to return log probabilities for. */
+        /**
+         * How many tokens (for each position) to return log probabilities for.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun topK(): Long? = topK.getNullable("top_k")
 
-        /** How many tokens (for each position) to return log probabilities for. */
+        /**
+         * Returns the raw JSON value of [topK].
+         *
+         * Unlike [topK], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
         @JsonAnyGetter
@@ -534,6 +778,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Logprobs]. */
             fun builder() = Builder()
         }
 
@@ -551,7 +796,13 @@ private constructor(
             /** How many tokens (for each position) to return log probabilities for. */
             fun topK(topK: Long) = topK(JsonField.of(topK))
 
-            /** How many tokens (for each position) to return log probabilities for. */
+            /**
+             * Sets [Builder.topK] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.topK] with a well-typed [Long] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun topK(topK: JsonField<Long>) = apply { this.topK = topK }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

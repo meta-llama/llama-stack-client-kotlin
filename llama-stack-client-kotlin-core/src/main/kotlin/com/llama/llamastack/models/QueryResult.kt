@@ -14,6 +14,7 @@ import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 @NoAutoDetect
@@ -29,14 +30,32 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun metadata(): Metadata = metadata.getRequired("metadata")
 
-    /** A image content item */
+    /**
+     * A image content item
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent? = content.getNullable("content")
 
+    /**
+     * Returns the raw JSON value of [metadata].
+     *
+     * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("content") @ExcludeMissing fun _content(): JsonField<InterleavedContent> = content
 
     @JsonAnyGetter
@@ -59,6 +78,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [QueryResult].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .metadata()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -77,26 +104,44 @@ private constructor(
 
         fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+        /**
+         * Sets [Builder.metadata] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.metadata] with a well-typed [Metadata] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
         /** A image content item */
         fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-        /** A image content item */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = content(InterleavedContent.ofString(string))
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) =
             content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) =
             content(InterleavedContent.ofTextContentItem(textContentItem))
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) =
             content(InterleavedContent.ofItems(items))
 
@@ -153,6 +198,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Metadata]. */
             fun builder() = Builder()
         }
 

@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Register a tool group */
@@ -27,20 +28,56 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun providerId(): String = body.providerId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun toolgroupId(): String = body.toolgroupId()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun args(): Args? = body.args()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun mcpEndpoint(): McpEndpoint? = body.mcpEndpoint()
 
+    /**
+     * Returns the raw JSON value of [providerId].
+     *
+     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _providerId(): JsonField<String> = body._providerId()
 
+    /**
+     * Returns the raw JSON value of [toolgroupId].
+     *
+     * Unlike [toolgroupId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _toolgroupId(): JsonField<String> = body._toolgroupId()
 
+    /**
+     * Returns the raw JSON value of [args].
+     *
+     * Unlike [args], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _args(): JsonField<Args> = body._args()
 
+    /**
+     * Returns the raw JSON value of [mcpEndpoint].
+     *
+     * Unlike [mcpEndpoint], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _mcpEndpoint(): JsonField<McpEndpoint> = body._mcpEndpoint()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -73,24 +110,62 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun providerId(): String = providerId.getRequired("provider_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun toolgroupId(): String = toolgroupId.getRequired("toolgroup_id")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun args(): Args? = args.getNullable("args")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun mcpEndpoint(): McpEndpoint? = mcpEndpoint.getNullable("mcp_endpoint")
 
+        /**
+         * Returns the raw JSON value of [providerId].
+         *
+         * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("provider_id")
         @ExcludeMissing
         fun _providerId(): JsonField<String> = providerId
 
+        /**
+         * Returns the raw JSON value of [toolgroupId].
+         *
+         * Unlike [toolgroupId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("toolgroup_id")
         @ExcludeMissing
         fun _toolgroupId(): JsonField<String> = toolgroupId
 
+        /**
+         * Returns the raw JSON value of [args].
+         *
+         * Unlike [args], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("args") @ExcludeMissing fun _args(): JsonField<Args> = args
 
+        /**
+         * Returns the raw JSON value of [mcpEndpoint].
+         *
+         * Unlike [mcpEndpoint], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("mcp_endpoint")
         @ExcludeMissing
         fun _mcpEndpoint(): JsonField<McpEndpoint> = mcpEndpoint
@@ -117,6 +192,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .providerId()
+             * .toolgroupId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -139,20 +223,48 @@ private constructor(
 
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
+            /**
+             * Sets [Builder.providerId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.providerId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
             fun toolgroupId(toolgroupId: String) = toolgroupId(JsonField.of(toolgroupId))
 
+            /**
+             * Sets [Builder.toolgroupId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolgroupId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun toolgroupId(toolgroupId: JsonField<String>) = apply {
                 this.toolgroupId = toolgroupId
             }
 
             fun args(args: Args) = args(JsonField.of(args))
 
+            /**
+             * Sets [Builder.args] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.args] with a well-typed [Args] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun args(args: JsonField<Args>) = apply { this.args = args }
 
             fun mcpEndpoint(mcpEndpoint: McpEndpoint) = mcpEndpoint(JsonField.of(mcpEndpoint))
 
+            /**
+             * Sets [Builder.mcpEndpoint] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.mcpEndpoint] with a well-typed [McpEndpoint] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun mcpEndpoint(mcpEndpoint: JsonField<McpEndpoint>) = apply {
                 this.mcpEndpoint = mcpEndpoint
             }
@@ -208,6 +320,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolgroupRegisterParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .providerId()
+         * .toolgroupId()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -227,18 +348,45 @@ private constructor(
 
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
+        /**
+         * Sets [Builder.providerId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun toolgroupId(toolgroupId: String) = apply { body.toolgroupId(toolgroupId) }
 
+        /**
+         * Sets [Builder.toolgroupId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolgroupId] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun toolgroupId(toolgroupId: JsonField<String>) = apply { body.toolgroupId(toolgroupId) }
 
         fun args(args: Args) = apply { body.args(args) }
 
+        /**
+         * Sets [Builder.args] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.args] with a well-typed [Args] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun args(args: JsonField<Args>) = apply { body.args(args) }
 
         fun mcpEndpoint(mcpEndpoint: McpEndpoint) = apply { body.mcpEndpoint(mcpEndpoint) }
 
+        /**
+         * Sets [Builder.mcpEndpoint] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.mcpEndpoint] with a well-typed [McpEndpoint] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun mcpEndpoint(mcpEndpoint: JsonField<McpEndpoint>) = apply {
             body.mcpEndpoint(mcpEndpoint)
         }
@@ -394,6 +542,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Args]. */
             fun builder() = Builder()
         }
 
@@ -454,8 +603,18 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun uri(): String = uri.getRequired("uri")
 
+        /**
+         * Returns the raw JSON value of [uri].
+         *
+         * Unlike [uri], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
         @JsonAnyGetter
@@ -477,6 +636,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [McpEndpoint].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .uri()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -493,6 +660,13 @@ private constructor(
 
             fun uri(uri: String) = uri(JsonField.of(uri))
 
+            /**
+             * Sets [Builder.uri] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.uri] with a well-typed [String] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun uri(uri: JsonField<String>) = apply { this.uri = uri }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

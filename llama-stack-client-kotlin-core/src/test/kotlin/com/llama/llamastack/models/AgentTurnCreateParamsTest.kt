@@ -14,7 +14,6 @@ class AgentTurnCreateParamsTest {
             .agentId("agent_id")
             .sessionId("session_id")
             .addMessage(UserMessage.builder().content("string").context("string").build())
-            .allowTurnResume(true)
             .addDocument(
                 AgentTurnCreateParams.Document.builder()
                     .content("string")
@@ -41,7 +40,6 @@ class AgentTurnCreateParamsTest {
                 .agentId("agent_id")
                 .sessionId("session_id")
                 .addMessage(UserMessage.builder().content("string").context("string").build())
-                .allowTurnResume(true)
                 .addDocument(
                     AgentTurnCreateParams.Document.builder()
                         .content("string")
@@ -71,7 +69,6 @@ class AgentTurnCreateParamsTest {
                     )
                 )
             )
-        assertThat(body.allowTurnResume()).isEqualTo(true)
         assertThat(body.documents())
             .isEqualTo(
                 listOf(

@@ -13,10 +13,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SyntheticDataGenerationServiceTest {
 
     @Test
-    fun callGenerate() {
+    fun generate() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val syntheticDataGenerationService = client.syntheticDataGeneration()
+
         val syntheticDataGenerationResponse =
             syntheticDataGenerationService.generate(
                 SyntheticDataGenerationGenerateParams.builder()
@@ -25,7 +26,7 @@ class SyntheticDataGenerationServiceTest {
                     .model("model")
                     .build()
             )
-        println(syntheticDataGenerationResponse)
+
         syntheticDataGenerationResponse.validate()
     }
 }

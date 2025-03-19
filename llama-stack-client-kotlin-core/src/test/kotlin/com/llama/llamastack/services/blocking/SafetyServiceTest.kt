@@ -14,10 +14,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class SafetyServiceTest {
 
     @Test
-    fun callRunShield() {
+    fun runShield() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val safetyService = client.safety()
+
         val runShieldResponse =
             safetyService.runShield(
                 SafetyRunShieldParams.builder()
@@ -30,7 +31,7 @@ class SafetyServiceTest {
                     .shieldId("shield_id")
                     .build()
             )
-        println(runShieldResponse)
+
         runShieldResponse.validate()
     }
 }

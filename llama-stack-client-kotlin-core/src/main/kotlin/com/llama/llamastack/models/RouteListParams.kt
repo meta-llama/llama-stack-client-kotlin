@@ -26,6 +26,9 @@ private constructor(
 
     companion object {
 
+        fun none(): RouteListParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [RouteListParams]. */
         fun builder() = Builder()
     }
 

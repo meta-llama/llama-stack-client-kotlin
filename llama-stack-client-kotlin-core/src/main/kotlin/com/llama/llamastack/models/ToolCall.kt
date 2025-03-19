@@ -34,16 +34,43 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun arguments(): Arguments = arguments.getRequired("arguments")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun callId(): String = callId.getRequired("call_id")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun toolName(): ToolName = toolName.getRequired("tool_name")
 
+    /**
+     * Returns the raw JSON value of [arguments].
+     *
+     * Unlike [arguments], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("arguments") @ExcludeMissing fun _arguments(): JsonField<Arguments> = arguments
 
+    /**
+     * Returns the raw JSON value of [callId].
+     *
+     * Unlike [callId], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("call_id") @ExcludeMissing fun _callId(): JsonField<String> = callId
 
+    /**
+     * Returns the raw JSON value of [toolName].
+     *
+     * Unlike [toolName], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
     @JsonAnyGetter
@@ -67,6 +94,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolCall].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .arguments()
+         * .callId()
+         * .toolName()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -87,16 +124,42 @@ private constructor(
 
         fun arguments(arguments: Arguments) = arguments(JsonField.of(arguments))
 
+        /**
+         * Sets [Builder.arguments] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.arguments] with a well-typed [Arguments] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun arguments(arguments: JsonField<Arguments>) = apply { this.arguments = arguments }
 
         fun callId(callId: String) = callId(JsonField.of(callId))
 
+        /**
+         * Sets [Builder.callId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.callId] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun callId(callId: JsonField<String>) = apply { this.callId = callId }
 
         fun toolName(toolName: ToolName) = toolName(JsonField.of(toolName))
 
+        /**
+         * Sets [Builder.toolName] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolName] with a well-typed [ToolName] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
         fun toolName(toolName: JsonField<ToolName>) = apply { this.toolName = toolName }
 
+        /**
+         * Sets [toolName] to an arbitrary [String].
+         *
+         * You should usually call [toolName] with a well-typed [ToolName] constant instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun toolName(value: String) = toolName(ToolName.of(value))
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -153,6 +216,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Arguments]. */
             fun builder() = Builder()
         }
 

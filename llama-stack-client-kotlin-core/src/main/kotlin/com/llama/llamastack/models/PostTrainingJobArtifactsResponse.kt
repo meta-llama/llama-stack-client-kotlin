@@ -11,9 +11,11 @@ import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Artifacts of a finetuning job. */
@@ -30,14 +32,32 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun checkpoints(): List<JsonValue> = checkpoints.getRequired("checkpoints")
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
+    /**
+     * Returns the raw JSON value of [checkpoints].
+     *
+     * Unlike [checkpoints], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("checkpoints")
     @ExcludeMissing
     fun _checkpoints(): JsonField<List<JsonValue>> = checkpoints
 
+    /**
+     * Returns the raw JSON value of [jobUuid].
+     *
+     * Unlike [jobUuid], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
 
     @JsonAnyGetter
@@ -60,6 +80,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [PostTrainingJobArtifactsResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .checkpoints()
+         * .jobUuid()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -81,23 +111,37 @@ private constructor(
 
         fun checkpoints(checkpoints: List<JsonValue>) = checkpoints(JsonField.of(checkpoints))
 
+        /**
+         * Sets [Builder.checkpoints] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.checkpoints] with a well-typed `List<JsonValue>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun checkpoints(checkpoints: JsonField<List<JsonValue>>) = apply {
             this.checkpoints = checkpoints.map { it.toMutableList() }
         }
 
+        /**
+         * Adds a single [JsonValue] to [checkpoints].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addCheckpoint(checkpoint: JsonValue) = apply {
             checkpoints =
-                (checkpoints ?: JsonField.of(mutableListOf())).apply {
-                    (asKnown()
-                            ?: throw IllegalStateException(
-                                "Field was set to non-list type: ${javaClass.simpleName}"
-                            ))
-                        .add(checkpoint)
+                (checkpoints ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("checkpoints", it).add(checkpoint)
                 }
         }
 
         fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
+        /**
+         * Sets [Builder.jobUuid] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.jobUuid] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

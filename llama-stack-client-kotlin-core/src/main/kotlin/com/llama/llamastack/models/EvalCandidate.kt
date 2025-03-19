@@ -27,6 +27,7 @@ import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
+/** A model candidate for evaluation. */
 @JsonDeserialize(using = EvalCandidate.Deserializer::class)
 @JsonSerialize(using = EvalCandidate.Serializer::class)
 class EvalCandidate
@@ -36,16 +37,20 @@ private constructor(
     private val _json: JsonValue? = null,
 ) {
 
+    /** A model candidate for evaluation. */
     fun model(): ModelCandidate? = model
 
+    /** An agent candidate for evaluation. */
     fun agent(): AgentCandidate? = agent
 
     fun isModel(): Boolean = model != null
 
     fun isAgent(): Boolean = agent != null
 
+    /** A model candidate for evaluation. */
     fun asModel(): ModelCandidate = model.getOrThrow("model")
 
+    /** An agent candidate for evaluation. */
     fun asAgent(): AgentCandidate = agent.getOrThrow("agent")
 
     fun _json(): JsonValue? = _json
@@ -99,8 +104,10 @@ private constructor(
 
     companion object {
 
+        /** A model candidate for evaluation. */
         fun ofModel(model: ModelCandidate) = EvalCandidate(model = model)
 
+        /** An agent candidate for evaluation. */
         fun ofAgent(agent: AgentCandidate) = EvalCandidate(agent = agent)
     }
 
@@ -109,8 +116,10 @@ private constructor(
      */
     interface Visitor<out T> {
 
+        /** A model candidate for evaluation. */
         fun visitModel(model: ModelCandidate): T
 
+        /** An agent candidate for evaluation. */
         fun visitAgent(agent: AgentCandidate): T
 
         /**
@@ -168,6 +177,7 @@ private constructor(
         }
     }
 
+    /** A model candidate for evaluation. */
     @NoAutoDetect
     class ModelCandidate
     @JsonCreator
@@ -186,22 +196,66 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The model ID to evaluate.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun model(): String = model.getRequired("model")
 
+        /**
+         * The sampling parameters for the model.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun samplingParams(): SamplingParams = samplingParams.getRequired("sampling_params")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("model")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
-        /** A system message providing instructions or context to the model. */
+        /**
+         * (Optional) The system message providing instructions or context to the model.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun systemMessage(): SystemMessage? = systemMessage.getNullable("system_message")
 
+        /**
+         * Returns the raw JSON value of [model].
+         *
+         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
 
+        /**
+         * Returns the raw JSON value of [samplingParams].
+         *
+         * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("sampling_params")
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
-        /** A system message providing instructions or context to the model. */
+        /**
+         * Returns the raw JSON value of [systemMessage].
+         *
+         * Unlike [systemMessage], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
         @JsonProperty("system_message")
         @ExcludeMissing
         fun _systemMessage(): JsonField<SystemMessage> = systemMessage
@@ -232,6 +286,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [ModelCandidate].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .model()
+             * .samplingParams()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -252,24 +315,58 @@ private constructor(
                 additionalProperties = modelCandidate.additionalProperties.toMutableMap()
             }
 
+            /** The model ID to evaluate. */
             fun model(model: String) = model(JsonField.of(model))
 
+            /**
+             * Sets [Builder.model] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.model] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun model(model: JsonField<String>) = apply { this.model = model }
 
+            /** The sampling parameters for the model. */
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
+            /**
+             * Sets [Builder.samplingParams] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
                 this.samplingParams = samplingParams
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("model")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
-            /** A system message providing instructions or context to the model. */
+            /** (Optional) The system message providing instructions or context to the model. */
             fun systemMessage(systemMessage: SystemMessage) =
                 systemMessage(JsonField.of(systemMessage))
 
-            /** A system message providing instructions or context to the model. */
+            /**
+             * Sets [Builder.systemMessage] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.systemMessage] with a well-typed [SystemMessage]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun systemMessage(systemMessage: JsonField<SystemMessage>) = apply {
                 this.systemMessage = systemMessage
             }
@@ -321,6 +418,7 @@ private constructor(
             "ModelCandidate{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
     }
 
+    /** An agent candidate for evaluation. */
     @NoAutoDetect
     class AgentCandidate
     @JsonCreator
@@ -333,10 +431,31 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * The configuration for the agent candidate.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun config(): AgentConfig = config.getRequired("config")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("agent")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
+        /**
+         * Returns the raw JSON value of [config].
+         *
+         * Unlike [config], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("config") @ExcludeMissing fun _config(): JsonField<AgentConfig> = config
 
         @JsonAnyGetter
@@ -363,6 +482,14 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [AgentCandidate].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .config()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -379,10 +506,30 @@ private constructor(
                 additionalProperties = agentCandidate.additionalProperties.toMutableMap()
             }
 
+            /** The configuration for the agent candidate. */
             fun config(config: AgentConfig) = config(JsonField.of(config))
 
+            /**
+             * Sets [Builder.config] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.config] with a well-typed [AgentConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun config(config: JsonField<AgentConfig>) = apply { this.config = config }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("agent")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun type(type: JsonValue) = apply { this.type = type }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

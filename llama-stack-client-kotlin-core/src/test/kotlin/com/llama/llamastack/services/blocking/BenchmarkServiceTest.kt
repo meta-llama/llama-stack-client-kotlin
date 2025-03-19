@@ -5,10 +5,9 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.Benchmark
-import com.llama.llamastack.models.BenchmarkListParams
 import com.llama.llamastack.models.BenchmarkRegisterParams
 import com.llama.llamastack.models.BenchmarkRetrieveParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -16,35 +15,37 @@ import org.junit.jupiter.api.extension.ExtendWith
 class BenchmarkServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val benchmarkService = client.benchmarks()
+
         val benchmark =
             benchmarkService.retrieve(
                 BenchmarkRetrieveParams.builder().benchmarkId("benchmark_id").build()
             )
-        println(benchmark)
-        benchmark?.validate()
+
+        assertNotNull(benchmark)
+        benchmark.validate()
     }
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val benchmarkService = client.benchmarks()
-        val listBenchmarksResponse = benchmarkService.list(BenchmarkListParams.builder().build())
-        println(listBenchmarksResponse)
-        for (benchmark: Benchmark in listBenchmarksResponse) {
-            benchmark.validate()
-        }
+
+        val benchmarks = benchmarkService.list()
+
+        benchmarks.forEach { it.validate() }
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val benchmarkService = client.benchmarks()
+
         benchmarkService.register(
             BenchmarkRegisterParams.builder()
                 .benchmarkId("benchmark_id")

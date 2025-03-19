@@ -5,11 +5,10 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.Model
-import com.llama.llamastack.models.ModelListParams
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
+import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -17,32 +16,34 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ModelServiceTest {
 
     @Test
-    fun callRetrieve() {
+    fun retrieve() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
+
         val model = modelService.retrieve(ModelRetrieveParams.builder().modelId("model_id").build())
-        println(model)
-        model?.validate()
+
+        assertNotNull(model)
+        model.validate()
     }
 
     @Test
-    fun callList() {
+    fun list() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
-        val listModelsResponse = modelService.list(ModelListParams.builder().build())
-        println(listModelsResponse)
-        for (model: Model in listModelsResponse) {
-            model.validate()
-        }
+
+        val models = modelService.list()
+
+        models.forEach { it.validate() }
     }
 
     @Test
-    fun callRegister() {
+    fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
+
         val model =
             modelService.register(
                 ModelRegisterParams.builder()
@@ -57,15 +58,16 @@ class ModelServiceTest {
                     .providerModelId("provider_model_id")
                     .build()
             )
-        println(model)
+
         model.validate()
     }
 
     @Test
-    fun callUnregister() {
+    fun unregister() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
+
         modelService.unregister(ModelUnregisterParams.builder().modelId("model_id").build())
     }
 }

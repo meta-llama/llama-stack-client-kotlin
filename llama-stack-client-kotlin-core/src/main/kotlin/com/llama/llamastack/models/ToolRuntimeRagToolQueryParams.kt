@@ -12,11 +12,13 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Query the RAG system for context; typically invoked by the agent */
@@ -27,18 +29,45 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** A image content item */
+    /**
+     * A image content item
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun content(): InterleavedContent = body.content()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun vectorDbIds(): List<String> = body.vectorDbIds()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
     fun queryConfig(): QueryConfig? = body.queryConfig()
 
-    /** A image content item */
+    /**
+     * Returns the raw JSON value of [content].
+     *
+     * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _content(): JsonField<InterleavedContent> = body._content()
 
+    /**
+     * Returns the raw JSON value of [vectorDbIds].
+     *
+     * Unlike [vectorDbIds], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _vectorDbIds(): JsonField<List<String>> = body._vectorDbIds()
 
+    /**
+     * Returns the raw JSON value of [queryConfig].
+     *
+     * Unlike [queryConfig], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _queryConfig(): JsonField<QueryConfig> = body._queryConfig()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -70,22 +99,51 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
-        /** A image content item */
+        /**
+         * A image content item
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun content(): InterleavedContent = content.getRequired("content")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun vectorDbIds(): List<String> = vectorDbIds.getRequired("vector_db_ids")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun queryConfig(): QueryConfig? = queryConfig.getNullable("query_config")
 
-        /** A image content item */
+        /**
+         * Returns the raw JSON value of [content].
+         *
+         * Unlike [content], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("content")
         @ExcludeMissing
         fun _content(): JsonField<InterleavedContent> = content
 
+        /**
+         * Returns the raw JSON value of [vectorDbIds].
+         *
+         * Unlike [vectorDbIds], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("vector_db_ids")
         @ExcludeMissing
         fun _vectorDbIds(): JsonField<List<String>> = vectorDbIds
 
+        /**
+         * Returns the raw JSON value of [queryConfig].
+         *
+         * Unlike [queryConfig], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("query_config")
         @ExcludeMissing
         fun _queryConfig(): JsonField<QueryConfig> = queryConfig
@@ -111,6 +169,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .vectorDbIds()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -132,43 +199,70 @@ private constructor(
             /** A image content item */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
-            /** A image content item */
+            /**
+             * Sets [Builder.content] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.content] with a well-typed [InterleavedContent]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
             fun content(content: JsonField<InterleavedContent>) = apply { this.content = content }
 
-            /** A image content item */
+            /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
             fun content(string: String) = content(InterleavedContent.ofString(string))
 
-            /** A image content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
             fun content(imageContentItem: InterleavedContent.ImageContentItem) =
                 content(InterleavedContent.ofImageContentItem(imageContentItem))
 
-            /** A text content item */
+            /**
+             * Alias for calling [content] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
             fun content(textContentItem: InterleavedContent.TextContentItem) =
                 content(InterleavedContent.ofTextContentItem(textContentItem))
 
-            /** A image content item */
+            /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
             fun contentOfItems(items: List<InterleavedContentItem>) =
                 content(InterleavedContent.ofItems(items))
 
             fun vectorDbIds(vectorDbIds: List<String>) = vectorDbIds(JsonField.of(vectorDbIds))
 
+            /**
+             * Sets [Builder.vectorDbIds] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.vectorDbIds] with a well-typed `List<String>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun vectorDbIds(vectorDbIds: JsonField<List<String>>) = apply {
                 this.vectorDbIds = vectorDbIds.map { it.toMutableList() }
             }
 
+            /**
+             * Adds a single [String] to [vectorDbIds].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
             fun addVectorDbId(vectorDbId: String) = apply {
                 vectorDbIds =
-                    (vectorDbIds ?: JsonField.of(mutableListOf())).apply {
-                        (asKnown()
-                                ?: throw IllegalStateException(
-                                    "Field was set to non-list type: ${javaClass.simpleName}"
-                                ))
-                            .add(vectorDbId)
+                    (vectorDbIds ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("vectorDbIds", it).add(vectorDbId)
                     }
             }
 
             fun queryConfig(queryConfig: QueryConfig) = queryConfig(JsonField.of(queryConfig))
 
+            /**
+             * Sets [Builder.queryConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.queryConfig] with a well-typed [QueryConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun queryConfig(queryConfig: JsonField<QueryConfig>) = apply {
                 this.queryConfig = queryConfig
             }
@@ -223,6 +317,16 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [ToolRuntimeRagToolQueryParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * .vectorDbIds()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -243,37 +347,67 @@ private constructor(
         /** A image content item */
         fun content(content: InterleavedContent) = apply { body.content(content) }
 
-        /** A image content item */
+        /**
+         * Sets [Builder.content] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.content] with a well-typed [InterleavedContent] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun content(content: JsonField<InterleavedContent>) = apply { body.content(content) }
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofString(string)`. */
         fun content(string: String) = apply { body.content(string) }
 
-        /** A image content item */
+        /**
+         * Alias for calling [content] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
         fun content(imageContentItem: InterleavedContent.ImageContentItem) = apply {
             body.content(imageContentItem)
         }
 
-        /** A text content item */
+        /**
+         * Alias for calling [content] with `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
         fun content(textContentItem: InterleavedContent.TextContentItem) = apply {
             body.content(textContentItem)
         }
 
-        /** A image content item */
+        /** Alias for calling [content] with `InterleavedContent.ofItems(items)`. */
         fun contentOfItems(items: List<InterleavedContentItem>) = apply {
             body.contentOfItems(items)
         }
 
         fun vectorDbIds(vectorDbIds: List<String>) = apply { body.vectorDbIds(vectorDbIds) }
 
+        /**
+         * Sets [Builder.vectorDbIds] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.vectorDbIds] with a well-typed `List<String>` value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun vectorDbIds(vectorDbIds: JsonField<List<String>>) = apply {
             body.vectorDbIds(vectorDbIds)
         }
 
+        /**
+         * Adds a single [String] to [vectorDbIds].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
         fun addVectorDbId(vectorDbId: String) = apply { body.addVectorDbId(vectorDbId) }
 
         fun queryConfig(queryConfig: QueryConfig) = apply { body.queryConfig(queryConfig) }
 
+        /**
+         * Sets [Builder.queryConfig] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.queryConfig] with a well-typed [QueryConfig] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
         fun queryConfig(queryConfig: JsonField<QueryConfig>) = apply {
             body.queryConfig(queryConfig)
         }

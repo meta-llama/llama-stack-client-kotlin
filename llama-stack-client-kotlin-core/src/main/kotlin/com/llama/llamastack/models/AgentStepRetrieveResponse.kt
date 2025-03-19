@@ -35,8 +35,19 @@ private constructor(
     @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
 ) {
 
+    /**
+     * An inference step in an agent turn.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun step(): Step = step.getRequired("step")
 
+    /**
+     * Returns the raw JSON value of [step].
+     *
+     * Unlike [step], this method doesn't throw if the JSON field has an unexpected type.
+     */
     @JsonProperty("step") @ExcludeMissing fun _step(): JsonField<Step> = step
 
     @JsonAnyGetter
@@ -58,6 +69,14 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [AgentStepRetrieveResponse].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .step()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -72,16 +91,27 @@ private constructor(
             additionalProperties = agentStepRetrieveResponse.additionalProperties.toMutableMap()
         }
 
+        /** An inference step in an agent turn. */
         fun step(step: Step) = step(JsonField.of(step))
 
+        /**
+         * Sets [Builder.step] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.step] with a well-typed [Step] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun step(step: JsonField<Step>) = apply { this.step = step }
 
+        /** Alias for calling [step] with `Step.ofInference(inference)`. */
         fun step(inference: InferenceStep) = step(Step.ofInference(inference))
 
+        /** Alias for calling [step] with `Step.ofToolExecution(toolExecution)`. */
         fun step(toolExecution: ToolExecutionStep) = step(Step.ofToolExecution(toolExecution))
 
+        /** Alias for calling [step] with `Step.ofShieldCall(shieldCall)`. */
         fun step(shieldCall: ShieldCallStep) = step(Step.ofShieldCall(shieldCall))
 
+        /** Alias for calling [step] with `Step.ofMemoryRetrieval(memoryRetrieval)`. */
         fun step(memoryRetrieval: MemoryRetrievalStep) =
             step(Step.ofMemoryRetrieval(memoryRetrieval))
 
@@ -111,6 +141,7 @@ private constructor(
             )
     }
 
+    /** An inference step in an agent turn. */
     @JsonDeserialize(using = Step.Deserializer::class)
     @JsonSerialize(using = Step.Serializer::class)
     class Step
@@ -122,12 +153,16 @@ private constructor(
         private val _json: JsonValue? = null,
     ) {
 
+        /** An inference step in an agent turn. */
         fun inference(): InferenceStep? = inference
 
+        /** A tool execution step in an agent turn. */
         fun toolExecution(): ToolExecutionStep? = toolExecution
 
+        /** A shield call step in an agent turn. */
         fun shieldCall(): ShieldCallStep? = shieldCall
 
+        /** A memory retrieval step in an agent turn. */
         fun memoryRetrieval(): MemoryRetrievalStep? = memoryRetrieval
 
         fun isInference(): Boolean = inference != null
@@ -138,12 +173,16 @@ private constructor(
 
         fun isMemoryRetrieval(): Boolean = memoryRetrieval != null
 
+        /** An inference step in an agent turn. */
         fun asInference(): InferenceStep = inference.getOrThrow("inference")
 
+        /** A tool execution step in an agent turn. */
         fun asToolExecution(): ToolExecutionStep = toolExecution.getOrThrow("toolExecution")
 
+        /** A shield call step in an agent turn. */
         fun asShieldCall(): ShieldCallStep = shieldCall.getOrThrow("shieldCall")
 
+        /** A memory retrieval step in an agent turn. */
         fun asMemoryRetrieval(): MemoryRetrievalStep = memoryRetrieval.getOrThrow("memoryRetrieval")
 
         fun _json(): JsonValue? = _json
@@ -209,13 +248,17 @@ private constructor(
 
         companion object {
 
+            /** An inference step in an agent turn. */
             fun ofInference(inference: InferenceStep) = Step(inference = inference)
 
+            /** A tool execution step in an agent turn. */
             fun ofToolExecution(toolExecution: ToolExecutionStep) =
                 Step(toolExecution = toolExecution)
 
+            /** A shield call step in an agent turn. */
             fun ofShieldCall(shieldCall: ShieldCallStep) = Step(shieldCall = shieldCall)
 
+            /** A memory retrieval step in an agent turn. */
             fun ofMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
                 Step(memoryRetrieval = memoryRetrieval)
         }
@@ -223,12 +266,16 @@ private constructor(
         /** An interface that defines how to map each variant of [Step] to a value of type [T]. */
         interface Visitor<out T> {
 
+            /** An inference step in an agent turn. */
             fun visitInference(inference: InferenceStep): T
 
+            /** A tool execution step in an agent turn. */
             fun visitToolExecution(toolExecution: ToolExecutionStep): T
 
+            /** A shield call step in an agent turn. */
             fun visitShieldCall(shieldCall: ShieldCallStep): T
 
+            /** A memory retrieval step in an agent turn. */
             fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
             /**

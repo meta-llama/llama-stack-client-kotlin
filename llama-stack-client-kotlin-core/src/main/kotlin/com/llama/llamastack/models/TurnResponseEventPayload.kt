@@ -392,18 +392,58 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("step_start")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepId(): String = stepId.getRequired("step_id")
 
+        /**
+         * Type of the step in an agent turn.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepType(): StepType = stepType.getRequired("step_type")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
+        /**
+         * Returns the raw JSON value of [stepId].
+         *
+         * Unlike [stepId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
+        /**
+         * Returns the raw JSON value of [stepType].
+         *
+         * Unlike [stepType], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
         @JsonAnyGetter
@@ -434,6 +474,16 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [AgentTurnResponseStepStartPayload].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .stepId()
+             * .stepType()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -457,18 +507,52 @@ private constructor(
                     agentTurnResponseStepStartPayload.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("step_start")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
             fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
+            /**
+             * Sets [Builder.stepId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
+            /** Type of the step in an agent turn. */
             fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
+            /**
+             * Sets [Builder.stepType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepType] with a well-typed [StepType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
 
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -500,6 +584,7 @@ private constructor(
                 )
         }
 
+        /** Type of the step in an agent turn. */
         class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
             Enum {
 
@@ -640,6 +725,7 @@ private constructor(
 
             companion object {
 
+                /** Returns a mutable builder for constructing an instance of [Metadata]. */
                 fun builder() = Builder()
             }
 
@@ -732,18 +818,59 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun delta(): ContentDelta = delta.getRequired("delta")
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("step_progress")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepId(): String = stepId.getRequired("step_id")
 
+        /**
+         * Type of the step in an agent turn.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepType(): StepType = stepType.getRequired("step_type")
 
+        /**
+         * Returns the raw JSON value of [delta].
+         *
+         * Unlike [delta], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("delta") @ExcludeMissing fun _delta(): JsonField<ContentDelta> = delta
 
+        /**
+         * Returns the raw JSON value of [stepId].
+         *
+         * Unlike [stepId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
+        /**
+         * Returns the raw JSON value of [stepType].
+         *
+         * Unlike [stepType], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
         @JsonAnyGetter
@@ -774,6 +901,17 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [AgentTurnResponseStepProgressPayload].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .delta()
+             * .stepId()
+             * .stepType()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -799,28 +937,81 @@ private constructor(
 
             fun delta(delta: ContentDelta) = delta(JsonField.of(delta))
 
+            /**
+             * Sets [Builder.delta] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.delta] with a well-typed [ContentDelta] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun delta(delta: JsonField<ContentDelta>) = apply { this.delta = delta }
 
+            /** Alias for calling [delta] with `ContentDelta.ofText(text)`. */
             fun delta(text: ContentDelta.TextDelta) = delta(ContentDelta.ofText(text))
 
+            /**
+             * Alias for calling [delta] with the following:
+             * ```kotlin
+             * ContentDelta.TextDelta.builder()
+             *     .text(text)
+             *     .build()
+             * ```
+             */
             fun textDelta(text: String) = delta(ContentDelta.TextDelta.builder().text(text).build())
 
+            /** Alias for calling [delta] with `ContentDelta.ofImage(image)`. */
             fun delta(image: ContentDelta.ImageDelta) = delta(ContentDelta.ofImage(image))
 
+            /**
+             * Alias for calling [delta] with the following:
+             * ```kotlin
+             * ContentDelta.ImageDelta.builder()
+             *     .image(image)
+             *     .build()
+             * ```
+             */
             fun imageDelta(image: String) =
                 delta(ContentDelta.ImageDelta.builder().image(image).build())
 
+            /** Alias for calling [delta] with `ContentDelta.ofToolCall(toolCall)`. */
             fun delta(toolCall: ContentDelta.ToolCallDelta) =
                 delta(ContentDelta.ofToolCall(toolCall))
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("step_progress")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
             fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
+            /**
+             * Sets [Builder.stepId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
+            /** Type of the step in an agent turn. */
             fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
+            /**
+             * Sets [Builder.stepType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepType] with a well-typed [StepType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -852,6 +1043,7 @@ private constructor(
                 )
         }
 
+        /** Type of the step in an agent turn. */
         class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
             Enum {
 
@@ -1004,20 +1196,63 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("step_complete")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
+        /**
+         * An inference step in an agent turn.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepDetails(): StepDetails = stepDetails.getRequired("step_details")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepId(): String = stepId.getRequired("step_id")
 
+        /**
+         * Type of the step in an agent turn.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun stepType(): StepType = stepType.getRequired("step_type")
 
+        /**
+         * Returns the raw JSON value of [stepDetails].
+         *
+         * Unlike [stepDetails], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_details")
         @ExcludeMissing
         fun _stepDetails(): JsonField<StepDetails> = stepDetails
 
+        /**
+         * Returns the raw JSON value of [stepId].
+         *
+         * Unlike [stepId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_id") @ExcludeMissing fun _stepId(): JsonField<String> = stepId
 
+        /**
+         * Returns the raw JSON value of [stepType].
+         *
+         * Unlike [stepType], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
         @JsonAnyGetter
@@ -1048,6 +1283,17 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [AgentTurnResponseStepCompletePayload].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .stepDetails()
+             * .stepId()
+             * .stepType()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -1071,32 +1317,81 @@ private constructor(
                     agentTurnResponseStepCompletePayload.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("step_complete")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
+            /** An inference step in an agent turn. */
             fun stepDetails(stepDetails: StepDetails) = stepDetails(JsonField.of(stepDetails))
 
+            /**
+             * Sets [Builder.stepDetails] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepDetails] with a well-typed [StepDetails] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepDetails(stepDetails: JsonField<StepDetails>) = apply {
                 this.stepDetails = stepDetails
             }
 
+            /**
+             * Alias for calling [stepDetails] with `StepDetails.ofInferenceStep(inferenceStep)`.
+             */
             fun stepDetails(inferenceStep: InferenceStep) =
                 stepDetails(StepDetails.ofInferenceStep(inferenceStep))
 
+            /**
+             * Alias for calling [stepDetails] with
+             * `StepDetails.ofToolExecutionStep(toolExecutionStep)`.
+             */
             fun stepDetails(toolExecutionStep: ToolExecutionStep) =
                 stepDetails(StepDetails.ofToolExecutionStep(toolExecutionStep))
 
+            /**
+             * Alias for calling [stepDetails] with `StepDetails.ofShieldCallStep(shieldCallStep)`.
+             */
             fun stepDetails(shieldCallStep: ShieldCallStep) =
                 stepDetails(StepDetails.ofShieldCallStep(shieldCallStep))
 
+            /**
+             * Alias for calling [stepDetails] with
+             * `StepDetails.ofMemoryRetrievalStep(memoryRetrievalStep)`.
+             */
             fun stepDetails(memoryRetrievalStep: MemoryRetrievalStep) =
                 stepDetails(StepDetails.ofMemoryRetrievalStep(memoryRetrievalStep))
 
             fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
+            /**
+             * Sets [Builder.stepId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepId(stepId: JsonField<String>) = apply { this.stepId = stepId }
 
+            /** Type of the step in an agent turn. */
             fun stepType(stepType: StepType) = stepType(JsonField.of(stepType))
 
+            /**
+             * Sets [Builder.stepType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.stepType] with a well-typed [StepType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun stepType(stepType: JsonField<StepType>) = apply { this.stepType = stepType }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1128,6 +1423,7 @@ private constructor(
                 )
         }
 
+        /** An inference step in an agent turn. */
         @JsonDeserialize(using = StepDetails.Deserializer::class)
         @JsonSerialize(using = StepDetails.Serializer::class)
         class StepDetails
@@ -1139,12 +1435,16 @@ private constructor(
             private val _json: JsonValue? = null,
         ) {
 
+            /** An inference step in an agent turn. */
             fun inferenceStep(): InferenceStep? = inferenceStep
 
+            /** A tool execution step in an agent turn. */
             fun toolExecutionStep(): ToolExecutionStep? = toolExecutionStep
 
+            /** A shield call step in an agent turn. */
             fun shieldCallStep(): ShieldCallStep? = shieldCallStep
 
+            /** A memory retrieval step in an agent turn. */
             fun memoryRetrievalStep(): MemoryRetrievalStep? = memoryRetrievalStep
 
             fun isInferenceStep(): Boolean = inferenceStep != null
@@ -1155,13 +1455,17 @@ private constructor(
 
             fun isMemoryRetrievalStep(): Boolean = memoryRetrievalStep != null
 
+            /** An inference step in an agent turn. */
             fun asInferenceStep(): InferenceStep = inferenceStep.getOrThrow("inferenceStep")
 
+            /** A tool execution step in an agent turn. */
             fun asToolExecutionStep(): ToolExecutionStep =
                 toolExecutionStep.getOrThrow("toolExecutionStep")
 
+            /** A shield call step in an agent turn. */
             fun asShieldCallStep(): ShieldCallStep = shieldCallStep.getOrThrow("shieldCallStep")
 
+            /** A memory retrieval step in an agent turn. */
             fun asMemoryRetrievalStep(): MemoryRetrievalStep =
                 memoryRetrievalStep.getOrThrow("memoryRetrievalStep")
 
@@ -1232,15 +1536,19 @@ private constructor(
 
             companion object {
 
+                /** An inference step in an agent turn. */
                 fun ofInferenceStep(inferenceStep: InferenceStep) =
                     StepDetails(inferenceStep = inferenceStep)
 
+                /** A tool execution step in an agent turn. */
                 fun ofToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
                     StepDetails(toolExecutionStep = toolExecutionStep)
 
+                /** A shield call step in an agent turn. */
                 fun ofShieldCallStep(shieldCallStep: ShieldCallStep) =
                     StepDetails(shieldCallStep = shieldCallStep)
 
+                /** A memory retrieval step in an agent turn. */
                 fun ofMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep) =
                     StepDetails(memoryRetrievalStep = memoryRetrievalStep)
             }
@@ -1251,12 +1559,16 @@ private constructor(
              */
             interface Visitor<out T> {
 
+                /** An inference step in an agent turn. */
                 fun visitInferenceStep(inferenceStep: InferenceStep): T
 
+                /** A tool execution step in an agent turn. */
                 fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep): T
 
+                /** A shield call step in an agent turn. */
                 fun visitShieldCallStep(shieldCallStep: ShieldCallStep): T
 
+                /** A memory retrieval step in an agent turn. */
                 fun visitMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep): T
 
                 /**
@@ -1336,6 +1648,7 @@ private constructor(
             }
         }
 
+        /** Type of the step in an agent turn. */
         class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
             Enum {
 
@@ -1482,10 +1795,29 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("turn_start")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun turnId(): String = turnId.getRequired("turn_id")
 
+        /**
+         * Returns the raw JSON value of [turnId].
+         *
+         * Unlike [turnId], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
         @JsonAnyGetter
@@ -1514,6 +1846,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [AgentTurnResponseTurnStartPayload].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .turnId()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -1533,10 +1874,29 @@ private constructor(
                     agentTurnResponseTurnStartPayload.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("turn_start")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
             fun turnId(turnId: String) = turnId(JsonField.of(turnId))
 
+            /**
+             * Sets [Builder.turnId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.turnId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun turnId(turnId: JsonField<String>) = apply { this.turnId = turnId }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1596,12 +1956,31 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("turn_complete")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
-        /** A single turn in an interaction with an Agentic System. */
+        /**
+         * A single turn in an interaction with an Agentic System.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun turn(): Turn = turn.getRequired("turn")
 
-        /** A single turn in an interaction with an Agentic System. */
+        /**
+         * Returns the raw JSON value of [turn].
+         *
+         * Unlike [turn], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
 
         @JsonAnyGetter
@@ -1630,6 +2009,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [AgentTurnResponseTurnCompletePayload].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .turn()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -1649,12 +2037,30 @@ private constructor(
                     agentTurnResponseTurnCompletePayload.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("turn_complete")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
             /** A single turn in an interaction with an Agentic System. */
             fun turn(turn: Turn) = turn(JsonField.of(turn))
 
-            /** A single turn in an interaction with an Agentic System. */
+            /**
+             * Sets [Builder.turn] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.turn] with a well-typed [Turn] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun turn(turn: JsonField<Turn>) = apply { this.turn = turn }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -1714,12 +2120,31 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * Expected to always return the following:
+         * ```kotlin
+         * JsonValue.from("turn_awaiting_input")
+         * ```
+         *
+         * However, this method can be useful for debugging and logging (e.g. if the server
+         * responded with an unexpected value).
+         */
         @JsonProperty("event_type") @ExcludeMissing fun _eventType(): JsonValue = eventType
 
-        /** A single turn in an interaction with an Agentic System. */
+        /**
+         * A single turn in an interaction with an Agentic System.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun turn(): Turn = turn.getRequired("turn")
 
-        /** A single turn in an interaction with an Agentic System. */
+        /**
+         * Returns the raw JSON value of [turn].
+         *
+         * Unlike [turn], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
 
         @JsonAnyGetter
@@ -1748,6 +2173,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of
+             * [AgentTurnResponseTurnAwaitingInputPayload].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .turn()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -1767,12 +2201,30 @@ private constructor(
                     agentTurnResponseTurnAwaitingInputPayload.additionalProperties.toMutableMap()
             }
 
+            /**
+             * Sets the field to an arbitrary JSON value.
+             *
+             * It is usually unnecessary to call this method because the field defaults to the
+             * following:
+             * ```kotlin
+             * JsonValue.from("turn_awaiting_input")
+             * ```
+             *
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun eventType(eventType: JsonValue) = apply { this.eventType = eventType }
 
             /** A single turn in an interaction with an Agentic System. */
             fun turn(turn: Turn) = turn(JsonField.of(turn))
 
-            /** A single turn in an interaction with an Agentic System. */
+            /**
+             * Sets [Builder.turn] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.turn] with a well-typed [Turn] value instead. This
+             * method is primarily for setting the field to an undocumented or not yet supported
+             * value.
+             */
             fun turn(turn: JsonField<Turn>) = apply { this.turn = turn }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {

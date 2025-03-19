@@ -50,6 +50,11 @@ interface LlamaStackClientClientAsync {
      */
     fun sync(): LlamaStackClientClient
 
+    /**
+     * Returns a view of this service that provides access to raw HTTP responses for each method.
+     */
+    fun withRawResponse(): WithRawResponse
+
     fun toolgroups(): ToolgroupServiceAsync
 
     fun tools(): ToolServiceAsync
@@ -108,4 +113,57 @@ interface LlamaStackClientClientAsync {
      * method.
      */
     fun close()
+
+    /**
+     * A view of [LlamaStackClientClientAsync] that provides access to raw HTTP responses for each
+     * method.
+     */
+    interface WithRawResponse {
+
+        fun toolgroups(): ToolgroupServiceAsync.WithRawResponse
+
+        fun tools(): ToolServiceAsync.WithRawResponse
+
+        fun toolRuntime(): ToolRuntimeServiceAsync.WithRawResponse
+
+        fun agents(): AgentServiceAsync.WithRawResponse
+
+        fun batchInference(): BatchInferenceServiceAsync.WithRawResponse
+
+        fun datasets(): DatasetServiceAsync.WithRawResponse
+
+        fun eval(): EvalServiceAsync.WithRawResponse
+
+        fun inspect(): InspectServiceAsync.WithRawResponse
+
+        fun inference(): InferenceServiceAsync.WithRawResponse
+
+        fun vectorIo(): VectorIoServiceAsync.WithRawResponse
+
+        fun vectorDbs(): VectorDbServiceAsync.WithRawResponse
+
+        fun models(): ModelServiceAsync.WithRawResponse
+
+        fun postTraining(): PostTrainingServiceAsync.WithRawResponse
+
+        fun providers(): ProviderServiceAsync.WithRawResponse
+
+        fun routes(): RouteServiceAsync.WithRawResponse
+
+        fun safety(): SafetyServiceAsync.WithRawResponse
+
+        fun shields(): ShieldServiceAsync.WithRawResponse
+
+        fun syntheticDataGeneration(): SyntheticDataGenerationServiceAsync.WithRawResponse
+
+        fun telemetry(): TelemetryServiceAsync.WithRawResponse
+
+        fun datasetio(): DatasetioServiceAsync.WithRawResponse
+
+        fun scoring(): ScoringServiceAsync.WithRawResponse
+
+        fun scoringFunctions(): ScoringFunctionServiceAsync.WithRawResponse
+
+        fun benchmarks(): BenchmarkServiceAsync.WithRawResponse
+    }
 }

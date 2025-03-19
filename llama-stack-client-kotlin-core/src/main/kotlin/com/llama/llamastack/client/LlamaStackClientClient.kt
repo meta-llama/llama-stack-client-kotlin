@@ -50,6 +50,11 @@ interface LlamaStackClientClient {
      */
     fun async(): LlamaStackClientClientAsync
 
+    /**
+     * Returns a view of this service that provides access to raw HTTP responses for each method.
+     */
+    fun withRawResponse(): WithRawResponse
+
     fun toolgroups(): ToolgroupService
 
     fun tools(): ToolService
@@ -108,4 +113,57 @@ interface LlamaStackClientClient {
      * method.
      */
     fun close()
+
+    /**
+     * A view of [LlamaStackClientClient] that provides access to raw HTTP responses for each
+     * method.
+     */
+    interface WithRawResponse {
+
+        fun toolgroups(): ToolgroupService.WithRawResponse
+
+        fun tools(): ToolService.WithRawResponse
+
+        fun toolRuntime(): ToolRuntimeService.WithRawResponse
+
+        fun agents(): AgentService.WithRawResponse
+
+        fun batchInference(): BatchInferenceService.WithRawResponse
+
+        fun datasets(): DatasetService.WithRawResponse
+
+        fun eval(): EvalService.WithRawResponse
+
+        fun inspect(): InspectService.WithRawResponse
+
+        fun inference(): InferenceService.WithRawResponse
+
+        fun vectorIo(): VectorIoService.WithRawResponse
+
+        fun vectorDbs(): VectorDbService.WithRawResponse
+
+        fun models(): ModelService.WithRawResponse
+
+        fun postTraining(): PostTrainingService.WithRawResponse
+
+        fun providers(): ProviderService.WithRawResponse
+
+        fun routes(): RouteService.WithRawResponse
+
+        fun safety(): SafetyService.WithRawResponse
+
+        fun shields(): ShieldService.WithRawResponse
+
+        fun syntheticDataGeneration(): SyntheticDataGenerationService.WithRawResponse
+
+        fun telemetry(): TelemetryService.WithRawResponse
+
+        fun datasetio(): DatasetioService.WithRawResponse
+
+        fun scoring(): ScoringService.WithRawResponse
+
+        fun scoringFunctions(): ScoringFunctionService.WithRawResponse
+
+        fun benchmarks(): BenchmarkService.WithRawResponse
+    }
 }

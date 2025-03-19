@@ -6,6 +6,8 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
+import com.llama.llamastack.models.ToolRuntimeListToolsParams
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -13,10 +15,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ToolRuntimeServiceTest {
 
     @Test
-    fun callInvokeTool() {
+    fun invokeTool() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val toolRuntimeService = client.toolRuntime()
+
         val toolInvocationResult =
             toolRuntimeService.invokeTool(
                 ToolRuntimeInvokeToolParams.builder()
@@ -28,7 +31,29 @@ class ToolRuntimeServiceTest {
                     .toolName("tool_name")
                     .build()
             )
-        println(toolInvocationResult)
+
         toolInvocationResult.validate()
+    }
+
+    @Disabled("Prism doesn't support JSONL responses yet")
+    @Test
+    fun listToolsStreaming() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val toolRuntimeService = client.toolRuntime()
+
+        val toolDefStreamResponse =
+            toolRuntimeService.listToolsStreaming(
+                ToolRuntimeListToolsParams.builder()
+                    .mcpEndpoint(
+                        ToolRuntimeListToolsParams.McpEndpoint.builder().uri("uri").build()
+                    )
+                    .toolGroupId("tool_group_id")
+                    .build()
+            )
+
+        toolDefStreamResponse.use {
+            toolDefStreamResponse.asSequence().forEach { toolDef -> toolDef.validate() }
+        }
     }
 }

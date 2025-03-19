@@ -17,6 +17,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 /** Run a tool with the given arguments */
@@ -27,12 +28,30 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun kwargs(): Kwargs = body.kwargs()
 
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
     fun toolName(): String = body.toolName()
 
+    /**
+     * Returns the raw JSON value of [kwargs].
+     *
+     * Unlike [kwargs], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _kwargs(): JsonField<Kwargs> = body._kwargs()
 
+    /**
+     * Returns the raw JSON value of [toolName].
+     *
+     * Unlike [toolName], this method doesn't throw if the JSON field has an unexpected type.
+     */
     fun _toolName(): JsonField<String> = body._toolName()
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
@@ -61,12 +80,32 @@ private constructor(
         private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
     ) {
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun kwargs(): Kwargs = kwargs.getRequired("kwargs")
 
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
         fun toolName(): String = toolName.getRequired("tool_name")
 
+        /**
+         * Returns the raw JSON value of [kwargs].
+         *
+         * Unlike [kwargs], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("kwargs") @ExcludeMissing fun _kwargs(): JsonField<Kwargs> = kwargs
 
+        /**
+         * Returns the raw JSON value of [toolName].
+         *
+         * Unlike [toolName], this method doesn't throw if the JSON field has an unexpected type.
+         */
         @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<String> = toolName
 
         @JsonAnyGetter
@@ -89,6 +128,15 @@ private constructor(
 
         companion object {
 
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .kwargs()
+             * .toolName()
+             * ```
+             */
             fun builder() = Builder()
         }
 
@@ -107,10 +155,24 @@ private constructor(
 
             fun kwargs(kwargs: Kwargs) = kwargs(JsonField.of(kwargs))
 
+            /**
+             * Sets [Builder.kwargs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.kwargs] with a well-typed [Kwargs] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun kwargs(kwargs: JsonField<Kwargs>) = apply { this.kwargs = kwargs }
 
             fun toolName(toolName: String) = toolName(JsonField.of(toolName))
 
+            /**
+             * Sets [Builder.toolName] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolName] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
             fun toolName(toolName: JsonField<String>) = apply { this.toolName = toolName }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -162,6 +224,15 @@ private constructor(
 
     companion object {
 
+        /**
+         * Returns a mutable builder for constructing an instance of [ToolRuntimeInvokeToolParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .kwargs()
+         * .toolName()
+         * ```
+         */
         fun builder() = Builder()
     }
 
@@ -181,10 +252,22 @@ private constructor(
 
         fun kwargs(kwargs: Kwargs) = apply { body.kwargs(kwargs) }
 
+        /**
+         * Sets [Builder.kwargs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.kwargs] with a well-typed [Kwargs] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun kwargs(kwargs: JsonField<Kwargs>) = apply { body.kwargs(kwargs) }
 
         fun toolName(toolName: String) = apply { body.toolName(toolName) }
 
+        /**
+         * Sets [Builder.toolName] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.toolName] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
         fun toolName(toolName: JsonField<String>) = apply { body.toolName(toolName) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
@@ -338,6 +421,7 @@ private constructor(
 
         companion object {
 
+            /** Returns a mutable builder for constructing an instance of [Kwargs]. */
             fun builder() = Builder()
         }
 

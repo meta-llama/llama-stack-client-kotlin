@@ -26,6 +26,9 @@ private constructor(
 
     companion object {
 
+        fun none(): ShieldListParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ShieldListParams]. */
         fun builder() = Builder()
     }
 

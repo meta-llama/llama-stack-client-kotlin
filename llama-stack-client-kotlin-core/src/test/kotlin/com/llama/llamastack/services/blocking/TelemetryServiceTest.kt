@@ -7,7 +7,6 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.Event
 import com.llama.llamastack.models.QueryCondition
-import com.llama.llamastack.models.QuerySpansResponse
 import com.llama.llamastack.models.TelemetryGetSpanParams
 import com.llama.llamastack.models.TelemetryGetSpanTreeParams
 import com.llama.llamastack.models.TelemetryGetTraceParams
@@ -15,7 +14,6 @@ import com.llama.llamastack.models.TelemetryLogEventParams
 import com.llama.llamastack.models.TelemetryQuerySpansParams
 import com.llama.llamastack.models.TelemetryQueryTracesParams
 import com.llama.llamastack.models.TelemetrySaveSpansToDatasetParams
-import com.llama.llamastack.models.Trace
 import java.time.OffsetDateTime
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
@@ -25,24 +23,26 @@ import org.junit.jupiter.api.extension.ExtendWith
 class TelemetryServiceTest {
 
     @Test
-    fun callGetSpan() {
+    fun getSpan() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val telemetryGetSpanResponse =
+
+        val response =
             telemetryService.getSpan(
                 TelemetryGetSpanParams.builder().traceId("trace_id").spanId("span_id").build()
             )
-        println(telemetryGetSpanResponse)
-        telemetryGetSpanResponse.validate()
+
+        response.validate()
     }
 
     @Test
-    fun callGetSpanTree() {
+    fun getSpanTree() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val querySpanTreeResponse =
+
+        val response =
             telemetryService.getSpanTree(
                 TelemetryGetSpanTreeParams.builder()
                     .spanId("span_id")
@@ -50,26 +50,28 @@ class TelemetryServiceTest {
                     .maxDepth(0L)
                     .build()
             )
-        println(querySpanTreeResponse)
-        querySpanTreeResponse.validate()
+
+        response.validate()
     }
 
     @Test
-    fun callGetTrace() {
+    fun getTrace() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
+
         val trace =
             telemetryService.getTrace(TelemetryGetTraceParams.builder().traceId("trace_id").build())
-        println(trace)
+
         trace.validate()
     }
 
     @Test
-    fun callLogEvent() {
+    fun logEvent() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
+
         telemetryService.logEvent(
             TelemetryLogEventParams.builder()
                 .event(
@@ -93,11 +95,12 @@ class TelemetryServiceTest {
 
     @Disabled("unsupported query params in java / kotlin")
     @Test
-    fun callQuerySpans() {
+    fun querySpans() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val querySpansResponse =
+
+        val response =
             telemetryService.querySpans(
                 TelemetryQuerySpansParams.builder()
                     .addAttributeFilter(
@@ -111,19 +114,18 @@ class TelemetryServiceTest {
                     .maxDepth(0L)
                     .build()
             )
-        println(querySpansResponse)
-        for (span: QuerySpansResponse.Data in querySpansResponse) {
-            span.validate()
-        }
+
+        response.forEach { it.validate() }
     }
 
     @Disabled("unsupported query params in java / kotlin")
     @Test
-    fun callQueryTraces() {
+    fun queryTraces() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
-        val queryTracesResponse =
+
+        val traces =
             telemetryService.queryTraces(
                 TelemetryQueryTracesParams.builder()
                     .addAttributeFilter(
@@ -138,17 +140,16 @@ class TelemetryServiceTest {
                     .addOrderBy("string")
                     .build()
             )
-        println(queryTracesResponse)
-        for (trace: Trace in queryTracesResponse) {
-            trace.validate()
-        }
+
+        traces.forEach { it.validate() }
     }
 
     @Test
-    fun callSaveSpansToDataset() {
+    fun saveSpansToDataset() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
+
         telemetryService.saveSpansToDataset(
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(

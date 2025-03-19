@@ -26,6 +26,9 @@ private constructor(
 
     companion object {
 
+        fun none(): VectorDbListParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [VectorDbListParams]. */
         fun builder() = Builder()
     }
 
