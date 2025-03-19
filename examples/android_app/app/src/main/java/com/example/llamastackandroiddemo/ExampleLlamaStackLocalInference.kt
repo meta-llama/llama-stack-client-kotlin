@@ -5,10 +5,18 @@ import android.util.Log
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.local.LlamaStackClientLocalClient
 import com.llama.llamastack.core.JsonNumber
+import com.llama.llamastack.models.AgentConfig
+import com.llama.llamastack.models.AgentCreateParams
+import com.llama.llamastack.models.AgentSessionCreateParams
+import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InterleavedContent
+import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.SystemMessage
+import com.llama.llamastack.models.ToolDef
+import com.llama.llamastack.models.ToolResponseMessage
 import com.llama.llamastack.models.UserMessage
+import com.llama.llamastack.services.blocking.agents.TurnService
 import kotlinx.datetime.Clock
 import java.time.Instant
 import java.time.ZoneId
@@ -22,7 +30,7 @@ class ExampleLlamaStackLocalInference(
     val temperature: Float
 ) {
 
-    private var client: LlamaStackClientClient? = null
+    var client: LlamaStackClientClient? = null
     private var response: String? = null
     private var tps: Float = 0.0f
 
@@ -71,7 +79,21 @@ class ExampleLlamaStackLocalInference(
         thread.start();
     }
 
-    fun inferenceStart(modelName: String, conversationHistory: ArrayList<Message>, systemPrompt:String, ctx: Context): String {
+    fun inferenceStartWithAgent(agentId: String, sessionId: String, turnService: TurnService, prompt: ArrayList<Message>, ctx: Context): String {
+        val future = CompletableFuture<String>()
+        val thread = Thread {
+            try {
+                val response = localAgentInference(agentId, sessionId, turnService, prompt, ctx)
+                future.complete(response)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+        thread.start();
+        return future.get();
+    }
+
+    fun inferenceStartWithoutAgent(modelName: String, conversationHistory: ArrayList<Message>, systemPrompt:String, ctx: Context): String {
         val future = CompletableFuture<String>()
         //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
         val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
@@ -186,6 +208,141 @@ class ExampleLlamaStackLocalInference(
         }
         return response;
     }
+
+    fun createLocalAgent(modelName: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
+        val agentConfig = createLocalAgentConfig(modelName, tokenizerPath, temperature, userProvidedSystemPrompt)
+        val agentService = client!!.agents()
+        val agentCreateResponse = agentService.create(
+            AgentCreateParams.builder()
+                .agentConfig(agentConfig)
+                .build(),
+        )
+
+        val agentId = agentCreateResponse.agentId()
+        val sessionService = agentService.session()
+        val agentSessionCreateResponse = sessionService.create(
+            AgentSessionCreateParams.builder()
+                .agentId(agentId)
+                .sessionName("test-session")
+                .build()
+        )
+
+        val sessionId = agentSessionCreateResponse.sessionId()
+        val turnService = agentService.turn()
+        return Triple(agentId, sessionId, turnService)
+    }
+
+    private fun localAgentInference(agentId: String, sessionId: String, turnService: TurnService, conversationHistory: ArrayList<Message>, ctx: Context): String {
+        val agentTurnCreateResponseStream =
+            turnService.createStreaming(
+                AgentTurnCreateParams.builder()
+                    .agentId(agentId)
+                    .messages(
+                        constructMessagesForAgent(conversationHistory, ctx)
+                    )
+                    .sessionId(sessionId)
+                    .build()
+            )
+
+        val callback = ctx as InferenceStreamingCallback
+        agentTurnCreateResponseStream.use {
+            agentTurnCreateResponseStream.asSequence().forEach {
+                val agentResponsePayload = it.event().payload()
+                when {
+                    agentResponsePayload.isAgentTurnResponseTurnStart() -> {
+                        // Handle Turn Start Payload
+                    }
+                    agentResponsePayload.isAgentTurnResponseStepStart() -> {
+                        // Handle Step Start Payload
+                    }
+                    agentResponsePayload.isAgentTurnResponseStepProgress() -> {
+                        // Handle Step Progress Payload
+                        val result = agentResponsePayload.agentTurnResponseStepProgress()?.delta()?.text()?.text()
+                        if (result != null) {
+                            callback.onStreamReceived(result.toString())
+                        }
+                    }
+                    agentResponsePayload.isAgentTurnResponseStepComplete() -> {
+                        // Handle Step Complete Payload
+                        val toolCalls = agentResponsePayload.agentTurnResponseStepComplete()?.stepDetails()?.asInferenceStep()?.modelResponse()?.toolCalls()
+                        if (!toolCalls.isNullOrEmpty()) {
+                            callback.onStreamReceived(functionDispatch(toolCalls, ctx))
+                        }
+                    }
+                    agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
+                        // Handle Turn Complete Payload
+                    }
+                }
+            }
+        }
+        return ""
+    }
+
+    private fun createLocalAgentConfig(modelName: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
+        //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
+        val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
+        //This should be replaced with Agent getting date and time with search tool
+        val formattedZdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        val clientTools = mutableListOf<ToolDef>()
+        var instruction = userProvidedSystemPrompt
+        //If no System prompt configured by the user, use default tool call system prompt
+        if (instruction == "") {
+            clientTools.add(CustomTools.getCreateCalendarEventTool())
+            instruction = "Think step by step to decide if you need to generate a tool call based on tools available to you. If not, just answer the question. If you decide to generate function, reply with the function you only. For your reference, Today Date is $formattedZdt."
+        }
+        //Llama 1B/3B text model only support PYTHON_LIST at the moment. Whereas Vision instruction models only support JSON format.
+        val toolPromptFormat = AgentConfig.ToolPromptFormat.PYTHON_LIST
+
+        val agentConfig =
+            AgentConfig.builder()
+                .enableSessionPersistence(false)
+                .instructions(instruction)
+                .maxInferIters(100)
+                .model(modelName)
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategy(
+                            SamplingParams.Strategy.ofGreedySampling()
+                        )
+                        .build()
+                )
+                .toolChoice(AgentConfig.ToolChoice.AUTO)
+                .toolPromptFormat(toolPromptFormat)
+                .clientTools(
+                    clientTools
+                )
+                .build()
+
+        return agentConfig
+    }
+
+    private fun constructMessagesForAgent(
+        conversationHistory: ArrayList<Message>, ctx: Context
+    ): List<AgentTurnCreateParams.Message> {
+        val messageList = ArrayList<AgentTurnCreateParams.Message>();
+        for (chat in conversationHistory) {
+            val inferenceMessage: AgentTurnCreateParams.Message = if (chat.isSent) {
+                // User Message
+                AgentTurnCreateParams.Message.ofUser(
+                    UserMessage.builder()
+                        .content(InterleavedContent.ofString(chat.text))
+                        .build());
+            } else {
+                AgentTurnCreateParams.Message.ofToolResponse(
+                    ToolResponseMessage.builder()
+                        .callId("")
+                        .content(InterleavedContent.ofString(chat.text))
+                        .toolName("")
+                        .build()
+                )
+            }
+            messageList.add(inferenceMessage)
+        }
+
+        AppLogging.getInstance().log("conversation history length "  + messageList.size)
+        return messageList
+    }
+
 
     private fun constructLSMessagesFromConversationHistoryAndSystemPrompt(
         conversationHistory: ArrayList<Message>,
