@@ -65,6 +65,10 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
         onStatsComplete = true
     }
 
+    override fun withRawResponse(): InferenceService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun chatCompletion(
         params: InferenceChatCompletionParams,
         requestOptions: RequestOptions,
