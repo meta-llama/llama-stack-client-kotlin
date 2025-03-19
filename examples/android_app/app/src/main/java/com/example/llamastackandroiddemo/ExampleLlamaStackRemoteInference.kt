@@ -410,7 +410,6 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                     ToolResponseMessage.builder()
                         .callId("")
                         .content(InterleavedContent.ofString(chat.text))
-                        .toolName("")
                         .build()
                 )
             }
