@@ -4,7 +4,8 @@ package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.LlamaStackClientClientAsync
-import com.llama.llamastack.models.*
+import com.llama.llamastack.client.local.services.InferenceServiceLocalImpl
+import com.llama.llamastack.core.getPackageVersion
 import com.llama.llamastack.services.blocking.*
 
 class LlamaStackClientClientLocalImpl constructor(private val clientOptions: LocalClientOptions) :
@@ -61,6 +62,8 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
     override fun close() {
         TODO("Not yet implemented")
     }
+
+    //private val agent: AgentService by lazy { AgentServiceLocalImpl(clientOptions) }
 
     override fun agents(): AgentService {
         TODO("Not yet implemented")

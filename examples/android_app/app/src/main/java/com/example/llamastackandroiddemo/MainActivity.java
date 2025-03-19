@@ -198,13 +198,23 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
             String[] segments = updatedSettingsFields.getModelFilePath().split("/");
             String pteName = segments[segments.length - 1];
             message += "local (" + pteName + ") ";
+            if (mGenerationModeButton.getText() == AppUtils.LOCAL && useAgent) {
+              new Thread(() -> {
+                try {
+                  setupAgent(AppUtils.LOCAL);
+                  addSystemMessage("Remote Agent setup done");
+                } catch (Exception e) {
+                  e.printStackTrace();
+                }
+              }).start();
+            }
           }
           if (exampleLlamaStackRemoteInference != null) {
             message += "and remote (" + updatedSettingsFields.getRemoteURL() +") ";
             if (mGenerationModeButton.getText() == AppUtils.REMOTE && useAgent) {
                 new Thread(() -> {
                   try {
-                    setupAgent();
+                    setupAgent(AppUtils.REMOTE);
                     addSystemMessage("Remote Agent setup done");
                   } catch (Exception e) {
                     e.printStackTrace();
@@ -308,7 +318,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
           if (exampleLlamaStackRemoteInference != null && useAgent) {
             new Thread(() -> {
               try {
-                setupAgent();
+                setupAgent(AppUtils.REMOTE);
                 addSystemMessage("Remote Agent setup done");
               } catch (Exception e) {
                 e.printStackTrace();
@@ -319,6 +329,16 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
         else {
           mGenerationModeButton.setText(AppUtils.LOCAL);
           addSystemMessage("Inference mode: Local");
+          if (exampleLlamaStackLocalInference != null && useAgent) {
+            new Thread(() -> {
+              try {
+                setupAgent(AppUtils.LOCAL);
+                addSystemMessage("Local Agent setup done");
+              } catch (Exception e) {
+                e.printStackTrace();
+              }
+            }).start();
+          }
         }
       }
     });
@@ -694,17 +714,31 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     mMessageAdapter.notifyDataSetChanged();
   }
 
-  private void setupAgent() {
+  private void setupAgent(String generationMode) {
     AppLogging.getInstance().log("Setting up agent for remote inference");
     String systemPrompt = mCurrentSettingsFields.getSystemPrompt();
-    String modelName = mCurrentSettingsFields.getRemoteModel();
-
+    String modelName = Objects.equals(generationMode, AppUtils.REMOTE) ?
+            mCurrentSettingsFields.getRemoteModel() :
+            mCurrentSettingsFields.getModelFilePath();
     double temperature = mCurrentSettingsFields.getTemperature();
-    if (exampleLlamaStackRemoteInference.getClient() == null) {
-      AppLogging.getInstance().log("client is null for remote agent");
-      return;
+
+    // handling client being null
+    if (Objects.equals(generationMode, AppUtils.REMOTE)) {
+      if (exampleLlamaStackRemoteInference.getClient() == null) {
+        AppLogging.getInstance().log("client is null for remote agent");
+        return;
+      }
+    } else {
+      if (exampleLlamaStackLocalInference.getClient() == null) {
+        AppLogging.getInstance().log("client is null for local agent");
+        return;
+      }
     }
-    Triple<String, String, TurnService> agentInfo = exampleLlamaStackRemoteInference.createRemoteAgent(modelName, temperature, systemPrompt, this);
+
+    Triple<String, String, TurnService> agentInfo =
+            Objects.equals(generationMode, AppUtils.REMOTE) ?
+                    exampleLlamaStackRemoteInference.createRemoteAgent(modelName, temperature, systemPrompt, this) :
+                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getTokenizerFilePath(), temperature, systemPrompt, this);
     this.agentId = agentInfo.getFirst();
     this.sessionId = agentInfo.getSecond();
     this.turnService = agentInfo.getThird();
@@ -727,10 +761,9 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     String result = "";
 
 
-    if(useAgent) {
+    if (useAgent) {
       result = exampleLlamaStackRemoteInference.inferenceStartWithAgent(agentId, sessionId, turnService, mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK), this);
-    }
-    else {
+    } else {
       result = exampleLlamaStackRemoteInference.inferenceStartWithoutAgent(
               modelName,
               temperature,
@@ -746,13 +779,26 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     AppLogging.getInstance().log("Running inference locally.. raw prompt=" + rawPrompt);
     String modelName = mCurrentSettingsFields.getModelType().toString();
     String systemPrompt = mCurrentSettingsFields.getSystemPrompt();
-    // If you want with conversation history
-     String result = exampleLlamaStackLocalInference.inferenceStart(
-             modelName,
-             mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK),
-             systemPrompt,
-             this
-     );
+
+    String result = "";
+
+    if (useAgent) {
+      result = exampleLlamaStackLocalInference.inferenceStartWithAgent(
+              agentId,
+              sessionId,
+              turnService,
+              mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK),
+              this);
+    } else {
+      // If you want with conversation history
+      result = exampleLlamaStackLocalInference.inferenceStartWithoutAgent(
+              modelName,
+              mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK),
+              systemPrompt,
+              this
+      );
+    }
+
     float tps = exampleLlamaStackLocalInference.getTps();
     mResultMessage.appendText(result);
     mResultMessage.setTokensPerSecond(tps);
