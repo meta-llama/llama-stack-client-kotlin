@@ -26,6 +26,10 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
         TODO("Not yet implemented")
     }
 
+    override fun withRawResponse(): LlamaStackClientClient.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun toolgroups(): ToolgroupService {
         TODO("Not yet implemented")
     }
