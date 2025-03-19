@@ -91,7 +91,7 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
 
         println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
         onResultComplete = false
-        mModule.generate(formattedPrompt, seqLength, this, false)
+        mModule!!.generate(formattedPrompt, seqLength, this, false)
 
         while (!onResultComplete && !onStatsComplete) {
             Thread.sleep(waitTime)
@@ -151,7 +151,7 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
 
         println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
         onResultComplete = false
-        val thread = Thread { mModule.generate(formattedPrompt, seqLength, this, false) }
+        val thread = Thread { mModule!!.generate(formattedPrompt, seqLength, this, false) }
         thread.start()
 
         return streamResponse

@@ -2,16 +2,49 @@
 
 package com.llama.llamastack.client.local
 
-import com.llama.llamastack.errors.LlamaStackClientException
+import com.llama.llamastack.client.local.services.AgentServiceLocalImpl
+import com.llama.llamastack.client.local.util.createETLlamaModule
 import org.pytorch.executorch.LlamaModule
 
 class LocalClientOptions
 private constructor(
-    val modelPath: String,
-    val tokenizerPath: String,
-    val temperature: Float,
-    val llamaModule: LlamaModule,
+    var modelPath: String,
+    var tokenizerPath: String,
+    var temperature: Float,
+    var llamaModule: LlamaModule?,
+    var useAgent: Boolean,
 ) {
+
+    // Used to save agent over
+    private var agent: AgentServiceLocalImpl? = null
+
+    fun setAgent(agent: AgentServiceLocalImpl) {
+        this.agent = agent
+    }
+
+    fun getAgent(): AgentServiceLocalImpl? {
+        return agent
+    }
+
+    private var modelName: String? = null
+
+    fun setModelName(modelName: String) {
+        this.modelName = modelName
+    }
+
+    fun getModelName(): String? {
+        return modelName
+    }
+
+    private var instruction: String? = null
+
+    fun setInstruction(instruction: String) {
+        this.instruction = instruction
+    }
+
+    fun getInstruction(): String? {
+        return instruction
+    }
 
     companion object {
         fun builder() = Builder()
@@ -22,6 +55,7 @@ private constructor(
         private var tokenizerPath: String? = null
         private var temperature: Float = 0.0F
         private var llamaModule: LlamaModule? = null
+        private var useAgent: Boolean = false
 
         fun modelPath(modelPath: String) = apply { this.modelPath = modelPath }
 
@@ -29,29 +63,22 @@ private constructor(
 
         fun temperature(temperature: Float) = apply { this.temperature = temperature }
 
+        fun useAgent(useAgent: Boolean) = apply { this.useAgent = useAgent }
+
         fun fromEnv() = apply {}
 
         fun build(): LocalClientOptions {
-            checkNotNull(modelPath) { "`modelPath` is required but not set" }
-            checkNotNull(tokenizerPath) { "`tokenizerPath` is required but not set" }
-
-            try {
-                this.llamaModule = LlamaModule(1, modelPath, tokenizerPath, temperature)
-                checkNotNull(llamaModule) { "`temperature` is required but not set" }
-                llamaModule!!.load()
-                println(
-                    "llamaModule loading with modelPath: $modelPath | " +
-                        "tokenizerPath: $tokenizerPath | temperature: $temperature"
-                )
-                return LocalClientOptions(modelPath!!, tokenizerPath!!, temperature, llamaModule!!)
-            } catch (e: NoClassDefFoundError) {
-                throw LlamaStackClientException(
-                    "ExecuTorch AAR file needs to be included in the libs/ for your app. " +
-                        "Please see the README for more details: " +
-                        "https://github.com/meta-llama/llama-stack-client-kotlin/tree/main",
-                    e,
-                )
+            if (!useAgent) {
+                // if using Agents then LlamaModule is initialized in AgentServiceLocalImpl
+                this.llamaModule = createETLlamaModule(modelPath, tokenizerPath, temperature)
             }
+            return LocalClientOptions(
+                modelPath!!,
+                tokenizerPath!!,
+                temperature,
+                llamaModule,
+                useAgent,
+            )
         }
     }
 }

@@ -5,6 +5,7 @@ import android.util.Log
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.local.LlamaStackClientLocalClient
 import com.llama.llamastack.core.JsonNumber
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.AgentConfig
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentSessionCreateParams
@@ -27,7 +28,8 @@ import java.util.concurrent.CompletableFuture
 class ExampleLlamaStackLocalInference(
     val modelPath: String,
     val tokenizerPath: String,
-    val temperature: Float
+    val temperature: Float,
+    val useAgent: Boolean
 ) {
 
     var client: LlamaStackClientClient? = null
@@ -51,6 +53,7 @@ class ExampleLlamaStackLocalInference(
                     .modelPath(modelPath)
                     .tokenizerPath(tokenizerPath)
                     .temperature(temperature)
+                    .useAgent(useAgent)
                     .build()
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -95,37 +98,9 @@ class ExampleLlamaStackLocalInference(
 
     fun inferenceStartWithoutAgent(modelName: String, conversationHistory: ArrayList<Message>, systemPrompt:String, ctx: Context): String {
         val future = CompletableFuture<String>()
-        //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
-        val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
-        val formattedZdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
-        val availableFunctions = AvailableFunctions.getInstance()
-        val functionDefinitions = availableFunctions.values()
         var sysPrompt = systemPrompt
         if (sysPrompt == "") {
-            sysPrompt = """
-                            Today Date: $formattedZdt
-                    
-                            Tool Instructions:
-                            - When user is asking a question that requires your reasoning, do not use a function call or generate functions.
-                            - Only function call if user's intention matches the function that you have access to.
-                            - When looking for real time information use relevant functions if available.
-                            - Ignore previous conversation history if you are making a tool call.
-
-                                           
-                            You have access to the following functions:
-                            {$functionDefinitions}
-                                      
-                            If you decide to invoke any of the function(s), you MUST put it in the format of [func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]\n
-                            You SHOULD NOT include any other text in the response.
-                    
-                            Reminder:                          
-                            - Function calls MUST follow the specified format
-                            - Required parameters MUST be specified
-                            - Only call one function at a time
-                            - Put the entire function call reply on one line
-                            - When returning a function call, don't add anything else to your response
-                            - When scheduling the events, make sure you set the date and time right. Use step by step reasoning for date such as next Tuesday
-                         """
+            sysPrompt = getSystemPromptForPotentialCustomToolCall()
         }
         val thread = Thread {
             try {
@@ -209,8 +184,8 @@ class ExampleLlamaStackLocalInference(
         return response;
     }
 
-    fun createLocalAgent(modelName: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
-        val agentConfig = createLocalAgentConfig(modelName, tokenizerPath, temperature, userProvidedSystemPrompt)
+    fun createLocalAgent(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
+        val agentConfig = createLocalAgentConfig(modelName, modelPath, tokenizerPath, temperature, userProvidedSystemPrompt)
         val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(
             AgentCreateParams.builder()
@@ -257,6 +232,7 @@ class ExampleLlamaStackLocalInference(
                     }
                     agentResponsePayload.isAgentTurnResponseStepProgress() -> {
                         // Handle Step Progress Payload
+                        Log.d("response","cmodii app entered isAgentTurnResponseStepProgress")
                         val result = agentResponsePayload.agentTurnResponseStepProgress()?.delta()?.text()?.text()
                         if (result != null) {
                             callback.onStreamReceived(result.toString())
@@ -264,9 +240,15 @@ class ExampleLlamaStackLocalInference(
                     }
                     agentResponsePayload.isAgentTurnResponseStepComplete() -> {
                         // Handle Step Complete Payload
+                        Log.d("response","cmodii app entered isAgentTurnResponseStepComplete")
                         val toolCalls = agentResponsePayload.agentTurnResponseStepComplete()?.stepDetails()?.asInferenceStep()?.modelResponse()?.toolCalls()
+                        Log.d("response","cmodii app toolCall response: $toolCalls")
                         if (!toolCalls.isNullOrEmpty()) {
                             callback.onStreamReceived(functionDispatch(toolCalls, ctx))
+                        } else {
+                            tps =  (agentResponsePayload.agentTurnResponseStepComplete()
+                                ?._additionalProperties()?.get("tps") as JsonNumber).value as Float
+                            callback.onStatStreamReceived(tps)
                         }
                     }
                     agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
@@ -278,7 +260,7 @@ class ExampleLlamaStackLocalInference(
         return ""
     }
 
-    private fun createLocalAgentConfig(modelName: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
+    private fun createLocalAgentConfig(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
         //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
         val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
         //This should be replaced with Agent getting date and time with search tool
@@ -287,8 +269,8 @@ class ExampleLlamaStackLocalInference(
         var instruction = userProvidedSystemPrompt
         //If no System prompt configured by the user, use default tool call system prompt
         if (instruction == "") {
-            clientTools.add(CustomTools.getCreateCalendarEventTool())
-            instruction = "Think step by step to decide if you need to generate a tool call based on tools available to you. If not, just answer the question. If you decide to generate function, reply with the function you only. For your reference, Today Date is $formattedZdt."
+            //clientTools.add(CustomTools.getCreateCalendarEventTool())
+            instruction = getSystemPromptForPotentialCustomToolCall()
         }
         //Llama 1B/3B text model only support PYTHON_LIST at the moment. Whereas Vision instruction models only support JSON format.
         val toolPromptFormat = AgentConfig.ToolPromptFormat.PYTHON_LIST
@@ -299,18 +281,13 @@ class ExampleLlamaStackLocalInference(
                 .instructions(instruction)
                 .maxInferIters(100)
                 .model(modelName)
-                .samplingParams(
-                    SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.ofGreedySampling()
-                        )
-                        .build()
-                )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
                 .toolPromptFormat(toolPromptFormat)
                 .clientTools(
                     clientTools
                 )
+                .putAdditionalProperty("modelPath", JsonValue.from(modelPath))
+                .putAdditionalProperty("tokenizerPath", JsonValue.from(tokenizerPath))
                 .build()
 
         return agentConfig
@@ -381,6 +358,39 @@ class ExampleLlamaStackLocalInference(
         }
         AppLogging.getInstance().log("conversation history length "  + messageList.size)
         return messageList
+    }
+
+    private fun getSystemPromptForPotentialCustomToolCall(): String {
+        //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
+        val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
+        val formattedZdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
+        val availableFunctions = AvailableFunctions.getInstance()
+        val functionDefinitions = availableFunctions.values()
+        return  """
+                            Today Date: $formattedZdt
+                    
+                            Tool Instructions:
+                            - When user is asking a question that requires your reasoning, do not use a function call or generate functions.
+                            - Only function call if user's intention matches the function that you have access to.
+                            - When looking for real time information use relevant functions if available.
+                            - Ignore previous conversation history if you are making a tool call.
+
+                                           
+                            You have access to the following functions:
+                            {$functionDefinitions}
+                                      
+                            If you decide to invoke any of the function(s), you MUST put it in the format of [func_name1(params_name1=params_value1, params_name2=params_value2...), func_name2(params)]\n
+                            You SHOULD NOT include any other text in the response.
+                    
+                            Reminder:                          
+                            - Function calls MUST follow the specified format
+                            - Required parameters MUST be specified
+                            - Only call one function at a time
+                            - Put the entire function call reply on one line
+                            - When returning a function call, don't add anything else to your response
+                            - When scheduling the events, make sure you set the date and time right. Use step by step reasoning for date such as next Tuesday
+                         """
+
     }
 
 }

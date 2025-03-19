@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
               new Thread(() -> {
                 try {
                   setupAgent(AppUtils.LOCAL);
-                  addSystemMessage("Remote Agent setup done");
+                  addSystemMessage("Local Agent setup done");
                 } catch (Exception e) {
                   e.printStackTrace();
                 }
@@ -275,7 +275,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
                   || temperature != mCurrentSettingsFields.getTemperature()) {
         AppLogging.getInstance().log("UPDATING local client with new data");
         if (exampleLlamaStackLocalInference == null) {
-          exampleLlamaStackLocalInference = new ExampleLlamaStackLocalInference(updatedSettingsFields.getModelFilePath(), updatedSettingsFields.getTokenizerFilePath(), (float) updatedSettingsFields.getTemperature());
+          exampleLlamaStackLocalInference = new ExampleLlamaStackLocalInference(updatedSettingsFields.getModelFilePath(), updatedSettingsFields.getTokenizerFilePath(), (float) updatedSettingsFields.getTemperature(), useAgent);
         } else {
           // We already have a client, just pass in the updated model
           exampleLlamaStackLocalInference.updateModel(updatedSettingsFields.getModelFilePath(),updatedSettingsFields.getTokenizerFilePath(), (float) updatedSettingsFields.getTemperature());
@@ -719,7 +719,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     String systemPrompt = mCurrentSettingsFields.getSystemPrompt();
     String modelName = Objects.equals(generationMode, AppUtils.REMOTE) ?
             mCurrentSettingsFields.getRemoteModel() :
-            mCurrentSettingsFields.getModelFilePath();
+            mCurrentSettingsFields.getModelType().toString();
     double temperature = mCurrentSettingsFields.getTemperature();
 
     // handling client being null
@@ -738,7 +738,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     Triple<String, String, TurnService> agentInfo =
             Objects.equals(generationMode, AppUtils.REMOTE) ?
                     exampleLlamaStackRemoteInference.createRemoteAgent(modelName, temperature, systemPrompt, this) :
-                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getTokenizerFilePath(), temperature, systemPrompt, this);
+                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getModelFilePath(), mCurrentSettingsFields.getTokenizerFilePath(), temperature, systemPrompt, this);
     this.agentId = agentInfo.getFirst();
     this.sessionId = agentInfo.getSecond();
     this.turnService = agentInfo.getThird();
