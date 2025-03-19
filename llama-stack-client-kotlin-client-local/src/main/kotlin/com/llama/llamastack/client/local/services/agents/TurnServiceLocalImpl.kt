@@ -1,25 +1,22 @@
-// File generated from our OpenAPI spec by Stainless.
-
-package com.llama.llamastack.client.local
+package com.llama.llamastack.client.local.services.agents
 
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStream
 import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponsesFromStream
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
-import com.llama.llamastack.models.ChatCompletionResponse
-import com.llama.llamastack.models.ChatCompletionResponseStreamChunk
-import com.llama.llamastack.models.CompletionResponse
-import com.llama.llamastack.models.EmbeddingsResponse
-import com.llama.llamastack.models.InferenceChatCompletionParams
-import com.llama.llamastack.models.InferenceCompletionParams
-import com.llama.llamastack.models.InferenceEmbeddingsParams
-import com.llama.llamastack.services.blocking.InferenceService
+import com.llama.llamastack.models.AgentTurnCreateParams
+import com.llama.llamastack.models.AgentTurnResponseStreamChunk
+import com.llama.llamastack.models.AgentTurnResumeParams
+import com.llama.llamastack.models.AgentTurnRetrieveParams
+import com.llama.llamastack.models.Turn
+import com.llama.llamastack.services.blocking.agents.TurnService
 import org.pytorch.executorch.LlamaCallback
 
-class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClientOptions) :
-    InferenceService, LlamaCallback {
+class TurnServiceLocalImpl constructor(private val clientOptions: ClientOptions) :
+    TurnService, LlamaCallback {
 
     private var resultMessage: String = ""
     private var onResultComplete: Boolean = false
@@ -30,49 +27,12 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
     private var sequenceLengthKey: String = "seq_len"
     private var stopToken: String = ""
 
-    private val streamingResponseList = mutableListOf<ChatCompletionResponseStreamChunk>()
+    private val streamingResponseList = mutableListOf<AgentTurnResponseStreamChunk>()
     private var isStreaming: Boolean = false
 
     private val waitTime: Long = 100
 
-    override fun onResult(p0: String?) {
-        if (PromptFormatLocal.getStopTokens(modelName).any { it == p0 }) {
-            stopToken = p0!!
-            onResultComplete = true
-            return
-        }
-
-        if (p0.equals("\n\n") || p0.equals("\n")) {
-            if (resultMessage.isNotEmpty()) {
-                resultMessage += p0
-                if (p0 != null && isStreaming) {
-                    streamingResponseList.add(buildInferenceChatCompletionResponseFromStream(p0))
-                }
-            }
-        } else {
-            resultMessage += p0
-            if (p0 != null && isStreaming) {
-                streamingResponseList.add(buildInferenceChatCompletionResponseFromStream(p0))
-            }
-        }
-    }
-
-    override fun onStats(p0: Float) {
-        onResultComplete =
-            true // required since in some cases where seq_len is met then EOT is not appended by ET
-        // logic
-        statsMetric = p0
-        onStatsComplete = true
-    }
-
-    override fun withRawResponse(): InferenceService.WithRawResponse {
-        TODO("Not yet implemented")
-    }
-
-    override fun chatCompletion(
-        params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions,
-    ): ChatCompletionResponse {
+    override fun create(params: AgentTurnCreateParams, requestOptions: RequestOptions): Turn {
         isStreaming = false
         clearElements()
         val mModule = clientOptions.llamaModule
@@ -98,12 +58,12 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
         onResultComplete = false
         onStatsComplete = false
 
-        return buildInferenceChatCompletionResponse(resultMessage, statsMetric, stopToken)
+        return buildAgentTurnResponsesFromStream(resultMessage, statsMetric, stopToken)
     }
 
     private val streamResponse =
-        object : StreamResponse<ChatCompletionResponseStreamChunk> {
-            override fun asSequence(): Sequence<ChatCompletionResponseStreamChunk> {
+        object : StreamResponse<AgentTurnResponseStreamChunk> {
+            override fun asSequence(): Sequence<AgentTurnResponseStreamChunk> {
                 return sequence {
                     while (!onResultComplete || streamingResponseList.isNotEmpty()) {
                         if (streamingResponseList.isNotEmpty()) {
@@ -115,14 +75,14 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
                     while (!onStatsComplete) {
                         Thread.sleep(waitTime)
                     }
-                    val chatCompletionResponses =
-                        buildLastInferenceChatCompletionResponsesFromStream(
+                    val agentTurnResponses =
+                        buildLastAgentTurnResponsesFromStream(
                             resultMessage,
                             statsMetric,
                             stopToken,
                         )
-                    for (ccr in chatCompletionResponses) {
-                        yield(ccr)
+                    for (atr in agentTurnResponses) {
+                        yield(atr)
                     }
                 }
             }
@@ -132,10 +92,10 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
             }
         }
 
-    override fun chatCompletionStreaming(
-        params: InferenceChatCompletionParams,
-        requestOptions: RequestOptions,
-    ): StreamResponse<ChatCompletionResponseStreamChunk> {
+    override fun createStreaming(
+        params: AgentTurnCreateParams,
+        requestOptions: RequestOptions
+    ): StreamResponse<AgentTurnResponseStreamChunk> {
         isStreaming = true
         streamingResponseList.clear()
         resultMessage = ""
@@ -156,25 +116,49 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
         return streamResponse
     }
 
-    override fun completion(
-        params: InferenceCompletionParams,
-        requestOptions: RequestOptions,
-    ): CompletionResponse {
+    override fun retrieve(params: AgentTurnRetrieveParams, requestOptions: RequestOptions): Turn {
         TODO("Not yet implemented")
     }
 
-    override fun completionStreaming(
-        params: InferenceCompletionParams,
-        requestOptions: RequestOptions,
-    ): StreamResponse<CompletionResponse> {
+    override fun resume(params: AgentTurnResumeParams, requestOptions: RequestOptions): Turn {
         TODO("Not yet implemented")
     }
 
-    override fun embeddings(
-        params: InferenceEmbeddingsParams,
-        requestOptions: RequestOptions,
-    ): EmbeddingsResponse {
+    override fun resumeStreaming(
+        params: AgentTurnResumeParams,
+        requestOptions: RequestOptions
+    ): StreamResponse<AgentTurnResponseStreamChunk> {
         TODO("Not yet implemented")
+    }
+
+    override fun onResult(p0: String?) {
+        if (PromptFormatLocal.getStopTokens(modelName).any { it == p0 }) {
+            stopToken = p0!!
+            onResultComplete = true
+            return
+        }
+
+        if (p0.equals("\n\n") || p0.equals("\n")) {
+            if (resultMessage.isNotEmpty()) {
+                resultMessage += p0
+                if (p0 != null && isStreaming) {
+                    streamingResponseList.add(buildAgentTurnResponsesFromStream(p0))
+                }
+            }
+        } else {
+            resultMessage += p0
+            if (p0 != null && isStreaming) {
+                streamingResponseList.add(buildAgentTurnResponsesFromStream(p0))
+            }
+        }
+    }
+
+    override fun onStats(p0: Float) {
+        onResultComplete =
+            true // required since in some cases where seq_len is met then EOT is not appended by ET
+        // logic
+        statsMetric = p0
+        onStatsComplete = true
     }
 
     fun clearElements() {
