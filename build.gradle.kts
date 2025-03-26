@@ -1,6 +1,17 @@
 plugins {
 //    id("org.jetbrains.dokka") version "2.0.0"
 }
+buildscript {
+    val objectboxVersion by extra("4.2.0")
+
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath("io.objectbox:objectbox-gradle-plugin:$objectboxVersion")
+    }
+}
 
 allprojects {
     group = "com.llama.llamastack"

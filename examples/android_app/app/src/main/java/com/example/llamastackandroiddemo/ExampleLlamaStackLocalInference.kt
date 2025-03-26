@@ -10,19 +10,23 @@ import com.llama.llamastack.models.AgentConfig
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentSessionCreateParams
 import com.llama.llamastack.models.AgentTurnCreateParams
+import com.llama.llamastack.models.Document
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InterleavedContent
-import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.SystemMessage
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolResponseMessage
+import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
 import com.llama.llamastack.models.UserMessage
+import com.llama.llamastack.models.VectorDbRegisterParams
 import com.llama.llamastack.services.blocking.agents.TurnService
 import kotlinx.datetime.Clock
+import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
+import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 class ExampleLlamaStackLocalInference(
@@ -35,6 +39,9 @@ class ExampleLlamaStackLocalInference(
     var client: LlamaStackClientClient? = null
     private var response: String? = null
     private var tps: Float = 0.0f
+
+    // Can modify chunk size (tokens) for RAG
+    private var chunkSizeInTokens: Long = 512
 
     fun getResponse(): String? {
         return response
@@ -184,8 +191,8 @@ class ExampleLlamaStackLocalInference(
         return response;
     }
 
-    fun createLocalAgent(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
-        val agentConfig = createLocalAgentConfig(modelName, modelPath, tokenizerPath, temperature, userProvidedSystemPrompt)
+    fun createLocalAgent(modelName: String, modelPath: String, tokenizerPath: String, vectorDbId: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
+        val agentConfig = createLocalAgentConfig(modelName, modelPath, tokenizerPath, vectorDbId, temperature, userProvidedSystemPrompt)
         val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(
             AgentCreateParams.builder()
@@ -260,13 +267,25 @@ class ExampleLlamaStackLocalInference(
         return ""
     }
 
-    private fun createLocalAgentConfig(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
+    private fun createLocalAgentConfig(modelName: String, modelPath: String, vectorDbId: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
         //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
         val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
         //This should be replaced with Agent getting date and time with search tool
         val formattedZdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         val clientTools = mutableListOf<ToolDef>()
         var instruction = userProvidedSystemPrompt
+        if (vectorDbId.isNotEmpty()) {
+            // document is stored and ready for RAG
+            clientTools.add( ToolDef.builder()
+                .name("builtin::rag/knowledge_search")
+                .putAdditionalProperty("vector_db_ids", JsonValue.from(vectorDbId))
+                .build()
+            )
+            if (instruction == "") {
+                instruction = "You are a helpful assistant. Use knowledge_search tool to gather information needed to answer questions. Answer succintly"
+            }
+        }
+
         //If no System prompt configured by the user, use default tool call system prompt
         if (instruction == "") {
             //clientTools.add(CustomTools.getCreateCalendarEventTool())
@@ -291,6 +310,50 @@ class ExampleLlamaStackLocalInference(
                 .build()
 
         return agentConfig
+    }
+
+    fun storeDocument(fileName: String?, ctx: Context ): String {
+        // Currently just supporting single documents
+        val text = readFile(fileName,ctx);
+        val document = Document.builder()
+            .documentId("1")
+            .content(text)
+            .metadata(Document.Metadata.builder().build())
+            .build()
+
+        val vectorDbId = UUID.randomUUID().toString()
+        // Create Vector DB
+        client!!.vectorDbs().register(
+            VectorDbRegisterParams.builder()
+                .vectorDbId(vectorDbId)
+                .embeddingModel("placeholder")
+                .build()
+        )
+
+        // Add document content into vector DB (tokenizer, chunking, and insert)
+        client!!.toolRuntime().ragTool().insert(
+            ToolRuntimeRagToolInsertParams.builder()
+                .vectorDbId(vectorDbId)
+                .chunkSizeInTokens(chunkSizeInTokens)
+                .documents(listOf(document))
+                .build()
+        )
+
+        return vectorDbId
+    }
+
+    private fun readFile(filename: String?, context: Context): String {
+        try {
+            val inputStream = context.assets.open(filename!!)
+            val size = inputStream.available()
+            val buffer = ByteArray(size)
+            inputStream.read(buffer)
+            inputStream.close()
+            return String(buffer, StandardCharsets.UTF_8)
+        } catch (e: java.lang.Exception) {
+            e.printStackTrace()
+            return ""
+        }
     }
 
     private fun constructMessagesForAgent(
