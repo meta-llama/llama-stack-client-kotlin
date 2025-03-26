@@ -9,6 +9,7 @@
 plugins {
   id("com.android.application")
   id("org.jetbrains.kotlin.android")
+  id("io.objectbox")
 }
 
 android {
@@ -80,3 +81,5 @@ dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
 }
+
+apply(plugin = "io.objectbox")

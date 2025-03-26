@@ -12,6 +12,7 @@ import android.Manifest;
 import android.app.ActivityManager;
 import android.content.ContentResolver;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
@@ -46,7 +47,9 @@ import com.google.gson.reflect.TypeToken;
 import com.llama.llamastack.services.blocking.agents.TurnService;
 import kotlin.Triple;
 
+import java.io.InputStream;
 import java.lang.reflect.Type;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -87,6 +90,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
   private String sessionId;
   private TurnService turnService;
   private Boolean useAgent = true;
+  private Boolean testRAG = true;
 
   private void populateExistingMessages(String existingMsgJSON) {
     Gson gson = new Gson();
@@ -735,10 +739,16 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
       }
     }
 
+    String textContent = "";
+    String vectorDbId = "";
+    if (testRAG) {
+      vectorDbId = exampleLlamaStackLocalInference.storeDocument("CarManual.txt", this);
+    }
+
     Triple<String, String, TurnService> agentInfo =
             Objects.equals(generationMode, AppUtils.REMOTE) ?
                     exampleLlamaStackRemoteInference.createRemoteAgent(modelName, temperature, systemPrompt, this) :
-                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getModelFilePath(), mCurrentSettingsFields.getTokenizerFilePath(), temperature, systemPrompt, this);
+                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getModelFilePath(), mCurrentSettingsFields.getTokenizerFilePath(), vectorDbId, temperature, systemPrompt, this);
     this.agentId = agentInfo.getFirst();
     this.sessionId = agentInfo.getSecond();
     this.turnService = agentInfo.getThird();

@@ -3,7 +3,9 @@
 package com.llama.llamastack.client.local
 
 import com.llama.llamastack.client.local.services.AgentServiceLocalImpl
+import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb
 import com.llama.llamastack.client.local.util.createETLlamaModule
+import io.objectbox.Box
 import org.pytorch.executorch.LlamaModule
 
 class LocalClientOptions
@@ -17,6 +19,9 @@ private constructor(
 
     // Used to save agent over
     private var agent: AgentServiceLocalImpl? = null
+    private var modelName: String? = null
+    private var instruction: String? = null
+    private var ragVectorDb: Box<RagVectorDb>? = null
 
     fun setAgent(agent: AgentServiceLocalImpl) {
         this.agent = agent
@@ -26,8 +31,6 @@ private constructor(
         return agent
     }
 
-    private var modelName: String? = null
-
     fun setModelName(modelName: String) {
         this.modelName = modelName
     }
@@ -36,14 +39,20 @@ private constructor(
         return modelName
     }
 
-    private var instruction: String? = null
-
     fun setInstruction(instruction: String) {
         this.instruction = instruction
     }
 
     fun getInstruction(): String? {
         return instruction
+    }
+
+    fun setVectorDb(db: Box<RagVectorDb>) {
+        this.ragVectorDb = db
+    }
+
+    fun getVectorDb(): Box<RagVectorDb>? {
+        return ragVectorDb
     }
 
     companion object {

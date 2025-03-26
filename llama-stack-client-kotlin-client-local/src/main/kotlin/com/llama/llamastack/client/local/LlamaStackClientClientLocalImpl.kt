@@ -6,6 +6,8 @@ import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.LlamaStackClientClientAsync
 import com.llama.llamastack.client.local.services.AgentServiceLocalImpl
 import com.llama.llamastack.client.local.services.InferenceServiceLocalImpl
+import com.llama.llamastack.client.local.services.ToolRuntimeServiceLocalImpl
+import com.llama.llamastack.client.local.services.VectorDbServiceLocalImpl
 import com.llama.llamastack.services.blocking.*
 
 class LlamaStackClientClientLocalImpl constructor(private val clientOptions: LocalClientOptions) :
@@ -19,9 +21,9 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
         TODO("Not yet implemented")
     }
 
-    override fun vectorDbs(): VectorDbService {
-        TODO("Not yet implemented")
-    }
+    private val vectorDbs: VectorDbService by lazy { VectorDbServiceLocalImpl(clientOptions) }
+
+    override fun vectorDbs(): VectorDbService = vectorDbs
 
     override fun async(): LlamaStackClientClientAsync {
         TODO("Not yet implemented")
@@ -39,9 +41,11 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
         TODO("Not yet implemented")
     }
 
-    override fun toolRuntime(): ToolRuntimeService {
-        TODO("Not yet implemented")
+    private val toolRuntime: ToolRuntimeService by lazy {
+        ToolRuntimeServiceLocalImpl(clientOptions)
     }
+
+    override fun toolRuntime(): ToolRuntimeService = toolRuntime
 
     override fun telemetry(): TelemetryService {
         TODO("Not yet implemented")
