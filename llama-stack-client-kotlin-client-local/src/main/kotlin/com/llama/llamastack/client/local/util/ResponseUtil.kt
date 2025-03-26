@@ -1,14 +1,20 @@
 package com.llama.llamastack.client.local.util
 
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.AgentTurnResponseStreamChunk
 import com.llama.llamastack.models.ChatCompletionResponse
 import com.llama.llamastack.models.ChatCompletionResponseStreamChunk
 import com.llama.llamastack.models.CompletionMessage
 import com.llama.llamastack.models.ContentDelta
+import com.llama.llamastack.models.InferenceStep
 import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.ToolCall
+import com.llama.llamastack.models.TurnResponseEvent
+import com.llama.llamastack.models.TurnResponseEventPayload
+import com.llama.llamastack.models.TurnResponseEventPayload.AgentTurnResponseStepProgressPayload
 import java.util.UUID
 
+// Inference capability
 fun buildInferenceChatCompletionResponse(
     response: String,
     stats: Float,
@@ -115,6 +121,136 @@ fun buildInferenceChatCompletionResponseForStringStream(
         )
         .build()
 }
+
+// Agent capability
+fun buildAgentTurnResponseFromStream(response: String): AgentTurnResponseStreamChunk {
+
+    return AgentTurnResponseStreamChunk.builder()
+        .event(
+            TurnResponseEvent.builder()
+                .payload(
+                    TurnResponseEventPayload.ofAgentTurnResponseStepProgress(
+                        AgentTurnResponseStepProgressPayload.builder()
+                            .delta(ContentDelta.TextDelta.builder().text(response).build())
+                            .stepId("0")
+                            .stepType(AgentTurnResponseStepProgressPayload.StepType.INFERENCE)
+                            .build()
+                    )
+                )
+                .build()
+        )
+        .build()
+}
+
+fun buildLastAgentTurnResponsesFromStream(
+    resultMessage: String,
+    stats: Float,
+    stopToken: String,
+): List<AgentTurnResponseStreamChunk> {
+    val listOfResponses: MutableList<AgentTurnResponseStreamChunk> = mutableListOf()
+    if (isResponseAToolCall(resultMessage)) {
+        println("cmodiii determined this was a tool call")
+        val toolCalls = createCustomToolCalls(resultMessage)
+        println("cmodiii tool call is $toolCalls")
+        listOfResponses.add(
+            buildAgentTurnResponseForCustomToolCallStream(toolCalls, stopToken, stats)
+        )
+        println("cmodiii added as tool call")
+    } else {
+        listOfResponses.add(buildAgentTurnResponseFromStringStream("", stopToken, stats))
+        println("cmodiii not a tool call")
+    }
+    return listOfResponses.toList()
+}
+
+fun buildAgentTurnResponseForCustomToolCallStream(
+    toolCalls: List<ToolCall>,
+    stopToken: String,
+    stats: Float,
+): AgentTurnResponseStreamChunk {
+//TODO: cmodiiii check for adding unionMember1 here?
+
+    return AgentTurnResponseStreamChunk.builder()
+        .event(
+            TurnResponseEvent.builder()
+                .payload(
+                    TurnResponseEventPayload.ofAgentTurnResponseStepComplete(
+                        TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.builder()
+                            .stepDetails(
+                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
+                                    .StepDetails
+                                    .ofInferenceStep(
+                                        InferenceStep.builder()
+                                            .modelResponse(
+                                                CompletionMessage.builder()
+                                                    .content("")
+                                                    .stopReason(mapStopTokenToReason(stopToken))
+                                                    .toolCalls(toolCalls)
+                                                    .build()
+                                            )
+                                            .turnId("0")
+                                            .stepId("0")
+                                            .build()
+                                    )
+                            )
+                            .stepId("0")
+                            .stepType(
+                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
+                                    .StepType
+                                    .INFERENCE
+                            )
+                            .build()
+                    )
+                )
+                .build()
+        )
+        .build()
+}
+
+fun buildAgentTurnResponseFromStringStream(
+    response: String,
+    stopToken: String,
+    stats: Float,
+): AgentTurnResponseStreamChunk {
+
+    return AgentTurnResponseStreamChunk.builder()
+        .event(
+            TurnResponseEvent.builder()
+                .payload(
+                    TurnResponseEventPayload.ofAgentTurnResponseStepComplete(
+                        TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.builder()
+                            .stepDetails(
+                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
+                                    .StepDetails
+                                    .ofInferenceStep(
+                                        InferenceStep.builder()
+                                            .modelResponse(
+                                                CompletionMessage.builder()
+                                                    .content("")
+                                                    .stopReason(mapStopTokenToReason(stopToken))
+                                                    .build()
+                                            )
+                                            .turnId("0")
+                                            .stepId("0")
+                                            .build()
+                                    )
+                            )
+                            .stepId("0")
+                            .stepType(
+                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
+                                    .StepType
+                                    .INFERENCE
+                            )
+                            .putAdditionalProperty("tps", JsonValue.from(stats))
+                            .build()
+                    )
+                )
+                .build()
+        )
+        .build()
+}
+
+// general
 
 fun isResponseAToolCall(response: String): Boolean {
     return response.startsWith("[") && response.endsWith("]")
