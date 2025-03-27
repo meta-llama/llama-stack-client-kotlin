@@ -10,7 +10,8 @@ dependencies {
     testImplementation(kotlin("test"))
     implementation(fileTree("libs") { include("*.jar") })
     implementation(files("jni/**/*.so"))
-    implementation("ai.djl.huggingface:tokenizers:0.32.0")
+    //implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
+    //implementation("ai.djl.huggingface:tokenizers:0.32.0")
 }
 
 kapt {
