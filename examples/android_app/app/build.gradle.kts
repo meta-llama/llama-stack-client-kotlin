@@ -38,10 +38,10 @@ android {
     }
   }
   compileOptions {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
   }
-  kotlinOptions { jvmTarget = "1.8" }
+  kotlinOptions { jvmTarget = "17" }
   buildFeatures { compose = true }
   composeOptions { kotlinCompilerExtensionVersion = "1.4.3" }
   packaging { resources { excludes += "/META-INF/{AL2.0,LGPL2.1}" } }
@@ -80,6 +80,7 @@ dependencies {
 // This is needed if you are using local built jars instead of the pre-built ones from maven
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
+  //implementation("ai.djl.huggingface:tokenizers:0.32.0")
 }
 
 apply(plugin = "io.objectbox")
