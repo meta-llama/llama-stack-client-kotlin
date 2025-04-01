@@ -267,7 +267,7 @@ class ExampleLlamaStackLocalInference(
         return ""
     }
 
-    private fun createLocalAgentConfig(modelName: String, modelPath: String, vectorDbId: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
+    private fun createLocalAgentConfig(modelName: String, modelPath: String, tokenizerPath: String, vectorDbId: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
         //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
         val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
         //This should be replaced with Agent getting date and time with search tool

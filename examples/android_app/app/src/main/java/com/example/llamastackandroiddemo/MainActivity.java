@@ -90,7 +90,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
   private String sessionId;
   private TurnService turnService;
   private Boolean useAgent = true;
-  private Boolean testRAG = true;
+  private Boolean testRAG = false;
 
   private void populateExistingMessages(String existingMsgJSON) {
     Gson gson = new Gson();
