@@ -3,7 +3,6 @@ package com.llama.llamastack.client.local.services.toolruntime
 // import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.core.RequestOptions
-import com.llama.llamastack.models.InferenceEmbeddingsParams
 import com.llama.llamastack.models.QueryResult
 import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
 import com.llama.llamastack.models.ToolRuntimeRagToolQueryParams
@@ -16,33 +15,24 @@ constructor(
     private val inferenceServiceLocalImpl: InferenceService,
 ) : RagToolService {
 
-    private var overlapLen = 4
-
     override fun insert(params: ToolRuntimeRagToolInsertParams, requestOptions: RequestOptions) {
-        val box = clientOptions.getVectorDb() // trick way to get db. TODO needs to be modified
+        TODO("Not yet implemented. Use other insert() function instead.")
+    }
+
+    fun insert(embeddings: MutableList<FloatArray>) {
+        val box = clientOptions.getVectorDb()
+    }
+
+    fun createChunks(params: ToolRuntimeRagToolInsertParams): MutableList<String> {
         val document = params.documents()[0]
         val text = document.content().asString()
+        // TODO: add overlap window as part of params so app can pass that in
 
-        val chunks = makeOverlappedChunksFromWords(text, document.documentId())
-
-        inferenceServiceLocalImpl.embeddings(
-            InferenceEmbeddingsParams.builder().contentsOfStrings(chunks).build()
+        return makeOverlappedChunksFromWords(
+            text,
+            document.documentId(),
+            params.chunkSizeInTokens(),
         )
-
-        // insertIntoVectorDB(box, chunks)
-
-        // converting all the text into tokens
-        //        val tokenizer =
-        //
-        // HuggingFaceTokenizer.newInstance(Paths.get("data/local/tmp/llama/tokenizer.json"))
-        //        val tokens = tokenizer.encode(text).tokens
-        //        val chunks =
-        //            makeOverlappedChunksFromTokens(
-        //                tokenizer,
-        //                tokens,
-        //                params.chunkSizeInTokens(),
-        //                document.documentId(),
-        //            )
     }
 
     override fun query(
@@ -64,12 +54,15 @@ constructor(
     private fun makeOverlappedChunksFromWords(
         text: String,
         documentId: String,
+        chunkSize: Long = 50,
+        overlapLen: Long = 10,
     ): MutableList<String> {
+        val words = text.split("\\s+".toRegex())
         val chunks = mutableListOf<String>()
-        val chunkSize = 50
-
-        text.chunked(chunkSize).map { chunks.add(it) }
-
+        for (i in words.indices step (chunkSize.toInt() - overlapLen.toInt())) {
+            val end = minOf(i + chunkSize.toInt(), words.size)
+            chunks.add(words.slice(i until end).joinToString(" "))
+        }
         return chunks
     }
 

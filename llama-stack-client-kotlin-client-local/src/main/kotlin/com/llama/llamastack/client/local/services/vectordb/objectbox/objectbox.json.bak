@@ -5,7 +5,7 @@
   "entities": [
     {
       "id": "1:1154223164665321046",
-      "lastPropertyId": "7:508277302813317815",
+      "lastPropertyId": "5:9026730648202631335",
       "name": "RagVectorDb",
       "properties": [
         {
@@ -15,14 +15,14 @@
           "flags": 1
         },
         {
-          "id": "6:6761307687034746204",
-          "name": "rawChunk",
+          "id": "4:2187250304770815930",
+          "name": "rawSentence",
           "type": 9
         },
         {
-          "id": "7:508277302813317815",
-          "name": "embeddedChunk",
-          "indexId": "2:4956092463154396365",
+          "id": "5:9026730648202631335",
+          "name": "embeddedSentence",
+          "indexId": "1:4316939639965998292",
           "type": 28,
           "flags": 8
         }
@@ -31,20 +31,16 @@
     }
   ],
   "lastEntityId": "1:1154223164665321046",
-  "lastIndexId": "2:4956092463154396365",
+  "lastIndexId": "1:4316939639965998292",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,
   "modelVersionParserMinimum": 5,
   "retiredEntityUids": [],
-  "retiredIndexUids": [
-    4316939639965998292
-  ],
+  "retiredIndexUids": [],
   "retiredPropertyUids": [
     4853888948487233388,
-    6219411329229080059,
-    2187250304770815930,
-    9026730648202631335
+    6219411329229080059
   ],
   "retiredRelationUids": [],
   "version": 1
