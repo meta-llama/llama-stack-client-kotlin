@@ -46,7 +46,7 @@ class ExampleLlamaStackLocalInference(
     private var tps: Float = 0.0f
 
     // Can modify chunk size (tokens) for RAG
-    private var chunkSizeInTokens: Long = 512
+    private var chunkSizeInWords: Long = 50
 
     private var sentenceEmbedding: SentenceEmbedding? = null
 
@@ -346,7 +346,7 @@ class ExampleLlamaStackLocalInference(
         // unique to local
         var tagToolParams = ToolRuntimeRagToolInsertParams.builder()
             .vectorDbId(vectorDbId)
-            .chunkSizeInTokens(chunkSizeInTokens)
+            .chunkSizeInTokens(chunkSizeInWords)
             .documents(listOf(document))
             .build();
         var ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
@@ -361,10 +361,9 @@ class ExampleLlamaStackLocalInference(
         }
 
         // Add document content into vector DB (tokenizer, chunking, and insert)
-//        client!!.toolRuntime().ragTool().insert(
-//            tagToolParams
-//        )
-
+        ragtool.insert(
+            embeddings, chunks
+        )
 
         return vectorDbId
     }

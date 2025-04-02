@@ -739,7 +739,6 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     String textContent = "";
     String vectorDbId = "";
     if (testRAG) {
-      //vectorDbId = SuspendUtils.runBlocking(continuation -> exampleLlamaStackLocalInference.storeDocument("CarManual.txt", this, continuation).toString());
       vectorDbId = exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual.txt", this);
     }
 
