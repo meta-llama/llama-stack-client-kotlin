@@ -81,6 +81,9 @@ dependencies {
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
   //implementation("ai.djl.huggingface:tokenizers:0.32.0")
+  implementation(files("libs/model2vec.aar"))
+  implementation(files("libs/sentence_embeddings.aar"))
+  implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.0")
 }
 
 apply(plugin = "io.objectbox")
