@@ -84,6 +84,7 @@ dependencies {
   implementation(files("libs/model2vec.aar"))
   implementation(files("libs/sentence_embeddings.aar"))
   implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.0")
+  implementation("com.itextpdf:itextpdf:5.5.13.4")
 }
 
 apply(plugin = "io.objectbox")
