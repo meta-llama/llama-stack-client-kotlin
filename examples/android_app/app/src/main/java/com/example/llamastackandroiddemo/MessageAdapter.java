@@ -9,6 +9,7 @@
 package com.example.llamastackandroiddemo;
 
 import android.net.Uri;
+import android.text.SpannableStringBuilder;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,6 +18,8 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Collections;
+
+import io.noties.markwon.Markwon;
 
 public class MessageAdapter extends ArrayAdapter<Message> {
 
@@ -58,7 +61,10 @@ public class MessageAdapter extends ArrayAdapter<Message> {
       }
     } else {
       TextView messageTextView = listItemView.requireViewById(R.id.message_text);
-      messageTextView.setText(currentMessage.getText());
+      String markdownString = currentMessage.getText();
+      Markwon markwon = Markwon.create(this.getContext());
+      SpannableStringBuilder spannableBuilder = new SpannableStringBuilder();
+      markwon.setMarkdown(messageTextView, markdownString);
     }
 
     String metrics = "";
