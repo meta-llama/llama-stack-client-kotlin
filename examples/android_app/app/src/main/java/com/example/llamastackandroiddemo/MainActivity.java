@@ -739,7 +739,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     String textContent = "";
     String vectorDbId = "";
     if (testRAG) {
-      vectorDbId = exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual.txt", this);
+      vectorDbId = exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual2023Vehicle.pdf", this);
     }
 
     Triple<String, String, TurnService> agentInfo =
