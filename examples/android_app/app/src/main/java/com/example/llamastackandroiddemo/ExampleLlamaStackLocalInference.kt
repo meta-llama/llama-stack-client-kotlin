@@ -96,11 +96,12 @@ class ExampleLlamaStackLocalInference(
         thread.start();
     }
 
-    fun inferenceStartWithAgent(agentId: String, sessionId: String, turnService: TurnService, prompt: ArrayList<Message>, ctx: Context): String {
+    fun inferenceStartWithAgent(agentId: String, sessionId: String, turnService: TurnService, prompt: ArrayList<Message>, ragUserPromptEmbedded: FloatArray?, ctx: Context): String {
         val future = CompletableFuture<String>()
         val thread = Thread {
             try {
-                val response = localAgentInference(agentId, sessionId, turnService, prompt, ctx)
+                val response = localAgentInference(agentId, sessionId, turnService, prompt,
+                    ragUserPromptEmbedded, ctx)
                 future.complete(response)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -221,7 +222,7 @@ class ExampleLlamaStackLocalInference(
         return Triple(agentId, sessionId, turnService)
     }
 
-    private fun localAgentInference(agentId: String, sessionId: String, turnService: TurnService, conversationHistory: ArrayList<Message>, ctx: Context): String {
+    private fun localAgentInference(agentId: String, sessionId: String, turnService: TurnService, conversationHistory: ArrayList<Message>, ragUserPromptEmbedded: FloatArray?, ctx: Context): String {
         val agentTurnCreateResponseStream =
             turnService.createStreaming(
                 AgentTurnCreateParams.builder()
@@ -230,6 +231,7 @@ class ExampleLlamaStackLocalInference(
                         constructMessagesForAgent(conversationHistory, ctx)
                     )
                     .sessionId(sessionId)
+                    .putAdditionalBodyProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded))
                     .build()
             )
 
@@ -289,7 +291,7 @@ class ExampleLlamaStackLocalInference(
                 .build()
             )
             if (instruction == "") {
-                instruction = "You are a helpful assistant. Use knowledge_search tool to gather information needed to answer questions. Answer succintly"
+                instruction = localRagSystemPrompt();
             }
         }
 
@@ -389,6 +391,12 @@ class ExampleLlamaStackLocalInference(
 
     private suspend fun createEmbeddings(chunk: String): FloatArray = runBlocking(Dispatchers.Default) {
         return@runBlocking sentenceEmbedding!!.encode(chunk)
+    }
+
+    fun createEmbeddingsFromJava(chunk: String): FloatArray {
+        return runBlocking {
+            createEmbeddings(chunk)
+        }
     }
 
     private fun readFile(filename: String?, context: Context): String {
