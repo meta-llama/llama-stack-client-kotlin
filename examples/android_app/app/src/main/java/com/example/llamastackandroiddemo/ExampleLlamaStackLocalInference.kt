@@ -2,6 +2,8 @@ package com.example.llamastackandroiddemo
 
 import android.content.Context
 import android.util.Log
+import com.itextpdf.text.pdf.PdfReader
+import com.itextpdf.text.pdf.parser.PdfTextExtractor
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.local.LlamaStackClientLocalClient
 import com.llama.llamastack.client.local.services.toolruntime.RagToolServiceLocalImpl
@@ -399,9 +401,17 @@ class ExampleLlamaStackLocalInference(
         }
     }
 
-    private fun readFile(filename: String?, context: Context): String {
+    private fun readFile(fileName: String?, context: Context): String {
         try {
-            val inputStream = context.assets.open(filename!!)
+            val inputStream = context.assets.open(fileName!!)
+            if (fileName.substringAfterLast(".", "").equals("pdf")) {
+                val pdfReader = PdfReader(inputStream)
+                var text = ""
+                for (i in 1..pdfReader.numberOfPages) {
+                    text += "\n" + PdfTextExtractor.getTextFromPage(pdfReader,i)
+                }
+                return text;
+            }
             val size = inputStream.available()
             val buffer = ByteArray(size)
             inputStream.read(buffer)
