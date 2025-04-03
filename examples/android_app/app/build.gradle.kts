@@ -85,6 +85,7 @@ dependencies {
   implementation(files("libs/sentence_embeddings.aar"))
   implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.0")
   implementation("com.itextpdf:itextpdf:5.5.13.4")
+  implementation("io.noties.markwon:core:4.6.2")
 }
 
 apply(plugin = "io.objectbox")
