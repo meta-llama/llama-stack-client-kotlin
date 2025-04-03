@@ -144,4 +144,53 @@ object PromptFormatLocal {
 
         return formattedPrompt
     }
+
+    fun getTotalFormattedPromptForAgentForLocalRag(
+        instruction: String,
+        neighborSentences: String,
+        messages: List<AgentTurnCreateParams.Message>,
+        modelName: String?,
+    ): String {
+        var formattedPrompt: String = ""
+        if (messages.isEmpty()) return formattedPrompt
+
+        // First populate system message
+        if (instruction.isNotEmpty()) {
+            formattedPrompt =
+                getSystemPromptTemplate(modelName)
+                    .replace(
+                        SYSTEM_PLACEHOLDER,
+                        instruction.replace("_RETRIEVED_CONTEXT_", neighborSentences),
+                    )
+        }
+
+        var format: String = ""
+
+        for (message in messages) {
+            when {
+                message.isUser() -> {
+                    // user message
+                    val userMessage: UserMessage? = message.user()
+                    val content: String? = userMessage?.content()?.string()
+                    if (content != null) {
+                        format = getUserPromptTemplate(modelName).replace(USER_PLACEHOLDER, content)
+                    }
+                }
+
+                message.isToolResponse() -> {
+                    // assistant message
+                    val toolResponseMessage: ToolResponseMessage? = message.toolResponse()
+                    val content: String? = toolResponseMessage?.content()?.string()
+                    if (content != null) {
+                        format =
+                            getAssistantPromptTemplate(modelName)
+                                .replace(ASSISTANT_PLACEHOLDER, content)
+                    }
+                }
+            }
+            formattedPrompt += format
+        }
+
+        return formattedPrompt
+    }
 }

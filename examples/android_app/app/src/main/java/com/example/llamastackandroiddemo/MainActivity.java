@@ -790,11 +790,13 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     String result = "";
 
     if (useAgent) {
+      var messages = mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK);
       result = exampleLlamaStackLocalInference.inferenceStartWithAgent(
               agentId,
               sessionId,
               turnService,
-              mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK),
+              messages,
+              exampleLlamaStackLocalInference.createEmbeddingsFromJava(messages.get(messages.size()-1).getText()),
               this);
     } else {
       // If you want with conversation history

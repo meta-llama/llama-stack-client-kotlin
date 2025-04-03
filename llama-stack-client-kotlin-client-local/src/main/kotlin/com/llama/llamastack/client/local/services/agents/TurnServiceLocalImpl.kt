@@ -1,9 +1,13 @@
 package com.llama.llamastack.client.local.services.agents
 
 import com.llama.llamastack.client.local.LocalClientOptions
+import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb_
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildAgentTurnResponseFromStream
 import com.llama.llamastack.client.local.util.buildLastAgentTurnResponsesFromStream
+import com.llama.llamastack.core.JsonArray
+import com.llama.llamastack.core.JsonNumber
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.AgentTurnCreateParams
@@ -106,12 +110,47 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
         modelName = clientOptions.getModelName()!! // TODO: cmodiii get this from db
         val instruction = clientOptions.getInstruction()!! // TODO: cmodiii get this from db
         println("cmodiii createStreaming: $modelName , $instruction , $mModule")
-        val formattedPrompt =
-            PromptFormatLocal.getTotalFormattedPromptForAgent(
-                instruction,
-                params.messages(),
-                modelName,
-            )
+        var formattedPrompt = String()
+
+        val additionalBodyProperty = params._additionalBodyProperties()
+        if (additionalBodyProperty.isEmpty()) {
+            // Assumes normal Q/A inference or custom tool call
+            // TODO: we should remove custom tool call as a separate piece
+            formattedPrompt =
+                PromptFormatLocal.getTotalFormattedPromptForAgent(
+                    instruction,
+                    params.messages(),
+                    modelName,
+                )
+        } else {
+            if (additionalBodyProperty.containsKey("ragUserPromptEmbedded")) {
+                // Indicates that this is a local RAG tool call
+                // TODO: Use rag/knowledge_search from AgentService
+
+                val userPromptEmbedding =
+                    jsonValueToFloatArray(additionalBodyProperty["ragUserPromptEmbedded"]!!)
+                println("cmodiii userPromptEmbedding value is: $userPromptEmbedding")
+                // query objectbox
+                val box = clientOptions.getVectorDb()
+                val neighbors =
+                    box!!
+                        .query(
+                            RagVectorDb_.embeddedChunk.nearestNeighbors(userPromptEmbedding!!, 3)
+                        )
+                        .build()
+                        .findWithScores()
+
+                val neighborSentences = neighbors.joinToString(" ") { it.get().rawChunk }
+
+                formattedPrompt =
+                    PromptFormatLocal.getTotalFormattedPromptForAgentForLocalRag(
+                        instruction,
+                        neighborSentences,
+                        params.messages(),
+                        modelName,
+                    )
+            }
+        }
 
         val seqLength =
             params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
@@ -175,5 +214,11 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
     fun clearElements() {
         resultMessage = ""
         stopToken = ""
+    }
+
+    // Convert JsonValue back to FloatArray
+    fun jsonValueToFloatArray(jsonValue: JsonValue): FloatArray? {
+        val list = (jsonValue as JsonArray).values
+        return FloatArray(list.size) { i -> ((list[i] as JsonNumber).value).toFloat() }
     }
 }
