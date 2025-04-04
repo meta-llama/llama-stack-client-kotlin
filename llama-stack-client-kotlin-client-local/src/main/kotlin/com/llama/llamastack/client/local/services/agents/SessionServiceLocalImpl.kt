@@ -11,6 +11,10 @@ import com.llama.llamastack.services.blocking.agents.SessionService
 
 class SessionServiceLocalImpl constructor(private val clientOptions: LocalClientOptions) :
     SessionService {
+    override fun withRawResponse(): SessionService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun create(
         params: AgentSessionCreateParams,
         requestOptions: RequestOptions,

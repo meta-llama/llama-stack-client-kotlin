@@ -21,6 +21,10 @@ constructor(
         RagToolServiceLocalImpl(clientOptions, inferenceServiceLocalImpl)
     }
 
+    override fun withRawResponse(): ToolRuntimeService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun ragTool(): RagToolService = ragTool
 
     override fun invokeTool(

@@ -35,6 +35,10 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
 
     private val waitTime: Long = 100
 
+    override fun withRawResponse(): TurnService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun create(params: AgentTurnCreateParams, requestOptions: RequestOptions): Turn {
         TODO("Not yet implemented")
         /* isStreaming = false
@@ -135,7 +139,7 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
                 val neighbors =
                     box!!
                         .query(
-                            RagVectorDb_.embeddedChunk.nearestNeighbors(userPromptEmbedding!!, 3)
+                            RagVectorDb_.embeddedChunk.nearestNeighbors(userPromptEmbedding!!, 5)
                         )
                         .build()
                         .findWithScores()
