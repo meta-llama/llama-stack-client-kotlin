@@ -17,6 +17,10 @@ constructor(
 ) : RagToolService {
     private var vectorId: Long = 0
 
+    override fun withRawResponse(): RagToolService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun insert(params: ToolRuntimeRagToolInsertParams, requestOptions: RequestOptions) {
         TODO("Not yet implemented. Use other insert() function instead.")
     }

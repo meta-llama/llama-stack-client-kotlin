@@ -20,6 +20,10 @@ class AgentServiceLocalImpl constructor(private var clientOptions: LocalClientOp
 
     private val session: SessionService by lazy { SessionServiceLocalImpl(clientOptions) }
 
+    override fun withRawResponse(): AgentService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun session(): SessionService = session
 
     override fun steps(): StepService {
