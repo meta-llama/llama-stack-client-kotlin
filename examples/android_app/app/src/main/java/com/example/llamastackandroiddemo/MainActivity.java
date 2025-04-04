@@ -23,6 +23,7 @@ import android.provider.MediaStore;
 import android.system.ErrnoException;
 import android.system.Os;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
@@ -31,7 +32,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
+
 import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.PickVisualMediaRequest;
 import androidx.activity.result.contract.ActivityResultContracts;
@@ -62,11 +63,14 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
   private Message mResultMessage = null;
   private ImageButton mSettingsButton;
   private TextView mMemoryView;
+  private ActivityResultLauncher<String[]> mPickDocuments;
   private ActivityResultLauncher<PickVisualMediaRequest> mPickGallery;
   private ActivityResultLauncher<Uri> mCameraRoll;
-  private List<Uri> mSelectedImageUri;
+  private List<Uri> mSelectedMediaUris = new ArrayList<>();
+  private List<Boolean> mIsDocumentList = new ArrayList<>();
   private ConstraintLayout mMediaPreviewConstraintLayout;
   private LinearLayout mAddMediaLayout;
+  private LinearLayout mediaPreviewContainer;
   private static final int MAX_NUM_OF_IMAGES = 5;
   private static final int REQUEST_IMAGE_CAPTURE = 1;
   private TextView mGenerationModeButton;
@@ -133,7 +137,10 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
 
     mCurrentSettingsFields = new SettingsFields();
     mMemoryUpdateHandler = new Handler(Looper.getMainLooper());
+    setupDocumentPicker();
+    setupDocumentButton();
     setupMediaButton();
+    setupMediaPreview();
     setupGalleryPicker();
     setupCameraRoll();
     startMemoryUpdate();
@@ -326,6 +333,36 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
             });
   }
 
+  private void setupDocumentButton() {
+    ImageButton documentButton = requireViewById(R.id.documentButton);
+    documentButton.setOnClickListener(
+            view -> {
+                // Launch document picker
+                mPickDocuments.launch(new String[]{"application/pdf", "text/plain", "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "text/csv", "application/csv"});
+                mAddMediaLayout.setVisibility(View.GONE);
+            });
+  }
+
+  private void setupDocumentPicker() {
+      // Register document picker activity launcher
+      mPickDocuments = registerForActivityResult(
+      new ActivityResultContracts.OpenMultipleDocuments(),
+      uris -> {
+          if (!uris.isEmpty()) {
+              Log.d("DocumentPicker", "Selected documents: " + uris);
+              for (Uri uri : uris) {
+                  getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+              }
+              mAddMediaLayout.setVisibility(View.GONE);
+              showMediaPreview(uris, true); // true indicates these are documents
+          } else {
+            Log.d("DocumentPicker", "No documents selected");
+          }
+      });
+  }
+
   private void setupMediaButton() {
     mAddMediaLayout = requireViewById(R.id.addMediaLayout);
     mAddMediaLayout.setVisibility(View.GONE); // We hide this initially
@@ -372,7 +409,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
                         mAddMediaLayout.setVisibility(View.GONE);
                         List<Uri> uris = new ArrayList<>();
                         uris.add(cameraImageUri);
-                        showMediaPreview(uris);
+                        showMediaPreview(uris, false); // false indicate these are images
                       } else {
                         // Delete the temp image file based on the url since the photo is not successfully taken
                         if (cameraImageUri != null) {
@@ -387,7 +424,8 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     mediaPreviewCloseButton.setOnClickListener(
             view -> {
               mMediaPreviewConstraintLayout.setVisibility(View.GONE);
-              mSelectedImageUri = null;
+              mSelectedMediaUris.clear();
+              mIsDocumentList.clear();
             });
 
     ImageButton addMoreImageButton = requireViewById(R.id.addMoreImageButton);
@@ -453,30 +491,28 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
 
   private void setupGalleryPicker() {
     // Registers a photo picker activity launcher in single-select mode.
-    mPickGallery =
-            registerForActivityResult(
-                    new ActivityResultContracts.PickMultipleVisualMedia(MAX_NUM_OF_IMAGES),
-                    uris -> {
-                      if (!uris.isEmpty()) {
-                        Log.d("PhotoPicker", "Selected URIs: " + uris);
-                        mAddMediaLayout.setVisibility(View.GONE);
-                        for (Uri uri : uris) {
-                          MainActivity.this
-                                  .getContentResolver()
-                                  .takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
-                        }
-                        showMediaPreview(uris);
-                      } else {
-                        Log.d("PhotoPicker", "No media selected");
-                      }
-                    });
+    mPickGallery = registerForActivityResult(
+    new ActivityResultContracts.PickMultipleVisualMedia(MAX_NUM_OF_IMAGES),
+    uris -> {
+        if (!uris.isEmpty()) {
+            Log.d("PhotoPicker", "Selected URIs: " + uris);
+            mAddMediaLayout.setVisibility(View.GONE);
+            for (Uri uri : uris) {
+                getContentResolver().takePersistableUriPermission(uri, Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            }
+            showMediaPreview(uris, false); // false indicates these are images
+        } else {
+          Log.d("PhotoPicker", "No media selected");
+        }
+    });
 
     mMediaPreviewConstraintLayout = requireViewById(R.id.mediaPreviewConstraintLayout);
     ImageButton mediaPreviewCloseButton = requireViewById(R.id.mediaPreviewCloseButton);
     mediaPreviewCloseButton.setOnClickListener(
             view -> {
               mMediaPreviewConstraintLayout.setVisibility(View.GONE);
-              mSelectedImageUri = null;
+              mSelectedMediaUris.clear();
+              mIsDocumentList.clear();
             });
 
     ImageButton addMoreImageButton = requireViewById(R.id.addMoreImageButton);
@@ -488,53 +524,113 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
             });
   }
 
-  private void showMediaPreview(List<Uri> uris) {
-    if (mSelectedImageUri == null) {
-      mSelectedImageUri = uris;
-    } else {
-      mSelectedImageUri.addAll(uris);
+    private void setupMediaPreview() {
+        mMediaPreviewConstraintLayout = requireViewById(R.id.mediaPreviewConstraintLayout);
+        mediaPreviewContainer = mMediaPreviewConstraintLayout.findViewById(R.id.mediaPreviewScrollView)
+                .findViewWithTag("LinearLayout");
+
+        ImageButton mediaPreviewCloseButton = requireViewById(R.id.mediaPreviewCloseButton);
+        mediaPreviewCloseButton.setOnClickListener(view -> {
+            mMediaPreviewConstraintLayout.setVisibility(View.GONE);
+            mSelectedMediaUris.clear();
+            mIsDocumentList.clear();
+        });
+
+        ImageButton addMoreImageButton = requireViewById(R.id.addMoreImageButton);
+        addMoreImageButton.setOnClickListener(view -> {
+            mAddMediaLayout.setVisibility(View.VISIBLE);
+        });
     }
 
-    if (mSelectedImageUri.size() > MAX_NUM_OF_IMAGES) {
-      mSelectedImageUri = mSelectedImageUri.subList(0, MAX_NUM_OF_IMAGES);
-      Toast.makeText(
-                      this, "Only max " + MAX_NUM_OF_IMAGES + " images are allowed", Toast.LENGTH_SHORT)
-              .show();
-    }
-    Log.d("mSelectedImageUri", mSelectedImageUri.size() + " " + mSelectedImageUri);
-
-    mMediaPreviewConstraintLayout.setVisibility(View.VISIBLE);
-
-    List<ImageView> imageViews = new ArrayList<ImageView>();
-
-    // Pre-populate all the image views that are available from the layout (currently max 5)
-    imageViews.add(requireViewById(R.id.mediaPreviewImageView1));
-    imageViews.add(requireViewById(R.id.mediaPreviewImageView2));
-    imageViews.add(requireViewById(R.id.mediaPreviewImageView3));
-    imageViews.add(requireViewById(R.id.mediaPreviewImageView4));
-    imageViews.add(requireViewById(R.id.mediaPreviewImageView5));
-
-    // Hide all the image views (reset state)
-    for (int i = 0; i < imageViews.size(); i++) {
-      imageViews.get(i).setVisibility(View.GONE);
+  private void showMediaPreview(List<Uri> uris, boolean isDocument) {
+    if (mMediaPreviewConstraintLayout.getVisibility() != View.VISIBLE) {
+        mMediaPreviewConstraintLayout.setVisibility(View.VISIBLE);
+        mediaPreviewContainer.removeAllViews();
+        // mediaPreviewContainer.addView(requireViewById(R.id.addMoreImageButton));
     }
 
-    // Only show/render those that have proper Image URIs
-    for (int i = 0; i < mSelectedImageUri.size(); i++) {
-      imageViews.get(i).setVisibility(View.VISIBLE);
-      imageViews.get(i).setImageURI(mSelectedImageUri.get(i));
+    for (Uri uri : uris) {
+        mSelectedMediaUris.add(uri);
+        mIsDocumentList.add(isDocument);
+
+        View itemView = LayoutInflater.from(this).inflate(R.layout.item_media_preview, mediaPreviewContainer, false);
+        ImageView previewImageView = itemView.findViewById(R.id.previewImageView);
+        TextView documentNameText = itemView.findViewById(R.id.documentNameText);
+
+        if (isDocument) {
+            // Document preview
+            previewImageView.setImageResource(R.drawable.outline_file_present_48);
+            previewImageView.setScaleType(ImageView.ScaleType.CENTER);
+            documentNameText.setVisibility(View.VISIBLE);
+
+            String fileName = getDocumentName(uri);
+            documentNameText.setText(fileName);
+        } else {
+            // Image preview
+            previewImageView.setImageURI(uri);
+        }
+
+        // Store the index position with the view for later use
+        final int index = mSelectedMediaUris.size() - 1;
+
+        ImageButton removeButton = itemView.findViewById(R.id.removeItemButton);
+        removeButton.setOnClickListener(v -> {
+            // Use the stored index instead of calculating from view hierarchy
+            if (index >= 0 && index < mSelectedMediaUris.size()) {
+                mSelectedMediaUris.remove(index);
+                mIsDocumentList.remove(index);
+                mediaPreviewContainer.removeView(itemView);
+
+                if (mSelectedMediaUris.isEmpty()) {
+                    mMediaPreviewConstraintLayout.setVisibility(View.GONE);
+                }
+            }
+        });
+
+        // Insert before the "add more" button
+        mediaPreviewContainer.addView(itemView, mediaPreviewContainer.getChildCount() - 1);
     }
+}
+
+// Reuse the document name getter from MessageAdapter
+  private String getDocumentName(Uri uri) {
+    String result = null;
+    if (uri.getScheme().equals("content")) {
+        android.database.Cursor cursor = getContentResolver().query(uri, null, null, null, null);
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                int displayNameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                if (displayNameIndex != -1) {
+                    result = cursor.getString(displayNameIndex);
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+    if (result == null) {
+        result = uri.getLastPathSegment();
+    }
+    return result;
   }
 
-  private void addSelectedImagesToChatThread(List<Uri> selectedImageUri) {
-    if (selectedImageUri == null) {
+  private void addSelectedImagesToChatThread(List<Uri> selectedMediaUris, List<Boolean> isDocumentList) {
+    if (selectedMediaUris == null || selectedMediaUris.isEmpty()) {
       return;
     }
     mMediaPreviewConstraintLayout.setVisibility(View.GONE);
-    for (int i = 0; i < selectedImageUri.size(); i++) {
-      Uri imageURI = selectedImageUri.get(i);
-      Log.d("image uri ", "test " + imageURI.getPath());
-      mMessageAdapter.add(new Message(imageURI.toString(), true, MessageType.IMAGE, 0));
+    for (int i = 0; i < selectedMediaUris.size(); i++) {
+      Uri uri = selectedMediaUris.get(i);
+      boolean isDocument = isDocumentList.get(i);
+
+      if (isDocument) {
+        mMessageAdapter.add(new Message(uri.toString(), true, MessageType.DOCUMENT, promptID));
+      } else {
+        mMessageAdapter.add(new Message(uri.toString(), true, MessageType.IMAGE, promptID));
+      }
+      Log.d("Media URI", "Added: " + uri.toString() + " isDocument: " + isDocument);
     }
     mMessageAdapter.notifyDataSetChanged();
   }
@@ -550,7 +646,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
               } catch (Exception e) {
                 AppLogging.getInstance().log("Keyboard dismissal error: " + e.getMessage());
               }
-              addSelectedImagesToChatThread(mSelectedImageUri);
+              addSelectedImagesToChatThread(mSelectedMediaUris, mIsDocumentList);
               String rawPrompt = mEditTextMessage.getText().toString();
               mMessageAdapter.add(new Message(rawPrompt, true, MessageType.TEXT, promptID));
               mMessageAdapter.notifyDataSetChanged();
@@ -561,7 +657,8 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
               mMessagesView.smoothScrollToPosition(mMessageAdapter.getCount() - 1);
               // After images are added to prompt and chat thread, we clear the imageURI list
               // Note: This has to be done after imageURIs are no longer needed by LlamaModule
-              mSelectedImageUri = null;
+              mSelectedMediaUris.clear();
+              mIsDocumentList.clear();
               promptID++;
               Runnable runnable =
                       new Runnable() {

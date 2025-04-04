@@ -20,6 +20,7 @@ public class Message {
   private final long timestamp;
   private final MessageType messageType;
   private String imagePath;
+  private String documentPath;
   private final int promptID;
 
   private static final String TIMESTAMP_FORMAT = "hh:mm a"; // example: 2:23 PM
@@ -30,9 +31,11 @@ public class Message {
     this.promptID = promptID;
 
     if (messageType == MessageType.IMAGE) {
-      this.imagePath = text;
+        this.imagePath = text;
+    } else if (messageType == MessageType.DOCUMENT) {
+        this.documentPath = text;
     } else {
-      this.text = text;
+        this.text = text;
     }
 
     if (messageType != MessageType.SYSTEM) {
@@ -52,6 +55,10 @@ public class Message {
 
   public String getImagePath() {
     return imagePath;
+  }
+
+  public String getDocumentPath() {
+    return documentPath;
   }
 
   public String getText() {

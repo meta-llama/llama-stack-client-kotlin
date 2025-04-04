@@ -94,7 +94,7 @@
                 android:id="@+id/mediaPreviewScrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="5dp"
+                android:padding="20dp"
                 app:layout_constraintEnd_toStartOf="@id/mediaPreviewCloseButton"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent">
@@ -102,46 +102,8 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:orientation="horizontal">
-
-                    <ImageView
-                        android:id="@+id/mediaPreviewImageView1"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                    <ImageView
-                        android:id="@+id/mediaPreviewImageView2"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_marginStart="10dp"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                    <ImageView
-                        android:id="@+id/mediaPreviewImageView3"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_marginStart="10dp"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                    <ImageView
-                        android:id="@+id/mediaPreviewImageView4"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_marginStart="10dp"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/ic_launcher_foreground" />
-
-                    <ImageView
-                        android:id="@+id/mediaPreviewImageView5"
-                        android:layout_width="80dp"
-                        android:layout_height="80dp"
-                        android:layout_marginStart="10dp"
-                        android:visibility="gone"
-                        app:srcCompat="@drawable/ic_launcher_foreground" />
+                    android:orientation="horizontal"
+                    android:tag="LinearLayout">
 
                     <ImageButton
                         android:id="@+id/addMoreImageButton"
@@ -150,11 +112,7 @@
                         android:background="#16293D"
                         android:padding="5dp"
                         android:src="@drawable/outline_add_box_48" />
-
-
                 </LinearLayout>
-
-
             </HorizontalScrollView>
 
             <ImageButton
@@ -223,9 +181,17 @@
                 android:paddingBottom="20dp">
 
                 <ImageButton
+                    android:id="@+id/documentButton"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:background="@drawable/custom_button_round"
+                    android:src="@drawable/outline_attach_file_48" />
+
+                <ImageButton
                     android:id="@+id/cameraButton"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
+                    android:layout_marginStart="40dp"
                     android:background="@drawable/custom_button_round"
                     android:src="@drawable/outline_camera_alt_48" />
 
