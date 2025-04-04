@@ -52,9 +52,10 @@ fun functionDispatch(toolCalls:List<ToolCall>, ctx: Context): String {
 
     for (toolCall in toolCalls) {
         val toolName = toolCall.toolName().toString()
-        val properties = toolCall.arguments().asUnionMember1()._additionalProperties()
-            response += when (toolName) {
-                "createCalendarEvent" -> createCalendarEvent(
+        response += when (toolName) {
+            "createCalendarEvent" -> {
+                val properties = toolCall.arguments().asUnionMember1()._additionalProperties()
+                createCalendarEvent(
                     properties["title"].toString(),
                     properties["description"].toString(),
                     properties["startDate"].toString(),
@@ -63,8 +64,10 @@ fun functionDispatch(toolCalls:List<ToolCall>, ctx: Context): String {
                     properties["endTime"].toString(),
                     ctx
                 )
-                else -> "Function in registry but execution is not implemented. Add your function in the AvailableFunctions.kt"
-            } + "\n"
+            }
+            "knowledge_search", "builtin::rag/knowledge_search" -> "The answer from your document(s): "
+            else -> "Function in registry but execution is not implemented. Add your function in the AvailableFunctions.kt"
+        } + "\n"
     }
     return if(response.isEmpty()){
         "Function is not registered and cannot be recognized. Please Add your function in the AvailableFunctions.kt and provide implementation"

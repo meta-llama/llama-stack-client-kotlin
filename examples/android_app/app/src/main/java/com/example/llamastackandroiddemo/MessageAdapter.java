@@ -46,6 +46,16 @@ public class MessageAdapter extends ArrayAdapter<Message> {
       messageImageView.setImageURI(Uri.parse(currentMessage.getImagePath()));
       TextView messageTextView = listItemView.requireViewById(R.id.message_text);
       messageTextView.setVisibility(View.GONE);
+    } else if (currentMessage.getMessageType() == MessageType.DOCUMENT) {
+      TextView messageTextView = listItemView.requireViewById(R.id.message_text);
+      String documentPath = currentMessage.getDocumentPath();
+      if (documentPath != null) {
+        Uri uri = Uri.parse(documentPath);
+        String documentName = getDocumentName(uri);
+        messageTextView.setText("📄 " + (documentName != null ? documentName : "Document"));
+      } else {
+        messageTextView.setText("📄 Document");
+      }
     } else {
       TextView messageTextView = listItemView.requireViewById(R.id.message_text);
       messageTextView.setText(currentMessage.getText());
@@ -119,6 +129,9 @@ public class MessageAdapter extends ArrayAdapter<Message> {
             if (messageToAdd.getMessageType() == MessageType.IMAGE && !messageToAdd.getImagePath().isEmpty()) {
               recentMessages.add(messageToAdd);
             }
+            if (messageToAdd.getMessageType() == MessageType.DOCUMENT && !messageToAdd.getDocumentPath().isEmpty()) {
+              recentMessages.add(messageToAdd);
+            }
           } else {
             break;
           }
@@ -138,5 +151,28 @@ public class MessageAdapter extends ArrayAdapter<Message> {
       maxPromptID = Math.max(msg.getPromptID(), maxPromptID);
     }
     return maxPromptID;
+  }
+
+  private String getDocumentName(Uri uri) {
+    String result = null;
+    if (uri.getScheme().equals("content")) {
+        android.database.Cursor cursor = getContext().getContentResolver().query(uri, null, null, null, null);
+        try {
+            if (cursor != null && cursor.moveToFirst()) {
+                int displayNameIndex = cursor.getColumnIndex(android.provider.OpenableColumns.DISPLAY_NAME);
+                if (displayNameIndex != -1) {
+                    result = cursor.getString(displayNameIndex);
+                }
+            }
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+    if (result == null) {
+        result = uri.getLastPathSegment();
+    }
+    return result;
   }
 }

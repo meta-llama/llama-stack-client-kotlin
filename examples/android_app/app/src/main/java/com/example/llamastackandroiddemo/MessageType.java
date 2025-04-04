@@ -11,5 +11,6 @@ package com.example.llamastackandroiddemo;
 public enum MessageType {
   TEXT,
   IMAGE,
-  SYSTEM
+  SYSTEM,
+  DOCUMENT
 }
