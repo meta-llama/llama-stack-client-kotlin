@@ -20,6 +20,10 @@ class VectorDbServiceLocalImpl constructor(private val clientOptions: LocalClien
 
     lateinit var boxStore: BoxStore
 
+    override fun withRawResponse(): VectorDbService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun retrieve(
         params: VectorDbRetrieveParams,
         requestOptions: RequestOptions,

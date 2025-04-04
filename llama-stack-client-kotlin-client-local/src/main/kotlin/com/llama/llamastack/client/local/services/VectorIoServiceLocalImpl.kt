@@ -9,6 +9,10 @@ import com.llama.llamastack.services.blocking.VectorIoService
 
 class VectorIoServiceLocalImpl constructor(private val clientOptions: LocalClientOptions) :
     VectorIoService {
+    override fun withRawResponse(): VectorIoService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
     override fun insert(params: VectorIoInsertParams, requestOptions: RequestOptions) {
         TODO("Not yet implemented")
     }
