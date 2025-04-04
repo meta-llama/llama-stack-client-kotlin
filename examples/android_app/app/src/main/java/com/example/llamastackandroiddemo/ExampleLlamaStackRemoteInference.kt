@@ -23,6 +23,8 @@ import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolResponseMessage
 import com.llama.llamastack.models.UserMessage
 import com.llama.llamastack.services.blocking.agents.TurnService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
 import java.io.File
 import java.net.URLConnection
@@ -42,6 +44,7 @@ interface InferenceStreamingCallback {
 class ExampleLlamaStackRemoteInference(remoteURL: String) {
 
     var client: LlamaStackClientClient? = null
+    var vectorDbId: String? = null
 
     init {
         try {
@@ -268,16 +271,49 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
     //Example of running inference with customize tool calls using agent workflow.
     //Note Agent inference only support streaming at the moment.
     private fun remoteAgentInference(agentId: String, sessionId: String, turnService: TurnService, conversationHistory: ArrayList<Message>, ctx: Context): String {
-        val agentTurnCreateResponseStream =
-            turnService.createStreaming(
-                AgentTurnCreateParams.builder()
-                    .agentId(agentId)
-                    .messages(
-                        constructMessagesForAgent(conversationHistory, ctx)
+        val messagesAndDocuments: Pair<List<AgentTurnCreateParams.Message>, List<String>> = constructMessagesDocumentsForAgent(conversationHistory, ctx)
+
+        var turnParams = AgentTurnCreateParams.builder()
+            .agentId(agentId)
+            .messages(messagesAndDocuments.first)
+            .sessionId(sessionId)
+
+        // Only set up RAG if documents are provided
+        if (messagesAndDocuments.second.isNotEmpty()) {
+            // Launch a coroutine to handle the suspend function and wait for its completion
+            val future = CompletableFuture<String>()
+            kotlinx.coroutines.MainScope().launch(Dispatchers.IO) {
+                try {
+                    val dbId = RagUtils.setupRagVectorDatabase(client!!, messagesAndDocuments.second)
+                    vectorDbId = dbId
+                    future.complete(dbId)
+                } catch (e: Exception) {
+                    future.completeExceptionally(e)
+                }
+            }
+
+            // Wait for the vectorDbId to be available
+            try {
+                vectorDbId = future.get()
+                turnParams.addToolgroup(
+                    AgentTurnCreateParams.Toolgroup.ofAgentToolGroupWithArgs(
+                        AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.builder()
+                            .name("builtin::rag/knowledge_search")
+                            .args(
+                                AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
+                                    .putAdditionalProperty("vector_db_ids", JsonValue.from(listOf(vectorDbId)))
+                                    .build()
+                            )
+                            .build()
                     )
-                    .sessionId(sessionId)
-                    .build()
-            )
+                )
+            } catch (e: Exception) {
+                AppLogging.getInstance().log("Failed to set up RAG: ${e.message}")
+            }
+        }
+
+        val agentTurnCreateResponseStream = turnService.createStreaming(turnParams.build())
+
         val callback = ctx as InferenceStreamingCallback
         agentTurnCreateResponseStream.use {
             agentTurnCreateResponseStream.asSequence().forEach {
@@ -298,9 +334,9 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                     }
                     agentResponsePayload.isAgentTurnResponseStepComplete() -> {
                         // Handle Step Complete Payload
-                        val toolCalls = agentResponsePayload.agentTurnResponseStepComplete()?.stepDetails()?.asInferenceStep()?.modelResponse()?.toolCalls()
+                        val toolCalls = agentResponsePayload.agentTurnResponseStepComplete()?.stepDetails()?.inferenceStep()?.modelResponse()?.toolCalls()
                         if (!toolCalls.isNullOrEmpty()) {
-                            callback.onStreamReceived(functionDispatch(toolCalls, ctx))
+                            callback.onStreamReceived("\n" + functionDispatch(toolCalls, ctx))
                         }
                     }
                     agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
@@ -330,6 +366,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
             toolPromptFormat = AgentConfig.ToolPromptFormat.JSON
         }
 
+        AppLogging.getInstance().log("Vector DB ID: $vectorDbId")
         val agentConfig =
             AgentConfig.builder()
                 .enableSessionPersistence(false)
@@ -353,14 +390,15 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
         return agentConfig
     }
 
-    private fun constructMessagesForAgent(
+    private fun constructMessagesDocumentsForAgent(
         conversationHistory: ArrayList<Message>, ctx: Context
-    ):List<AgentTurnCreateParams.Message> {
+    ): Pair<List<AgentTurnCreateParams.Message>, List<String>> {
         val messageList = ArrayList<AgentTurnCreateParams.Message>();
         val imageList : ArrayList<InterleavedContentItem> = ArrayList()
+        val documentUriList = mutableListOf<String>()
         // User and assistant messages
         for (chat in conversationHistory) {
-            var inferenceMessage: AgentTurnCreateParams.Message
+            var inferenceMessage: AgentTurnCreateParams.Message? = null
 
             if (chat.isSent) {
                 // First image in the chat. Image must pair with a prompt
@@ -382,6 +420,10 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                     )
                     imageList.add(image)
 
+                    continue
+                }
+                else if (chat.messageType == MessageType.DOCUMENT) {
+                    documentUriList.add(chat.documentPath)
                     continue
                 }
                 // Prompt right after the image
@@ -420,11 +462,13 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .build()
                 )
             }
-            messageList.add(inferenceMessage)
+            if (inferenceMessage != null) {
+                messageList.add(inferenceMessage)
+            }
         }
 
         AppLogging.getInstance().log("conversation history length "  + messageList.size)
-        return messageList
+        return Pair(messageList, documentUriList)
     }
 
     //Image reasoning processing
