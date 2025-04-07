@@ -25,7 +25,7 @@ fun functionDispatchWithoutAgent(toolCalls:List<ToolCall>, ctx: Context): String
     
     for (toolCall in toolCalls) {
         val toolName = toolCall.toolName().toString()
-        val properties = toolCall.arguments()._additionalProperties()
+        val properties = toolCall.arguments().asUnionMember1()._additionalProperties()
         response += when (toolName) {
             "createCalendarEvent" -> createCalendarEvent(
                 properties["title"].toString(),
@@ -52,7 +52,7 @@ fun functionDispatch(toolCalls:List<ToolCall>, ctx: Context): String {
 
     for (toolCall in toolCalls) {
         val toolName = toolCall.toolName().toString()
-        val properties = toolCall.arguments()._additionalProperties()
+        val properties = toolCall.arguments().asUnionMember1()._additionalProperties()
             response += when (toolName) {
                 "createCalendarEvent" -> createCalendarEvent(
                     properties["title"].toString(),

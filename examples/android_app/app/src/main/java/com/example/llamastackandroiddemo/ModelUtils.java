@@ -25,6 +25,8 @@ public class ModelUtils {
   // MediaTek
   static final int MEDIATEK_TEXT_MODEL = 3;
 
+  static final long MAX_TOKENS = 2048;
+
   public static int getModelCategory(ModelType modelType, BackendType backendType) {
     if (backendType.equals(BackendType.XNNPACK)) {
       switch (modelType) {
@@ -45,7 +47,9 @@ public class ModelUtils {
             "meta-llama/Llama-3.2-1B-Instruct",
             "meta-llama/Llama-3.2-3B-Instruct",
             "meta-llama/Llama-3.2-11B-Vision-Instruct",
-            "meta-llama/Llama-3.2-90B-Vision-Instruct"
+            "meta-llama/Llama-3.2-90B-Vision-Instruct",
+            "meta-llama/Llama-4-Scout-17B-16E-Instruct",
+            "meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8"
             );
   }
 
