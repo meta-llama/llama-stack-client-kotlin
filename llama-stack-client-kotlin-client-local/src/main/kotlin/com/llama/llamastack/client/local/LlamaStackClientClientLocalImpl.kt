@@ -46,10 +46,6 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
         TODO("Not yet implemented")
     }
 
-    override fun datasetio(): DatasetioService {
-        TODO("Not yet implemented")
-    }
-
     override fun scoring(): ScoringService {
         TODO("Not yet implemented")
     }

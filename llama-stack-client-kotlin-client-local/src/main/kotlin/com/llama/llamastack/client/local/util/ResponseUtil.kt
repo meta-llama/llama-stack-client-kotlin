@@ -144,7 +144,11 @@ fun createCustomToolCalls(response: String): List<ToolCall> {
         toolCalls.add(
             ToolCall.builder()
                 .toolName(toolName)
-                .arguments(ToolCall.Arguments.builder().additionalProperties(paramsJson).build())
+                .arguments(
+                    ToolCall.Arguments.UnionMember1.builder()
+                        .additionalProperties(paramsJson)
+                        .build()
+                )
                 .callId(UUID.randomUUID().toString())
                 .build()
         )
