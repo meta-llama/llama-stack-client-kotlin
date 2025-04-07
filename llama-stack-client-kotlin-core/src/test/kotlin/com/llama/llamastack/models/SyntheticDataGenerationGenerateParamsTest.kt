@@ -2,11 +2,10 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class SyntheticDataGenerationGenerateParamsTest {
+internal class SyntheticDataGenerationGenerateParamsTest {
 
     @Test
     fun create() {
@@ -28,14 +27,9 @@ class SyntheticDataGenerationGenerateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.dialogs())
-            .isEqualTo(
-                listOf(
-                    Message.ofUser(
-                        UserMessage.builder().content("string").context("string").build()
-                    )
-                )
+            .containsExactly(
+                Message.ofUser(UserMessage.builder().content("string").context("string").build())
             )
         assertThat(body.filteringFunction())
             .isEqualTo(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
@@ -52,9 +46,8 @@ class SyntheticDataGenerationGenerateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.dialogs())
-            .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
+            .containsExactly(Message.ofUser(UserMessage.builder().content("string").build()))
         assertThat(body.filteringFunction())
             .isEqualTo(SyntheticDataGenerationGenerateParams.FilteringFunction.NONE)
     }

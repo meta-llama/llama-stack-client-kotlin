@@ -10,14 +10,12 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Run an evaluation on a benchmark. */
@@ -52,149 +50,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> benchmarkId
-            else -> ""
-        }
-    }
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("benchmark_config")
-        @ExcludeMissing
-        private val benchmarkConfig: JsonField<BenchmarkConfig> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * The configuration for the benchmark.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun benchmarkConfig(): BenchmarkConfig = benchmarkConfig.getRequired("benchmark_config")
-
-        /**
-         * Returns the raw JSON value of [benchmarkConfig].
-         *
-         * Unlike [benchmarkConfig], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("benchmark_config")
-        @ExcludeMissing
-        fun _benchmarkConfig(): JsonField<BenchmarkConfig> = benchmarkConfig
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            benchmarkConfig().validate()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .benchmarkConfig()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var benchmarkConfig: JsonField<BenchmarkConfig>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                benchmarkConfig = body.benchmarkConfig
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            /** The configuration for the benchmark. */
-            fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) =
-                benchmarkConfig(JsonField.of(benchmarkConfig))
-
-            /**
-             * Sets [Builder.benchmarkConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.benchmarkConfig] with a well-typed [BenchmarkConfig]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun benchmarkConfig(benchmarkConfig: JsonField<BenchmarkConfig>) = apply {
-                this.benchmarkConfig = benchmarkConfig
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("benchmarkConfig", benchmarkConfig),
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && benchmarkConfig == other.benchmarkConfig && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(benchmarkConfig, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{benchmarkConfig=$benchmarkConfig, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -212,7 +67,6 @@ private constructor(
     }
 
     /** A builder for [EvalRunEvalParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var benchmarkId: String? = null
@@ -228,6 +82,15 @@ private constructor(
         }
 
         fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [benchmarkConfig]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         /** The configuration for the benchmark. */
         fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) = apply {
@@ -362,6 +225,19 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [EvalRunEvalParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .benchmarkConfig()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): EvalRunEvalParams =
             EvalRunEvalParams(
                 checkRequired("benchmarkId", benchmarkId),
@@ -369,6 +245,184 @@ private constructor(
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
+    }
+
+    fun _body(): Body = body
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> benchmarkId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
+    private constructor(
+        private val benchmarkConfig: JsonField<BenchmarkConfig>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("benchmark_config")
+            @ExcludeMissing
+            benchmarkConfig: JsonField<BenchmarkConfig> = JsonMissing.of()
+        ) : this(benchmarkConfig, mutableMapOf())
+
+        /**
+         * The configuration for the benchmark.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun benchmarkConfig(): BenchmarkConfig = benchmarkConfig.getRequired("benchmark_config")
+
+        /**
+         * Returns the raw JSON value of [benchmarkConfig].
+         *
+         * Unlike [benchmarkConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("benchmark_config")
+        @ExcludeMissing
+        fun _benchmarkConfig(): JsonField<BenchmarkConfig> = benchmarkConfig
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .benchmarkConfig()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var benchmarkConfig: JsonField<BenchmarkConfig>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                benchmarkConfig = body.benchmarkConfig
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            /** The configuration for the benchmark. */
+            fun benchmarkConfig(benchmarkConfig: BenchmarkConfig) =
+                benchmarkConfig(JsonField.of(benchmarkConfig))
+
+            /**
+             * Sets [Builder.benchmarkConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.benchmarkConfig] with a well-typed [BenchmarkConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun benchmarkConfig(benchmarkConfig: JsonField<BenchmarkConfig>) = apply {
+                this.benchmarkConfig = benchmarkConfig
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .benchmarkConfig()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("benchmarkConfig", benchmarkConfig),
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            benchmarkConfig().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = (benchmarkConfig.asKnown()?.validity() ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && benchmarkConfig == other.benchmarkConfig && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(benchmarkConfig, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{benchmarkConfig=$benchmarkConfig, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

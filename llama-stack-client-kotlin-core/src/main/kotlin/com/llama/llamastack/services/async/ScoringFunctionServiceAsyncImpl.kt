@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ScoringFn
 import com.llama.llamastack.models.ScoringFunctionListParams
@@ -35,7 +35,7 @@ internal constructor(private val clientOptions: ClientOptions) : ScoringFunction
     override suspend fun retrieve(
         params: ScoringFunctionRetrieveParams,
         requestOptions: RequestOptions,
-    ): ScoringFn? =
+    ): ScoringFn =
         // get /v1/scoring-functions/{scoring_fn_id}
         withRawResponse().retrieve(params, requestOptions).parse()
 
@@ -57,20 +57,19 @@ internal constructor(private val clientOptions: ClientOptions) : ScoringFunction
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ScoringFunctionServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
-        private val retrieveHandler: Handler<ScoringFn?> =
-            jsonHandler<ScoringFn?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+        private val retrieveHandler: Handler<ScoringFn> =
+            jsonHandler<ScoringFn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
         override suspend fun retrieve(
             params: ScoringFunctionRetrieveParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<ScoringFn?> {
+        ): HttpResponseFor<ScoringFn> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "scoring-functions", params.getPathParam(0))
+                    .addPathSegments("v1", "scoring-functions", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -80,7 +79,7 @@ internal constructor(private val clientOptions: ClientOptions) : ScoringFunction
                     .use { retrieveHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }

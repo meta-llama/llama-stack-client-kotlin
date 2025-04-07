@@ -19,12 +19,10 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 @JsonDeserialize(using = QueryGeneratorConfig.Deserializer::class)
@@ -50,13 +48,12 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             defaultRag != null -> visitor.visitDefaultRag(defaultRag)
             llmrag != null -> visitor.visitLlmrag(llmrag)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -78,6 +75,31 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitDefaultRag(defaultRag: DefaultRagQueryGeneratorConfig) =
+                    defaultRag.validity()
+
+                override fun visitLlmrag(llmrag: LlmragQueryGeneratorConfig) = llmrag.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -139,20 +161,14 @@ private constructor(
 
             when (type) {
                 "default" -> {
-                    tryDeserialize(node, jacksonTypeRef<DefaultRagQueryGeneratorConfig>()) {
-                            it.validate()
-                        }
-                        ?.let {
-                            return QueryGeneratorConfig(defaultRag = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<DefaultRagQueryGeneratorConfig>())
+                        ?.let { QueryGeneratorConfig(defaultRag = it, _json = json) }
+                        ?: QueryGeneratorConfig(_json = json)
                 }
                 "llm" -> {
-                    tryDeserialize(node, jacksonTypeRef<LlmragQueryGeneratorConfig>()) {
-                            it.validate()
-                        }
-                        ?.let {
-                            return QueryGeneratorConfig(llmrag = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<LlmragQueryGeneratorConfig>())?.let {
+                        QueryGeneratorConfig(llmrag = it, _json = json)
+                    } ?: QueryGeneratorConfig(_json = json)
                 }
             }
 
@@ -176,17 +192,20 @@ private constructor(
         }
     }
 
-    @NoAutoDetect
     class DefaultRagQueryGeneratorConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("separator")
-        @ExcludeMissing
-        private val separator: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val separator: JsonField<String>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("separator")
+            @ExcludeMissing
+            separator: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(separator, type, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -213,25 +232,15 @@ private constructor(
          */
         @JsonProperty("separator") @ExcludeMissing fun _separator(): JsonField<String> = separator
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): DefaultRagQueryGeneratorConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            separator()
-            _type().let {
-                if (it != JsonValue.from("default")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -308,13 +317,59 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [DefaultRagQueryGeneratorConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .separator()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): DefaultRagQueryGeneratorConfig =
                 DefaultRagQueryGeneratorConfig(
                     checkRequired("separator", separator),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): DefaultRagQueryGeneratorConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            separator()
+            _type().let {
+                if (it != JsonValue.from("default")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (separator.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("default")) 1 else 0 }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -334,20 +389,22 @@ private constructor(
             "DefaultRagQueryGeneratorConfig{separator=$separator, type=$type, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class LlmragQueryGeneratorConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("model")
-        @ExcludeMissing
-        private val model: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("template")
-        @ExcludeMissing
-        private val template: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val model: JsonField<String>,
+        private val template: JsonField<String>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("model") @ExcludeMissing model: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("template")
+            @ExcludeMissing
+            template: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(model, template, type, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -388,26 +445,15 @@ private constructor(
          */
         @JsonProperty("template") @ExcludeMissing fun _template(): JsonField<String> = template
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): LlmragQueryGeneratorConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            model()
-            template()
-            _type().let {
-                if (it != JsonValue.from("llm")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -497,14 +543,63 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [LlmragQueryGeneratorConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .model()
+             * .template()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): LlmragQueryGeneratorConfig =
                 LlmragQueryGeneratorConfig(
                     checkRequired("model", model),
                     checkRequired("template", template),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): LlmragQueryGeneratorConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            model()
+            template()
+            _type().let {
+                if (it != JsonValue.from("llm")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (model.asKnown() == null) 0 else 1) +
+                (if (template.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("llm")) 1 else 0 }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

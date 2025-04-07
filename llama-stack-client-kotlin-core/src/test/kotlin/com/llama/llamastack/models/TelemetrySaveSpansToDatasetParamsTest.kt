@@ -2,21 +2,16 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TelemetrySaveSpansToDatasetParamsTest {
+internal class TelemetrySaveSpansToDatasetParamsTest {
 
     @Test
     fun create() {
         TelemetrySaveSpansToDatasetParams.builder()
             .addAttributeFilter(
-                QueryCondition.builder()
-                    .key("key")
-                    .op(QueryCondition.Op.EQ)
-                    .value(QueryCondition.Value.ofBoolean(true))
-                    .build()
+                QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
             )
             .addAttributesToSave("string")
             .datasetId("dataset_id")
@@ -29,11 +24,7 @@ class TelemetrySaveSpansToDatasetParamsTest {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
+                    QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
                 )
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
@@ -42,18 +33,11 @@ class TelemetrySaveSpansToDatasetParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.attributeFilters())
-            .isEqualTo(
-                listOf(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
-                )
+            .containsExactly(
+                QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
             )
-        assertThat(body.attributesToSave()).isEqualTo(listOf("string"))
+        assertThat(body.attributesToSave()).containsExactly("string")
         assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.maxDepth()).isEqualTo(0L)
     }
@@ -63,11 +47,7 @@ class TelemetrySaveSpansToDatasetParamsTest {
         val params =
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
+                    QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
                 )
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")
@@ -75,18 +55,11 @@ class TelemetrySaveSpansToDatasetParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.attributeFilters())
-            .isEqualTo(
-                listOf(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
-                )
+            .containsExactly(
+                QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
             )
-        assertThat(body.attributesToSave()).isEqualTo(listOf("string"))
+        assertThat(body.attributesToSave()).containsExactly("string")
         assertThat(body.datasetId()).isEqualTo("dataset_id")
     }
 }

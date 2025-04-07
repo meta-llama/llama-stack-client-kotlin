@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
@@ -22,24 +21,11 @@ private constructor(
 
     fun agentId(): String = agentId
 
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    internal fun _body(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> agentId
-            else -> ""
-        }
-    }
 
     fun toBuilder() = Builder().from(this)
 
@@ -57,7 +43,6 @@ private constructor(
     }
 
     /** A builder for [AgentDeleteParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var agentId: String? = null
@@ -194,6 +179,18 @@ private constructor(
             keys.forEach(::removeAdditionalBodyProperty)
         }
 
+        /**
+         * Returns an immutable instance of [AgentDeleteParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): AgentDeleteParams =
             AgentDeleteParams(
                 checkRequired("agentId", agentId),
@@ -202,6 +199,18 @@ private constructor(
                 additionalBodyProperties.toImmutable(),
             )
     }
+
+    fun _body(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> agentId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

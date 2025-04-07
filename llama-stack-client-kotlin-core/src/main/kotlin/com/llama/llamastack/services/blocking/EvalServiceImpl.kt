@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -14,7 +15,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.EvalEvaluateRowsAlphaParams
 import com.llama.llamastack.models.EvalEvaluateRowsParams
 import com.llama.llamastack.models.EvalRunEvalAlphaParams
@@ -61,8 +61,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         EvalService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val jobs: JobService.WithRawResponse by lazy {
             JobServiceImpl.WithRawResponseImpl(clientOptions)
@@ -84,7 +83,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
                         "v1",
                         "eval",
                         "benchmarks",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "evaluations",
                     )
                     .body(json(clientOptions.jsonMapper, params._body()))
@@ -117,7 +116,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
                         "v1",
                         "eval",
                         "benchmarks",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "evaluations",
                     )
                     .body(json(clientOptions.jsonMapper, params._body()))
@@ -146,7 +145,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
-                    .addPathSegments("v1", "eval", "benchmarks", params.getPathParam(0), "jobs")
+                    .addPathSegments("v1", "eval", "benchmarks", params._pathParam(0), "jobs")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepare(clientOptions, params)
@@ -173,7 +172,7 @@ class EvalServiceImpl internal constructor(private val clientOptions: ClientOpti
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
-                    .addPathSegments("v1", "eval", "benchmarks", params.getPathParam(0), "jobs")
+                    .addPathSegments("v1", "eval", "benchmarks", params._pathParam(0), "jobs")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepare(clientOptions, params)

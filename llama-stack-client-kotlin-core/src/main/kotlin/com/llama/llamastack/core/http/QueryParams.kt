@@ -1,3 +1,5 @@
+// File generated from our OpenAPI spec by Stainless.
+
 package com.llama.llamastack.core.http
 
 import com.llama.llamastack.core.toImmutable

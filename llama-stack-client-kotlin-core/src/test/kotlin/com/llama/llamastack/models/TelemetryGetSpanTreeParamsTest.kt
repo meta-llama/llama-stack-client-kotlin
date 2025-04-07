@@ -2,11 +2,10 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TelemetryGetSpanTreeParamsTest {
+internal class TelemetryGetSpanTreeParamsTest {
 
     @Test
     fun create() {
@@ -15,6 +14,15 @@ class TelemetryGetSpanTreeParamsTest {
             .addAttributesToReturn("string")
             .maxDepth(0L)
             .build()
+    }
+
+    @Test
+    fun pathParams() {
+        val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
+
+        assertThat(params._pathParam(0)).isEqualTo("span_id")
+        // out-of-bound path param
+        assertThat(params._pathParam(1)).isEqualTo("")
     }
 
     @Test
@@ -28,8 +36,7 @@ class TelemetryGetSpanTreeParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
-        assertThat(body.attributesToReturn()).isEqualTo(listOf("string"))
+        assertThat(body.attributesToReturn()).containsExactly("string")
         assertThat(body.maxDepth()).isEqualTo(0L)
     }
 
@@ -38,17 +45,5 @@ class TelemetryGetSpanTreeParamsTest {
         val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
 
         val body = params._body()
-
-        assertNotNull(body)
-    }
-
-    @Test
-    fun getPathParam() {
-        val params = TelemetryGetSpanTreeParams.builder().spanId("span_id").build()
-        assertThat(params).isNotNull
-        // path param "spanId"
-        assertThat(params.getPathParam(0)).isEqualTo("span_id")
-        // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

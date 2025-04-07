@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToolGroupTest {
+internal class ToolGroupTest {
 
     @Test
-    fun createToolGroup() {
+    fun create() {
         val toolGroup =
             ToolGroup.builder()
                 .identifier("identifier")
@@ -22,7 +24,7 @@ class ToolGroupTest {
                 )
                 .mcpEndpoint(ToolGroup.McpEndpoint.builder().uri("uri").build())
                 .build()
-        assertThat(toolGroup).isNotNull
+
         assertThat(toolGroup.identifier()).isEqualTo("identifier")
         assertThat(toolGroup.providerId()).isEqualTo("provider_id")
         assertThat(toolGroup.providerResourceId()).isEqualTo("provider_resource_id")
@@ -32,5 +34,30 @@ class ToolGroupTest {
             )
         assertThat(toolGroup.mcpEndpoint())
             .isEqualTo(ToolGroup.McpEndpoint.builder().uri("uri").build())
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val toolGroup =
+            ToolGroup.builder()
+                .identifier("identifier")
+                .providerId("provider_id")
+                .providerResourceId("provider_resource_id")
+                .args(
+                    ToolGroup.Args.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .mcpEndpoint(ToolGroup.McpEndpoint.builder().uri("uri").build())
+                .build()
+
+        val roundtrippedToolGroup =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(toolGroup),
+                jacksonTypeRef<ToolGroup>(),
+            )
+
+        assertThat(roundtrippedToolGroup).isEqualTo(toolGroup)
     }
 }

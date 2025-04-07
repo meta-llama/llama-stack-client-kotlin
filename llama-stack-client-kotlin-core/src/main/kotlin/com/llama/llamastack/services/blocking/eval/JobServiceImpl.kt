@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking.eval
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,12 +17,11 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.EvalJobCancelParams
 import com.llama.llamastack.models.EvalJobRetrieveParams
 import com.llama.llamastack.models.EvalJobStatusParams
-import com.llama.llamastack.models.EvalJobStatusResponse
 import com.llama.llamastack.models.EvaluateResponse
+import com.llama.llamastack.models.Job
 
 class JobServiceImpl internal constructor(private val clientOptions: ClientOptions) : JobService {
 
@@ -43,18 +43,14 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
         withRawResponse().cancel(params, requestOptions)
     }
 
-    override fun status(
-        params: EvalJobStatusParams,
-        requestOptions: RequestOptions,
-    ): EvalJobStatusResponse? =
+    override fun status(params: EvalJobStatusParams, requestOptions: RequestOptions): Job =
         // get /v1/eval/benchmarks/{benchmark_id}/jobs/{job_id}
         withRawResponse().status(params, requestOptions).parse()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         JobService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val retrieveHandler: Handler<EvaluateResponse> =
             jsonHandler<EvaluateResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
@@ -70,9 +66,9 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
                         "v1",
                         "eval",
                         "benchmarks",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "jobs",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "result",
                     )
                     .build()
@@ -103,9 +99,9 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
                         "v1",
                         "eval",
                         "benchmarks",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "jobs",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                     )
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()
@@ -115,14 +111,13 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             return response.parseable { response.use { cancelHandler.handle(it) } }
         }
 
-        private val statusHandler: Handler<EvalJobStatusResponse?> =
-            jsonHandler<EvalJobStatusResponse?>(clientOptions.jsonMapper)
-                .withErrorHandler(errorHandler)
+        private val statusHandler: Handler<Job> =
+            jsonHandler<Job>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
         override fun status(
             params: EvalJobStatusParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<EvalJobStatusResponse?> {
+        ): HttpResponseFor<Job> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
@@ -130,15 +125,23 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
                         "v1",
                         "eval",
                         "benchmarks",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "jobs",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                     )
                     .build()
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
             val response = clientOptions.httpClient.execute(request, requestOptions)
-            return response.parseable { response.use { statusHandler.handle(it) } }
+            return response.parseable {
+                response
+                    .use { statusHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+            }
         }
     }
 }

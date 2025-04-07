@@ -5,7 +5,7 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class EvalJobStatusParamsTest {
+internal class EvalJobStatusParamsTest {
 
     @Test
     fun create() {
@@ -13,15 +13,13 @@ class EvalJobStatusParamsTest {
     }
 
     @Test
-    fun getPathParam() {
+    fun pathParams() {
         val params =
             EvalJobStatusParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
-        assertThat(params).isNotNull
-        // path param "benchmarkId"
-        assertThat(params.getPathParam(0)).isEqualTo("benchmark_id")
-        // path param "jobId"
-        assertThat(params.getPathParam(1)).isEqualTo("job_id")
+
+        assertThat(params._pathParam(0)).isEqualTo("benchmark_id")
+        assertThat(params._pathParam(1)).isEqualTo("job_id")
         // out-of-bound path param
-        assertThat(params.getPathParam(2)).isEqualTo("")
+        assertThat(params._pathParam(2)).isEqualTo("")
     }
 }

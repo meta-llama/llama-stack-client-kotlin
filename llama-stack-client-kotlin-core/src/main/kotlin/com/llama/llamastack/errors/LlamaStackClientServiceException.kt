@@ -1,21 +1,17 @@
+// File generated from our OpenAPI spec by Stainless.
+
 package com.llama.llamastack.errors
 
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.http.Headers
 
-abstract class LlamaStackClientServiceException(
-    private val statusCode: Int,
-    private val headers: Headers,
-    private val body: String,
-    private val error: LlamaStackClientError,
-    message: String = "$statusCode: $error",
-    cause: Throwable? = null,
-) : LlamaStackClientException(message, cause) {
+abstract class LlamaStackClientServiceException
+protected constructor(message: String, cause: Throwable? = null) :
+    LlamaStackClientException(message, cause) {
 
-    fun statusCode(): Int = statusCode
+    abstract fun statusCode(): Int
 
-    fun headers(): Headers = headers
+    abstract fun headers(): Headers
 
-    fun body(): String = body
-
-    fun error(): LlamaStackClientError = error
+    abstract fun body(): JsonValue
 }

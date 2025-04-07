@@ -2,17 +2,34 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToolResponseMessageTest {
+internal class ToolResponseMessageTest {
 
     @Test
-    fun createToolResponseMessage() {
+    fun create() {
         val toolResponseMessage =
             ToolResponseMessage.builder().callId("call_id").content("string").build()
-        assertThat(toolResponseMessage).isNotNull
+
         assertThat(toolResponseMessage.callId()).isEqualTo("call_id")
         assertThat(toolResponseMessage.content()).isEqualTo(InterleavedContent.ofString("string"))
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val toolResponseMessage =
+            ToolResponseMessage.builder().callId("call_id").content("string").build()
+
+        val roundtrippedToolResponseMessage =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(toolResponseMessage),
+                jacksonTypeRef<ToolResponseMessage>(),
+            )
+
+        assertThat(roundtrippedToolResponseMessage).isEqualTo(toolResponseMessage)
     }
 }

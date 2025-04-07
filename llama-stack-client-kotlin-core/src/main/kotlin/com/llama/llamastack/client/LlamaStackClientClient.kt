@@ -6,7 +6,6 @@ import com.llama.llamastack.services.blocking.AgentService
 import com.llama.llamastack.services.blocking.BatchInferenceService
 import com.llama.llamastack.services.blocking.BenchmarkService
 import com.llama.llamastack.services.blocking.DatasetService
-import com.llama.llamastack.services.blocking.DatasetioService
 import com.llama.llamastack.services.blocking.EvalService
 import com.llama.llamastack.services.blocking.InferenceService
 import com.llama.llamastack.services.blocking.InspectService
@@ -93,8 +92,6 @@ interface LlamaStackClientClient {
 
     fun telemetry(): TelemetryService
 
-    fun datasetio(): DatasetioService
-
     fun scoring(): ScoringService
 
     fun scoringFunctions(): ScoringFunctionService
@@ -157,8 +154,6 @@ interface LlamaStackClientClient {
         fun syntheticDataGeneration(): SyntheticDataGenerationService.WithRawResponse
 
         fun telemetry(): TelemetryService.WithRawResponse
-
-        fun datasetio(): DatasetioService.WithRawResponse
 
         fun scoring(): ScoringService.WithRawResponse
 

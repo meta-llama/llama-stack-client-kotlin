@@ -10,34 +10,35 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
 /** A single session of an interaction with an Agentic System. */
-@NoAutoDetect
 class Session
-@JsonCreator
 private constructor(
-    @JsonProperty("session_id")
-    @ExcludeMissing
-    private val sessionId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("session_name")
-    @ExcludeMissing
-    private val sessionName: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("turns")
-    @ExcludeMissing
-    private val turns: JsonField<List<Turn>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val sessionId: JsonField<String>,
+    private val sessionName: JsonField<String>,
+    private val startedAt: JsonField<OffsetDateTime>,
+    private val turns: JsonField<List<Turn>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("session_id") @ExcludeMissing sessionId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("session_name")
+        @ExcludeMissing
+        sessionName: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("started_at")
+        @ExcludeMissing
+        startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("turns") @ExcludeMissing turns: JsonField<List<Turn>> = JsonMissing.of(),
+    ) : this(sessionId, sessionName, startedAt, turns, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -95,23 +96,15 @@ private constructor(
      */
     @JsonProperty("turns") @ExcludeMissing fun _turns(): JsonField<List<Turn>> = turns
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): Session = apply {
-        if (validated) {
-            return@apply
-        }
-
-        sessionId()
-        sessionName()
-        startedAt()
-        turns().forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -223,15 +216,63 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [Session].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .sessionId()
+         * .sessionName()
+         * .startedAt()
+         * .turns()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): Session =
             Session(
                 checkRequired("sessionId", sessionId),
                 checkRequired("sessionName", sessionName),
                 checkRequired("startedAt", startedAt),
                 checkRequired("turns", turns).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): Session = apply {
+        if (validated) {
+            return@apply
+        }
+
+        sessionId()
+        sessionName()
+        startedAt()
+        turns().forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (sessionId.asKnown() == null) 0 else 1) +
+            (if (sessionName.asKnown() == null) 0 else 1) +
+            (if (startedAt.asKnown() == null) 0 else 1) +
+            (turns.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

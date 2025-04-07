@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ListBenchmarksResponseTest {
+internal class ListBenchmarksResponseTest {
 
     @Test
-    fun createListBenchmarksResponse() {
+    fun create() {
         val listBenchmarksResponse =
             ListBenchmarksResponse.builder()
                 .addData(
@@ -27,7 +29,7 @@ class ListBenchmarksResponseTest {
                         .build()
                 )
                 .build()
-        assertThat(listBenchmarksResponse).isNotNull
+
         assertThat(listBenchmarksResponse.data())
             .containsExactly(
                 Benchmark.builder()
@@ -43,5 +45,35 @@ class ListBenchmarksResponseTest {
                     .addScoringFunction("string")
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val listBenchmarksResponse =
+            ListBenchmarksResponse.builder()
+                .addData(
+                    Benchmark.builder()
+                        .datasetId("dataset_id")
+                        .identifier("identifier")
+                        .metadata(
+                            Benchmark.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .addScoringFunction("string")
+                        .build()
+                )
+                .build()
+
+        val roundtrippedListBenchmarksResponse =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(listBenchmarksResponse),
+                jacksonTypeRef<ListBenchmarksResponse>(),
+            )
+
+        assertThat(roundtrippedListBenchmarksResponse).isEqualTo(listBenchmarksResponse)
     }
 }

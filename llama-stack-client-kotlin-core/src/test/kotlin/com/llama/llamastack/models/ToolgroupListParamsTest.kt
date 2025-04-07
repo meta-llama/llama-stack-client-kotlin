@@ -4,7 +4,7 @@ package com.llama.llamastack.models
 
 import org.junit.jupiter.api.Test
 
-class ToolgroupListParamsTest {
+internal class ToolgroupListParamsTest {
 
     @Test
     fun create() {

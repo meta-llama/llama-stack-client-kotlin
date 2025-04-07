@@ -3,35 +3,23 @@
 package com.llama.llamastack.models
 
 import com.fasterxml.jackson.annotation.JsonAnyGetter
-import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
-@NoAutoDetect
 class TelemetryGetSpanTreeResponse
 @JsonCreator
 private constructor(
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+    @com.fasterxml.jackson.annotation.JsonValue
+    private val additionalProperties: Map<String, JsonValue>
 ) {
 
     @JsonAnyGetter
     @ExcludeMissing
     fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): TelemetryGetSpanTreeResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        validated = true
-    }
 
     fun toBuilder() = Builder().from(this)
 
@@ -71,9 +59,40 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [TelemetryGetSpanTreeResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         */
         fun build(): TelemetryGetSpanTreeResponse =
             TelemetryGetSpanTreeResponse(additionalProperties.toImmutable())
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): TelemetryGetSpanTreeResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

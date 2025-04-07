@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class EvalServiceTest {
+internal class EvalServiceTest {
 
     @Test
     fun evaluateRows() {
@@ -36,9 +36,10 @@ class EvalServiceTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(
@@ -94,9 +95,10 @@ class EvalServiceTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(
@@ -152,9 +154,10 @@ class EvalServiceTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(
@@ -204,9 +207,10 @@ class EvalServiceTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(

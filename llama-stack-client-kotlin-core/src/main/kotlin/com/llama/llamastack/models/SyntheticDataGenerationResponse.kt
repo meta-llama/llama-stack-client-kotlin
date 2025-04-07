@@ -10,30 +10,33 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /**
  * Response from the synthetic data generation. Batch of (prompt, response, score) tuples that pass
  * the threshold.
  */
-@NoAutoDetect
 class SyntheticDataGenerationResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("synthetic_data")
-    @ExcludeMissing
-    private val syntheticData: JsonField<List<SyntheticData>> = JsonMissing.of(),
-    @JsonProperty("statistics")
-    @ExcludeMissing
-    private val statistics: JsonField<Statistics> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val syntheticData: JsonField<List<SyntheticData>>,
+    private val statistics: JsonField<Statistics>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("synthetic_data")
+        @ExcludeMissing
+        syntheticData: JsonField<List<SyntheticData>> = JsonMissing.of(),
+        @JsonProperty("statistics")
+        @ExcludeMissing
+        statistics: JsonField<Statistics> = JsonMissing.of(),
+    ) : this(syntheticData, statistics, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -65,21 +68,15 @@ private constructor(
     @ExcludeMissing
     fun _statistics(): JsonField<Statistics> = statistics
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): SyntheticDataGenerationResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        syntheticData().forEach { it.validate() }
-        statistics()?.validate()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -169,35 +166,65 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [SyntheticDataGenerationResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .syntheticData()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): SyntheticDataGenerationResponse =
             SyntheticDataGenerationResponse(
                 checkRequired("syntheticData", syntheticData).map { it.toImmutable() },
                 statistics,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): SyntheticDataGenerationResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        syntheticData().forEach { it.validate() }
+        statistics()?.validate()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (syntheticData.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+            (statistics.asKnown()?.validity() ?: 0)
+
     class SyntheticData
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): SyntheticData = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -235,8 +262,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [SyntheticData].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): SyntheticData = SyntheticData(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): SyntheticData = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -255,27 +314,16 @@ private constructor(
         override fun toString() = "SyntheticData{additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class Statistics
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Statistics = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -313,8 +361,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Statistics].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): Statistics = Statistics(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Statistics = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

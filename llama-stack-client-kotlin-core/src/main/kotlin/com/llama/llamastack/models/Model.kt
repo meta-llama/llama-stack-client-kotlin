@@ -11,35 +11,40 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class Model
-@JsonCreator
 private constructor(
-    @JsonProperty("identifier")
-    @ExcludeMissing
-    private val identifier: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("metadata")
-    @ExcludeMissing
-    private val metadata: JsonField<Metadata> = JsonMissing.of(),
-    @JsonProperty("model_type")
-    @ExcludeMissing
-    private val modelType: JsonField<ModelType> = JsonMissing.of(),
-    @JsonProperty("provider_id")
-    @ExcludeMissing
-    private val providerId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("provider_resource_id")
-    @ExcludeMissing
-    private val providerResourceId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val identifier: JsonField<String>,
+    private val metadata: JsonField<Metadata>,
+    private val modelType: JsonField<ModelType>,
+    private val providerId: JsonField<String>,
+    private val providerResourceId: JsonField<String>,
+    private val type: JsonValue,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("identifier")
+        @ExcludeMissing
+        identifier: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("metadata") @ExcludeMissing metadata: JsonField<Metadata> = JsonMissing.of(),
+        @JsonProperty("model_type")
+        @ExcludeMissing
+        modelType: JsonField<ModelType> = JsonMissing.of(),
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        providerId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("provider_resource_id")
+        @ExcludeMissing
+        providerResourceId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+    ) : this(identifier, metadata, modelType, providerId, providerResourceId, type, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -120,29 +125,15 @@ private constructor(
     @ExcludeMissing
     fun _providerResourceId(): JsonField<String> = providerResourceId
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): Model = apply {
-        if (validated) {
-            return@apply
-        }
-
-        identifier()
-        metadata().validate()
-        modelType()
-        providerId()
-        providerResourceId()
-        _type().let {
-            if (it != JsonValue.from("model")) {
-                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-            }
-        }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -275,6 +266,22 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [Model].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .identifier()
+         * .metadata()
+         * .modelType()
+         * .providerId()
+         * .providerResourceId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): Model =
             Model(
                 checkRequired("identifier", identifier),
@@ -283,31 +290,61 @@ private constructor(
                 checkRequired("providerId", providerId),
                 checkRequired("providerResourceId", providerResourceId),
                 type,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): Model = apply {
+        if (validated) {
+            return@apply
+        }
+
+        identifier()
+        metadata().validate()
+        modelType().validate()
+        providerId()
+        providerResourceId()
+        _type().let {
+            if (it != JsonValue.from("model")) {
+                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+            }
+        }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (identifier.asKnown() == null) 0 else 1) +
+            (metadata.asKnown()?.validity() ?: 0) +
+            (modelType.asKnown()?.validity() ?: 0) +
+            (if (providerId.asKnown() == null) 0 else 1) +
+            (if (providerResourceId.asKnown() == null) 0 else 1) +
+            type.let { if (it == JsonValue.from("model")) 1 else 0 }
+
     class Metadata
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Metadata = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -345,8 +382,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Metadata].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Metadata = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -452,6 +521,33 @@ private constructor(
         fun asString(): String =
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+        private var validated: Boolean = false
+
+        fun validate(): ModelType = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

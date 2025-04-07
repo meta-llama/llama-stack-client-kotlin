@@ -10,21 +10,22 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class RunShieldResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("violation")
-    @ExcludeMissing
-    private val violation: JsonField<SafetyViolation> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val violation: JsonField<SafetyViolation>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("violation")
+        @ExcludeMissing
+        violation: JsonField<SafetyViolation> = JsonMissing.of()
+    ) : this(violation, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
@@ -41,20 +42,15 @@ private constructor(
     @ExcludeMissing
     fun _violation(): JsonField<SafetyViolation> = violation
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): RunShieldResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        violation()?.validate()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -105,9 +101,40 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [RunShieldResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         */
         fun build(): RunShieldResponse =
-            RunShieldResponse(violation, additionalProperties.toImmutable())
+            RunShieldResponse(violation, additionalProperties.toMutableMap())
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): RunShieldResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        violation()?.validate()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int = (violation.asKnown()?.validity() ?: 0)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

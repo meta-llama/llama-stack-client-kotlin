@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class SafetyServiceAsyncTest {
+internal class SafetyServiceAsyncTest {
 
     @Test
     suspend fun runShield() {

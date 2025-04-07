@@ -39,6 +39,17 @@ class LlamaStackClientOkHttpClientAsync private constructor() {
             this.baseUrl = baseUrl
         }
 
+        /**
+         * Whether to throw an exception if any of the Jackson versions detected at runtime are
+         * incompatible with the SDK's minimum supported Jackson version (2.13.4).
+         *
+         * Defaults to true. Use extreme caution when disabling this option. There is no guarantee
+         * that the SDK will work correctly when using an incompatible Jackson version.
+         */
+        fun checkJacksonVersionCompatibility(checkJacksonVersionCompatibility: Boolean) = apply {
+            clientOptions.checkJacksonVersionCompatibility(checkJacksonVersionCompatibility)
+        }
+
         fun jsonMapper(jsonMapper: JsonMapper) = apply { clientOptions.jsonMapper(jsonMapper) }
 
         fun clock(clock: Clock) = apply { clientOptions.clock(clock) }
@@ -149,6 +160,11 @@ class LlamaStackClientOkHttpClientAsync private constructor() {
 
         fun fromEnv() = apply { clientOptions.fromEnv() }
 
+        /**
+         * Returns an immutable instance of [LlamaStackClientClientAsync].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         */
         fun build(): LlamaStackClientClientAsync =
             LlamaStackClientClientAsyncImpl(
                 clientOptions

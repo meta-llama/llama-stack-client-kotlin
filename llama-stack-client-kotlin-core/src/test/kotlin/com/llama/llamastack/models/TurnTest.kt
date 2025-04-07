@@ -2,15 +2,16 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.JsonValue
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TurnTest {
+internal class TurnTest {
 
     @Test
-    fun createTurn() {
+    fun create() {
         val turn =
             Turn.builder()
                 .addInputMessage(UserMessage.builder().content("string").context("string").build())
@@ -20,13 +21,10 @@ class TurnTest {
                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
-                                .arguments(
-                                    ToolCall.Arguments.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from("string"))
-                                        .build()
-                                )
+                                .arguments("string")
                                 .callId("call_id")
                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                .argumentsJson("arguments_json")
                                 .build()
                         )
                         .build()
@@ -41,16 +39,10 @@ class TurnTest {
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
-                                        .arguments(
-                                            ToolCall.Arguments.builder()
-                                                .putAdditionalProperty(
-                                                    "foo",
-                                                    JsonValue.from("string"),
-                                                )
-                                                .build()
-                                        )
+                                        .arguments("string")
                                         .callId("call_id")
                                         .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .argumentsJson("arguments_json")
                                         .build()
                                 )
                                 .build()
@@ -67,7 +59,7 @@ class TurnTest {
                     Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
                 )
                 .build()
-        assertThat(turn).isNotNull
+
         assertThat(turn.inputMessages())
             .containsExactly(
                 Turn.InputMessage.ofUser(
@@ -81,13 +73,10 @@ class TurnTest {
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
-                            .arguments(
-                                ToolCall.Arguments.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from("string"))
-                                    .build()
-                            )
+                            .arguments("string")
                             .callId("call_id")
                             .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                            .argumentsJson("arguments_json")
                             .build()
                     )
                     .build()
@@ -104,16 +93,10 @@ class TurnTest {
                                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                                 .addToolCall(
                                     ToolCall.builder()
-                                        .arguments(
-                                            ToolCall.Arguments.builder()
-                                                .putAdditionalProperty(
-                                                    "foo",
-                                                    JsonValue.from("string"),
-                                                )
-                                                .build()
-                                        )
+                                        .arguments("string")
                                         .callId("call_id")
                                         .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .argumentsJson("arguments_json")
                                         .build()
                                 )
                                 .build()
@@ -131,5 +114,62 @@ class TurnTest {
             .containsExactly(
                 Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val turn =
+            Turn.builder()
+                .addInputMessage(UserMessage.builder().content("string").context("string").build())
+                .outputMessage(
+                    CompletionMessage.builder()
+                        .content("string")
+                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                        .addToolCall(
+                            ToolCall.builder()
+                                .arguments("string")
+                                .callId("call_id")
+                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                .argumentsJson("arguments_json")
+                                .build()
+                        )
+                        .build()
+                )
+                .sessionId("session_id")
+                .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .addStep(
+                    InferenceStep.builder()
+                        .modelResponse(
+                            CompletionMessage.builder()
+                                .content("string")
+                                .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                                .addToolCall(
+                                    ToolCall.builder()
+                                        .arguments("string")
+                                        .callId("call_id")
+                                        .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                        .argumentsJson("arguments_json")
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .stepId("step_id")
+                        .turnId("turn_id")
+                        .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                        .build()
+                )
+                .turnId("turn_id")
+                .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .addOutputAttachment(
+                    Turn.OutputAttachment.builder().content("string").mimeType("mime_type").build()
+                )
+                .build()
+
+        val roundtrippedTurn =
+            jsonMapper.readValue(jsonMapper.writeValueAsString(turn), jacksonTypeRef<Turn>())
+
+        assertThat(roundtrippedTurn).isEqualTo(turn)
     }
 }

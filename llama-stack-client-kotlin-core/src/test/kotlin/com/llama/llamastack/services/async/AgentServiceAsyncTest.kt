@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class AgentServiceAsyncTest {
+internal class AgentServiceAsyncTest {
 
     @Test
     suspend fun create() {
@@ -47,7 +47,7 @@ class AgentServiceAsyncTest {
                                             .name("name")
                                             .parameterType("parameter_type")
                                             .required(true)
-                                            .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                            .default(true)
                                             .build()
                                     )
                                     .build()
@@ -63,9 +63,10 @@ class AgentServiceAsyncTest {
                             )
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyObject()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
+                                    .addStop("string")
                                     .build()
                             )
                             .toolChoice(AgentConfig.ToolChoice.AUTO)

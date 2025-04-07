@@ -1,19 +1,19 @@
+// File generated from our OpenAPI spec by Stainless.
+
 package com.llama.llamastack.core.handlers
 
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.SseMessage
 import com.llama.llamastack.core.jsonMapper
-import java.io.ByteArrayInputStream
 import java.io.InputStream
-import java.nio.charset.StandardCharsets
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.catchThrowable
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.EnumSource
 
-class SseHandlerTest {
+internal class SseHandlerTest {
 
     enum class TestCase(
         internal val body: String,
@@ -171,8 +171,7 @@ private fun httpResponse(body: String): HttpResponse =
 
         override fun headers(): Headers = Headers.builder().build()
 
-        override fun body(): InputStream =
-            ByteArrayInputStream(body.toByteArray(StandardCharsets.UTF_8))
+        override fun body(): InputStream = body.toByteArray().inputStream()
 
         override fun close() {}
     }

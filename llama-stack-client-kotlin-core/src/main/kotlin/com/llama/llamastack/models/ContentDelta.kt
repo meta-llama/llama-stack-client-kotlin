@@ -20,12 +20,10 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 @JsonDeserialize(using = ContentDelta.Deserializer::class)
@@ -58,14 +56,13 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             text != null -> visitor.visitText(text)
             image != null -> visitor.visitImage(image)
             toolCall != null -> visitor.visitToolCall(toolCall)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -91,6 +88,32 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitText(text: TextDelta) = text.validity()
+
+                override fun visitImage(image: ImageDelta) = image.validity()
+
+                override fun visitToolCall(toolCall: ToolCallDelta) = toolCall.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -153,22 +176,19 @@ private constructor(
 
             when (type) {
                 "text" -> {
-                    tryDeserialize(node, jacksonTypeRef<TextDelta>()) { it.validate() }
-                        ?.let {
-                            return ContentDelta(text = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<TextDelta>())?.let {
+                        ContentDelta(text = it, _json = json)
+                    } ?: ContentDelta(_json = json)
                 }
                 "image" -> {
-                    tryDeserialize(node, jacksonTypeRef<ImageDelta>()) { it.validate() }
-                        ?.let {
-                            return ContentDelta(image = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<ImageDelta>())?.let {
+                        ContentDelta(image = it, _json = json)
+                    } ?: ContentDelta(_json = json)
                 }
                 "tool_call" -> {
-                    tryDeserialize(node, jacksonTypeRef<ToolCallDelta>()) { it.validate() }
-                        ?.let {
-                            return ContentDelta(toolCall = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<ToolCallDelta>())?.let {
+                        ContentDelta(toolCall = it, _json = json)
+                    } ?: ContentDelta(_json = json)
                 }
             }
 
@@ -193,17 +213,18 @@ private constructor(
         }
     }
 
-    @NoAutoDetect
     class TextDelta
-    @JsonCreator
     private constructor(
-        @JsonProperty("text")
-        @ExcludeMissing
-        private val text: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val text: JsonField<String>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("text") @ExcludeMissing text: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(text, type, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -230,25 +251,15 @@ private constructor(
          */
         @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): TextDelta = apply {
-            if (validated) {
-                return@apply
-            }
-
-            text()
-            _type().let {
-                if (it != JsonValue.from("text")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -322,9 +333,55 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [TextDelta].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .text()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): TextDelta =
-                TextDelta(checkRequired("text", text), type, additionalProperties.toImmutable())
+                TextDelta(checkRequired("text", text), type, additionalProperties.toMutableMap())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): TextDelta = apply {
+            if (validated) {
+                return@apply
+            }
+
+            text()
+            _type().let {
+                if (it != JsonValue.from("text")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (text.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("text")) 1 else 0 }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -344,17 +401,18 @@ private constructor(
             "TextDelta{text=$text, type=$type, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class ImageDelta
-    @JsonCreator
     private constructor(
-        @JsonProperty("image")
-        @ExcludeMissing
-        private val image: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val image: JsonField<String>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("image") @ExcludeMissing image: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(image, type, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -381,25 +439,15 @@ private constructor(
          */
         @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<String> = image
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ImageDelta = apply {
-            if (validated) {
-                return@apply
-            }
-
-            image()
-            _type().let {
-                if (it != JsonValue.from("image")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -473,9 +521,55 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ImageDelta].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .image()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): ImageDelta =
-                ImageDelta(checkRequired("image", image), type, additionalProperties.toImmutable())
+                ImageDelta(checkRequired("image", image), type, additionalProperties.toMutableMap())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ImageDelta = apply {
+            if (validated) {
+                return@apply
+            }
+
+            image()
+            _type().let {
+                if (it != JsonValue.from("image")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (image.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("image")) 1 else 0 }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -495,20 +589,24 @@ private constructor(
             "ImageDelta{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class ToolCallDelta
-    @JsonCreator
     private constructor(
-        @JsonProperty("parse_status")
-        @ExcludeMissing
-        private val parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
-        @JsonProperty("tool_call")
-        @ExcludeMissing
-        private val toolCall: JsonField<ToolCallOrString> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val parseStatus: JsonField<ParseStatus>,
+        private val toolCall: JsonField<ToolCallOrString>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("parse_status")
+            @ExcludeMissing
+            parseStatus: JsonField<ParseStatus> = JsonMissing.of(),
+            @JsonProperty("tool_call")
+            @ExcludeMissing
+            toolCall: JsonField<ToolCallOrString> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(parseStatus, toolCall, type, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -553,26 +651,15 @@ private constructor(
         @ExcludeMissing
         fun _toolCall(): JsonField<ToolCallOrString> = toolCall
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolCallDelta = apply {
-            if (validated) {
-                return@apply
-            }
-
-            parseStatus()
-            toolCall().validate()
-            _type().let {
-                if (it != JsonValue.from("tool_call")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -670,14 +757,63 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ToolCallDelta].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .parseStatus()
+             * .toolCall()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): ToolCallDelta =
                 ToolCallDelta(
                     checkRequired("parseStatus", parseStatus),
                     checkRequired("toolCall", toolCall),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolCallDelta = apply {
+            if (validated) {
+                return@apply
+            }
+
+            parseStatus().validate()
+            toolCall().validate()
+            _type().let {
+                if (it != JsonValue.from("tool_call")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (parseStatus.asKnown()?.validity() ?: 0) +
+                (toolCall.asKnown()?.validity() ?: 0) +
+                type.let { if (it == JsonValue.from("tool_call")) 1 else 0 }
 
         class ParseStatus @JsonCreator private constructor(private val value: JsonField<String>) :
             Enum {
@@ -781,6 +917,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): ParseStatus = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

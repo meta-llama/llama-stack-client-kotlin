@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentTurnResumeParamsTest {
+internal class AgentTurnResumeParamsTest {
 
     @Test
     fun create() {
@@ -28,6 +27,29 @@ class AgentTurnResumeParamsTest {
                     .build()
             )
             .build()
+    }
+
+    @Test
+    fun pathParams() {
+        val params =
+            AgentTurnResumeParams.builder()
+                .agentId("agent_id")
+                .sessionId("session_id")
+                .turnId("turn_id")
+                .addToolResponse(
+                    ToolResponse.builder()
+                        .callId("call_id")
+                        .content("string")
+                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                        .build()
+                )
+                .build()
+
+        assertThat(params._pathParam(0)).isEqualTo("agent_id")
+        assertThat(params._pathParam(1)).isEqualTo("session_id")
+        assertThat(params._pathParam(2)).isEqualTo("turn_id")
+        // out-of-bound path param
+        assertThat(params._pathParam(3)).isEqualTo("")
     }
 
     @Test
@@ -53,21 +75,18 @@ class AgentTurnResumeParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.toolResponses())
-            .isEqualTo(
-                listOf(
-                    ToolResponse.builder()
-                        .callId("call_id")
-                        .content("string")
-                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
-                        .metadata(
-                            ToolResponse.Metadata.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
-                        .build()
-                )
+            .containsExactly(
+                ToolResponse.builder()
+                    .callId("call_id")
+                    .content("string")
+                    .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                    .metadata(
+                        ToolResponse.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
             )
     }
 
@@ -89,42 +108,13 @@ class AgentTurnResumeParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.toolResponses())
-            .isEqualTo(
-                listOf(
-                    ToolResponse.builder()
-                        .callId("call_id")
-                        .content("string")
-                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
-                        .build()
-                )
+            .containsExactly(
+                ToolResponse.builder()
+                    .callId("call_id")
+                    .content("string")
+                    .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
+                    .build()
             )
-    }
-
-    @Test
-    fun getPathParam() {
-        val params =
-            AgentTurnResumeParams.builder()
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .turnId("turn_id")
-                .addToolResponse(
-                    ToolResponse.builder()
-                        .callId("call_id")
-                        .content("string")
-                        .toolName(ToolResponse.ToolName.BRAVE_SEARCH)
-                        .build()
-                )
-                .build()
-        assertThat(params).isNotNull
-        // path param "agentId"
-        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
-        // path param "sessionId"
-        assertThat(params.getPathParam(1)).isEqualTo("session_id")
-        // path param "turnId"
-        assertThat(params.getPathParam(2)).isEqualTo("turn_id")
-        // out-of-bound path param
-        assertThat(params.getPathParam(3)).isEqualTo("")
     }
 }

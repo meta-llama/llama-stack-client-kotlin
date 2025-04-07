@@ -11,31 +11,36 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** A message containing the model's (assistant) response in a chat conversation. */
-@NoAutoDetect
 class CompletionMessage
-@JsonCreator
 private constructor(
-    @JsonProperty("content")
-    @ExcludeMissing
-    private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-    @JsonProperty("role") @ExcludeMissing private val role: JsonValue = JsonMissing.of(),
-    @JsonProperty("stop_reason")
-    @ExcludeMissing
-    private val stopReason: JsonField<StopReason> = JsonMissing.of(),
-    @JsonProperty("tool_calls")
-    @ExcludeMissing
-    private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val content: JsonField<InterleavedContent>,
+    private val role: JsonValue,
+    private val stopReason: JsonField<StopReason>,
+    private val toolCalls: JsonField<List<ToolCall>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("content")
+        @ExcludeMissing
+        content: JsonField<InterleavedContent> = JsonMissing.of(),
+        @JsonProperty("role") @ExcludeMissing role: JsonValue = JsonMissing.of(),
+        @JsonProperty("stop_reason")
+        @ExcludeMissing
+        stopReason: JsonField<StopReason> = JsonMissing.of(),
+        @JsonProperty("tool_calls")
+        @ExcludeMissing
+        toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+    ) : this(content, role, stopReason, toolCalls, mutableMapOf())
 
     /**
      * The content of the model's response
@@ -103,27 +108,15 @@ private constructor(
     @ExcludeMissing
     fun _toolCalls(): JsonField<List<ToolCall>> = toolCalls
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): CompletionMessage = apply {
-        if (validated) {
-            return@apply
-        }
-
-        content().validate()
-        _role().let {
-            if (it != JsonValue.from("assistant")) {
-                throw LlamaStackClientInvalidDataException("'role' is invalid, received $it")
-            }
-        }
-        stopReason()
-        toolCalls()?.forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -267,15 +260,65 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [CompletionMessage].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .content()
+         * .stopReason()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): CompletionMessage =
             CompletionMessage(
                 checkRequired("content", content),
                 role,
                 checkRequired("stopReason", stopReason),
                 (toolCalls ?: JsonMissing.of()).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): CompletionMessage = apply {
+        if (validated) {
+            return@apply
+        }
+
+        content().validate()
+        _role().let {
+            if (it != JsonValue.from("assistant")) {
+                throw LlamaStackClientInvalidDataException("'role' is invalid, received $it")
+            }
+        }
+        stopReason().validate()
+        toolCalls()?.forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (content.asKnown()?.validity() ?: 0) +
+            role.let { if (it == JsonValue.from("assistant")) 1 else 0 } +
+            (stopReason.asKnown()?.validity() ?: 0) +
+            (toolCalls.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
 
     /**
      * Reason why the model stopped generating. Options are: - `StopReason.end_of_turn`: The model
@@ -377,6 +420,33 @@ private constructor(
         fun asString(): String =
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+        private var validated: Boolean = false
+
+        fun validate(): StopReason = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class VectorIoInsertParamsTest {
+internal class VectorIoInsertParamsTest {
 
     @Test
     fun create() {
@@ -47,19 +46,16 @@ class VectorIoInsertParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.chunks())
-            .isEqualTo(
-                listOf(
-                    VectorIoInsertParams.Chunk.builder()
-                        .content("string")
-                        .metadata(
-                            VectorIoInsertParams.Chunk.Metadata.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
-                        .build()
-                )
+            .containsExactly(
+                VectorIoInsertParams.Chunk.builder()
+                    .content("string")
+                    .metadata(
+                        VectorIoInsertParams.Chunk.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
             )
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
         assertThat(body.ttlSeconds()).isEqualTo(0L)
@@ -84,19 +80,16 @@ class VectorIoInsertParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.chunks())
-            .isEqualTo(
-                listOf(
-                    VectorIoInsertParams.Chunk.builder()
-                        .content("string")
-                        .metadata(
-                            VectorIoInsertParams.Chunk.Metadata.builder()
-                                .putAdditionalProperty("foo", JsonValue.from(true))
-                                .build()
-                        )
-                        .build()
-                )
+            .containsExactly(
+                VectorIoInsertParams.Chunk.builder()
+                    .content("string")
+                    .metadata(
+                        VectorIoInsertParams.Chunk.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
             )
         assertThat(body.vectorDbId()).isEqualTo("vector_db_id")
     }

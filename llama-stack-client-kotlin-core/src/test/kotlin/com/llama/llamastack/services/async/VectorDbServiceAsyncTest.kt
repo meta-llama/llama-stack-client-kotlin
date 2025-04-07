@@ -7,12 +7,11 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.models.VectorDbRegisterParams
 import com.llama.llamastack.models.VectorDbRetrieveParams
 import com.llama.llamastack.models.VectorDbUnregisterParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class VectorDbServiceAsyncTest {
+internal class VectorDbServiceAsyncTest {
 
     @Test
     suspend fun retrieve() {
@@ -27,7 +26,6 @@ class VectorDbServiceAsyncTest {
                 VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
             )
 
-        assertNotNull(vectorDb)
         vectorDb.validate()
     }
 

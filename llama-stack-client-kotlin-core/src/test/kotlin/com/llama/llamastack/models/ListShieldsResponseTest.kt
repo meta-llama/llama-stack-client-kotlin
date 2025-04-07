@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ListShieldsResponseTest {
+internal class ListShieldsResponseTest {
 
     @Test
-    fun createListShieldsResponse() {
+    fun create() {
         val listShieldsResponse =
             ListShieldsResponse.builder()
                 .addData(
@@ -25,7 +27,7 @@ class ListShieldsResponseTest {
                         .build()
                 )
                 .build()
-        assertThat(listShieldsResponse).isNotNull
+
         assertThat(listShieldsResponse.data())
             .containsExactly(
                 Shield.builder()
@@ -39,5 +41,33 @@ class ListShieldsResponseTest {
                     )
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val listShieldsResponse =
+            ListShieldsResponse.builder()
+                .addData(
+                    Shield.builder()
+                        .identifier("identifier")
+                        .providerId("provider_id")
+                        .providerResourceId("provider_resource_id")
+                        .params(
+                            Shield.Params.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+
+        val roundtrippedListShieldsResponse =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(listShieldsResponse),
+                jacksonTypeRef<ListShieldsResponse>(),
+            )
+
+        assertThat(roundtrippedListShieldsResponse).isEqualTo(listShieldsResponse)
     }
 }

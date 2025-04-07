@@ -24,7 +24,7 @@ interface VectorDbService {
     fun retrieve(
         params: VectorDbRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): VectorDbRetrieveResponse?
+    ): VectorDbRetrieveResponse
 
     fun list(
         params: VectorDbListParams = VectorDbListParams.none(),
@@ -56,7 +56,7 @@ interface VectorDbService {
         fun retrieve(
             params: VectorDbRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<VectorDbRetrieveResponse?>
+        ): HttpResponseFor<VectorDbRetrieveResponse>
 
         /**
          * Returns a raw HTTP response for `get /v1/vector-dbs`, but is otherwise the same as

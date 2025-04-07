@@ -12,8 +12,6 @@ import com.llama.llamastack.services.async.BenchmarkServiceAsync
 import com.llama.llamastack.services.async.BenchmarkServiceAsyncImpl
 import com.llama.llamastack.services.async.DatasetServiceAsync
 import com.llama.llamastack.services.async.DatasetServiceAsyncImpl
-import com.llama.llamastack.services.async.DatasetioServiceAsync
-import com.llama.llamastack.services.async.DatasetioServiceAsyncImpl
 import com.llama.llamastack.services.async.EvalServiceAsync
 import com.llama.llamastack.services.async.EvalServiceAsyncImpl
 import com.llama.llamastack.services.async.InferenceServiceAsync
@@ -141,10 +139,6 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
         TelemetryServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val datasetio: DatasetioServiceAsync by lazy {
-        DatasetioServiceAsyncImpl(clientOptionsWithUserAgent)
-    }
-
     private val scoring: ScoringServiceAsync by lazy {
         ScoringServiceAsyncImpl(clientOptionsWithUserAgent)
     }
@@ -199,8 +193,6 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
         syntheticDataGeneration
 
     override fun telemetry(): TelemetryServiceAsync = telemetry
-
-    override fun datasetio(): DatasetioServiceAsync = datasetio
 
     override fun scoring(): ScoringServiceAsync = scoring
 
@@ -290,10 +282,6 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
             TelemetryServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
-        private val datasetio: DatasetioServiceAsync.WithRawResponse by lazy {
-            DatasetioServiceAsyncImpl.WithRawResponseImpl(clientOptions)
-        }
-
         private val scoring: ScoringServiceAsync.WithRawResponse by lazy {
             ScoringServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
@@ -344,8 +332,6 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
             SyntheticDataGenerationServiceAsync.WithRawResponse = syntheticDataGeneration
 
         override fun telemetry(): TelemetryServiceAsync.WithRawResponse = telemetry
-
-        override fun datasetio(): DatasetioServiceAsync.WithRawResponse = datasetio
 
         override fun scoring(): ScoringServiceAsync.WithRawResponse = scoring
 

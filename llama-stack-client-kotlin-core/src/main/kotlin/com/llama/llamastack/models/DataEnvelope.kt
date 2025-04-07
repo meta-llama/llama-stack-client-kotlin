@@ -10,28 +10,36 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.contentEquals
 import com.llama.llamastack.core.contentHash
 import com.llama.llamastack.core.contentToString
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 
-@NoAutoDetect
 class DataEnvelope<T : Any>
-@JsonCreator
 private constructor(
-    @JsonProperty("data") @ExcludeMissing private val data: JsonField<T> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val data: JsonField<T>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("data") @ExcludeMissing data: JsonField<T> = JsonMissing.of()
+    ) : this(data, mutableMapOf())
 
     fun data(): T = data.getRequired("data")
 
     @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<T> = data
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     private var validated: Boolean = false
 
@@ -43,6 +51,14 @@ private constructor(
         data()
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
 
     fun toBuilder() = Builder<T>().from(this)
 
@@ -82,6 +98,6 @@ private constructor(
             this.additionalProperties.put(key, value)
         }
 
-        fun build() = DataEnvelope(data, additionalProperties.toImmutable())
+        fun build() = DataEnvelope(data, additionalProperties.toMutableMap())
     }
 }

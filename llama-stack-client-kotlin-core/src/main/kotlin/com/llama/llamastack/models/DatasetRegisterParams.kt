@@ -6,20 +6,32 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.ObjectCodec
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.BaseDeserializer
+import com.llama.llamastack.core.BaseSerializer
+import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
+import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
+/** Register a new dataset. */
 class DatasetRegisterParams
 private constructor(
     private val body: Body,
@@ -28,40 +40,64 @@ private constructor(
 ) : Params {
 
     /**
+     * The purpose of the dataset. One of - "post-training/messages": The dataset contains a
+     * messages column with list of messages for post-training. { "messages":
+     * [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+     * } - "eval/question-answer": The dataset contains a question column and an answer column for
+     * evaluation. { "question": "What is the capital of France?", "answer": "Paris" } -
+     * "eval/messages-answer": The dataset contains a messages column with list of messages and an
+     * answer column for evaluation. { "messages":
+     * [ {"role": "user", "content": "Hello, my name is John Doe."}, {"role": "assistant", "content": "Hello, John Doe. How can I help you today?"}, {"role": "user", "content": "What's my name?"}, ],
+     * "answer": "John Doe" }
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun datasetId(): String = body.datasetId()
+    fun purpose(): Purpose = body.purpose()
 
     /**
+     * The data source of the dataset. Ensure that the data source schema is compatible with the
+     * purpose of the dataset. Examples: - { "type": "uri", "uri":
+     * "https://mywebsite.com/mydata.jsonl" } - { "type": "uri", "uri": "lsfs://mydata.jsonl" } - {
+     * "type": "uri", "uri": "data:csv;base64,{base64_content}" } - { "type": "uri", "uri":
+     * "huggingface://llamastack/simpleqa?split=train" } - { "type": "rows", "rows":
+     * [ { "messages": [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+     * } ] }
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun datasetSchema(): DatasetSchema = body.datasetSchema()
+    fun source(): Source = body.source()
 
     /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     * The ID of the dataset. If not provided, an ID will be generated.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
      */
-    fun url(): Url = body.url()
+    fun datasetId(): String? = body.datasetId()
 
     /**
+     * The metadata for the dataset. - E.g. {"description": "My dataset"}
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun metadata(): Metadata? = body.metadata()
 
     /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
-     *   if the server responded with an unexpected value).
+     * Returns the raw JSON value of [purpose].
+     *
+     * Unlike [purpose], this method doesn't throw if the JSON field has an unexpected type.
      */
-    fun providerDatasetId(): String? = body.providerDatasetId()
+    fun _purpose(): JsonField<Purpose> = body._purpose()
 
     /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
-     *   if the server responded with an unexpected value).
+     * Returns the raw JSON value of [source].
+     *
+     * Unlike [source], this method doesn't throw if the JSON field has an unexpected type.
      */
-    fun providerId(): String? = body.providerId()
+    fun _source(): JsonField<Source> = body._source()
 
     /**
      * Returns the raw JSON value of [datasetId].
@@ -71,344 +107,17 @@ private constructor(
     fun _datasetId(): JsonField<String> = body._datasetId()
 
     /**
-     * Returns the raw JSON value of [datasetSchema].
-     *
-     * Unlike [datasetSchema], this method doesn't throw if the JSON field has an unexpected type.
-     */
-    fun _datasetSchema(): JsonField<DatasetSchema> = body._datasetSchema()
-
-    /**
-     * Returns the raw JSON value of [url].
-     *
-     * Unlike [url], this method doesn't throw if the JSON field has an unexpected type.
-     */
-    fun _url(): JsonField<Url> = body._url()
-
-    /**
      * Returns the raw JSON value of [metadata].
      *
      * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
      */
     fun _metadata(): JsonField<Metadata> = body._metadata()
 
-    /**
-     * Returns the raw JSON value of [providerDatasetId].
-     *
-     * Unlike [providerDatasetId], this method doesn't throw if the JSON field has an unexpected
-     * type.
-     */
-    fun _providerDatasetId(): JsonField<String> = body._providerDatasetId()
-
-    /**
-     * Returns the raw JSON value of [providerId].
-     *
-     * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
-     */
-    fun _providerId(): JsonField<String> = body._providerId()
-
     fun _additionalBodyProperties(): Map<String, JsonValue> = body._additionalProperties()
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("dataset_id")
-        @ExcludeMissing
-        private val datasetId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("dataset_schema")
-        @ExcludeMissing
-        private val datasetSchema: JsonField<DatasetSchema> = JsonMissing.of(),
-        @JsonProperty("url") @ExcludeMissing private val url: JsonField<Url> = JsonMissing.of(),
-        @JsonProperty("metadata")
-        @ExcludeMissing
-        private val metadata: JsonField<Metadata> = JsonMissing.of(),
-        @JsonProperty("provider_dataset_id")
-        @ExcludeMissing
-        private val providerDatasetId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("provider_id")
-        @ExcludeMissing
-        private val providerId: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun datasetId(): String = datasetId.getRequired("dataset_id")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun datasetSchema(): DatasetSchema = datasetSchema.getRequired("dataset_schema")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun url(): Url = url.getRequired("url")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun metadata(): Metadata? = metadata.getNullable("metadata")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun providerDatasetId(): String? = providerDatasetId.getNullable("provider_dataset_id")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun providerId(): String? = providerId.getNullable("provider_id")
-
-        /**
-         * Returns the raw JSON value of [datasetId].
-         *
-         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
-
-        /**
-         * Returns the raw JSON value of [datasetSchema].
-         *
-         * Unlike [datasetSchema], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("dataset_schema")
-        @ExcludeMissing
-        fun _datasetSchema(): JsonField<DatasetSchema> = datasetSchema
-
-        /**
-         * Returns the raw JSON value of [url].
-         *
-         * Unlike [url], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
-
-        /**
-         * Returns the raw JSON value of [metadata].
-         *
-         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
-
-        /**
-         * Returns the raw JSON value of [providerDatasetId].
-         *
-         * Unlike [providerDatasetId], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("provider_dataset_id")
-        @ExcludeMissing
-        fun _providerDatasetId(): JsonField<String> = providerDatasetId
-
-        /**
-         * Returns the raw JSON value of [providerId].
-         *
-         * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("provider_id")
-        @ExcludeMissing
-        fun _providerId(): JsonField<String> = providerId
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            datasetId()
-            datasetSchema().validate()
-            url().validate()
-            metadata()?.validate()
-            providerDatasetId()
-            providerId()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .datasetId()
-             * .datasetSchema()
-             * .url()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var datasetId: JsonField<String>? = null
-            private var datasetSchema: JsonField<DatasetSchema>? = null
-            private var url: JsonField<Url>? = null
-            private var metadata: JsonField<Metadata> = JsonMissing.of()
-            private var providerDatasetId: JsonField<String> = JsonMissing.of()
-            private var providerId: JsonField<String> = JsonMissing.of()
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                datasetId = body.datasetId
-                datasetSchema = body.datasetSchema
-                url = body.url
-                metadata = body.metadata
-                providerDatasetId = body.providerDatasetId
-                providerId = body.providerId
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
-
-            /**
-             * Sets [Builder.datasetId] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
-
-            fun datasetSchema(datasetSchema: DatasetSchema) =
-                datasetSchema(JsonField.of(datasetSchema))
-
-            /**
-             * Sets [Builder.datasetSchema] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.datasetSchema] with a well-typed [DatasetSchema]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
-                this.datasetSchema = datasetSchema
-            }
-
-            fun url(url: Url) = url(JsonField.of(url))
-
-            /**
-             * Sets [Builder.url] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.url] with a well-typed [Url] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
-             */
-            fun url(url: JsonField<Url>) = apply { this.url = url }
-
-            fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
-
-            /**
-             * Sets [Builder.metadata] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
-
-            fun providerDatasetId(providerDatasetId: String) =
-                providerDatasetId(JsonField.of(providerDatasetId))
-
-            /**
-             * Sets [Builder.providerDatasetId] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.providerDatasetId] with a well-typed [String] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun providerDatasetId(providerDatasetId: JsonField<String>) = apply {
-                this.providerDatasetId = providerDatasetId
-            }
-
-            fun providerId(providerId: String) = providerId(JsonField.of(providerId))
-
-            /**
-             * Sets [Builder.providerId] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.providerId] with a well-typed [String] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("datasetId", datasetId),
-                    checkRequired("datasetSchema", datasetSchema),
-                    checkRequired("url", url),
-                    metadata,
-                    providerDatasetId,
-                    providerId,
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && datasetId == other.datasetId && datasetSchema == other.datasetSchema && url == other.url && metadata == other.metadata && providerDatasetId == other.providerDatasetId && providerId == other.providerId && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(datasetId, datasetSchema, url, metadata, providerDatasetId, providerId, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{datasetId=$datasetId, datasetSchema=$datasetSchema, url=$url, metadata=$metadata, providerDatasetId=$providerDatasetId, providerId=$providerId, additionalProperties=$additionalProperties}"
-    }
 
     fun toBuilder() = Builder().from(this)
 
@@ -419,16 +128,14 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .datasetId()
-         * .datasetSchema()
-         * .url()
+         * .purpose()
+         * .source()
          * ```
          */
         fun builder() = Builder()
     }
 
     /** A builder for [DatasetRegisterParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var body: Body.Builder = Body.builder()
@@ -441,6 +148,87 @@ private constructor(
             additionalQueryParams = datasetRegisterParams.additionalQueryParams.toBuilder()
         }
 
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [purpose]
+         * - [source]
+         * - [datasetId]
+         * - [metadata]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
+
+        /**
+         * The purpose of the dataset. One of - "post-training/messages": The dataset contains a
+         * messages column with list of messages for post-training. { "messages":
+         * [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+         * } - "eval/question-answer": The dataset contains a question column and an answer column
+         * for evaluation. { "question": "What is the capital of France?", "answer": "Paris" } -
+         * "eval/messages-answer": The dataset contains a messages column with list of messages and
+         * an answer column for evaluation. { "messages":
+         * [ {"role": "user", "content": "Hello, my name is John Doe."}, {"role": "assistant", "content": "Hello, John Doe. How can I help you today?"}, {"role": "user", "content": "What's my name?"}, ],
+         * "answer": "John Doe" }
+         */
+        fun purpose(purpose: Purpose) = apply { body.purpose(purpose) }
+
+        /**
+         * Sets [Builder.purpose] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.purpose] with a well-typed [Purpose] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
+        fun purpose(purpose: JsonField<Purpose>) = apply { body.purpose(purpose) }
+
+        /**
+         * The data source of the dataset. Ensure that the data source schema is compatible with the
+         * purpose of the dataset. Examples: - { "type": "uri", "uri":
+         * "https://mywebsite.com/mydata.jsonl" } - { "type": "uri", "uri": "lsfs://mydata.jsonl"
+         * } - { "type": "uri", "uri": "data:csv;base64,{base64_content}" } - { "type": "uri",
+         * "uri": "huggingface://llamastack/simpleqa?split=train" } - { "type": "rows", "rows":
+         * [ { "messages": [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+         * } ] }
+         */
+        fun source(source: Source) = apply { body.source(source) }
+
+        /**
+         * Sets [Builder.source] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.source] with a well-typed [Source] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
+        fun source(source: JsonField<Source>) = apply { body.source(source) }
+
+        /** Alias for calling [source] with `Source.ofUriData(uriData)`. */
+        fun source(uriData: Source.UriDataSource) = apply { body.source(uriData) }
+
+        /**
+         * Alias for calling [source] with the following:
+         * ```kotlin
+         * Source.UriDataSource.builder()
+         *     .uri(uri)
+         *     .build()
+         * ```
+         */
+        fun uriDataSource(uri: String) = apply { body.uriDataSource(uri) }
+
+        /** Alias for calling [source] with `Source.ofRowsData(rowsData)`. */
+        fun source(rowsData: Source.RowsDataSource) = apply { body.source(rowsData) }
+
+        /**
+         * Alias for calling [source] with the following:
+         * ```kotlin
+         * Source.RowsDataSource.builder()
+         *     .rows(rows)
+         *     .build()
+         * ```
+         */
+        fun rowsDataSource(rows: List<Source.RowsDataSource.Row>) = apply {
+            body.rowsDataSource(rows)
+        }
+
+        /** The ID of the dataset. If not provided, an ID will be generated. */
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
         /**
@@ -452,31 +240,7 @@ private constructor(
          */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
-        fun datasetSchema(datasetSchema: DatasetSchema) = apply {
-            body.datasetSchema(datasetSchema)
-        }
-
-        /**
-         * Sets [Builder.datasetSchema] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.datasetSchema] with a well-typed [DatasetSchema] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun datasetSchema(datasetSchema: JsonField<DatasetSchema>) = apply {
-            body.datasetSchema(datasetSchema)
-        }
-
-        fun url(url: Url) = apply { body.url(url) }
-
-        /**
-         * Sets [Builder.url] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.url] with a well-typed [Url] value instead. This method
-         * is primarily for setting the field to an undocumented or not yet supported value.
-         */
-        fun url(url: JsonField<Url>) = apply { body.url(url) }
-
+        /** The metadata for the dataset. - E.g. {"description": "My dataset"} */
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
 
         /**
@@ -487,32 +251,6 @@ private constructor(
          * value.
          */
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
-
-        fun providerDatasetId(providerDatasetId: String) = apply {
-            body.providerDatasetId(providerDatasetId)
-        }
-
-        /**
-         * Sets [Builder.providerDatasetId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerDatasetId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerDatasetId(providerDatasetId: JsonField<String>) = apply {
-            body.providerDatasetId(providerDatasetId)
-        }
-
-        fun providerId(providerId: String) = apply { body.providerId(providerId) }
-
-        /**
-         * Sets [Builder.providerId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerId] with a well-typed [String] value instead.
-         * This method is primarily for setting the field to an undocumented or not yet supported
-         * value.
-         */
-        fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
         fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
             body.additionalProperties(additionalBodyProperties)
@@ -631,6 +369,19 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [DatasetRegisterParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .purpose()
+         * .source()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): DatasetRegisterParams =
             DatasetRegisterParams(
                 body.build(),
@@ -639,158 +390,245 @@ private constructor(
             )
     }
 
-    @NoAutoDetect
-    class DatasetSchema
-    @JsonCreator
+    fun _body(): Body = body
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        private val purpose: JsonField<Purpose>,
+        private val source: JsonField<Source>,
+        private val datasetId: JsonField<String>,
+        private val metadata: JsonField<Metadata>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
 
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): DatasetSchema = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /** Returns a mutable builder for constructing an instance of [DatasetSchema]. */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [DatasetSchema]. */
-        class Builder internal constructor() {
-
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(datasetSchema: DatasetSchema) = apply {
-                additionalProperties = datasetSchema.additionalProperties.toMutableMap()
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): DatasetSchema = DatasetSchema(additionalProperties.toImmutable())
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is DatasetSchema && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() = "DatasetSchema{additionalProperties=$additionalProperties}"
-    }
-
-    @NoAutoDetect
-    class Url
-    @JsonCreator
-    private constructor(
-        @JsonProperty("uri") @ExcludeMissing private val uri: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
+        @JsonCreator
+        private constructor(
+            @JsonProperty("purpose") @ExcludeMissing purpose: JsonField<Purpose> = JsonMissing.of(),
+            @JsonProperty("source") @ExcludeMissing source: JsonField<Source> = JsonMissing.of(),
+            @JsonProperty("dataset_id")
+            @ExcludeMissing
+            datasetId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("metadata")
+            @ExcludeMissing
+            metadata: JsonField<Metadata> = JsonMissing.of(),
+        ) : this(purpose, source, datasetId, metadata, mutableMapOf())
 
         /**
+         * The purpose of the dataset. One of - "post-training/messages": The dataset contains a
+         * messages column with list of messages for post-training. { "messages":
+         * [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+         * } - "eval/question-answer": The dataset contains a question column and an answer column
+         * for evaluation. { "question": "What is the capital of France?", "answer": "Paris" } -
+         * "eval/messages-answer": The dataset contains a messages column with list of messages and
+         * an answer column for evaluation. { "messages":
+         * [ {"role": "user", "content": "Hello, my name is John Doe."}, {"role": "assistant", "content": "Hello, John Doe. How can I help you today?"}, {"role": "user", "content": "What's my name?"}, ],
+         * "answer": "John Doe" }
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
          */
-        fun uri(): String = uri.getRequired("uri")
+        fun purpose(): Purpose = purpose.getRequired("purpose")
 
         /**
-         * Returns the raw JSON value of [uri].
+         * The data source of the dataset. Ensure that the data source schema is compatible with the
+         * purpose of the dataset. Examples: - { "type": "uri", "uri":
+         * "https://mywebsite.com/mydata.jsonl" } - { "type": "uri", "uri": "lsfs://mydata.jsonl"
+         * } - { "type": "uri", "uri": "data:csv;base64,{base64_content}" } - { "type": "uri",
+         * "uri": "huggingface://llamastack/simpleqa?split=train" } - { "type": "rows", "rows":
+         * [ { "messages": [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+         * } ] }
          *
-         * Unlike [uri], this method doesn't throw if the JSON field has an unexpected type.
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
          */
-        @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+        fun source(): Source = source.getRequired("source")
+
+        /**
+         * The ID of the dataset. If not provided, an ID will be generated.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun datasetId(): String? = datasetId.getNullable("dataset_id")
+
+        /**
+         * The metadata for the dataset. - E.g. {"description": "My dataset"}
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun metadata(): Metadata? = metadata.getNullable("metadata")
+
+        /**
+         * Returns the raw JSON value of [purpose].
+         *
+         * Unlike [purpose], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("purpose") @ExcludeMissing fun _purpose(): JsonField<Purpose> = purpose
+
+        /**
+         * Returns the raw JSON value of [source].
+         *
+         * Unlike [source], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("source") @ExcludeMissing fun _source(): JsonField<Source> = source
+
+        /**
+         * Returns the raw JSON value of [datasetId].
+         *
+         * Unlike [datasetId], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("dataset_id") @ExcludeMissing fun _datasetId(): JsonField<String> = datasetId
+
+        /**
+         * Returns the raw JSON value of [metadata].
+         *
+         * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
 
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Url = apply {
-            if (validated) {
-                return@apply
-            }
-
-            uri()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [Url].
+             * Returns a mutable builder for constructing an instance of [Body].
              *
              * The following fields are required:
              * ```kotlin
-             * .uri()
+             * .purpose()
+             * .source()
              * ```
              */
             fun builder() = Builder()
         }
 
-        /** A builder for [Url]. */
+        /** A builder for [Body]. */
         class Builder internal constructor() {
 
-            private var uri: JsonField<String>? = null
+            private var purpose: JsonField<Purpose>? = null
+            private var source: JsonField<Source>? = null
+            private var datasetId: JsonField<String> = JsonMissing.of()
+            private var metadata: JsonField<Metadata> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(url: Url) = apply {
-                uri = url.uri
-                additionalProperties = url.additionalProperties.toMutableMap()
+            internal fun from(body: Body) = apply {
+                purpose = body.purpose
+                source = body.source
+                datasetId = body.datasetId
+                metadata = body.metadata
+                additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            fun uri(uri: String) = uri(JsonField.of(uri))
+            /**
+             * The purpose of the dataset. One of - "post-training/messages": The dataset contains a
+             * messages column with list of messages for post-training. { "messages":
+             * [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+             * } - "eval/question-answer": The dataset contains a question column and an answer
+             * column for evaluation. { "question": "What is the capital of France?", "answer":
+             * "Paris" } - "eval/messages-answer": The dataset contains a messages column with list
+             * of messages and an answer column for evaluation. { "messages":
+             * [ {"role": "user", "content": "Hello, my name is John Doe."}, {"role": "assistant", "content": "Hello, John Doe. How can I help you today?"}, {"role": "user", "content": "What's my name?"}, ],
+             * "answer": "John Doe" }
+             */
+            fun purpose(purpose: Purpose) = purpose(JsonField.of(purpose))
 
             /**
-             * Sets [Builder.uri] to an arbitrary JSON value.
+             * Sets [Builder.purpose] to an arbitrary JSON value.
              *
-             * You should usually call [Builder.uri] with a well-typed [String] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
+             * You should usually call [Builder.purpose] with a well-typed [Purpose] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
-            fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+            fun purpose(purpose: JsonField<Purpose>) = apply { this.purpose = purpose }
+
+            /**
+             * The data source of the dataset. Ensure that the data source schema is compatible with
+             * the purpose of the dataset. Examples: - { "type": "uri", "uri":
+             * "https://mywebsite.com/mydata.jsonl" } - { "type": "uri", "uri":
+             * "lsfs://mydata.jsonl" } - { "type": "uri", "uri": "data:csv;base64,{base64_content}"
+             * } - { "type": "uri", "uri": "huggingface://llamastack/simpleqa?split=train" } - {
+             * "type": "rows", "rows":
+             * [ { "messages": [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+             * } ] }
+             */
+            fun source(source: Source) = source(JsonField.of(source))
+
+            /**
+             * Sets [Builder.source] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.source] with a well-typed [Source] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun source(source: JsonField<Source>) = apply { this.source = source }
+
+            /** Alias for calling [source] with `Source.ofUriData(uriData)`. */
+            fun source(uriData: Source.UriDataSource) = source(Source.ofUriData(uriData))
+
+            /**
+             * Alias for calling [source] with the following:
+             * ```kotlin
+             * Source.UriDataSource.builder()
+             *     .uri(uri)
+             *     .build()
+             * ```
+             */
+            fun uriDataSource(uri: String) = source(Source.UriDataSource.builder().uri(uri).build())
+
+            /** Alias for calling [source] with `Source.ofRowsData(rowsData)`. */
+            fun source(rowsData: Source.RowsDataSource) = source(Source.ofRowsData(rowsData))
+
+            /**
+             * Alias for calling [source] with the following:
+             * ```kotlin
+             * Source.RowsDataSource.builder()
+             *     .rows(rows)
+             *     .build()
+             * ```
+             */
+            fun rowsDataSource(rows: List<Source.RowsDataSource.Row>) =
+                source(Source.RowsDataSource.builder().rows(rows).build())
+
+            /** The ID of the dataset. If not provided, an ID will be generated. */
+            fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
+
+            /**
+             * Sets [Builder.datasetId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.datasetId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
+
+            /** The metadata for the dataset. - E.g. {"description": "My dataset"} */
+            fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
+
+            /**
+             * Sets [Builder.metadata] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.metadata] with a well-typed [Metadata] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
             fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
                 this.additionalProperties.clear()
@@ -811,47 +649,946 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): Url = Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .purpose()
+             * .source()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("purpose", purpose),
+                    checkRequired("source", source),
+                    datasetId,
+                    metadata,
+                    additionalProperties.toMutableMap(),
+                )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            purpose().validate()
+            source().validate()
+            datasetId()
+            metadata()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (purpose.asKnown()?.validity() ?: 0) +
+                (source.asKnown()?.validity() ?: 0) +
+                (if (datasetId.asKnown() == null) 0 else 1) +
+                (metadata.asKnown()?.validity() ?: 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
             }
 
-            return /* spotless:off */ other is Url && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Body && purpose == other.purpose && source == other.source && datasetId == other.datasetId && metadata == other.metadata && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(uri, additionalProperties) }
+        private val hashCode: Int by lazy { Objects.hash(purpose, source, datasetId, metadata, additionalProperties) }
         /* spotless:on */
 
         override fun hashCode(): Int = hashCode
 
-        override fun toString() = "Url{uri=$uri, additionalProperties=$additionalProperties}"
+        override fun toString() =
+            "Body{purpose=$purpose, source=$source, datasetId=$datasetId, metadata=$metadata, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
+    /**
+     * The purpose of the dataset. One of - "post-training/messages": The dataset contains a
+     * messages column with list of messages for post-training. { "messages":
+     * [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+     * } - "eval/question-answer": The dataset contains a question column and an answer column for
+     * evaluation. { "question": "What is the capital of France?", "answer": "Paris" } -
+     * "eval/messages-answer": The dataset contains a messages column with list of messages and an
+     * answer column for evaluation. { "messages":
+     * [ {"role": "user", "content": "Hello, my name is John Doe."}, {"role": "assistant", "content": "Hello, John Doe. How can I help you today?"}, {"role": "user", "content": "What's my name?"}, ],
+     * "answer": "John Doe" }
+     */
+    class Purpose @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
+
+        /**
+         * Returns this class instance's raw value.
+         *
+         * This is usually only useful if this instance was deserialized from data that doesn't
+         * match any known member, and you want to know that value. For example, if the SDK is on an
+         * older version than the API, then the API may respond with new members that the SDK is
+         * unaware of.
+         */
+        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
+
+        companion object {
+
+            val POST_TRAINING_MESSAGES = of("post-training/messages")
+
+            val EVAL_QUESTION_ANSWER = of("eval/question-answer")
+
+            val EVAL_MESSAGES_ANSWER = of("eval/messages-answer")
+
+            fun of(value: String) = Purpose(JsonField.of(value))
+        }
+
+        /** An enum containing [Purpose]'s known values. */
+        enum class Known {
+            POST_TRAINING_MESSAGES,
+            EVAL_QUESTION_ANSWER,
+            EVAL_MESSAGES_ANSWER,
+        }
+
+        /**
+         * An enum containing [Purpose]'s known values, as well as an [_UNKNOWN] member.
+         *
+         * An instance of [Purpose] can contain an unknown value in a couple of cases:
+         * - It was deserialized from data that doesn't match any known member. For example, if the
+         *   SDK is on an older version than the API, then the API may respond with new members that
+         *   the SDK is unaware of.
+         * - It was constructed with an arbitrary value using the [of] method.
+         */
+        enum class Value {
+            POST_TRAINING_MESSAGES,
+            EVAL_QUESTION_ANSWER,
+            EVAL_MESSAGES_ANSWER,
+            /** An enum member indicating that [Purpose] was instantiated with an unknown value. */
+            _UNKNOWN,
+        }
+
+        /**
+         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
+         * if the class was instantiated with an unknown value.
+         *
+         * Use the [known] method instead if you're certain the value is always known or if you want
+         * to throw for the unknown case.
+         */
+        fun value(): Value =
+            when (this) {
+                POST_TRAINING_MESSAGES -> Value.POST_TRAINING_MESSAGES
+                EVAL_QUESTION_ANSWER -> Value.EVAL_QUESTION_ANSWER
+                EVAL_MESSAGES_ANSWER -> Value.EVAL_MESSAGES_ANSWER
+                else -> Value._UNKNOWN
+            }
+
+        /**
+         * Returns an enum member corresponding to this class instance's value.
+         *
+         * Use the [value] method instead if you're uncertain the value is always known and don't
+         * want to throw for the unknown case.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
+         *   known member.
+         */
+        fun known(): Known =
+            when (this) {
+                POST_TRAINING_MESSAGES -> Known.POST_TRAINING_MESSAGES
+                EVAL_QUESTION_ANSWER -> Known.EVAL_QUESTION_ANSWER
+                EVAL_MESSAGES_ANSWER -> Known.EVAL_MESSAGES_ANSWER
+                else -> throw LlamaStackClientInvalidDataException("Unknown Purpose: $value")
+            }
+
+        /**
+         * Returns this class instance's primitive wire representation.
+         *
+         * This differs from the [toString] method because that method is primarily for debugging
+         * and generally doesn't throw.
+         *
+         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
+         *   the expected primitive type.
+         */
+        fun asString(): String =
+            _value().asString()
+                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+        private var validated: Boolean = false
+
+        fun validate(): Purpose = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Purpose && value == other.value /* spotless:on */
+        }
+
+        override fun hashCode() = value.hashCode()
+
+        override fun toString() = value.toString()
+    }
+
+    /**
+     * The data source of the dataset. Ensure that the data source schema is compatible with the
+     * purpose of the dataset. Examples: - { "type": "uri", "uri":
+     * "https://mywebsite.com/mydata.jsonl" } - { "type": "uri", "uri": "lsfs://mydata.jsonl" } - {
+     * "type": "uri", "uri": "data:csv;base64,{base64_content}" } - { "type": "uri", "uri":
+     * "huggingface://llamastack/simpleqa?split=train" } - { "type": "rows", "rows":
+     * [ { "messages": [ {"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}, ]
+     * } ] }
+     */
+    @JsonDeserialize(using = Source.Deserializer::class)
+    @JsonSerialize(using = Source.Serializer::class)
+    class Source
+    private constructor(
+        private val uriData: UriDataSource? = null,
+        private val rowsData: RowsDataSource? = null,
+        private val _json: JsonValue? = null,
+    ) {
+
+        /** A dataset that can be obtained from a URI. */
+        fun uriData(): UriDataSource? = uriData
+
+        /** A dataset stored in rows. */
+        fun rowsData(): RowsDataSource? = rowsData
+
+        fun isUriData(): Boolean = uriData != null
+
+        fun isRowsData(): Boolean = rowsData != null
+
+        /** A dataset that can be obtained from a URI. */
+        fun asUriData(): UriDataSource = uriData.getOrThrow("uriData")
+
+        /** A dataset stored in rows. */
+        fun asRowsData(): RowsDataSource = rowsData.getOrThrow("rowsData")
+
+        fun _json(): JsonValue? = _json
+
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
+                uriData != null -> visitor.visitUriData(uriData)
+                rowsData != null -> visitor.visitRowsData(rowsData)
+                else -> visitor.unknown(_json)
+            }
+
+        private var validated: Boolean = false
+
+        fun validate(): Source = apply {
+            if (validated) {
+                return@apply
+            }
+
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitUriData(uriData: UriDataSource) {
+                        uriData.validate()
+                    }
+
+                    override fun visitRowsData(rowsData: RowsDataSource) {
+                        rowsData.validate()
+                    }
+                }
+            )
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitUriData(uriData: UriDataSource) = uriData.validity()
+
+                    override fun visitRowsData(rowsData: RowsDataSource) = rowsData.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Source && uriData == other.uriData && rowsData == other.rowsData /* spotless:on */
+        }
+
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(uriData, rowsData) /* spotless:on */
+
+        override fun toString(): String =
+            when {
+                uriData != null -> "Source{uriData=$uriData}"
+                rowsData != null -> "Source{rowsData=$rowsData}"
+                _json != null -> "Source{_unknown=$_json}"
+                else -> throw IllegalStateException("Invalid Source")
+            }
+
+        companion object {
+
+            /** A dataset that can be obtained from a URI. */
+            fun ofUriData(uriData: UriDataSource) = Source(uriData = uriData)
+
+            /** A dataset stored in rows. */
+            fun ofRowsData(rowsData: RowsDataSource) = Source(rowsData = rowsData)
+        }
+
+        /** An interface that defines how to map each variant of [Source] to a value of type [T]. */
+        interface Visitor<out T> {
+
+            /** A dataset that can be obtained from a URI. */
+            fun visitUriData(uriData: UriDataSource): T
+
+            /** A dataset stored in rows. */
+            fun visitRowsData(rowsData: RowsDataSource): T
+
+            /**
+             * Maps an unknown variant of [Source] to a value of type [T].
+             *
+             * An instance of [Source] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
+            fun unknown(json: JsonValue?): T {
+                throw LlamaStackClientInvalidDataException("Unknown Source: $json")
+            }
+        }
+
+        internal class Deserializer : BaseDeserializer<Source>(Source::class) {
+
+            override fun ObjectCodec.deserialize(node: JsonNode): Source {
+                val json = JsonValue.fromJsonNode(node)
+                val type = json.asObject()?.get("type")?.asString()
+
+                when (type) {
+                    "uri" -> {
+                        return tryDeserialize(node, jacksonTypeRef<UriDataSource>())?.let {
+                            Source(uriData = it, _json = json)
+                        } ?: Source(_json = json)
+                    }
+                    "rows" -> {
+                        return tryDeserialize(node, jacksonTypeRef<RowsDataSource>())?.let {
+                            Source(rowsData = it, _json = json)
+                        } ?: Source(_json = json)
+                    }
+                }
+
+                return Source(_json = json)
+            }
+        }
+
+        internal class Serializer : BaseSerializer<Source>(Source::class) {
+
+            override fun serialize(
+                value: Source,
+                generator: JsonGenerator,
+                provider: SerializerProvider,
+            ) {
+                when {
+                    value.uriData != null -> generator.writeObject(value.uriData)
+                    value.rowsData != null -> generator.writeObject(value.rowsData)
+                    value._json != null -> generator.writeObject(value._json)
+                    else -> throw IllegalStateException("Invalid Source")
+                }
+            }
+        }
+
+        /** A dataset that can be obtained from a URI. */
+        class UriDataSource
+        private constructor(
+            private val type: JsonValue,
+            private val uri: JsonField<String>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
+        ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+                @JsonProperty("uri") @ExcludeMissing uri: JsonField<String> = JsonMissing.of(),
+            ) : this(type, uri, mutableMapOf())
+
+            /**
+             * Expected to always return the following:
+             * ```kotlin
+             * JsonValue.from("uri")
+             * ```
+             *
+             * However, this method can be useful for debugging and logging (e.g. if the server
+             * responded with an unexpected value).
+             */
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
+
+            /**
+             * The dataset can be obtained from a URI. E.g. - "https://mywebsite.com/mydata.jsonl" -
+             * "lsfs://mydata.jsonl" - "data:csv;base64,{base64_content}"
+             *
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
+            fun uri(): String = uri.getRequired("uri")
+
+            /**
+             * Returns the raw JSON value of [uri].
+             *
+             * Unlike [uri], this method doesn't throw if the JSON field has an unexpected type.
+             */
+            @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
+
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                /**
+                 * Returns a mutable builder for constructing an instance of [UriDataSource].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .uri()
+                 * ```
+                 */
+                fun builder() = Builder()
+            }
+
+            /** A builder for [UriDataSource]. */
+            class Builder internal constructor() {
+
+                private var type: JsonValue = JsonValue.from("uri")
+                private var uri: JsonField<String>? = null
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(uriDataSource: UriDataSource) = apply {
+                    type = uriDataSource.type
+                    uri = uriDataSource.uri
+                    additionalProperties = uriDataSource.additionalProperties.toMutableMap()
+                }
+
+                /**
+                 * Sets the field to an arbitrary JSON value.
+                 *
+                 * It is usually unnecessary to call this method because the field defaults to the
+                 * following:
+                 * ```kotlin
+                 * JsonValue.from("uri")
+                 * ```
+                 *
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
+                fun type(type: JsonValue) = apply { this.type = type }
+
+                /**
+                 * The dataset can be obtained from a URI. E.g. -
+                 * "https://mywebsite.com/mydata.jsonl" - "lsfs://mydata.jsonl" -
+                 * "data:csv;base64,{base64_content}"
+                 */
+                fun uri(uri: String) = uri(JsonField.of(uri))
+
+                /**
+                 * Sets [Builder.uri] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.uri] with a well-typed [String] value instead.
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
+                fun uri(uri: JsonField<String>) = apply { this.uri = uri }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                /**
+                 * Returns an immutable instance of [UriDataSource].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .uri()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
+                fun build(): UriDataSource =
+                    UriDataSource(
+                        type,
+                        checkRequired("uri", uri),
+                        additionalProperties.toMutableMap(),
+                    )
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): UriDataSource = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                _type().let {
+                    if (it != JsonValue.from("uri")) {
+                        throw LlamaStackClientInvalidDataException(
+                            "'type' is invalid, received $it"
+                        )
+                    }
+                }
+                uri()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                type.let { if (it == JsonValue.from("uri")) 1 else 0 } +
+                    (if (uri.asKnown() == null) 0 else 1)
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is UriDataSource && type == other.type && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(type, uri, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "UriDataSource{type=$type, uri=$uri, additionalProperties=$additionalProperties}"
+        }
+
+        /** A dataset stored in rows. */
+        class RowsDataSource
+        private constructor(
+            private val rows: JsonField<List<Row>>,
+            private val type: JsonValue,
+            private val additionalProperties: MutableMap<String, JsonValue>,
+        ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("rows") @ExcludeMissing rows: JsonField<List<Row>> = JsonMissing.of(),
+                @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            ) : this(rows, type, mutableMapOf())
+
+            /**
+             * The dataset is stored in rows.
+             * E.g. - [ {"messages": [{"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}]}
+             * ]
+             *
+             * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+             *   or is unexpectedly missing or null (e.g. if the server responded with an unexpected
+             *   value).
+             */
+            fun rows(): List<Row> = rows.getRequired("rows")
+
+            /**
+             * Expected to always return the following:
+             * ```kotlin
+             * JsonValue.from("rows")
+             * ```
+             *
+             * However, this method can be useful for debugging and logging (e.g. if the server
+             * responded with an unexpected value).
+             */
+            @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
+
+            /**
+             * Returns the raw JSON value of [rows].
+             *
+             * Unlike [rows], this method doesn't throw if the JSON field has an unexpected type.
+             */
+            @JsonProperty("rows") @ExcludeMissing fun _rows(): JsonField<List<Row>> = rows
+
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                /**
+                 * Returns a mutable builder for constructing an instance of [RowsDataSource].
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .rows()
+                 * ```
+                 */
+                fun builder() = Builder()
+            }
+
+            /** A builder for [RowsDataSource]. */
+            class Builder internal constructor() {
+
+                private var rows: JsonField<MutableList<Row>>? = null
+                private var type: JsonValue = JsonValue.from("rows")
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(rowsDataSource: RowsDataSource) = apply {
+                    rows = rowsDataSource.rows.map { it.toMutableList() }
+                    type = rowsDataSource.type
+                    additionalProperties = rowsDataSource.additionalProperties.toMutableMap()
+                }
+
+                /**
+                 * The dataset is stored in rows.
+                 * E.g. - [ {"messages": [{"role": "user", "content": "Hello, world!"}, {"role": "assistant", "content": "Hello, world!"}]}
+                 * ]
+                 */
+                fun rows(rows: List<Row>) = rows(JsonField.of(rows))
+
+                /**
+                 * Sets [Builder.rows] to an arbitrary JSON value.
+                 *
+                 * You should usually call [Builder.rows] with a well-typed `List<Row>` value
+                 * instead. This method is primarily for setting the field to an undocumented or not
+                 * yet supported value.
+                 */
+                fun rows(rows: JsonField<List<Row>>) = apply {
+                    this.rows = rows.map { it.toMutableList() }
+                }
+
+                /**
+                 * Adds a single [Row] to [rows].
+                 *
+                 * @throws IllegalStateException if the field was previously set to a non-list.
+                 */
+                fun addRow(row: Row) = apply {
+                    rows =
+                        (rows ?: JsonField.of(mutableListOf())).also {
+                            checkKnown("rows", it).add(row)
+                        }
+                }
+
+                /**
+                 * Sets the field to an arbitrary JSON value.
+                 *
+                 * It is usually unnecessary to call this method because the field defaults to the
+                 * following:
+                 * ```kotlin
+                 * JsonValue.from("rows")
+                 * ```
+                 *
+                 * This method is primarily for setting the field to an undocumented or not yet
+                 * supported value.
+                 */
+                fun type(type: JsonValue) = apply { this.type = type }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                /**
+                 * Returns an immutable instance of [RowsDataSource].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .rows()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
+                fun build(): RowsDataSource =
+                    RowsDataSource(
+                        checkRequired("rows", rows).map { it.toImmutable() },
+                        type,
+                        additionalProperties.toMutableMap(),
+                    )
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): RowsDataSource = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                rows().forEach { it.validate() }
+                _type().let {
+                    if (it != JsonValue.from("rows")) {
+                        throw LlamaStackClientInvalidDataException(
+                            "'type' is invalid, received $it"
+                        )
+                    }
+                }
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (rows.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                    type.let { if (it == JsonValue.from("rows")) 1 else 0 }
+
+            class Row
+            @JsonCreator
+            private constructor(
+                @com.fasterxml.jackson.annotation.JsonValue
+                private val additionalProperties: Map<String, JsonValue>
+            ) {
+
+                @JsonAnyGetter
+                @ExcludeMissing
+                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+                fun toBuilder() = Builder().from(this)
+
+                companion object {
+
+                    /** Returns a mutable builder for constructing an instance of [Row]. */
+                    fun builder() = Builder()
+                }
+
+                /** A builder for [Row]. */
+                class Builder internal constructor() {
+
+                    private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                    internal fun from(row: Row) = apply {
+                        additionalProperties = row.additionalProperties.toMutableMap()
+                    }
+
+                    fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                        this.additionalProperties.clear()
+                        putAllAdditionalProperties(additionalProperties)
+                    }
+
+                    fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                        additionalProperties.put(key, value)
+                    }
+
+                    fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                        apply {
+                            this.additionalProperties.putAll(additionalProperties)
+                        }
+
+                    fun removeAdditionalProperty(key: String) = apply {
+                        additionalProperties.remove(key)
+                    }
+
+                    fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                        keys.forEach(::removeAdditionalProperty)
+                    }
+
+                    /**
+                     * Returns an immutable instance of [Row].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     */
+                    fun build(): Row = Row(additionalProperties.toImmutable())
+                }
+
+                private var validated: Boolean = false
+
+                fun validate(): Row = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    additionalProperties.count { (_, value) ->
+                        !value.isNull() && !value.isMissing()
+                    }
+
+                override fun equals(other: Any?): Boolean {
+                    if (this === other) {
+                        return true
+                    }
+
+                    return /* spotless:off */ other is Row && additionalProperties == other.additionalProperties /* spotless:on */
+                }
+
+                /* spotless:off */
+                private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+                /* spotless:on */
+
+                override fun hashCode(): Int = hashCode
+
+                override fun toString() = "Row{additionalProperties=$additionalProperties}"
+            }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is RowsDataSource && rows == other.rows && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(rows, type, additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() =
+                "RowsDataSource{rows=$rows, type=$type, additionalProperties=$additionalProperties}"
+        }
+    }
+
+    /** The metadata for the dataset. - E.g. {"description": "My dataset"} */
     class Metadata
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Metadata = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -889,8 +1626,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Metadata].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Metadata = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

@@ -4,7 +4,7 @@ package com.llama.llamastack.core.http
 
 import com.fasterxml.jackson.databind.json.JsonMapper
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
-import com.llama.llamastack.core.enhanceJacksonException
+import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Objects
 
 internal class SseMessage
@@ -45,14 +45,14 @@ private constructor(
         try {
             jsonMapper.readerFor(jacksonTypeRef<T>()).readValue(jsonNode)
         } catch (e: Exception) {
-            throw enhanceJacksonException("Error reading response", e)
+            throw LlamaStackClientInvalidDataException("Error reading response", e)
         }
 
     private val jsonNode by lazy {
         try {
             jsonMapper.readTree(data)
         } catch (e: Exception) {
-            throw enhanceJacksonException("Error reading response", e)
+            throw LlamaStackClientInvalidDataException("Error reading response", e)
         }
     }
 

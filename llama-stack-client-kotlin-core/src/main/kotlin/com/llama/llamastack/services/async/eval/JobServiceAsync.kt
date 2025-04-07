@@ -9,8 +9,8 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.EvalJobCancelParams
 import com.llama.llamastack.models.EvalJobRetrieveParams
 import com.llama.llamastack.models.EvalJobStatusParams
-import com.llama.llamastack.models.EvalJobStatusResponse
 import com.llama.llamastack.models.EvaluateResponse
+import com.llama.llamastack.models.Job
 
 interface JobServiceAsync {
 
@@ -35,7 +35,7 @@ interface JobServiceAsync {
     suspend fun status(
         params: EvalJobStatusParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): EvalJobStatusResponse?
+    ): Job
 
     /** A view of [JobServiceAsync] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
@@ -70,6 +70,6 @@ interface JobServiceAsync {
         suspend fun status(
             params: EvalJobStatusParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<EvalJobStatusResponse?>
+        ): HttpResponseFor<Job>
     }
 }

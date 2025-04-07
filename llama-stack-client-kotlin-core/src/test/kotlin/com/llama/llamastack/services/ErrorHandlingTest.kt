@@ -15,7 +15,6 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.jsonMapper
 import com.llama.llamastack.errors.BadRequestException
 import com.llama.llamastack.errors.InternalServerException
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.errors.LlamaStackClientException
 import com.llama.llamastack.errors.NotFoundException
 import com.llama.llamastack.errors.PermissionDeniedException
@@ -34,16 +33,13 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 
 @WireMockTest
-class ErrorHandlingTest {
+internal class ErrorHandlingTest {
 
     companion object {
 
-        private val ERROR: LlamaStackClientError =
-            LlamaStackClientError.builder()
-                .putAdditionalProperty("errorProperty", JsonValue.from("42"))
-                .build()
+        private val ERROR_JSON: JsonValue = JsonValue.from(mapOf("errorProperty" to "42"))
 
-        private val ERROR_JSON: ByteArray = jsonMapper().writeValueAsBytes(ERROR)
+        private val ERROR_JSON_BYTES: ByteArray = jsonMapper().writeValueAsBytes(ERROR_JSON)
 
         private const val HEADER_NAME: String = "Error-Header"
 
@@ -64,7 +60,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(400).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(400).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -83,9 +81,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -130,8 +129,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(400)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -139,7 +138,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(401).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(401).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -158,9 +159,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -205,8 +207,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(401)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -214,7 +216,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(403).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(403).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -233,9 +237,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -280,8 +285,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(403)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -289,7 +294,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(404).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(404).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -308,9 +315,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -355,8 +363,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(404)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -364,7 +372,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(422).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(422).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -383,9 +393,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -430,8 +441,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(422)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -439,7 +450,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(429).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(429).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -458,9 +471,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -505,8 +519,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(429)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -514,7 +528,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(500).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(500).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -533,9 +549,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -580,8 +597,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(500)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -589,7 +606,9 @@ class ErrorHandlingTest {
         val inferenceService = client.inference()
         stubFor(
             post(anyUrl())
-                .willReturn(status(999).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON))
+                .willReturn(
+                    status(999).withHeader(HEADER_NAME, HEADER_VALUE).withBody(ERROR_JSON_BYTES)
+                )
         )
 
         val e =
@@ -608,9 +627,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -655,8 +675,8 @@ class ErrorHandlingTest {
             }
 
         assertThat(e.statusCode()).isEqualTo(999)
-        assertThat(e.error()).isEqualTo(ERROR)
         assertThat(e.headers().toMap()).contains(entry(HEADER_NAME, listOf(HEADER_VALUE)))
+        assertThat(e.body()).isEqualTo(ERROR_JSON)
     }
 
     @Test
@@ -683,9 +703,10 @@ class ErrorHandlingTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)

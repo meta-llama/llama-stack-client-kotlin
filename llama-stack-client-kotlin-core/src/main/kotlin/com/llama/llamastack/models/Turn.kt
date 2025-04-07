@@ -19,47 +19,61 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.allMaxBy
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
 /** A single turn in an interaction with an Agentic System. */
-@NoAutoDetect
 class Turn
-@JsonCreator
 private constructor(
-    @JsonProperty("input_messages")
-    @ExcludeMissing
-    private val inputMessages: JsonField<List<InputMessage>> = JsonMissing.of(),
-    @JsonProperty("output_message")
-    @ExcludeMissing
-    private val outputMessage: JsonField<CompletionMessage> = JsonMissing.of(),
-    @JsonProperty("session_id")
-    @ExcludeMissing
-    private val sessionId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("steps")
-    @ExcludeMissing
-    private val steps: JsonField<List<Step>> = JsonMissing.of(),
-    @JsonProperty("turn_id")
-    @ExcludeMissing
-    private val turnId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("output_attachments")
-    @ExcludeMissing
-    private val outputAttachments: JsonField<List<OutputAttachment>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val inputMessages: JsonField<List<InputMessage>>,
+    private val outputMessage: JsonField<CompletionMessage>,
+    private val sessionId: JsonField<String>,
+    private val startedAt: JsonField<OffsetDateTime>,
+    private val steps: JsonField<List<Step>>,
+    private val turnId: JsonField<String>,
+    private val completedAt: JsonField<OffsetDateTime>,
+    private val outputAttachments: JsonField<List<OutputAttachment>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("input_messages")
+        @ExcludeMissing
+        inputMessages: JsonField<List<InputMessage>> = JsonMissing.of(),
+        @JsonProperty("output_message")
+        @ExcludeMissing
+        outputMessage: JsonField<CompletionMessage> = JsonMissing.of(),
+        @JsonProperty("session_id") @ExcludeMissing sessionId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("started_at")
+        @ExcludeMissing
+        startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("steps") @ExcludeMissing steps: JsonField<List<Step>> = JsonMissing.of(),
+        @JsonProperty("turn_id") @ExcludeMissing turnId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("completed_at")
+        @ExcludeMissing
+        completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("output_attachments")
+        @ExcludeMissing
+        outputAttachments: JsonField<List<OutputAttachment>> = JsonMissing.of(),
+    ) : this(
+        inputMessages,
+        outputMessage,
+        sessionId,
+        startedAt,
+        steps,
+        turnId,
+        completedAt,
+        outputAttachments,
+        mutableMapOf(),
+    )
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -179,27 +193,15 @@ private constructor(
     @ExcludeMissing
     fun _outputAttachments(): JsonField<List<OutputAttachment>> = outputAttachments
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): Turn = apply {
-        if (validated) {
-            return@apply
-        }
-
-        inputMessages().forEach { it.validate() }
-        outputMessage().validate()
-        sessionId()
-        startedAt()
-        steps().forEach { it.validate() }
-        turnId()
-        completedAt()
-        outputAttachments()?.forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -420,6 +422,23 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [Turn].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .inputMessages()
+         * .outputMessage()
+         * .sessionId()
+         * .startedAt()
+         * .steps()
+         * .turnId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): Turn =
             Turn(
                 checkRequired("inputMessages", inputMessages).map { it.toImmutable() },
@@ -430,9 +449,50 @@ private constructor(
                 checkRequired("turnId", turnId),
                 completedAt,
                 (outputAttachments ?: JsonMissing.of()).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): Turn = apply {
+        if (validated) {
+            return@apply
+        }
+
+        inputMessages().forEach { it.validate() }
+        outputMessage().validate()
+        sessionId()
+        startedAt()
+        steps().forEach { it.validate() }
+        turnId()
+        completedAt()
+        outputAttachments()?.forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (inputMessages.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+            (outputMessage.asKnown()?.validity() ?: 0) +
+            (if (sessionId.asKnown() == null) 0 else 1) +
+            (if (startedAt.asKnown() == null) 0 else 1) +
+            (steps.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+            (if (turnId.asKnown() == null) 0 else 1) +
+            (if (completedAt.asKnown() == null) 0 else 1) +
+            (outputAttachments.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
 
     /** A message from the user in a chat conversation. */
     @JsonDeserialize(using = InputMessage.Deserializer::class)
@@ -462,13 +522,12 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 user != null -> visitor.visitUser(user)
                 toolResponse != null -> visitor.visitToolResponse(toolResponse)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -490,6 +549,32 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitUser(user: UserMessage) = user.validity()
+
+                    override fun visitToolResponse(toolResponse: ToolResponseMessage) =
+                        toolResponse.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -551,16 +636,28 @@ private constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): InputMessage {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return InputMessage(user = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return InputMessage(toolResponse = it, _json = json)
-                    }
-
-                return InputMessage(_json = json)
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                                InputMessage(user = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                                InputMessage(toolResponse = it, _json = json)
+                            },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants (e.g. deserializing from boolean).
+                    0 -> InputMessage(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
+                }
             }
         }
 
@@ -627,15 +724,14 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 inference != null -> visitor.visitInference(inference)
                 toolExecution != null -> visitor.visitToolExecution(toolExecution)
                 shieldCall != null -> visitor.visitShieldCall(shieldCall)
                 memoryRetrieval != null -> visitor.visitMemoryRetrieval(memoryRetrieval)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -665,6 +761,37 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitInference(inference: InferenceStep) = inference.validity()
+
+                    override fun visitToolExecution(toolExecution: ToolExecutionStep) =
+                        toolExecution.validity()
+
+                    override fun visitShieldCall(shieldCall: ShieldCallStep) = shieldCall.validity()
+
+                    override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                        memoryRetrieval.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -740,30 +867,24 @@ private constructor(
 
                 when (stepType) {
                     "inference" -> {
-                        tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
-                            ?.let {
-                                return Step(inference = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<InferenceStep>())?.let {
+                            Step(inference = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                     "tool_execution" -> {
-                        tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
-                            ?.let {
-                                return Step(toolExecution = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>())?.let {
+                            Step(toolExecution = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                     "shield_call" -> {
-                        tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
-                            ?.let {
-                                return Step(shieldCall = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<ShieldCallStep>())?.let {
+                            Step(shieldCall = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                     "memory_retrieval" -> {
-                        tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) {
-                                it.validate()
-                            }
-                            ?.let {
-                                return Step(memoryRetrieval = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>())?.let {
+                            Step(memoryRetrieval = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                 }
 
@@ -791,19 +912,20 @@ private constructor(
     }
 
     /** An attachment to an agent turn. */
-    @NoAutoDetect
     class OutputAttachment
-    @JsonCreator
     private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<Content> = JsonMissing.of(),
-        @JsonProperty("mime_type")
-        @ExcludeMissing
-        private val mimeType: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val content: JsonField<Content>,
+        private val mimeType: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content") @ExcludeMissing content: JsonField<Content> = JsonMissing.of(),
+            @JsonProperty("mime_type")
+            @ExcludeMissing
+            mimeType: JsonField<String> = JsonMissing.of(),
+        ) : this(content, mimeType, mutableMapOf())
 
         /**
          * The content of the attachment.
@@ -837,21 +959,15 @@ private constructor(
          */
         @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): OutputAttachment = apply {
-            if (validated) {
-                return@apply
-            }
-
-            content().validate()
-            mimeType()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -947,13 +1063,55 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [OutputAttachment].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .mimeType()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): OutputAttachment =
                 OutputAttachment(
                     checkRequired("content", content),
                     checkRequired("mimeType", mimeType),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): OutputAttachment = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            mimeType()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (content.asKnown()?.validity() ?: 0) + (if (mimeType.asKnown() == null) 0 else 1)
 
         /** The content of the attachment. */
         @JsonDeserialize(using = Content.Deserializer::class)
@@ -1006,8 +1164,8 @@ private constructor(
 
             fun _json(): JsonValue? = _json
 
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
+            fun <T> accept(visitor: Visitor<T>): T =
+                when {
                     string != null -> visitor.visitString(string)
                     imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
                     textContentItem != null -> visitor.visitTextContentItem(textContentItem)
@@ -1016,7 +1174,6 @@ private constructor(
                     url != null -> visitor.visitUrl(url)
                     else -> visitor.unknown(_json)
                 }
-            }
 
             private var validated: Boolean = false
 
@@ -1050,6 +1207,41 @@ private constructor(
                 )
                 validated = true
             }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                accept(
+                    object : Visitor<Int> {
+                        override fun visitString(string: String) = 1
+
+                        override fun visitImageContentItem(imageContentItem: ImageContentItem) =
+                            imageContentItem.validity()
+
+                        override fun visitTextContentItem(textContentItem: TextContentItem) =
+                            textContentItem.validity()
+
+                        override fun visitInterleavedContentItems(
+                            interleavedContentItems: List<InterleavedContentItem>
+                        ) = interleavedContentItems.sumOf { it.validity().toInt() }
+
+                        override fun visitUrl(url: Url) = url.validity()
+
+                        override fun unknown(json: JsonValue?) = 0
+                    }
+                )
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1132,29 +1324,36 @@ private constructor(
                 override fun ObjectCodec.deserialize(node: JsonNode): Content {
                     val json = JsonValue.fromJsonNode(node)
 
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return Content(string = it, _json = json)
+                    val bestMatches =
+                        sequenceOf(
+                                tryDeserialize(node, jacksonTypeRef<ImageContentItem>())?.let {
+                                    Content(imageContentItem = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<TextContentItem>())?.let {
+                                    Content(textContentItem = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<Url>())?.let {
+                                    Content(url = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                                    Content(string = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>())
+                                    ?.let { Content(interleavedContentItems = it, _json = json) },
+                            )
+                            .filterNotNull()
+                            .allMaxBy { it.validity() }
+                            .toList()
+                    return when (bestMatches.size) {
+                        // This can happen if what we're deserializing is completely incompatible
+                        // with all the possible variants.
+                        0 -> Content(_json = json)
+                        1 -> bestMatches.single()
+                        // If there's more than one match with the highest validity, then use the
+                        // first completely valid match, or simply the first match if none are
+                        // completely valid.
+                        else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
                     }
-                    tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
-                        ?.let {
-                            return Content(imageContentItem = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
-                        ?.let {
-                            return Content(textContentItem = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
-                            it.forEach { it.validate() }
-                        }
-                        ?.let {
-                            return Content(interleavedContentItems = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<Url>()) { it.validate() }
-                        ?.let {
-                            return Content(url = it, _json = json)
-                        }
-
-                    return Content(_json = json)
                 }
             }
 
@@ -1181,19 +1380,20 @@ private constructor(
             }
 
             /** A image content item */
-            @NoAutoDetect
             class ImageContentItem
-            @JsonCreator
             private constructor(
-                @JsonProperty("image")
-                @ExcludeMissing
-                private val image: JsonField<Image> = JsonMissing.of(),
-                @JsonProperty("type")
-                @ExcludeMissing
-                private val type: JsonValue = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val image: JsonField<Image>,
+                private val type: JsonValue,
+                private val additionalProperties: MutableMap<String, JsonValue>,
             ) {
+
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("image")
+                    @ExcludeMissing
+                    image: JsonField<Image> = JsonMissing.of(),
+                    @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+                ) : this(image, type, mutableMapOf())
 
                 /**
                  * Image as a base64 encoded string or an URL
@@ -1225,27 +1425,15 @@ private constructor(
                  */
                 @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
+                @JsonAnySetter
+                private fun putAdditionalProperty(key: String, value: JsonValue) {
+                    additionalProperties.put(key, value)
+                }
+
                 @JsonAnyGetter
                 @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): ImageContentItem = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    image().validate()
-                    _type().let {
-                        if (it != JsonValue.from("image")) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'type' is invalid, received $it"
-                            )
-                        }
-                    }
-                    validated = true
-                }
+                fun _additionalProperties(): Map<String, JsonValue> =
+                    Collections.unmodifiableMap(additionalProperties)
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1323,28 +1511,77 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [ImageContentItem].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .image()
+                     * ```
+                     *
+                     * @throws IllegalStateException if any required field is unset.
+                     */
                     fun build(): ImageContentItem =
                         ImageContentItem(
                             checkRequired("image", image),
                             type,
-                            additionalProperties.toImmutable(),
+                            additionalProperties.toMutableMap(),
                         )
                 }
 
+                private var validated: Boolean = false
+
+                fun validate(): ImageContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    image().validate()
+                    _type().let {
+                        if (it != JsonValue.from("image")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    (image.asKnown()?.validity() ?: 0) +
+                        type.let { if (it == JsonValue.from("image")) 1 else 0 }
+
                 /** Image as a base64 encoded string or an URL */
-                @NoAutoDetect
                 class Image
-                @JsonCreator
                 private constructor(
-                    @JsonProperty("data")
-                    @ExcludeMissing
-                    private val data: JsonField<String> = JsonMissing.of(),
-                    @JsonProperty("url")
-                    @ExcludeMissing
-                    private val url: JsonField<Url> = JsonMissing.of(),
-                    @JsonAnySetter
-                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                    private val data: JsonField<String>,
+                    private val url: JsonField<Url>,
+                    private val additionalProperties: MutableMap<String, JsonValue>,
                 ) {
+
+                    @JsonCreator
+                    private constructor(
+                        @JsonProperty("data")
+                        @ExcludeMissing
+                        data: JsonField<String> = JsonMissing.of(),
+                        @JsonProperty("url") @ExcludeMissing url: JsonField<Url> = JsonMissing.of(),
+                    ) : this(data, url, mutableMapOf())
 
                     /**
                      * base64 encoded image data as string
@@ -1379,21 +1616,15 @@ private constructor(
                      */
                     @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
+                    @JsonAnySetter
+                    private fun putAdditionalProperty(key: String, value: JsonValue) {
+                        additionalProperties.put(key, value)
+                    }
+
                     @JsonAnyGetter
                     @ExcludeMissing
-                    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                    private var validated: Boolean = false
-
-                    fun validate(): Image = apply {
-                        if (validated) {
-                            return@apply
-                        }
-
-                        data()
-                        url()?.validate()
-                        validated = true
-                    }
+                    fun _additionalProperties(): Map<String, JsonValue> =
+                        Collections.unmodifiableMap(additionalProperties)
 
                     fun toBuilder() = Builder().from(this)
 
@@ -1466,24 +1697,59 @@ private constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): Image = Image(data, url, additionalProperties.toImmutable())
+                        /**
+                         * Returns an immutable instance of [Image].
+                         *
+                         * Further updates to this [Builder] will not mutate the returned instance.
+                         */
+                        fun build(): Image = Image(data, url, additionalProperties.toMutableMap())
                     }
+
+                    private var validated: Boolean = false
+
+                    fun validate(): Image = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        data()
+                        url()?.validate()
+                        validated = true
+                    }
+
+                    fun isValid(): Boolean =
+                        try {
+                            validate()
+                            true
+                        } catch (e: LlamaStackClientInvalidDataException) {
+                            false
+                        }
+
+                    /**
+                     * Returns a score indicating how many valid values are contained in this object
+                     * recursively.
+                     *
+                     * Used for best match union deserialization.
+                     */
+                    internal fun validity(): Int =
+                        (if (data.asKnown() == null) 0 else 1) + (url.asKnown()?.validity() ?: 0)
 
                     /**
                      * A URL of the image or data URL in the format of
                      * data:image/{type};base64,{data}. Note that URL could have length limits.
                      */
-                    @NoAutoDetect
                     class Url
-                    @JsonCreator
                     private constructor(
-                        @JsonProperty("uri")
-                        @ExcludeMissing
-                        private val uri: JsonField<String> = JsonMissing.of(),
-                        @JsonAnySetter
-                        private val additionalProperties: Map<String, JsonValue> =
-                            immutableEmptyMap(),
+                        private val uri: JsonField<String>,
+                        private val additionalProperties: MutableMap<String, JsonValue>,
                     ) {
+
+                        @JsonCreator
+                        private constructor(
+                            @JsonProperty("uri")
+                            @ExcludeMissing
+                            uri: JsonField<String> = JsonMissing.of()
+                        ) : this(uri, mutableMapOf())
 
                         /**
                          * @throws LlamaStackClientInvalidDataException if the JSON field has an
@@ -1500,20 +1766,15 @@ private constructor(
                          */
                         @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
+                        @JsonAnySetter
+                        private fun putAdditionalProperty(key: String, value: JsonValue) {
+                            additionalProperties.put(key, value)
+                        }
+
                         @JsonAnyGetter
                         @ExcludeMissing
-                        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                        private var validated: Boolean = false
-
-                        fun validate(): Url = apply {
-                            if (validated) {
-                                return@apply
-                            }
-
-                            uri()
-                            validated = true
-                        }
+                        fun _additionalProperties(): Map<String, JsonValue> =
+                            Collections.unmodifiableMap(additionalProperties)
 
                         fun toBuilder() = Builder().from(this)
 
@@ -1575,9 +1836,49 @@ private constructor(
                                 keys.forEach(::removeAdditionalProperty)
                             }
 
+                            /**
+                             * Returns an immutable instance of [Url].
+                             *
+                             * Further updates to this [Builder] will not mutate the returned
+                             * instance.
+                             *
+                             * The following fields are required:
+                             * ```kotlin
+                             * .uri()
+                             * ```
+                             *
+                             * @throws IllegalStateException if any required field is unset.
+                             */
                             fun build(): Url =
-                                Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                                Url(checkRequired("uri", uri), additionalProperties.toMutableMap())
                         }
+
+                        private var validated: Boolean = false
+
+                        fun validate(): Url = apply {
+                            if (validated) {
+                                return@apply
+                            }
+
+                            uri()
+                            validated = true
+                        }
+
+                        fun isValid(): Boolean =
+                            try {
+                                validate()
+                                true
+                            } catch (e: LlamaStackClientInvalidDataException) {
+                                false
+                            }
+
+                        /**
+                         * Returns a score indicating how many valid values are contained in this
+                         * object recursively.
+                         *
+                         * Used for best match union deserialization.
+                         */
+                        internal fun validity(): Int = (if (uri.asKnown() == null) 0 else 1)
 
                         override fun equals(other: Any?): Boolean {
                             if (this === other) {
@@ -1634,19 +1935,20 @@ private constructor(
             }
 
             /** A text content item */
-            @NoAutoDetect
             class TextContentItem
-            @JsonCreator
             private constructor(
-                @JsonProperty("text")
-                @ExcludeMissing
-                private val text: JsonField<String> = JsonMissing.of(),
-                @JsonProperty("type")
-                @ExcludeMissing
-                private val type: JsonValue = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val text: JsonField<String>,
+                private val type: JsonValue,
+                private val additionalProperties: MutableMap<String, JsonValue>,
             ) {
+
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("text")
+                    @ExcludeMissing
+                    text: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+                ) : this(text, type, mutableMapOf())
 
                 /**
                  * Text content
@@ -1678,27 +1980,15 @@ private constructor(
                  */
                 @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
+                @JsonAnySetter
+                private fun putAdditionalProperty(key: String, value: JsonValue) {
+                    additionalProperties.put(key, value)
+                }
+
                 @JsonAnyGetter
                 @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): TextContentItem = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    text()
-                    _type().let {
-                        if (it != JsonValue.from("text")) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'type' is invalid, received $it"
-                            )
-                        }
-                    }
-                    validated = true
-                }
+                fun _additionalProperties(): Map<String, JsonValue> =
+                    Collections.unmodifiableMap(additionalProperties)
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1776,13 +2066,61 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [TextContentItem].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .text()
+                     * ```
+                     *
+                     * @throws IllegalStateException if any required field is unset.
+                     */
                     fun build(): TextContentItem =
                         TextContentItem(
                             checkRequired("text", text),
                             type,
-                            additionalProperties.toImmutable(),
+                            additionalProperties.toMutableMap(),
                         )
                 }
+
+                private var validated: Boolean = false
+
+                fun validate(): TextContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    text()
+                    _type().let {
+                        if (it != JsonValue.from("text")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    (if (text.asKnown() == null) 0 else 1) +
+                        type.let { if (it == JsonValue.from("text")) 1 else 0 }
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
@@ -1802,16 +2140,16 @@ private constructor(
                     "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
             }
 
-            @NoAutoDetect
             class Url
-            @JsonCreator
             private constructor(
-                @JsonProperty("uri")
-                @ExcludeMissing
-                private val uri: JsonField<String> = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val uri: JsonField<String>,
+                private val additionalProperties: MutableMap<String, JsonValue>,
             ) {
+
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("uri") @ExcludeMissing uri: JsonField<String> = JsonMissing.of()
+                ) : this(uri, mutableMapOf())
 
                 /**
                  * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
@@ -1827,20 +2165,15 @@ private constructor(
                  */
                 @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
+                @JsonAnySetter
+                private fun putAdditionalProperty(key: String, value: JsonValue) {
+                    additionalProperties.put(key, value)
+                }
+
                 @JsonAnyGetter
                 @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): Url = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    uri()
-                    validated = true
-                }
+                fun _additionalProperties(): Map<String, JsonValue> =
+                    Collections.unmodifiableMap(additionalProperties)
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1901,9 +2234,48 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [Url].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .uri()
+                     * ```
+                     *
+                     * @throws IllegalStateException if any required field is unset.
+                     */
                     fun build(): Url =
-                        Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                        Url(checkRequired("uri", uri), additionalProperties.toMutableMap())
                 }
+
+                private var validated: Boolean = false
+
+                fun validate(): Url = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    uri()
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int = (if (uri.asKnown() == null) 0 else 1)
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {

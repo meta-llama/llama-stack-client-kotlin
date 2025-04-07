@@ -4,7 +4,7 @@ package com.llama.llamastack.models
 
 import org.junit.jupiter.api.Test
 
-class InspectHealthParamsTest {
+internal class InspectHealthParamsTest {
 
     @Test
     fun create() {

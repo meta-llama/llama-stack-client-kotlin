@@ -5,15 +5,15 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.DatasetIterrowsParams
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetUnregisterParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class DatasetServiceAsyncTest {
+internal class DatasetServiceAsyncTest {
 
     @Test
     suspend fun retrieve() {
@@ -28,7 +28,6 @@ class DatasetServiceAsyncTest {
                 DatasetRetrieveParams.builder().datasetId("dataset_id").build()
             )
 
-        assertNotNull(dataset)
         dataset.validate()
     }
 
@@ -46,6 +45,26 @@ class DatasetServiceAsyncTest {
     }
 
     @Test
+    suspend fun iterrows() {
+        val client =
+            LlamaStackClientOkHttpClientAsync.builder()
+                .baseUrl(TestServerExtension.BASE_URL)
+                .build()
+        val datasetServiceAsync = client.datasets()
+
+        val response =
+            datasetServiceAsync.iterrows(
+                DatasetIterrowsParams.builder()
+                    .datasetId("dataset_id")
+                    .limit(0L)
+                    .startIndex(0L)
+                    .build()
+            )
+
+        response.validate()
+    }
+
+    @Test
     suspend fun register() {
         val client =
             LlamaStackClientOkHttpClientAsync.builder()
@@ -53,24 +72,21 @@ class DatasetServiceAsyncTest {
                 .build()
         val datasetServiceAsync = client.datasets()
 
-        datasetServiceAsync.register(
-            DatasetRegisterParams.builder()
-                .datasetId("dataset_id")
-                .datasetSchema(
-                    DatasetRegisterParams.DatasetSchema.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                        .build()
-                )
-                .url(DatasetRegisterParams.Url.builder().uri("uri").build())
-                .metadata(
-                    DatasetRegisterParams.Metadata.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .providerDatasetId("provider_dataset_id")
-                .providerId("provider_id")
-                .build()
-        )
+        val response =
+            datasetServiceAsync.register(
+                DatasetRegisterParams.builder()
+                    .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+                    .uriDataSource("uri")
+                    .datasetId("dataset_id")
+                    .metadata(
+                        DatasetRegisterParams.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
+            )
+
+        response.validate()
     }
 
     @Test

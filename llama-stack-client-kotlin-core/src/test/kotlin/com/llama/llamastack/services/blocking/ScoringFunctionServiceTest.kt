@@ -8,12 +8,11 @@ import com.llama.llamastack.models.ReturnType
 import com.llama.llamastack.models.ScoringFnParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
 import com.llama.llamastack.models.ScoringFunctionRetrieveParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class ScoringFunctionServiceTest {
+internal class ScoringFunctionServiceTest {
 
     @Test
     fun retrieve() {
@@ -26,7 +25,6 @@ class ScoringFunctionServiceTest {
                 ScoringFunctionRetrieveParams.builder().scoringFnId("scoring_fn_id").build()
             )
 
-        assertNotNull(scoringFn)
         scoringFn.validate()
     }
 

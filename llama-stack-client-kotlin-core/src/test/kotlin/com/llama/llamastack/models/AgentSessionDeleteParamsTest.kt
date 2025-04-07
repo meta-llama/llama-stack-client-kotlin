@@ -5,7 +5,7 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentSessionDeleteParamsTest {
+internal class AgentSessionDeleteParamsTest {
 
     @Test
     fun create() {
@@ -13,15 +13,13 @@ class AgentSessionDeleteParamsTest {
     }
 
     @Test
-    fun getPathParam() {
+    fun pathParams() {
         val params =
             AgentSessionDeleteParams.builder().agentId("agent_id").sessionId("session_id").build()
-        assertThat(params).isNotNull
-        // path param "agentId"
-        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
-        // path param "sessionId"
-        assertThat(params.getPathParam(1)).isEqualTo("session_id")
+
+        assertThat(params._pathParam(0)).isEqualTo("agent_id")
+        assertThat(params._pathParam(1)).isEqualTo("session_id")
         // out-of-bound path param
-        assertThat(params.getPathParam(2)).isEqualTo("")
+        assertThat(params._pathParam(2)).isEqualTo("")
     }
 }

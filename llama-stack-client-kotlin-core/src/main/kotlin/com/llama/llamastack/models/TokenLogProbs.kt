@@ -10,23 +10,25 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Log probabilities for generated tokens. */
-@NoAutoDetect
 class TokenLogProbs
-@JsonCreator
 private constructor(
-    @JsonProperty("logprobs_by_token")
-    @ExcludeMissing
-    private val logprobsByToken: JsonField<LogprobsByToken> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val logprobsByToken: JsonField<LogprobsByToken>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("logprobs_by_token")
+        @ExcludeMissing
+        logprobsByToken: JsonField<LogprobsByToken> = JsonMissing.of()
+    ) : this(logprobsByToken, mutableMapOf())
 
     /**
      * Dictionary mapping tokens to their log probabilities
@@ -45,20 +47,15 @@ private constructor(
     @ExcludeMissing
     fun _logprobsByToken(): JsonField<LogprobsByToken> = logprobsByToken
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): TokenLogProbs = apply {
-        if (validated) {
-            return@apply
-        }
-
-        logprobsByToken().validate()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -120,35 +117,62 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [TokenLogProbs].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .logprobsByToken()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): TokenLogProbs =
             TokenLogProbs(
                 checkRequired("logprobsByToken", logprobsByToken),
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
+    private var validated: Boolean = false
+
+    fun validate(): TokenLogProbs = apply {
+        if (validated) {
+            return@apply
+        }
+
+        logprobsByToken().validate()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int = (logprobsByToken.asKnown()?.validity() ?: 0)
+
     /** Dictionary mapping tokens to their log probabilities */
-    @NoAutoDetect
     class LogprobsByToken
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): LogprobsByToken = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -186,8 +210,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [LogprobsByToken].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): LogprobsByToken = LogprobsByToken(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): LogprobsByToken = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

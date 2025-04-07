@@ -10,29 +10,32 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class ProviderInfo
-@JsonCreator
 private constructor(
-    @JsonProperty("api") @ExcludeMissing private val api: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("config")
-    @ExcludeMissing
-    private val config: JsonField<Config> = JsonMissing.of(),
-    @JsonProperty("provider_id")
-    @ExcludeMissing
-    private val providerId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("provider_type")
-    @ExcludeMissing
-    private val providerType: JsonField<String> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val api: JsonField<String>,
+    private val config: JsonField<Config>,
+    private val providerId: JsonField<String>,
+    private val providerType: JsonField<String>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("api") @ExcludeMissing api: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("config") @ExcludeMissing config: JsonField<Config> = JsonMissing.of(),
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        providerId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("provider_type")
+        @ExcludeMissing
+        providerType: JsonField<String> = JsonMissing.of(),
+    ) : this(api, config, providerId, providerType, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -88,23 +91,15 @@ private constructor(
     @ExcludeMissing
     fun _providerType(): JsonField<String> = providerType
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ProviderInfo = apply {
-        if (validated) {
-            return@apply
-        }
-
-        api()
-        config().validate()
-        providerId()
-        providerType()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -204,37 +199,74 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ProviderInfo].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .api()
+         * .config()
+         * .providerId()
+         * .providerType()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ProviderInfo =
             ProviderInfo(
                 checkRequired("api", api),
                 checkRequired("config", config),
                 checkRequired("providerId", providerId),
                 checkRequired("providerType", providerType),
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): ProviderInfo = apply {
+        if (validated) {
+            return@apply
+        }
+
+        api()
+        config().validate()
+        providerId()
+        providerType()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (api.asKnown() == null) 0 else 1) +
+            (config.asKnown()?.validity() ?: 0) +
+            (if (providerId.asKnown() == null) 0 else 1) +
+            (if (providerType.asKnown() == null) 0 else 1)
+
     class Config
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Config = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -272,8 +304,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Config].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): Config = Config(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Config = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

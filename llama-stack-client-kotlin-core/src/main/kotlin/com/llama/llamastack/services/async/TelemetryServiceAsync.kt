@@ -51,9 +51,13 @@ interface TelemetryServiceAsync {
     ): List<QuerySpansResponse.Data>
 
     suspend fun queryTraces(
-        params: TelemetryQueryTracesParams,
+        params: TelemetryQueryTracesParams = TelemetryQueryTracesParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
     ): List<Trace>
+
+    /** @see [queryTraces] */
+    suspend fun queryTraces(requestOptions: RequestOptions): List<Trace> =
+        queryTraces(TelemetryQueryTracesParams.none(), requestOptions)
 
     suspend fun saveSpansToDataset(
         params: TelemetrySaveSpansToDatasetParams,
@@ -121,9 +125,14 @@ interface TelemetryServiceAsync {
          */
         @MustBeClosed
         suspend fun queryTraces(
-            params: TelemetryQueryTracesParams,
+            params: TelemetryQueryTracesParams = TelemetryQueryTracesParams.none(),
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<List<Trace>>
+
+        /** @see [queryTraces] */
+        @MustBeClosed
+        suspend fun queryTraces(requestOptions: RequestOptions): HttpResponseFor<List<Trace>> =
+            queryTraces(TelemetryQueryTracesParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `post /v1/telemetry/spans/export`, but is otherwise the

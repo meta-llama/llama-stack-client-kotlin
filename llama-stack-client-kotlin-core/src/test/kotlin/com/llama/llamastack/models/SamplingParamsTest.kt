@@ -2,22 +2,46 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class SamplingParamsTest {
+internal class SamplingParamsTest {
 
     @Test
-    fun createSamplingParams() {
+    fun create() {
         val samplingParams =
             SamplingParams.builder()
-                .strategyGreedySampling()
+                .strategyObject()
                 .maxTokens(0L)
                 .repetitionPenalty(0.0)
+                .addStop("string")
                 .build()
-        assertThat(samplingParams).isNotNull
-        assertThat(samplingParams.strategy()).isEqualTo(SamplingParams.Strategy.ofGreedySampling())
+
+        assertThat(samplingParams.strategy()).isEqualTo(SamplingParams.Strategy.ofObject())
         assertThat(samplingParams.maxTokens()).isEqualTo(0L)
         assertThat(samplingParams.repetitionPenalty()).isEqualTo(0.0)
+        assertThat(samplingParams.stop()).containsExactly("string")
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val samplingParams =
+            SamplingParams.builder()
+                .strategyObject()
+                .maxTokens(0L)
+                .repetitionPenalty(0.0)
+                .addStop("string")
+                .build()
+
+        val roundtrippedSamplingParams =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(samplingParams),
+                jacksonTypeRef<SamplingParams>(),
+            )
+
+        assertThat(roundtrippedSamplingParams).isEqualTo(samplingParams)
     }
 }

@@ -5,15 +5,15 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.models.DatasetIterrowsParams
 import com.llama.llamastack.models.DatasetRegisterParams
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetUnregisterParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class DatasetServiceTest {
+internal class DatasetServiceTest {
 
     @Test
     fun retrieve() {
@@ -24,7 +24,6 @@ class DatasetServiceTest {
         val dataset =
             datasetService.retrieve(DatasetRetrieveParams.builder().datasetId("dataset_id").build())
 
-        assertNotNull(dataset)
         dataset.validate()
     }
 
@@ -40,29 +39,44 @@ class DatasetServiceTest {
     }
 
     @Test
+    fun iterrows() {
+        val client =
+            LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
+        val datasetService = client.datasets()
+
+        val response =
+            datasetService.iterrows(
+                DatasetIterrowsParams.builder()
+                    .datasetId("dataset_id")
+                    .limit(0L)
+                    .startIndex(0L)
+                    .build()
+            )
+
+        response.validate()
+    }
+
+    @Test
     fun register() {
         val client =
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
 
-        datasetService.register(
-            DatasetRegisterParams.builder()
-                .datasetId("dataset_id")
-                .datasetSchema(
-                    DatasetRegisterParams.DatasetSchema.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                        .build()
-                )
-                .url(DatasetRegisterParams.Url.builder().uri("uri").build())
-                .metadata(
-                    DatasetRegisterParams.Metadata.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(true))
-                        .build()
-                )
-                .providerDatasetId("provider_dataset_id")
-                .providerId("provider_id")
-                .build()
-        )
+        val response =
+            datasetService.register(
+                DatasetRegisterParams.builder()
+                    .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+                    .uriDataSource("uri")
+                    .datasetId("dataset_id")
+                    .metadata(
+                        DatasetRegisterParams.Metadata.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .build()
+            )
+
+        response.validate()
     }
 
     @Test

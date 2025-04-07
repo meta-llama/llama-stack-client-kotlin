@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import java.time.OffsetDateTime
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class MemoryRetrievalStepTest {
+internal class MemoryRetrievalStepTest {
 
     @Test
-    fun createMemoryRetrievalStep() {
+    fun create() {
         val memoryRetrievalStep =
             MemoryRetrievalStep.builder()
                 .insertedContext("string")
@@ -19,7 +21,7 @@ class MemoryRetrievalStepTest {
                 .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .build()
-        assertThat(memoryRetrievalStep).isNotNull
+
         assertThat(memoryRetrievalStep.insertedContext())
             .isEqualTo(InterleavedContent.ofString("string"))
         assertThat(memoryRetrievalStep.stepId()).isEqualTo("step_id")
@@ -29,5 +31,27 @@ class MemoryRetrievalStepTest {
             .isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
         assertThat(memoryRetrievalStep.startedAt())
             .isEqualTo(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val memoryRetrievalStep =
+            MemoryRetrievalStep.builder()
+                .insertedContext("string")
+                .stepId("step_id")
+                .turnId("turn_id")
+                .vectorDbIds("vector_db_ids")
+                .completedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .startedAt(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
+                .build()
+
+        val roundtrippedMemoryRetrievalStep =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(memoryRetrievalStep),
+                jacksonTypeRef<MemoryRetrievalStep>(),
+            )
+
+        assertThat(roundtrippedMemoryRetrievalStep).isEqualTo(memoryRetrievalStep)
     }
 }

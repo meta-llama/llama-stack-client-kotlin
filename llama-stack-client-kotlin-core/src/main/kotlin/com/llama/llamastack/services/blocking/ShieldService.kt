@@ -20,7 +20,7 @@ interface ShieldService {
     fun retrieve(
         params: ShieldRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): Shield?
+    ): Shield
 
     fun list(
         params: ShieldListParams = ShieldListParams.none(),
@@ -47,7 +47,7 @@ interface ShieldService {
         fun retrieve(
             params: ShieldRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<Shield?>
+        ): HttpResponseFor<Shield>
 
         /**
          * Returns a raw HTTP response for `get /v1/shields`, but is otherwise the same as

@@ -33,7 +33,7 @@ interface JobServiceAsync {
     suspend fun artifacts(
         params: PostTrainingJobArtifactsParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): PostTrainingJobArtifactsResponse?
+    ): PostTrainingJobArtifactsResponse
 
     suspend fun cancel(
         params: PostTrainingJobCancelParams,
@@ -43,7 +43,7 @@ interface JobServiceAsync {
     suspend fun status(
         params: PostTrainingJobStatusParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): PostTrainingJobStatusResponse?
+    ): PostTrainingJobStatusResponse
 
     /** A view of [JobServiceAsync] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
@@ -73,7 +73,7 @@ interface JobServiceAsync {
         suspend fun artifacts(
             params: PostTrainingJobArtifactsParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<PostTrainingJobArtifactsResponse?>
+        ): HttpResponseFor<PostTrainingJobArtifactsResponse>
 
         /**
          * Returns a raw HTTP response for `post /v1/post-training/job/cancel`, but is otherwise the
@@ -93,6 +93,6 @@ interface JobServiceAsync {
         suspend fun status(
             params: PostTrainingJobStatusParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<PostTrainingJobStatusResponse?>
+        ): HttpResponseFor<PostTrainingJobStatusResponse>
     }
 }

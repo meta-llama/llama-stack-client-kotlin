@@ -2,104 +2,95 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
-/** Get a paginated list of rows from a dataset. */
-class DatasetioGetRowsPaginatedParams
+/**
+ * Get a paginated list of rows from a dataset. Uses offset-based pagination where:
+ * - start_index: The starting index (0-based). If None, starts from beginning.
+ * - limit: Number of items to return. If None or -1, returns all items.
+ *
+ * The response includes:
+ * - data: List of items for the current page
+ * - has_more: Whether there are more items available after this set
+ */
+class DatasetIterrowsParams
 private constructor(
     private val datasetId: String,
-    private val rowsInPage: Long,
-    private val filterCondition: String?,
-    private val pageToken: String?,
+    private val limit: Long?,
+    private val startIndex: Long?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    /** The ID of the dataset to get the rows from. */
     fun datasetId(): String = datasetId
 
-    /** The number of rows to get per page. */
-    fun rowsInPage(): Long = rowsInPage
+    /** The number of rows to get. */
+    fun limit(): Long? = limit
 
-    /** (Optional) A condition to filter the rows by. */
-    fun filterCondition(): String? = filterCondition
-
-    /** The token to get the next page of rows. */
-    fun pageToken(): String? = pageToken
+    /** Index into dataset for the first row to get. Get all rows if None. */
+    fun startIndex(): Long? = startIndex
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.datasetId.let { queryParams.put("dataset_id", listOf(it.toString())) }
-        this.rowsInPage.let { queryParams.put("rows_in_page", listOf(it.toString())) }
-        this.filterCondition?.let { queryParams.put("filter_condition", listOf(it.toString())) }
-        this.pageToken?.let { queryParams.put("page_token", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
-    }
 
     fun toBuilder() = Builder().from(this)
 
     companion object {
 
         /**
-         * Returns a mutable builder for constructing an instance of
-         * [DatasetioGetRowsPaginatedParams].
+         * Returns a mutable builder for constructing an instance of [DatasetIterrowsParams].
          *
          * The following fields are required:
          * ```kotlin
          * .datasetId()
-         * .rowsInPage()
          * ```
          */
         fun builder() = Builder()
     }
 
-    /** A builder for [DatasetioGetRowsPaginatedParams]. */
-    @NoAutoDetect
+    /** A builder for [DatasetIterrowsParams]. */
     class Builder internal constructor() {
 
         private var datasetId: String? = null
-        private var rowsInPage: Long? = null
-        private var filterCondition: String? = null
-        private var pageToken: String? = null
+        private var limit: Long? = null
+        private var startIndex: Long? = null
         private var additionalHeaders: Headers.Builder = Headers.builder()
         private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
 
-        internal fun from(datasetioGetRowsPaginatedParams: DatasetioGetRowsPaginatedParams) =
-            apply {
-                datasetId = datasetioGetRowsPaginatedParams.datasetId
-                rowsInPage = datasetioGetRowsPaginatedParams.rowsInPage
-                filterCondition = datasetioGetRowsPaginatedParams.filterCondition
-                pageToken = datasetioGetRowsPaginatedParams.pageToken
-                additionalHeaders = datasetioGetRowsPaginatedParams.additionalHeaders.toBuilder()
-                additionalQueryParams =
-                    datasetioGetRowsPaginatedParams.additionalQueryParams.toBuilder()
-            }
-
-        /** The ID of the dataset to get the rows from. */
-        fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
-
-        /** The number of rows to get per page. */
-        fun rowsInPage(rowsInPage: Long) = apply { this.rowsInPage = rowsInPage }
-
-        /** (Optional) A condition to filter the rows by. */
-        fun filterCondition(filterCondition: String?) = apply {
-            this.filterCondition = filterCondition
+        internal fun from(datasetIterrowsParams: DatasetIterrowsParams) = apply {
+            datasetId = datasetIterrowsParams.datasetId
+            limit = datasetIterrowsParams.limit
+            startIndex = datasetIterrowsParams.startIndex
+            additionalHeaders = datasetIterrowsParams.additionalHeaders.toBuilder()
+            additionalQueryParams = datasetIterrowsParams.additionalQueryParams.toBuilder()
         }
 
-        /** The token to get the next page of rows. */
-        fun pageToken(pageToken: String?) = apply { this.pageToken = pageToken }
+        fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+
+        /** The number of rows to get. */
+        fun limit(limit: Long?) = apply { this.limit = limit }
+
+        /**
+         * Alias for [Builder.limit].
+         *
+         * This unboxed primitive overload exists for backwards compatibility.
+         */
+        fun limit(limit: Long) = limit(limit as Long?)
+
+        /** Index into dataset for the first row to get. Get all rows if None. */
+        fun startIndex(startIndex: Long?) = apply { this.startIndex = startIndex }
+
+        /**
+         * Alias for [Builder.startIndex].
+         *
+         * This unboxed primitive overload exists for backwards compatibility.
+         */
+        fun startIndex(startIndex: Long) = startIndex(startIndex as Long?)
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -199,27 +190,55 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
-        fun build(): DatasetioGetRowsPaginatedParams =
-            DatasetioGetRowsPaginatedParams(
+        /**
+         * Returns an immutable instance of [DatasetIterrowsParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .datasetId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
+        fun build(): DatasetIterrowsParams =
+            DatasetIterrowsParams(
                 checkRequired("datasetId", datasetId),
-                checkRequired("rowsInPage", rowsInPage),
-                filterCondition,
-                pageToken,
+                limit,
+                startIndex,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
     }
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> datasetId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams =
+        QueryParams.builder()
+            .apply {
+                limit?.let { put("limit", it.toString()) }
+                startIndex?.let { put("start_index", it.toString()) }
+                putAll(additionalQueryParams)
+            }
+            .build()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is DatasetioGetRowsPaginatedParams && datasetId == other.datasetId && rowsInPage == other.rowsInPage && filterCondition == other.filterCondition && pageToken == other.pageToken && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
+        return /* spotless:off */ other is DatasetIterrowsParams && datasetId == other.datasetId && limit == other.limit && startIndex == other.startIndex && additionalHeaders == other.additionalHeaders && additionalQueryParams == other.additionalQueryParams /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, rowsInPage, filterCondition, pageToken, additionalHeaders, additionalQueryParams) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(datasetId, limit, startIndex, additionalHeaders, additionalQueryParams) /* spotless:on */
 
     override fun toString() =
-        "DatasetioGetRowsPaginatedParams{datasetId=$datasetId, rowsInPage=$rowsInPage, filterCondition=$filterCondition, pageToken=$pageToken, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
+        "DatasetIterrowsParams{datasetId=$datasetId, limit=$limit, startIndex=$startIndex, additionalHeaders=$additionalHeaders, additionalQueryParams=$additionalQueryParams}"
 }

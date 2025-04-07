@@ -2,11 +2,10 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentTurnCreateParamsTest {
+internal class AgentTurnCreateParamsTest {
 
     @Test
     fun create() {
@@ -31,6 +30,21 @@ class AgentTurnCreateParamsTest {
             )
             .addToolgroup("string")
             .build()
+    }
+
+    @Test
+    fun pathParams() {
+        val params =
+            AgentTurnCreateParams.builder()
+                .agentId("agent_id")
+                .sessionId("session_id")
+                .addMessage(UserMessage.builder().content("string").build())
+                .build()
+
+        assertThat(params._pathParam(0)).isEqualTo("agent_id")
+        assertThat(params._pathParam(1)).isEqualTo("session_id")
+        // out-of-bound path param
+        assertThat(params._pathParam(2)).isEqualTo("")
     }
 
     @Test
@@ -60,23 +74,18 @@ class AgentTurnCreateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messages())
-            .isEqualTo(
-                listOf(
-                    AgentTurnCreateParams.Message.ofUser(
-                        UserMessage.builder().content("string").context("string").build()
-                    )
+            .containsExactly(
+                AgentTurnCreateParams.Message.ofUser(
+                    UserMessage.builder().content("string").context("string").build()
                 )
             )
         assertThat(body.documents())
-            .isEqualTo(
-                listOf(
-                    AgentTurnCreateParams.Document.builder()
-                        .content("string")
-                        .mimeType("mime_type")
-                        .build()
-                )
+            .containsExactly(
+                AgentTurnCreateParams.Document.builder()
+                    .content("string")
+                    .mimeType("mime_type")
+                    .build()
             )
         assertThat(body.toolConfig())
             .isEqualTo(
@@ -89,7 +98,7 @@ class AgentTurnCreateParamsTest {
                     .build()
             )
         assertThat(body.toolgroups())
-            .isEqualTo(listOf(AgentTurnCreateParams.Toolgroup.ofString("string")))
+            .containsExactly(AgentTurnCreateParams.Toolgroup.ofString("string"))
     }
 
     @Test
@@ -103,31 +112,11 @@ class AgentTurnCreateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messages())
-            .isEqualTo(
-                listOf(
-                    AgentTurnCreateParams.Message.ofUser(
-                        UserMessage.builder().content("string").build()
-                    )
+            .containsExactly(
+                AgentTurnCreateParams.Message.ofUser(
+                    UserMessage.builder().content("string").build()
                 )
             )
-    }
-
-    @Test
-    fun getPathParam() {
-        val params =
-            AgentTurnCreateParams.builder()
-                .agentId("agent_id")
-                .sessionId("session_id")
-                .addMessage(UserMessage.builder().content("string").build())
-                .build()
-        assertThat(params).isNotNull
-        // path param "agentId"
-        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
-        // path param "sessionId"
-        assertThat(params.getPathParam(1)).isEqualTo("session_id")
-        // out-of-bound path param
-        assertThat(params.getPathParam(2)).isEqualTo("")
     }
 }

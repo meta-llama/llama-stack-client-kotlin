@@ -10,33 +10,40 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class ToolGroup
-@JsonCreator
 private constructor(
-    @JsonProperty("identifier")
-    @ExcludeMissing
-    private val identifier: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("provider_id")
-    @ExcludeMissing
-    private val providerId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("provider_resource_id")
-    @ExcludeMissing
-    private val providerResourceId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-    @JsonProperty("args") @ExcludeMissing private val args: JsonField<Args> = JsonMissing.of(),
-    @JsonProperty("mcp_endpoint")
-    @ExcludeMissing
-    private val mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val identifier: JsonField<String>,
+    private val providerId: JsonField<String>,
+    private val providerResourceId: JsonField<String>,
+    private val type: JsonValue,
+    private val args: JsonField<Args>,
+    private val mcpEndpoint: JsonField<McpEndpoint>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("identifier")
+        @ExcludeMissing
+        identifier: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("provider_id")
+        @ExcludeMissing
+        providerId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("provider_resource_id")
+        @ExcludeMissing
+        providerResourceId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        @JsonProperty("args") @ExcludeMissing args: JsonField<Args> = JsonMissing.of(),
+        @JsonProperty("mcp_endpoint")
+        @ExcludeMissing
+        mcpEndpoint: JsonField<McpEndpoint> = JsonMissing.of(),
+    ) : this(identifier, providerId, providerResourceId, type, args, mcpEndpoint, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -119,29 +126,15 @@ private constructor(
     @ExcludeMissing
     fun _mcpEndpoint(): JsonField<McpEndpoint> = mcpEndpoint
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ToolGroup = apply {
-        if (validated) {
-            return@apply
-        }
-
-        identifier()
-        providerId()
-        providerResourceId()
-        _type().let {
-            if (it != JsonValue.from("tool_group")) {
-                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-            }
-        }
-        args()?.validate()
-        mcpEndpoint()?.validate()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -273,6 +266,20 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ToolGroup].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .identifier()
+         * .providerId()
+         * .providerResourceId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ToolGroup =
             ToolGroup(
                 checkRequired("identifier", identifier),
@@ -281,31 +288,61 @@ private constructor(
                 type,
                 args,
                 mcpEndpoint,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): ToolGroup = apply {
+        if (validated) {
+            return@apply
+        }
+
+        identifier()
+        providerId()
+        providerResourceId()
+        _type().let {
+            if (it != JsonValue.from("tool_group")) {
+                throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+            }
+        }
+        args()?.validate()
+        mcpEndpoint()?.validate()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (identifier.asKnown() == null) 0 else 1) +
+            (if (providerId.asKnown() == null) 0 else 1) +
+            (if (providerResourceId.asKnown() == null) 0 else 1) +
+            type.let { if (it == JsonValue.from("tool_group")) 1 else 0 } +
+            (args.asKnown()?.validity() ?: 0) +
+            (mcpEndpoint.asKnown()?.validity() ?: 0)
+
     class Args
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Args = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -343,8 +380,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Args].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): Args = Args(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Args = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -363,14 +432,16 @@ private constructor(
         override fun toString() = "Args{additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class McpEndpoint
-    @JsonCreator
     private constructor(
-        @JsonProperty("uri") @ExcludeMissing private val uri: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val uri: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("uri") @ExcludeMissing uri: JsonField<String> = JsonMissing.of()
+        ) : this(uri, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -386,20 +457,15 @@ private constructor(
          */
         @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): McpEndpoint = apply {
-            if (validated) {
-                return@apply
-            }
-
-            uri()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -457,9 +523,48 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [McpEndpoint].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .uri()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): McpEndpoint =
-                McpEndpoint(checkRequired("uri", uri), additionalProperties.toImmutable())
+                McpEndpoint(checkRequired("uri", uri), additionalProperties.toMutableMap())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): McpEndpoint = apply {
+            if (validated) {
+                return@apply
+            }
+
+            uri()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = (if (uri.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

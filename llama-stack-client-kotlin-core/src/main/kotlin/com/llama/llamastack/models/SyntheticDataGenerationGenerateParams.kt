@@ -11,15 +11,14 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 class SyntheticDataGenerationGenerateParams
@@ -77,300 +76,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("dialogs")
-        @ExcludeMissing
-        private val dialogs: JsonField<List<Message>> = JsonMissing.of(),
-        @JsonProperty("filtering_function")
-        @ExcludeMissing
-        private val filteringFunction: JsonField<FilteringFunction> = JsonMissing.of(),
-        @JsonProperty("model")
-        @ExcludeMissing
-        private val model: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun dialogs(): List<Message> = dialogs.getRequired("dialogs")
-
-        /**
-         * The type of filtering function.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun filteringFunction(): FilteringFunction =
-            filteringFunction.getRequired("filtering_function")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun model(): String? = model.getNullable("model")
-
-        /**
-         * Returns the raw JSON value of [dialogs].
-         *
-         * Unlike [dialogs], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("dialogs") @ExcludeMissing fun _dialogs(): JsonField<List<Message>> = dialogs
-
-        /**
-         * Returns the raw JSON value of [filteringFunction].
-         *
-         * Unlike [filteringFunction], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("filtering_function")
-        @ExcludeMissing
-        fun _filteringFunction(): JsonField<FilteringFunction> = filteringFunction
-
-        /**
-         * Returns the raw JSON value of [model].
-         *
-         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            dialogs().forEach { it.validate() }
-            filteringFunction()
-            model()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .dialogs()
-             * .filteringFunction()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var dialogs: JsonField<MutableList<Message>>? = null
-            private var filteringFunction: JsonField<FilteringFunction>? = null
-            private var model: JsonField<String> = JsonMissing.of()
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                dialogs = body.dialogs.map { it.toMutableList() }
-                filteringFunction = body.filteringFunction
-                model = body.model
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            fun dialogs(dialogs: List<Message>) = dialogs(JsonField.of(dialogs))
-
-            /**
-             * Sets [Builder.dialogs] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.dialogs] with a well-typed `List<Message>` value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun dialogs(dialogs: JsonField<List<Message>>) = apply {
-                this.dialogs = dialogs.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Message] to [dialogs].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addDialog(dialog: Message) = apply {
-                dialogs =
-                    (dialogs ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("dialogs", it).add(dialog)
-                    }
-            }
-
-            /** Alias for calling [addDialog] with `Message.ofUser(user)`. */
-            fun addDialog(user: UserMessage) = addDialog(Message.ofUser(user))
-
-            /**
-             * Alias for calling [addDialog] with the following:
-             * ```kotlin
-             * UserMessage.builder()
-             *     .content(content)
-             *     .build()
-             * ```
-             */
-            fun addUserDialog(content: InterleavedContent) =
-                addDialog(UserMessage.builder().content(content).build())
-
-            /** Alias for calling [addUserDialog] with `InterleavedContent.ofString(string)`. */
-            fun addUserDialog(string: String) = addUserDialog(InterleavedContent.ofString(string))
-
-            /**
-             * Alias for calling [addUserDialog] with
-             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
-             */
-            fun addUserDialog(imageContentItem: InterleavedContent.ImageContentItem) =
-                addUserDialog(InterleavedContent.ofImageContentItem(imageContentItem))
-
-            /**
-             * Alias for calling [addUserDialog] with
-             * `InterleavedContent.ofTextContentItem(textContentItem)`.
-             */
-            fun addUserDialog(textContentItem: InterleavedContent.TextContentItem) =
-                addUserDialog(InterleavedContent.ofTextContentItem(textContentItem))
-
-            /** Alias for calling [addUserDialog] with `InterleavedContent.ofItems(items)`. */
-            fun addUserDialogOfItems(items: List<InterleavedContentItem>) =
-                addUserDialog(InterleavedContent.ofItems(items))
-
-            /** Alias for calling [addDialog] with `Message.ofSystem(system)`. */
-            fun addDialog(system: SystemMessage) = addDialog(Message.ofSystem(system))
-
-            /**
-             * Alias for calling [addDialog] with the following:
-             * ```kotlin
-             * SystemMessage.builder()
-             *     .content(content)
-             *     .build()
-             * ```
-             */
-            fun addSystemDialog(content: InterleavedContent) =
-                addDialog(SystemMessage.builder().content(content).build())
-
-            /** Alias for calling [addSystemDialog] with `InterleavedContent.ofString(string)`. */
-            fun addSystemDialog(string: String) =
-                addSystemDialog(InterleavedContent.ofString(string))
-
-            /**
-             * Alias for calling [addSystemDialog] with
-             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
-             */
-            fun addSystemDialog(imageContentItem: InterleavedContent.ImageContentItem) =
-                addSystemDialog(InterleavedContent.ofImageContentItem(imageContentItem))
-
-            /**
-             * Alias for calling [addSystemDialog] with
-             * `InterleavedContent.ofTextContentItem(textContentItem)`.
-             */
-            fun addSystemDialog(textContentItem: InterleavedContent.TextContentItem) =
-                addSystemDialog(InterleavedContent.ofTextContentItem(textContentItem))
-
-            /** Alias for calling [addSystemDialog] with `InterleavedContent.ofItems(items)`. */
-            fun addSystemDialogOfItems(items: List<InterleavedContentItem>) =
-                addSystemDialog(InterleavedContent.ofItems(items))
-
-            /** Alias for calling [addDialog] with `Message.ofToolResponse(toolResponse)`. */
-            fun addDialog(toolResponse: ToolResponseMessage) =
-                addDialog(Message.ofToolResponse(toolResponse))
-
-            /** Alias for calling [addDialog] with `Message.ofCompletion(completion)`. */
-            fun addDialog(completion: CompletionMessage) =
-                addDialog(Message.ofCompletion(completion))
-
-            /** The type of filtering function. */
-            fun filteringFunction(filteringFunction: FilteringFunction) =
-                filteringFunction(JsonField.of(filteringFunction))
-
-            /**
-             * Sets [Builder.filteringFunction] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.filteringFunction] with a well-typed
-             * [FilteringFunction] value instead. This method is primarily for setting the field to
-             * an undocumented or not yet supported value.
-             */
-            fun filteringFunction(filteringFunction: JsonField<FilteringFunction>) = apply {
-                this.filteringFunction = filteringFunction
-            }
-
-            fun model(model: String) = model(JsonField.of(model))
-
-            /**
-             * Sets [Builder.model] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.model] with a well-typed [String] value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun model(model: JsonField<String>) = apply { this.model = model }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("dialogs", dialogs).map { it.toImmutable() },
-                    checkRequired("filteringFunction", filteringFunction),
-                    model,
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(dialogs, filteringFunction, model, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -389,7 +94,6 @@ private constructor(
     }
 
     /** A builder for [SyntheticDataGenerationGenerateParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var body: Body.Builder = Body.builder()
@@ -404,6 +108,17 @@ private constructor(
             additionalQueryParams =
                 syntheticDataGenerationGenerateParams.additionalQueryParams.toBuilder()
         }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [dialogs]
+         * - [filteringFunction]
+         * - [model]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         fun dialogs(dialogs: List<Message>) = apply { body.dialogs(dialogs) }
 
@@ -646,12 +361,359 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [SyntheticDataGenerationGenerateParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .dialogs()
+         * .filteringFunction()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): SyntheticDataGenerationGenerateParams =
             SyntheticDataGenerationGenerateParams(
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
+    }
+
+    fun _body(): Body = body
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
+    private constructor(
+        private val dialogs: JsonField<List<Message>>,
+        private val filteringFunction: JsonField<FilteringFunction>,
+        private val model: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("dialogs")
+            @ExcludeMissing
+            dialogs: JsonField<List<Message>> = JsonMissing.of(),
+            @JsonProperty("filtering_function")
+            @ExcludeMissing
+            filteringFunction: JsonField<FilteringFunction> = JsonMissing.of(),
+            @JsonProperty("model") @ExcludeMissing model: JsonField<String> = JsonMissing.of(),
+        ) : this(dialogs, filteringFunction, model, mutableMapOf())
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun dialogs(): List<Message> = dialogs.getRequired("dialogs")
+
+        /**
+         * The type of filtering function.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun filteringFunction(): FilteringFunction =
+            filteringFunction.getRequired("filtering_function")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun model(): String? = model.getNullable("model")
+
+        /**
+         * Returns the raw JSON value of [dialogs].
+         *
+         * Unlike [dialogs], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("dialogs") @ExcludeMissing fun _dialogs(): JsonField<List<Message>> = dialogs
+
+        /**
+         * Returns the raw JSON value of [filteringFunction].
+         *
+         * Unlike [filteringFunction], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("filtering_function")
+        @ExcludeMissing
+        fun _filteringFunction(): JsonField<FilteringFunction> = filteringFunction
+
+        /**
+         * Returns the raw JSON value of [model].
+         *
+         * Unlike [model], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("model") @ExcludeMissing fun _model(): JsonField<String> = model
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .dialogs()
+             * .filteringFunction()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var dialogs: JsonField<MutableList<Message>>? = null
+            private var filteringFunction: JsonField<FilteringFunction>? = null
+            private var model: JsonField<String> = JsonMissing.of()
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                dialogs = body.dialogs.map { it.toMutableList() }
+                filteringFunction = body.filteringFunction
+                model = body.model
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            fun dialogs(dialogs: List<Message>) = dialogs(JsonField.of(dialogs))
+
+            /**
+             * Sets [Builder.dialogs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.dialogs] with a well-typed `List<Message>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun dialogs(dialogs: JsonField<List<Message>>) = apply {
+                this.dialogs = dialogs.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Message] to [dialogs].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addDialog(dialog: Message) = apply {
+                dialogs =
+                    (dialogs ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("dialogs", it).add(dialog)
+                    }
+            }
+
+            /** Alias for calling [addDialog] with `Message.ofUser(user)`. */
+            fun addDialog(user: UserMessage) = addDialog(Message.ofUser(user))
+
+            /**
+             * Alias for calling [addDialog] with the following:
+             * ```kotlin
+             * UserMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
+            fun addUserDialog(content: InterleavedContent) =
+                addDialog(UserMessage.builder().content(content).build())
+
+            /** Alias for calling [addUserDialog] with `InterleavedContent.ofString(string)`. */
+            fun addUserDialog(string: String) = addUserDialog(InterleavedContent.ofString(string))
+
+            /**
+             * Alias for calling [addUserDialog] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
+            fun addUserDialog(imageContentItem: InterleavedContent.ImageContentItem) =
+                addUserDialog(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /**
+             * Alias for calling [addUserDialog] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
+            fun addUserDialog(textContentItem: InterleavedContent.TextContentItem) =
+                addUserDialog(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** Alias for calling [addUserDialog] with `InterleavedContent.ofItems(items)`. */
+            fun addUserDialogOfItems(items: List<InterleavedContentItem>) =
+                addUserDialog(InterleavedContent.ofItems(items))
+
+            /** Alias for calling [addDialog] with `Message.ofSystem(system)`. */
+            fun addDialog(system: SystemMessage) = addDialog(Message.ofSystem(system))
+
+            /**
+             * Alias for calling [addDialog] with the following:
+             * ```kotlin
+             * SystemMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
+            fun addSystemDialog(content: InterleavedContent) =
+                addDialog(SystemMessage.builder().content(content).build())
+
+            /** Alias for calling [addSystemDialog] with `InterleavedContent.ofString(string)`. */
+            fun addSystemDialog(string: String) =
+                addSystemDialog(InterleavedContent.ofString(string))
+
+            /**
+             * Alias for calling [addSystemDialog] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
+            fun addSystemDialog(imageContentItem: InterleavedContent.ImageContentItem) =
+                addSystemDialog(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /**
+             * Alias for calling [addSystemDialog] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
+            fun addSystemDialog(textContentItem: InterleavedContent.TextContentItem) =
+                addSystemDialog(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** Alias for calling [addSystemDialog] with `InterleavedContent.ofItems(items)`. */
+            fun addSystemDialogOfItems(items: List<InterleavedContentItem>) =
+                addSystemDialog(InterleavedContent.ofItems(items))
+
+            /** Alias for calling [addDialog] with `Message.ofToolResponse(toolResponse)`. */
+            fun addDialog(toolResponse: ToolResponseMessage) =
+                addDialog(Message.ofToolResponse(toolResponse))
+
+            /** Alias for calling [addDialog] with `Message.ofCompletion(completion)`. */
+            fun addDialog(completion: CompletionMessage) =
+                addDialog(Message.ofCompletion(completion))
+
+            /** The type of filtering function. */
+            fun filteringFunction(filteringFunction: FilteringFunction) =
+                filteringFunction(JsonField.of(filteringFunction))
+
+            /**
+             * Sets [Builder.filteringFunction] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.filteringFunction] with a well-typed
+             * [FilteringFunction] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
+            fun filteringFunction(filteringFunction: JsonField<FilteringFunction>) = apply {
+                this.filteringFunction = filteringFunction
+            }
+
+            fun model(model: String) = model(JsonField.of(model))
+
+            /**
+             * Sets [Builder.model] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.model] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun model(model: JsonField<String>) = apply { this.model = model }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .dialogs()
+             * .filteringFunction()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("dialogs", dialogs).map { it.toImmutable() },
+                    checkRequired("filteringFunction", filteringFunction),
+                    model,
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            dialogs().forEach { it.validate() }
+            filteringFunction().validate()
+            model()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (dialogs.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (filteringFunction.asKnown()?.validity() ?: 0) +
+                (if (model.asKnown() == null) 0 else 1)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && dialogs == other.dialogs && filteringFunction == other.filteringFunction && model == other.model && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(dialogs, filteringFunction, model, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{dialogs=$dialogs, filteringFunction=$filteringFunction, model=$model, additionalProperties=$additionalProperties}"
     }
 
     /** The type of filtering function. */
@@ -769,6 +831,33 @@ private constructor(
         fun asString(): String =
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+        private var validated: Boolean = false
+
+        fun validate(): FilteringFunction = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

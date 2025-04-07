@@ -6,7 +6,7 @@ import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToolRuntimeListToolsParamsTest {
+internal class ToolRuntimeListToolsParamsTest {
 
     @Test
     fun create() {
@@ -23,20 +23,24 @@ class ToolRuntimeListToolsParamsTest {
                 .mcpEndpoint(ToolRuntimeListToolsParams.McpEndpoint.builder().uri("uri").build())
                 .toolGroupId("tool_group_id")
                 .build()
-        val expected = QueryParams.builder()
-        ToolRuntimeListToolsParams.McpEndpoint.builder().uri("uri").build().forEachQueryParam {
-            key,
-            values ->
-            expected.put("mcp_endpoint[$key]", values)
-        }
-        expected.put("tool_group_id", "tool_group_id")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams)
+            .isEqualTo(
+                QueryParams.builder()
+                    .put("mcp_endpoint[uri]", "uri")
+                    .put("tool_group_id", "tool_group_id")
+                    .build()
+            )
     }
 
     @Test
     fun queryParamsWithoutOptionalFields() {
         val params = ToolRuntimeListToolsParams.builder().build()
-        val expected = QueryParams.builder()
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
     }
 }

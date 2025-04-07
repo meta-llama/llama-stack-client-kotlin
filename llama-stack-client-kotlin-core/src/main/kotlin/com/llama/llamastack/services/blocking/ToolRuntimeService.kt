@@ -5,7 +5,6 @@ package com.llama.llamastack.services.blocking
 import com.google.errorprone.annotations.MustBeClosed
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
-import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
@@ -27,16 +26,14 @@ interface ToolRuntimeService {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolInvocationResult
 
-    @MustBeClosed
-    fun listToolsStreaming(
+    fun listTools(
         params: ToolRuntimeListToolsParams = ToolRuntimeListToolsParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): StreamResponse<ToolDef>
+    ): List<ToolDef>
 
-    /** @see [listToolsStreaming] */
-    @MustBeClosed
-    fun listToolsStreaming(requestOptions: RequestOptions): StreamResponse<ToolDef> =
-        listToolsStreaming(ToolRuntimeListToolsParams.none(), requestOptions)
+    /** @see [listTools] */
+    fun listTools(requestOptions: RequestOptions): List<ToolDef> =
+        listTools(ToolRuntimeListToolsParams.none(), requestOptions)
 
     /**
      * A view of [ToolRuntimeService] that provides access to raw HTTP responses for each method.
@@ -57,19 +54,17 @@ interface ToolRuntimeService {
 
         /**
          * Returns a raw HTTP response for `get /v1/tool-runtime/list-tools`, but is otherwise the
-         * same as [ToolRuntimeService.listToolsStreaming].
+         * same as [ToolRuntimeService.listTools].
          */
         @MustBeClosed
-        fun listToolsStreaming(
+        fun listTools(
             params: ToolRuntimeListToolsParams = ToolRuntimeListToolsParams.none(),
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<StreamResponse<ToolDef>>
+        ): HttpResponseFor<List<ToolDef>>
 
-        /** @see [listToolsStreaming] */
+        /** @see [listTools] */
         @MustBeClosed
-        fun listToolsStreaming(
-            requestOptions: RequestOptions
-        ): HttpResponseFor<StreamResponse<ToolDef>> =
-            listToolsStreaming(ToolRuntimeListToolsParams.none(), requestOptions)
+        fun listTools(requestOptions: RequestOptions): HttpResponseFor<List<ToolDef>> =
+            listTools(ToolRuntimeListToolsParams.none(), requestOptions)
     }
 }

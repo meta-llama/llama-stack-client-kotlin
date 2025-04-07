@@ -10,27 +10,30 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** A scoring result for a single row. */
-@NoAutoDetect
 class ScoringResult
-@JsonCreator
 private constructor(
-    @JsonProperty("aggregated_results")
-    @ExcludeMissing
-    private val aggregatedResults: JsonField<AggregatedResults> = JsonMissing.of(),
-    @JsonProperty("score_rows")
-    @ExcludeMissing
-    private val scoreRows: JsonField<List<ScoreRow>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val aggregatedResults: JsonField<AggregatedResults>,
+    private val scoreRows: JsonField<List<ScoreRow>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("aggregated_results")
+        @ExcludeMissing
+        aggregatedResults: JsonField<AggregatedResults> = JsonMissing.of(),
+        @JsonProperty("score_rows")
+        @ExcludeMissing
+        scoreRows: JsonField<List<ScoreRow>> = JsonMissing.of(),
+    ) : this(aggregatedResults, scoreRows, mutableMapOf())
 
     /**
      * Map of metric name to aggregated value
@@ -67,21 +70,15 @@ private constructor(
     @ExcludeMissing
     fun _scoreRows(): JsonField<List<ScoreRow>> = scoreRows
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ScoringResult = apply {
-        if (validated) {
-            return@apply
-        }
-
-        aggregatedResults().validate()
-        scoreRows().forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -172,36 +169,67 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ScoringResult].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .aggregatedResults()
+         * .scoreRows()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ScoringResult =
             ScoringResult(
                 checkRequired("aggregatedResults", aggregatedResults),
                 checkRequired("scoreRows", scoreRows).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
+    private var validated: Boolean = false
+
+    fun validate(): ScoringResult = apply {
+        if (validated) {
+            return@apply
+        }
+
+        aggregatedResults().validate()
+        scoreRows().forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (aggregatedResults.asKnown()?.validity() ?: 0) +
+            (scoreRows.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
+
     /** Map of metric name to aggregated value */
-    @NoAutoDetect
     class AggregatedResults
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AggregatedResults = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -239,8 +267,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AggregatedResults].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): AggregatedResults = AggregatedResults(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AggregatedResults = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -259,27 +319,16 @@ private constructor(
         override fun toString() = "AggregatedResults{additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class ScoreRow
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ScoreRow = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -317,8 +366,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ScoreRow].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): ScoreRow = ScoreRow(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ScoreRow = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

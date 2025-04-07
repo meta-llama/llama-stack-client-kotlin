@@ -2,21 +2,16 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TelemetryQueryTracesParamsTest {
+internal class TelemetryQueryTracesParamsTest {
 
     @Test
     fun create() {
         TelemetryQueryTracesParams.builder()
             .addAttributeFilter(
-                QueryCondition.builder()
-                    .key("key")
-                    .op(QueryCondition.Op.EQ)
-                    .value(QueryCondition.Value.ofBoolean(true))
-                    .build()
+                QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
             )
             .limit(0L)
             .offset(0L)
@@ -29,11 +24,7 @@ class TelemetryQueryTracesParamsTest {
         val params =
             TelemetryQueryTracesParams.builder()
                 .addAttributeFilter(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
+                    QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
                 )
                 .limit(0L)
                 .offset(0L)
@@ -42,20 +33,13 @@ class TelemetryQueryTracesParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.attributeFilters())
-            .isEqualTo(
-                listOf(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
-                )
+            .containsExactly(
+                QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
             )
         assertThat(body.limit()).isEqualTo(0L)
         assertThat(body.offset()).isEqualTo(0L)
-        assertThat(body.orderBy()).isEqualTo(listOf("string"))
+        assertThat(body.orderBy()).containsExactly("string")
     }
 
     @Test
@@ -63,7 +47,5 @@ class TelemetryQueryTracesParamsTest {
         val params = TelemetryQueryTracesParams.builder().build()
 
         val body = params._body()
-
-        assertNotNull(body)
     }
 }

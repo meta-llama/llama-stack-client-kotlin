@@ -11,25 +11,26 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** A chunk of a streamed chat completion response. */
-@NoAutoDetect
 class ChatCompletionResponseStreamChunk
-@JsonCreator
 private constructor(
-    @JsonProperty("event") @ExcludeMissing private val event: JsonField<Event> = JsonMissing.of(),
-    @JsonProperty("metrics")
-    @ExcludeMissing
-    private val metrics: JsonField<List<Metric>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val event: JsonField<Event>,
+    private val metrics: JsonField<List<Metric>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("event") @ExcludeMissing event: JsonField<Event> = JsonMissing.of(),
+        @JsonProperty("metrics") @ExcludeMissing metrics: JsonField<List<Metric>> = JsonMissing.of(),
+    ) : this(event, metrics, mutableMapOf())
 
     /**
      * The event containing the new content
@@ -59,21 +60,15 @@ private constructor(
      */
     @JsonProperty("metrics") @ExcludeMissing fun _metrics(): JsonField<List<Metric>> = metrics
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ChatCompletionResponseStreamChunk = apply {
-        if (validated) {
-            return@apply
-        }
-
-        event().validate()
-        metrics()?.forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -161,34 +156,80 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ChatCompletionResponseStreamChunk].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .event()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ChatCompletionResponseStreamChunk =
             ChatCompletionResponseStreamChunk(
                 checkRequired("event", event),
                 (metrics ?: JsonMissing.of()).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
+    private var validated: Boolean = false
+
+    fun validate(): ChatCompletionResponseStreamChunk = apply {
+        if (validated) {
+            return@apply
+        }
+
+        event().validate()
+        metrics()?.forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (event.asKnown()?.validity() ?: 0) +
+            (metrics.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
+
     /** The event containing the new content */
-    @NoAutoDetect
     class Event
-    @JsonCreator
     private constructor(
-        @JsonProperty("delta")
-        @ExcludeMissing
-        private val delta: JsonField<ContentDelta> = JsonMissing.of(),
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonField<EventType> = JsonMissing.of(),
-        @JsonProperty("logprobs")
-        @ExcludeMissing
-        private val logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
-        @JsonProperty("stop_reason")
-        @ExcludeMissing
-        private val stopReason: JsonField<StopReason> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val delta: JsonField<ContentDelta>,
+        private val eventType: JsonField<EventType>,
+        private val logprobs: JsonField<List<TokenLogProbs>>,
+        private val stopReason: JsonField<StopReason>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("delta")
+            @ExcludeMissing
+            delta: JsonField<ContentDelta> = JsonMissing.of(),
+            @JsonProperty("event_type")
+            @ExcludeMissing
+            eventType: JsonField<EventType> = JsonMissing.of(),
+            @JsonProperty("logprobs")
+            @ExcludeMissing
+            logprobs: JsonField<List<TokenLogProbs>> = JsonMissing.of(),
+            @JsonProperty("stop_reason")
+            @ExcludeMissing
+            stopReason: JsonField<StopReason> = JsonMissing.of(),
+        ) : this(delta, eventType, logprobs, stopReason, mutableMapOf())
 
         /**
          * Content generated since last event. This can be one or more tokens, or a tool call.
@@ -258,23 +299,15 @@ private constructor(
         @ExcludeMissing
         fun _stopReason(): JsonField<StopReason> = stopReason
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Event = apply {
-            if (validated) {
-                return@apply
-            }
-
-            delta().validate()
-            eventType()
-            logprobs()?.forEach { it.validate() }
-            stopReason()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -425,15 +458,62 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Event].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .delta()
+             * .eventType()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Event =
                 Event(
                     checkRequired("delta", delta),
                     checkRequired("eventType", eventType),
                     (logprobs ?: JsonMissing.of()).map { it.toImmutable() },
                     stopReason,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Event = apply {
+            if (validated) {
+                return@apply
+            }
+
+            delta().validate()
+            eventType().validate()
+            logprobs()?.forEach { it.validate() }
+            stopReason()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (delta.asKnown()?.validity() ?: 0) +
+                (eventType.asKnown()?.validity() ?: 0) +
+                (logprobs.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (stopReason.asKnown()?.validity() ?: 0)
 
         /** Type of the event */
         class EventType @JsonCreator private constructor(private val value: JsonField<String>) :
@@ -531,6 +611,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): EventType = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -642,6 +749,33 @@ private constructor(
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+            private var validated: Boolean = false
+
+            fun validate(): StopReason = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -673,22 +807,20 @@ private constructor(
             "Event{delta=$delta, eventType=$eventType, logprobs=$logprobs, stopReason=$stopReason, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class Metric
-    @JsonCreator
     private constructor(
-        @JsonProperty("metric")
-        @ExcludeMissing
-        private val metric: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("value")
-        @ExcludeMissing
-        private val value: JsonField<Double> = JsonMissing.of(),
-        @JsonProperty("unit")
-        @ExcludeMissing
-        private val unit: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val metric: JsonField<String>,
+        private val value: JsonField<Double>,
+        private val unit: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("metric") @ExcludeMissing metric: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("value") @ExcludeMissing value: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("unit") @ExcludeMissing unit: JsonField<String> = JsonMissing.of(),
+        ) : this(metric, value, unit, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -731,22 +863,15 @@ private constructor(
          */
         @JsonProperty("unit") @ExcludeMissing fun _unit(): JsonField<String> = unit
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Metric = apply {
-            if (validated) {
-                return@apply
-            }
-
-            metric()
-            value()
-            unit()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -831,14 +956,59 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Metric].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .metric()
+             * .value()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Metric =
                 Metric(
                     checkRequired("metric", metric),
                     checkRequired("value", value),
                     unit,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Metric = apply {
+            if (validated) {
+                return@apply
+            }
+
+            metric()
+            value()
+            unit()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (metric.asKnown() == null) 0 else 1) +
+                (if (value.asKnown() == null) 0 else 1) +
+                (if (unit.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

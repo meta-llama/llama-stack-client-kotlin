@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ListVectorDbsResponse
 import com.llama.llamastack.models.VectorDbListParams
@@ -38,7 +38,7 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
     override suspend fun retrieve(
         params: VectorDbRetrieveParams,
         requestOptions: RequestOptions,
-    ): VectorDbRetrieveResponse? =
+    ): VectorDbRetrieveResponse =
         // get /v1/vector-dbs/{vector_db_id}
         withRawResponse().retrieve(params, requestOptions).parse()
 
@@ -67,21 +67,20 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         VectorDbServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
-        private val retrieveHandler: Handler<VectorDbRetrieveResponse?> =
-            jsonHandler<VectorDbRetrieveResponse?>(clientOptions.jsonMapper)
+        private val retrieveHandler: Handler<VectorDbRetrieveResponse> =
+            jsonHandler<VectorDbRetrieveResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
 
         override suspend fun retrieve(
             params: VectorDbRetrieveParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<VectorDbRetrieveResponse?> {
+        ): HttpResponseFor<VectorDbRetrieveResponse> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "vector-dbs", params.getPathParam(0))
+                    .addPathSegments("v1", "vector-dbs", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -91,7 +90,7 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
                     .use { retrieveHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }
@@ -163,7 +162,7 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
-                    .addPathSegments("v1", "vector-dbs", params.getPathParam(0))
+                    .addPathSegments("v1", "vector-dbs", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()
                     .prepareAsync(clientOptions, params)

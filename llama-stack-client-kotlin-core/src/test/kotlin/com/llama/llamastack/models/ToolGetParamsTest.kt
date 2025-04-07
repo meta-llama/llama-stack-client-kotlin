@@ -5,7 +5,7 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToolGetParamsTest {
+internal class ToolGetParamsTest {
 
     @Test
     fun create() {
@@ -13,12 +13,11 @@ class ToolGetParamsTest {
     }
 
     @Test
-    fun getPathParam() {
+    fun pathParams() {
         val params = ToolGetParams.builder().toolName("tool_name").build()
-        assertThat(params).isNotNull
-        // path param "toolName"
-        assertThat(params.getPathParam(0)).isEqualTo("tool_name")
+
+        assertThat(params._pathParam(0)).isEqualTo("tool_name")
         // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
+        assertThat(params._pathParam(1)).isEqualTo("")
     }
 }

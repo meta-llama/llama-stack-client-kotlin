@@ -20,12 +20,11 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 @JsonDeserialize(using = TurnResponseEventPayload.Deserializer::class)
@@ -92,8 +91,8 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             agentTurnResponseStepStart != null ->
                 visitor.visitAgentTurnResponseStepStart(agentTurnResponseStepStart)
             agentTurnResponseStepProgress != null ->
@@ -108,7 +107,6 @@ private constructor(
                 visitor.visitAgentTurnResponseTurnAwaitingInput(agentTurnResponseTurnAwaitingInput)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -158,6 +156,50 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitAgentTurnResponseStepStart(
+                    agentTurnResponseStepStart: AgentTurnResponseStepStartPayload
+                ) = agentTurnResponseStepStart.validity()
+
+                override fun visitAgentTurnResponseStepProgress(
+                    agentTurnResponseStepProgress: AgentTurnResponseStepProgressPayload
+                ) = agentTurnResponseStepProgress.validity()
+
+                override fun visitAgentTurnResponseStepComplete(
+                    agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload
+                ) = agentTurnResponseStepComplete.validity()
+
+                override fun visitAgentTurnResponseTurnStart(
+                    agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload
+                ) = agentTurnResponseTurnStart.validity()
+
+                override fun visitAgentTurnResponseTurnComplete(
+                    agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
+                ) = agentTurnResponseTurnComplete.validity()
+
+                override fun visitAgentTurnResponseTurnAwaitingInput(
+                    agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
+                ) = agentTurnResponseTurnAwaitingInput.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -271,73 +313,64 @@ private constructor(
 
             when (eventType) {
                 "step_start" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentTurnResponseStepStartPayload>()) {
-                            it.validate()
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<AgentTurnResponseStepStartPayload>())
                         ?.let {
-                            return TurnResponseEventPayload(
-                                agentTurnResponseStepStart = it,
-                                _json = json,
-                            )
-                        }
+                            TurnResponseEventPayload(agentTurnResponseStepStart = it, _json = json)
+                        } ?: TurnResponseEventPayload(_json = json)
                 }
                 "step_progress" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentTurnResponseStepProgressPayload>()) {
-                            it.validate()
-                        }
+                    return tryDeserialize(
+                            node,
+                            jacksonTypeRef<AgentTurnResponseStepProgressPayload>(),
+                        )
                         ?.let {
-                            return TurnResponseEventPayload(
+                            TurnResponseEventPayload(
                                 agentTurnResponseStepProgress = it,
                                 _json = json,
                             )
-                        }
+                        } ?: TurnResponseEventPayload(_json = json)
                 }
                 "step_complete" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentTurnResponseStepCompletePayload>()) {
-                            it.validate()
-                        }
+                    return tryDeserialize(
+                            node,
+                            jacksonTypeRef<AgentTurnResponseStepCompletePayload>(),
+                        )
                         ?.let {
-                            return TurnResponseEventPayload(
+                            TurnResponseEventPayload(
                                 agentTurnResponseStepComplete = it,
                                 _json = json,
                             )
-                        }
+                        } ?: TurnResponseEventPayload(_json = json)
                 }
                 "turn_start" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentTurnResponseTurnStartPayload>()) {
-                            it.validate()
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<AgentTurnResponseTurnStartPayload>())
                         ?.let {
-                            return TurnResponseEventPayload(
-                                agentTurnResponseTurnStart = it,
-                                _json = json,
-                            )
-                        }
+                            TurnResponseEventPayload(agentTurnResponseTurnStart = it, _json = json)
+                        } ?: TurnResponseEventPayload(_json = json)
                 }
                 "turn_complete" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentTurnResponseTurnCompletePayload>()) {
-                            it.validate()
-                        }
+                    return tryDeserialize(
+                            node,
+                            jacksonTypeRef<AgentTurnResponseTurnCompletePayload>(),
+                        )
                         ?.let {
-                            return TurnResponseEventPayload(
+                            TurnResponseEventPayload(
                                 agentTurnResponseTurnComplete = it,
                                 _json = json,
                             )
-                        }
+                        } ?: TurnResponseEventPayload(_json = json)
                 }
                 "turn_awaiting_input" -> {
-                    tryDeserialize(
+                    return tryDeserialize(
                             node,
                             jacksonTypeRef<AgentTurnResponseTurnAwaitingInputPayload>(),
-                        ) {
-                            it.validate()
-                        }
+                        )
                         ?.let {
-                            return TurnResponseEventPayload(
+                            TurnResponseEventPayload(
                                 agentTurnResponseTurnAwaitingInput = it,
                                 _json = json,
                             )
-                        }
+                        } ?: TurnResponseEventPayload(_json = json)
                 }
             }
 
@@ -372,25 +405,26 @@ private constructor(
         }
     }
 
-    @NoAutoDetect
     class AgentTurnResponseStepStartPayload
-    @JsonCreator
     private constructor(
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonValue = JsonMissing.of(),
-        @JsonProperty("step_id")
-        @ExcludeMissing
-        private val stepId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("step_type")
-        @ExcludeMissing
-        private val stepType: JsonField<StepType> = JsonMissing.of(),
-        @JsonProperty("metadata")
-        @ExcludeMissing
-        private val metadata: JsonField<Metadata> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val eventType: JsonValue,
+        private val stepId: JsonField<String>,
+        private val stepType: JsonField<StepType>,
+        private val metadata: JsonField<Metadata>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("event_type") @ExcludeMissing eventType: JsonValue = JsonMissing.of(),
+            @JsonProperty("step_id") @ExcludeMissing stepId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("step_type")
+            @ExcludeMissing
+            stepType: JsonField<StepType> = JsonMissing.of(),
+            @JsonProperty("metadata")
+            @ExcludeMissing
+            metadata: JsonField<Metadata> = JsonMissing.of(),
+        ) : this(eventType, stepId, stepType, metadata, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -446,29 +480,15 @@ private constructor(
          */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentTurnResponseStepStartPayload = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _eventType().let {
-                if (it != JsonValue.from("step_start")) {
-                    throw LlamaStackClientInvalidDataException(
-                        "'eventType' is invalid, received $it"
-                    )
-                }
-            }
-            stepId()
-            stepType()
-            metadata()?.validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -574,15 +594,68 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentTurnResponseStepStartPayload].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .stepId()
+             * .stepType()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentTurnResponseStepStartPayload =
                 AgentTurnResponseStepStartPayload(
                     eventType,
                     checkRequired("stepId", stepId),
                     checkRequired("stepType", stepType),
                     metadata,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseStepStartPayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _eventType().let {
+                if (it != JsonValue.from("step_start")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            stepId()
+            stepType().validate()
+            metadata()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            eventType.let { if (it == JsonValue.from("step_start")) 1 else 0 } +
+                (if (stepId.asKnown() == null) 0 else 1) +
+                (stepType.asKnown()?.validity() ?: 0) +
+                (metadata.asKnown()?.validity() ?: 0)
 
         /** Type of the step in an agent turn. */
         class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
@@ -686,6 +759,33 @@ private constructor(
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+            private var validated: Boolean = false
+
+            fun validate(): StepType = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -699,27 +799,16 @@ private constructor(
             override fun toString() = value.toString()
         }
 
-        @NoAutoDetect
         class Metadata
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Metadata = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -760,8 +849,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [Metadata].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): Metadata = Metadata(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): Metadata = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -798,25 +919,26 @@ private constructor(
             "AgentTurnResponseStepStartPayload{eventType=$eventType, stepId=$stepId, stepType=$stepType, metadata=$metadata, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class AgentTurnResponseStepProgressPayload
-    @JsonCreator
     private constructor(
-        @JsonProperty("delta")
-        @ExcludeMissing
-        private val delta: JsonField<ContentDelta> = JsonMissing.of(),
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonValue = JsonMissing.of(),
-        @JsonProperty("step_id")
-        @ExcludeMissing
-        private val stepId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("step_type")
-        @ExcludeMissing
-        private val stepType: JsonField<StepType> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val delta: JsonField<ContentDelta>,
+        private val eventType: JsonValue,
+        private val stepId: JsonField<String>,
+        private val stepType: JsonField<StepType>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("delta")
+            @ExcludeMissing
+            delta: JsonField<ContentDelta> = JsonMissing.of(),
+            @JsonProperty("event_type") @ExcludeMissing eventType: JsonValue = JsonMissing.of(),
+            @JsonProperty("step_id") @ExcludeMissing stepId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("step_type")
+            @ExcludeMissing
+            stepType: JsonField<StepType> = JsonMissing.of(),
+        ) : this(delta, eventType, stepId, stepType, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -873,29 +995,15 @@ private constructor(
          */
         @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentTurnResponseStepProgressPayload = apply {
-            if (validated) {
-                return@apply
-            }
-
-            delta().validate()
-            _eventType().let {
-                if (it != JsonValue.from("step_progress")) {
-                    throw LlamaStackClientInvalidDataException(
-                        "'eventType' is invalid, received $it"
-                    )
-                }
-            }
-            stepId()
-            stepType()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1033,15 +1141,69 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentTurnResponseStepProgressPayload].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .delta()
+             * .stepId()
+             * .stepType()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentTurnResponseStepProgressPayload =
                 AgentTurnResponseStepProgressPayload(
                     checkRequired("delta", delta),
                     eventType,
                     checkRequired("stepId", stepId),
                     checkRequired("stepType", stepType),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseStepProgressPayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            delta().validate()
+            _eventType().let {
+                if (it != JsonValue.from("step_progress")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            stepId()
+            stepType().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (delta.asKnown()?.validity() ?: 0) +
+                eventType.let { if (it == JsonValue.from("step_progress")) 1 else 0 } +
+                (if (stepId.asKnown() == null) 0 else 1) +
+                (stepType.asKnown()?.validity() ?: 0)
 
         /** Type of the step in an agent turn. */
         class StepType @JsonCreator private constructor(private val value: JsonField<String>) :
@@ -1145,6 +1307,33 @@ private constructor(
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+            private var validated: Boolean = false
+
+            fun validate(): StepType = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -1176,25 +1365,26 @@ private constructor(
             "AgentTurnResponseStepProgressPayload{delta=$delta, eventType=$eventType, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class AgentTurnResponseStepCompletePayload
-    @JsonCreator
     private constructor(
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonValue = JsonMissing.of(),
-        @JsonProperty("step_details")
-        @ExcludeMissing
-        private val stepDetails: JsonField<StepDetails> = JsonMissing.of(),
-        @JsonProperty("step_id")
-        @ExcludeMissing
-        private val stepId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("step_type")
-        @ExcludeMissing
-        private val stepType: JsonField<StepType> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val eventType: JsonValue,
+        private val stepDetails: JsonField<StepDetails>,
+        private val stepId: JsonField<String>,
+        private val stepType: JsonField<StepType>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("event_type") @ExcludeMissing eventType: JsonValue = JsonMissing.of(),
+            @JsonProperty("step_details")
+            @ExcludeMissing
+            stepDetails: JsonField<StepDetails> = JsonMissing.of(),
+            @JsonProperty("step_id") @ExcludeMissing stepId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("step_type")
+            @ExcludeMissing
+            stepType: JsonField<StepType> = JsonMissing.of(),
+        ) : this(eventType, stepDetails, stepId, stepType, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -1255,29 +1445,15 @@ private constructor(
          */
         @JsonProperty("step_type") @ExcludeMissing fun _stepType(): JsonField<StepType> = stepType
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentTurnResponseStepCompletePayload = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _eventType().let {
-                if (it != JsonValue.from("step_complete")) {
-                    throw LlamaStackClientInvalidDataException(
-                        "'eventType' is invalid, received $it"
-                    )
-                }
-            }
-            stepDetails().validate()
-            stepId()
-            stepType()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1413,15 +1589,69 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentTurnResponseStepCompletePayload].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .stepDetails()
+             * .stepId()
+             * .stepType()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentTurnResponseStepCompletePayload =
                 AgentTurnResponseStepCompletePayload(
                     eventType,
                     checkRequired("stepDetails", stepDetails),
                     checkRequired("stepId", stepId),
                     checkRequired("stepType", stepType),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseStepCompletePayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _eventType().let {
+                if (it != JsonValue.from("step_complete")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            stepDetails().validate()
+            stepId()
+            stepType().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            eventType.let { if (it == JsonValue.from("step_complete")) 1 else 0 } +
+                (stepDetails.asKnown()?.validity() ?: 0) +
+                (if (stepId.asKnown() == null) 0 else 1) +
+                (stepType.asKnown()?.validity() ?: 0)
 
         /** An inference step in an agent turn. */
         @JsonDeserialize(using = StepDetails.Deserializer::class)
@@ -1471,8 +1701,8 @@ private constructor(
 
             fun _json(): JsonValue? = _json
 
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
+            fun <T> accept(visitor: Visitor<T>): T =
+                when {
                     inferenceStep != null -> visitor.visitInferenceStep(inferenceStep)
                     toolExecutionStep != null -> visitor.visitToolExecutionStep(toolExecutionStep)
                     shieldCallStep != null -> visitor.visitShieldCallStep(shieldCallStep)
@@ -1480,7 +1710,6 @@ private constructor(
                         visitor.visitMemoryRetrievalStep(memoryRetrievalStep)
                     else -> visitor.unknown(_json)
                 }
-            }
 
             private var validated: Boolean = false
 
@@ -1512,6 +1741,40 @@ private constructor(
                 )
                 validated = true
             }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                accept(
+                    object : Visitor<Int> {
+                        override fun visitInferenceStep(inferenceStep: InferenceStep) =
+                            inferenceStep.validity()
+
+                        override fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
+                            toolExecutionStep.validity()
+
+                        override fun visitShieldCallStep(shieldCallStep: ShieldCallStep) =
+                            shieldCallStep.validity()
+
+                        override fun visitMemoryRetrievalStep(
+                            memoryRetrievalStep: MemoryRetrievalStep
+                        ) = memoryRetrievalStep.validity()
+
+                        override fun unknown(json: JsonValue?) = 0
+                    }
+                )
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1594,32 +1857,24 @@ private constructor(
 
                     when (stepType) {
                         "inference" -> {
-                            tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
-                                ?.let {
-                                    return StepDetails(inferenceStep = it, _json = json)
-                                }
+                            return tryDeserialize(node, jacksonTypeRef<InferenceStep>())?.let {
+                                StepDetails(inferenceStep = it, _json = json)
+                            } ?: StepDetails(_json = json)
                         }
                         "tool_execution" -> {
-                            tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) {
-                                    it.validate()
-                                }
-                                ?.let {
-                                    return StepDetails(toolExecutionStep = it, _json = json)
-                                }
+                            return tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>())?.let {
+                                StepDetails(toolExecutionStep = it, _json = json)
+                            } ?: StepDetails(_json = json)
                         }
                         "shield_call" -> {
-                            tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
-                                ?.let {
-                                    return StepDetails(shieldCallStep = it, _json = json)
-                                }
+                            return tryDeserialize(node, jacksonTypeRef<ShieldCallStep>())?.let {
+                                StepDetails(shieldCallStep = it, _json = json)
+                            } ?: StepDetails(_json = json)
                         }
                         "memory_retrieval" -> {
-                            tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) {
-                                    it.validate()
-                                }
-                                ?.let {
-                                    return StepDetails(memoryRetrievalStep = it, _json = json)
-                                }
+                            return tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>())
+                                ?.let { StepDetails(memoryRetrievalStep = it, _json = json) }
+                                ?: StepDetails(_json = json)
                         }
                     }
 
@@ -1750,6 +2005,33 @@ private constructor(
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+            private var validated: Boolean = false
+
+            fun validate(): StepType = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -1781,19 +2063,18 @@ private constructor(
             "AgentTurnResponseStepCompletePayload{eventType=$eventType, stepDetails=$stepDetails, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class AgentTurnResponseTurnStartPayload
-    @JsonCreator
     private constructor(
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonValue = JsonMissing.of(),
-        @JsonProperty("turn_id")
-        @ExcludeMissing
-        private val turnId: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val eventType: JsonValue,
+        private val turnId: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("event_type") @ExcludeMissing eventType: JsonValue = JsonMissing.of(),
+            @JsonProperty("turn_id") @ExcludeMissing turnId: JsonField<String> = JsonMissing.of(),
+        ) : this(eventType, turnId, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -1820,27 +2101,15 @@ private constructor(
          */
         @JsonProperty("turn_id") @ExcludeMissing fun _turnId(): JsonField<String> = turnId
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentTurnResponseTurnStartPayload = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _eventType().let {
-                if (it != JsonValue.from("turn_start")) {
-                    throw LlamaStackClientInvalidDataException(
-                        "'eventType' is invalid, received $it"
-                    )
-                }
-            }
-            turnId()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1918,13 +2187,61 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentTurnResponseTurnStartPayload].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .turnId()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentTurnResponseTurnStartPayload =
                 AgentTurnResponseTurnStartPayload(
                     eventType,
                     checkRequired("turnId", turnId),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseTurnStartPayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _eventType().let {
+                if (it != JsonValue.from("turn_start")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            turnId()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            eventType.let { if (it == JsonValue.from("turn_start")) 1 else 0 } +
+                (if (turnId.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1944,17 +2261,18 @@ private constructor(
             "AgentTurnResponseTurnStartPayload{eventType=$eventType, turnId=$turnId, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class AgentTurnResponseTurnCompletePayload
-    @JsonCreator
     private constructor(
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonValue = JsonMissing.of(),
-        @JsonProperty("turn") @ExcludeMissing private val turn: JsonField<Turn> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val eventType: JsonValue,
+        private val turn: JsonField<Turn>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("event_type") @ExcludeMissing eventType: JsonValue = JsonMissing.of(),
+            @JsonProperty("turn") @ExcludeMissing turn: JsonField<Turn> = JsonMissing.of(),
+        ) : this(eventType, turn, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -1983,27 +2301,15 @@ private constructor(
          */
         @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentTurnResponseTurnCompletePayload = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _eventType().let {
-                if (it != JsonValue.from("turn_complete")) {
-                    throw LlamaStackClientInvalidDataException(
-                        "'eventType' is invalid, received $it"
-                    )
-                }
-            }
-            turn().validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -2082,13 +2388,61 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentTurnResponseTurnCompletePayload].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .turn()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentTurnResponseTurnCompletePayload =
                 AgentTurnResponseTurnCompletePayload(
                     eventType,
                     checkRequired("turn", turn),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseTurnCompletePayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _eventType().let {
+                if (it != JsonValue.from("turn_complete")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            turn().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            eventType.let { if (it == JsonValue.from("turn_complete")) 1 else 0 } +
+                (turn.asKnown()?.validity() ?: 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -2108,17 +2462,18 @@ private constructor(
             "AgentTurnResponseTurnCompletePayload{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class AgentTurnResponseTurnAwaitingInputPayload
-    @JsonCreator
     private constructor(
-        @JsonProperty("event_type")
-        @ExcludeMissing
-        private val eventType: JsonValue = JsonMissing.of(),
-        @JsonProperty("turn") @ExcludeMissing private val turn: JsonField<Turn> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val eventType: JsonValue,
+        private val turn: JsonField<Turn>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("event_type") @ExcludeMissing eventType: JsonValue = JsonMissing.of(),
+            @JsonProperty("turn") @ExcludeMissing turn: JsonField<Turn> = JsonMissing.of(),
+        ) : this(eventType, turn, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -2147,27 +2502,15 @@ private constructor(
          */
         @JsonProperty("turn") @ExcludeMissing fun _turn(): JsonField<Turn> = turn
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentTurnResponseTurnAwaitingInputPayload = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _eventType().let {
-                if (it != JsonValue.from("turn_awaiting_input")) {
-                    throw LlamaStackClientInvalidDataException(
-                        "'eventType' is invalid, received $it"
-                    )
-                }
-            }
-            turn().validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -2246,13 +2589,61 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentTurnResponseTurnAwaitingInputPayload].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .turn()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentTurnResponseTurnAwaitingInputPayload =
                 AgentTurnResponseTurnAwaitingInputPayload(
                     eventType,
                     checkRequired("turn", turn),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentTurnResponseTurnAwaitingInputPayload = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _eventType().let {
+                if (it != JsonValue.from("turn_awaiting_input")) {
+                    throw LlamaStackClientInvalidDataException(
+                        "'eventType' is invalid, received $it"
+                    )
+                }
+            }
+            turn().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            eventType.let { if (it == JsonValue.from("turn_awaiting_input")) 1 else 0 } +
+                (turn.asKnown()?.validity() ?: 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

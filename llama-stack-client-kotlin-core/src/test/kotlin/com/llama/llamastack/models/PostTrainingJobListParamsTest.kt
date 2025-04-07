@@ -4,7 +4,7 @@ package com.llama.llamastack.models
 
 import org.junit.jupiter.api.Test
 
-class PostTrainingJobListParamsTest {
+internal class PostTrainingJobListParamsTest {
 
     @Test
     fun create() {

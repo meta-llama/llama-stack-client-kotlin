@@ -5,7 +5,7 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class VectorDbRetrieveParamsTest {
+internal class VectorDbRetrieveParamsTest {
 
     @Test
     fun create() {
@@ -13,12 +13,11 @@ class VectorDbRetrieveParamsTest {
     }
 
     @Test
-    fun getPathParam() {
+    fun pathParams() {
         val params = VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
-        assertThat(params).isNotNull
-        // path param "vectorDbId"
-        assertThat(params.getPathParam(0)).isEqualTo("vector_db_id")
+
+        assertThat(params._pathParam(0)).isEqualTo("vector_db_id")
         // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
+        assertThat(params._pathParam(1)).isEqualTo("")
     }
 }

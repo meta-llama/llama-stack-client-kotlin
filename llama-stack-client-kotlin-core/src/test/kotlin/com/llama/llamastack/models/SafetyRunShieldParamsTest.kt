@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class SafetyRunShieldParamsTest {
+internal class SafetyRunShieldParamsTest {
 
     @Test
     fun create() {
@@ -37,14 +36,9 @@ class SafetyRunShieldParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messages())
-            .isEqualTo(
-                listOf(
-                    Message.ofUser(
-                        UserMessage.builder().content("string").context("string").build()
-                    )
-                )
+            .containsExactly(
+                Message.ofUser(UserMessage.builder().content("string").context("string").build())
             )
         assertThat(body.params())
             .isEqualTo(
@@ -70,9 +64,8 @@ class SafetyRunShieldParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messages())
-            .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
+            .containsExactly(Message.ofUser(UserMessage.builder().content("string").build()))
         assertThat(body.params())
             .isEqualTo(
                 SafetyRunShieldParams.Params.builder()

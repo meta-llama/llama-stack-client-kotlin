@@ -10,15 +10,14 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 class VectorIoInsertParams
@@ -73,213 +72,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("chunks")
-        @ExcludeMissing
-        private val chunks: JsonField<List<Chunk>> = JsonMissing.of(),
-        @JsonProperty("vector_db_id")
-        @ExcludeMissing
-        private val vectorDbId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("ttl_seconds")
-        @ExcludeMissing
-        private val ttlSeconds: JsonField<Long> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun chunks(): List<Chunk> = chunks.getRequired("chunks")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun ttlSeconds(): Long? = ttlSeconds.getNullable("ttl_seconds")
-
-        /**
-         * Returns the raw JSON value of [chunks].
-         *
-         * Unlike [chunks], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("chunks") @ExcludeMissing fun _chunks(): JsonField<List<Chunk>> = chunks
-
-        /**
-         * Returns the raw JSON value of [vectorDbId].
-         *
-         * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("vector_db_id")
-        @ExcludeMissing
-        fun _vectorDbId(): JsonField<String> = vectorDbId
-
-        /**
-         * Returns the raw JSON value of [ttlSeconds].
-         *
-         * Unlike [ttlSeconds], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("ttl_seconds") @ExcludeMissing fun _ttlSeconds(): JsonField<Long> = ttlSeconds
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            chunks().forEach { it.validate() }
-            vectorDbId()
-            ttlSeconds()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .chunks()
-             * .vectorDbId()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var chunks: JsonField<MutableList<Chunk>>? = null
-            private var vectorDbId: JsonField<String>? = null
-            private var ttlSeconds: JsonField<Long> = JsonMissing.of()
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                chunks = body.chunks.map { it.toMutableList() }
-                vectorDbId = body.vectorDbId
-                ttlSeconds = body.ttlSeconds
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
-
-            /**
-             * Sets [Builder.chunks] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.chunks] with a well-typed `List<Chunk>` value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun chunks(chunks: JsonField<List<Chunk>>) = apply {
-                this.chunks = chunks.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Chunk] to [chunks].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addChunk(chunk: Chunk) = apply {
-                chunks =
-                    (chunks ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("chunks", it).add(chunk)
-                    }
-            }
-
-            fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
-
-            /**
-             * Sets [Builder.vectorDbId] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.vectorDbId] with a well-typed [String] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
-
-            fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
-
-            /**
-             * Sets [Builder.ttlSeconds] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.ttlSeconds] with a well-typed [Long] value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { this.ttlSeconds = ttlSeconds }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("chunks", chunks).map { it.toImmutable() },
-                    checkRequired("vectorDbId", vectorDbId),
-                    ttlSeconds,
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && chunks == other.chunks && vectorDbId == other.vectorDbId && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(chunks, vectorDbId, ttlSeconds, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{chunks=$chunks, vectorDbId=$vectorDbId, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -297,7 +89,6 @@ private constructor(
     }
 
     /** A builder for [VectorIoInsertParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var body: Body.Builder = Body.builder()
@@ -309,6 +100,17 @@ private constructor(
             additionalHeaders = vectorIoInsertParams.additionalHeaders.toBuilder()
             additionalQueryParams = vectorIoInsertParams.additionalQueryParams.toBuilder()
         }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [chunks]
+         * - [vectorDbId]
+         * - [ttlSeconds]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         fun chunks(chunks: List<Chunk>) = apply { body.chunks(chunks) }
 
@@ -466,6 +268,19 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [VectorIoInsertParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .chunks()
+         * .vectorDbId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): VectorIoInsertParams =
             VectorIoInsertParams(
                 body.build(),
@@ -474,19 +289,271 @@ private constructor(
             )
     }
 
-    @NoAutoDetect
-    class Chunk
-    @JsonCreator
+    fun _body(): Body = body
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
     private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-        @JsonProperty("metadata")
-        @ExcludeMissing
-        private val metadata: JsonField<Metadata> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val chunks: JsonField<List<Chunk>>,
+        private val vectorDbId: JsonField<String>,
+        private val ttlSeconds: JsonField<Long>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("chunks")
+            @ExcludeMissing
+            chunks: JsonField<List<Chunk>> = JsonMissing.of(),
+            @JsonProperty("vector_db_id")
+            @ExcludeMissing
+            vectorDbId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("ttl_seconds")
+            @ExcludeMissing
+            ttlSeconds: JsonField<Long> = JsonMissing.of(),
+        ) : this(chunks, vectorDbId, ttlSeconds, mutableMapOf())
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun chunks(): List<Chunk> = chunks.getRequired("chunks")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun ttlSeconds(): Long? = ttlSeconds.getNullable("ttl_seconds")
+
+        /**
+         * Returns the raw JSON value of [chunks].
+         *
+         * Unlike [chunks], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("chunks") @ExcludeMissing fun _chunks(): JsonField<List<Chunk>> = chunks
+
+        /**
+         * Returns the raw JSON value of [vectorDbId].
+         *
+         * Unlike [vectorDbId], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("vector_db_id")
+        @ExcludeMissing
+        fun _vectorDbId(): JsonField<String> = vectorDbId
+
+        /**
+         * Returns the raw JSON value of [ttlSeconds].
+         *
+         * Unlike [ttlSeconds], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("ttl_seconds") @ExcludeMissing fun _ttlSeconds(): JsonField<Long> = ttlSeconds
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .chunks()
+             * .vectorDbId()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var chunks: JsonField<MutableList<Chunk>>? = null
+            private var vectorDbId: JsonField<String>? = null
+            private var ttlSeconds: JsonField<Long> = JsonMissing.of()
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                chunks = body.chunks.map { it.toMutableList() }
+                vectorDbId = body.vectorDbId
+                ttlSeconds = body.ttlSeconds
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            fun chunks(chunks: List<Chunk>) = chunks(JsonField.of(chunks))
+
+            /**
+             * Sets [Builder.chunks] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.chunks] with a well-typed `List<Chunk>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun chunks(chunks: JsonField<List<Chunk>>) = apply {
+                this.chunks = chunks.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Chunk] to [chunks].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addChunk(chunk: Chunk) = apply {
+                chunks =
+                    (chunks ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("chunks", it).add(chunk)
+                    }
+            }
+
+            fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
+
+            /**
+             * Sets [Builder.vectorDbId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.vectorDbId] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
+
+            fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
+
+            /**
+             * Sets [Builder.ttlSeconds] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.ttlSeconds] with a well-typed [Long] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun ttlSeconds(ttlSeconds: JsonField<Long>) = apply { this.ttlSeconds = ttlSeconds }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .chunks()
+             * .vectorDbId()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("chunks", chunks).map { it.toImmutable() },
+                    checkRequired("vectorDbId", vectorDbId),
+                    ttlSeconds,
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            chunks().forEach { it.validate() }
+            vectorDbId()
+            ttlSeconds()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (chunks.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (if (vectorDbId.asKnown() == null) 0 else 1) +
+                (if (ttlSeconds.asKnown() == null) 0 else 1)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && chunks == other.chunks && vectorDbId == other.vectorDbId && ttlSeconds == other.ttlSeconds && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(chunks, vectorDbId, ttlSeconds, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{chunks=$chunks, vectorDbId=$vectorDbId, ttlSeconds=$ttlSeconds, additionalProperties=$additionalProperties}"
+    }
+
+    class Chunk
+    private constructor(
+        private val content: JsonField<InterleavedContent>,
+        private val metadata: JsonField<Metadata>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content")
+            @ExcludeMissing
+            content: JsonField<InterleavedContent> = JsonMissing.of(),
+            @JsonProperty("metadata")
+            @ExcludeMissing
+            metadata: JsonField<Metadata> = JsonMissing.of(),
+        ) : this(content, metadata, mutableMapOf())
 
         /**
          * A image content item
@@ -520,21 +587,15 @@ private constructor(
          */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Chunk = apply {
-            if (validated) {
-                return@apply
-            }
-
-            content().validate()
-            metadata().validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -628,35 +689,66 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Chunk].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .metadata()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Chunk =
                 Chunk(
                     checkRequired("content", content),
                     checkRequired("metadata", metadata),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
 
-        @NoAutoDetect
+        private var validated: Boolean = false
+
+        fun validate(): Chunk = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            metadata().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (content.asKnown()?.validity() ?: 0) + (metadata.asKnown()?.validity() ?: 0)
+
         class Metadata
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Metadata = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -697,8 +789,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [Metadata].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): Metadata = Metadata(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): Metadata = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

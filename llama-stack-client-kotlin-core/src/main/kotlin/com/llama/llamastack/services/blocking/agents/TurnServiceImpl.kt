@@ -19,7 +19,6 @@ import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnResponseStreamChunk
 import com.llama.llamastack.models.AgentTurnResumeParams
@@ -63,8 +62,7 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         TurnService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val createHandler: Handler<Turn> =
             jsonHandler<Turn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
@@ -79,9 +77,9 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
                     )
                     .body(json(clientOptions.jsonMapper, params._body()))
@@ -115,9 +113,9 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
                     )
                     .body(
@@ -160,11 +158,11 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
-                        params.getPathParam(2),
+                        params._pathParam(2),
                     )
                     .build()
                     .prepare(clientOptions, params)
@@ -194,11 +192,11 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
-                        params.getPathParam(2),
+                        params._pathParam(2),
                         "resume",
                     )
                     .body(json(clientOptions.jsonMapper, params._body()))
@@ -232,11 +230,11 @@ class TurnServiceImpl internal constructor(private val clientOptions: ClientOpti
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
-                        params.getPathParam(2),
+                        params._pathParam(2),
                         "resume",
                     )
                     .body(

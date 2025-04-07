@@ -4,7 +4,7 @@ package com.llama.llamastack.models
 
 import org.junit.jupiter.api.Test
 
-class VectorDbListParamsTest {
+internal class VectorDbListParamsTest {
 
     @Test
     fun create() {

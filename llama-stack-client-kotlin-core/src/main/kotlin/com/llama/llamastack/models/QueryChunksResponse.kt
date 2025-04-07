@@ -10,26 +10,25 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class QueryChunksResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("chunks")
-    @ExcludeMissing
-    private val chunks: JsonField<List<Chunk>> = JsonMissing.of(),
-    @JsonProperty("scores")
-    @ExcludeMissing
-    private val scores: JsonField<List<Double>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val chunks: JsonField<List<Chunk>>,
+    private val scores: JsonField<List<Double>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("chunks") @ExcludeMissing chunks: JsonField<List<Chunk>> = JsonMissing.of(),
+        @JsonProperty("scores") @ExcludeMissing scores: JsonField<List<Double>> = JsonMissing.of(),
+    ) : this(chunks, scores, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -57,21 +56,15 @@ private constructor(
      */
     @JsonProperty("scores") @ExcludeMissing fun _scores(): JsonField<List<Double>> = scores
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): QueryChunksResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        chunks().forEach { it.validate() }
-        scores()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -171,27 +164,71 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [QueryChunksResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .chunks()
+         * .scores()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): QueryChunksResponse =
             QueryChunksResponse(
                 checkRequired("chunks", chunks).map { it.toImmutable() },
                 checkRequired("scores", scores).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): QueryChunksResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        chunks().forEach { it.validate() }
+        scores()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (chunks.asKnown()?.sumOf { it.validity().toInt() } ?: 0) + (scores.asKnown()?.size ?: 0)
+
     class Chunk
-    @JsonCreator
     private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-        @JsonProperty("metadata")
-        @ExcludeMissing
-        private val metadata: JsonField<Metadata> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val content: JsonField<InterleavedContent>,
+        private val metadata: JsonField<Metadata>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content")
+            @ExcludeMissing
+            content: JsonField<InterleavedContent> = JsonMissing.of(),
+            @JsonProperty("metadata")
+            @ExcludeMissing
+            metadata: JsonField<Metadata> = JsonMissing.of(),
+        ) : this(content, metadata, mutableMapOf())
 
         /**
          * A image content item
@@ -225,21 +262,15 @@ private constructor(
          */
         @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Chunk = apply {
-            if (validated) {
-                return@apply
-            }
-
-            content().validate()
-            metadata().validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -333,35 +364,66 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Chunk].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .metadata()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Chunk =
                 Chunk(
                     checkRequired("content", content),
                     checkRequired("metadata", metadata),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
 
-        @NoAutoDetect
+        private var validated: Boolean = false
+
+        fun validate(): Chunk = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            metadata().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (content.asKnown()?.validity() ?: 0) + (metadata.asKnown()?.validity() ?: 0)
+
         class Metadata
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Metadata = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -402,8 +464,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [Metadata].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): Metadata = Metadata(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): Metadata = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

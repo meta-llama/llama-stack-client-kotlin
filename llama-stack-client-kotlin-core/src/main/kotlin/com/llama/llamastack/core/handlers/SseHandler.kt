@@ -10,7 +10,7 @@ import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.core.http.map
 
 internal fun sseHandler(jsonMapper: JsonMapper): Handler<StreamResponse<SseMessage>> =
-    streamHandler { lines ->
+    streamHandler { response, lines ->
         val state = SseState(jsonMapper)
         for (line in lines) {
             val message = state.decode(line) ?: continue

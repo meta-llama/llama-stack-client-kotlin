@@ -10,23 +10,25 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class BatchInferenceChatCompletionResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("batch")
-    @ExcludeMissing
-    private val batch: JsonField<List<ChatCompletionResponse>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val batch: JsonField<List<ChatCompletionResponse>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("batch")
+        @ExcludeMissing
+        batch: JsonField<List<ChatCompletionResponse>> = JsonMissing.of()
+    ) : this(batch, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -43,20 +45,15 @@ private constructor(
     @ExcludeMissing
     fun _batch(): JsonField<List<ChatCompletionResponse>> = batch
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): BatchInferenceChatCompletionResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        batch().forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -132,12 +129,50 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [BatchInferenceChatCompletionResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .batch()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): BatchInferenceChatCompletionResponse =
             BatchInferenceChatCompletionResponse(
                 checkRequired("batch", batch).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): BatchInferenceChatCompletionResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        batch().forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int = (batch.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

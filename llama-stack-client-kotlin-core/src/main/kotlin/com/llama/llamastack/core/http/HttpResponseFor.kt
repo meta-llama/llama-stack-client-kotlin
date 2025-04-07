@@ -10,7 +10,9 @@ interface HttpResponseFor<T> : HttpResponse {
 internal fun <T> HttpResponse.parseable(parse: () -> T): HttpResponseFor<T> =
     object : HttpResponseFor<T> {
 
-        override fun parse(): T = parse()
+        private val parsed: T by lazy { parse() }
+
+        override fun parse(): T = parsed
 
         override fun statusCode(): Int = this@parseable.statusCode()
 

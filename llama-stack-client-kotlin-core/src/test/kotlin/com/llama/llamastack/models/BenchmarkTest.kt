@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BenchmarkTest {
+internal class BenchmarkTest {
 
     @Test
-    fun createBenchmark() {
+    fun create() {
         val benchmark =
             Benchmark.builder()
                 .datasetId("dataset_id")
@@ -23,7 +25,7 @@ class BenchmarkTest {
                 .providerResourceId("provider_resource_id")
                 .addScoringFunction("string")
                 .build()
-        assertThat(benchmark).isNotNull
+
         assertThat(benchmark.datasetId()).isEqualTo("dataset_id")
         assertThat(benchmark.identifier()).isEqualTo("identifier")
         assertThat(benchmark.metadata())
@@ -35,5 +37,31 @@ class BenchmarkTest {
         assertThat(benchmark.providerId()).isEqualTo("provider_id")
         assertThat(benchmark.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(benchmark.scoringFunctions()).containsExactly("string")
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val benchmark =
+            Benchmark.builder()
+                .datasetId("dataset_id")
+                .identifier("identifier")
+                .metadata(
+                    Benchmark.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .providerId("provider_id")
+                .providerResourceId("provider_resource_id")
+                .addScoringFunction("string")
+                .build()
+
+        val roundtrippedBenchmark =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(benchmark),
+                jacksonTypeRef<Benchmark>(),
+            )
+
+        assertThat(roundtrippedBenchmark).isEqualTo(benchmark)
     }
 }

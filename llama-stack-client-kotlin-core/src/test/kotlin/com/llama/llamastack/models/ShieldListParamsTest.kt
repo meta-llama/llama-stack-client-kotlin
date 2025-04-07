@@ -4,7 +4,7 @@ package com.llama.llamastack.models
 
 import org.junit.jupiter.api.Test
 
-class ShieldListParamsTest {
+internal class ShieldListParamsTest {
 
     @Test
     fun create() {

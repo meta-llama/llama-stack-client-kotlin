@@ -7,12 +7,11 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
 import com.llama.llamastack.models.PostTrainingJobCancelParams
 import com.llama.llamastack.models.PostTrainingJobStatusParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class JobServiceAsyncTest {
+internal class JobServiceAsyncTest {
 
     @Test
     suspend fun list() {
@@ -40,7 +39,6 @@ class JobServiceAsyncTest {
                 PostTrainingJobArtifactsParams.builder().jobUuid("job_uuid").build()
             )
 
-        assertNotNull(response)
         response.validate()
     }
 
@@ -68,7 +66,6 @@ class JobServiceAsyncTest {
                 PostTrainingJobStatusParams.builder().jobUuid("job_uuid").build()
             )
 
-        assertNotNull(response)
         response.validate()
     }
 }

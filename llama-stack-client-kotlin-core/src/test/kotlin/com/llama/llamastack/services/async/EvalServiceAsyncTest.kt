@@ -17,7 +17,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class EvalServiceAsyncTest {
+internal class EvalServiceAsyncTest {
 
     @Test
     suspend fun evaluateRows() {
@@ -38,9 +38,10 @@ class EvalServiceAsyncTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(
@@ -98,9 +99,10 @@ class EvalServiceAsyncTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(
@@ -158,9 +160,10 @@ class EvalServiceAsyncTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(
@@ -212,9 +215,10 @@ class EvalServiceAsyncTest {
                                     .model("model")
                                     .samplingParams(
                                         SamplingParams.builder()
-                                            .strategyGreedySampling()
+                                            .strategyObject()
                                             .maxTokens(0L)
                                             .repetitionPenalty(0.0)
+                                            .addStop("string")
                                             .build()
                                     )
                                     .systemMessage(

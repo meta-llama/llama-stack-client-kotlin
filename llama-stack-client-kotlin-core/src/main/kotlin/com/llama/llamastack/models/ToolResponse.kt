@@ -11,31 +11,30 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class ToolResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("call_id")
-    @ExcludeMissing
-    private val callId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("content")
-    @ExcludeMissing
-    private val content: JsonField<InterleavedContent> = JsonMissing.of(),
-    @JsonProperty("tool_name")
-    @ExcludeMissing
-    private val toolName: JsonField<ToolName> = JsonMissing.of(),
-    @JsonProperty("metadata")
-    @ExcludeMissing
-    private val metadata: JsonField<Metadata> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val callId: JsonField<String>,
+    private val content: JsonField<InterleavedContent>,
+    private val toolName: JsonField<ToolName>,
+    private val metadata: JsonField<Metadata>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("call_id") @ExcludeMissing callId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("content")
+        @ExcludeMissing
+        content: JsonField<InterleavedContent> = JsonMissing.of(),
+        @JsonProperty("tool_name") @ExcludeMissing toolName: JsonField<ToolName> = JsonMissing.of(),
+        @JsonProperty("metadata") @ExcludeMissing metadata: JsonField<Metadata> = JsonMissing.of(),
+    ) : this(callId, content, toolName, metadata, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -91,23 +90,15 @@ private constructor(
      */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ToolResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        callId()
-        content().validate()
-        toolName()
-        metadata()?.validate()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -234,15 +225,62 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ToolResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .callId()
+         * .content()
+         * .toolName()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ToolResponse =
             ToolResponse(
                 checkRequired("callId", callId),
                 checkRequired("content", content),
                 checkRequired("toolName", toolName),
                 metadata,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): ToolResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        callId()
+        content().validate()
+        toolName()
+        metadata()?.validate()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (callId.asKnown() == null) 0 else 1) +
+            (content.asKnown()?.validity() ?: 0) +
+            (if (toolName.asKnown() == null) 0 else 1) +
+            (metadata.asKnown()?.validity() ?: 0)
 
     class ToolName @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
@@ -342,6 +380,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): ToolName = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -355,27 +420,16 @@ private constructor(
         override fun toString() = value.toString()
     }
 
-    @NoAutoDetect
     class Metadata
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Metadata = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -413,8 +467,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Metadata].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): Metadata = Metadata(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Metadata = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

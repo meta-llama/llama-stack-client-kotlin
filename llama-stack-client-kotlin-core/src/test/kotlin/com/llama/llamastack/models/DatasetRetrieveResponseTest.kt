@@ -2,21 +2,18 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class DatasetRetrieveResponseTest {
+internal class DatasetRetrieveResponseTest {
 
     @Test
-    fun createDatasetRetrieveResponse() {
+    fun create() {
         val datasetRetrieveResponse =
             DatasetRetrieveResponse.builder()
-                .datasetSchema(
-                    DatasetRetrieveResponse.DatasetSchema.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                        .build()
-                )
                 .identifier("identifier")
                 .metadata(
                     DatasetRetrieveResponse.Metadata.builder()
@@ -25,15 +22,10 @@ class DatasetRetrieveResponseTest {
                 )
                 .providerId("provider_id")
                 .providerResourceId("provider_resource_id")
-                .url(DatasetRetrieveResponse.Url.builder().uri("uri").build())
+                .purpose(DatasetRetrieveResponse.Purpose.POST_TRAINING_MESSAGES)
+                .uriDataSource("uri")
                 .build()
-        assertThat(datasetRetrieveResponse).isNotNull
-        assertThat(datasetRetrieveResponse.datasetSchema())
-            .isEqualTo(
-                DatasetRetrieveResponse.DatasetSchema.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                    .build()
-            )
+
         assertThat(datasetRetrieveResponse.identifier()).isEqualTo("identifier")
         assertThat(datasetRetrieveResponse.metadata())
             .isEqualTo(
@@ -43,7 +35,39 @@ class DatasetRetrieveResponseTest {
             )
         assertThat(datasetRetrieveResponse.providerId()).isEqualTo("provider_id")
         assertThat(datasetRetrieveResponse.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(datasetRetrieveResponse.url())
-            .isEqualTo(DatasetRetrieveResponse.Url.builder().uri("uri").build())
+        assertThat(datasetRetrieveResponse.purpose())
+            .isEqualTo(DatasetRetrieveResponse.Purpose.POST_TRAINING_MESSAGES)
+        assertThat(datasetRetrieveResponse.source())
+            .isEqualTo(
+                DatasetRetrieveResponse.Source.ofUriData(
+                    DatasetRetrieveResponse.Source.UriDataSource.builder().uri("uri").build()
+                )
+            )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val datasetRetrieveResponse =
+            DatasetRetrieveResponse.builder()
+                .identifier("identifier")
+                .metadata(
+                    DatasetRetrieveResponse.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .providerId("provider_id")
+                .providerResourceId("provider_resource_id")
+                .purpose(DatasetRetrieveResponse.Purpose.POST_TRAINING_MESSAGES)
+                .uriDataSource("uri")
+                .build()
+
+        val roundtrippedDatasetRetrieveResponse =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(datasetRetrieveResponse),
+                jacksonTypeRef<DatasetRetrieveResponse>(),
+            )
+
+        assertThat(roundtrippedDatasetRetrieveResponse).isEqualTo(datasetRetrieveResponse)
     }
 }

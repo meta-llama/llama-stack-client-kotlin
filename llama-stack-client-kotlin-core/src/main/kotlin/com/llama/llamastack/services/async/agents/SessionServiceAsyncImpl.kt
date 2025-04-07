@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async.agents
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentSessionCreateParams
 import com.llama.llamastack.models.AgentSessionCreateResponse
 import com.llama.llamastack.models.AgentSessionDeleteParams
@@ -54,8 +54,7 @@ class SessionServiceAsyncImpl internal constructor(private val clientOptions: Cl
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         SessionServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val createHandler: Handler<AgentSessionCreateResponse> =
             jsonHandler<AgentSessionCreateResponse>(clientOptions.jsonMapper)
@@ -68,7 +67,7 @@ class SessionServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
-                    .addPathSegments("v1", "agents", params.getPathParam(0), "session")
+                    .addPathSegments("v1", "agents", params._pathParam(0), "session")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -98,9 +97,9 @@ class SessionServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                     )
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -129,9 +128,9 @@ class SessionServiceAsyncImpl internal constructor(private val clientOptions: Cl
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                     )
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

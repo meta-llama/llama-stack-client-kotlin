@@ -3,29 +3,22 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class DatasetRegisterParamsTest {
+internal class DatasetRegisterParamsTest {
 
     @Test
     fun create() {
         DatasetRegisterParams.builder()
+            .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+            .uriDataSource("uri")
             .datasetId("dataset_id")
-            .datasetSchema(
-                DatasetRegisterParams.DatasetSchema.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                    .build()
-            )
-            .url(DatasetRegisterParams.Url.builder().uri("uri").build())
             .metadata(
                 DatasetRegisterParams.Metadata.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .providerDatasetId("provider_dataset_id")
-            .providerId("provider_id")
             .build()
     }
 
@@ -33,66 +26,50 @@ class DatasetRegisterParamsTest {
     fun body() {
         val params =
             DatasetRegisterParams.builder()
+                .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+                .uriDataSource("uri")
                 .datasetId("dataset_id")
-                .datasetSchema(
-                    DatasetRegisterParams.DatasetSchema.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                        .build()
-                )
-                .url(DatasetRegisterParams.Url.builder().uri("uri").build())
                 .metadata(
                     DatasetRegisterParams.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .providerDatasetId("provider_dataset_id")
-                .providerId("provider_id")
                 .build()
 
         val body = params._body()
 
-        assertNotNull(body)
-        assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.datasetSchema())
+        assertThat(body.purpose()).isEqualTo(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+        assertThat(body.source())
             .isEqualTo(
-                DatasetRegisterParams.DatasetSchema.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                    .build()
+                DatasetRegisterParams.Source.ofUriData(
+                    DatasetRegisterParams.Source.UriDataSource.builder().uri("uri").build()
+                )
             )
-        assertThat(body.url()).isEqualTo(DatasetRegisterParams.Url.builder().uri("uri").build())
+        assertThat(body.datasetId()).isEqualTo("dataset_id")
         assertThat(body.metadata())
             .isEqualTo(
                 DatasetRegisterParams.Metadata.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(body.providerDatasetId()).isEqualTo("provider_dataset_id")
-        assertThat(body.providerId()).isEqualTo("provider_id")
     }
 
     @Test
     fun bodyWithoutOptionalFields() {
         val params =
             DatasetRegisterParams.builder()
-                .datasetId("dataset_id")
-                .datasetSchema(
-                    DatasetRegisterParams.DatasetSchema.builder()
-                        .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                        .build()
-                )
-                .url(DatasetRegisterParams.Url.builder().uri("uri").build())
+                .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+                .uriDataSource("uri")
                 .build()
 
         val body = params._body()
 
-        assertNotNull(body)
-        assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.datasetSchema())
+        assertThat(body.purpose()).isEqualTo(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
+        assertThat(body.source())
             .isEqualTo(
-                DatasetRegisterParams.DatasetSchema.builder()
-                    .putAdditionalProperty("foo", JsonValue.from(mapOf("type" to "string")))
-                    .build()
+                DatasetRegisterParams.Source.ofUriData(
+                    DatasetRegisterParams.Source.UriDataSource.builder().uri("uri").build()
+                )
             )
-        assertThat(body.url()).isEqualTo(DatasetRegisterParams.Url.builder().uri("uri").build())
     }
 }

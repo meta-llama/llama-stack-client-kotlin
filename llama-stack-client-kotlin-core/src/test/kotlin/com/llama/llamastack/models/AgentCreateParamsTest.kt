@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentCreateParamsTest {
+internal class AgentCreateParamsTest {
 
     @Test
     fun create() {
@@ -31,7 +30,7 @@ class AgentCreateParamsTest {
                                     .name("name")
                                     .parameterType("parameter_type")
                                     .required(true)
-                                    .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                    .default(true)
                                     .build()
                             )
                             .build()
@@ -47,9 +46,10 @@ class AgentCreateParamsTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .toolChoice(AgentConfig.ToolChoice.AUTO)
@@ -92,7 +92,7 @@ class AgentCreateParamsTest {
                                         .name("name")
                                         .parameterType("parameter_type")
                                         .required(true)
-                                        .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                        .default(true)
                                         .build()
                                 )
                                 .build()
@@ -108,9 +108,10 @@ class AgentCreateParamsTest {
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyObject()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
+                                .addStop("string")
                                 .build()
                         )
                         .toolChoice(AgentConfig.ToolChoice.AUTO)
@@ -131,7 +132,6 @@ class AgentCreateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.agentConfig())
             .isEqualTo(
                 AgentConfig.builder()
@@ -152,7 +152,7 @@ class AgentCreateParamsTest {
                                     .name("name")
                                     .parameterType("parameter_type")
                                     .required(true)
-                                    .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                    .default(true)
                                     .build()
                             )
                             .build()
@@ -168,9 +168,10 @@ class AgentCreateParamsTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .toolChoice(AgentConfig.ToolChoice.AUTO)
@@ -200,7 +201,6 @@ class AgentCreateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.agentConfig())
             .isEqualTo(AgentConfig.builder().instructions("instructions").model("model").build())
     }

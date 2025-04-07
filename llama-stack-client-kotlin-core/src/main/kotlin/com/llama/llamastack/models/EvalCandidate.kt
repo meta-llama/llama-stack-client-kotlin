@@ -19,12 +19,10 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** A model candidate for evaluation. */
@@ -55,13 +53,12 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             model != null -> visitor.visitModel(model)
             agent != null -> visitor.visitAgent(agent)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -83,6 +80,30 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitModel(model: ModelCandidate) = model.validity()
+
+                override fun visitAgent(agent: AgentCandidate) = agent.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -144,16 +165,14 @@ private constructor(
 
             when (type) {
                 "model" -> {
-                    tryDeserialize(node, jacksonTypeRef<ModelCandidate>()) { it.validate() }
-                        ?.let {
-                            return EvalCandidate(model = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<ModelCandidate>())?.let {
+                        EvalCandidate(model = it, _json = json)
+                    } ?: EvalCandidate(_json = json)
                 }
                 "agent" -> {
-                    tryDeserialize(node, jacksonTypeRef<AgentCandidate>()) { it.validate() }
-                        ?.let {
-                            return EvalCandidate(agent = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<AgentCandidate>())?.let {
+                        EvalCandidate(agent = it, _json = json)
+                    } ?: EvalCandidate(_json = json)
                 }
             }
 
@@ -178,23 +197,26 @@ private constructor(
     }
 
     /** A model candidate for evaluation. */
-    @NoAutoDetect
     class ModelCandidate
-    @JsonCreator
     private constructor(
-        @JsonProperty("model")
-        @ExcludeMissing
-        private val model: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("sampling_params")
-        @ExcludeMissing
-        private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonProperty("system_message")
-        @ExcludeMissing
-        private val systemMessage: JsonField<SystemMessage> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val model: JsonField<String>,
+        private val samplingParams: JsonField<SamplingParams>,
+        private val type: JsonValue,
+        private val systemMessage: JsonField<SystemMessage>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("model") @ExcludeMissing model: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("sampling_params")
+            @ExcludeMissing
+            samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            @JsonProperty("system_message")
+            @ExcludeMissing
+            systemMessage: JsonField<SystemMessage> = JsonMissing.of(),
+        ) : this(model, samplingParams, type, systemMessage, mutableMapOf())
 
         /**
          * The model ID to evaluate.
@@ -260,27 +282,15 @@ private constructor(
         @ExcludeMissing
         fun _systemMessage(): JsonField<SystemMessage> = systemMessage
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ModelCandidate = apply {
-            if (validated) {
-                return@apply
-            }
-
-            model()
-            samplingParams().validate()
-            _type().let {
-                if (it != JsonValue.from("model")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            systemMessage()?.validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -390,15 +400,66 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ModelCandidate].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .model()
+             * .samplingParams()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): ModelCandidate =
                 ModelCandidate(
                     checkRequired("model", model),
                     checkRequired("samplingParams", samplingParams),
                     type,
                     systemMessage,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ModelCandidate = apply {
+            if (validated) {
+                return@apply
+            }
+
+            model()
+            samplingParams().validate()
+            _type().let {
+                if (it != JsonValue.from("model")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            systemMessage()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (model.asKnown() == null) 0 else 1) +
+                (samplingParams.asKnown()?.validity() ?: 0) +
+                type.let { if (it == JsonValue.from("model")) 1 else 0 } +
+                (systemMessage.asKnown()?.validity() ?: 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -419,17 +480,20 @@ private constructor(
     }
 
     /** An agent candidate for evaluation. */
-    @NoAutoDetect
     class AgentCandidate
-    @JsonCreator
     private constructor(
-        @JsonProperty("config")
-        @ExcludeMissing
-        private val config: JsonField<AgentConfig> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val config: JsonField<AgentConfig>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("config")
+            @ExcludeMissing
+            config: JsonField<AgentConfig> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(config, type, mutableMapOf())
 
         /**
          * The configuration for the agent candidate.
@@ -458,25 +522,15 @@ private constructor(
          */
         @JsonProperty("config") @ExcludeMissing fun _config(): JsonField<AgentConfig> = config
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AgentCandidate = apply {
-            if (validated) {
-                return@apply
-            }
-
-            config().validate()
-            _type().let {
-                if (it != JsonValue.from("agent")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -551,13 +605,59 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AgentCandidate].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .config()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AgentCandidate =
                 AgentCandidate(
                     checkRequired("config", config),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AgentCandidate = apply {
+            if (validated) {
+                return@apply
+            }
+
+            config().validate()
+            _type().let {
+                if (it != JsonValue.from("agent")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (config.asKnown()?.validity() ?: 0) +
+                type.let { if (it == JsonValue.from("agent")) 1 else 0 }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

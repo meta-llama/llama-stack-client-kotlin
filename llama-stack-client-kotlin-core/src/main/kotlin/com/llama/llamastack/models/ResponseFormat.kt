@@ -19,12 +19,11 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Configuration for JSON schema-guided response generation. */
@@ -55,13 +54,12 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             jsonSchema != null -> visitor.visitJsonSchema(jsonSchema)
             grammar != null -> visitor.visitGrammar(grammar)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -83,6 +81,31 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitJsonSchema(jsonSchema: JsonSchemaResponseFormat) =
+                    jsonSchema.validity()
+
+                override fun visitGrammar(grammar: GrammarResponseFormat) = grammar.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -146,18 +169,14 @@ private constructor(
 
             when (type) {
                 "json_schema" -> {
-                    tryDeserialize(node, jacksonTypeRef<JsonSchemaResponseFormat>()) {
-                            it.validate()
-                        }
-                        ?.let {
-                            return ResponseFormat(jsonSchema = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<JsonSchemaResponseFormat>())?.let {
+                        ResponseFormat(jsonSchema = it, _json = json)
+                    } ?: ResponseFormat(_json = json)
                 }
                 "grammar" -> {
-                    tryDeserialize(node, jacksonTypeRef<GrammarResponseFormat>()) { it.validate() }
-                        ?.let {
-                            return ResponseFormat(grammar = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<GrammarResponseFormat>())?.let {
+                        ResponseFormat(grammar = it, _json = json)
+                    } ?: ResponseFormat(_json = json)
                 }
             }
 
@@ -182,17 +201,20 @@ private constructor(
     }
 
     /** Configuration for JSON schema-guided response generation. */
-    @NoAutoDetect
     class JsonSchemaResponseFormat
-    @JsonCreator
     private constructor(
-        @JsonProperty("json_schema")
-        @ExcludeMissing
-        private val jsonSchema: JsonField<JsonSchema> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val jsonSchema: JsonField<JsonSchema>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("json_schema")
+            @ExcludeMissing
+            jsonSchema: JsonField<JsonSchema> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(jsonSchema, type, mutableMapOf())
 
         /**
          * The JSON schema the response should conform to. In a Python SDK, this is often a
@@ -226,25 +248,15 @@ private constructor(
         @ExcludeMissing
         fun _jsonSchema(): JsonField<JsonSchema> = jsonSchema
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): JsonSchemaResponseFormat = apply {
-            if (validated) {
-                return@apply
-            }
-
-            jsonSchema().validate()
-            _type().let {
-                if (it != JsonValue.from("json_schema")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -324,39 +336,74 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [JsonSchemaResponseFormat].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .jsonSchema()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): JsonSchemaResponseFormat =
                 JsonSchemaResponseFormat(
                     checkRequired("jsonSchema", jsonSchema),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): JsonSchemaResponseFormat = apply {
+            if (validated) {
+                return@apply
+            }
+
+            jsonSchema().validate()
+            _type().let {
+                if (it != JsonValue.from("json_schema")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (jsonSchema.asKnown()?.validity() ?: 0) +
+                type.let { if (it == JsonValue.from("json_schema")) 1 else 0 }
 
         /**
          * The JSON schema the response should conform to. In a Python SDK, this is often a
          * `pydantic` model.
          */
-        @NoAutoDetect
         class JsonSchema
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): JsonSchema = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -397,8 +444,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [JsonSchema].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): JsonSchema = JsonSchema(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): JsonSchema = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -436,15 +515,18 @@ private constructor(
     }
 
     /** Configuration for grammar-guided response generation. */
-    @NoAutoDetect
     class GrammarResponseFormat
-    @JsonCreator
     private constructor(
-        @JsonProperty("bnf") @ExcludeMissing private val bnf: JsonField<Bnf> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val bnf: JsonField<Bnf>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("bnf") @ExcludeMissing bnf: JsonField<Bnf> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(bnf, type, mutableMapOf())
 
         /**
          * The BNF grammar specification the response should conform to
@@ -475,25 +557,15 @@ private constructor(
          */
         @JsonProperty("bnf") @ExcludeMissing fun _bnf(): JsonField<Bnf> = bnf
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): GrammarResponseFormat = apply {
-            if (validated) {
-                return@apply
-            }
-
-            bnf().validate()
-            _type().let {
-                if (it != JsonValue.from("grammar")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -568,36 +640,71 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [GrammarResponseFormat].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .bnf()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): GrammarResponseFormat =
                 GrammarResponseFormat(
                     checkRequired("bnf", bnf),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
 
+        private var validated: Boolean = false
+
+        fun validate(): GrammarResponseFormat = apply {
+            if (validated) {
+                return@apply
+            }
+
+            bnf().validate()
+            _type().let {
+                if (it != JsonValue.from("grammar")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (bnf.asKnown()?.validity() ?: 0) +
+                type.let { if (it == JsonValue.from("grammar")) 1 else 0 }
+
         /** The BNF grammar specification the response should conform to */
-        @NoAutoDetect
         class Bnf
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Bnf = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -638,8 +745,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [Bnf].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): Bnf = Bnf(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): Bnf = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

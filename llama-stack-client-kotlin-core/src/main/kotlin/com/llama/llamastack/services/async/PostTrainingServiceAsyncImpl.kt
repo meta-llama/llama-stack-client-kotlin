@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -14,7 +15,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.PostTrainingJob
 import com.llama.llamastack.models.PostTrainingPreferenceOptimizeParams
 import com.llama.llamastack.models.PostTrainingSupervisedFineTuneParams
@@ -51,8 +51,7 @@ class PostTrainingServiceAsyncImpl internal constructor(private val clientOption
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         PostTrainingServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val job: JobServiceAsync.WithRawResponse by lazy {
             JobServiceAsyncImpl.WithRawResponseImpl(clientOptions)

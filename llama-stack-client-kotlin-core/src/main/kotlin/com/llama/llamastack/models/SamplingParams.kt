@@ -19,47 +19,68 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
+/** Sampling parameters. */
 class SamplingParams
-@JsonCreator
 private constructor(
-    @JsonProperty("strategy")
-    @ExcludeMissing
-    private val strategy: JsonField<Strategy> = JsonMissing.of(),
-    @JsonProperty("max_tokens")
-    @ExcludeMissing
-    private val maxTokens: JsonField<Long> = JsonMissing.of(),
-    @JsonProperty("repetition_penalty")
-    @ExcludeMissing
-    private val repetitionPenalty: JsonField<Double> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val strategy: JsonField<Strategy>,
+    private val maxTokens: JsonField<Long>,
+    private val repetitionPenalty: JsonField<Double>,
+    private val stop: JsonField<List<String>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
+    @JsonCreator
+    private constructor(
+        @JsonProperty("strategy") @ExcludeMissing strategy: JsonField<Strategy> = JsonMissing.of(),
+        @JsonProperty("max_tokens") @ExcludeMissing maxTokens: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("repetition_penalty")
+        @ExcludeMissing
+        repetitionPenalty: JsonField<Double> = JsonMissing.of(),
+        @JsonProperty("stop") @ExcludeMissing stop: JsonField<List<String>> = JsonMissing.of(),
+    ) : this(strategy, maxTokens, repetitionPenalty, stop, mutableMapOf())
+
     /**
+     * The sampling strategy.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun strategy(): Strategy = strategy.getRequired("strategy")
 
     /**
+     * The maximum number of tokens that can be generated in the completion. The token count of your
+     * prompt plus max_tokens cannot exceed the model's context length.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun maxTokens(): Long? = maxTokens.getNullable("max_tokens")
 
     /**
+     * Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they appear
+     * in the text so far, increasing the model's likelihood to talk about new topics.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun repetitionPenalty(): Double? = repetitionPenalty.getNullable("repetition_penalty")
+
+    /**
+     * Up to 4 sequences where the API will stop generating further tokens. The returned text will
+     * not contain the stop sequence.
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun stop(): List<String>? = stop.getNullable("stop")
 
     /**
      * Returns the raw JSON value of [strategy].
@@ -85,22 +106,22 @@ private constructor(
     @ExcludeMissing
     fun _repetitionPenalty(): JsonField<Double> = repetitionPenalty
 
+    /**
+     * Returns the raw JSON value of [stop].
+     *
+     * Unlike [stop], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("stop") @ExcludeMissing fun _stop(): JsonField<List<String>> = stop
+
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): SamplingParams = apply {
-        if (validated) {
-            return@apply
-        }
-
-        strategy().validate()
-        maxTokens()
-        repetitionPenalty()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -123,15 +144,18 @@ private constructor(
         private var strategy: JsonField<Strategy>? = null
         private var maxTokens: JsonField<Long> = JsonMissing.of()
         private var repetitionPenalty: JsonField<Double> = JsonMissing.of()
+        private var stop: JsonField<MutableList<String>>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(samplingParams: SamplingParams) = apply {
             strategy = samplingParams.strategy
             maxTokens = samplingParams.maxTokens
             repetitionPenalty = samplingParams.repetitionPenalty
+            stop = samplingParams.stop.map { it.toMutableList() }
             additionalProperties = samplingParams.additionalProperties.toMutableMap()
         }
 
+        /** The sampling strategy. */
         fun strategy(strategy: Strategy) = strategy(JsonField.of(strategy))
 
         /**
@@ -143,8 +167,8 @@ private constructor(
          */
         fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
-        /** Alias for calling [strategy] with `Strategy.ofGreedySampling()`. */
-        fun strategyGreedySampling() = strategy(Strategy.ofGreedySampling())
+        /** Alias for calling [strategy] with `Strategy.ofObject()`. */
+        fun strategyObject() = strategy(Strategy.ofObject())
 
         /** Alias for calling [strategy] with `Strategy.ofTopPSampling(topPSampling)`. */
         fun strategy(topPSampling: Strategy.TopPSamplingStrategy) =
@@ -165,6 +189,10 @@ private constructor(
         fun topKSamplingStrategy(topK: Long) =
             strategy(Strategy.TopKSamplingStrategy.builder().topK(topK).build())
 
+        /**
+         * The maximum number of tokens that can be generated in the completion. The token count of
+         * your prompt plus max_tokens cannot exceed the model's context length.
+         */
         fun maxTokens(maxTokens: Long) = maxTokens(JsonField.of(maxTokens))
 
         /**
@@ -175,6 +203,10 @@ private constructor(
          */
         fun maxTokens(maxTokens: JsonField<Long>) = apply { this.maxTokens = maxTokens }
 
+        /**
+         * Number between -2.0 and 2.0. Positive values penalize new tokens based on whether they
+         * appear in the text so far, increasing the model's likelihood to talk about new topics.
+         */
         fun repetitionPenalty(repetitionPenalty: Double) =
             repetitionPenalty(JsonField.of(repetitionPenalty))
 
@@ -187,6 +219,35 @@ private constructor(
          */
         fun repetitionPenalty(repetitionPenalty: JsonField<Double>) = apply {
             this.repetitionPenalty = repetitionPenalty
+        }
+
+        /**
+         * Up to 4 sequences where the API will stop generating further tokens. The returned text
+         * will not contain the stop sequence.
+         */
+        fun stop(stop: List<String>) = stop(JsonField.of(stop))
+
+        /**
+         * Sets [Builder.stop] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.stop] with a well-typed `List<String>` value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
+        fun stop(stop: JsonField<List<String>>) = apply {
+            this.stop = stop.map { it.toMutableList() }
+        }
+
+        /**
+         * Adds a single [String] to [Builder.stop].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
+        fun addStop(stop: String) = apply {
+            this.stop =
+                (this.stop ?: JsonField.of(mutableListOf())).also {
+                    checkKnown("stop", it).add(stop)
+                }
         }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -208,38 +269,85 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [SamplingParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .strategy()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): SamplingParams =
             SamplingParams(
                 checkRequired("strategy", strategy),
                 maxTokens,
                 repetitionPenalty,
-                additionalProperties.toImmutable(),
+                (stop ?: JsonMissing.of()).map { it.toImmutable() },
+                additionalProperties.toMutableMap(),
             )
     }
 
+    private var validated: Boolean = false
+
+    fun validate(): SamplingParams = apply {
+        if (validated) {
+            return@apply
+        }
+
+        strategy().validate()
+        maxTokens()
+        repetitionPenalty()
+        stop()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (strategy.asKnown()?.validity() ?: 0) +
+            (if (maxTokens.asKnown() == null) 0 else 1) +
+            (if (repetitionPenalty.asKnown() == null) 0 else 1) +
+            (stop.asKnown()?.size ?: 0)
+
+    /** The sampling strategy. */
     @JsonDeserialize(using = Strategy.Deserializer::class)
     @JsonSerialize(using = Strategy.Serializer::class)
     class Strategy
     private constructor(
-        private val greedySampling: JsonValue? = null,
+        private val object_: JsonValue? = null,
         private val topPSampling: TopPSamplingStrategy? = null,
         private val topKSampling: TopKSamplingStrategy? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun greedySampling(): JsonValue? = greedySampling
+        fun object_(): JsonValue? = object_
 
         fun topPSampling(): TopPSamplingStrategy? = topPSampling
 
         fun topKSampling(): TopKSamplingStrategy? = topKSampling
 
-        fun isGreedySampling(): Boolean = greedySampling != null
+        fun isObject(): Boolean = object_ != null
 
         fun isTopPSampling(): Boolean = topPSampling != null
 
         fun isTopKSampling(): Boolean = topKSampling != null
 
-        fun asGreedySampling(): JsonValue = greedySampling.getOrThrow("greedySampling")
+        fun asObject(): JsonValue = object_.getOrThrow("object_")
 
         fun asTopPSampling(): TopPSamplingStrategy = topPSampling.getOrThrow("topPSampling")
 
@@ -247,14 +355,13 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
-                greedySampling != null -> visitor.visitGreedySampling(greedySampling)
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
+                object_ != null -> visitor.visitObject(object_)
                 topPSampling != null -> visitor.visitTopPSampling(topPSampling)
                 topKSampling != null -> visitor.visitTopKSampling(topKSampling)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -265,11 +372,11 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitGreedySampling(greedySampling: JsonValue) {
-                        greedySampling.let {
+                    override fun visitObject(object_: JsonValue) {
+                        object_.let {
                             if (it != JsonValue.from(mapOf("type" to "greedy"))) {
                                 throw LlamaStackClientInvalidDataException(
-                                    "'greedySampling' is invalid, received $it"
+                                    "'object_' is invalid, received $it"
                                 )
                             }
                         }
@@ -287,19 +394,51 @@ private constructor(
             validated = true
         }
 
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitObject(object_: JsonValue) =
+                        object_.let {
+                            if (it == JsonValue.from(mapOf("type" to "greedy"))) 1 else 0
+                        }
+
+                    override fun visitTopPSampling(topPSampling: TopPSamplingStrategy) =
+                        topPSampling.validity()
+
+                    override fun visitTopKSampling(topKSampling: TopKSamplingStrategy) =
+                        topKSampling.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
             }
 
-            return /* spotless:off */ other is Strategy && greedySampling == other.greedySampling && topPSampling == other.topPSampling && topKSampling == other.topKSampling /* spotless:on */
+            return /* spotless:off */ other is Strategy && object_ == other.object_ && topPSampling == other.topPSampling && topKSampling == other.topKSampling /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(greedySampling, topPSampling, topKSampling) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(object_, topPSampling, topKSampling) /* spotless:on */
 
         override fun toString(): String =
             when {
-                greedySampling != null -> "Strategy{greedySampling=$greedySampling}"
+                object_ != null -> "Strategy{object_=$object_}"
                 topPSampling != null -> "Strategy{topPSampling=$topPSampling}"
                 topKSampling != null -> "Strategy{topKSampling=$topKSampling}"
                 _json != null -> "Strategy{_unknown=$_json}"
@@ -308,8 +447,7 @@ private constructor(
 
         companion object {
 
-            fun ofGreedySampling() =
-                Strategy(greedySampling = JsonValue.from(mapOf("type" to "greedy")))
+            fun ofObject() = Strategy(object_ = JsonValue.from(mapOf("type" to "greedy")))
 
             fun ofTopPSampling(topPSampling: TopPSamplingStrategy) =
                 Strategy(topPSampling = topPSampling)
@@ -323,7 +461,7 @@ private constructor(
          */
         interface Visitor<out T> {
 
-            fun visitGreedySampling(greedySampling: JsonValue): T
+            fun visitObject(object_: JsonValue): T
 
             fun visitTopPSampling(topPSampling: TopPSamplingStrategy): T
 
@@ -352,34 +490,19 @@ private constructor(
 
                 when (type) {
                     "greedy" -> {
-                        tryDeserialize(node, jacksonTypeRef<JsonValue>()) {
-                                it.let {
-                                    if (it != JsonValue.from(mapOf("type" to "greedy"))) {
-                                        throw LlamaStackClientInvalidDataException(
-                                            "'greedySampling' is invalid, received $it"
-                                        )
-                                    }
-                                }
-                            }
-                            ?.let {
-                                return Strategy(greedySampling = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<JsonValue>())
+                            ?.let { Strategy(object_ = it, _json = json) }
+                            ?.takeIf { it.isValid() } ?: Strategy(_json = json)
                     }
                     "top_p" -> {
-                        tryDeserialize(node, jacksonTypeRef<TopPSamplingStrategy>()) {
-                                it.validate()
-                            }
-                            ?.let {
-                                return Strategy(topPSampling = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<TopPSamplingStrategy>())?.let {
+                            Strategy(topPSampling = it, _json = json)
+                        } ?: Strategy(_json = json)
                     }
                     "top_k" -> {
-                        tryDeserialize(node, jacksonTypeRef<TopKSamplingStrategy>()) {
-                                it.validate()
-                            }
-                            ?.let {
-                                return Strategy(topKSampling = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<TopKSamplingStrategy>())?.let {
+                            Strategy(topKSampling = it, _json = json)
+                        } ?: Strategy(_json = json)
                     }
                 }
 
@@ -395,7 +518,7 @@ private constructor(
                 provider: SerializerProvider,
             ) {
                 when {
-                    value.greedySampling != null -> generator.writeObject(value.greedySampling)
+                    value.object_ != null -> generator.writeObject(value.object_)
                     value.topPSampling != null -> generator.writeObject(value.topPSampling)
                     value.topKSampling != null -> generator.writeObject(value.topKSampling)
                     value._json != null -> generator.writeObject(value._json)
@@ -404,20 +527,22 @@ private constructor(
             }
         }
 
-        @NoAutoDetect
         class TopPSamplingStrategy
-        @JsonCreator
         private constructor(
-            @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-            @JsonProperty("temperature")
-            @ExcludeMissing
-            private val temperature: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("top_p")
-            @ExcludeMissing
-            private val topP: JsonField<Double> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val type: JsonValue,
+            private val temperature: JsonField<Double>,
+            private val topP: JsonField<Double>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+                @JsonProperty("temperature")
+                @ExcludeMissing
+                temperature: JsonField<Double> = JsonMissing.of(),
+                @JsonProperty("top_p") @ExcludeMissing topP: JsonField<Double> = JsonMissing.of(),
+            ) : this(type, temperature, topP, mutableMapOf())
 
             /**
              * Expected to always return the following:
@@ -459,28 +584,15 @@ private constructor(
              */
             @JsonProperty("top_p") @ExcludeMissing fun _topP(): JsonField<Double> = topP
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): TopPSamplingStrategy = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                _type().let {
-                    if (it != JsonValue.from("top_p")) {
-                        throw LlamaStackClientInvalidDataException(
-                            "'type' is invalid, received $it"
-                        )
-                    }
-                }
-                temperature()
-                topP()
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -567,14 +679,57 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [TopPSamplingStrategy].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): TopPSamplingStrategy =
                     TopPSamplingStrategy(
                         type,
                         temperature,
                         topP,
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): TopPSamplingStrategy = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                _type().let {
+                    if (it != JsonValue.from("top_p")) {
+                        throw LlamaStackClientInvalidDataException(
+                            "'type' is invalid, received $it"
+                        )
+                    }
+                }
+                temperature()
+                topP()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                type.let { if (it == JsonValue.from("top_p")) 1 else 0 } +
+                    (if (temperature.asKnown() == null) 0 else 1) +
+                    (if (topP.asKnown() == null) 0 else 1)
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -594,17 +749,18 @@ private constructor(
                 "TopPSamplingStrategy{type=$type, temperature=$temperature, topP=$topP, additionalProperties=$additionalProperties}"
         }
 
-        @NoAutoDetect
         class TopKSamplingStrategy
-        @JsonCreator
         private constructor(
-            @JsonProperty("top_k")
-            @ExcludeMissing
-            private val topK: JsonField<Long> = JsonMissing.of(),
-            @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val topK: JsonField<Long>,
+            private val type: JsonValue,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("top_k") @ExcludeMissing topK: JsonField<Long> = JsonMissing.of(),
+                @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            ) : this(topK, type, mutableMapOf())
 
             /**
              * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
@@ -631,27 +787,15 @@ private constructor(
              */
             @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): TopKSamplingStrategy = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                topK()
-                _type().let {
-                    if (it != JsonValue.from("top_k")) {
-                        throw LlamaStackClientInvalidDataException(
-                            "'type' is invalid, received $it"
-                        )
-                    }
-                }
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -728,13 +872,61 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [TopKSamplingStrategy].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .topK()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
                 fun build(): TopKSamplingStrategy =
                     TopKSamplingStrategy(
                         checkRequired("topK", topK),
                         type,
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): TopKSamplingStrategy = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                topK()
+                _type().let {
+                    if (it != JsonValue.from("top_k")) {
+                        throw LlamaStackClientInvalidDataException(
+                            "'type' is invalid, received $it"
+                        )
+                    }
+                }
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (if (topK.asKnown() == null) 0 else 1) +
+                    type.let { if (it == JsonValue.from("top_k")) 1 else 0 }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -760,15 +952,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is SamplingParams && strategy == other.strategy && maxTokens == other.maxTokens && repetitionPenalty == other.repetitionPenalty && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is SamplingParams && strategy == other.strategy && maxTokens == other.maxTokens && repetitionPenalty == other.repetitionPenalty && stop == other.stop && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(strategy, maxTokens, repetitionPenalty, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(strategy, maxTokens, repetitionPenalty, stop, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "SamplingParams{strategy=$strategy, maxTokens=$maxTokens, repetitionPenalty=$repetitionPenalty, additionalProperties=$additionalProperties}"
+        "SamplingParams{strategy=$strategy, maxTokens=$maxTokens, repetitionPenalty=$repetitionPenalty, stop=$stop, additionalProperties=$additionalProperties}"
 }
