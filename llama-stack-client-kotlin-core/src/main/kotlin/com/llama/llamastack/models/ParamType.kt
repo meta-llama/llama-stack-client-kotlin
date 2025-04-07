@@ -19,77 +19,11 @@ import java.util.Objects
 @JsonDeserialize(using = ParamType.Deserializer::class)
 @JsonSerialize(using = ParamType.Serializer::class)
 class ParamType
-private constructor(
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val object_: JsonValue? = null,
-    private val _json: JsonValue? = null,
-) {
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
-
-    fun object_(): JsonValue? = object_
+private constructor(private val object_: JsonValue? = null, private val _json: JsonValue? = null) {
 
     fun object_(): JsonValue? = object_
 
     fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun isObject(): Boolean = object_ != null
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
-
-    fun asObject(): JsonValue = object_.getOrThrow("object_")
 
     fun asObject(): JsonValue = object_.getOrThrow("object_")
 
@@ -97,15 +31,6 @@ private constructor(
 
     fun <T> accept(visitor: Visitor<T>): T =
         when {
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
-            object_ != null -> visitor.visitObject(object_)
             object_ != null -> visitor.visitObject(object_)
             else -> visitor.unknown(_json)
         }
@@ -122,96 +47,6 @@ private constructor(
                 override fun visitObject(object_: JsonValue) {
                     object_.let {
                         if (it != JsonValue.from(mapOf("type" to "string"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "number"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "boolean"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "array"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "object"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "json"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "union"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "chat_completion_input"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "completion_input"))) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'object_' is invalid, received $it"
-                            )
-                        }
-                    }
-                }
-
-                override fun visitObject(object_: JsonValue) {
-                    object_.let {
-                        if (it != JsonValue.from(mapOf("type" to "agent_turn_input"))) {
                             throw LlamaStackClientInvalidDataException(
                                 "'object_' is invalid, received $it"
                             )
@@ -242,39 +77,6 @@ private constructor(
                 override fun visitObject(object_: JsonValue) =
                     object_.let { if (it == JsonValue.from(mapOf("type" to "string"))) 1 else 0 }
 
-                override fun visitObject(object_: JsonValue) =
-                    object_.let { if (it == JsonValue.from(mapOf("type" to "number"))) 1 else 0 }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let { if (it == JsonValue.from(mapOf("type" to "boolean"))) 1 else 0 }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let { if (it == JsonValue.from(mapOf("type" to "array"))) 1 else 0 }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let { if (it == JsonValue.from(mapOf("type" to "object"))) 1 else 0 }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let { if (it == JsonValue.from(mapOf("type" to "json"))) 1 else 0 }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let { if (it == JsonValue.from(mapOf("type" to "union"))) 1 else 0 }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let {
-                        if (it == JsonValue.from(mapOf("type" to "chat_completion_input"))) 1 else 0
-                    }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let {
-                        if (it == JsonValue.from(mapOf("type" to "completion_input"))) 1 else 0
-                    }
-
-                override fun visitObject(object_: JsonValue) =
-                    object_.let {
-                        if (it == JsonValue.from(mapOf("type" to "agent_turn_input"))) 1 else 0
-                    }
-
                 override fun unknown(json: JsonValue?) = 0
             }
         )
@@ -292,15 +94,6 @@ private constructor(
     override fun toString(): String =
         when {
             object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
-            object_ != null -> "ParamType{object_=$object_}"
             _json != null -> "ParamType{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid ParamType")
         }
@@ -308,47 +101,10 @@ private constructor(
     companion object {
 
         fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "string")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "number")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "boolean")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "array")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "object")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "json")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "union")))
-
-        fun ofObject() =
-            ParamType(object_ = JsonValue.from(mapOf("type" to "chat_completion_input")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "completion_input")))
-
-        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "agent_turn_input")))
     }
 
     /** An interface that defines how to map each variant of [ParamType] to a value of type [T]. */
     interface Visitor<out T> {
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
-
-        fun visitObject(object_: JsonValue): T
 
         fun visitObject(object_: JsonValue): T
 
@@ -437,15 +193,6 @@ private constructor(
             provider: SerializerProvider,
         ) {
             when {
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
-                value.object_ != null -> generator.writeObject(value.object_)
                 value.object_ != null -> generator.writeObject(value.object_)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid ParamType")
