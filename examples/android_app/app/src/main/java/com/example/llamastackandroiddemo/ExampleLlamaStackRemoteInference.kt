@@ -46,7 +46,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
             client = LlamaStackClientOkHttpClient
                 .builder()
                 .baseUrl(remoteURL)
-                .headers(mapOf("x-llamastack-client-version" to listOf("0.1.0")))
+                .headers(mapOf("x-llamastack-client-version" to listOf("0.2.0")))
                 .build()
         } catch (e: Exception) {
             client = null
@@ -132,9 +132,10 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .modelId(modelName)
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategy(
-                                    SamplingParams.Strategy.ofGreedySampling()
-                                ).build()
+                                .strategyObject()
+                                .maxTokens(ModelUtils.MAX_TOKENS)
+                                .repetitionPenalty(1.0)
+                                .build()
                         )
                         .messages(
                             constructLSMessagesFromConversationHistoryAndSystemPrompt(conversationHistory, instruction)
@@ -169,9 +170,10 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .modelId(modelName)
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategy(
-                                    SamplingParams.Strategy.ofGreedySampling()
-                                ).build()
+                                .strategyObject()
+                                .maxTokens(ModelUtils.MAX_TOKENS)
+                                .repetitionPenalty(1.0)
+                                .build()
                         )
                         .messages(
                             constructLSMessagesFromConversationHistoryAndSystemPrompt(conversationHistory, instruction)
@@ -334,9 +336,9 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                 .model(modelName)
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.ofGreedySampling()
-                        )
+                        .strategyObject()
+                        .maxTokens(ModelUtils.MAX_TOKENS)
+                        .repetitionPenalty(1.0)
                         .build()
                 )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
