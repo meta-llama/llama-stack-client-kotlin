@@ -21,7 +21,7 @@ interface BenchmarkService {
     fun retrieve(
         params: BenchmarkRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): Benchmark?
+    ): Benchmark
 
     fun list(
         params: BenchmarkListParams = BenchmarkListParams.none(),
@@ -48,7 +48,7 @@ interface BenchmarkService {
         fun retrieve(
             params: BenchmarkRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<Benchmark?>
+        ): HttpResponseFor<Benchmark>
 
         /**
          * Returns a raw HTTP response for `get /v1/eval/benchmarks`, but is otherwise the same as

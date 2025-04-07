@@ -10,24 +10,26 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Response containing generated embeddings. */
-@NoAutoDetect
 class EmbeddingsResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("embeddings")
-    @ExcludeMissing
-    private val embeddings: JsonField<List<List<Double>>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val embeddings: JsonField<List<List<Double>>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("embeddings")
+        @ExcludeMissing
+        embeddings: JsonField<List<List<Double>>> = JsonMissing.of()
+    ) : this(embeddings, mutableMapOf())
 
     /**
      * List of embedding vectors, one per input content. Each embedding is a list of floats. The
@@ -48,20 +50,15 @@ private constructor(
     @ExcludeMissing
     fun _embeddings(): JsonField<List<List<Double>>> = embeddings
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): EmbeddingsResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        embeddings()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -138,12 +135,50 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [EmbeddingsResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .embeddings()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): EmbeddingsResponse =
             EmbeddingsResponse(
                 checkRequired("embeddings", embeddings).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): EmbeddingsResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        embeddings()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int = (embeddings.asKnown()?.sumOf { it.size.toInt() } ?: 0)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class EvalRunEvalAlphaParamsTest {
+internal class EvalRunEvalAlphaParamsTest {
 
     @Test
     fun create() {
@@ -20,9 +19,10 @@ class EvalRunEvalAlphaParamsTest {
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyObject()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
+                                    .addStop("string")
                                     .build()
                             )
                             .systemMessage(SystemMessage.builder().content("string").build())
@@ -51,6 +51,41 @@ class EvalRunEvalAlphaParamsTest {
     }
 
     @Test
+    fun pathParams() {
+        val params =
+            EvalRunEvalAlphaParams.builder()
+                .benchmarkId("benchmark_id")
+                .benchmarkConfig(
+                    BenchmarkConfig.builder()
+                        .evalCandidate(
+                            EvalCandidate.ModelCandidate.builder()
+                                .model("model")
+                                .samplingParams(SamplingParams.builder().strategyObject().build())
+                                .build()
+                        )
+                        .scoringParams(
+                            BenchmarkConfig.ScoringParams.builder()
+                                .putAdditionalProperty(
+                                    "foo",
+                                    JsonValue.from(
+                                        mapOf(
+                                            "judge_model" to "judge_model",
+                                            "type" to "llm_as_judge",
+                                        )
+                                    ),
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+
+        assertThat(params._pathParam(0)).isEqualTo("benchmark_id")
+        // out-of-bound path param
+        assertThat(params._pathParam(1)).isEqualTo("")
+    }
+
+    @Test
     fun body() {
         val params =
             EvalRunEvalAlphaParams.builder()
@@ -62,9 +97,10 @@ class EvalRunEvalAlphaParamsTest {
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
-                                        .strategyGreedySampling()
+                                        .strategyObject()
                                         .maxTokens(0L)
                                         .repetitionPenalty(0.0)
+                                        .addStop("string")
                                         .build()
                                 )
                                 .systemMessage(SystemMessage.builder().content("string").build())
@@ -93,7 +129,6 @@ class EvalRunEvalAlphaParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.benchmarkConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
@@ -102,9 +137,10 @@ class EvalRunEvalAlphaParamsTest {
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyObject()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
+                                    .addStop("string")
                                     .build()
                             )
                             .systemMessage(SystemMessage.builder().content("string").build())
@@ -141,9 +177,7 @@ class EvalRunEvalAlphaParamsTest {
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
                                 .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
+                                .samplingParams(SamplingParams.builder().strategyObject().build())
                                 .build()
                         )
                         .scoringParams(
@@ -165,16 +199,13 @@ class EvalRunEvalAlphaParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.benchmarkConfig())
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
                         EvalCandidate.ModelCandidate.builder()
                             .model("model")
-                            .samplingParams(
-                                SamplingParams.builder().strategyGreedySampling().build()
-                            )
+                            .samplingParams(SamplingParams.builder().strategyObject().build())
                             .build()
                     )
                     .scoringParams(
@@ -189,43 +220,5 @@ class EvalRunEvalAlphaParamsTest {
                     )
                     .build()
             )
-    }
-
-    @Test
-    fun getPathParam() {
-        val params =
-            EvalRunEvalAlphaParams.builder()
-                .benchmarkId("benchmark_id")
-                .benchmarkConfig(
-                    BenchmarkConfig.builder()
-                        .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
-                                .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
-                                .build()
-                        )
-                        .scoringParams(
-                            BenchmarkConfig.ScoringParams.builder()
-                                .putAdditionalProperty(
-                                    "foo",
-                                    JsonValue.from(
-                                        mapOf(
-                                            "judge_model" to "judge_model",
-                                            "type" to "llm_as_judge",
-                                        )
-                                    ),
-                                )
-                                .build()
-                        )
-                        .build()
-                )
-                .build()
-        assertThat(params).isNotNull
-        // path param "benchmarkId"
-        assertThat(params.getPathParam(0)).isEqualTo("benchmark_id")
-        // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

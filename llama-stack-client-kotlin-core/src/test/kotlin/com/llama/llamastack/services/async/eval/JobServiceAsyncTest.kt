@@ -7,12 +7,11 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.models.EvalJobCancelParams
 import com.llama.llamastack.models.EvalJobRetrieveParams
 import com.llama.llamastack.models.EvalJobStatusParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class JobServiceAsyncTest {
+internal class JobServiceAsyncTest {
 
     @Test
     suspend fun retrieve() {
@@ -51,11 +50,11 @@ class JobServiceAsyncTest {
                 .build()
         val jobServiceAsync = client.eval().jobs()
 
-        val response =
+        val job =
             jobServiceAsync.status(
                 EvalJobStatusParams.builder().benchmarkId("benchmark_id").jobId("job_id").build()
             )
 
-        assertNotNull(response)
+        job.validate()
     }
 }

@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentCreateResponse
 import com.llama.llamastack.models.AgentDeleteParams
@@ -63,8 +63,7 @@ class AgentServiceImpl internal constructor(private val clientOptions: ClientOpt
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         AgentService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val session: SessionService.WithRawResponse by lazy {
             SessionServiceImpl.WithRawResponseImpl(clientOptions)
@@ -121,7 +120,7 @@ class AgentServiceImpl internal constructor(private val clientOptions: ClientOpt
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
-                    .addPathSegments("v1", "agents", params.getPathParam(0))
+                    .addPathSegments("v1", "agents", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()
                     .prepare(clientOptions, params)

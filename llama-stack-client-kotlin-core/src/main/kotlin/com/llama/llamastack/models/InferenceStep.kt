@@ -10,37 +10,39 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
 /** An inference step in an agent turn. */
-@NoAutoDetect
 class InferenceStep
-@JsonCreator
 private constructor(
-    @JsonProperty("model_response")
-    @ExcludeMissing
-    private val modelResponse: JsonField<CompletionMessage> = JsonMissing.of(),
-    @JsonProperty("step_id")
-    @ExcludeMissing
-    private val stepId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("step_type") @ExcludeMissing private val stepType: JsonValue = JsonMissing.of(),
-    @JsonProperty("turn_id")
-    @ExcludeMissing
-    private val turnId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val modelResponse: JsonField<CompletionMessage>,
+    private val stepId: JsonField<String>,
+    private val stepType: JsonValue,
+    private val turnId: JsonField<String>,
+    private val completedAt: JsonField<OffsetDateTime>,
+    private val startedAt: JsonField<OffsetDateTime>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("model_response")
+        @ExcludeMissing
+        modelResponse: JsonField<CompletionMessage> = JsonMissing.of(),
+        @JsonProperty("step_id") @ExcludeMissing stepId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("step_type") @ExcludeMissing stepType: JsonValue = JsonMissing.of(),
+        @JsonProperty("turn_id") @ExcludeMissing turnId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("completed_at")
+        @ExcludeMissing
+        completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("started_at")
+        @ExcludeMissing
+        startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    ) : this(modelResponse, stepId, stepType, turnId, completedAt, startedAt, mutableMapOf())
 
     /**
      * The response from the LLM.
@@ -134,29 +136,15 @@ private constructor(
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): InferenceStep = apply {
-        if (validated) {
-            return@apply
-        }
-
-        modelResponse().validate()
-        stepId()
-        _stepType().let {
-            if (it != JsonValue.from("inference")) {
-                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
-            }
-        }
-        turnId()
-        completedAt()
-        startedAt()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -292,6 +280,20 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [InferenceStep].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .modelResponse()
+         * .stepId()
+         * .turnId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): InferenceStep =
             InferenceStep(
                 checkRequired("modelResponse", modelResponse),
@@ -300,9 +302,50 @@ private constructor(
                 checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): InferenceStep = apply {
+        if (validated) {
+            return@apply
+        }
+
+        modelResponse().validate()
+        stepId()
+        _stepType().let {
+            if (it != JsonValue.from("inference")) {
+                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
+            }
+        }
+        turnId()
+        completedAt()
+        startedAt()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (modelResponse.asKnown()?.validity() ?: 0) +
+            (if (stepId.asKnown() == null) 0 else 1) +
+            stepType.let { if (it == JsonValue.from("inference")) 1 else 0 } +
+            (if (turnId.asKnown() == null) 0 else 1) +
+            (if (completedAt.asKnown() == null) 0 else 1) +
+            (if (startedAt.asKnown() == null) 0 else 1)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class InferenceChatCompletionParamsTest {
+internal class InferenceChatCompletionParamsTest {
 
     @Test
     fun create() {
@@ -22,9 +21,10 @@ class InferenceChatCompletionParamsTest {
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
             .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -78,9 +78,10 @@ class InferenceChatCompletionParamsTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyObject()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
+                        .addStop("string")
                         .build()
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -121,14 +122,9 @@ class InferenceChatCompletionParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messages())
-            .isEqualTo(
-                listOf(
-                    Message.ofUser(
-                        UserMessage.builder().content("string").context("string").build()
-                    )
-                )
+            .containsExactly(
+                Message.ofUser(UserMessage.builder().content("string").context("string").build())
             )
         assertThat(body.modelId()).isEqualTo("model_id")
         assertThat(body.logprobs())
@@ -148,9 +144,10 @@ class InferenceChatCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
         assertThat(body.toolChoice()).isEqualTo(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -169,28 +166,26 @@ class InferenceChatCompletionParamsTest {
         assertThat(body.toolPromptFormat())
             .isEqualTo(InferenceChatCompletionParams.ToolPromptFormat.JSON)
         assertThat(body.tools())
-            .isEqualTo(
-                listOf(
-                    InferenceChatCompletionParams.Tool.builder()
-                        .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                        .description("description")
-                        .parameters(
-                            InferenceChatCompletionParams.Tool.Parameters.builder()
-                                .putAdditionalProperty(
-                                    "foo",
-                                    JsonValue.from(
-                                        mapOf(
-                                            "param_type" to "param_type",
-                                            "default" to true,
-                                            "description" to "description",
-                                            "required" to true,
-                                        )
-                                    ),
-                                )
-                                .build()
-                        )
-                        .build()
-                )
+            .containsExactly(
+                InferenceChatCompletionParams.Tool.builder()
+                    .toolName(InferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                    .description("description")
+                    .parameters(
+                        InferenceChatCompletionParams.Tool.Parameters.builder()
+                            .putAdditionalProperty(
+                                "foo",
+                                JsonValue.from(
+                                    mapOf(
+                                        "param_type" to "param_type",
+                                        "default" to true,
+                                        "description" to "description",
+                                        "required" to true,
+                                    )
+                                ),
+                            )
+                            .build()
+                    )
+                    .build()
             )
     }
 
@@ -204,9 +199,8 @@ class InferenceChatCompletionParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messages())
-            .isEqualTo(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
+            .containsExactly(Message.ofUser(UserMessage.builder().content("string").build()))
         assertThat(body.modelId()).isEqualTo("model_id")
     }
 }

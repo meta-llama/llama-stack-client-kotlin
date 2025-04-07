@@ -7,12 +7,11 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.ShieldRegisterParams
 import com.llama.llamastack.models.ShieldRetrieveParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class ShieldServiceAsyncTest {
+internal class ShieldServiceAsyncTest {
 
     @Test
     suspend fun retrieve() {
@@ -27,7 +26,6 @@ class ShieldServiceAsyncTest {
                 ShieldRetrieveParams.builder().identifier("identifier").build()
             )
 
-        assertNotNull(shield)
         shield.validate()
     }
 

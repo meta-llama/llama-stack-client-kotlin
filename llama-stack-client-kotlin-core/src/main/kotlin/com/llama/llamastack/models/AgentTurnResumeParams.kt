@@ -10,15 +10,14 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /**
@@ -63,163 +62,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> agentId
-            1 -> sessionId
-            2 -> turnId
-            else -> ""
-        }
-    }
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("tool_responses")
-        @ExcludeMissing
-        private val toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * The tool call responses to resume the turn with.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun toolResponses(): List<ToolResponse> = toolResponses.getRequired("tool_responses")
-
-        /**
-         * Returns the raw JSON value of [toolResponses].
-         *
-         * Unlike [toolResponses], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("tool_responses")
-        @ExcludeMissing
-        fun _toolResponses(): JsonField<List<ToolResponse>> = toolResponses
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            toolResponses().forEach { it.validate() }
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .toolResponses()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var toolResponses: JsonField<MutableList<ToolResponse>>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                toolResponses = body.toolResponses.map { it.toMutableList() }
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            /** The tool call responses to resume the turn with. */
-            fun toolResponses(toolResponses: List<ToolResponse>) =
-                toolResponses(JsonField.of(toolResponses))
-
-            /**
-             * Sets [Builder.toolResponses] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.toolResponses] with a well-typed
-             * `List<ToolResponse>` value instead. This method is primarily for setting the field to
-             * an undocumented or not yet supported value.
-             */
-            fun toolResponses(toolResponses: JsonField<List<ToolResponse>>) = apply {
-                this.toolResponses = toolResponses.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [ToolResponse] to [toolResponses].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addToolResponse(toolResponse: ToolResponse) = apply {
-                toolResponses =
-                    (toolResponses ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("toolResponses", it).add(toolResponse)
-                    }
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("toolResponses", toolResponses).map { it.toImmutable() },
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && toolResponses == other.toolResponses && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(toolResponses, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{toolResponses=$toolResponses, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -239,7 +81,6 @@ private constructor(
     }
 
     /** A builder for [AgentTurnResumeParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var agentId: String? = null
@@ -263,6 +104,15 @@ private constructor(
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
         fun turnId(turnId: String) = apply { this.turnId = turnId }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [toolResponses]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         /** The tool call responses to resume the turn with. */
         fun toolResponses(toolResponses: List<ToolResponse>) = apply {
@@ -406,6 +256,21 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [AgentTurnResumeParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * .turnId()
+         * .toolResponses()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): AgentTurnResumeParams =
             AgentTurnResumeParams(
                 checkRequired("agentId", agentId),
@@ -415,6 +280,199 @@ private constructor(
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
+    }
+
+    fun _body(): Body = body
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> agentId
+            1 -> sessionId
+            2 -> turnId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
+    private constructor(
+        private val toolResponses: JsonField<List<ToolResponse>>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("tool_responses")
+            @ExcludeMissing
+            toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of()
+        ) : this(toolResponses, mutableMapOf())
+
+        /**
+         * The tool call responses to resume the turn with.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun toolResponses(): List<ToolResponse> = toolResponses.getRequired("tool_responses")
+
+        /**
+         * Returns the raw JSON value of [toolResponses].
+         *
+         * Unlike [toolResponses], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("tool_responses")
+        @ExcludeMissing
+        fun _toolResponses(): JsonField<List<ToolResponse>> = toolResponses
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .toolResponses()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var toolResponses: JsonField<MutableList<ToolResponse>>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                toolResponses = body.toolResponses.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            /** The tool call responses to resume the turn with. */
+            fun toolResponses(toolResponses: List<ToolResponse>) =
+                toolResponses(JsonField.of(toolResponses))
+
+            /**
+             * Sets [Builder.toolResponses] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolResponses] with a well-typed
+             * `List<ToolResponse>` value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
+            fun toolResponses(toolResponses: JsonField<List<ToolResponse>>) = apply {
+                this.toolResponses = toolResponses.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [ToolResponse] to [toolResponses].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addToolResponse(toolResponse: ToolResponse) = apply {
+                toolResponses =
+                    (toolResponses ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("toolResponses", it).add(toolResponse)
+                    }
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .toolResponses()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("toolResponses", toolResponses).map { it.toImmutable() },
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            toolResponses().forEach { it.validate() }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (toolResponses.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && toolResponses == other.toolResponses && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(toolResponses, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{toolResponses=$toolResponses, additionalProperties=$additionalProperties}"
     }
 
     override fun equals(other: Any?): Boolean {

@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class InspectServiceTest {
+internal class InspectServiceTest {
 
     @Test
     fun health() {

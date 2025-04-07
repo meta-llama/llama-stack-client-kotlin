@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ListProvidersResponseTest {
+internal class ListProvidersResponseTest {
 
     @Test
-    fun createListProvidersResponse() {
+    fun create() {
         val listProvidersResponse =
             ListProvidersResponse.builder()
                 .addData(
@@ -25,7 +27,7 @@ class ListProvidersResponseTest {
                         .build()
                 )
                 .build()
-        assertThat(listProvidersResponse).isNotNull
+
         assertThat(listProvidersResponse.data())
             .containsExactly(
                 ProviderInfo.builder()
@@ -39,5 +41,33 @@ class ListProvidersResponseTest {
                     .providerType("provider_type")
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val listProvidersResponse =
+            ListProvidersResponse.builder()
+                .addData(
+                    ProviderInfo.builder()
+                        .api("api")
+                        .config(
+                            ProviderInfo.Config.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .providerId("provider_id")
+                        .providerType("provider_type")
+                        .build()
+                )
+                .build()
+
+        val roundtrippedListProvidersResponse =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(listProvidersResponse),
+                jacksonTypeRef<ListProvidersResponse>(),
+            )
+
+        assertThat(roundtrippedListProvidersResponse).isEqualTo(listProvidersResponse)
     }
 }

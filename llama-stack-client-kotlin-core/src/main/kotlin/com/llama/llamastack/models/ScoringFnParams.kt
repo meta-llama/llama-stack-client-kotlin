@@ -20,13 +20,12 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 @JsonDeserialize(using = ScoringFnParams.Deserializer::class)
@@ -59,14 +58,13 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             llmAsJudge != null -> visitor.visitLlmAsJudge(llmAsJudge)
             regexParser != null -> visitor.visitRegexParser(regexParser)
             basic != null -> visitor.visitBasic(basic)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -92,6 +90,34 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitLlmAsJudge(llmAsJudge: LlmAsJudgeScoringFnParams) =
+                    llmAsJudge.validity()
+
+                override fun visitRegexParser(regexParser: RegexParserScoringFnParams) =
+                    regexParser.validity()
+
+                override fun visitBasic(basic: BasicScoringFnParams) = basic.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -158,26 +184,19 @@ private constructor(
 
             when (type) {
                 "llm_as_judge" -> {
-                    tryDeserialize(node, jacksonTypeRef<LlmAsJudgeScoringFnParams>()) {
-                            it.validate()
-                        }
-                        ?.let {
-                            return ScoringFnParams(llmAsJudge = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<LlmAsJudgeScoringFnParams>())?.let {
+                        ScoringFnParams(llmAsJudge = it, _json = json)
+                    } ?: ScoringFnParams(_json = json)
                 }
                 "regex_parser" -> {
-                    tryDeserialize(node, jacksonTypeRef<RegexParserScoringFnParams>()) {
-                            it.validate()
-                        }
-                        ?.let {
-                            return ScoringFnParams(regexParser = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<RegexParserScoringFnParams>())?.let {
+                        ScoringFnParams(regexParser = it, _json = json)
+                    } ?: ScoringFnParams(_json = json)
                 }
                 "basic" -> {
-                    tryDeserialize(node, jacksonTypeRef<BasicScoringFnParams>()) { it.validate() }
-                        ?.let {
-                            return ScoringFnParams(basic = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<BasicScoringFnParams>())?.let {
+                        ScoringFnParams(basic = it, _json = json)
+                    } ?: ScoringFnParams(_json = json)
                 }
             }
 
@@ -202,26 +221,39 @@ private constructor(
         }
     }
 
-    @NoAutoDetect
     class LlmAsJudgeScoringFnParams
-    @JsonCreator
     private constructor(
-        @JsonProperty("judge_model")
-        @ExcludeMissing
-        private val judgeModel: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonProperty("aggregation_functions")
-        @ExcludeMissing
-        private val aggregationFunctions: JsonField<List<AggregationFunction>> = JsonMissing.of(),
-        @JsonProperty("judge_score_regexes")
-        @ExcludeMissing
-        private val judgeScoreRegexes: JsonField<List<String>> = JsonMissing.of(),
-        @JsonProperty("prompt_template")
-        @ExcludeMissing
-        private val promptTemplate: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val judgeModel: JsonField<String>,
+        private val type: JsonValue,
+        private val aggregationFunctions: JsonField<List<AggregationFunction>>,
+        private val judgeScoreRegexes: JsonField<List<String>>,
+        private val promptTemplate: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("judge_model")
+            @ExcludeMissing
+            judgeModel: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            @JsonProperty("aggregation_functions")
+            @ExcludeMissing
+            aggregationFunctions: JsonField<List<AggregationFunction>> = JsonMissing.of(),
+            @JsonProperty("judge_score_regexes")
+            @ExcludeMissing
+            judgeScoreRegexes: JsonField<List<String>> = JsonMissing.of(),
+            @JsonProperty("prompt_template")
+            @ExcludeMissing
+            promptTemplate: JsonField<String> = JsonMissing.of(),
+        ) : this(
+            judgeModel,
+            type,
+            aggregationFunctions,
+            judgeScoreRegexes,
+            promptTemplate,
+            mutableMapOf(),
+        )
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -300,28 +332,15 @@ private constructor(
         @ExcludeMissing
         fun _promptTemplate(): JsonField<String> = promptTemplate
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): LlmAsJudgeScoringFnParams = apply {
-            if (validated) {
-                return@apply
-            }
-
-            judgeModel()
-            _type().let {
-                if (it != JsonValue.from("llm_as_judge")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            aggregationFunctions()
-            judgeScoreRegexes()
-            promptTemplate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -471,6 +490,18 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [LlmAsJudgeScoringFnParams].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .judgeModel()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): LlmAsJudgeScoringFnParams =
                 LlmAsJudgeScoringFnParams(
                     checkRequired("judgeModel", judgeModel),
@@ -478,9 +509,49 @@ private constructor(
                     (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                     (judgeScoreRegexes ?: JsonMissing.of()).map { it.toImmutable() },
                     promptTemplate,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): LlmAsJudgeScoringFnParams = apply {
+            if (validated) {
+                return@apply
+            }
+
+            judgeModel()
+            _type().let {
+                if (it != JsonValue.from("llm_as_judge")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            aggregationFunctions()?.forEach { it.validate() }
+            judgeScoreRegexes()
+            promptTemplate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (judgeModel.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("llm_as_judge")) 1 else 0 } +
+                (aggregationFunctions.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (judgeScoreRegexes.asKnown()?.size ?: 0) +
+                (if (promptTemplate.asKnown() == null) 0 else 1)
 
         class AggregationFunction
         @JsonCreator
@@ -500,6 +571,8 @@ private constructor(
 
                 val AVERAGE = of("average")
 
+                val WEIGHTED_AVERAGE = of("weighted_average")
+
                 val MEDIAN = of("median")
 
                 val CATEGORICAL_COUNT = of("categorical_count")
@@ -512,6 +585,7 @@ private constructor(
             /** An enum containing [AggregationFunction]'s known values. */
             enum class Known {
                 AVERAGE,
+                WEIGHTED_AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
@@ -530,6 +604,7 @@ private constructor(
              */
             enum class Value {
                 AVERAGE,
+                WEIGHTED_AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
@@ -550,6 +625,7 @@ private constructor(
             fun value(): Value =
                 when (this) {
                     AVERAGE -> Value.AVERAGE
+                    WEIGHTED_AVERAGE -> Value.WEIGHTED_AVERAGE
                     MEDIAN -> Value.MEDIAN
                     CATEGORICAL_COUNT -> Value.CATEGORICAL_COUNT
                     ACCURACY -> Value.ACCURACY
@@ -568,6 +644,7 @@ private constructor(
             fun known(): Known =
                 when (this) {
                     AVERAGE -> Known.AVERAGE
+                    WEIGHTED_AVERAGE -> Known.WEIGHTED_AVERAGE
                     MEDIAN -> Known.MEDIAN
                     CATEGORICAL_COUNT -> Known.CATEGORICAL_COUNT
                     ACCURACY -> Known.ACCURACY
@@ -589,6 +666,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): AggregationFunction = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -621,20 +725,24 @@ private constructor(
             "LlmAsJudgeScoringFnParams{judgeModel=$judgeModel, type=$type, aggregationFunctions=$aggregationFunctions, judgeScoreRegexes=$judgeScoreRegexes, promptTemplate=$promptTemplate, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class RegexParserScoringFnParams
-    @JsonCreator
     private constructor(
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonProperty("aggregation_functions")
-        @ExcludeMissing
-        private val aggregationFunctions: JsonField<List<AggregationFunction>> = JsonMissing.of(),
-        @JsonProperty("parsing_regexes")
-        @ExcludeMissing
-        private val parsingRegexes: JsonField<List<String>> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val type: JsonValue,
+        private val aggregationFunctions: JsonField<List<AggregationFunction>>,
+        private val parsingRegexes: JsonField<List<String>>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            @JsonProperty("aggregation_functions")
+            @ExcludeMissing
+            aggregationFunctions: JsonField<List<AggregationFunction>> = JsonMissing.of(),
+            @JsonProperty("parsing_regexes")
+            @ExcludeMissing
+            parsingRegexes: JsonField<List<String>> = JsonMissing.of(),
+        ) : this(type, aggregationFunctions, parsingRegexes, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -680,26 +788,15 @@ private constructor(
         @ExcludeMissing
         fun _parsingRegexes(): JsonField<List<String>> = parsingRegexes
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): RegexParserScoringFnParams = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _type().let {
-                if (it != JsonValue.from("regex_parser")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            aggregationFunctions()
-            parsingRegexes()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -816,14 +913,55 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [RegexParserScoringFnParams].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): RegexParserScoringFnParams =
                 RegexParserScoringFnParams(
                     type,
                     (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
                     (parsingRegexes ?: JsonMissing.of()).map { it.toImmutable() },
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): RegexParserScoringFnParams = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _type().let {
+                if (it != JsonValue.from("regex_parser")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            aggregationFunctions()?.forEach { it.validate() }
+            parsingRegexes()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            type.let { if (it == JsonValue.from("regex_parser")) 1 else 0 } +
+                (aggregationFunctions.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (parsingRegexes.asKnown()?.size ?: 0)
 
         class AggregationFunction
         @JsonCreator
@@ -843,6 +981,8 @@ private constructor(
 
                 val AVERAGE = of("average")
 
+                val WEIGHTED_AVERAGE = of("weighted_average")
+
                 val MEDIAN = of("median")
 
                 val CATEGORICAL_COUNT = of("categorical_count")
@@ -855,6 +995,7 @@ private constructor(
             /** An enum containing [AggregationFunction]'s known values. */
             enum class Known {
                 AVERAGE,
+                WEIGHTED_AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
@@ -873,6 +1014,7 @@ private constructor(
              */
             enum class Value {
                 AVERAGE,
+                WEIGHTED_AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
@@ -893,6 +1035,7 @@ private constructor(
             fun value(): Value =
                 when (this) {
                     AVERAGE -> Value.AVERAGE
+                    WEIGHTED_AVERAGE -> Value.WEIGHTED_AVERAGE
                     MEDIAN -> Value.MEDIAN
                     CATEGORICAL_COUNT -> Value.CATEGORICAL_COUNT
                     ACCURACY -> Value.ACCURACY
@@ -911,6 +1054,7 @@ private constructor(
             fun known(): Known =
                 when (this) {
                     AVERAGE -> Known.AVERAGE
+                    WEIGHTED_AVERAGE -> Known.WEIGHTED_AVERAGE
                     MEDIAN -> Known.MEDIAN
                     CATEGORICAL_COUNT -> Known.CATEGORICAL_COUNT
                     ACCURACY -> Known.ACCURACY
@@ -932,6 +1076,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): AggregationFunction = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -964,17 +1135,20 @@ private constructor(
             "RegexParserScoringFnParams{type=$type, aggregationFunctions=$aggregationFunctions, parsingRegexes=$parsingRegexes, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class BasicScoringFnParams
-    @JsonCreator
     private constructor(
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonProperty("aggregation_functions")
-        @ExcludeMissing
-        private val aggregationFunctions: JsonField<List<AggregationFunction>> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val type: JsonValue,
+        private val aggregationFunctions: JsonField<List<AggregationFunction>>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            @JsonProperty("aggregation_functions")
+            @ExcludeMissing
+            aggregationFunctions: JsonField<List<AggregationFunction>> = JsonMissing.of(),
+        ) : this(type, aggregationFunctions, mutableMapOf())
 
         /**
          * Expected to always return the following:
@@ -1004,25 +1178,15 @@ private constructor(
         @ExcludeMissing
         fun _aggregationFunctions(): JsonField<List<AggregationFunction>> = aggregationFunctions
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): BasicScoringFnParams = apply {
-            if (validated) {
-                return@apply
-            }
-
-            _type().let {
-                if (it != JsonValue.from("basic")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            aggregationFunctions()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1106,13 +1270,52 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [BasicScoringFnParams].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): BasicScoringFnParams =
                 BasicScoringFnParams(
                     type,
                     (aggregationFunctions ?: JsonMissing.of()).map { it.toImmutable() },
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): BasicScoringFnParams = apply {
+            if (validated) {
+                return@apply
+            }
+
+            _type().let {
+                if (it != JsonValue.from("basic")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            aggregationFunctions()?.forEach { it.validate() }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            type.let { if (it == JsonValue.from("basic")) 1 else 0 } +
+                (aggregationFunctions.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
 
         class AggregationFunction
         @JsonCreator
@@ -1132,6 +1335,8 @@ private constructor(
 
                 val AVERAGE = of("average")
 
+                val WEIGHTED_AVERAGE = of("weighted_average")
+
                 val MEDIAN = of("median")
 
                 val CATEGORICAL_COUNT = of("categorical_count")
@@ -1144,6 +1349,7 @@ private constructor(
             /** An enum containing [AggregationFunction]'s known values. */
             enum class Known {
                 AVERAGE,
+                WEIGHTED_AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
@@ -1162,6 +1368,7 @@ private constructor(
              */
             enum class Value {
                 AVERAGE,
+                WEIGHTED_AVERAGE,
                 MEDIAN,
                 CATEGORICAL_COUNT,
                 ACCURACY,
@@ -1182,6 +1389,7 @@ private constructor(
             fun value(): Value =
                 when (this) {
                     AVERAGE -> Value.AVERAGE
+                    WEIGHTED_AVERAGE -> Value.WEIGHTED_AVERAGE
                     MEDIAN -> Value.MEDIAN
                     CATEGORICAL_COUNT -> Value.CATEGORICAL_COUNT
                     ACCURACY -> Value.ACCURACY
@@ -1200,6 +1408,7 @@ private constructor(
             fun known(): Known =
                 when (this) {
                     AVERAGE -> Known.AVERAGE
+                    WEIGHTED_AVERAGE -> Known.WEIGHTED_AVERAGE
                     MEDIAN -> Known.MEDIAN
                     CATEGORICAL_COUNT -> Known.CATEGORICAL_COUNT
                     ACCURACY -> Known.ACCURACY
@@ -1221,6 +1430,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): AggregationFunction = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

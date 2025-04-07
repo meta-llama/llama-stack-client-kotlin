@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ChatCompletionResponseTest {
+internal class ChatCompletionResponseTest {
 
     @Test
-    fun createChatCompletionResponse() {
+    fun create() {
         val chatCompletionResponse =
             ChatCompletionResponse.builder()
                 .completionMessage(
@@ -18,13 +20,10 @@ class ChatCompletionResponseTest {
                         .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                         .addToolCall(
                             ToolCall.builder()
-                                .arguments(
-                                    ToolCall.Arguments.builder()
-                                        .putAdditionalProperty("foo", JsonValue.from("string"))
-                                        .build()
-                                )
+                                .arguments("string")
                                 .callId("call_id")
                                 .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                .argumentsJson("arguments_json")
                                 .build()
                         )
                         .build()
@@ -46,7 +45,7 @@ class ChatCompletionResponseTest {
                         .build()
                 )
                 .build()
-        assertThat(chatCompletionResponse).isNotNull
+
         assertThat(chatCompletionResponse.completionMessage())
             .isEqualTo(
                 CompletionMessage.builder()
@@ -54,13 +53,10 @@ class ChatCompletionResponseTest {
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)
                     .addToolCall(
                         ToolCall.builder()
-                            .arguments(
-                                ToolCall.Arguments.builder()
-                                    .putAdditionalProperty("foo", JsonValue.from("string"))
-                                    .build()
-                            )
+                            .arguments("string")
                             .callId("call_id")
                             .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                            .argumentsJson("arguments_json")
                             .build()
                     )
                     .build()
@@ -83,5 +79,51 @@ class ChatCompletionResponseTest {
                     .unit("unit")
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val chatCompletionResponse =
+            ChatCompletionResponse.builder()
+                .completionMessage(
+                    CompletionMessage.builder()
+                        .content("string")
+                        .stopReason(CompletionMessage.StopReason.END_OF_TURN)
+                        .addToolCall(
+                            ToolCall.builder()
+                                .arguments("string")
+                                .callId("call_id")
+                                .toolName(ToolCall.ToolName.BRAVE_SEARCH)
+                                .argumentsJson("arguments_json")
+                                .build()
+                        )
+                        .build()
+                )
+                .addLogprob(
+                    TokenLogProbs.builder()
+                        .logprobsByToken(
+                            TokenLogProbs.LogprobsByToken.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(0))
+                                .build()
+                        )
+                        .build()
+                )
+                .addMetric(
+                    ChatCompletionResponse.Metric.builder()
+                        .metric("metric")
+                        .value(0.0)
+                        .unit("unit")
+                        .build()
+                )
+                .build()
+
+        val roundtrippedChatCompletionResponse =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(chatCompletionResponse),
+                jacksonTypeRef<ChatCompletionResponse>(),
+            )
+
+        assertThat(roundtrippedChatCompletionResponse).isEqualTo(chatCompletionResponse)
     }
 }

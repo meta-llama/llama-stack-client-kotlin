@@ -12,8 +12,6 @@ import com.llama.llamastack.services.blocking.BenchmarkService
 import com.llama.llamastack.services.blocking.BenchmarkServiceImpl
 import com.llama.llamastack.services.blocking.DatasetService
 import com.llama.llamastack.services.blocking.DatasetServiceImpl
-import com.llama.llamastack.services.blocking.DatasetioService
-import com.llama.llamastack.services.blocking.DatasetioServiceImpl
 import com.llama.llamastack.services.blocking.EvalService
 import com.llama.llamastack.services.blocking.EvalServiceImpl
 import com.llama.llamastack.services.blocking.InferenceService
@@ -129,10 +127,6 @@ class LlamaStackClientClientImpl(private val clientOptions: ClientOptions) :
         TelemetryServiceImpl(clientOptionsWithUserAgent)
     }
 
-    private val datasetio: DatasetioService by lazy {
-        DatasetioServiceImpl(clientOptionsWithUserAgent)
-    }
-
     private val scoring: ScoringService by lazy { ScoringServiceImpl(clientOptionsWithUserAgent) }
 
     private val scoringFunctions: ScoringFunctionService by lazy {
@@ -184,8 +178,6 @@ class LlamaStackClientClientImpl(private val clientOptions: ClientOptions) :
     override fun syntheticDataGeneration(): SyntheticDataGenerationService = syntheticDataGeneration
 
     override fun telemetry(): TelemetryService = telemetry
-
-    override fun datasetio(): DatasetioService = datasetio
 
     override fun scoring(): ScoringService = scoring
 
@@ -275,10 +267,6 @@ class LlamaStackClientClientImpl(private val clientOptions: ClientOptions) :
             TelemetryServiceImpl.WithRawResponseImpl(clientOptions)
         }
 
-        private val datasetio: DatasetioService.WithRawResponse by lazy {
-            DatasetioServiceImpl.WithRawResponseImpl(clientOptions)
-        }
-
         private val scoring: ScoringService.WithRawResponse by lazy {
             ScoringServiceImpl.WithRawResponseImpl(clientOptions)
         }
@@ -329,8 +317,6 @@ class LlamaStackClientClientImpl(private val clientOptions: ClientOptions) :
             syntheticDataGeneration
 
         override fun telemetry(): TelemetryService.WithRawResponse = telemetry
-
-        override fun datasetio(): DatasetioService.WithRawResponse = datasetio
 
         override fun scoring(): ScoringService.WithRawResponse = scoring
 

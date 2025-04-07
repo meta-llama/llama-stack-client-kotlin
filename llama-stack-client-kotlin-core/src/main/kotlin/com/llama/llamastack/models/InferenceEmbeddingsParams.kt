@@ -20,15 +20,14 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.allMaxBy
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Generate embeddings for content pieces using the specified model. */
@@ -125,318 +124,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("contents")
-        @ExcludeMissing
-        private val contents: JsonField<Contents> = JsonMissing.of(),
-        @JsonProperty("model_id")
-        @ExcludeMissing
-        private val modelId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("output_dimension")
-        @ExcludeMissing
-        private val outputDimension: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("task_type")
-        @ExcludeMissing
-        private val taskType: JsonField<TaskType> = JsonMissing.of(),
-        @JsonProperty("text_truncation")
-        @ExcludeMissing
-        private val textTruncation: JsonField<TextTruncation> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * List of contents to generate embeddings for. Each content can be a string or an
-         * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
-         * and provider. Some models may only support text.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun contents(): Contents = contents.getRequired("contents")
-
-        /**
-         * The identifier of the model to use. The model must be an embedding model registered with
-         * Llama Stack and available via the /models endpoint.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun modelId(): String = modelId.getRequired("model_id")
-
-        /**
-         * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun outputDimension(): Long? = outputDimension.getNullable("output_dimension")
-
-        /**
-         * (Optional) How is the embedding being used? This is only supported by asymmetric
-         * embedding models.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun taskType(): TaskType? = taskType.getNullable("task_type")
-
-        /**
-         * (Optional) Config for how to truncate text for embedding when text is longer than the
-         * model's max sequence length.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun textTruncation(): TextTruncation? = textTruncation.getNullable("text_truncation")
-
-        /**
-         * Returns the raw JSON value of [contents].
-         *
-         * Unlike [contents], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("contents") @ExcludeMissing fun _contents(): JsonField<Contents> = contents
-
-        /**
-         * Returns the raw JSON value of [modelId].
-         *
-         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
-
-        /**
-         * Returns the raw JSON value of [outputDimension].
-         *
-         * Unlike [outputDimension], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("output_dimension")
-        @ExcludeMissing
-        fun _outputDimension(): JsonField<Long> = outputDimension
-
-        /**
-         * Returns the raw JSON value of [taskType].
-         *
-         * Unlike [taskType], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("task_type") @ExcludeMissing fun _taskType(): JsonField<TaskType> = taskType
-
-        /**
-         * Returns the raw JSON value of [textTruncation].
-         *
-         * Unlike [textTruncation], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("text_truncation")
-        @ExcludeMissing
-        fun _textTruncation(): JsonField<TextTruncation> = textTruncation
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            contents().validate()
-            modelId()
-            outputDimension()
-            taskType()
-            textTruncation()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .contents()
-             * .modelId()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var contents: JsonField<Contents>? = null
-            private var modelId: JsonField<String>? = null
-            private var outputDimension: JsonField<Long> = JsonMissing.of()
-            private var taskType: JsonField<TaskType> = JsonMissing.of()
-            private var textTruncation: JsonField<TextTruncation> = JsonMissing.of()
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                contents = body.contents
-                modelId = body.modelId
-                outputDimension = body.outputDimension
-                taskType = body.taskType
-                textTruncation = body.textTruncation
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            /**
-             * List of contents to generate embeddings for. Each content can be a string or an
-             * InterleavedContentItem (and hence can be multimodal). The behavior depends on the
-             * model and provider. Some models may only support text.
-             */
-            fun contents(contents: Contents) = contents(JsonField.of(contents))
-
-            /**
-             * Sets [Builder.contents] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.contents] with a well-typed [Contents] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun contents(contents: JsonField<Contents>) = apply { this.contents = contents }
-
-            /** Alias for calling [contents] with `Contents.ofStrings(strings)`. */
-            fun contentsOfStrings(strings: List<String>) = contents(Contents.ofStrings(strings))
-
-            /**
-             * Alias for calling [contents] with
-             * `Contents.ofInterleavedContentItems(interleavedContentItems)`.
-             */
-            fun contentsOfInterleavedContentItems(
-                interleavedContentItems: List<InterleavedContentItem>
-            ) = contents(Contents.ofInterleavedContentItems(interleavedContentItems))
-
-            /**
-             * The identifier of the model to use. The model must be an embedding model registered
-             * with Llama Stack and available via the /models endpoint.
-             */
-            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
-
-            /**
-             * Sets [Builder.modelId] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
-
-            /**
-             * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka
-             * models.
-             */
-            fun outputDimension(outputDimension: Long) =
-                outputDimension(JsonField.of(outputDimension))
-
-            /**
-             * Sets [Builder.outputDimension] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.outputDimension] with a well-typed [Long] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun outputDimension(outputDimension: JsonField<Long>) = apply {
-                this.outputDimension = outputDimension
-            }
-
-            /**
-             * (Optional) How is the embedding being used? This is only supported by asymmetric
-             * embedding models.
-             */
-            fun taskType(taskType: TaskType) = taskType(JsonField.of(taskType))
-
-            /**
-             * Sets [Builder.taskType] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.taskType] with a well-typed [TaskType] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun taskType(taskType: JsonField<TaskType>) = apply { this.taskType = taskType }
-
-            /**
-             * (Optional) Config for how to truncate text for embedding when text is longer than the
-             * model's max sequence length.
-             */
-            fun textTruncation(textTruncation: TextTruncation) =
-                textTruncation(JsonField.of(textTruncation))
-
-            /**
-             * Sets [Builder.textTruncation] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.textTruncation] with a well-typed [TextTruncation]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun textTruncation(textTruncation: JsonField<TextTruncation>) = apply {
-                this.textTruncation = textTruncation
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("contents", contents),
-                    checkRequired("modelId", modelId),
-                    outputDimension,
-                    taskType,
-                    textTruncation,
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && contents == other.contents && modelId == other.modelId && outputDimension == other.outputDimension && taskType == other.taskType && textTruncation == other.textTruncation && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(contents, modelId, outputDimension, taskType, textTruncation, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{contents=$contents, modelId=$modelId, outputDimension=$outputDimension, taskType=$taskType, textTruncation=$textTruncation, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -454,7 +141,6 @@ private constructor(
     }
 
     /** A builder for [InferenceEmbeddingsParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var body: Body.Builder = Body.builder()
@@ -466,6 +152,20 @@ private constructor(
             additionalHeaders = inferenceEmbeddingsParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceEmbeddingsParams.additionalQueryParams.toBuilder()
         }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [contents]
+         * - [modelId]
+         * - [outputDimension]
+         * - [taskType]
+         * - [textTruncation]
+         * - etc.
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         /**
          * List of contents to generate embeddings for. Each content can be a string or an
@@ -675,12 +375,381 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [InferenceEmbeddingsParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .contents()
+         * .modelId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): InferenceEmbeddingsParams =
             InferenceEmbeddingsParams(
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
+    }
+
+    fun _body(): Body = body
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
+    private constructor(
+        private val contents: JsonField<Contents>,
+        private val modelId: JsonField<String>,
+        private val outputDimension: JsonField<Long>,
+        private val taskType: JsonField<TaskType>,
+        private val textTruncation: JsonField<TextTruncation>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("contents")
+            @ExcludeMissing
+            contents: JsonField<Contents> = JsonMissing.of(),
+            @JsonProperty("model_id") @ExcludeMissing modelId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("output_dimension")
+            @ExcludeMissing
+            outputDimension: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("task_type")
+            @ExcludeMissing
+            taskType: JsonField<TaskType> = JsonMissing.of(),
+            @JsonProperty("text_truncation")
+            @ExcludeMissing
+            textTruncation: JsonField<TextTruncation> = JsonMissing.of(),
+        ) : this(contents, modelId, outputDimension, taskType, textTruncation, mutableMapOf())
+
+        /**
+         * List of contents to generate embeddings for. Each content can be a string or an
+         * InterleavedContentItem (and hence can be multimodal). The behavior depends on the model
+         * and provider. Some models may only support text.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun contents(): Contents = contents.getRequired("contents")
+
+        /**
+         * The identifier of the model to use. The model must be an embedding model registered with
+         * Llama Stack and available via the /models endpoint.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun modelId(): String = modelId.getRequired("model_id")
+
+        /**
+         * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka models.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun outputDimension(): Long? = outputDimension.getNullable("output_dimension")
+
+        /**
+         * (Optional) How is the embedding being used? This is only supported by asymmetric
+         * embedding models.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun taskType(): TaskType? = taskType.getNullable("task_type")
+
+        /**
+         * (Optional) Config for how to truncate text for embedding when text is longer than the
+         * model's max sequence length.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun textTruncation(): TextTruncation? = textTruncation.getNullable("text_truncation")
+
+        /**
+         * Returns the raw JSON value of [contents].
+         *
+         * Unlike [contents], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("contents") @ExcludeMissing fun _contents(): JsonField<Contents> = contents
+
+        /**
+         * Returns the raw JSON value of [modelId].
+         *
+         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
+
+        /**
+         * Returns the raw JSON value of [outputDimension].
+         *
+         * Unlike [outputDimension], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("output_dimension")
+        @ExcludeMissing
+        fun _outputDimension(): JsonField<Long> = outputDimension
+
+        /**
+         * Returns the raw JSON value of [taskType].
+         *
+         * Unlike [taskType], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("task_type") @ExcludeMissing fun _taskType(): JsonField<TaskType> = taskType
+
+        /**
+         * Returns the raw JSON value of [textTruncation].
+         *
+         * Unlike [textTruncation], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("text_truncation")
+        @ExcludeMissing
+        fun _textTruncation(): JsonField<TextTruncation> = textTruncation
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .contents()
+             * .modelId()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var contents: JsonField<Contents>? = null
+            private var modelId: JsonField<String>? = null
+            private var outputDimension: JsonField<Long> = JsonMissing.of()
+            private var taskType: JsonField<TaskType> = JsonMissing.of()
+            private var textTruncation: JsonField<TextTruncation> = JsonMissing.of()
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                contents = body.contents
+                modelId = body.modelId
+                outputDimension = body.outputDimension
+                taskType = body.taskType
+                textTruncation = body.textTruncation
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            /**
+             * List of contents to generate embeddings for. Each content can be a string or an
+             * InterleavedContentItem (and hence can be multimodal). The behavior depends on the
+             * model and provider. Some models may only support text.
+             */
+            fun contents(contents: Contents) = contents(JsonField.of(contents))
+
+            /**
+             * Sets [Builder.contents] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.contents] with a well-typed [Contents] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun contents(contents: JsonField<Contents>) = apply { this.contents = contents }
+
+            /** Alias for calling [contents] with `Contents.ofStrings(strings)`. */
+            fun contentsOfStrings(strings: List<String>) = contents(Contents.ofStrings(strings))
+
+            /**
+             * Alias for calling [contents] with
+             * `Contents.ofInterleavedContentItems(interleavedContentItems)`.
+             */
+            fun contentsOfInterleavedContentItems(
+                interleavedContentItems: List<InterleavedContentItem>
+            ) = contents(Contents.ofInterleavedContentItems(interleavedContentItems))
+
+            /**
+             * The identifier of the model to use. The model must be an embedding model registered
+             * with Llama Stack and available via the /models endpoint.
+             */
+            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
+
+            /**
+             * Sets [Builder.modelId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
+
+            /**
+             * (Optional) Output dimensionality for the embeddings. Only supported by Matryoshka
+             * models.
+             */
+            fun outputDimension(outputDimension: Long) =
+                outputDimension(JsonField.of(outputDimension))
+
+            /**
+             * Sets [Builder.outputDimension] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.outputDimension] with a well-typed [Long] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun outputDimension(outputDimension: JsonField<Long>) = apply {
+                this.outputDimension = outputDimension
+            }
+
+            /**
+             * (Optional) How is the embedding being used? This is only supported by asymmetric
+             * embedding models.
+             */
+            fun taskType(taskType: TaskType) = taskType(JsonField.of(taskType))
+
+            /**
+             * Sets [Builder.taskType] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.taskType] with a well-typed [TaskType] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun taskType(taskType: JsonField<TaskType>) = apply { this.taskType = taskType }
+
+            /**
+             * (Optional) Config for how to truncate text for embedding when text is longer than the
+             * model's max sequence length.
+             */
+            fun textTruncation(textTruncation: TextTruncation) =
+                textTruncation(JsonField.of(textTruncation))
+
+            /**
+             * Sets [Builder.textTruncation] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.textTruncation] with a well-typed [TextTruncation]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun textTruncation(textTruncation: JsonField<TextTruncation>) = apply {
+                this.textTruncation = textTruncation
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .contents()
+             * .modelId()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("contents", contents),
+                    checkRequired("modelId", modelId),
+                    outputDimension,
+                    taskType,
+                    textTruncation,
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            contents().validate()
+            modelId()
+            outputDimension()
+            taskType()?.validate()
+            textTruncation()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (contents.asKnown()?.validity() ?: 0) +
+                (if (modelId.asKnown() == null) 0 else 1) +
+                (if (outputDimension.asKnown() == null) 0 else 1) +
+                (taskType.asKnown()?.validity() ?: 0) +
+                (textTruncation.asKnown()?.validity() ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && contents == other.contents && modelId == other.modelId && outputDimension == other.outputDimension && taskType == other.taskType && textTruncation == other.textTruncation && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(contents, modelId, outputDimension, taskType, textTruncation, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{contents=$contents, modelId=$modelId, outputDimension=$outputDimension, taskType=$taskType, textTruncation=$textTruncation, additionalProperties=$additionalProperties}"
     }
 
     /**
@@ -712,14 +781,13 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 strings != null -> visitor.visitStrings(strings)
                 interleavedContentItems != null ->
                     visitor.visitInterleavedContentItems(interleavedContentItems)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -741,6 +809,33 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitStrings(strings: List<String>) = strings.size
+
+                    override fun visitInterleavedContentItems(
+                        interleavedContentItems: List<InterleavedContentItem>
+                    ) = interleavedContentItems.sumOf { it.validity().toInt() }
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -800,17 +895,27 @@ private constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Contents {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<List<String>>())?.let {
-                    return Contents(strings = it, _json = json)
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<List<String>>())?.let {
+                                Contents(strings = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>())
+                                ?.let { Contents(interleavedContentItems = it, _json = json) },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants (e.g. deserializing from boolean).
+                    0 -> Contents(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
                 }
-                tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
-                        it.forEach { it.validate() }
-                    }
-                    ?.let {
-                        return Contents(interleavedContentItems = it, _json = json)
-                    }
-
-                return Contents(_json = json)
             }
         }
 
@@ -921,6 +1026,33 @@ private constructor(
         fun asString(): String =
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+        private var validated: Boolean = false
+
+        fun validate(): TaskType = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1034,6 +1166,33 @@ private constructor(
         fun asString(): String =
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+        private var validated: Boolean = false
+
+        fun validate(): TextTruncation = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

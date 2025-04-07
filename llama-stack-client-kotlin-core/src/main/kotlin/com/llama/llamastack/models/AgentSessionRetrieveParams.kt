@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
@@ -31,23 +30,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.turnIds?.let { queryParams.put("turn_ids", listOf(it.joinToString(separator = ","))) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
-    }
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> agentId
-            1 -> sessionId
-            else -> ""
-        }
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -65,7 +47,6 @@ private constructor(
     }
 
     /** A builder for [AgentSessionRetrieveParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var agentId: String? = null
@@ -196,6 +177,19 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [AgentSessionRetrieveParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): AgentSessionRetrieveParams =
             AgentSessionRetrieveParams(
                 checkRequired("agentId", agentId),
@@ -205,6 +199,23 @@ private constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> agentId
+            1 -> sessionId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams =
+        QueryParams.builder()
+            .apply {
+                turnIds?.let { put("turn_ids", it.joinToString(",")) }
+                putAll(additionalQueryParams)
+            }
+            .build()
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

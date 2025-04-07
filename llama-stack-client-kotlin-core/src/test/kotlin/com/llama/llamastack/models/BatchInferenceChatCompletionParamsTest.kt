@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BatchInferenceChatCompletionParamsTest {
+internal class BatchInferenceChatCompletionParamsTest {
 
     @Test
     fun create() {
@@ -28,9 +27,10 @@ class BatchInferenceChatCompletionParamsTest {
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
             .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
@@ -79,9 +79,10 @@ class BatchInferenceChatCompletionParamsTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyObject()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
+                        .addStop("string")
                         .build()
                 )
                 .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
@@ -111,14 +112,11 @@ class BatchInferenceChatCompletionParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messagesBatch())
-            .isEqualTo(
+            .containsExactly(
                 listOf(
-                    listOf(
-                        Message.ofUser(
-                            UserMessage.builder().content("string").context("string").build()
-                        )
+                    Message.ofUser(
+                        UserMessage.builder().content("string").context("string").build()
                     )
                 )
             )
@@ -140,37 +138,36 @@ class BatchInferenceChatCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
         assertThat(body.toolChoice()).isEqualTo(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
         assertThat(body.toolPromptFormat())
             .isEqualTo(BatchInferenceChatCompletionParams.ToolPromptFormat.JSON)
         assertThat(body.tools())
-            .isEqualTo(
-                listOf(
-                    BatchInferenceChatCompletionParams.Tool.builder()
-                        .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
-                        .description("description")
-                        .parameters(
-                            BatchInferenceChatCompletionParams.Tool.Parameters.builder()
-                                .putAdditionalProperty(
-                                    "foo",
-                                    JsonValue.from(
-                                        mapOf(
-                                            "param_type" to "param_type",
-                                            "default" to true,
-                                            "description" to "description",
-                                            "required" to true,
-                                        )
-                                    ),
-                                )
-                                .build()
-                        )
-                        .build()
-                )
+            .containsExactly(
+                BatchInferenceChatCompletionParams.Tool.builder()
+                    .toolName(BatchInferenceChatCompletionParams.Tool.ToolName.BRAVE_SEARCH)
+                    .description("description")
+                    .parameters(
+                        BatchInferenceChatCompletionParams.Tool.Parameters.builder()
+                            .putAdditionalProperty(
+                                "foo",
+                                JsonValue.from(
+                                    mapOf(
+                                        "param_type" to "param_type",
+                                        "default" to true,
+                                        "description" to "description",
+                                        "required" to true,
+                                    )
+                                ),
+                            )
+                            .build()
+                    )
+                    .build()
             )
     }
 
@@ -186,10 +183,9 @@ class BatchInferenceChatCompletionParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.messagesBatch())
-            .isEqualTo(
-                listOf(listOf(Message.ofUser(UserMessage.builder().content("string").build())))
+            .containsExactly(
+                listOf(Message.ofUser(UserMessage.builder().content("string").build()))
             )
         assertThat(body.model()).isEqualTo("model")
     }

@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async.agents
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -14,7 +15,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.AgentTurnCreateParams
 import com.llama.llamastack.models.AgentTurnResumeParams
 import com.llama.llamastack.models.AgentTurnRetrieveParams
@@ -53,8 +53,7 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         TurnServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val createHandler: Handler<Turn> =
             jsonHandler<Turn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
@@ -69,9 +68,9 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
                     )
                     .body(json(clientOptions.jsonMapper, params._body()))
@@ -103,11 +102,11 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
-                        params.getPathParam(2),
+                        params._pathParam(2),
                     )
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -137,11 +136,11 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
                     .addPathSegments(
                         "v1",
                         "agents",
-                        params.getPathParam(0),
+                        params._pathParam(0),
                         "session",
-                        params.getPathParam(1),
+                        params._pathParam(1),
                         "turn",
-                        params.getPathParam(2),
+                        params._pathParam(2),
                         "resume",
                     )
                     .body(json(clientOptions.jsonMapper, params._body()))

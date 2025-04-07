@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
@@ -25,18 +24,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> traceId
-            1 -> spanId
-            else -> ""
-        }
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -54,7 +41,6 @@ private constructor(
     }
 
     /** A builder for [TelemetryGetSpanParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var traceId: String? = null
@@ -171,6 +157,19 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [TelemetryGetSpanParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .traceId()
+         * .spanId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): TelemetryGetSpanParams =
             TelemetryGetSpanParams(
                 checkRequired("traceId", traceId),
@@ -179,6 +178,17 @@ private constructor(
                 additionalQueryParams.build(),
             )
     }
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> traceId
+            1 -> spanId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

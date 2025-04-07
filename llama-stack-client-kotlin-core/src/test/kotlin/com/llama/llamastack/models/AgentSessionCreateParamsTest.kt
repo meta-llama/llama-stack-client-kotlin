@@ -2,15 +2,27 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentSessionCreateParamsTest {
+internal class AgentSessionCreateParamsTest {
 
     @Test
     fun create() {
         AgentSessionCreateParams.builder().agentId("agent_id").sessionName("session_name").build()
+    }
+
+    @Test
+    fun pathParams() {
+        val params =
+            AgentSessionCreateParams.builder()
+                .agentId("agent_id")
+                .sessionName("session_name")
+                .build()
+
+        assertThat(params._pathParam(0)).isEqualTo("agent_id")
+        // out-of-bound path param
+        assertThat(params._pathParam(1)).isEqualTo("")
     }
 
     @Test
@@ -23,35 +35,6 @@ class AgentSessionCreateParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.sessionName()).isEqualTo("session_name")
-    }
-
-    @Test
-    fun bodyWithoutOptionalFields() {
-        val params =
-            AgentSessionCreateParams.builder()
-                .agentId("agent_id")
-                .sessionName("session_name")
-                .build()
-
-        val body = params._body()
-
-        assertNotNull(body)
-        assertThat(body.sessionName()).isEqualTo("session_name")
-    }
-
-    @Test
-    fun getPathParam() {
-        val params =
-            AgentSessionCreateParams.builder()
-                .agentId("agent_id")
-                .sessionName("session_name")
-                .build()
-        assertThat(params).isNotNull
-        // path param "agentId"
-        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
-        // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
     }
 }

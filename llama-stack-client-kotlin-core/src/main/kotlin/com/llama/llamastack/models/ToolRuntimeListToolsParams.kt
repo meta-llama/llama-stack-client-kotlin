@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
@@ -25,18 +24,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams {
-        val queryParams = QueryParams.builder()
-        this.mcpEndpoint?.forEachQueryParam { key, values ->
-            queryParams.put("mcp_endpoint[$key]", values)
-        }
-        this.toolGroupId?.let { queryParams.put("tool_group_id", listOf(it.toString())) }
-        queryParams.putAll(additionalQueryParams)
-        return queryParams.build()
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -50,7 +37,6 @@ private constructor(
     }
 
     /** A builder for [ToolRuntimeListToolsParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var mcpEndpoint: McpEndpoint? = null
@@ -167,6 +153,11 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [ToolRuntimeListToolsParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         */
         fun build(): ToolRuntimeListToolsParams =
             ToolRuntimeListToolsParams(
                 mcpEndpoint,
@@ -176,17 +167,30 @@ private constructor(
             )
     }
 
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams =
+        QueryParams.builder()
+            .apply {
+                mcpEndpoint?.let {
+                    put("mcp_endpoint[uri]", it.uri())
+                    it._additionalProperties().keys().forEach { key ->
+                        it._additionalProperties().values(key).forEach { value ->
+                            put("mcp_endpoint[$key]", value)
+                        }
+                    }
+                }
+                toolGroupId?.let { put("tool_group_id", it) }
+                putAll(additionalQueryParams)
+            }
+            .build()
+
     class McpEndpoint
     private constructor(private val uri: String, private val additionalProperties: QueryParams) {
 
         fun uri(): String = uri
 
         fun _additionalProperties(): QueryParams = additionalProperties
-
-        internal fun forEachQueryParam(putParam: (String, List<String>) -> Unit) {
-            this.uri.let { putParam("uri", listOf(it.toString())) }
-            additionalProperties.keys().forEach { putParam(it, additionalProperties.values(it)) }
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -265,6 +269,18 @@ private constructor(
                 additionalProperties.removeAll(keys)
             }
 
+            /**
+             * Returns an immutable instance of [McpEndpoint].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .uri()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): McpEndpoint =
                 McpEndpoint(checkRequired("uri", uri), additionalProperties.build())
         }

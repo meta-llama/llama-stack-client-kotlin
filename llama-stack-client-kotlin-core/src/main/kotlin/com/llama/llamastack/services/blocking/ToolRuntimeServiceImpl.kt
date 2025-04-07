@@ -3,21 +3,19 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
-import com.llama.llamastack.core.handlers.jsonlHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
 import com.llama.llamastack.core.http.HttpMethod
 import com.llama.llamastack.core.http.HttpRequest
 import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.HttpResponseFor
-import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.core.http.json
-import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
@@ -45,18 +43,17 @@ class ToolRuntimeServiceImpl internal constructor(private val clientOptions: Cli
         // post /v1/tool-runtime/invoke
         withRawResponse().invokeTool(params, requestOptions).parse()
 
-    override fun listToolsStreaming(
+    override fun listTools(
         params: ToolRuntimeListToolsParams,
         requestOptions: RequestOptions,
-    ): StreamResponse<ToolDef> =
+    ): List<ToolDef> =
         // get /v1/tool-runtime/list-tools
-        withRawResponse().listToolsStreaming(params, requestOptions).parse()
+        withRawResponse().listTools(params, requestOptions).parse()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ToolRuntimeService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val ragTool: RagToolService.WithRawResponse by lazy {
             RagToolServiceImpl.WithRawResponseImpl(clientOptions)
@@ -92,13 +89,14 @@ class ToolRuntimeServiceImpl internal constructor(private val clientOptions: Cli
             }
         }
 
-        private val listToolsStreamingHandler: Handler<StreamResponse<ToolDef>> =
-            jsonlHandler<ToolDef>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+        private val listToolsHandler: Handler<DataEnvelope<List<ToolDef>>> =
+            jsonHandler<DataEnvelope<List<ToolDef>>>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
 
-        override fun listToolsStreaming(
+        override fun listTools(
             params: ToolRuntimeListToolsParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<StreamResponse<ToolDef>> {
+        ): HttpResponseFor<List<ToolDef>> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
@@ -109,14 +107,13 @@ class ToolRuntimeServiceImpl internal constructor(private val clientOptions: Cli
             val response = clientOptions.httpClient.execute(request, requestOptions)
             return response.parseable {
                 response
-                    .let { listToolsStreamingHandler.handle(it) }
-                    .let { streamResponse ->
+                    .use { listToolsHandler.handle(it) }
+                    .also {
                         if (requestOptions.responseValidation!!) {
-                            streamResponse.map { it.validate() }
-                        } else {
-                            streamResponse
+                            it.validate()
                         }
                     }
+                    .data()
             }
         }
     }

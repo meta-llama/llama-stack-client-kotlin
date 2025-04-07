@@ -2,11 +2,10 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class InferenceEmbeddingsParamsTest {
+internal class InferenceEmbeddingsParamsTest {
 
     @Test
     fun create() {
@@ -32,7 +31,6 @@ class InferenceEmbeddingsParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.contents())
             .isEqualTo(InferenceEmbeddingsParams.Contents.ofStrings(listOf("string")))
         assertThat(body.modelId()).isEqualTo("model_id")
@@ -51,7 +49,6 @@ class InferenceEmbeddingsParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.contents())
             .isEqualTo(InferenceEmbeddingsParams.Contents.ofStrings(listOf("string")))
         assertThat(body.modelId()).isEqualTo("model_id")

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class InferenceServiceTest {
+internal class InferenceServiceTest {
 
     @Test
     fun chatCompletion() {
@@ -36,9 +36,10 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -101,9 +102,10 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -170,9 +172,10 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .build()
@@ -200,9 +203,10 @@ class InferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .build()

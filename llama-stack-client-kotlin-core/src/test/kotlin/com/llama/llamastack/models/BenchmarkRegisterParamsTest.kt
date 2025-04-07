@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BenchmarkRegisterParamsTest {
+internal class BenchmarkRegisterParamsTest {
 
     @Test
     fun create() {
@@ -43,10 +42,9 @@ class BenchmarkRegisterParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.benchmarkId()).isEqualTo("benchmark_id")
         assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
+        assertThat(body.scoringFunctions()).containsExactly("string")
         assertThat(body.metadata())
             .isEqualTo(
                 BenchmarkRegisterParams.Metadata.builder()
@@ -68,9 +66,8 @@ class BenchmarkRegisterParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.benchmarkId()).isEqualTo("benchmark_id")
         assertThat(body.datasetId()).isEqualTo("dataset_id")
-        assertThat(body.scoringFunctions()).isEqualTo(listOf("string"))
+        assertThat(body.scoringFunctions()).containsExactly("string")
     }
 }

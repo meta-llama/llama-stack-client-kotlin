@@ -21,7 +21,7 @@ interface ScoringFunctionServiceAsync {
     suspend fun retrieve(
         params: ScoringFunctionRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): ScoringFn?
+    ): ScoringFn
 
     suspend fun list(
         params: ScoringFunctionListParams = ScoringFunctionListParams.none(),
@@ -51,7 +51,7 @@ interface ScoringFunctionServiceAsync {
         suspend fun retrieve(
             params: ScoringFunctionRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<ScoringFn?>
+        ): HttpResponseFor<ScoringFn>
 
         /**
          * Returns a raw HTTP response for `get /v1/scoring-functions`, but is otherwise the same as

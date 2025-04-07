@@ -2,22 +2,35 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class QueryConditionTest {
+internal class QueryConditionTest {
 
     @Test
-    fun createQueryCondition() {
+    fun create() {
         val queryCondition =
-            QueryCondition.builder()
-                .key("key")
-                .op(QueryCondition.Op.EQ)
-                .value(QueryCondition.Value.ofBoolean(true))
-                .build()
-        assertThat(queryCondition).isNotNull
+            QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
+
         assertThat(queryCondition.key()).isEqualTo("key")
         assertThat(queryCondition.op()).isEqualTo(QueryCondition.Op.EQ)
         assertThat(queryCondition.value()).isEqualTo(QueryCondition.Value.ofBoolean(true))
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val queryCondition =
+            QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
+
+        val roundtrippedQueryCondition =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(queryCondition),
+                jacksonTypeRef<QueryCondition>(),
+            )
+
+        assertThat(roundtrippedQueryCondition).isEqualTo(queryCondition)
     }
 }

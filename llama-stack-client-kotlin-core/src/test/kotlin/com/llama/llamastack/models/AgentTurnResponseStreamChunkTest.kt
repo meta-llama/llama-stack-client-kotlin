@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentTurnResponseStreamChunkTest {
+internal class AgentTurnResponseStreamChunkTest {
 
     @Test
-    fun createAgentTurnResponseStreamChunk() {
+    fun create() {
         val agentTurnResponseStreamChunk =
             AgentTurnResponseStreamChunk.builder()
                 .event(
@@ -34,7 +36,7 @@ class AgentTurnResponseStreamChunkTest {
                         .build()
                 )
                 .build()
-        assertThat(agentTurnResponseStreamChunk).isNotNull
+
         assertThat(agentTurnResponseStreamChunk.event())
             .isEqualTo(
                 TurnResponseEvent.builder()
@@ -55,5 +57,42 @@ class AgentTurnResponseStreamChunkTest {
                     )
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val agentTurnResponseStreamChunk =
+            AgentTurnResponseStreamChunk.builder()
+                .event(
+                    TurnResponseEvent.builder()
+                        .payload(
+                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.builder()
+                                .stepId("step_id")
+                                .stepType(
+                                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload
+                                        .StepType
+                                        .INFERENCE
+                                )
+                                .metadata(
+                                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload
+                                        .Metadata
+                                        .builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(true))
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .build()
+                )
+                .build()
+
+        val roundtrippedAgentTurnResponseStreamChunk =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(agentTurnResponseStreamChunk),
+                jacksonTypeRef<AgentTurnResponseStreamChunk>(),
+            )
+
+        assertThat(roundtrippedAgentTurnResponseStreamChunk).isEqualTo(agentTurnResponseStreamChunk)
     }
 }

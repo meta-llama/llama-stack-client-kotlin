@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,10 +17,12 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
+import com.llama.llamastack.models.DatasetIterrowsParams
+import com.llama.llamastack.models.DatasetIterrowsResponse
 import com.llama.llamastack.models.DatasetListParams
 import com.llama.llamastack.models.DatasetRegisterParams
+import com.llama.llamastack.models.DatasetRegisterResponse
 import com.llama.llamastack.models.DatasetRetrieveParams
 import com.llama.llamastack.models.DatasetRetrieveResponse
 import com.llama.llamastack.models.DatasetUnregisterParams
@@ -37,7 +40,7 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
     override fun retrieve(
         params: DatasetRetrieveParams,
         requestOptions: RequestOptions,
-    ): DatasetRetrieveResponse? =
+    ): DatasetRetrieveResponse =
         // get /v1/datasets/{dataset_id}
         withRawResponse().retrieve(params, requestOptions).parse()
 
@@ -48,10 +51,19 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
         // get /v1/datasets
         withRawResponse().list(params, requestOptions).parse()
 
-    override fun register(params: DatasetRegisterParams, requestOptions: RequestOptions) {
+    override fun iterrows(
+        params: DatasetIterrowsParams,
+        requestOptions: RequestOptions,
+    ): DatasetIterrowsResponse =
+        // get /v1/datasetio/iterrows/{dataset_id}
+        withRawResponse().iterrows(params, requestOptions).parse()
+
+    override fun register(
+        params: DatasetRegisterParams,
+        requestOptions: RequestOptions,
+    ): DatasetRegisterResponse =
         // post /v1/datasets
-        withRawResponse().register(params, requestOptions)
-    }
+        withRawResponse().register(params, requestOptions).parse()
 
     override fun unregister(params: DatasetUnregisterParams, requestOptions: RequestOptions) {
         // delete /v1/datasets/{dataset_id}
@@ -61,21 +73,20 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         DatasetService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
-        private val retrieveHandler: Handler<DatasetRetrieveResponse?> =
-            jsonHandler<DatasetRetrieveResponse?>(clientOptions.jsonMapper)
+        private val retrieveHandler: Handler<DatasetRetrieveResponse> =
+            jsonHandler<DatasetRetrieveResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
 
         override fun retrieve(
             params: DatasetRetrieveParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<DatasetRetrieveResponse?> {
+        ): HttpResponseFor<DatasetRetrieveResponse> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "datasets", params.getPathParam(0))
+                    .addPathSegments("v1", "datasets", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -85,7 +96,7 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
                     .use { retrieveHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }
@@ -119,12 +130,41 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
             }
         }
 
-        private val registerHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
+        private val iterrowsHandler: Handler<DatasetIterrowsResponse> =
+            jsonHandler<DatasetIterrowsResponse>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
+
+        override fun iterrows(
+            params: DatasetIterrowsParams,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<DatasetIterrowsResponse> {
+            val request =
+                HttpRequest.builder()
+                    .method(HttpMethod.GET)
+                    .addPathSegments("v1", "datasetio", "iterrows", params._pathParam(0))
+                    .build()
+                    .prepare(clientOptions, params)
+            val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
+            val response = clientOptions.httpClient.execute(request, requestOptions)
+            return response.parseable {
+                response
+                    .use { iterrowsHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+            }
+        }
+
+        private val registerHandler: Handler<DatasetRegisterResponse> =
+            jsonHandler<DatasetRegisterResponse>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
 
         override fun register(
             params: DatasetRegisterParams,
             requestOptions: RequestOptions,
-        ): HttpResponse {
+        ): HttpResponseFor<DatasetRegisterResponse> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
@@ -134,7 +174,15 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
             val response = clientOptions.httpClient.execute(request, requestOptions)
-            return response.parseable { response.use { registerHandler.handle(it) } }
+            return response.parseable {
+                response
+                    .use { registerHandler.handle(it) }
+                    .also {
+                        if (requestOptions.responseValidation!!) {
+                            it.validate()
+                        }
+                    }
+            }
         }
 
         private val unregisterHandler: Handler<Void?> =
@@ -147,7 +195,7 @@ class DatasetServiceImpl internal constructor(private val clientOptions: ClientO
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
-                    .addPathSegments("v1", "datasets", params.getPathParam(0))
+                    .addPathSegments("v1", "datasets", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()
                     .prepare(clientOptions, params)

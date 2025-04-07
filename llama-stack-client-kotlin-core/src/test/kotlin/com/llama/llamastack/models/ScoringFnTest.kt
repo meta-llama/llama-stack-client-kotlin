@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ScoringFnTest {
+internal class ScoringFnTest {
 
     @Test
-    fun createScoringFn() {
+    fun create() {
         val scoringFn =
             ScoringFn.builder()
                 .identifier("identifier")
@@ -33,7 +35,7 @@ class ScoringFnTest {
                         .build()
                 )
                 .build()
-        assertThat(scoringFn).isNotNull
+
         assertThat(scoringFn.identifier()).isEqualTo("identifier")
         assertThat(scoringFn.metadata())
             .isEqualTo(
@@ -59,5 +61,41 @@ class ScoringFnTest {
                         .build()
                 )
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val scoringFn =
+            ScoringFn.builder()
+                .identifier("identifier")
+                .metadata(
+                    ScoringFn.Metadata.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .providerId("provider_id")
+                .providerResourceId("provider_resource_id")
+                .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
+                .description("description")
+                .params(
+                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
+                        .judgeModel("judge_model")
+                        .addAggregationFunction(
+                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
+                        )
+                        .addJudgeScoreRegex("string")
+                        .promptTemplate("prompt_template")
+                        .build()
+                )
+                .build()
+
+        val roundtrippedScoringFn =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(scoringFn),
+                jacksonTypeRef<ScoringFn>(),
+            )
+
+        assertThat(roundtrippedScoringFn).isEqualTo(scoringFn)
     }
 }

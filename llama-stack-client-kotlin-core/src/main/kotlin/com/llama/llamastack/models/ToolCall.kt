@@ -6,33 +6,48 @@ import com.fasterxml.jackson.annotation.JsonAnyGetter
 import com.fasterxml.jackson.annotation.JsonAnySetter
 import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
+import com.fasterxml.jackson.core.JsonGenerator
+import com.fasterxml.jackson.core.ObjectCodec
+import com.fasterxml.jackson.databind.JsonNode
+import com.fasterxml.jackson.databind.SerializerProvider
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize
+import com.fasterxml.jackson.databind.annotation.JsonSerialize
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.BaseDeserializer
+import com.llama.llamastack.core.BaseSerializer
 import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.allMaxBy
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
+import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class ToolCall
-@JsonCreator
 private constructor(
-    @JsonProperty("arguments")
-    @ExcludeMissing
-    private val arguments: JsonField<Arguments> = JsonMissing.of(),
-    @JsonProperty("call_id")
-    @ExcludeMissing
-    private val callId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("tool_name")
-    @ExcludeMissing
-    private val toolName: JsonField<ToolName> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val arguments: JsonField<Arguments>,
+    private val callId: JsonField<String>,
+    private val toolName: JsonField<ToolName>,
+    private val argumentsJson: JsonField<String>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("arguments")
+        @ExcludeMissing
+        arguments: JsonField<Arguments> = JsonMissing.of(),
+        @JsonProperty("call_id") @ExcludeMissing callId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("tool_name") @ExcludeMissing toolName: JsonField<ToolName> = JsonMissing.of(),
+        @JsonProperty("arguments_json")
+        @ExcludeMissing
+        argumentsJson: JsonField<String> = JsonMissing.of(),
+    ) : this(arguments, callId, toolName, argumentsJson, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -51,6 +66,12 @@ private constructor(
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun toolName(): ToolName = toolName.getRequired("tool_name")
+
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun argumentsJson(): String? = argumentsJson.getNullable("arguments_json")
 
     /**
      * Returns the raw JSON value of [arguments].
@@ -73,22 +94,24 @@ private constructor(
      */
     @JsonProperty("tool_name") @ExcludeMissing fun _toolName(): JsonField<ToolName> = toolName
 
+    /**
+     * Returns the raw JSON value of [argumentsJson].
+     *
+     * Unlike [argumentsJson], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("arguments_json")
+    @ExcludeMissing
+    fun _argumentsJson(): JsonField<String> = argumentsJson
+
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ToolCall = apply {
-        if (validated) {
-            return@apply
-        }
-
-        arguments().validate()
-        callId()
-        toolName()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -113,12 +136,14 @@ private constructor(
         private var arguments: JsonField<Arguments>? = null
         private var callId: JsonField<String>? = null
         private var toolName: JsonField<ToolName>? = null
+        private var argumentsJson: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(toolCall: ToolCall) = apply {
             arguments = toolCall.arguments
             callId = toolCall.callId
             toolName = toolCall.toolName
+            argumentsJson = toolCall.argumentsJson
             additionalProperties = toolCall.additionalProperties.toMutableMap()
         }
 
@@ -132,6 +157,13 @@ private constructor(
          * value.
          */
         fun arguments(arguments: JsonField<Arguments>) = apply { this.arguments = arguments }
+
+        /** Alias for calling [arguments] with `Arguments.ofString(string)`. */
+        fun arguments(string: String) = arguments(Arguments.ofString(string))
+
+        /** Alias for calling [arguments] with `Arguments.ofUnionMember1(unionMember1)`. */
+        fun arguments(unionMember1: Arguments.UnionMember1) =
+            arguments(Arguments.ofUnionMember1(unionMember1))
 
         fun callId(callId: String) = callId(JsonField.of(callId))
 
@@ -162,6 +194,19 @@ private constructor(
          */
         fun toolName(value: String) = toolName(ToolName.of(value))
 
+        fun argumentsJson(argumentsJson: String) = argumentsJson(JsonField.of(argumentsJson))
+
+        /**
+         * Sets [Builder.argumentsJson] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.argumentsJson] with a well-typed [String] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
+        fun argumentsJson(argumentsJson: JsonField<String>) = apply {
+            this.argumentsJson = argumentsJson
+        }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)
@@ -181,26 +226,92 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ToolCall].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .arguments()
+         * .callId()
+         * .toolName()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ToolCall =
             ToolCall(
                 checkRequired("arguments", arguments),
                 checkRequired("callId", callId),
                 checkRequired("toolName", toolName),
-                additionalProperties.toImmutable(),
+                argumentsJson,
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): ToolCall = apply {
+        if (validated) {
+            return@apply
+        }
+
+        arguments().validate()
+        callId()
+        toolName()
+        argumentsJson()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (arguments.asKnown()?.validity() ?: 0) +
+            (if (callId.asKnown() == null) 0 else 1) +
+            (if (toolName.asKnown() == null) 0 else 1) +
+            (if (argumentsJson.asKnown() == null) 0 else 1)
+
+    @JsonDeserialize(using = Arguments.Deserializer::class)
+    @JsonSerialize(using = Arguments.Serializer::class)
     class Arguments
-    @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        private val string: String? = null,
+        private val unionMember1: UnionMember1? = null,
+        private val _json: JsonValue? = null,
     ) {
 
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+        fun string(): String? = string
+
+        fun unionMember1(): UnionMember1? = unionMember1
+
+        fun isString(): Boolean = string != null
+
+        fun isUnionMember1(): Boolean = unionMember1 != null
+
+        fun asString(): String = string.getOrThrow("string")
+
+        fun asUnionMember1(): UnionMember1 = unionMember1.getOrThrow("unionMember1")
+
+        fun _json(): JsonValue? = _json
+
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
+                string != null -> visitor.visitString(string)
+                unionMember1 != null -> visitor.visitUnionMember1(unionMember1)
+                else -> visitor.unknown(_json)
+            }
 
         private var validated: Boolean = false
 
@@ -209,63 +320,240 @@ private constructor(
                 return@apply
             }
 
+            accept(
+                object : Visitor<Unit> {
+                    override fun visitString(string: String) {}
+
+                    override fun visitUnionMember1(unionMember1: UnionMember1) {
+                        unionMember1.validate()
+                    }
+                }
+            )
             validated = true
         }
 
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /** Returns a mutable builder for constructing an instance of [Arguments]. */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Arguments]. */
-        class Builder internal constructor() {
-
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(arguments: Arguments) = apply {
-                additionalProperties = arguments.additionalProperties.toMutableMap()
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
             }
 
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitString(string: String) = 1
 
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
+                    override fun visitUnionMember1(unionMember1: UnionMember1) =
+                        unionMember1.validity()
 
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Arguments = Arguments(additionalProperties.toImmutable())
-        }
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
             }
 
-            return /* spotless:off */ other is Arguments && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Arguments && string == other.string && unionMember1 == other.unionMember1 /* spotless:on */
         }
 
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
-        /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, unionMember1) /* spotless:on */
 
-        override fun hashCode(): Int = hashCode
+        override fun toString(): String =
+            when {
+                string != null -> "Arguments{string=$string}"
+                unionMember1 != null -> "Arguments{unionMember1=$unionMember1}"
+                _json != null -> "Arguments{_unknown=$_json}"
+                else -> throw IllegalStateException("Invalid Arguments")
+            }
 
-        override fun toString() = "Arguments{additionalProperties=$additionalProperties}"
+        companion object {
+
+            fun ofString(string: String) = Arguments(string = string)
+
+            fun ofUnionMember1(unionMember1: UnionMember1) = Arguments(unionMember1 = unionMember1)
+        }
+
+        /**
+         * An interface that defines how to map each variant of [Arguments] to a value of type [T].
+         */
+        interface Visitor<out T> {
+
+            fun visitString(string: String): T
+
+            fun visitUnionMember1(unionMember1: UnionMember1): T
+
+            /**
+             * Maps an unknown variant of [Arguments] to a value of type [T].
+             *
+             * An instance of [Arguments] can contain an unknown variant if it was deserialized from
+             * data that doesn't match any known variant. For example, if the SDK is on an older
+             * version than the API, then the API may respond with new variants that the SDK is
+             * unaware of.
+             *
+             * @throws LlamaStackClientInvalidDataException in the default implementation.
+             */
+            fun unknown(json: JsonValue?): T {
+                throw LlamaStackClientInvalidDataException("Unknown Arguments: $json")
+            }
+        }
+
+        internal class Deserializer : BaseDeserializer<Arguments>(Arguments::class) {
+
+            override fun ObjectCodec.deserialize(node: JsonNode): Arguments {
+                val json = JsonValue.fromJsonNode(node)
+
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<UnionMember1>())?.let {
+                                Arguments(unionMember1 = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                                Arguments(string = it, _json = json)
+                            },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants (e.g. deserializing from array).
+                    0 -> Arguments(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
+                }
+            }
+        }
+
+        internal class Serializer : BaseSerializer<Arguments>(Arguments::class) {
+
+            override fun serialize(
+                value: Arguments,
+                generator: JsonGenerator,
+                provider: SerializerProvider,
+            ) {
+                when {
+                    value.string != null -> generator.writeObject(value.string)
+                    value.unionMember1 != null -> generator.writeObject(value.unionMember1)
+                    value._json != null -> generator.writeObject(value._json)
+                    else -> throw IllegalStateException("Invalid Arguments")
+                }
+            }
+        }
+
+        class UnionMember1
+        @JsonCreator
+        private constructor(
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
+        ) {
+
+            @JsonAnyGetter
+            @ExcludeMissing
+            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+            fun toBuilder() = Builder().from(this)
+
+            companion object {
+
+                /** Returns a mutable builder for constructing an instance of [UnionMember1]. */
+                fun builder() = Builder()
+            }
+
+            /** A builder for [UnionMember1]. */
+            class Builder internal constructor() {
+
+                private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+                internal fun from(unionMember1: UnionMember1) = apply {
+                    additionalProperties = unionMember1.additionalProperties.toMutableMap()
+                }
+
+                fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                    this.additionalProperties.clear()
+                    putAllAdditionalProperties(additionalProperties)
+                }
+
+                fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                    additionalProperties.put(key, value)
+                }
+
+                fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) =
+                    apply {
+                        this.additionalProperties.putAll(additionalProperties)
+                    }
+
+                fun removeAdditionalProperty(key: String) = apply {
+                    additionalProperties.remove(key)
+                }
+
+                fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                    keys.forEach(::removeAdditionalProperty)
+                }
+
+                /**
+                 * Returns an immutable instance of [UnionMember1].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
+                fun build(): UnionMember1 = UnionMember1(additionalProperties.toImmutable())
+            }
+
+            private var validated: Boolean = false
+
+            fun validate(): UnionMember1 = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
+
+            override fun equals(other: Any?): Boolean {
+                if (this === other) {
+                    return true
+                }
+
+                return /* spotless:off */ other is UnionMember1 && additionalProperties == other.additionalProperties /* spotless:on */
+            }
+
+            /* spotless:off */
+            private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+            /* spotless:on */
+
+            override fun hashCode(): Int = hashCode
+
+            override fun toString() = "UnionMember1{additionalProperties=$additionalProperties}"
+        }
     }
 
     class ToolName @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
@@ -366,6 +654,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): ToolName = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -384,15 +699,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ToolCall && arguments == other.arguments && callId == other.callId && toolName == other.toolName && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ToolCall && arguments == other.arguments && callId == other.callId && toolName == other.toolName && argumentsJson == other.argumentsJson && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(arguments, callId, toolName, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(arguments, callId, toolName, argumentsJson, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ToolCall{arguments=$arguments, callId=$callId, toolName=$toolName, additionalProperties=$additionalProperties}"
+        "ToolCall{arguments=$arguments, callId=$callId, toolName=$toolName, argumentsJson=$argumentsJson, additionalProperties=$additionalProperties}"
 }

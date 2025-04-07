@@ -11,15 +11,14 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Generate a chat completion for the given messages using the specified model. */
@@ -182,612 +181,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("messages")
-        @ExcludeMissing
-        private val messages: JsonField<List<Message>> = JsonMissing.of(),
-        @JsonProperty("model_id")
-        @ExcludeMissing
-        private val modelId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("logprobs")
-        @ExcludeMissing
-        private val logprobs: JsonField<Logprobs> = JsonMissing.of(),
-        @JsonProperty("response_format")
-        @ExcludeMissing
-        private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
-        @JsonProperty("sampling_params")
-        @ExcludeMissing
-        private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
-        @JsonProperty("tool_choice")
-        @ExcludeMissing
-        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
-        @JsonProperty("tool_config")
-        @ExcludeMissing
-        private val toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
-        @JsonProperty("tool_prompt_format")
-        @ExcludeMissing
-        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
-        @JsonProperty("tools")
-        @ExcludeMissing
-        private val tools: JsonField<List<Tool>> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * List of messages in the conversation
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun messages(): List<Message> = messages.getRequired("messages")
-
-        /**
-         * The identifier of the model to use. The model must be registered with Llama Stack and
-         * available via the /models endpoint.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun modelId(): String = modelId.getRequired("model_id")
-
-        /**
-         * (Optional) If specified, log probabilities for each token position will be returned.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
-
-        /**
-         * (Optional) Grammar specification for guided (structured) decoding. There are two
-         * options: - `ResponseFormat.json_schema`: The grammar is a JSON schema. Most providers
-         * support this format. - `ResponseFormat.grammar`: The grammar is a BNF grammar. This
-         * format is more flexible, but not all providers support it.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
-
-        /**
-         * Parameters to control the sampling strategy
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
-
-        /**
-         * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. ..
-         * deprecated:: Use tool_config instead.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
-
-        /**
-         * (Optional) Configuration for tool use.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
-
-        /**
-         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
-         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
-         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
-         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
-         * The tool calls are output as Python syntax -- a list of function calls. .. deprecated::
-         * Use tool_config instead.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun toolPromptFormat(): ToolPromptFormat? =
-            toolPromptFormat.getNullable("tool_prompt_format")
-
-        /**
-         * (Optional) List of tool definitions available to the model
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun tools(): List<Tool>? = tools.getNullable("tools")
-
-        /**
-         * Returns the raw JSON value of [messages].
-         *
-         * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("messages")
-        @ExcludeMissing
-        fun _messages(): JsonField<List<Message>> = messages
-
-        /**
-         * Returns the raw JSON value of [modelId].
-         *
-         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
-
-        /**
-         * Returns the raw JSON value of [logprobs].
-         *
-         * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
-
-        /**
-         * Returns the raw JSON value of [responseFormat].
-         *
-         * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("response_format")
-        @ExcludeMissing
-        fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
-
-        /**
-         * Returns the raw JSON value of [samplingParams].
-         *
-         * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("sampling_params")
-        @ExcludeMissing
-        fun _samplingParams(): JsonField<SamplingParams> = samplingParams
-
-        /**
-         * Returns the raw JSON value of [toolChoice].
-         *
-         * Unlike [toolChoice], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("tool_choice")
-        @ExcludeMissing
-        fun _toolChoice(): JsonField<ToolChoice> = toolChoice
-
-        /**
-         * Returns the raw JSON value of [toolConfig].
-         *
-         * Unlike [toolConfig], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("tool_config")
-        @ExcludeMissing
-        fun _toolConfig(): JsonField<ToolConfig> = toolConfig
-
-        /**
-         * Returns the raw JSON value of [toolPromptFormat].
-         *
-         * Unlike [toolPromptFormat], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("tool_prompt_format")
-        @ExcludeMissing
-        fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
-
-        /**
-         * Returns the raw JSON value of [tools].
-         *
-         * Unlike [tools], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("tools") @ExcludeMissing fun _tools(): JsonField<List<Tool>> = tools
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            messages().forEach { it.validate() }
-            modelId()
-            logprobs()?.validate()
-            responseFormat()?.validate()
-            samplingParams()?.validate()
-            toolChoice()
-            toolConfig()?.validate()
-            toolPromptFormat()
-            tools()?.forEach { it.validate() }
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .messages()
-             * .modelId()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var messages: JsonField<MutableList<Message>>? = null
-            private var modelId: JsonField<String>? = null
-            private var logprobs: JsonField<Logprobs> = JsonMissing.of()
-            private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
-            private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
-            private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
-            private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
-            private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
-            private var tools: JsonField<MutableList<Tool>>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                messages = body.messages.map { it.toMutableList() }
-                modelId = body.modelId
-                logprobs = body.logprobs
-                responseFormat = body.responseFormat
-                samplingParams = body.samplingParams
-                toolChoice = body.toolChoice
-                toolConfig = body.toolConfig
-                toolPromptFormat = body.toolPromptFormat
-                tools = body.tools.map { it.toMutableList() }
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            /** List of messages in the conversation */
-            fun messages(messages: List<Message>) = messages(JsonField.of(messages))
-
-            /**
-             * Sets [Builder.messages] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.messages] with a well-typed `List<Message>` value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun messages(messages: JsonField<List<Message>>) = apply {
-                this.messages = messages.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Message] to [messages].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addMessage(message: Message) = apply {
-                messages =
-                    (messages ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("messages", it).add(message)
-                    }
-            }
-
-            /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
-            fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
-
-            /**
-             * Alias for calling [addMessage] with the following:
-             * ```kotlin
-             * UserMessage.builder()
-             *     .content(content)
-             *     .build()
-             * ```
-             */
-            fun addUserMessage(content: InterleavedContent) =
-                addMessage(UserMessage.builder().content(content).build())
-
-            /** Alias for calling [addUserMessage] with `InterleavedContent.ofString(string)`. */
-            fun addUserMessage(string: String) = addUserMessage(InterleavedContent.ofString(string))
-
-            /**
-             * Alias for calling [addUserMessage] with
-             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
-             */
-            fun addUserMessage(imageContentItem: InterleavedContent.ImageContentItem) =
-                addUserMessage(InterleavedContent.ofImageContentItem(imageContentItem))
-
-            /**
-             * Alias for calling [addUserMessage] with
-             * `InterleavedContent.ofTextContentItem(textContentItem)`.
-             */
-            fun addUserMessage(textContentItem: InterleavedContent.TextContentItem) =
-                addUserMessage(InterleavedContent.ofTextContentItem(textContentItem))
-
-            /** Alias for calling [addUserMessage] with `InterleavedContent.ofItems(items)`. */
-            fun addUserMessageOfItems(items: List<InterleavedContentItem>) =
-                addUserMessage(InterleavedContent.ofItems(items))
-
-            /** Alias for calling [addMessage] with `Message.ofSystem(system)`. */
-            fun addMessage(system: SystemMessage) = addMessage(Message.ofSystem(system))
-
-            /**
-             * Alias for calling [addMessage] with the following:
-             * ```kotlin
-             * SystemMessage.builder()
-             *     .content(content)
-             *     .build()
-             * ```
-             */
-            fun addSystemMessage(content: InterleavedContent) =
-                addMessage(SystemMessage.builder().content(content).build())
-
-            /** Alias for calling [addSystemMessage] with `InterleavedContent.ofString(string)`. */
-            fun addSystemMessage(string: String) =
-                addSystemMessage(InterleavedContent.ofString(string))
-
-            /**
-             * Alias for calling [addSystemMessage] with
-             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
-             */
-            fun addSystemMessage(imageContentItem: InterleavedContent.ImageContentItem) =
-                addSystemMessage(InterleavedContent.ofImageContentItem(imageContentItem))
-
-            /**
-             * Alias for calling [addSystemMessage] with
-             * `InterleavedContent.ofTextContentItem(textContentItem)`.
-             */
-            fun addSystemMessage(textContentItem: InterleavedContent.TextContentItem) =
-                addSystemMessage(InterleavedContent.ofTextContentItem(textContentItem))
-
-            /** Alias for calling [addSystemMessage] with `InterleavedContent.ofItems(items)`. */
-            fun addSystemMessageOfItems(items: List<InterleavedContentItem>) =
-                addSystemMessage(InterleavedContent.ofItems(items))
-
-            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
-            fun addMessage(toolResponse: ToolResponseMessage) =
-                addMessage(Message.ofToolResponse(toolResponse))
-
-            /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
-            fun addMessage(completion: CompletionMessage) =
-                addMessage(Message.ofCompletion(completion))
-
-            /**
-             * The identifier of the model to use. The model must be registered with Llama Stack and
-             * available via the /models endpoint.
-             */
-            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
-
-            /**
-             * Sets [Builder.modelId] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
-
-            /**
-             * (Optional) If specified, log probabilities for each token position will be returned.
-             */
-            fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
-
-            /**
-             * Sets [Builder.logprobs] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
-
-            /**
-             * (Optional) Grammar specification for guided (structured) decoding. There are two
-             * options: - `ResponseFormat.json_schema`: The grammar is a JSON schema. Most providers
-             * support this format. - `ResponseFormat.grammar`: The grammar is a BNF grammar. This
-             * format is more flexible, but not all providers support it.
-             */
-            fun responseFormat(responseFormat: ResponseFormat) =
-                responseFormat(JsonField.of(responseFormat))
-
-            /**
-             * Sets [Builder.responseFormat] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
-                this.responseFormat = responseFormat
-            }
-
-            /**
-             * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
-             */
-            fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
-                responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
-
-            /**
-             * Alias for calling [responseFormat] with the following:
-             * ```kotlin
-             * ResponseFormat.JsonSchemaResponseFormat.builder()
-             *     .jsonSchema(jsonSchema)
-             *     .build()
-             * ```
-             */
-            fun jsonSchemaResponseFormat(
-                jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-            ) =
-                responseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
-                )
-
-            /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-            fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
-                responseFormat(ResponseFormat.ofGrammar(grammar))
-
-            /**
-             * Alias for calling [responseFormat] with the following:
-             * ```kotlin
-             * ResponseFormat.GrammarResponseFormat.builder()
-             *     .bnf(bnf)
-             *     .build()
-             * ```
-             */
-            fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
-                responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
-
-            /** Parameters to control the sampling strategy */
-            fun samplingParams(samplingParams: SamplingParams) =
-                samplingParams(JsonField.of(samplingParams))
-
-            /**
-             * Sets [Builder.samplingParams] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
-                this.samplingParams = samplingParams
-            }
-
-            /**
-             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. ..
-             * deprecated:: Use tool_config instead.
-             */
-            fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
-
-            /**
-             * Sets [Builder.toolChoice] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.toolChoice] with a well-typed [ToolChoice] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
-                this.toolChoice = toolChoice
-            }
-
-            /** (Optional) Configuration for tool use. */
-            fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
-
-            /**
-             * Sets [Builder.toolConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.toolConfig] with a well-typed [ToolConfig] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply {
-                this.toolConfig = toolConfig
-            }
-
-            /**
-             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
-             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
-             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
-             * tool calls are enclosed in a <function=function_name> tag. -
-             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
-             * of function calls. .. deprecated:: Use tool_config instead.
-             */
-            fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
-                toolPromptFormat(JsonField.of(toolPromptFormat))
-
-            /**
-             * Sets [Builder.toolPromptFormat] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.toolPromptFormat] with a well-typed
-             * [ToolPromptFormat] value instead. This method is primarily for setting the field to
-             * an undocumented or not yet supported value.
-             */
-            fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
-                this.toolPromptFormat = toolPromptFormat
-            }
-
-            /** (Optional) List of tool definitions available to the model */
-            fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
-
-            /**
-             * Sets [Builder.tools] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.tools] with a well-typed `List<Tool>` value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun tools(tools: JsonField<List<Tool>>) = apply {
-                this.tools = tools.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Tool] to [tools].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addTool(tool: Tool) = apply {
-                tools =
-                    (tools ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("tools", it).add(tool)
-                    }
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("messages", messages).map { it.toImmutable() },
-                    checkRequired("modelId", modelId),
-                    logprobs,
-                    responseFormat,
-                    samplingParams,
-                    toolChoice,
-                    toolConfig,
-                    toolPromptFormat,
-                    (tools ?: JsonMissing.of()).map { it.toImmutable() },
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, modelId, logprobs, responseFormat, samplingParams, toolChoice, toolConfig, toolPromptFormat, tools, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -806,7 +199,6 @@ private constructor(
     }
 
     /** A builder for [InferenceChatCompletionParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var body: Body.Builder = Body.builder()
@@ -818,6 +210,20 @@ private constructor(
             additionalHeaders = inferenceChatCompletionParams.additionalHeaders.toBuilder()
             additionalQueryParams = inferenceChatCompletionParams.additionalQueryParams.toBuilder()
         }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [messages]
+         * - [modelId]
+         * - [logprobs]
+         * - [responseFormat]
+         * - [samplingParams]
+         * - etc.
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         /** List of messages in the conversation */
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
@@ -1201,6 +607,19 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [InferenceChatCompletionParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .messages()
+         * .modelId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): InferenceChatCompletionParams =
             InferenceChatCompletionParams(
                 body.build(),
@@ -1209,15 +628,684 @@ private constructor(
             )
     }
 
-    /** (Optional) If specified, log probabilities for each token position will be returned. */
-    @NoAutoDetect
-    class Logprobs
-    @JsonCreator
+    fun _body(): Body = body
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
     private constructor(
-        @JsonProperty("top_k") @ExcludeMissing private val topK: JsonField<Long> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val messages: JsonField<List<Message>>,
+        private val modelId: JsonField<String>,
+        private val logprobs: JsonField<Logprobs>,
+        private val responseFormat: JsonField<ResponseFormat>,
+        private val samplingParams: JsonField<SamplingParams>,
+        private val toolChoice: JsonField<ToolChoice>,
+        private val toolConfig: JsonField<ToolConfig>,
+        private val toolPromptFormat: JsonField<ToolPromptFormat>,
+        private val tools: JsonField<List<Tool>>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("messages")
+            @ExcludeMissing
+            messages: JsonField<List<Message>> = JsonMissing.of(),
+            @JsonProperty("model_id") @ExcludeMissing modelId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("logprobs")
+            @ExcludeMissing
+            logprobs: JsonField<Logprobs> = JsonMissing.of(),
+            @JsonProperty("response_format")
+            @ExcludeMissing
+            responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
+            @JsonProperty("sampling_params")
+            @ExcludeMissing
+            samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+            @JsonProperty("tool_choice")
+            @ExcludeMissing
+            toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+            @JsonProperty("tool_config")
+            @ExcludeMissing
+            toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
+            @JsonProperty("tool_prompt_format")
+            @ExcludeMissing
+            toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+            @JsonProperty("tools") @ExcludeMissing tools: JsonField<List<Tool>> = JsonMissing.of(),
+        ) : this(
+            messages,
+            modelId,
+            logprobs,
+            responseFormat,
+            samplingParams,
+            toolChoice,
+            toolConfig,
+            toolPromptFormat,
+            tools,
+            mutableMapOf(),
+        )
+
+        /**
+         * List of messages in the conversation
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun messages(): List<Message> = messages.getRequired("messages")
+
+        /**
+         * The identifier of the model to use. The model must be registered with Llama Stack and
+         * available via the /models endpoint.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun modelId(): String = modelId.getRequired("model_id")
+
+        /**
+         * (Optional) If specified, log probabilities for each token position will be returned.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
+
+        /**
+         * (Optional) Grammar specification for guided (structured) decoding. There are two
+         * options: - `ResponseFormat.json_schema`: The grammar is a JSON schema. Most providers
+         * support this format. - `ResponseFormat.grammar`: The grammar is a BNF grammar. This
+         * format is more flexible, but not all providers support it.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
+
+        /**
+         * Parameters to control the sampling strategy
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun samplingParams(): SamplingParams? = samplingParams.getNullable("sampling_params")
+
+        /**
+         * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. ..
+         * deprecated:: Use tool_config instead.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun toolChoice(): ToolChoice? = toolChoice.getNullable("tool_choice")
+
+        /**
+         * (Optional) Configuration for tool use.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
+
+        /**
+         * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+         * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`: The
+         * tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The tool
+         * calls are enclosed in a <function=function_name> tag. - `ToolPromptFormat.python_list`:
+         * The tool calls are output as Python syntax -- a list of function calls. .. deprecated::
+         * Use tool_config instead.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun toolPromptFormat(): ToolPromptFormat? =
+            toolPromptFormat.getNullable("tool_prompt_format")
+
+        /**
+         * (Optional) List of tool definitions available to the model
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun tools(): List<Tool>? = tools.getNullable("tools")
+
+        /**
+         * Returns the raw JSON value of [messages].
+         *
+         * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("messages")
+        @ExcludeMissing
+        fun _messages(): JsonField<List<Message>> = messages
+
+        /**
+         * Returns the raw JSON value of [modelId].
+         *
+         * Unlike [modelId], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("model_id") @ExcludeMissing fun _modelId(): JsonField<String> = modelId
+
+        /**
+         * Returns the raw JSON value of [logprobs].
+         *
+         * Unlike [logprobs], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("logprobs") @ExcludeMissing fun _logprobs(): JsonField<Logprobs> = logprobs
+
+        /**
+         * Returns the raw JSON value of [responseFormat].
+         *
+         * Unlike [responseFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        fun _responseFormat(): JsonField<ResponseFormat> = responseFormat
+
+        /**
+         * Returns the raw JSON value of [samplingParams].
+         *
+         * Unlike [samplingParams], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        fun _samplingParams(): JsonField<SamplingParams> = samplingParams
+
+        /**
+         * Returns the raw JSON value of [toolChoice].
+         *
+         * Unlike [toolChoice], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        fun _toolChoice(): JsonField<ToolChoice> = toolChoice
+
+        /**
+         * Returns the raw JSON value of [toolConfig].
+         *
+         * Unlike [toolConfig], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("tool_config")
+        @ExcludeMissing
+        fun _toolConfig(): JsonField<ToolConfig> = toolConfig
+
+        /**
+         * Returns the raw JSON value of [toolPromptFormat].
+         *
+         * Unlike [toolPromptFormat], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
+
+        /**
+         * Returns the raw JSON value of [tools].
+         *
+         * Unlike [tools], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("tools") @ExcludeMissing fun _tools(): JsonField<List<Tool>> = tools
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messages()
+             * .modelId()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var messages: JsonField<MutableList<Message>>? = null
+            private var modelId: JsonField<String>? = null
+            private var logprobs: JsonField<Logprobs> = JsonMissing.of()
+            private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
+            private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
+            private var toolChoice: JsonField<ToolChoice> = JsonMissing.of()
+            private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
+            private var toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of()
+            private var tools: JsonField<MutableList<Tool>>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                messages = body.messages.map { it.toMutableList() }
+                modelId = body.modelId
+                logprobs = body.logprobs
+                responseFormat = body.responseFormat
+                samplingParams = body.samplingParams
+                toolChoice = body.toolChoice
+                toolConfig = body.toolConfig
+                toolPromptFormat = body.toolPromptFormat
+                tools = body.tools.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            /** List of messages in the conversation */
+            fun messages(messages: List<Message>) = messages(JsonField.of(messages))
+
+            /**
+             * Sets [Builder.messages] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.messages] with a well-typed `List<Message>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun messages(messages: JsonField<List<Message>>) = apply {
+                this.messages = messages.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Message] to [messages].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addMessage(message: Message) = apply {
+                messages =
+                    (messages ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("messages", it).add(message)
+                    }
+            }
+
+            /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
+            fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
+
+            /**
+             * Alias for calling [addMessage] with the following:
+             * ```kotlin
+             * UserMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
+            fun addUserMessage(content: InterleavedContent) =
+                addMessage(UserMessage.builder().content(content).build())
+
+            /** Alias for calling [addUserMessage] with `InterleavedContent.ofString(string)`. */
+            fun addUserMessage(string: String) = addUserMessage(InterleavedContent.ofString(string))
+
+            /**
+             * Alias for calling [addUserMessage] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
+            fun addUserMessage(imageContentItem: InterleavedContent.ImageContentItem) =
+                addUserMessage(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /**
+             * Alias for calling [addUserMessage] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
+            fun addUserMessage(textContentItem: InterleavedContent.TextContentItem) =
+                addUserMessage(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** Alias for calling [addUserMessage] with `InterleavedContent.ofItems(items)`. */
+            fun addUserMessageOfItems(items: List<InterleavedContentItem>) =
+                addUserMessage(InterleavedContent.ofItems(items))
+
+            /** Alias for calling [addMessage] with `Message.ofSystem(system)`. */
+            fun addMessage(system: SystemMessage) = addMessage(Message.ofSystem(system))
+
+            /**
+             * Alias for calling [addMessage] with the following:
+             * ```kotlin
+             * SystemMessage.builder()
+             *     .content(content)
+             *     .build()
+             * ```
+             */
+            fun addSystemMessage(content: InterleavedContent) =
+                addMessage(SystemMessage.builder().content(content).build())
+
+            /** Alias for calling [addSystemMessage] with `InterleavedContent.ofString(string)`. */
+            fun addSystemMessage(string: String) =
+                addSystemMessage(InterleavedContent.ofString(string))
+
+            /**
+             * Alias for calling [addSystemMessage] with
+             * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+             */
+            fun addSystemMessage(imageContentItem: InterleavedContent.ImageContentItem) =
+                addSystemMessage(InterleavedContent.ofImageContentItem(imageContentItem))
+
+            /**
+             * Alias for calling [addSystemMessage] with
+             * `InterleavedContent.ofTextContentItem(textContentItem)`.
+             */
+            fun addSystemMessage(textContentItem: InterleavedContent.TextContentItem) =
+                addSystemMessage(InterleavedContent.ofTextContentItem(textContentItem))
+
+            /** Alias for calling [addSystemMessage] with `InterleavedContent.ofItems(items)`. */
+            fun addSystemMessageOfItems(items: List<InterleavedContentItem>) =
+                addSystemMessage(InterleavedContent.ofItems(items))
+
+            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
+            fun addMessage(toolResponse: ToolResponseMessage) =
+                addMessage(Message.ofToolResponse(toolResponse))
+
+            /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
+            fun addMessage(completion: CompletionMessage) =
+                addMessage(Message.ofCompletion(completion))
+
+            /**
+             * The identifier of the model to use. The model must be registered with Llama Stack and
+             * available via the /models endpoint.
+             */
+            fun modelId(modelId: String) = modelId(JsonField.of(modelId))
+
+            /**
+             * Sets [Builder.modelId] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.modelId] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
+
+            /**
+             * (Optional) If specified, log probabilities for each token position will be returned.
+             */
+            fun logprobs(logprobs: Logprobs) = logprobs(JsonField.of(logprobs))
+
+            /**
+             * Sets [Builder.logprobs] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
+
+            /**
+             * (Optional) Grammar specification for guided (structured) decoding. There are two
+             * options: - `ResponseFormat.json_schema`: The grammar is a JSON schema. Most providers
+             * support this format. - `ResponseFormat.grammar`: The grammar is a BNF grammar. This
+             * format is more flexible, but not all providers support it.
+             */
+            fun responseFormat(responseFormat: ResponseFormat) =
+                responseFormat(JsonField.of(responseFormat))
+
+            /**
+             * Sets [Builder.responseFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
+                this.responseFormat = responseFormat
+            }
+
+            /**
+             * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
+             */
+            fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
+                responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
+
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.JsonSchemaResponseFormat.builder()
+             *     .jsonSchema(jsonSchema)
+             *     .build()
+             * ```
+             */
+            fun jsonSchemaResponseFormat(
+                jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+            ) =
+                responseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
+                )
+
+            /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
+            fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
+                responseFormat(ResponseFormat.ofGrammar(grammar))
+
+            /**
+             * Alias for calling [responseFormat] with the following:
+             * ```kotlin
+             * ResponseFormat.GrammarResponseFormat.builder()
+             *     .bnf(bnf)
+             *     .build()
+             * ```
+             */
+            fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
+                responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
+
+            /** Parameters to control the sampling strategy */
+            fun samplingParams(samplingParams: SamplingParams) =
+                samplingParams(JsonField.of(samplingParams))
+
+            /**
+             * Sets [Builder.samplingParams] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
+                this.samplingParams = samplingParams
+            }
+
+            /**
+             * (Optional) Whether tool use is required or automatic. Defaults to ToolChoice.auto. ..
+             * deprecated:: Use tool_config instead.
+             */
+            fun toolChoice(toolChoice: ToolChoice) = toolChoice(JsonField.of(toolChoice))
+
+            /**
+             * Sets [Builder.toolChoice] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolChoice] with a well-typed [ToolChoice] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun toolChoice(toolChoice: JsonField<ToolChoice>) = apply {
+                this.toolChoice = toolChoice
+            }
+
+            /** (Optional) Configuration for tool use. */
+            fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
+
+            /**
+             * Sets [Builder.toolConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolConfig] with a well-typed [ToolConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply {
+                this.toolConfig = toolConfig
+            }
+
+            /**
+             * (Optional) Instructs the model how to format tool calls. By default, Llama Stack will
+             * attempt to use a format that is best adapted to the model. - `ToolPromptFormat.json`:
+             * The tool calls are formatted as a JSON object. - `ToolPromptFormat.function_tag`: The
+             * tool calls are enclosed in a <function=function_name> tag. -
+             * `ToolPromptFormat.python_list`: The tool calls are output as Python syntax -- a list
+             * of function calls. .. deprecated:: Use tool_config instead.
+             */
+            fun toolPromptFormat(toolPromptFormat: ToolPromptFormat) =
+                toolPromptFormat(JsonField.of(toolPromptFormat))
+
+            /**
+             * Sets [Builder.toolPromptFormat] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolPromptFormat] with a well-typed
+             * [ToolPromptFormat] value instead. This method is primarily for setting the field to
+             * an undocumented or not yet supported value.
+             */
+            fun toolPromptFormat(toolPromptFormat: JsonField<ToolPromptFormat>) = apply {
+                this.toolPromptFormat = toolPromptFormat
+            }
+
+            /** (Optional) List of tool definitions available to the model */
+            fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
+
+            /**
+             * Sets [Builder.tools] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.tools] with a well-typed `List<Tool>` value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun tools(tools: JsonField<List<Tool>>) = apply {
+                this.tools = tools.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Tool] to [tools].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addTool(tool: Tool) = apply {
+                tools =
+                    (tools ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("tools", it).add(tool)
+                    }
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messages()
+             * .modelId()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("messages", messages).map { it.toImmutable() },
+                    checkRequired("modelId", modelId),
+                    logprobs,
+                    responseFormat,
+                    samplingParams,
+                    toolChoice,
+                    toolConfig,
+                    toolPromptFormat,
+                    (tools ?: JsonMissing.of()).map { it.toImmutable() },
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            messages().forEach { it.validate() }
+            modelId()
+            logprobs()?.validate()
+            responseFormat()?.validate()
+            samplingParams()?.validate()
+            toolChoice()?.validate()
+            toolConfig()?.validate()
+            toolPromptFormat()?.validate()
+            tools()?.forEach { it.validate() }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (messages.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (if (modelId.asKnown() == null) 0 else 1) +
+                (logprobs.asKnown()?.validity() ?: 0) +
+                (responseFormat.asKnown()?.validity() ?: 0) +
+                (samplingParams.asKnown()?.validity() ?: 0) +
+                (toolChoice.asKnown()?.validity() ?: 0) +
+                (toolConfig.asKnown()?.validity() ?: 0) +
+                (toolPromptFormat.asKnown()?.validity() ?: 0) +
+                (tools.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && messages == other.messages && modelId == other.modelId && logprobs == other.logprobs && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && tools == other.tools && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(messages, modelId, logprobs, responseFormat, samplingParams, toolChoice, toolConfig, toolPromptFormat, tools, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{messages=$messages, modelId=$modelId, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, tools=$tools, additionalProperties=$additionalProperties}"
+    }
+
+    /** (Optional) If specified, log probabilities for each token position will be returned. */
+    class Logprobs
+    private constructor(
+        private val topK: JsonField<Long>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("top_k") @ExcludeMissing topK: JsonField<Long> = JsonMissing.of()
+        ) : this(topK, mutableMapOf())
 
         /**
          * How many tokens (for each position) to return log probabilities for.
@@ -1234,20 +1322,15 @@ private constructor(
          */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Logprobs = apply {
-            if (validated) {
-                return@apply
-            }
-
-            topK()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1299,8 +1382,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): Logprobs = Logprobs(topK, additionalProperties.toImmutable())
+            /**
+             * Returns an immutable instance of [Logprobs].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
+            fun build(): Logprobs = Logprobs(topK, additionalProperties.toMutableMap())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Logprobs = apply {
+            if (validated) {
+                return@apply
+            }
+
+            topK()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = (if (topK.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1417,6 +1532,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): ToolChoice = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -1431,22 +1573,26 @@ private constructor(
     }
 
     /** (Optional) Configuration for tool use. */
-    @NoAutoDetect
     class ToolConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("system_message_behavior")
-        @ExcludeMissing
-        private val systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
-        @JsonProperty("tool_choice")
-        @ExcludeMissing
-        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
-        @JsonProperty("tool_prompt_format")
-        @ExcludeMissing
-        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val systemMessageBehavior: JsonField<SystemMessageBehavior>,
+        private val toolChoice: JsonField<ToolChoice>,
+        private val toolPromptFormat: JsonField<ToolPromptFormat>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("system_message_behavior")
+            @ExcludeMissing
+            systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
+            @JsonProperty("tool_choice")
+            @ExcludeMissing
+            toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+            @JsonProperty("tool_prompt_format")
+            @ExcludeMissing
+            toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        ) : this(systemMessageBehavior, toolChoice, toolPromptFormat, mutableMapOf())
 
         /**
          * (Optional) Config for how to override the default system prompt. -
@@ -1512,22 +1658,15 @@ private constructor(
         @ExcludeMissing
         fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            systemMessageBehavior()
-            toolChoice()
-            toolPromptFormat()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1642,14 +1781,51 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ToolConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): ToolConfig =
                 ToolConfig(
                     systemMessageBehavior,
                     toolChoice,
                     toolPromptFormat,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            systemMessageBehavior()?.validate()
+            toolChoice()
+            toolPromptFormat()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (systemMessageBehavior.asKnown()?.validity() ?: 0) +
+                (if (toolChoice.asKnown() == null) 0 else 1) +
+                (toolPromptFormat.asKnown()?.validity() ?: 0)
 
         /**
          * (Optional) Config for how to override the default system prompt. -
@@ -1753,6 +1929,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): SystemMessageBehavior = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1866,6 +2069,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): ToolChoice = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1987,6 +2217,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): ToolPromptFormat = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -2124,6 +2381,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): ToolPromptFormat = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -2137,22 +2421,26 @@ private constructor(
         override fun toString() = value.toString()
     }
 
-    @NoAutoDetect
     class Tool
-    @JsonCreator
     private constructor(
-        @JsonProperty("tool_name")
-        @ExcludeMissing
-        private val toolName: JsonField<ToolName> = JsonMissing.of(),
-        @JsonProperty("description")
-        @ExcludeMissing
-        private val description: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("parameters")
-        @ExcludeMissing
-        private val parameters: JsonField<Parameters> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val toolName: JsonField<ToolName>,
+        private val description: JsonField<String>,
+        private val parameters: JsonField<Parameters>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("tool_name")
+            @ExcludeMissing
+            toolName: JsonField<ToolName> = JsonMissing.of(),
+            @JsonProperty("description")
+            @ExcludeMissing
+            description: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("parameters")
+            @ExcludeMissing
+            parameters: JsonField<Parameters> = JsonMissing.of(),
+        ) : this(toolName, description, parameters, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -2198,22 +2486,15 @@ private constructor(
         @ExcludeMissing
         fun _parameters(): JsonField<Parameters> = parameters
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Tool = apply {
-            if (validated) {
-                return@apply
-            }
-
-            toolName()
-            description()
-            parameters()?.validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -2310,14 +2591,58 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Tool].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .toolName()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Tool =
                 Tool(
                     checkRequired("toolName", toolName),
                     description,
                     parameters,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Tool = apply {
+            if (validated) {
+                return@apply
+            }
+
+            toolName()
+            description()
+            parameters()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (toolName.asKnown() == null) 0 else 1) +
+                (if (description.asKnown() == null) 0 else 1) +
+                (parameters.asKnown()?.validity() ?: 0)
 
         class ToolName @JsonCreator private constructor(private val value: JsonField<String>) :
             Enum {
@@ -2420,6 +2745,33 @@ private constructor(
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+            private var validated: Boolean = false
+
+            fun validate(): ToolName = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -2433,27 +2785,16 @@ private constructor(
             override fun toString() = value.toString()
         }
 
-        @NoAutoDetect
         class Parameters
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Parameters = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -2494,8 +2835,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [Parameters].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): Parameters = Parameters(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): Parameters = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

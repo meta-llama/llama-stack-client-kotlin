@@ -4,11 +4,10 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import java.time.OffsetDateTime
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TelemetryLogEventParamsTest {
+internal class TelemetryLogEventParamsTest {
 
     @Test
     fun create() {
@@ -54,7 +53,6 @@ class TelemetryLogEventParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.event())
             .isEqualTo(
                 Event.ofUnstructuredLog(
@@ -93,7 +91,6 @@ class TelemetryLogEventParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.event())
             .isEqualTo(
                 Event.ofUnstructuredLog(

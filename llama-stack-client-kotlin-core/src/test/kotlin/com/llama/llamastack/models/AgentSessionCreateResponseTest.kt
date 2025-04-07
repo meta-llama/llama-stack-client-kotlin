@@ -2,16 +2,33 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentSessionCreateResponseTest {
+internal class AgentSessionCreateResponseTest {
 
     @Test
-    fun createAgentSessionCreateResponse() {
+    fun create() {
         val agentSessionCreateResponse =
             AgentSessionCreateResponse.builder().sessionId("session_id").build()
-        assertThat(agentSessionCreateResponse).isNotNull
+
         assertThat(agentSessionCreateResponse.sessionId()).isEqualTo("session_id")
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val agentSessionCreateResponse =
+            AgentSessionCreateResponse.builder().sessionId("session_id").build()
+
+        val roundtrippedAgentSessionCreateResponse =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(agentSessionCreateResponse),
+                jacksonTypeRef<AgentSessionCreateResponse>(),
+            )
+
+        assertThat(roundtrippedAgentSessionCreateResponse).isEqualTo(agentSessionCreateResponse)
     }
 }

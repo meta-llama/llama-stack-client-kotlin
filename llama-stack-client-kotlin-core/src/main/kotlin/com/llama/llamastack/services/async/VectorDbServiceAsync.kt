@@ -24,7 +24,7 @@ interface VectorDbServiceAsync {
     suspend fun retrieve(
         params: VectorDbRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): VectorDbRetrieveResponse?
+    ): VectorDbRetrieveResponse
 
     suspend fun list(
         params: VectorDbListParams = VectorDbListParams.none(),
@@ -58,7 +58,7 @@ interface VectorDbServiceAsync {
         suspend fun retrieve(
             params: VectorDbRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<VectorDbRetrieveResponse?>
+        ): HttpResponseFor<VectorDbRetrieveResponse>
 
         /**
          * Returns a raw HTTP response for `get /v1/vector-dbs`, but is otherwise the same as

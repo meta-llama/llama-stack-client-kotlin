@@ -19,21 +19,22 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class AgentStepRetrieveResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("step") @ExcludeMissing private val step: JsonField<Step> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val step: JsonField<Step>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("step") @ExcludeMissing step: JsonField<Step> = JsonMissing.of()
+    ) : this(step, mutableMapOf())
 
     /**
      * An inference step in an agent turn.
@@ -50,20 +51,15 @@ private constructor(
      */
     @JsonProperty("step") @ExcludeMissing fun _step(): JsonField<Step> = step
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): AgentStepRetrieveResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        step().validate()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -134,12 +130,50 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [AgentStepRetrieveResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .step()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): AgentStepRetrieveResponse =
             AgentStepRetrieveResponse(
                 checkRequired("step", step),
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): AgentStepRetrieveResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        step().validate()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int = (step.asKnown()?.validity() ?: 0)
 
     /** An inference step in an agent turn. */
     @JsonDeserialize(using = Step.Deserializer::class)
@@ -187,15 +221,14 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 inference != null -> visitor.visitInference(inference)
                 toolExecution != null -> visitor.visitToolExecution(toolExecution)
                 shieldCall != null -> visitor.visitShieldCall(shieldCall)
                 memoryRetrieval != null -> visitor.visitMemoryRetrieval(memoryRetrieval)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -225,6 +258,37 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitInference(inference: InferenceStep) = inference.validity()
+
+                    override fun visitToolExecution(toolExecution: ToolExecutionStep) =
+                        toolExecution.validity()
+
+                    override fun visitShieldCall(shieldCall: ShieldCallStep) = shieldCall.validity()
+
+                    override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                        memoryRetrieval.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -300,30 +364,24 @@ private constructor(
 
                 when (stepType) {
                     "inference" -> {
-                        tryDeserialize(node, jacksonTypeRef<InferenceStep>()) { it.validate() }
-                            ?.let {
-                                return Step(inference = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<InferenceStep>())?.let {
+                            Step(inference = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                     "tool_execution" -> {
-                        tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>()) { it.validate() }
-                            ?.let {
-                                return Step(toolExecution = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>())?.let {
+                            Step(toolExecution = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                     "shield_call" -> {
-                        tryDeserialize(node, jacksonTypeRef<ShieldCallStep>()) { it.validate() }
-                            ?.let {
-                                return Step(shieldCall = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<ShieldCallStep>())?.let {
+                            Step(shieldCall = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                     "memory_retrieval" -> {
-                        tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>()) {
-                                it.validate()
-                            }
-                            ?.let {
-                                return Step(memoryRetrieval = it, _json = json)
-                            }
+                        return tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>())?.let {
+                            Step(memoryRetrieval = it, _json = json)
+                        } ?: Step(_json = json)
                     }
                 }
 

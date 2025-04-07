@@ -22,7 +22,7 @@ interface ModelService {
     fun retrieve(
         params: ModelRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): Model?
+    ): Model
 
     fun list(
         params: ModelListParams = ModelListParams.none(),
@@ -54,7 +54,7 @@ interface ModelService {
         fun retrieve(
             params: ModelRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<Model?>
+        ): HttpResponseFor<Model>
 
         /**
          * Returns a raw HTTP response for `get /v1/models`, but is otherwise the same as

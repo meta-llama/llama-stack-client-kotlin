@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -13,7 +14,6 @@ import com.llama.llamastack.core.http.HttpResponse.Handler
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ProviderInfo
 import com.llama.llamastack.models.ProviderListParams
@@ -45,8 +45,7 @@ class ProviderServiceImpl internal constructor(private val clientOptions: Client
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ProviderService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val retrieveHandler: Handler<ProviderInfo> =
             jsonHandler<ProviderInfo>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
@@ -58,7 +57,7 @@ class ProviderServiceImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "providers", params.getPathParam(0))
+                    .addPathSegments("v1", "providers", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))

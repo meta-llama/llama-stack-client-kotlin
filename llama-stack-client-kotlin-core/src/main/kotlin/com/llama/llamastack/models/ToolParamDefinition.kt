@@ -19,32 +19,31 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.allMaxBy
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class ToolParamDefinition
-@JsonCreator
 private constructor(
-    @JsonProperty("param_type")
-    @ExcludeMissing
-    private val paramType: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("default")
-    @ExcludeMissing
-    private val default: JsonField<Default> = JsonMissing.of(),
-    @JsonProperty("description")
-    @ExcludeMissing
-    private val description: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("required")
-    @ExcludeMissing
-    private val required: JsonField<Boolean> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val paramType: JsonField<String>,
+    private val default: JsonField<Default>,
+    private val description: JsonField<String>,
+    private val required: JsonField<Boolean>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("param_type") @ExcludeMissing paramType: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("default") @ExcludeMissing default: JsonField<Default> = JsonMissing.of(),
+        @JsonProperty("description")
+        @ExcludeMissing
+        description: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("required") @ExcludeMissing required: JsonField<Boolean> = JsonMissing.of(),
+    ) : this(paramType, default, description, required, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -98,23 +97,15 @@ private constructor(
      */
     @JsonProperty("required") @ExcludeMissing fun _required(): JsonField<Boolean> = required
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ToolParamDefinition = apply {
-        if (validated) {
-            return@apply
-        }
-
-        paramType()
-        default()?.validate()
-        description()
-        required()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -226,15 +217,60 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ToolParamDefinition].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .paramType()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ToolParamDefinition =
             ToolParamDefinition(
                 checkRequired("paramType", paramType),
                 default,
                 description,
                 required,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): ToolParamDefinition = apply {
+        if (validated) {
+            return@apply
+        }
+
+        paramType()
+        default()?.validate()
+        description()
+        required()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (paramType.asKnown() == null) 0 else 1) +
+            (default.asKnown()?.validity() ?: 0) +
+            (if (description.asKnown() == null) 0 else 1) +
+            (if (required.asKnown() == null) 0 else 1)
 
     @JsonDeserialize(using = Default.Deserializer::class)
     @JsonSerialize(using = Default.Serializer::class)
@@ -280,8 +316,8 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 boolean != null -> visitor.visitBoolean(boolean)
                 double != null -> visitor.visitDouble(double)
                 string != null -> visitor.visitString(string)
@@ -289,7 +325,6 @@ private constructor(
                 jsonValue != null -> visitor.visitJsonValue(jsonValue)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -313,6 +348,37 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitBoolean(boolean: Boolean) = 1
+
+                    override fun visitDouble(double: Double) = 1
+
+                    override fun visitString(string: String) = 1
+
+                    override fun visitJsonValues(jsonValues: List<JsonValue>) = jsonValues.size
+
+                    override fun visitJsonValue(jsonValue: JsonValue) = 1
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -383,23 +449,37 @@ private constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Default {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<Boolean>())?.let {
-                    return Default(boolean = it, _json = json)
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<Boolean>())?.let {
+                                Default(boolean = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<Double>())?.let {
+                                Default(double = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                                Default(string = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<List<JsonValue>>())?.let {
+                                Default(jsonValues = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<JsonValue>())?.let {
+                                Default(jsonValue = it, _json = json)
+                            },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants.
+                    0 -> Default(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
                 }
-                tryDeserialize(node, jacksonTypeRef<Double>())?.let {
-                    return Default(double = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                    return Default(string = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<List<JsonValue>>())?.let {
-                    return Default(jsonValues = it, _json = json)
-                }
-                tryDeserialize(node, jacksonTypeRef<JsonValue>())?.let {
-                    return Default(jsonValue = it, _json = json)
-                }
-
-                return Default(_json = json)
             }
         }
 

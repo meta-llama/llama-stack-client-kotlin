@@ -19,7 +19,6 @@ import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.map
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.ChatCompletionResponse
 import com.llama.llamastack.models.ChatCompletionResponseStreamChunk
 import com.llama.llamastack.models.CompletionResponse
@@ -75,8 +74,7 @@ class InferenceServiceImpl internal constructor(private val clientOptions: Clien
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         InferenceService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val chatCompletionHandler: Handler<ChatCompletionResponse> =
             jsonHandler<ChatCompletionResponse>(clientOptions.jsonMapper)

@@ -5,7 +5,7 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentStepRetrieveParamsTest {
+internal class AgentStepRetrieveParamsTest {
 
     @Test
     fun create() {
@@ -18,7 +18,7 @@ class AgentStepRetrieveParamsTest {
     }
 
     @Test
-    fun getPathParam() {
+    fun pathParams() {
         val params =
             AgentStepRetrieveParams.builder()
                 .agentId("agent_id")
@@ -26,16 +26,12 @@ class AgentStepRetrieveParamsTest {
                 .turnId("turn_id")
                 .stepId("step_id")
                 .build()
-        assertThat(params).isNotNull
-        // path param "agentId"
-        assertThat(params.getPathParam(0)).isEqualTo("agent_id")
-        // path param "sessionId"
-        assertThat(params.getPathParam(1)).isEqualTo("session_id")
-        // path param "turnId"
-        assertThat(params.getPathParam(2)).isEqualTo("turn_id")
-        // path param "stepId"
-        assertThat(params.getPathParam(3)).isEqualTo("step_id")
+
+        assertThat(params._pathParam(0)).isEqualTo("agent_id")
+        assertThat(params._pathParam(1)).isEqualTo("session_id")
+        assertThat(params._pathParam(2)).isEqualTo("turn_id")
+        assertThat(params._pathParam(3)).isEqualTo("step_id")
         // out-of-bound path param
-        assertThat(params.getPathParam(4)).isEqualTo("")
+        assertThat(params._pathParam(4)).isEqualTo("")
     }
 }

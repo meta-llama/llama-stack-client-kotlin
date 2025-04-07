@@ -10,41 +10,54 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
 /** A tool execution step in an agent turn. */
-@NoAutoDetect
 class ToolExecutionStep
-@JsonCreator
 private constructor(
-    @JsonProperty("step_id")
-    @ExcludeMissing
-    private val stepId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("step_type") @ExcludeMissing private val stepType: JsonValue = JsonMissing.of(),
-    @JsonProperty("tool_calls")
-    @ExcludeMissing
-    private val toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
-    @JsonProperty("tool_responses")
-    @ExcludeMissing
-    private val toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of(),
-    @JsonProperty("turn_id")
-    @ExcludeMissing
-    private val turnId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val stepId: JsonField<String>,
+    private val stepType: JsonValue,
+    private val toolCalls: JsonField<List<ToolCall>>,
+    private val toolResponses: JsonField<List<ToolResponse>>,
+    private val turnId: JsonField<String>,
+    private val completedAt: JsonField<OffsetDateTime>,
+    private val startedAt: JsonField<OffsetDateTime>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("step_id") @ExcludeMissing stepId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("step_type") @ExcludeMissing stepType: JsonValue = JsonMissing.of(),
+        @JsonProperty("tool_calls")
+        @ExcludeMissing
+        toolCalls: JsonField<List<ToolCall>> = JsonMissing.of(),
+        @JsonProperty("tool_responses")
+        @ExcludeMissing
+        toolResponses: JsonField<List<ToolResponse>> = JsonMissing.of(),
+        @JsonProperty("turn_id") @ExcludeMissing turnId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("completed_at")
+        @ExcludeMissing
+        completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("started_at")
+        @ExcludeMissing
+        startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    ) : this(
+        stepId,
+        stepType,
+        toolCalls,
+        toolResponses,
+        turnId,
+        completedAt,
+        startedAt,
+        mutableMapOf(),
+    )
 
     /**
      * The ID of the step.
@@ -155,30 +168,15 @@ private constructor(
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): ToolExecutionStep = apply {
-        if (validated) {
-            return@apply
-        }
-
-        stepId()
-        _stepType().let {
-            if (it != JsonValue.from("tool_execution")) {
-                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
-            }
-        }
-        toolCalls().forEach { it.validate() }
-        toolResponses().forEach { it.validate() }
-        turnId()
-        completedAt()
-        startedAt()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -355,6 +353,21 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [ToolExecutionStep].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .stepId()
+         * .toolCalls()
+         * .toolResponses()
+         * .turnId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): ToolExecutionStep =
             ToolExecutionStep(
                 checkRequired("stepId", stepId),
@@ -364,9 +377,52 @@ private constructor(
                 checkRequired("turnId", turnId),
                 completedAt,
                 startedAt,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): ToolExecutionStep = apply {
+        if (validated) {
+            return@apply
+        }
+
+        stepId()
+        _stepType().let {
+            if (it != JsonValue.from("tool_execution")) {
+                throw LlamaStackClientInvalidDataException("'stepType' is invalid, received $it")
+            }
+        }
+        toolCalls().forEach { it.validate() }
+        toolResponses().forEach { it.validate() }
+        turnId()
+        completedAt()
+        startedAt()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (stepId.asKnown() == null) 0 else 1) +
+            stepType.let { if (it == JsonValue.from("tool_execution")) 1 else 0 } +
+            (toolCalls.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+            (toolResponses.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+            (if (turnId.asKnown() == null) 0 else 1) +
+            (if (completedAt.asKnown() == null) 0 else 1) +
+            (if (startedAt.asKnown() == null) 0 else 1)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

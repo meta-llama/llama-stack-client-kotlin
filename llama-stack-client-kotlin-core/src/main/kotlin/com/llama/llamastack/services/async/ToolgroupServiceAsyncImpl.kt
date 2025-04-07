@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ToolGroup
 import com.llama.llamastack.models.ToolgroupGetParams
@@ -63,8 +63,7 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ToolgroupServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val listHandler: Handler<DataEnvelope<List<ToolGroup>>> =
             jsonHandler<DataEnvelope<List<ToolGroup>>>(clientOptions.jsonMapper)
@@ -104,7 +103,7 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "toolgroups", params.getPathParam(0))
+                    .addPathSegments("v1", "toolgroups", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -148,7 +147,7 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
-                    .addPathSegments("v1", "toolgroups", params.getPathParam(0))
+                    .addPathSegments("v1", "toolgroups", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()
                     .prepareAsync(clientOptions, params)

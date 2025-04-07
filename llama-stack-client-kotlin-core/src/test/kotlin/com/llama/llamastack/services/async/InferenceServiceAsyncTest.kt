@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class InferenceServiceAsyncTest {
+internal class InferenceServiceAsyncTest {
 
     @Test
     suspend fun chatCompletion() {
@@ -38,9 +38,10 @@ class InferenceServiceAsyncTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)
@@ -105,9 +106,10 @@ class InferenceServiceAsyncTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .build()

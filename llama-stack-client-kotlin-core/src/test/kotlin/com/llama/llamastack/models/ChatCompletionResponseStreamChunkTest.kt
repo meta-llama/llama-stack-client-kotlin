@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ChatCompletionResponseStreamChunkTest {
+internal class ChatCompletionResponseStreamChunkTest {
 
     @Test
-    fun createChatCompletionResponseStreamChunk() {
+    fun create() {
         val chatCompletionResponseStreamChunk =
             ChatCompletionResponseStreamChunk.builder()
                 .event(
@@ -36,7 +38,7 @@ class ChatCompletionResponseStreamChunkTest {
                         .build()
                 )
                 .build()
-        assertThat(chatCompletionResponseStreamChunk).isNotNull
+
         assertThat(chatCompletionResponseStreamChunk.event())
             .isEqualTo(
                 ChatCompletionResponseStreamChunk.Event.builder()
@@ -62,5 +64,45 @@ class ChatCompletionResponseStreamChunkTest {
                     .unit("unit")
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val chatCompletionResponseStreamChunk =
+            ChatCompletionResponseStreamChunk.builder()
+                .event(
+                    ChatCompletionResponseStreamChunk.Event.builder()
+                        .textDelta("text")
+                        .eventType(ChatCompletionResponseStreamChunk.Event.EventType.START)
+                        .addLogprob(
+                            TokenLogProbs.builder()
+                                .logprobsByToken(
+                                    TokenLogProbs.LogprobsByToken.builder()
+                                        .putAdditionalProperty("foo", JsonValue.from(0))
+                                        .build()
+                                )
+                                .build()
+                        )
+                        .stopReason(ChatCompletionResponseStreamChunk.Event.StopReason.END_OF_TURN)
+                        .build()
+                )
+                .addMetric(
+                    ChatCompletionResponseStreamChunk.Metric.builder()
+                        .metric("metric")
+                        .value(0.0)
+                        .unit("unit")
+                        .build()
+                )
+                .build()
+
+        val roundtrippedChatCompletionResponseStreamChunk =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(chatCompletionResponseStreamChunk),
+                jacksonTypeRef<ChatCompletionResponseStreamChunk>(),
+            )
+
+        assertThat(roundtrippedChatCompletionResponseStreamChunk)
+            .isEqualTo(chatCompletionResponseStreamChunk)
     }
 }

@@ -11,14 +11,13 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 class PostTrainingPreferenceOptimizeParams
@@ -114,329 +113,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("algorithm_config")
-        @ExcludeMissing
-        private val algorithmConfig: JsonField<AlgorithmConfig> = JsonMissing.of(),
-        @JsonProperty("finetuned_model")
-        @ExcludeMissing
-        private val finetunedModel: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("hyperparam_search_config")
-        @ExcludeMissing
-        private val hyperparamSearchConfig: JsonField<HyperparamSearchConfig> = JsonMissing.of(),
-        @JsonProperty("job_uuid")
-        @ExcludeMissing
-        private val jobUuid: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("logger_config")
-        @ExcludeMissing
-        private val loggerConfig: JsonField<LoggerConfig> = JsonMissing.of(),
-        @JsonProperty("training_config")
-        @ExcludeMissing
-        private val trainingConfig: JsonField<TrainingConfig> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun algorithmConfig(): AlgorithmConfig = algorithmConfig.getRequired("algorithm_config")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun finetunedModel(): String = finetunedModel.getRequired("finetuned_model")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun hyperparamSearchConfig(): HyperparamSearchConfig =
-            hyperparamSearchConfig.getRequired("hyperparam_search_config")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun jobUuid(): String = jobUuid.getRequired("job_uuid")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun loggerConfig(): LoggerConfig = loggerConfig.getRequired("logger_config")
-
-        /**
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun trainingConfig(): TrainingConfig = trainingConfig.getRequired("training_config")
-
-        /**
-         * Returns the raw JSON value of [algorithmConfig].
-         *
-         * Unlike [algorithmConfig], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("algorithm_config")
-        @ExcludeMissing
-        fun _algorithmConfig(): JsonField<AlgorithmConfig> = algorithmConfig
-
-        /**
-         * Returns the raw JSON value of [finetunedModel].
-         *
-         * Unlike [finetunedModel], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("finetuned_model")
-        @ExcludeMissing
-        fun _finetunedModel(): JsonField<String> = finetunedModel
-
-        /**
-         * Returns the raw JSON value of [hyperparamSearchConfig].
-         *
-         * Unlike [hyperparamSearchConfig], this method doesn't throw if the JSON field has an
-         * unexpected type.
-         */
-        @JsonProperty("hyperparam_search_config")
-        @ExcludeMissing
-        fun _hyperparamSearchConfig(): JsonField<HyperparamSearchConfig> = hyperparamSearchConfig
-
-        /**
-         * Returns the raw JSON value of [jobUuid].
-         *
-         * Unlike [jobUuid], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
-
-        /**
-         * Returns the raw JSON value of [loggerConfig].
-         *
-         * Unlike [loggerConfig], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("logger_config")
-        @ExcludeMissing
-        fun _loggerConfig(): JsonField<LoggerConfig> = loggerConfig
-
-        /**
-         * Returns the raw JSON value of [trainingConfig].
-         *
-         * Unlike [trainingConfig], this method doesn't throw if the JSON field has an unexpected
-         * type.
-         */
-        @JsonProperty("training_config")
-        @ExcludeMissing
-        fun _trainingConfig(): JsonField<TrainingConfig> = trainingConfig
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            algorithmConfig().validate()
-            finetunedModel()
-            hyperparamSearchConfig().validate()
-            jobUuid()
-            loggerConfig().validate()
-            trainingConfig().validate()
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .algorithmConfig()
-             * .finetunedModel()
-             * .hyperparamSearchConfig()
-             * .jobUuid()
-             * .loggerConfig()
-             * .trainingConfig()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var algorithmConfig: JsonField<AlgorithmConfig>? = null
-            private var finetunedModel: JsonField<String>? = null
-            private var hyperparamSearchConfig: JsonField<HyperparamSearchConfig>? = null
-            private var jobUuid: JsonField<String>? = null
-            private var loggerConfig: JsonField<LoggerConfig>? = null
-            private var trainingConfig: JsonField<TrainingConfig>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                algorithmConfig = body.algorithmConfig
-                finetunedModel = body.finetunedModel
-                hyperparamSearchConfig = body.hyperparamSearchConfig
-                jobUuid = body.jobUuid
-                loggerConfig = body.loggerConfig
-                trainingConfig = body.trainingConfig
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
-                algorithmConfig(JsonField.of(algorithmConfig))
-
-            /**
-             * Sets [Builder.algorithmConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.algorithmConfig] with a well-typed [AlgorithmConfig]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun algorithmConfig(algorithmConfig: JsonField<AlgorithmConfig>) = apply {
-                this.algorithmConfig = algorithmConfig
-            }
-
-            fun finetunedModel(finetunedModel: String) =
-                finetunedModel(JsonField.of(finetunedModel))
-
-            /**
-             * Sets [Builder.finetunedModel] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.finetunedModel] with a well-typed [String] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun finetunedModel(finetunedModel: JsonField<String>) = apply {
-                this.finetunedModel = finetunedModel
-            }
-
-            fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) =
-                hyperparamSearchConfig(JsonField.of(hyperparamSearchConfig))
-
-            /**
-             * Sets [Builder.hyperparamSearchConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.hyperparamSearchConfig] with a well-typed
-             * [HyperparamSearchConfig] value instead. This method is primarily for setting the
-             * field to an undocumented or not yet supported value.
-             */
-            fun hyperparamSearchConfig(hyperparamSearchConfig: JsonField<HyperparamSearchConfig>) =
-                apply {
-                    this.hyperparamSearchConfig = hyperparamSearchConfig
-                }
-
-            fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
-
-            /**
-             * Sets [Builder.jobUuid] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.jobUuid] with a well-typed [String] value instead.
-             * This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
-
-            fun loggerConfig(loggerConfig: LoggerConfig) = loggerConfig(JsonField.of(loggerConfig))
-
-            /**
-             * Sets [Builder.loggerConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.loggerConfig] with a well-typed [LoggerConfig] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun loggerConfig(loggerConfig: JsonField<LoggerConfig>) = apply {
-                this.loggerConfig = loggerConfig
-            }
-
-            fun trainingConfig(trainingConfig: TrainingConfig) =
-                trainingConfig(JsonField.of(trainingConfig))
-
-            /**
-             * Sets [Builder.trainingConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.trainingConfig] with a well-typed [TrainingConfig]
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun trainingConfig(trainingConfig: JsonField<TrainingConfig>) = apply {
-                this.trainingConfig = trainingConfig
-            }
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("algorithmConfig", algorithmConfig),
-                    checkRequired("finetunedModel", finetunedModel),
-                    checkRequired("hyperparamSearchConfig", hyperparamSearchConfig),
-                    checkRequired("jobUuid", jobUuid),
-                    checkRequired("loggerConfig", loggerConfig),
-                    checkRequired("trainingConfig", trainingConfig),
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && algorithmConfig == other.algorithmConfig && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && trainingConfig == other.trainingConfig && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(algorithmConfig, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, trainingConfig, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{algorithmConfig=$algorithmConfig, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -459,7 +135,6 @@ private constructor(
     }
 
     /** A builder for [PostTrainingPreferenceOptimizeParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var body: Body.Builder = Body.builder()
@@ -474,6 +149,20 @@ private constructor(
             additionalQueryParams =
                 postTrainingPreferenceOptimizeParams.additionalQueryParams.toBuilder()
         }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [algorithmConfig]
+         * - [finetunedModel]
+         * - [hyperparamSearchConfig]
+         * - [jobUuid]
+         * - [loggerConfig]
+         * - etc.
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
             body.algorithmConfig(algorithmConfig)
@@ -674,6 +363,23 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [PostTrainingPreferenceOptimizeParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .algorithmConfig()
+         * .finetunedModel()
+         * .hyperparamSearchConfig()
+         * .jobUuid()
+         * .loggerConfig()
+         * .trainingConfig()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): PostTrainingPreferenceOptimizeParams =
             PostTrainingPreferenceOptimizeParams(
                 body.build(),
@@ -682,25 +388,407 @@ private constructor(
             )
     }
 
-    @NoAutoDetect
-    class AlgorithmConfig
-    @JsonCreator
+    fun _body(): Body = body
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
     private constructor(
-        @JsonProperty("epsilon")
-        @ExcludeMissing
-        private val epsilon: JsonField<Double> = JsonMissing.of(),
-        @JsonProperty("gamma")
-        @ExcludeMissing
-        private val gamma: JsonField<Double> = JsonMissing.of(),
-        @JsonProperty("reward_clip")
-        @ExcludeMissing
-        private val rewardClip: JsonField<Double> = JsonMissing.of(),
-        @JsonProperty("reward_scale")
-        @ExcludeMissing
-        private val rewardScale: JsonField<Double> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val algorithmConfig: JsonField<AlgorithmConfig>,
+        private val finetunedModel: JsonField<String>,
+        private val hyperparamSearchConfig: JsonField<HyperparamSearchConfig>,
+        private val jobUuid: JsonField<String>,
+        private val loggerConfig: JsonField<LoggerConfig>,
+        private val trainingConfig: JsonField<TrainingConfig>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("algorithm_config")
+            @ExcludeMissing
+            algorithmConfig: JsonField<AlgorithmConfig> = JsonMissing.of(),
+            @JsonProperty("finetuned_model")
+            @ExcludeMissing
+            finetunedModel: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("hyperparam_search_config")
+            @ExcludeMissing
+            hyperparamSearchConfig: JsonField<HyperparamSearchConfig> = JsonMissing.of(),
+            @JsonProperty("job_uuid") @ExcludeMissing jobUuid: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("logger_config")
+            @ExcludeMissing
+            loggerConfig: JsonField<LoggerConfig> = JsonMissing.of(),
+            @JsonProperty("training_config")
+            @ExcludeMissing
+            trainingConfig: JsonField<TrainingConfig> = JsonMissing.of(),
+        ) : this(
+            algorithmConfig,
+            finetunedModel,
+            hyperparamSearchConfig,
+            jobUuid,
+            loggerConfig,
+            trainingConfig,
+            mutableMapOf(),
+        )
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun algorithmConfig(): AlgorithmConfig = algorithmConfig.getRequired("algorithm_config")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun finetunedModel(): String = finetunedModel.getRequired("finetuned_model")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun hyperparamSearchConfig(): HyperparamSearchConfig =
+            hyperparamSearchConfig.getRequired("hyperparam_search_config")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun jobUuid(): String = jobUuid.getRequired("job_uuid")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun loggerConfig(): LoggerConfig = loggerConfig.getRequired("logger_config")
+
+        /**
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun trainingConfig(): TrainingConfig = trainingConfig.getRequired("training_config")
+
+        /**
+         * Returns the raw JSON value of [algorithmConfig].
+         *
+         * Unlike [algorithmConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("algorithm_config")
+        @ExcludeMissing
+        fun _algorithmConfig(): JsonField<AlgorithmConfig> = algorithmConfig
+
+        /**
+         * Returns the raw JSON value of [finetunedModel].
+         *
+         * Unlike [finetunedModel], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("finetuned_model")
+        @ExcludeMissing
+        fun _finetunedModel(): JsonField<String> = finetunedModel
+
+        /**
+         * Returns the raw JSON value of [hyperparamSearchConfig].
+         *
+         * Unlike [hyperparamSearchConfig], this method doesn't throw if the JSON field has an
+         * unexpected type.
+         */
+        @JsonProperty("hyperparam_search_config")
+        @ExcludeMissing
+        fun _hyperparamSearchConfig(): JsonField<HyperparamSearchConfig> = hyperparamSearchConfig
+
+        /**
+         * Returns the raw JSON value of [jobUuid].
+         *
+         * Unlike [jobUuid], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("job_uuid") @ExcludeMissing fun _jobUuid(): JsonField<String> = jobUuid
+
+        /**
+         * Returns the raw JSON value of [loggerConfig].
+         *
+         * Unlike [loggerConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("logger_config")
+        @ExcludeMissing
+        fun _loggerConfig(): JsonField<LoggerConfig> = loggerConfig
+
+        /**
+         * Returns the raw JSON value of [trainingConfig].
+         *
+         * Unlike [trainingConfig], this method doesn't throw if the JSON field has an unexpected
+         * type.
+         */
+        @JsonProperty("training_config")
+        @ExcludeMissing
+        fun _trainingConfig(): JsonField<TrainingConfig> = trainingConfig
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .algorithmConfig()
+             * .finetunedModel()
+             * .hyperparamSearchConfig()
+             * .jobUuid()
+             * .loggerConfig()
+             * .trainingConfig()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var algorithmConfig: JsonField<AlgorithmConfig>? = null
+            private var finetunedModel: JsonField<String>? = null
+            private var hyperparamSearchConfig: JsonField<HyperparamSearchConfig>? = null
+            private var jobUuid: JsonField<String>? = null
+            private var loggerConfig: JsonField<LoggerConfig>? = null
+            private var trainingConfig: JsonField<TrainingConfig>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                algorithmConfig = body.algorithmConfig
+                finetunedModel = body.finetunedModel
+                hyperparamSearchConfig = body.hyperparamSearchConfig
+                jobUuid = body.jobUuid
+                loggerConfig = body.loggerConfig
+                trainingConfig = body.trainingConfig
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
+                algorithmConfig(JsonField.of(algorithmConfig))
+
+            /**
+             * Sets [Builder.algorithmConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.algorithmConfig] with a well-typed [AlgorithmConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun algorithmConfig(algorithmConfig: JsonField<AlgorithmConfig>) = apply {
+                this.algorithmConfig = algorithmConfig
+            }
+
+            fun finetunedModel(finetunedModel: String) =
+                finetunedModel(JsonField.of(finetunedModel))
+
+            /**
+             * Sets [Builder.finetunedModel] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.finetunedModel] with a well-typed [String] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun finetunedModel(finetunedModel: JsonField<String>) = apply {
+                this.finetunedModel = finetunedModel
+            }
+
+            fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) =
+                hyperparamSearchConfig(JsonField.of(hyperparamSearchConfig))
+
+            /**
+             * Sets [Builder.hyperparamSearchConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.hyperparamSearchConfig] with a well-typed
+             * [HyperparamSearchConfig] value instead. This method is primarily for setting the
+             * field to an undocumented or not yet supported value.
+             */
+            fun hyperparamSearchConfig(hyperparamSearchConfig: JsonField<HyperparamSearchConfig>) =
+                apply {
+                    this.hyperparamSearchConfig = hyperparamSearchConfig
+                }
+
+            fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
+
+            /**
+             * Sets [Builder.jobUuid] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.jobUuid] with a well-typed [String] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
+
+            fun loggerConfig(loggerConfig: LoggerConfig) = loggerConfig(JsonField.of(loggerConfig))
+
+            /**
+             * Sets [Builder.loggerConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.loggerConfig] with a well-typed [LoggerConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun loggerConfig(loggerConfig: JsonField<LoggerConfig>) = apply {
+                this.loggerConfig = loggerConfig
+            }
+
+            fun trainingConfig(trainingConfig: TrainingConfig) =
+                trainingConfig(JsonField.of(trainingConfig))
+
+            /**
+             * Sets [Builder.trainingConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.trainingConfig] with a well-typed [TrainingConfig]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun trainingConfig(trainingConfig: JsonField<TrainingConfig>) = apply {
+                this.trainingConfig = trainingConfig
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .algorithmConfig()
+             * .finetunedModel()
+             * .hyperparamSearchConfig()
+             * .jobUuid()
+             * .loggerConfig()
+             * .trainingConfig()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("algorithmConfig", algorithmConfig),
+                    checkRequired("finetunedModel", finetunedModel),
+                    checkRequired("hyperparamSearchConfig", hyperparamSearchConfig),
+                    checkRequired("jobUuid", jobUuid),
+                    checkRequired("loggerConfig", loggerConfig),
+                    checkRequired("trainingConfig", trainingConfig),
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            algorithmConfig().validate()
+            finetunedModel()
+            hyperparamSearchConfig().validate()
+            jobUuid()
+            loggerConfig().validate()
+            trainingConfig().validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (algorithmConfig.asKnown()?.validity() ?: 0) +
+                (if (finetunedModel.asKnown() == null) 0 else 1) +
+                (hyperparamSearchConfig.asKnown()?.validity() ?: 0) +
+                (if (jobUuid.asKnown() == null) 0 else 1) +
+                (loggerConfig.asKnown()?.validity() ?: 0) +
+                (trainingConfig.asKnown()?.validity() ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && algorithmConfig == other.algorithmConfig && finetunedModel == other.finetunedModel && hyperparamSearchConfig == other.hyperparamSearchConfig && jobUuid == other.jobUuid && loggerConfig == other.loggerConfig && trainingConfig == other.trainingConfig && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(algorithmConfig, finetunedModel, hyperparamSearchConfig, jobUuid, loggerConfig, trainingConfig, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{algorithmConfig=$algorithmConfig, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, additionalProperties=$additionalProperties}"
+    }
+
+    class AlgorithmConfig
+    private constructor(
+        private val epsilon: JsonField<Double>,
+        private val gamma: JsonField<Double>,
+        private val rewardClip: JsonField<Double>,
+        private val rewardScale: JsonField<Double>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("epsilon") @ExcludeMissing epsilon: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("gamma") @ExcludeMissing gamma: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("reward_clip")
+            @ExcludeMissing
+            rewardClip: JsonField<Double> = JsonMissing.of(),
+            @JsonProperty("reward_scale")
+            @ExcludeMissing
+            rewardScale: JsonField<Double> = JsonMissing.of(),
+        ) : this(epsilon, gamma, rewardClip, rewardScale, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -762,23 +850,15 @@ private constructor(
         @ExcludeMissing
         fun _rewardScale(): JsonField<Double> = rewardScale
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): AlgorithmConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            epsilon()
-            gamma()
-            rewardClip()
-            rewardScale()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -880,15 +960,64 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [AlgorithmConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .epsilon()
+             * .gamma()
+             * .rewardClip()
+             * .rewardScale()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): AlgorithmConfig =
                 AlgorithmConfig(
                     checkRequired("epsilon", epsilon),
                     checkRequired("gamma", gamma),
                     checkRequired("rewardClip", rewardClip),
                     checkRequired("rewardScale", rewardScale),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): AlgorithmConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            epsilon()
+            gamma()
+            rewardClip()
+            rewardScale()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (epsilon.asKnown() == null) 0 else 1) +
+                (if (gamma.asKnown() == null) 0 else 1) +
+                (if (rewardClip.asKnown() == null) 0 else 1) +
+                (if (rewardScale.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -908,27 +1037,16 @@ private constructor(
             "AlgorithmConfig{epsilon=$epsilon, gamma=$gamma, rewardClip=$rewardClip, rewardScale=$rewardScale, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class HyperparamSearchConfig
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): HyperparamSearchConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -968,9 +1086,41 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [HyperparamSearchConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): HyperparamSearchConfig =
                 HyperparamSearchConfig(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): HyperparamSearchConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -990,27 +1140,16 @@ private constructor(
             "HyperparamSearchConfig{additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class LoggerConfig
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): LoggerConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -1048,8 +1187,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [LoggerConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): LoggerConfig = LoggerConfig(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): LoggerConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1068,37 +1239,52 @@ private constructor(
         override fun toString() = "LoggerConfig{additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class TrainingConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("data_config")
-        @ExcludeMissing
-        private val dataConfig: JsonField<DataConfig> = JsonMissing.of(),
-        @JsonProperty("gradient_accumulation_steps")
-        @ExcludeMissing
-        private val gradientAccumulationSteps: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("max_steps_per_epoch")
-        @ExcludeMissing
-        private val maxStepsPerEpoch: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("max_validation_steps")
-        @ExcludeMissing
-        private val maxValidationSteps: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("n_epochs")
-        @ExcludeMissing
-        private val nEpochs: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("optimizer_config")
-        @ExcludeMissing
-        private val optimizerConfig: JsonField<OptimizerConfig> = JsonMissing.of(),
-        @JsonProperty("dtype")
-        @ExcludeMissing
-        private val dtype: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("efficiency_config")
-        @ExcludeMissing
-        private val efficiencyConfig: JsonField<EfficiencyConfig> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val dataConfig: JsonField<DataConfig>,
+        private val gradientAccumulationSteps: JsonField<Long>,
+        private val maxStepsPerEpoch: JsonField<Long>,
+        private val maxValidationSteps: JsonField<Long>,
+        private val nEpochs: JsonField<Long>,
+        private val optimizerConfig: JsonField<OptimizerConfig>,
+        private val dtype: JsonField<String>,
+        private val efficiencyConfig: JsonField<EfficiencyConfig>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("data_config")
+            @ExcludeMissing
+            dataConfig: JsonField<DataConfig> = JsonMissing.of(),
+            @JsonProperty("gradient_accumulation_steps")
+            @ExcludeMissing
+            gradientAccumulationSteps: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("max_steps_per_epoch")
+            @ExcludeMissing
+            maxStepsPerEpoch: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("max_validation_steps")
+            @ExcludeMissing
+            maxValidationSteps: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("n_epochs") @ExcludeMissing nEpochs: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("optimizer_config")
+            @ExcludeMissing
+            optimizerConfig: JsonField<OptimizerConfig> = JsonMissing.of(),
+            @JsonProperty("dtype") @ExcludeMissing dtype: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("efficiency_config")
+            @ExcludeMissing
+            efficiencyConfig: JsonField<EfficiencyConfig> = JsonMissing.of(),
+        ) : this(
+            dataConfig,
+            gradientAccumulationSteps,
+            maxStepsPerEpoch,
+            maxValidationSteps,
+            nEpochs,
+            optimizerConfig,
+            dtype,
+            efficiencyConfig,
+            mutableMapOf(),
+        )
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -1229,27 +1415,15 @@ private constructor(
         @ExcludeMissing
         fun _efficiencyConfig(): JsonField<EfficiencyConfig> = efficiencyConfig
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): TrainingConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            dataConfig().validate()
-            gradientAccumulationSteps()
-            maxStepsPerEpoch()
-            maxValidationSteps()
-            nEpochs()
-            optimizerConfig().validate()
-            dtype()
-            efficiencyConfig()?.validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -1420,6 +1594,23 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [TrainingConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .dataConfig()
+             * .gradientAccumulationSteps()
+             * .maxStepsPerEpoch()
+             * .maxValidationSteps()
+             * .nEpochs()
+             * .optimizerConfig()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): TrainingConfig =
                 TrainingConfig(
                     checkRequired("dataConfig", dataConfig),
@@ -1430,38 +1621,97 @@ private constructor(
                     checkRequired("optimizerConfig", optimizerConfig),
                     dtype,
                     efficiencyConfig,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
 
-        @NoAutoDetect
+        private var validated: Boolean = false
+
+        fun validate(): TrainingConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            dataConfig().validate()
+            gradientAccumulationSteps()
+            maxStepsPerEpoch()
+            maxValidationSteps()
+            nEpochs()
+            optimizerConfig().validate()
+            dtype()
+            efficiencyConfig()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (dataConfig.asKnown()?.validity() ?: 0) +
+                (if (gradientAccumulationSteps.asKnown() == null) 0 else 1) +
+                (if (maxStepsPerEpoch.asKnown() == null) 0 else 1) +
+                (if (maxValidationSteps.asKnown() == null) 0 else 1) +
+                (if (nEpochs.asKnown() == null) 0 else 1) +
+                (optimizerConfig.asKnown()?.validity() ?: 0) +
+                (if (dtype.asKnown() == null) 0 else 1) +
+                (efficiencyConfig.asKnown()?.validity() ?: 0)
+
         class DataConfig
-        @JsonCreator
         private constructor(
-            @JsonProperty("batch_size")
-            @ExcludeMissing
-            private val batchSize: JsonField<Long> = JsonMissing.of(),
-            @JsonProperty("data_format")
-            @ExcludeMissing
-            private val dataFormat: JsonField<DataFormat> = JsonMissing.of(),
-            @JsonProperty("dataset_id")
-            @ExcludeMissing
-            private val datasetId: JsonField<String> = JsonMissing.of(),
-            @JsonProperty("shuffle")
-            @ExcludeMissing
-            private val shuffle: JsonField<Boolean> = JsonMissing.of(),
-            @JsonProperty("packed")
-            @ExcludeMissing
-            private val packed: JsonField<Boolean> = JsonMissing.of(),
-            @JsonProperty("train_on_input")
-            @ExcludeMissing
-            private val trainOnInput: JsonField<Boolean> = JsonMissing.of(),
-            @JsonProperty("validation_dataset_id")
-            @ExcludeMissing
-            private val validationDatasetId: JsonField<String> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val batchSize: JsonField<Long>,
+            private val dataFormat: JsonField<DataFormat>,
+            private val datasetId: JsonField<String>,
+            private val shuffle: JsonField<Boolean>,
+            private val packed: JsonField<Boolean>,
+            private val trainOnInput: JsonField<Boolean>,
+            private val validationDatasetId: JsonField<String>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("batch_size")
+                @ExcludeMissing
+                batchSize: JsonField<Long> = JsonMissing.of(),
+                @JsonProperty("data_format")
+                @ExcludeMissing
+                dataFormat: JsonField<DataFormat> = JsonMissing.of(),
+                @JsonProperty("dataset_id")
+                @ExcludeMissing
+                datasetId: JsonField<String> = JsonMissing.of(),
+                @JsonProperty("shuffle")
+                @ExcludeMissing
+                shuffle: JsonField<Boolean> = JsonMissing.of(),
+                @JsonProperty("packed")
+                @ExcludeMissing
+                packed: JsonField<Boolean> = JsonMissing.of(),
+                @JsonProperty("train_on_input")
+                @ExcludeMissing
+                trainOnInput: JsonField<Boolean> = JsonMissing.of(),
+                @JsonProperty("validation_dataset_id")
+                @ExcludeMissing
+                validationDatasetId: JsonField<String> = JsonMissing.of(),
+            ) : this(
+                batchSize,
+                dataFormat,
+                datasetId,
+                shuffle,
+                packed,
+                trainOnInput,
+                validationDatasetId,
+                mutableMapOf(),
+            )
 
             /**
              * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
@@ -1574,26 +1824,15 @@ private constructor(
             @ExcludeMissing
             fun _validationDatasetId(): JsonField<String> = validationDatasetId
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): DataConfig = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                batchSize()
-                dataFormat()
-                datasetId()
-                shuffle()
-                packed()
-                trainOnInput()
-                validationDatasetId()
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -1742,6 +1981,21 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [DataConfig].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .batchSize()
+                 * .dataFormat()
+                 * .datasetId()
+                 * .shuffle()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
                 fun build(): DataConfig =
                     DataConfig(
                         checkRequired("batchSize", batchSize),
@@ -1751,9 +2005,49 @@ private constructor(
                         packed,
                         trainOnInput,
                         validationDatasetId,
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): DataConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                batchSize()
+                dataFormat().validate()
+                datasetId()
+                shuffle()
+                packed()
+                trainOnInput()
+                validationDatasetId()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (if (batchSize.asKnown() == null) 0 else 1) +
+                    (dataFormat.asKnown()?.validity() ?: 0) +
+                    (if (datasetId.asKnown() == null) 0 else 1) +
+                    (if (shuffle.asKnown() == null) 0 else 1) +
+                    (if (packed.asKnown() == null) 0 else 1) +
+                    (if (trainOnInput.asKnown() == null) 0 else 1) +
+                    (if (validationDatasetId.asKnown() == null) 0 else 1)
 
             class DataFormat
             @JsonCreator
@@ -1847,6 +2141,33 @@ private constructor(
                     _value().asString()
                         ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+                private var validated: Boolean = false
+
+                fun validate(): DataFormat = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    known()
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
                         return true
@@ -1878,25 +2199,28 @@ private constructor(
                 "DataConfig{batchSize=$batchSize, dataFormat=$dataFormat, datasetId=$datasetId, shuffle=$shuffle, packed=$packed, trainOnInput=$trainOnInput, validationDatasetId=$validationDatasetId, additionalProperties=$additionalProperties}"
         }
 
-        @NoAutoDetect
         class OptimizerConfig
-        @JsonCreator
         private constructor(
-            @JsonProperty("lr")
-            @ExcludeMissing
-            private val lr: JsonField<Double> = JsonMissing.of(),
-            @JsonProperty("num_warmup_steps")
-            @ExcludeMissing
-            private val numWarmupSteps: JsonField<Long> = JsonMissing.of(),
-            @JsonProperty("optimizer_type")
-            @ExcludeMissing
-            private val optimizerType: JsonField<OptimizerType> = JsonMissing.of(),
-            @JsonProperty("weight_decay")
-            @ExcludeMissing
-            private val weightDecay: JsonField<Double> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val lr: JsonField<Double>,
+            private val numWarmupSteps: JsonField<Long>,
+            private val optimizerType: JsonField<OptimizerType>,
+            private val weightDecay: JsonField<Double>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("lr") @ExcludeMissing lr: JsonField<Double> = JsonMissing.of(),
+                @JsonProperty("num_warmup_steps")
+                @ExcludeMissing
+                numWarmupSteps: JsonField<Long> = JsonMissing.of(),
+                @JsonProperty("optimizer_type")
+                @ExcludeMissing
+                optimizerType: JsonField<OptimizerType> = JsonMissing.of(),
+                @JsonProperty("weight_decay")
+                @ExcludeMissing
+                weightDecay: JsonField<Double> = JsonMissing.of(),
+            ) : this(lr, numWarmupSteps, optimizerType, weightDecay, mutableMapOf())
 
             /**
              * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
@@ -1963,23 +2287,15 @@ private constructor(
             @ExcludeMissing
             fun _weightDecay(): JsonField<Double> = weightDecay
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): OptimizerConfig = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                lr()
-                numWarmupSteps()
-                optimizerType()
-                weightDecay()
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -2090,15 +2406,64 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [OptimizerConfig].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .lr()
+                 * .numWarmupSteps()
+                 * .optimizerType()
+                 * .weightDecay()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
                 fun build(): OptimizerConfig =
                     OptimizerConfig(
                         checkRequired("lr", lr),
                         checkRequired("numWarmupSteps", numWarmupSteps),
                         checkRequired("optimizerType", optimizerType),
                         checkRequired("weightDecay", weightDecay),
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): OptimizerConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                lr()
+                numWarmupSteps()
+                optimizerType().validate()
+                weightDecay()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (if (lr.asKnown() == null) 0 else 1) +
+                    (if (numWarmupSteps.asKnown() == null) 0 else 1) +
+                    (optimizerType.asKnown()?.validity() ?: 0) +
+                    (if (weightDecay.asKnown() == null) 0 else 1)
 
             class OptimizerType
             @JsonCreator
@@ -2201,6 +2566,33 @@ private constructor(
                     _value().asString()
                         ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+                private var validated: Boolean = false
+
+                fun validate(): OptimizerType = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    known()
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
                         return true
@@ -2232,25 +2624,36 @@ private constructor(
                 "OptimizerConfig{lr=$lr, numWarmupSteps=$numWarmupSteps, optimizerType=$optimizerType, weightDecay=$weightDecay, additionalProperties=$additionalProperties}"
         }
 
-        @NoAutoDetect
         class EfficiencyConfig
-        @JsonCreator
         private constructor(
-            @JsonProperty("enable_activation_checkpointing")
-            @ExcludeMissing
-            private val enableActivationCheckpointing: JsonField<Boolean> = JsonMissing.of(),
-            @JsonProperty("enable_activation_offloading")
-            @ExcludeMissing
-            private val enableActivationOffloading: JsonField<Boolean> = JsonMissing.of(),
-            @JsonProperty("fsdp_cpu_offload")
-            @ExcludeMissing
-            private val fsdpCpuOffload: JsonField<Boolean> = JsonMissing.of(),
-            @JsonProperty("memory_efficient_fsdp_wrap")
-            @ExcludeMissing
-            private val memoryEfficientFsdpWrap: JsonField<Boolean> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val enableActivationCheckpointing: JsonField<Boolean>,
+            private val enableActivationOffloading: JsonField<Boolean>,
+            private val fsdpCpuOffload: JsonField<Boolean>,
+            private val memoryEfficientFsdpWrap: JsonField<Boolean>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("enable_activation_checkpointing")
+                @ExcludeMissing
+                enableActivationCheckpointing: JsonField<Boolean> = JsonMissing.of(),
+                @JsonProperty("enable_activation_offloading")
+                @ExcludeMissing
+                enableActivationOffloading: JsonField<Boolean> = JsonMissing.of(),
+                @JsonProperty("fsdp_cpu_offload")
+                @ExcludeMissing
+                fsdpCpuOffload: JsonField<Boolean> = JsonMissing.of(),
+                @JsonProperty("memory_efficient_fsdp_wrap")
+                @ExcludeMissing
+                memoryEfficientFsdpWrap: JsonField<Boolean> = JsonMissing.of(),
+            ) : this(
+                enableActivationCheckpointing,
+                enableActivationOffloading,
+                fsdpCpuOffload,
+                memoryEfficientFsdpWrap,
+                mutableMapOf(),
+            )
 
             /**
              * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
@@ -2319,23 +2722,15 @@ private constructor(
             @ExcludeMissing
             fun _memoryEfficientFsdpWrap(): JsonField<Boolean> = memoryEfficientFsdpWrap
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): EfficiencyConfig = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                enableActivationCheckpointing()
-                enableActivationOffloading()
-                fsdpCpuOffload()
-                memoryEfficientFsdpWrap()
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -2441,15 +2836,54 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [EfficiencyConfig].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): EfficiencyConfig =
                     EfficiencyConfig(
                         enableActivationCheckpointing,
                         enableActivationOffloading,
                         fsdpCpuOffload,
                         memoryEfficientFsdpWrap,
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): EfficiencyConfig = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                enableActivationCheckpointing()
+                enableActivationOffloading()
+                fsdpCpuOffload()
+                memoryEfficientFsdpWrap()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (if (enableActivationCheckpointing.asKnown() == null) 0 else 1) +
+                    (if (enableActivationOffloading.asKnown() == null) 0 else 1) +
+                    (if (fsdpCpuOffload.asKnown() == null) 0 else 1) +
+                    (if (memoryEfficientFsdpWrap.asKnown() == null) 0 else 1)
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

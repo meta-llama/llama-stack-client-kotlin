@@ -20,58 +20,88 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
+import com.llama.llamastack.core.allMaxBy
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class AgentConfig
-@JsonCreator
 private constructor(
-    @JsonProperty("instructions")
-    @ExcludeMissing
-    private val instructions: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("model") @ExcludeMissing private val model: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("client_tools")
-    @ExcludeMissing
-    private val clientTools: JsonField<List<ToolDef>> = JsonMissing.of(),
-    @JsonProperty("enable_session_persistence")
-    @ExcludeMissing
-    private val enableSessionPersistence: JsonField<Boolean> = JsonMissing.of(),
-    @JsonProperty("input_shields")
-    @ExcludeMissing
-    private val inputShields: JsonField<List<String>> = JsonMissing.of(),
-    @JsonProperty("max_infer_iters")
-    @ExcludeMissing
-    private val maxInferIters: JsonField<Long> = JsonMissing.of(),
-    @JsonProperty("output_shields")
-    @ExcludeMissing
-    private val outputShields: JsonField<List<String>> = JsonMissing.of(),
-    @JsonProperty("response_format")
-    @ExcludeMissing
-    private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
-    @JsonProperty("sampling_params")
-    @ExcludeMissing
-    private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
-    @JsonProperty("tool_choice")
-    @ExcludeMissing
-    private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
-    @JsonProperty("tool_config")
-    @ExcludeMissing
-    private val toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
-    @JsonProperty("tool_prompt_format")
-    @ExcludeMissing
-    private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
-    @JsonProperty("toolgroups")
-    @ExcludeMissing
-    private val toolgroups: JsonField<List<Toolgroup>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val instructions: JsonField<String>,
+    private val model: JsonField<String>,
+    private val clientTools: JsonField<List<ToolDef>>,
+    private val enableSessionPersistence: JsonField<Boolean>,
+    private val inputShields: JsonField<List<String>>,
+    private val maxInferIters: JsonField<Long>,
+    private val outputShields: JsonField<List<String>>,
+    private val responseFormat: JsonField<ResponseFormat>,
+    private val samplingParams: JsonField<SamplingParams>,
+    private val toolChoice: JsonField<ToolChoice>,
+    private val toolConfig: JsonField<ToolConfig>,
+    private val toolPromptFormat: JsonField<ToolPromptFormat>,
+    private val toolgroups: JsonField<List<Toolgroup>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("instructions")
+        @ExcludeMissing
+        instructions: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("model") @ExcludeMissing model: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("client_tools")
+        @ExcludeMissing
+        clientTools: JsonField<List<ToolDef>> = JsonMissing.of(),
+        @JsonProperty("enable_session_persistence")
+        @ExcludeMissing
+        enableSessionPersistence: JsonField<Boolean> = JsonMissing.of(),
+        @JsonProperty("input_shields")
+        @ExcludeMissing
+        inputShields: JsonField<List<String>> = JsonMissing.of(),
+        @JsonProperty("max_infer_iters")
+        @ExcludeMissing
+        maxInferIters: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("output_shields")
+        @ExcludeMissing
+        outputShields: JsonField<List<String>> = JsonMissing.of(),
+        @JsonProperty("response_format")
+        @ExcludeMissing
+        responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
+        @JsonProperty("sampling_params")
+        @ExcludeMissing
+        samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+        @JsonProperty("tool_choice")
+        @ExcludeMissing
+        toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+        @JsonProperty("tool_config")
+        @ExcludeMissing
+        toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
+        @JsonProperty("tool_prompt_format")
+        @ExcludeMissing
+        toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        @JsonProperty("toolgroups")
+        @ExcludeMissing
+        toolgroups: JsonField<List<Toolgroup>> = JsonMissing.of(),
+    ) : this(
+        instructions,
+        model,
+        clientTools,
+        enableSessionPersistence,
+        inputShields,
+        maxInferIters,
+        outputShields,
+        responseFormat,
+        samplingParams,
+        toolChoice,
+        toolConfig,
+        toolPromptFormat,
+        toolgroups,
+        mutableMapOf(),
+    )
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -125,6 +155,8 @@ private constructor(
     fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
     /**
+     * Sampling parameters.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -281,32 +313,15 @@ private constructor(
     @ExcludeMissing
     fun _toolgroups(): JsonField<List<Toolgroup>> = toolgroups
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): AgentConfig = apply {
-        if (validated) {
-            return@apply
-        }
-
-        instructions()
-        model()
-        clientTools()?.forEach { it.validate() }
-        enableSessionPersistence()
-        inputShields()
-        maxInferIters()
-        outputShields()
-        responseFormat()?.validate()
-        samplingParams()?.validate()
-        toolChoice()
-        toolConfig()?.validate()
-        toolPromptFormat()
-        toolgroups()?.forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -533,6 +548,7 @@ private constructor(
         fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
             responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
 
+        /** Sampling parameters. */
         fun samplingParams(samplingParams: SamplingParams) =
             samplingParams(JsonField.of(samplingParams))
 
@@ -647,6 +663,19 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [AgentConfig].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .instructions()
+         * .model()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): AgentConfig =
             AgentConfig(
                 checkRequired("instructions", instructions),
@@ -662,9 +691,60 @@ private constructor(
                 toolConfig,
                 toolPromptFormat,
                 (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): AgentConfig = apply {
+        if (validated) {
+            return@apply
+        }
+
+        instructions()
+        model()
+        clientTools()?.forEach { it.validate() }
+        enableSessionPersistence()
+        inputShields()
+        maxInferIters()
+        outputShields()
+        responseFormat()?.validate()
+        samplingParams()?.validate()
+        toolChoice()?.validate()
+        toolConfig()?.validate()
+        toolPromptFormat()?.validate()
+        toolgroups()?.forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (instructions.asKnown() == null) 0 else 1) +
+            (if (model.asKnown() == null) 0 else 1) +
+            (clientTools.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+            (if (enableSessionPersistence.asKnown() == null) 0 else 1) +
+            (inputShields.asKnown()?.size ?: 0) +
+            (if (maxInferIters.asKnown() == null) 0 else 1) +
+            (outputShields.asKnown()?.size ?: 0) +
+            (responseFormat.asKnown()?.validity() ?: 0) +
+            (samplingParams.asKnown()?.validity() ?: 0) +
+            (toolChoice.asKnown()?.validity() ?: 0) +
+            (toolConfig.asKnown()?.validity() ?: 0) +
+            (toolPromptFormat.asKnown()?.validity() ?: 0) +
+            (toolgroups.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
 
     /**
      * Whether tool use is required or automatic. This is a hint to the model which may not be
@@ -765,6 +845,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): ToolChoice = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -779,22 +886,26 @@ private constructor(
     }
 
     /** Configuration for tool use. */
-    @NoAutoDetect
     class ToolConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("system_message_behavior")
-        @ExcludeMissing
-        private val systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
-        @JsonProperty("tool_choice")
-        @ExcludeMissing
-        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
-        @JsonProperty("tool_prompt_format")
-        @ExcludeMissing
-        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val systemMessageBehavior: JsonField<SystemMessageBehavior>,
+        private val toolChoice: JsonField<ToolChoice>,
+        private val toolPromptFormat: JsonField<ToolPromptFormat>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("system_message_behavior")
+            @ExcludeMissing
+            systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
+            @JsonProperty("tool_choice")
+            @ExcludeMissing
+            toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+            @JsonProperty("tool_prompt_format")
+            @ExcludeMissing
+            toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        ) : this(systemMessageBehavior, toolChoice, toolPromptFormat, mutableMapOf())
 
         /**
          * (Optional) Config for how to override the default system prompt. -
@@ -860,22 +971,15 @@ private constructor(
         @ExcludeMissing
         fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            systemMessageBehavior()
-            toolChoice()
-            toolPromptFormat()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -990,14 +1094,51 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ToolConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): ToolConfig =
                 ToolConfig(
                     systemMessageBehavior,
                     toolChoice,
                     toolPromptFormat,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            systemMessageBehavior()?.validate()
+            toolChoice()
+            toolPromptFormat()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (systemMessageBehavior.asKnown()?.validity() ?: 0) +
+                (if (toolChoice.asKnown() == null) 0 else 1) +
+                (toolPromptFormat.asKnown()?.validity() ?: 0)
 
         /**
          * (Optional) Config for how to override the default system prompt. -
@@ -1101,6 +1242,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): SystemMessageBehavior = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1214,6 +1382,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): ToolChoice = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1335,6 +1530,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): ToolPromptFormat = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1466,6 +1688,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): ToolPromptFormat = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -1503,14 +1752,13 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 string != null -> visitor.visitString(string)
                 agentToolGroupWithArgs != null ->
                     visitor.visitAgentToolGroupWithArgs(agentToolGroupWithArgs)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -1532,6 +1780,33 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitString(string: String) = 1
+
+                    override fun visitAgentToolGroupWithArgs(
+                        agentToolGroupWithArgs: AgentToolGroupWithArgs
+                    ) = agentToolGroupWithArgs.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -1589,15 +1864,28 @@ private constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Toolgroup {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                    return Toolgroup(string = it, _json = json)
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<AgentToolGroupWithArgs>())?.let {
+                                Toolgroup(agentToolGroupWithArgs = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                                Toolgroup(string = it, _json = json)
+                            },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants (e.g. deserializing from array).
+                    0 -> Toolgroup(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
                 }
-                tryDeserialize(node, jacksonTypeRef<AgentToolGroupWithArgs>()) { it.validate() }
-                    ?.let {
-                        return Toolgroup(agentToolGroupWithArgs = it, _json = json)
-                    }
-
-                return Toolgroup(_json = json)
             }
         }
 
@@ -1618,19 +1906,18 @@ private constructor(
             }
         }
 
-        @NoAutoDetect
         class AgentToolGroupWithArgs
-        @JsonCreator
         private constructor(
-            @JsonProperty("args")
-            @ExcludeMissing
-            private val args: JsonField<Args> = JsonMissing.of(),
-            @JsonProperty("name")
-            @ExcludeMissing
-            private val name: JsonField<String> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val args: JsonField<Args>,
+            private val name: JsonField<String>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("args") @ExcludeMissing args: JsonField<Args> = JsonMissing.of(),
+                @JsonProperty("name") @ExcludeMissing name: JsonField<String> = JsonMissing.of(),
+            ) : this(args, name, mutableMapOf())
 
             /**
              * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
@@ -1660,21 +1947,15 @@ private constructor(
              */
             @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): AgentToolGroupWithArgs = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                args().validate()
-                name()
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -1751,35 +2032,66 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [AgentToolGroupWithArgs].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .args()
+                 * .name()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
                 fun build(): AgentToolGroupWithArgs =
                     AgentToolGroupWithArgs(
                         checkRequired("args", args),
                         checkRequired("name", name),
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
 
-            @NoAutoDetect
+            private var validated: Boolean = false
+
+            fun validate(): AgentToolGroupWithArgs = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                args().validate()
+                name()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (args.asKnown()?.validity() ?: 0) + (if (name.asKnown() == null) 0 else 1)
+
             class Args
             @JsonCreator
             private constructor(
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+                @com.fasterxml.jackson.annotation.JsonValue
+                private val additionalProperties: Map<String, JsonValue>
             ) {
 
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): Args = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    validated = true
-                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1820,8 +2132,42 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [Args].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     */
                     fun build(): Args = Args(additionalProperties.toImmutable())
                 }
+
+                private var validated: Boolean = false
+
+                fun validate(): Args = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    additionalProperties.count { (_, value) ->
+                        !value.isNull() && !value.isMissing()
+                    }
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {

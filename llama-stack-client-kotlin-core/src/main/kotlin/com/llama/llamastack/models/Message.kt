@@ -62,15 +62,14 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             user != null -> visitor.visitUser(user)
             system != null -> visitor.visitSystem(system)
             toolResponse != null -> visitor.visitToolResponse(toolResponse)
             completion != null -> visitor.visitCompletion(completion)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -100,6 +99,35 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitUser(user: UserMessage) = user.validity()
+
+                override fun visitSystem(system: SystemMessage) = system.validity()
+
+                override fun visitToolResponse(toolResponse: ToolResponseMessage) =
+                    toolResponse.validity()
+
+                override fun visitCompletion(completion: CompletionMessage) = completion.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -173,28 +201,24 @@ private constructor(
 
             when (role) {
                 "user" -> {
-                    tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                        ?.let {
-                            return Message(user = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                        Message(user = it, _json = json)
+                    } ?: Message(_json = json)
                 }
                 "system" -> {
-                    tryDeserialize(node, jacksonTypeRef<SystemMessage>()) { it.validate() }
-                        ?.let {
-                            return Message(system = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<SystemMessage>())?.let {
+                        Message(system = it, _json = json)
+                    } ?: Message(_json = json)
                 }
                 "tool" -> {
-                    tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                        ?.let {
-                            return Message(toolResponse = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                        Message(toolResponse = it, _json = json)
+                    } ?: Message(_json = json)
                 }
                 "assistant" -> {
-                    tryDeserialize(node, jacksonTypeRef<CompletionMessage>()) { it.validate() }
-                        ?.let {
-                            return Message(completion = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<CompletionMessage>())?.let {
+                        Message(completion = it, _json = json)
+                    } ?: Message(_json = json)
                 }
             }
 

@@ -6,7 +6,6 @@ import com.llama.llamastack.services.async.AgentServiceAsync
 import com.llama.llamastack.services.async.BatchInferenceServiceAsync
 import com.llama.llamastack.services.async.BenchmarkServiceAsync
 import com.llama.llamastack.services.async.DatasetServiceAsync
-import com.llama.llamastack.services.async.DatasetioServiceAsync
 import com.llama.llamastack.services.async.EvalServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InspectServiceAsync
@@ -93,8 +92,6 @@ interface LlamaStackClientClientAsync {
 
     fun telemetry(): TelemetryServiceAsync
 
-    fun datasetio(): DatasetioServiceAsync
-
     fun scoring(): ScoringServiceAsync
 
     fun scoringFunctions(): ScoringFunctionServiceAsync
@@ -157,8 +154,6 @@ interface LlamaStackClientClientAsync {
         fun syntheticDataGeneration(): SyntheticDataGenerationServiceAsync.WithRawResponse
 
         fun telemetry(): TelemetryServiceAsync.WithRawResponse
-
-        fun datasetio(): DatasetioServiceAsync.WithRawResponse
 
         fun scoring(): ScoringServiceAsync.WithRawResponse
 

@@ -15,7 +15,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class BatchInferenceServiceTest {
+internal class BatchInferenceServiceTest {
 
     @Test
     fun chatCompletion() {
@@ -44,9 +44,10 @@ class BatchInferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .toolChoice(BatchInferenceChatCompletionParams.ToolChoice.AUTO)
@@ -97,9 +98,10 @@ class BatchInferenceServiceTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyObject()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
+                            .addStop("string")
                             .build()
                     )
                     .build()

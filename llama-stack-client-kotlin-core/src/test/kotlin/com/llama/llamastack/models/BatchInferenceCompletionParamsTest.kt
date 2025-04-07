@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class BatchInferenceCompletionParamsTest {
+internal class BatchInferenceCompletionParamsTest {
 
     @Test
     fun create() {
@@ -22,9 +21,10 @@ class BatchInferenceCompletionParamsTest {
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
             .build()
@@ -44,17 +44,17 @@ class BatchInferenceCompletionParamsTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyObject()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
+                        .addStop("string")
                         .build()
                 )
                 .build()
 
         val body = params._body()
 
-        assertNotNull(body)
-        assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
+        assertThat(body.contentBatch()).containsExactly(InterleavedContent.ofString("string"))
         assertThat(body.model()).isEqualTo("model")
         assertThat(body.logprobs())
             .isEqualTo(BatchInferenceCompletionParams.Logprobs.builder().topK(0L).build())
@@ -73,9 +73,10 @@ class BatchInferenceCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
     }
@@ -90,8 +91,7 @@ class BatchInferenceCompletionParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
-        assertThat(body.contentBatch()).isEqualTo(listOf(InterleavedContent.ofString("string")))
+        assertThat(body.contentBatch()).containsExactly(InterleavedContent.ofString("string"))
         assertThat(body.model()).isEqualTo("model")
     }
 }

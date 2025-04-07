@@ -6,7 +6,7 @@ import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class PostTrainingJobStatusParamsTest {
+internal class PostTrainingJobStatusParamsTest {
 
     @Test
     fun create() {
@@ -16,16 +16,9 @@ class PostTrainingJobStatusParamsTest {
     @Test
     fun queryParams() {
         val params = PostTrainingJobStatusParams.builder().jobUuid("job_uuid").build()
-        val expected = QueryParams.builder()
-        expected.put("job_uuid", "job_uuid")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
-    }
 
-    @Test
-    fun queryParamsWithoutOptionalFields() {
-        val params = PostTrainingJobStatusParams.builder().jobUuid("job_uuid").build()
-        val expected = QueryParams.builder()
-        expected.put("job_uuid", "job_uuid")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().put("job_uuid", "job_uuid").build())
     }
 }

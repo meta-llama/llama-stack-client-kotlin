@@ -2,7 +2,6 @@
 
 package com.llama.llamastack.models
 
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
@@ -18,10 +17,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -35,7 +30,6 @@ private constructor(
     }
 
     /** A builder for [PostTrainingJobListParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var additionalHeaders: Headers.Builder = Headers.builder()
@@ -144,9 +138,18 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [PostTrainingJobListParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         */
         fun build(): PostTrainingJobListParams =
             PostTrainingJobListParams(additionalHeaders.build(), additionalQueryParams.build())
     }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

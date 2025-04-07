@@ -29,10 +29,10 @@ interface ToolRuntimeServiceAsync {
     suspend fun listTools(
         params: ToolRuntimeListToolsParams = ToolRuntimeListToolsParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
-    ): ToolDef
+    ): List<ToolDef>
 
     /** @see [listTools] */
-    suspend fun listTools(requestOptions: RequestOptions): ToolDef =
+    suspend fun listTools(requestOptions: RequestOptions): List<ToolDef> =
         listTools(ToolRuntimeListToolsParams.none(), requestOptions)
 
     /**
@@ -61,11 +61,11 @@ interface ToolRuntimeServiceAsync {
         suspend fun listTools(
             params: ToolRuntimeListToolsParams = ToolRuntimeListToolsParams.none(),
             requestOptions: RequestOptions = RequestOptions.none(),
-        ): HttpResponseFor<ToolDef>
+        ): HttpResponseFor<List<ToolDef>>
 
         /** @see [listTools] */
         @MustBeClosed
-        suspend fun listTools(requestOptions: RequestOptions): HttpResponseFor<ToolDef> =
+        suspend fun listTools(requestOptions: RequestOptions): HttpResponseFor<List<ToolDef>> =
             listTools(ToolRuntimeListToolsParams.none(), requestOptions)
     }
 }

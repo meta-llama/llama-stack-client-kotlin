@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class AgentConfigTest {
+internal class AgentConfigTest {
 
     @Test
-    fun createAgentConfig() {
+    fun create() {
         val agentConfig =
             AgentConfig.builder()
                 .instructions("instructions")
@@ -29,7 +31,7 @@ class AgentConfigTest {
                                 .name("name")
                                 .parameterType("parameter_type")
                                 .required(true)
-                                .default(ToolDef.Parameter.Default.ofBoolean(true))
+                                .default(true)
                                 .build()
                         )
                         .build()
@@ -45,9 +47,10 @@ class AgentConfigTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyObject()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
+                        .addStop("string")
                         .build()
                 )
                 .toolChoice(AgentConfig.ToolChoice.AUTO)
@@ -61,7 +64,7 @@ class AgentConfigTest {
                 .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
                 .addToolgroup("string")
                 .build()
-        assertThat(agentConfig).isNotNull
+
         assertThat(agentConfig.instructions()).isEqualTo("instructions")
         assertThat(agentConfig.model()).isEqualTo("model")
         assertThat(agentConfig.clientTools())
@@ -80,7 +83,7 @@ class AgentConfigTest {
                             .name("name")
                             .parameterType("parameter_type")
                             .required(true)
-                            .default(ToolDef.Parameter.Default.ofBoolean(true))
+                            .default(true)
                             .build()
                     )
                     .build()
@@ -104,9 +107,10 @@ class AgentConfigTest {
         assertThat(agentConfig.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyObject()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
+                    .addStop("string")
                     .build()
             )
         assertThat(agentConfig.toolChoice()).isEqualTo(AgentConfig.ToolChoice.AUTO)
@@ -121,5 +125,70 @@ class AgentConfigTest {
         assertThat(agentConfig.toolPromptFormat()).isEqualTo(AgentConfig.ToolPromptFormat.JSON)
         assertThat(agentConfig.toolgroups())
             .containsExactly(AgentConfig.Toolgroup.ofString("string"))
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val agentConfig =
+            AgentConfig.builder()
+                .instructions("instructions")
+                .model("model")
+                .addClientTool(
+                    ToolDef.builder()
+                        .name("name")
+                        .description("description")
+                        .metadata(
+                            ToolDef.Metadata.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .addParameter(
+                            ToolDef.Parameter.builder()
+                                .description("description")
+                                .name("name")
+                                .parameterType("parameter_type")
+                                .required(true)
+                                .default(true)
+                                .build()
+                        )
+                        .build()
+                )
+                .enableSessionPersistence(true)
+                .addInputShield("string")
+                .maxInferIters(0L)
+                .addOutputShield("string")
+                .jsonSchemaResponseFormat(
+                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .samplingParams(
+                    SamplingParams.builder()
+                        .strategyObject()
+                        .maxTokens(0L)
+                        .repetitionPenalty(0.0)
+                        .addStop("string")
+                        .build()
+                )
+                .toolChoice(AgentConfig.ToolChoice.AUTO)
+                .toolConfig(
+                    AgentConfig.ToolConfig.builder()
+                        .systemMessageBehavior(AgentConfig.ToolConfig.SystemMessageBehavior.APPEND)
+                        .toolChoice(AgentConfig.ToolConfig.ToolChoice.AUTO)
+                        .toolPromptFormat(AgentConfig.ToolConfig.ToolPromptFormat.JSON)
+                        .build()
+                )
+                .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
+                .addToolgroup("string")
+                .build()
+
+        val roundtrippedAgentConfig =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(agentConfig),
+                jacksonTypeRef<AgentConfig>(),
+            )
+
+        assertThat(roundtrippedAgentConfig).isEqualTo(agentConfig)
     }
 }

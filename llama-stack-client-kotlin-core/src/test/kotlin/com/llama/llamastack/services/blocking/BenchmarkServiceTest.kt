@@ -7,12 +7,11 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.BenchmarkRegisterParams
 import com.llama.llamastack.models.BenchmarkRetrieveParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class BenchmarkServiceTest {
+internal class BenchmarkServiceTest {
 
     @Test
     fun retrieve() {
@@ -25,7 +24,6 @@ class BenchmarkServiceTest {
                 BenchmarkRetrieveParams.builder().benchmarkId("benchmark_id").build()
             )
 
-        assertNotNull(benchmark)
         benchmark.validate()
     }
 

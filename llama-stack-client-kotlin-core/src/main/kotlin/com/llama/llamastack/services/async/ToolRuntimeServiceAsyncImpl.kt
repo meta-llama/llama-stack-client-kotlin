@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -14,7 +15,7 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
+import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
@@ -45,15 +46,14 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
     override suspend fun listTools(
         params: ToolRuntimeListToolsParams,
         requestOptions: RequestOptions,
-    ): ToolDef =
+    ): List<ToolDef> =
         // get /v1/tool-runtime/list-tools
         withRawResponse().listTools(params, requestOptions).parse()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ToolRuntimeServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val ragTool: RagToolServiceAsync.WithRawResponse by lazy {
             RagToolServiceAsyncImpl.WithRawResponseImpl(clientOptions)
@@ -89,13 +89,14 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
             }
         }
 
-        private val listToolsHandler: Handler<ToolDef> =
-            jsonHandler<ToolDef>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+        private val listToolsHandler: Handler<DataEnvelope<List<ToolDef>>> =
+            jsonHandler<DataEnvelope<List<ToolDef>>>(clientOptions.jsonMapper)
+                .withErrorHandler(errorHandler)
 
         override suspend fun listTools(
             params: ToolRuntimeListToolsParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<ToolDef> {
+        ): HttpResponseFor<List<ToolDef>> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
@@ -112,6 +113,7 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
                             it.validate()
                         }
                     }
+                    .data()
             }
         }
     }

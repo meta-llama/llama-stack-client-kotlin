@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class TokenLogProbsTest {
+internal class TokenLogProbsTest {
 
     @Test
-    fun createTokenLogProbs() {
+    fun create() {
         val tokenLogProbs =
             TokenLogProbs.builder()
                 .logprobsByToken(
@@ -18,12 +20,33 @@ class TokenLogProbsTest {
                         .build()
                 )
                 .build()
-        assertThat(tokenLogProbs).isNotNull
+
         assertThat(tokenLogProbs.logprobsByToken())
             .isEqualTo(
                 TokenLogProbs.LogprobsByToken.builder()
                     .putAdditionalProperty("foo", JsonValue.from(0))
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val tokenLogProbs =
+            TokenLogProbs.builder()
+                .logprobsByToken(
+                    TokenLogProbs.LogprobsByToken.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(0))
+                        .build()
+                )
+                .build()
+
+        val roundtrippedTokenLogProbs =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(tokenLogProbs),
+                jacksonTypeRef<TokenLogProbs>(),
+            )
+
+        assertThat(roundtrippedTokenLogProbs).isEqualTo(tokenLogProbs)
     }
 }

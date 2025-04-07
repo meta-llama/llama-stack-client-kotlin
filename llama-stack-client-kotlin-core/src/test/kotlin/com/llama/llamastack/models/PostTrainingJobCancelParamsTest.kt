@@ -2,11 +2,10 @@
 
 package com.llama.llamastack.models
 
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class PostTrainingJobCancelParamsTest {
+internal class PostTrainingJobCancelParamsTest {
 
     @Test
     fun create() {
@@ -19,17 +18,6 @@ class PostTrainingJobCancelParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
-        assertThat(body.jobUuid()).isEqualTo("job_uuid")
-    }
-
-    @Test
-    fun bodyWithoutOptionalFields() {
-        val params = PostTrainingJobCancelParams.builder().jobUuid("job_uuid").build()
-
-        val body = params._body()
-
-        assertNotNull(body)
         assertThat(body.jobUuid()).isEqualTo("job_uuid")
     }
 }

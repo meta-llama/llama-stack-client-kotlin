@@ -10,15 +10,14 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 class BatchInferenceCompletionParams
@@ -55,6 +54,8 @@ private constructor(
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
     /**
+     * Sampling parameters.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -101,34 +102,355 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
+    fun toBuilder() = Builder().from(this)
+
+    companion object {
+
+        /**
+         * Returns a mutable builder for constructing an instance of
+         * [BatchInferenceCompletionParams].
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .contentBatch()
+         * .model()
+         * ```
+         */
+        fun builder() = Builder()
+    }
+
+    /** A builder for [BatchInferenceCompletionParams]. */
+    class Builder internal constructor() {
+
+        private var body: Body.Builder = Body.builder()
+        private var additionalHeaders: Headers.Builder = Headers.builder()
+        private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
+
+        internal fun from(batchInferenceCompletionParams: BatchInferenceCompletionParams) = apply {
+            body = batchInferenceCompletionParams.body.toBuilder()
+            additionalHeaders = batchInferenceCompletionParams.additionalHeaders.toBuilder()
+            additionalQueryParams = batchInferenceCompletionParams.additionalQueryParams.toBuilder()
+        }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [contentBatch]
+         * - [model]
+         * - [logprobs]
+         * - [responseFormat]
+         * - [samplingParams]
+         * - etc.
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
+
+        fun contentBatch(contentBatch: List<InterleavedContent>) = apply {
+            body.contentBatch(contentBatch)
+        }
+
+        /**
+         * Sets [Builder.contentBatch] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.contentBatch] with a well-typed
+         * `List<InterleavedContent>` value instead. This method is primarily for setting the field
+         * to an undocumented or not yet supported value.
+         */
+        fun contentBatch(contentBatch: JsonField<List<InterleavedContent>>) = apply {
+            body.contentBatch(contentBatch)
+        }
+
+        /**
+         * Adds a single [InterleavedContent] to [Builder.contentBatch].
+         *
+         * @throws IllegalStateException if the field was previously set to a non-list.
+         */
+        fun addContentBatch(contentBatch: InterleavedContent) = apply {
+            body.addContentBatch(contentBatch)
+        }
+
+        /** Alias for calling [addContentBatch] with `InterleavedContent.ofString(string)`. */
+        fun addContentBatch(string: String) = apply { body.addContentBatch(string) }
+
+        /**
+         * Alias for calling [addContentBatch] with
+         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
+         */
+        fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) = apply {
+            body.addContentBatch(imageContentItem)
+        }
+
+        /**
+         * Alias for calling [addContentBatch] with
+         * `InterleavedContent.ofTextContentItem(textContentItem)`.
+         */
+        fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) = apply {
+            body.addContentBatch(textContentItem)
+        }
+
+        /** Alias for calling [addContentBatch] with `InterleavedContent.ofItems(items)`. */
+        fun addContentBatchOfItems(items: List<InterleavedContentItem>) = apply {
+            body.addContentBatchOfItems(items)
+        }
+
+        fun model(model: String) = apply { body.model(model) }
+
+        /**
+         * Sets [Builder.model] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.model] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
+        fun model(model: JsonField<String>) = apply { body.model(model) }
+
+        fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
+
+        /**
+         * Sets [Builder.logprobs] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value instead.
+         * This method is primarily for setting the field to an undocumented or not yet supported
+         * value.
+         */
+        fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
+
+        /** Configuration for JSON schema-guided response generation. */
+        fun responseFormat(responseFormat: ResponseFormat) = apply {
+            body.responseFormat(responseFormat)
+        }
+
+        /**
+         * Sets [Builder.responseFormat] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
+            body.responseFormat(responseFormat)
+        }
+
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
+            body.responseFormat(jsonSchema)
+        }
+
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         *     .jsonSchema(jsonSchema)
+         *     .build()
+         * ```
+         */
+        fun jsonSchemaResponseFormat(
+            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
+        ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
+
+        /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
+        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
+            body.responseFormat(grammar)
+        }
+
+        /**
+         * Alias for calling [responseFormat] with the following:
+         * ```kotlin
+         * ResponseFormat.GrammarResponseFormat.builder()
+         *     .bnf(bnf)
+         *     .build()
+         * ```
+         */
+        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
+            body.grammarResponseFormat(bnf)
+        }
+
+        /** Sampling parameters. */
+        fun samplingParams(samplingParams: SamplingParams) = apply {
+            body.samplingParams(samplingParams)
+        }
+
+        /**
+         * Sets [Builder.samplingParams] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
+            body.samplingParams(samplingParams)
+        }
+
+        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
+            body.additionalProperties(additionalBodyProperties)
+        }
+
+        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
+            body.putAdditionalProperty(key, value)
+        }
+
+        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
+            apply {
+                body.putAllAdditionalProperties(additionalBodyProperties)
+            }
+
+        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
+
+        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
+            body.removeAllAdditionalProperties(keys)
+        }
+
+        fun additionalHeaders(additionalHeaders: Headers) = apply {
+            this.additionalHeaders.clear()
+            putAllAdditionalHeaders(additionalHeaders)
+        }
+
+        fun additionalHeaders(additionalHeaders: Map<String, Iterable<String>>) = apply {
+            this.additionalHeaders.clear()
+            putAllAdditionalHeaders(additionalHeaders)
+        }
+
+        fun putAdditionalHeader(name: String, value: String) = apply {
+            additionalHeaders.put(name, value)
+        }
+
+        fun putAdditionalHeaders(name: String, values: Iterable<String>) = apply {
+            additionalHeaders.put(name, values)
+        }
+
+        fun putAllAdditionalHeaders(additionalHeaders: Headers) = apply {
+            this.additionalHeaders.putAll(additionalHeaders)
+        }
+
+        fun putAllAdditionalHeaders(additionalHeaders: Map<String, Iterable<String>>) = apply {
+            this.additionalHeaders.putAll(additionalHeaders)
+        }
+
+        fun replaceAdditionalHeaders(name: String, value: String) = apply {
+            additionalHeaders.replace(name, value)
+        }
+
+        fun replaceAdditionalHeaders(name: String, values: Iterable<String>) = apply {
+            additionalHeaders.replace(name, values)
+        }
+
+        fun replaceAllAdditionalHeaders(additionalHeaders: Headers) = apply {
+            this.additionalHeaders.replaceAll(additionalHeaders)
+        }
+
+        fun replaceAllAdditionalHeaders(additionalHeaders: Map<String, Iterable<String>>) = apply {
+            this.additionalHeaders.replaceAll(additionalHeaders)
+        }
+
+        fun removeAdditionalHeaders(name: String) = apply { additionalHeaders.remove(name) }
+
+        fun removeAllAdditionalHeaders(names: Set<String>) = apply {
+            additionalHeaders.removeAll(names)
+        }
+
+        fun additionalQueryParams(additionalQueryParams: QueryParams) = apply {
+            this.additionalQueryParams.clear()
+            putAllAdditionalQueryParams(additionalQueryParams)
+        }
+
+        fun additionalQueryParams(additionalQueryParams: Map<String, Iterable<String>>) = apply {
+            this.additionalQueryParams.clear()
+            putAllAdditionalQueryParams(additionalQueryParams)
+        }
+
+        fun putAdditionalQueryParam(key: String, value: String) = apply {
+            additionalQueryParams.put(key, value)
+        }
+
+        fun putAdditionalQueryParams(key: String, values: Iterable<String>) = apply {
+            additionalQueryParams.put(key, values)
+        }
+
+        fun putAllAdditionalQueryParams(additionalQueryParams: QueryParams) = apply {
+            this.additionalQueryParams.putAll(additionalQueryParams)
+        }
+
+        fun putAllAdditionalQueryParams(additionalQueryParams: Map<String, Iterable<String>>) =
+            apply {
+                this.additionalQueryParams.putAll(additionalQueryParams)
+            }
+
+        fun replaceAdditionalQueryParams(key: String, value: String) = apply {
+            additionalQueryParams.replace(key, value)
+        }
+
+        fun replaceAdditionalQueryParams(key: String, values: Iterable<String>) = apply {
+            additionalQueryParams.replace(key, values)
+        }
+
+        fun replaceAllAdditionalQueryParams(additionalQueryParams: QueryParams) = apply {
+            this.additionalQueryParams.replaceAll(additionalQueryParams)
+        }
+
+        fun replaceAllAdditionalQueryParams(additionalQueryParams: Map<String, Iterable<String>>) =
+            apply {
+                this.additionalQueryParams.replaceAll(additionalQueryParams)
+            }
+
+        fun removeAdditionalQueryParams(key: String) = apply { additionalQueryParams.remove(key) }
+
+        fun removeAllAdditionalQueryParams(keys: Set<String>) = apply {
+            additionalQueryParams.removeAll(keys)
+        }
+
+        /**
+         * Returns an immutable instance of [BatchInferenceCompletionParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .contentBatch()
+         * .model()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
+        fun build(): BatchInferenceCompletionParams =
+            BatchInferenceCompletionParams(
+                body.build(),
+                additionalHeaders.build(),
+                additionalQueryParams.build(),
+            )
+    }
+
+    fun _body(): Body = body
 
     override fun _headers(): Headers = additionalHeaders
 
     override fun _queryParams(): QueryParams = additionalQueryParams
 
-    @NoAutoDetect
     class Body
-    @JsonCreator
     private constructor(
-        @JsonProperty("content_batch")
-        @ExcludeMissing
-        private val contentBatch: JsonField<List<InterleavedContent>> = JsonMissing.of(),
-        @JsonProperty("model")
-        @ExcludeMissing
-        private val model: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("logprobs")
-        @ExcludeMissing
-        private val logprobs: JsonField<Logprobs> = JsonMissing.of(),
-        @JsonProperty("response_format")
-        @ExcludeMissing
-        private val responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
-        @JsonProperty("sampling_params")
-        @ExcludeMissing
-        private val samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val contentBatch: JsonField<List<InterleavedContent>>,
+        private val model: JsonField<String>,
+        private val logprobs: JsonField<Logprobs>,
+        private val responseFormat: JsonField<ResponseFormat>,
+        private val samplingParams: JsonField<SamplingParams>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content_batch")
+            @ExcludeMissing
+            contentBatch: JsonField<List<InterleavedContent>> = JsonMissing.of(),
+            @JsonProperty("model") @ExcludeMissing model: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("logprobs")
+            @ExcludeMissing
+            logprobs: JsonField<Logprobs> = JsonMissing.of(),
+            @JsonProperty("response_format")
+            @ExcludeMissing
+            responseFormat: JsonField<ResponseFormat> = JsonMissing.of(),
+            @JsonProperty("sampling_params")
+            @ExcludeMissing
+            samplingParams: JsonField<SamplingParams> = JsonMissing.of(),
+        ) : this(contentBatch, model, logprobs, responseFormat, samplingParams, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -159,6 +481,8 @@ private constructor(
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
         /**
+         * Sampling parameters.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -208,24 +532,15 @@ private constructor(
         @ExcludeMissing
         fun _samplingParams(): JsonField<SamplingParams> = samplingParams
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            contentBatch().forEach { it.validate() }
-            model()
-            logprobs()?.validate()
-            responseFormat()?.validate()
-            samplingParams()?.validate()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -383,6 +698,7 @@ private constructor(
             fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
                 responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
 
+            /** Sampling parameters. */
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
@@ -416,6 +732,19 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .contentBatch()
+             * .model()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Body =
                 Body(
                     checkRequired("contentBatch", contentBatch).map { it.toImmutable() },
@@ -423,9 +752,45 @@ private constructor(
                     logprobs,
                     responseFormat,
                     samplingParams,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            contentBatch().forEach { it.validate() }
+            model()
+            logprobs()?.validate()
+            responseFormat()?.validate()
+            samplingParams()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (contentBatch.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (if (model.asKnown() == null) 0 else 1) +
+                (logprobs.asKnown()?.validity() ?: 0) +
+                (responseFormat.asKnown()?.validity() ?: 0) +
+                (samplingParams.asKnown()?.validity() ?: 0)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -445,304 +810,16 @@ private constructor(
             "Body{contentBatch=$contentBatch, model=$model, logprobs=$logprobs, responseFormat=$responseFormat, samplingParams=$samplingParams, additionalProperties=$additionalProperties}"
     }
 
-    fun toBuilder() = Builder().from(this)
-
-    companion object {
-
-        /**
-         * Returns a mutable builder for constructing an instance of
-         * [BatchInferenceCompletionParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .contentBatch()
-         * .model()
-         * ```
-         */
-        fun builder() = Builder()
-    }
-
-    /** A builder for [BatchInferenceCompletionParams]. */
-    @NoAutoDetect
-    class Builder internal constructor() {
-
-        private var body: Body.Builder = Body.builder()
-        private var additionalHeaders: Headers.Builder = Headers.builder()
-        private var additionalQueryParams: QueryParams.Builder = QueryParams.builder()
-
-        internal fun from(batchInferenceCompletionParams: BatchInferenceCompletionParams) = apply {
-            body = batchInferenceCompletionParams.body.toBuilder()
-            additionalHeaders = batchInferenceCompletionParams.additionalHeaders.toBuilder()
-            additionalQueryParams = batchInferenceCompletionParams.additionalQueryParams.toBuilder()
-        }
-
-        fun contentBatch(contentBatch: List<InterleavedContent>) = apply {
-            body.contentBatch(contentBatch)
-        }
-
-        /**
-         * Sets [Builder.contentBatch] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.contentBatch] with a well-typed
-         * `List<InterleavedContent>` value instead. This method is primarily for setting the field
-         * to an undocumented or not yet supported value.
-         */
-        fun contentBatch(contentBatch: JsonField<List<InterleavedContent>>) = apply {
-            body.contentBatch(contentBatch)
-        }
-
-        /**
-         * Adds a single [InterleavedContent] to [Builder.contentBatch].
-         *
-         * @throws IllegalStateException if the field was previously set to a non-list.
-         */
-        fun addContentBatch(contentBatch: InterleavedContent) = apply {
-            body.addContentBatch(contentBatch)
-        }
-
-        /** Alias for calling [addContentBatch] with `InterleavedContent.ofString(string)`. */
-        fun addContentBatch(string: String) = apply { body.addContentBatch(string) }
-
-        /**
-         * Alias for calling [addContentBatch] with
-         * `InterleavedContent.ofImageContentItem(imageContentItem)`.
-         */
-        fun addContentBatch(imageContentItem: InterleavedContent.ImageContentItem) = apply {
-            body.addContentBatch(imageContentItem)
-        }
-
-        /**
-         * Alias for calling [addContentBatch] with
-         * `InterleavedContent.ofTextContentItem(textContentItem)`.
-         */
-        fun addContentBatch(textContentItem: InterleavedContent.TextContentItem) = apply {
-            body.addContentBatch(textContentItem)
-        }
-
-        /** Alias for calling [addContentBatch] with `InterleavedContent.ofItems(items)`. */
-        fun addContentBatchOfItems(items: List<InterleavedContentItem>) = apply {
-            body.addContentBatchOfItems(items)
-        }
-
-        fun model(model: String) = apply { body.model(model) }
-
-        /**
-         * Sets [Builder.model] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.model] with a well-typed [String] value instead. This
-         * method is primarily for setting the field to an undocumented or not yet supported value.
-         */
-        fun model(model: JsonField<String>) = apply { body.model(model) }
-
-        fun logprobs(logprobs: Logprobs) = apply { body.logprobs(logprobs) }
-
-        /**
-         * Sets [Builder.logprobs] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.logprobs] with a well-typed [Logprobs] value instead.
-         * This method is primarily for setting the field to an undocumented or not yet supported
-         * value.
-         */
-        fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
-
-        /** Configuration for JSON schema-guided response generation. */
-        fun responseFormat(responseFormat: ResponseFormat) = apply {
-            body.responseFormat(responseFormat)
-        }
-
-        /**
-         * Sets [Builder.responseFormat] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.responseFormat] with a well-typed [ResponseFormat] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun responseFormat(responseFormat: JsonField<ResponseFormat>) = apply {
-            body.responseFormat(responseFormat)
-        }
-
-        /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
-        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
-            body.responseFormat(jsonSchema)
-        }
-
-        /**
-         * Alias for calling [responseFormat] with the following:
-         * ```kotlin
-         * ResponseFormat.JsonSchemaResponseFormat.builder()
-         *     .jsonSchema(jsonSchema)
-         *     .build()
-         * ```
-         */
-        fun jsonSchemaResponseFormat(
-            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-        ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
-
-        /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
-            body.responseFormat(grammar)
-        }
-
-        /**
-         * Alias for calling [responseFormat] with the following:
-         * ```kotlin
-         * ResponseFormat.GrammarResponseFormat.builder()
-         *     .bnf(bnf)
-         *     .build()
-         * ```
-         */
-        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
-            body.grammarResponseFormat(bnf)
-        }
-
-        fun samplingParams(samplingParams: SamplingParams) = apply {
-            body.samplingParams(samplingParams)
-        }
-
-        /**
-         * Sets [Builder.samplingParams] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.samplingParams] with a well-typed [SamplingParams] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun samplingParams(samplingParams: JsonField<SamplingParams>) = apply {
-            body.samplingParams(samplingParams)
-        }
-
-        fun additionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) = apply {
-            body.additionalProperties(additionalBodyProperties)
-        }
-
-        fun putAdditionalBodyProperty(key: String, value: JsonValue) = apply {
-            body.putAdditionalProperty(key, value)
-        }
-
-        fun putAllAdditionalBodyProperties(additionalBodyProperties: Map<String, JsonValue>) =
-            apply {
-                body.putAllAdditionalProperties(additionalBodyProperties)
-            }
-
-        fun removeAdditionalBodyProperty(key: String) = apply { body.removeAdditionalProperty(key) }
-
-        fun removeAllAdditionalBodyProperties(keys: Set<String>) = apply {
-            body.removeAllAdditionalProperties(keys)
-        }
-
-        fun additionalHeaders(additionalHeaders: Headers) = apply {
-            this.additionalHeaders.clear()
-            putAllAdditionalHeaders(additionalHeaders)
-        }
-
-        fun additionalHeaders(additionalHeaders: Map<String, Iterable<String>>) = apply {
-            this.additionalHeaders.clear()
-            putAllAdditionalHeaders(additionalHeaders)
-        }
-
-        fun putAdditionalHeader(name: String, value: String) = apply {
-            additionalHeaders.put(name, value)
-        }
-
-        fun putAdditionalHeaders(name: String, values: Iterable<String>) = apply {
-            additionalHeaders.put(name, values)
-        }
-
-        fun putAllAdditionalHeaders(additionalHeaders: Headers) = apply {
-            this.additionalHeaders.putAll(additionalHeaders)
-        }
-
-        fun putAllAdditionalHeaders(additionalHeaders: Map<String, Iterable<String>>) = apply {
-            this.additionalHeaders.putAll(additionalHeaders)
-        }
-
-        fun replaceAdditionalHeaders(name: String, value: String) = apply {
-            additionalHeaders.replace(name, value)
-        }
-
-        fun replaceAdditionalHeaders(name: String, values: Iterable<String>) = apply {
-            additionalHeaders.replace(name, values)
-        }
-
-        fun replaceAllAdditionalHeaders(additionalHeaders: Headers) = apply {
-            this.additionalHeaders.replaceAll(additionalHeaders)
-        }
-
-        fun replaceAllAdditionalHeaders(additionalHeaders: Map<String, Iterable<String>>) = apply {
-            this.additionalHeaders.replaceAll(additionalHeaders)
-        }
-
-        fun removeAdditionalHeaders(name: String) = apply { additionalHeaders.remove(name) }
-
-        fun removeAllAdditionalHeaders(names: Set<String>) = apply {
-            additionalHeaders.removeAll(names)
-        }
-
-        fun additionalQueryParams(additionalQueryParams: QueryParams) = apply {
-            this.additionalQueryParams.clear()
-            putAllAdditionalQueryParams(additionalQueryParams)
-        }
-
-        fun additionalQueryParams(additionalQueryParams: Map<String, Iterable<String>>) = apply {
-            this.additionalQueryParams.clear()
-            putAllAdditionalQueryParams(additionalQueryParams)
-        }
-
-        fun putAdditionalQueryParam(key: String, value: String) = apply {
-            additionalQueryParams.put(key, value)
-        }
-
-        fun putAdditionalQueryParams(key: String, values: Iterable<String>) = apply {
-            additionalQueryParams.put(key, values)
-        }
-
-        fun putAllAdditionalQueryParams(additionalQueryParams: QueryParams) = apply {
-            this.additionalQueryParams.putAll(additionalQueryParams)
-        }
-
-        fun putAllAdditionalQueryParams(additionalQueryParams: Map<String, Iterable<String>>) =
-            apply {
-                this.additionalQueryParams.putAll(additionalQueryParams)
-            }
-
-        fun replaceAdditionalQueryParams(key: String, value: String) = apply {
-            additionalQueryParams.replace(key, value)
-        }
-
-        fun replaceAdditionalQueryParams(key: String, values: Iterable<String>) = apply {
-            additionalQueryParams.replace(key, values)
-        }
-
-        fun replaceAllAdditionalQueryParams(additionalQueryParams: QueryParams) = apply {
-            this.additionalQueryParams.replaceAll(additionalQueryParams)
-        }
-
-        fun replaceAllAdditionalQueryParams(additionalQueryParams: Map<String, Iterable<String>>) =
-            apply {
-                this.additionalQueryParams.replaceAll(additionalQueryParams)
-            }
-
-        fun removeAdditionalQueryParams(key: String) = apply { additionalQueryParams.remove(key) }
-
-        fun removeAllAdditionalQueryParams(keys: Set<String>) = apply {
-            additionalQueryParams.removeAll(keys)
-        }
-
-        fun build(): BatchInferenceCompletionParams =
-            BatchInferenceCompletionParams(
-                body.build(),
-                additionalHeaders.build(),
-                additionalQueryParams.build(),
-            )
-    }
-
-    @NoAutoDetect
     class Logprobs
-    @JsonCreator
     private constructor(
-        @JsonProperty("top_k") @ExcludeMissing private val topK: JsonField<Long> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val topK: JsonField<Long>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("top_k") @ExcludeMissing topK: JsonField<Long> = JsonMissing.of()
+        ) : this(topK, mutableMapOf())
 
         /**
          * How many tokens (for each position) to return log probabilities for.
@@ -759,20 +836,15 @@ private constructor(
          */
         @JsonProperty("top_k") @ExcludeMissing fun _topK(): JsonField<Long> = topK
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Logprobs = apply {
-            if (validated) {
-                return@apply
-            }
-
-            topK()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -824,8 +896,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
-            fun build(): Logprobs = Logprobs(topK, additionalProperties.toImmutable())
+            /**
+             * Returns an immutable instance of [Logprobs].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
+            fun build(): Logprobs = Logprobs(topK, additionalProperties.toMutableMap())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Logprobs = apply {
+            if (validated) {
+                return@apply
+            }
+
+            topK()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = (if (topK.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

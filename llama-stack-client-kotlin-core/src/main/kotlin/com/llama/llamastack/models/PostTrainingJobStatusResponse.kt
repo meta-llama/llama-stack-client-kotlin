@@ -11,43 +11,56 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
 /** Status of a finetuning job. */
-@NoAutoDetect
 class PostTrainingJobStatusResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("checkpoints")
-    @ExcludeMissing
-    private val checkpoints: JsonField<List<JsonValue>> = JsonMissing.of(),
-    @JsonProperty("job_uuid")
-    @ExcludeMissing
-    private val jobUuid: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("status")
-    @ExcludeMissing
-    private val status: JsonField<Status> = JsonMissing.of(),
-    @JsonProperty("completed_at")
-    @ExcludeMissing
-    private val completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("resources_allocated")
-    @ExcludeMissing
-    private val resourcesAllocated: JsonField<ResourcesAllocated> = JsonMissing.of(),
-    @JsonProperty("scheduled_at")
-    @ExcludeMissing
-    private val scheduledAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("started_at")
-    @ExcludeMissing
-    private val startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val checkpoints: JsonField<List<JsonValue>>,
+    private val jobUuid: JsonField<String>,
+    private val status: JsonField<Status>,
+    private val completedAt: JsonField<OffsetDateTime>,
+    private val resourcesAllocated: JsonField<ResourcesAllocated>,
+    private val scheduledAt: JsonField<OffsetDateTime>,
+    private val startedAt: JsonField<OffsetDateTime>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("checkpoints")
+        @ExcludeMissing
+        checkpoints: JsonField<List<JsonValue>> = JsonMissing.of(),
+        @JsonProperty("job_uuid") @ExcludeMissing jobUuid: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("status") @ExcludeMissing status: JsonField<Status> = JsonMissing.of(),
+        @JsonProperty("completed_at")
+        @ExcludeMissing
+        completedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("resources_allocated")
+        @ExcludeMissing
+        resourcesAllocated: JsonField<ResourcesAllocated> = JsonMissing.of(),
+        @JsonProperty("scheduled_at")
+        @ExcludeMissing
+        scheduledAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("started_at")
+        @ExcludeMissing
+        startedAt: JsonField<OffsetDateTime> = JsonMissing.of(),
+    ) : this(
+        checkpoints,
+        jobUuid,
+        status,
+        completedAt,
+        resourcesAllocated,
+        scheduledAt,
+        startedAt,
+        mutableMapOf(),
+    )
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -152,26 +165,15 @@ private constructor(
     @ExcludeMissing
     fun _startedAt(): JsonField<OffsetDateTime> = startedAt
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): PostTrainingJobStatusResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        checkpoints()
-        jobUuid()
-        status()
-        completedAt()
-        resourcesAllocated()?.validate()
-        scheduledAt()
-        startedAt()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -329,6 +331,20 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [PostTrainingJobStatusResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .checkpoints()
+         * .jobUuid()
+         * .status()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): PostTrainingJobStatusResponse =
             PostTrainingJobStatusResponse(
                 checkRequired("checkpoints", checkpoints).map { it.toImmutable() },
@@ -338,9 +354,48 @@ private constructor(
                 resourcesAllocated,
                 scheduledAt,
                 startedAt,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): PostTrainingJobStatusResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        checkpoints()
+        jobUuid()
+        status().validate()
+        completedAt()
+        resourcesAllocated()?.validate()
+        scheduledAt()
+        startedAt()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (checkpoints.asKnown()?.size ?: 0) +
+            (if (jobUuid.asKnown() == null) 0 else 1) +
+            (status.asKnown()?.validity() ?: 0) +
+            (if (completedAt.asKnown() == null) 0 else 1) +
+            (resourcesAllocated.asKnown()?.validity() ?: 0) +
+            (if (scheduledAt.asKnown() == null) 0 else 1) +
+            (if (startedAt.asKnown() == null) 0 else 1)
 
     class Status @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
@@ -364,6 +419,8 @@ private constructor(
 
             val SCHEDULED = of("scheduled")
 
+            val CANCELLED = of("cancelled")
+
             fun of(value: String) = Status(JsonField.of(value))
         }
 
@@ -373,6 +430,7 @@ private constructor(
             IN_PROGRESS,
             FAILED,
             SCHEDULED,
+            CANCELLED,
         }
 
         /**
@@ -389,6 +447,7 @@ private constructor(
             IN_PROGRESS,
             FAILED,
             SCHEDULED,
+            CANCELLED,
             /** An enum member indicating that [Status] was instantiated with an unknown value. */
             _UNKNOWN,
         }
@@ -406,6 +465,7 @@ private constructor(
                 IN_PROGRESS -> Value.IN_PROGRESS
                 FAILED -> Value.FAILED
                 SCHEDULED -> Value.SCHEDULED
+                CANCELLED -> Value.CANCELLED
                 else -> Value._UNKNOWN
             }
 
@@ -424,6 +484,7 @@ private constructor(
                 IN_PROGRESS -> Known.IN_PROGRESS
                 FAILED -> Known.FAILED
                 SCHEDULED -> Known.SCHEDULED
+                CANCELLED -> Known.CANCELLED
                 else -> throw LlamaStackClientInvalidDataException("Unknown Status: $value")
             }
 
@@ -440,6 +501,33 @@ private constructor(
             _value().asString()
                 ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+        private var validated: Boolean = false
+
+        fun validate(): Status = apply {
+            if (validated) {
+                return@apply
+            }
+
+            known()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
         override fun equals(other: Any?): Boolean {
             if (this === other) {
                 return true
@@ -453,27 +541,16 @@ private constructor(
         override fun toString() = value.toString()
     }
 
-    @NoAutoDetect
     class ResourcesAllocated
     @JsonCreator
     private constructor(
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
     ) {
 
         @JsonAnyGetter
         @ExcludeMissing
         fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ResourcesAllocated = apply {
-            if (validated) {
-                return@apply
-            }
-
-            validated = true
-        }
 
         fun toBuilder() = Builder().from(this)
 
@@ -511,8 +588,40 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ResourcesAllocated].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): ResourcesAllocated = ResourcesAllocated(additionalProperties.toImmutable())
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ResourcesAllocated = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

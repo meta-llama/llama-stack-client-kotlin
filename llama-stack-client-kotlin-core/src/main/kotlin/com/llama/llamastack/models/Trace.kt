@@ -10,32 +10,34 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
-import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class Trace
-@JsonCreator
 private constructor(
-    @JsonProperty("root_span_id")
-    @ExcludeMissing
-    private val rootSpanId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("start_time")
-    @ExcludeMissing
-    private val startTime: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonProperty("trace_id")
-    @ExcludeMissing
-    private val traceId: JsonField<String> = JsonMissing.of(),
-    @JsonProperty("end_time")
-    @ExcludeMissing
-    private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val rootSpanId: JsonField<String>,
+    private val startTime: JsonField<OffsetDateTime>,
+    private val traceId: JsonField<String>,
+    private val endTime: JsonField<OffsetDateTime>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("root_span_id")
+        @ExcludeMissing
+        rootSpanId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("start_time")
+        @ExcludeMissing
+        startTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+        @JsonProperty("trace_id") @ExcludeMissing traceId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("end_time")
+        @ExcludeMissing
+        endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+    ) : this(rootSpanId, startTime, traceId, endTime, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -91,23 +93,15 @@ private constructor(
      */
     @JsonProperty("end_time") @ExcludeMissing fun _endTime(): JsonField<OffsetDateTime> = endTime
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): Trace = apply {
-        if (validated) {
-            return@apply
-        }
-
-        rootSpanId()
-        startTime()
-        traceId()
-        endTime()
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -205,15 +199,62 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [Trace].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .rootSpanId()
+         * .startTime()
+         * .traceId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): Trace =
             Trace(
                 checkRequired("rootSpanId", rootSpanId),
                 checkRequired("startTime", startTime),
                 checkRequired("traceId", traceId),
                 endTime,
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
+
+    private var validated: Boolean = false
+
+    fun validate(): Trace = apply {
+        if (validated) {
+            return@apply
+        }
+
+        rootSpanId()
+        startTime()
+        traceId()
+        endTime()
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        (if (rootSpanId.asKnown() == null) 0 else 1) +
+            (if (startTime.asKnown() == null) 0 else 1) +
+            (if (traceId.asKnown() == null) 0 else 1) +
+            (if (endTime.asKnown() == null) 0 else 1)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -14,7 +15,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.ChatCompletionResponse
 import com.llama.llamastack.models.CompletionResponse
 import com.llama.llamastack.models.EmbeddingsResponse
@@ -55,8 +55,7 @@ class InferenceServiceAsyncImpl internal constructor(private val clientOptions: 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         InferenceServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val chatCompletionHandler: Handler<ChatCompletionResponse> =
             jsonHandler<ChatCompletionResponse>(clientOptions.jsonMapper)

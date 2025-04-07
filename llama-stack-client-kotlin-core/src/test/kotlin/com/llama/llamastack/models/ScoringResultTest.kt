@@ -2,14 +2,16 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.JsonValue
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ScoringResultTest {
+internal class ScoringResultTest {
 
     @Test
-    fun createScoringResult() {
+    fun create() {
         val scoringResult =
             ScoringResult.builder()
                 .aggregatedResults(
@@ -23,7 +25,7 @@ class ScoringResultTest {
                         .build()
                 )
                 .build()
-        assertThat(scoringResult).isNotNull
+
         assertThat(scoringResult.aggregatedResults())
             .isEqualTo(
                 ScoringResult.AggregatedResults.builder()
@@ -36,5 +38,31 @@ class ScoringResultTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val scoringResult =
+            ScoringResult.builder()
+                .aggregatedResults(
+                    ScoringResult.AggregatedResults.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .addScoreRow(
+                    ScoringResult.ScoreRow.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .build()
+
+        val roundtrippedScoringResult =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(scoringResult),
+                jacksonTypeRef<ScoringResult>(),
+            )
+
+        assertThat(roundtrippedScoringResult).isEqualTo(scoringResult)
     }
 }

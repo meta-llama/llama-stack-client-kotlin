@@ -6,7 +6,7 @@ import com.llama.llamastack.core.http.QueryParams
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ToolListParamsTest {
+internal class ToolListParamsTest {
 
     @Test
     fun create() {
@@ -16,15 +16,19 @@ class ToolListParamsTest {
     @Test
     fun queryParams() {
         val params = ToolListParams.builder().toolgroupId("toolgroup_id").build()
-        val expected = QueryParams.builder()
-        expected.put("toolgroup_id", "toolgroup_id")
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams)
+            .isEqualTo(QueryParams.builder().put("toolgroup_id", "toolgroup_id").build())
     }
 
     @Test
     fun queryParamsWithoutOptionalFields() {
         val params = ToolListParams.builder().build()
-        val expected = QueryParams.builder()
-        assertThat(params._queryParams()).isEqualTo(expected.build())
+
+        val queryParams = params._queryParams()
+
+        assertThat(queryParams).isEqualTo(QueryParams.builder().build())
     }
 }

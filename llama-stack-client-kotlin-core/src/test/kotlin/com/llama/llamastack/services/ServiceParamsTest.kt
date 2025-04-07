@@ -50,9 +50,10 @@ internal class ServiceParamsTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyObject()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
+                        .addStop("string")
                         .build()
                 )
                 .toolChoice(InferenceChatCompletionParams.ToolChoice.AUTO)

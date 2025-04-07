@@ -8,12 +8,11 @@ import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.ModelRegisterParams
 import com.llama.llamastack.models.ModelRetrieveParams
 import com.llama.llamastack.models.ModelUnregisterParams
-import kotlin.test.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class ModelServiceTest {
+internal class ModelServiceTest {
 
     @Test
     fun retrieve() {
@@ -23,7 +22,6 @@ class ModelServiceTest {
 
         val model = modelService.retrieve(ModelRetrieveParams.builder().modelId("model_id").build())
 
-        assertNotNull(model)
         model.validate()
     }
 

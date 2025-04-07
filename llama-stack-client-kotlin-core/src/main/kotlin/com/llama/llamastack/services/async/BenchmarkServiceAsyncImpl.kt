@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepareAsync
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.Benchmark
 import com.llama.llamastack.models.BenchmarkListParams
 import com.llama.llamastack.models.BenchmarkRegisterParams
@@ -35,7 +35,7 @@ class BenchmarkServiceAsyncImpl internal constructor(private val clientOptions: 
     override suspend fun retrieve(
         params: BenchmarkRetrieveParams,
         requestOptions: RequestOptions,
-    ): Benchmark? =
+    ): Benchmark =
         // get /v1/eval/benchmarks/{benchmark_id}
         withRawResponse().retrieve(params, requestOptions).parse()
 
@@ -54,20 +54,19 @@ class BenchmarkServiceAsyncImpl internal constructor(private val clientOptions: 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         BenchmarkServiceAsync.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
-        private val retrieveHandler: Handler<Benchmark?> =
-            jsonHandler<Benchmark?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+        private val retrieveHandler: Handler<Benchmark> =
+            jsonHandler<Benchmark>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
         override suspend fun retrieve(
             params: BenchmarkRetrieveParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<Benchmark?> {
+        ): HttpResponseFor<Benchmark> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "eval", "benchmarks", params.getPathParam(0))
+                    .addPathSegments("v1", "eval", "benchmarks", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -77,7 +76,7 @@ class BenchmarkServiceAsyncImpl internal constructor(private val clientOptions: 
                     .use { retrieveHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }

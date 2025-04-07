@@ -20,7 +20,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @ExtendWith(TestServerExtension::class)
-class TelemetryServiceAsyncTest {
+internal class TelemetryServiceAsyncTest {
 
     @Test
     suspend fun getSpan() {
@@ -119,7 +119,7 @@ class TelemetryServiceAsyncTest {
                         QueryCondition.builder()
                             .key("key")
                             .op(QueryCondition.Op.EQ)
-                            .value(QueryCondition.Value.ofBoolean(true))
+                            .value(true)
                             .build()
                     )
                     .addAttributesToReturn("string")
@@ -146,7 +146,7 @@ class TelemetryServiceAsyncTest {
                         QueryCondition.builder()
                             .key("key")
                             .op(QueryCondition.Op.EQ)
-                            .value(QueryCondition.Value.ofBoolean(true))
+                            .value(true)
                             .build()
                     )
                     .limit(0L)
@@ -169,11 +169,7 @@ class TelemetryServiceAsyncTest {
         telemetryServiceAsync.saveSpansToDataset(
             TelemetrySaveSpansToDatasetParams.builder()
                 .addAttributeFilter(
-                    QueryCondition.builder()
-                        .key("key")
-                        .op(QueryCondition.Op.EQ)
-                        .value(QueryCondition.Value.ofBoolean(true))
-                        .build()
+                    QueryCondition.builder().key("key").op(QueryCondition.Op.EQ).value(true).build()
                 )
                 .addAttributesToSave("string")
                 .datasetId("dataset_id")

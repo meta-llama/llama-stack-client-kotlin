@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking.postTraining
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
@@ -16,7 +17,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.ListPostTrainingJobsResponse
 import com.llama.llamastack.models.PostTrainingJobArtifactsParams
@@ -44,7 +44,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
     override fun artifacts(
         params: PostTrainingJobArtifactsParams,
         requestOptions: RequestOptions,
-    ): PostTrainingJobArtifactsResponse? =
+    ): PostTrainingJobArtifactsResponse =
         // get /v1/post-training/job/artifacts
         withRawResponse().artifacts(params, requestOptions).parse()
 
@@ -56,15 +56,14 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
     override fun status(
         params: PostTrainingJobStatusParams,
         requestOptions: RequestOptions,
-    ): PostTrainingJobStatusResponse? =
+    ): PostTrainingJobStatusResponse =
         // get /v1/post-training/job/status
         withRawResponse().status(params, requestOptions).parse()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         JobService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
         private val listHandler: Handler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>> =
             jsonHandler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>>(
@@ -96,14 +95,14 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             }
         }
 
-        private val artifactsHandler: Handler<PostTrainingJobArtifactsResponse?> =
-            jsonHandler<PostTrainingJobArtifactsResponse?>(clientOptions.jsonMapper)
+        private val artifactsHandler: Handler<PostTrainingJobArtifactsResponse> =
+            jsonHandler<PostTrainingJobArtifactsResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
 
         override fun artifacts(
             params: PostTrainingJobArtifactsParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<PostTrainingJobArtifactsResponse?> {
+        ): HttpResponseFor<PostTrainingJobArtifactsResponse> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
@@ -117,7 +116,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
                     .use { artifactsHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }
@@ -141,14 +140,14 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             return response.parseable { response.use { cancelHandler.handle(it) } }
         }
 
-        private val statusHandler: Handler<PostTrainingJobStatusResponse?> =
-            jsonHandler<PostTrainingJobStatusResponse?>(clientOptions.jsonMapper)
+        private val statusHandler: Handler<PostTrainingJobStatusResponse> =
+            jsonHandler<PostTrainingJobStatusResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
 
         override fun status(
             params: PostTrainingJobStatusParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<PostTrainingJobStatusResponse?> {
+        ): HttpResponseFor<PostTrainingJobStatusResponse> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
@@ -162,7 +161,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
                     .use { statusHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }

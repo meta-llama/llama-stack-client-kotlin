@@ -10,24 +10,24 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.time.OffsetDateTime
+import java.util.Collections
 import java.util.Objects
 
-@NoAutoDetect
 class QuerySpansResponse
-@JsonCreator
 private constructor(
-    @JsonProperty("data")
-    @ExcludeMissing
-    private val data: JsonField<List<Data>> = JsonMissing.of(),
-    @JsonAnySetter private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+    private val data: JsonField<List<Data>>,
+    private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
+
+    @JsonCreator
+    private constructor(
+        @JsonProperty("data") @ExcludeMissing data: JsonField<List<Data>> = JsonMissing.of()
+    ) : this(data, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -42,20 +42,15 @@ private constructor(
      */
     @JsonProperty("data") @ExcludeMissing fun _data(): JsonField<List<Data>> = data
 
+    @JsonAnySetter
+    private fun putAdditionalProperty(key: String, value: JsonValue) {
+        additionalProperties.put(key, value)
+    }
+
     @JsonAnyGetter
     @ExcludeMissing
-    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-    private var validated: Boolean = false
-
-    fun validate(): QuerySpansResponse = apply {
-        if (validated) {
-            return@apply
-        }
-
-        data().forEach { it.validate() }
-        validated = true
-    }
+    fun _additionalProperties(): Map<String, JsonValue> =
+        Collections.unmodifiableMap(additionalProperties)
 
     fun toBuilder() = Builder().from(this)
 
@@ -126,41 +121,90 @@ private constructor(
             keys.forEach(::removeAdditionalProperty)
         }
 
+        /**
+         * Returns an immutable instance of [QuerySpansResponse].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .data()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): QuerySpansResponse =
             QuerySpansResponse(
                 checkRequired("data", data).map { it.toImmutable() },
-                additionalProperties.toImmutable(),
+                additionalProperties.toMutableMap(),
             )
     }
 
-    @NoAutoDetect
+    private var validated: Boolean = false
+
+    fun validate(): QuerySpansResponse = apply {
+        if (validated) {
+            return@apply
+        }
+
+        data().forEach { it.validate() }
+        validated = true
+    }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int = (data.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
+
     class Data
-    @JsonCreator
     private constructor(
-        @JsonProperty("name")
-        @ExcludeMissing
-        private val name: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("span_id")
-        @ExcludeMissing
-        private val spanId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("start_time")
-        @ExcludeMissing
-        private val startTime: JsonField<OffsetDateTime> = JsonMissing.of(),
-        @JsonProperty("trace_id")
-        @ExcludeMissing
-        private val traceId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("attributes")
-        @ExcludeMissing
-        private val attributes: JsonField<Attributes> = JsonMissing.of(),
-        @JsonProperty("end_time")
-        @ExcludeMissing
-        private val endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
-        @JsonProperty("parent_span_id")
-        @ExcludeMissing
-        private val parentSpanId: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val name: JsonField<String>,
+        private val spanId: JsonField<String>,
+        private val startTime: JsonField<OffsetDateTime>,
+        private val traceId: JsonField<String>,
+        private val attributes: JsonField<Attributes>,
+        private val endTime: JsonField<OffsetDateTime>,
+        private val parentSpanId: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("name") @ExcludeMissing name: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("span_id") @ExcludeMissing spanId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("start_time")
+            @ExcludeMissing
+            startTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+            @JsonProperty("trace_id") @ExcludeMissing traceId: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("attributes")
+            @ExcludeMissing
+            attributes: JsonField<Attributes> = JsonMissing.of(),
+            @JsonProperty("end_time")
+            @ExcludeMissing
+            endTime: JsonField<OffsetDateTime> = JsonMissing.of(),
+            @JsonProperty("parent_span_id")
+            @ExcludeMissing
+            parentSpanId: JsonField<String> = JsonMissing.of(),
+        ) : this(
+            name,
+            spanId,
+            startTime,
+            traceId,
+            attributes,
+            endTime,
+            parentSpanId,
+            mutableMapOf(),
+        )
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -266,26 +310,15 @@ private constructor(
         @ExcludeMissing
         fun _parentSpanId(): JsonField<String> = parentSpanId
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Data = apply {
-            if (validated) {
-                return@apply
-            }
-
-            name()
-            spanId()
-            startTime()
-            traceId()
-            attributes()?.validate()
-            endTime()
-            parentSpanId()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -430,6 +463,21 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Data].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .name()
+             * .spanId()
+             * .startTime()
+             * .traceId()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Data =
                 Data(
                     checkRequired("name", name),
@@ -439,31 +487,60 @@ private constructor(
                     attributes,
                     endTime,
                     parentSpanId,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
 
-        @NoAutoDetect
+        private var validated: Boolean = false
+
+        fun validate(): Data = apply {
+            if (validated) {
+                return@apply
+            }
+
+            name()
+            spanId()
+            startTime()
+            traceId()
+            attributes()?.validate()
+            endTime()
+            parentSpanId()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (name.asKnown() == null) 0 else 1) +
+                (if (spanId.asKnown() == null) 0 else 1) +
+                (if (startTime.asKnown() == null) 0 else 1) +
+                (if (traceId.asKnown() == null) 0 else 1) +
+                (attributes.asKnown()?.validity() ?: 0) +
+                (if (endTime.asKnown() == null) 0 else 1) +
+                (if (parentSpanId.asKnown() == null) 0 else 1)
+
         class Attributes
         @JsonCreator
         private constructor(
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+            @com.fasterxml.jackson.annotation.JsonValue
+            private val additionalProperties: Map<String, JsonValue>
         ) {
 
             @JsonAnyGetter
             @ExcludeMissing
             fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): Attributes = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                validated = true
-            }
 
             fun toBuilder() = Builder().from(this)
 
@@ -504,8 +581,40 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [Attributes].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 */
                 fun build(): Attributes = Attributes(additionalProperties.toImmutable())
             }
+
+            private var validated: Boolean = false
+
+            fun validate(): Attributes = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {

@@ -19,13 +19,12 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 @JsonDeserialize(using = AlgorithmConfig.Deserializer::class)
@@ -51,13 +50,12 @@ private constructor(
 
     fun _json(): JsonValue? = _json
 
-    fun <T> accept(visitor: Visitor<T>): T {
-        return when {
+    fun <T> accept(visitor: Visitor<T>): T =
+        when {
             loraFinetuning != null -> visitor.visitLoraFinetuning(loraFinetuning)
             qatFinetuning != null -> visitor.visitQatFinetuning(qatFinetuning)
             else -> visitor.unknown(_json)
         }
-    }
 
     private var validated: Boolean = false
 
@@ -79,6 +77,32 @@ private constructor(
         )
         validated = true
     }
+
+    fun isValid(): Boolean =
+        try {
+            validate()
+            true
+        } catch (e: LlamaStackClientInvalidDataException) {
+            false
+        }
+
+    /**
+     * Returns a score indicating how many valid values are contained in this object recursively.
+     *
+     * Used for best match union deserialization.
+     */
+    internal fun validity(): Int =
+        accept(
+            object : Visitor<Int> {
+                override fun visitLoraFinetuning(loraFinetuning: LoraFinetuningConfig) =
+                    loraFinetuning.validity()
+
+                override fun visitQatFinetuning(qatFinetuning: QatFinetuningConfig) =
+                    qatFinetuning.validity()
+
+                override fun unknown(json: JsonValue?) = 0
+            }
+        )
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
@@ -140,16 +164,14 @@ private constructor(
 
             when (type) {
                 "LoRA" -> {
-                    tryDeserialize(node, jacksonTypeRef<LoraFinetuningConfig>()) { it.validate() }
-                        ?.let {
-                            return AlgorithmConfig(loraFinetuning = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<LoraFinetuningConfig>())?.let {
+                        AlgorithmConfig(loraFinetuning = it, _json = json)
+                    } ?: AlgorithmConfig(_json = json)
                 }
                 "QAT" -> {
-                    tryDeserialize(node, jacksonTypeRef<QatFinetuningConfig>()) { it.validate() }
-                        ?.let {
-                            return AlgorithmConfig(qatFinetuning = it, _json = json)
-                        }
+                    return tryDeserialize(node, jacksonTypeRef<QatFinetuningConfig>())?.let {
+                        AlgorithmConfig(qatFinetuning = it, _json = json)
+                    } ?: AlgorithmConfig(_json = json)
                 }
             }
 
@@ -173,33 +195,48 @@ private constructor(
         }
     }
 
-    @NoAutoDetect
     class LoraFinetuningConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("alpha")
-        @ExcludeMissing
-        private val alpha: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("apply_lora_to_mlp")
-        @ExcludeMissing
-        private val applyLoraToMlp: JsonField<Boolean> = JsonMissing.of(),
-        @JsonProperty("apply_lora_to_output")
-        @ExcludeMissing
-        private val applyLoraToOutput: JsonField<Boolean> = JsonMissing.of(),
-        @JsonProperty("lora_attn_modules")
-        @ExcludeMissing
-        private val loraAttnModules: JsonField<List<String>> = JsonMissing.of(),
-        @JsonProperty("rank") @ExcludeMissing private val rank: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonProperty("quantize_base")
-        @ExcludeMissing
-        private val quantizeBase: JsonField<Boolean> = JsonMissing.of(),
-        @JsonProperty("use_dora")
-        @ExcludeMissing
-        private val useDora: JsonField<Boolean> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val alpha: JsonField<Long>,
+        private val applyLoraToMlp: JsonField<Boolean>,
+        private val applyLoraToOutput: JsonField<Boolean>,
+        private val loraAttnModules: JsonField<List<String>>,
+        private val rank: JsonField<Long>,
+        private val type: JsonValue,
+        private val quantizeBase: JsonField<Boolean>,
+        private val useDora: JsonField<Boolean>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("alpha") @ExcludeMissing alpha: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("apply_lora_to_mlp")
+            @ExcludeMissing
+            applyLoraToMlp: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("apply_lora_to_output")
+            @ExcludeMissing
+            applyLoraToOutput: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("lora_attn_modules")
+            @ExcludeMissing
+            loraAttnModules: JsonField<List<String>> = JsonMissing.of(),
+            @JsonProperty("rank") @ExcludeMissing rank: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+            @JsonProperty("quantize_base")
+            @ExcludeMissing
+            quantizeBase: JsonField<Boolean> = JsonMissing.of(),
+            @JsonProperty("use_dora") @ExcludeMissing useDora: JsonField<Boolean> = JsonMissing.of(),
+        ) : this(
+            alpha,
+            applyLoraToMlp,
+            applyLoraToOutput,
+            loraAttnModules,
+            rank,
+            type,
+            quantizeBase,
+            useDora,
+            mutableMapOf(),
+        )
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -320,31 +357,15 @@ private constructor(
          */
         @JsonProperty("use_dora") @ExcludeMissing fun _useDora(): JsonField<Boolean> = useDora
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): LoraFinetuningConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            alpha()
-            applyLoraToMlp()
-            applyLoraToOutput()
-            loraAttnModules()
-            rank()
-            _type().let {
-                if (it != JsonValue.from("LoRA")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            quantizeBase()
-            useDora()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -523,6 +544,22 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [LoraFinetuningConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .alpha()
+             * .applyLoraToMlp()
+             * .applyLoraToOutput()
+             * .loraAttnModules()
+             * .rank()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): LoraFinetuningConfig =
                 LoraFinetuningConfig(
                     checkRequired("alpha", alpha),
@@ -533,9 +570,55 @@ private constructor(
                     type,
                     quantizeBase,
                     useDora,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): LoraFinetuningConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            alpha()
+            applyLoraToMlp()
+            applyLoraToOutput()
+            loraAttnModules()
+            rank()
+            _type().let {
+                if (it != JsonValue.from("LoRA")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            quantizeBase()
+            useDora()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (alpha.asKnown() == null) 0 else 1) +
+                (if (applyLoraToMlp.asKnown() == null) 0 else 1) +
+                (if (applyLoraToOutput.asKnown() == null) 0 else 1) +
+                (loraAttnModules.asKnown()?.size ?: 0) +
+                (if (rank.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("LoRA")) 1 else 0 } +
+                (if (quantizeBase.asKnown() == null) 0 else 1) +
+                (if (useDora.asKnown() == null) 0 else 1)
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -555,20 +638,24 @@ private constructor(
             "LoraFinetuningConfig{alpha=$alpha, applyLoraToMlp=$applyLoraToMlp, applyLoraToOutput=$applyLoraToOutput, loraAttnModules=$loraAttnModules, rank=$rank, type=$type, quantizeBase=$quantizeBase, useDora=$useDora, additionalProperties=$additionalProperties}"
     }
 
-    @NoAutoDetect
     class QatFinetuningConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("group_size")
-        @ExcludeMissing
-        private val groupSize: JsonField<Long> = JsonMissing.of(),
-        @JsonProperty("quantizer_name")
-        @ExcludeMissing
-        private val quantizerName: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing private val type: JsonValue = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val groupSize: JsonField<Long>,
+        private val quantizerName: JsonField<String>,
+        private val type: JsonValue,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("group_size")
+            @ExcludeMissing
+            groupSize: JsonField<Long> = JsonMissing.of(),
+            @JsonProperty("quantizer_name")
+            @ExcludeMissing
+            quantizerName: JsonField<String> = JsonMissing.of(),
+            @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        ) : this(groupSize, quantizerName, type, mutableMapOf())
 
         /**
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
@@ -612,26 +699,15 @@ private constructor(
         @ExcludeMissing
         fun _quantizerName(): JsonField<String> = quantizerName
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): QatFinetuningConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            groupSize()
-            quantizerName()
-            _type().let {
-                if (it != JsonValue.from("QAT")) {
-                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
-                }
-            }
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -721,14 +797,63 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [QatFinetuningConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .groupSize()
+             * .quantizerName()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): QatFinetuningConfig =
                 QatFinetuningConfig(
                     checkRequired("groupSize", groupSize),
                     checkRequired("quantizerName", quantizerName),
                     type,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): QatFinetuningConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            groupSize()
+            quantizerName()
+            _type().let {
+                if (it != JsonValue.from("QAT")) {
+                    throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
+                }
+            }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (if (groupSize.asKnown() == null) 0 else 1) +
+                (if (quantizerName.asKnown() == null) 0 else 1) +
+                type.let { if (it == JsonValue.from("QAT")) 1 else 0 }
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {

@@ -20,16 +20,16 @@ import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
+import com.llama.llamastack.core.allMaxBy
 import com.llama.llamastack.core.checkKnown
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.getOrThrow
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
-import com.llama.llamastack.core.immutableEmptyMap
 import com.llama.llamastack.core.toImmutable
 import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
+import java.util.Collections
 import java.util.Objects
 
 /** Create a new turn for an agent. */
@@ -114,323 +114,6 @@ private constructor(
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
 
-    internal fun _body(): Body = body
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> agentId
-            1 -> sessionId
-            else -> ""
-        }
-    }
-
-    @NoAutoDetect
-    class Body
-    @JsonCreator
-    private constructor(
-        @JsonProperty("messages")
-        @ExcludeMissing
-        private val messages: JsonField<List<Message>> = JsonMissing.of(),
-        @JsonProperty("documents")
-        @ExcludeMissing
-        private val documents: JsonField<List<Document>> = JsonMissing.of(),
-        @JsonProperty("tool_config")
-        @ExcludeMissing
-        private val toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
-        @JsonProperty("toolgroups")
-        @ExcludeMissing
-        private val toolgroups: JsonField<List<Toolgroup>> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
-    ) {
-
-        /**
-         * List of messages to start the turn with.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
-         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
-         *   value).
-         */
-        fun messages(): List<Message> = messages.getRequired("messages")
-
-        /**
-         * (Optional) List of documents to create the turn with.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun documents(): List<Document>? = documents.getNullable("documents")
-
-        /**
-         * (Optional) The tool configuration to create the turn with, will be used to override the
-         * agent's tool_config.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
-
-        /**
-         * (Optional) List of toolgroups to create the turn with, will be used in addition to the
-         * agent's config toolgroups for the request.
-         *
-         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
-         *   (e.g. if the server responded with an unexpected value).
-         */
-        fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
-
-        /**
-         * Returns the raw JSON value of [messages].
-         *
-         * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("messages")
-        @ExcludeMissing
-        fun _messages(): JsonField<List<Message>> = messages
-
-        /**
-         * Returns the raw JSON value of [documents].
-         *
-         * Unlike [documents], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("documents")
-        @ExcludeMissing
-        fun _documents(): JsonField<List<Document>> = documents
-
-        /**
-         * Returns the raw JSON value of [toolConfig].
-         *
-         * Unlike [toolConfig], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("tool_config")
-        @ExcludeMissing
-        fun _toolConfig(): JsonField<ToolConfig> = toolConfig
-
-        /**
-         * Returns the raw JSON value of [toolgroups].
-         *
-         * Unlike [toolgroups], this method doesn't throw if the JSON field has an unexpected type.
-         */
-        @JsonProperty("toolgroups")
-        @ExcludeMissing
-        fun _toolgroups(): JsonField<List<Toolgroup>> = toolgroups
-
-        @JsonAnyGetter
-        @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Body = apply {
-            if (validated) {
-                return@apply
-            }
-
-            messages().forEach { it.validate() }
-            documents()?.forEach { it.validate() }
-            toolConfig()?.validate()
-            toolgroups()?.forEach { it.validate() }
-            validated = true
-        }
-
-        fun toBuilder() = Builder().from(this)
-
-        companion object {
-
-            /**
-             * Returns a mutable builder for constructing an instance of [Body].
-             *
-             * The following fields are required:
-             * ```kotlin
-             * .messages()
-             * ```
-             */
-            fun builder() = Builder()
-        }
-
-        /** A builder for [Body]. */
-        class Builder internal constructor() {
-
-            private var messages: JsonField<MutableList<Message>>? = null
-            private var documents: JsonField<MutableList<Document>>? = null
-            private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
-            private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
-            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
-
-            internal fun from(body: Body) = apply {
-                messages = body.messages.map { it.toMutableList() }
-                documents = body.documents.map { it.toMutableList() }
-                toolConfig = body.toolConfig
-                toolgroups = body.toolgroups.map { it.toMutableList() }
-                additionalProperties = body.additionalProperties.toMutableMap()
-            }
-
-            /** List of messages to start the turn with. */
-            fun messages(messages: List<Message>) = messages(JsonField.of(messages))
-
-            /**
-             * Sets [Builder.messages] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.messages] with a well-typed `List<Message>` value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun messages(messages: JsonField<List<Message>>) = apply {
-                this.messages = messages.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Message] to [messages].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addMessage(message: Message) = apply {
-                messages =
-                    (messages ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("messages", it).add(message)
-                    }
-            }
-
-            /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
-            fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
-
-            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
-            fun addMessage(toolResponse: ToolResponseMessage) =
-                addMessage(Message.ofToolResponse(toolResponse))
-
-            /** (Optional) List of documents to create the turn with. */
-            fun documents(documents: List<Document>) = documents(JsonField.of(documents))
-
-            /**
-             * Sets [Builder.documents] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.documents] with a well-typed `List<Document>` value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun documents(documents: JsonField<List<Document>>) = apply {
-                this.documents = documents.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Document] to [documents].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addDocument(document: Document) = apply {
-                documents =
-                    (documents ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("documents", it).add(document)
-                    }
-            }
-
-            /**
-             * (Optional) The tool configuration to create the turn with, will be used to override
-             * the agent's tool_config.
-             */
-            fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
-
-            /**
-             * Sets [Builder.toolConfig] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.toolConfig] with a well-typed [ToolConfig] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
-             */
-            fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply {
-                this.toolConfig = toolConfig
-            }
-
-            /**
-             * (Optional) List of toolgroups to create the turn with, will be used in addition to
-             * the agent's config toolgroups for the request.
-             */
-            fun toolgroups(toolgroups: List<Toolgroup>) = toolgroups(JsonField.of(toolgroups))
-
-            /**
-             * Sets [Builder.toolgroups] to an arbitrary JSON value.
-             *
-             * You should usually call [Builder.toolgroups] with a well-typed `List<Toolgroup>`
-             * value instead. This method is primarily for setting the field to an undocumented or
-             * not yet supported value.
-             */
-            fun toolgroups(toolgroups: JsonField<List<Toolgroup>>) = apply {
-                this.toolgroups = toolgroups.map { it.toMutableList() }
-            }
-
-            /**
-             * Adds a single [Toolgroup] to [toolgroups].
-             *
-             * @throws IllegalStateException if the field was previously set to a non-list.
-             */
-            fun addToolgroup(toolgroup: Toolgroup) = apply {
-                toolgroups =
-                    (toolgroups ?: JsonField.of(mutableListOf())).also {
-                        checkKnown("toolgroups", it).add(toolgroup)
-                    }
-            }
-
-            /** Alias for calling [addToolgroup] with `Toolgroup.ofString(string)`. */
-            fun addToolgroup(string: String) = addToolgroup(Toolgroup.ofString(string))
-
-            /**
-             * Alias for calling [addToolgroup] with
-             * `Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs)`.
-             */
-            fun addToolgroup(agentToolGroupWithArgs: Toolgroup.AgentToolGroupWithArgs) =
-                addToolgroup(Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs))
-
-            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.clear()
-                putAllAdditionalProperties(additionalProperties)
-            }
-
-            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
-                additionalProperties.put(key, value)
-            }
-
-            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
-                this.additionalProperties.putAll(additionalProperties)
-            }
-
-            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
-
-            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
-                keys.forEach(::removeAdditionalProperty)
-            }
-
-            fun build(): Body =
-                Body(
-                    checkRequired("messages", messages).map { it.toImmutable() },
-                    (documents ?: JsonMissing.of()).map { it.toImmutable() },
-                    toolConfig,
-                    (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
-                    additionalProperties.toImmutable(),
-                )
-        }
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is Body && messages == other.messages && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
-        }
-
-        /* spotless:off */
-        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolConfig, toolgroups, additionalProperties) }
-        /* spotless:on */
-
-        override fun hashCode(): Int = hashCode
-
-        override fun toString() =
-            "Body{messages=$messages, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
-    }
-
     fun toBuilder() = Builder().from(this)
 
     companion object {
@@ -449,7 +132,6 @@ private constructor(
     }
 
     /** A builder for [AgentTurnCreateParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var agentId: String? = null
@@ -469,6 +151,18 @@ private constructor(
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
+
+        /**
+         * Sets the entire request body.
+         *
+         * This is generally only useful if you are already constructing the body separately.
+         * Otherwise, it's more convenient to use the top-level setters instead:
+         * - [messages]
+         * - [documents]
+         * - [toolConfig]
+         * - [toolgroups]
+         */
+        fun body(body: Body) = apply { this.body = body.toBuilder() }
 
         /** List of messages to start the turn with. */
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
@@ -681,6 +375,20 @@ private constructor(
             additionalQueryParams.removeAll(keys)
         }
 
+        /**
+         * Returns an immutable instance of [AgentTurnCreateParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .agentId()
+         * .sessionId()
+         * .messages()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): AgentTurnCreateParams =
             AgentTurnCreateParams(
                 checkRequired("agentId", agentId),
@@ -689,6 +397,365 @@ private constructor(
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
+    }
+
+    fun _body(): Body = body
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> agentId
+            1 -> sessionId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
+
+    class Body
+    private constructor(
+        private val messages: JsonField<List<Message>>,
+        private val documents: JsonField<List<Document>>,
+        private val toolConfig: JsonField<ToolConfig>,
+        private val toolgroups: JsonField<List<Toolgroup>>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
+    ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("messages")
+            @ExcludeMissing
+            messages: JsonField<List<Message>> = JsonMissing.of(),
+            @JsonProperty("documents")
+            @ExcludeMissing
+            documents: JsonField<List<Document>> = JsonMissing.of(),
+            @JsonProperty("tool_config")
+            @ExcludeMissing
+            toolConfig: JsonField<ToolConfig> = JsonMissing.of(),
+            @JsonProperty("toolgroups")
+            @ExcludeMissing
+            toolgroups: JsonField<List<Toolgroup>> = JsonMissing.of(),
+        ) : this(messages, documents, toolConfig, toolgroups, mutableMapOf())
+
+        /**
+         * List of messages to start the turn with.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
+         *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
+         *   value).
+         */
+        fun messages(): List<Message> = messages.getRequired("messages")
+
+        /**
+         * (Optional) List of documents to create the turn with.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun documents(): List<Document>? = documents.getNullable("documents")
+
+        /**
+         * (Optional) The tool configuration to create the turn with, will be used to override the
+         * agent's tool_config.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun toolConfig(): ToolConfig? = toolConfig.getNullable("tool_config")
+
+        /**
+         * (Optional) List of toolgroups to create the turn with, will be used in addition to the
+         * agent's config toolgroups for the request.
+         *
+         * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
+         *   (e.g. if the server responded with an unexpected value).
+         */
+        fun toolgroups(): List<Toolgroup>? = toolgroups.getNullable("toolgroups")
+
+        /**
+         * Returns the raw JSON value of [messages].
+         *
+         * Unlike [messages], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("messages")
+        @ExcludeMissing
+        fun _messages(): JsonField<List<Message>> = messages
+
+        /**
+         * Returns the raw JSON value of [documents].
+         *
+         * Unlike [documents], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("documents")
+        @ExcludeMissing
+        fun _documents(): JsonField<List<Document>> = documents
+
+        /**
+         * Returns the raw JSON value of [toolConfig].
+         *
+         * Unlike [toolConfig], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("tool_config")
+        @ExcludeMissing
+        fun _toolConfig(): JsonField<ToolConfig> = toolConfig
+
+        /**
+         * Returns the raw JSON value of [toolgroups].
+         *
+         * Unlike [toolgroups], this method doesn't throw if the JSON field has an unexpected type.
+         */
+        @JsonProperty("toolgroups")
+        @ExcludeMissing
+        fun _toolgroups(): JsonField<List<Toolgroup>> = toolgroups
+
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /**
+             * Returns a mutable builder for constructing an instance of [Body].
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messages()
+             * ```
+             */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Body]. */
+        class Builder internal constructor() {
+
+            private var messages: JsonField<MutableList<Message>>? = null
+            private var documents: JsonField<MutableList<Document>>? = null
+            private var toolConfig: JsonField<ToolConfig> = JsonMissing.of()
+            private var toolgroups: JsonField<MutableList<Toolgroup>>? = null
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(body: Body) = apply {
+                messages = body.messages.map { it.toMutableList() }
+                documents = body.documents.map { it.toMutableList() }
+                toolConfig = body.toolConfig
+                toolgroups = body.toolgroups.map { it.toMutableList() }
+                additionalProperties = body.additionalProperties.toMutableMap()
+            }
+
+            /** List of messages to start the turn with. */
+            fun messages(messages: List<Message>) = messages(JsonField.of(messages))
+
+            /**
+             * Sets [Builder.messages] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.messages] with a well-typed `List<Message>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun messages(messages: JsonField<List<Message>>) = apply {
+                this.messages = messages.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Message] to [messages].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addMessage(message: Message) = apply {
+                messages =
+                    (messages ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("messages", it).add(message)
+                    }
+            }
+
+            /** Alias for calling [addMessage] with `Message.ofUser(user)`. */
+            fun addMessage(user: UserMessage) = addMessage(Message.ofUser(user))
+
+            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
+            fun addMessage(toolResponse: ToolResponseMessage) =
+                addMessage(Message.ofToolResponse(toolResponse))
+
+            /** (Optional) List of documents to create the turn with. */
+            fun documents(documents: List<Document>) = documents(JsonField.of(documents))
+
+            /**
+             * Sets [Builder.documents] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.documents] with a well-typed `List<Document>` value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun documents(documents: JsonField<List<Document>>) = apply {
+                this.documents = documents.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Document] to [documents].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addDocument(document: Document) = apply {
+                documents =
+                    (documents ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("documents", it).add(document)
+                    }
+            }
+
+            /**
+             * (Optional) The tool configuration to create the turn with, will be used to override
+             * the agent's tool_config.
+             */
+            fun toolConfig(toolConfig: ToolConfig) = toolConfig(JsonField.of(toolConfig))
+
+            /**
+             * Sets [Builder.toolConfig] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolConfig] with a well-typed [ToolConfig] value
+             * instead. This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
+             */
+            fun toolConfig(toolConfig: JsonField<ToolConfig>) = apply {
+                this.toolConfig = toolConfig
+            }
+
+            /**
+             * (Optional) List of toolgroups to create the turn with, will be used in addition to
+             * the agent's config toolgroups for the request.
+             */
+            fun toolgroups(toolgroups: List<Toolgroup>) = toolgroups(JsonField.of(toolgroups))
+
+            /**
+             * Sets [Builder.toolgroups] to an arbitrary JSON value.
+             *
+             * You should usually call [Builder.toolgroups] with a well-typed `List<Toolgroup>`
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
+             */
+            fun toolgroups(toolgroups: JsonField<List<Toolgroup>>) = apply {
+                this.toolgroups = toolgroups.map { it.toMutableList() }
+            }
+
+            /**
+             * Adds a single [Toolgroup] to [toolgroups].
+             *
+             * @throws IllegalStateException if the field was previously set to a non-list.
+             */
+            fun addToolgroup(toolgroup: Toolgroup) = apply {
+                toolgroups =
+                    (toolgroups ?: JsonField.of(mutableListOf())).also {
+                        checkKnown("toolgroups", it).add(toolgroup)
+                    }
+            }
+
+            /** Alias for calling [addToolgroup] with `Toolgroup.ofString(string)`. */
+            fun addToolgroup(string: String) = addToolgroup(Toolgroup.ofString(string))
+
+            /**
+             * Alias for calling [addToolgroup] with
+             * `Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs)`.
+             */
+            fun addToolgroup(agentToolGroupWithArgs: Toolgroup.AgentToolGroupWithArgs) =
+                addToolgroup(Toolgroup.ofAgentToolGroupWithArgs(agentToolGroupWithArgs))
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Body].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .messages()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
+            fun build(): Body =
+                Body(
+                    checkRequired("messages", messages).map { it.toImmutable() },
+                    (documents ?: JsonMissing.of()).map { it.toImmutable() },
+                    toolConfig,
+                    (toolgroups ?: JsonMissing.of()).map { it.toImmutable() },
+                    additionalProperties.toMutableMap(),
+                )
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Body = apply {
+            if (validated) {
+                return@apply
+            }
+
+            messages().forEach { it.validate() }
+            documents()?.forEach { it.validate() }
+            toolConfig()?.validate()
+            toolgroups()?.forEach { it.validate() }
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (messages.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (documents.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
+                (toolConfig.asKnown()?.validity() ?: 0) +
+                (toolgroups.asKnown()?.sumOf { it.validity().toInt() } ?: 0)
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Body && messages == other.messages && documents == other.documents && toolConfig == other.toolConfig && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(messages, documents, toolConfig, toolgroups, additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() =
+            "Body{messages=$messages, documents=$documents, toolConfig=$toolConfig, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
     }
 
     /** A message from the user in a chat conversation. */
@@ -719,13 +786,12 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 user != null -> visitor.visitUser(user)
                 toolResponse != null -> visitor.visitToolResponse(toolResponse)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -747,6 +813,32 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitUser(user: UserMessage) = user.validity()
+
+                    override fun visitToolResponse(toolResponse: ToolResponseMessage) =
+                        toolResponse.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -807,16 +899,28 @@ private constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Message {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<UserMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(user = it, _json = json)
-                    }
-                tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>()) { it.validate() }
-                    ?.let {
-                        return Message(toolResponse = it, _json = json)
-                    }
-
-                return Message(_json = json)
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<UserMessage>())?.let {
+                                Message(user = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
+                                Message(toolResponse = it, _json = json)
+                            },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants (e.g. deserializing from boolean).
+                    0 -> Message(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
+                }
             }
         }
 
@@ -838,19 +942,20 @@ private constructor(
     }
 
     /** A document to be used by an agent. */
-    @NoAutoDetect
     class Document
-    @JsonCreator
     private constructor(
-        @JsonProperty("content")
-        @ExcludeMissing
-        private val content: JsonField<Content> = JsonMissing.of(),
-        @JsonProperty("mime_type")
-        @ExcludeMissing
-        private val mimeType: JsonField<String> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val content: JsonField<Content>,
+        private val mimeType: JsonField<String>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("content") @ExcludeMissing content: JsonField<Content> = JsonMissing.of(),
+            @JsonProperty("mime_type")
+            @ExcludeMissing
+            mimeType: JsonField<String> = JsonMissing.of(),
+        ) : this(content, mimeType, mutableMapOf())
 
         /**
          * The content of the document.
@@ -884,21 +989,15 @@ private constructor(
          */
         @JsonProperty("mime_type") @ExcludeMissing fun _mimeType(): JsonField<String> = mimeType
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): Document = apply {
-            if (validated) {
-                return@apply
-            }
-
-            content().validate()
-            mimeType()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -994,13 +1093,55 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [Document].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             *
+             * The following fields are required:
+             * ```kotlin
+             * .content()
+             * .mimeType()
+             * ```
+             *
+             * @throws IllegalStateException if any required field is unset.
+             */
             fun build(): Document =
                 Document(
                     checkRequired("content", content),
                     checkRequired("mimeType", mimeType),
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): Document = apply {
+            if (validated) {
+                return@apply
+            }
+
+            content().validate()
+            mimeType()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (content.asKnown()?.validity() ?: 0) + (if (mimeType.asKnown() == null) 0 else 1)
 
         /** The content of the document. */
         @JsonDeserialize(using = Content.Deserializer::class)
@@ -1053,8 +1194,8 @@ private constructor(
 
             fun _json(): JsonValue? = _json
 
-            fun <T> accept(visitor: Visitor<T>): T {
-                return when {
+            fun <T> accept(visitor: Visitor<T>): T =
+                when {
                     string != null -> visitor.visitString(string)
                     imageContentItem != null -> visitor.visitImageContentItem(imageContentItem)
                     textContentItem != null -> visitor.visitTextContentItem(textContentItem)
@@ -1063,7 +1204,6 @@ private constructor(
                     url != null -> visitor.visitUrl(url)
                     else -> visitor.unknown(_json)
                 }
-            }
 
             private var validated: Boolean = false
 
@@ -1097,6 +1237,41 @@ private constructor(
                 )
                 validated = true
             }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                accept(
+                    object : Visitor<Int> {
+                        override fun visitString(string: String) = 1
+
+                        override fun visitImageContentItem(imageContentItem: ImageContentItem) =
+                            imageContentItem.validity()
+
+                        override fun visitTextContentItem(textContentItem: TextContentItem) =
+                            textContentItem.validity()
+
+                        override fun visitInterleavedContentItems(
+                            interleavedContentItems: List<InterleavedContentItem>
+                        ) = interleavedContentItems.sumOf { it.validity().toInt() }
+
+                        override fun visitUrl(url: Url) = url.validity()
+
+                        override fun unknown(json: JsonValue?) = 0
+                    }
+                )
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -1179,29 +1354,36 @@ private constructor(
                 override fun ObjectCodec.deserialize(node: JsonNode): Content {
                     val json = JsonValue.fromJsonNode(node)
 
-                    tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                        return Content(string = it, _json = json)
+                    val bestMatches =
+                        sequenceOf(
+                                tryDeserialize(node, jacksonTypeRef<ImageContentItem>())?.let {
+                                    Content(imageContentItem = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<TextContentItem>())?.let {
+                                    Content(textContentItem = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<Url>())?.let {
+                                    Content(url = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                                    Content(string = it, _json = json)
+                                },
+                                tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>())
+                                    ?.let { Content(interleavedContentItems = it, _json = json) },
+                            )
+                            .filterNotNull()
+                            .allMaxBy { it.validity() }
+                            .toList()
+                    return when (bestMatches.size) {
+                        // This can happen if what we're deserializing is completely incompatible
+                        // with all the possible variants.
+                        0 -> Content(_json = json)
+                        1 -> bestMatches.single()
+                        // If there's more than one match with the highest validity, then use the
+                        // first completely valid match, or simply the first match if none are
+                        // completely valid.
+                        else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
                     }
-                    tryDeserialize(node, jacksonTypeRef<ImageContentItem>()) { it.validate() }
-                        ?.let {
-                            return Content(imageContentItem = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<TextContentItem>()) { it.validate() }
-                        ?.let {
-                            return Content(textContentItem = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<List<InterleavedContentItem>>()) {
-                            it.forEach { it.validate() }
-                        }
-                        ?.let {
-                            return Content(interleavedContentItems = it, _json = json)
-                        }
-                    tryDeserialize(node, jacksonTypeRef<Url>()) { it.validate() }
-                        ?.let {
-                            return Content(url = it, _json = json)
-                        }
-
-                    return Content(_json = json)
                 }
             }
 
@@ -1228,19 +1410,20 @@ private constructor(
             }
 
             /** A image content item */
-            @NoAutoDetect
             class ImageContentItem
-            @JsonCreator
             private constructor(
-                @JsonProperty("image")
-                @ExcludeMissing
-                private val image: JsonField<Image> = JsonMissing.of(),
-                @JsonProperty("type")
-                @ExcludeMissing
-                private val type: JsonValue = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val image: JsonField<Image>,
+                private val type: JsonValue,
+                private val additionalProperties: MutableMap<String, JsonValue>,
             ) {
+
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("image")
+                    @ExcludeMissing
+                    image: JsonField<Image> = JsonMissing.of(),
+                    @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+                ) : this(image, type, mutableMapOf())
 
                 /**
                  * Image as a base64 encoded string or an URL
@@ -1272,27 +1455,15 @@ private constructor(
                  */
                 @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
 
+                @JsonAnySetter
+                private fun putAdditionalProperty(key: String, value: JsonValue) {
+                    additionalProperties.put(key, value)
+                }
+
                 @JsonAnyGetter
                 @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): ImageContentItem = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    image().validate()
-                    _type().let {
-                        if (it != JsonValue.from("image")) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'type' is invalid, received $it"
-                            )
-                        }
-                    }
-                    validated = true
-                }
+                fun _additionalProperties(): Map<String, JsonValue> =
+                    Collections.unmodifiableMap(additionalProperties)
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1370,28 +1541,77 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [ImageContentItem].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .image()
+                     * ```
+                     *
+                     * @throws IllegalStateException if any required field is unset.
+                     */
                     fun build(): ImageContentItem =
                         ImageContentItem(
                             checkRequired("image", image),
                             type,
-                            additionalProperties.toImmutable(),
+                            additionalProperties.toMutableMap(),
                         )
                 }
 
+                private var validated: Boolean = false
+
+                fun validate(): ImageContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    image().validate()
+                    _type().let {
+                        if (it != JsonValue.from("image")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    (image.asKnown()?.validity() ?: 0) +
+                        type.let { if (it == JsonValue.from("image")) 1 else 0 }
+
                 /** Image as a base64 encoded string or an URL */
-                @NoAutoDetect
                 class Image
-                @JsonCreator
                 private constructor(
-                    @JsonProperty("data")
-                    @ExcludeMissing
-                    private val data: JsonField<String> = JsonMissing.of(),
-                    @JsonProperty("url")
-                    @ExcludeMissing
-                    private val url: JsonField<Url> = JsonMissing.of(),
-                    @JsonAnySetter
-                    private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                    private val data: JsonField<String>,
+                    private val url: JsonField<Url>,
+                    private val additionalProperties: MutableMap<String, JsonValue>,
                 ) {
+
+                    @JsonCreator
+                    private constructor(
+                        @JsonProperty("data")
+                        @ExcludeMissing
+                        data: JsonField<String> = JsonMissing.of(),
+                        @JsonProperty("url") @ExcludeMissing url: JsonField<Url> = JsonMissing.of(),
+                    ) : this(data, url, mutableMapOf())
 
                     /**
                      * base64 encoded image data as string
@@ -1426,21 +1646,15 @@ private constructor(
                      */
                     @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<Url> = url
 
+                    @JsonAnySetter
+                    private fun putAdditionalProperty(key: String, value: JsonValue) {
+                        additionalProperties.put(key, value)
+                    }
+
                     @JsonAnyGetter
                     @ExcludeMissing
-                    fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                    private var validated: Boolean = false
-
-                    fun validate(): Image = apply {
-                        if (validated) {
-                            return@apply
-                        }
-
-                        data()
-                        url()?.validate()
-                        validated = true
-                    }
+                    fun _additionalProperties(): Map<String, JsonValue> =
+                        Collections.unmodifiableMap(additionalProperties)
 
                     fun toBuilder() = Builder().from(this)
 
@@ -1513,24 +1727,59 @@ private constructor(
                             keys.forEach(::removeAdditionalProperty)
                         }
 
-                        fun build(): Image = Image(data, url, additionalProperties.toImmutable())
+                        /**
+                         * Returns an immutable instance of [Image].
+                         *
+                         * Further updates to this [Builder] will not mutate the returned instance.
+                         */
+                        fun build(): Image = Image(data, url, additionalProperties.toMutableMap())
                     }
+
+                    private var validated: Boolean = false
+
+                    fun validate(): Image = apply {
+                        if (validated) {
+                            return@apply
+                        }
+
+                        data()
+                        url()?.validate()
+                        validated = true
+                    }
+
+                    fun isValid(): Boolean =
+                        try {
+                            validate()
+                            true
+                        } catch (e: LlamaStackClientInvalidDataException) {
+                            false
+                        }
+
+                    /**
+                     * Returns a score indicating how many valid values are contained in this object
+                     * recursively.
+                     *
+                     * Used for best match union deserialization.
+                     */
+                    internal fun validity(): Int =
+                        (if (data.asKnown() == null) 0 else 1) + (url.asKnown()?.validity() ?: 0)
 
                     /**
                      * A URL of the image or data URL in the format of
                      * data:image/{type};base64,{data}. Note that URL could have length limits.
                      */
-                    @NoAutoDetect
                     class Url
-                    @JsonCreator
                     private constructor(
-                        @JsonProperty("uri")
-                        @ExcludeMissing
-                        private val uri: JsonField<String> = JsonMissing.of(),
-                        @JsonAnySetter
-                        private val additionalProperties: Map<String, JsonValue> =
-                            immutableEmptyMap(),
+                        private val uri: JsonField<String>,
+                        private val additionalProperties: MutableMap<String, JsonValue>,
                     ) {
+
+                        @JsonCreator
+                        private constructor(
+                            @JsonProperty("uri")
+                            @ExcludeMissing
+                            uri: JsonField<String> = JsonMissing.of()
+                        ) : this(uri, mutableMapOf())
 
                         /**
                          * @throws LlamaStackClientInvalidDataException if the JSON field has an
@@ -1547,20 +1796,15 @@ private constructor(
                          */
                         @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
+                        @JsonAnySetter
+                        private fun putAdditionalProperty(key: String, value: JsonValue) {
+                            additionalProperties.put(key, value)
+                        }
+
                         @JsonAnyGetter
                         @ExcludeMissing
-                        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                        private var validated: Boolean = false
-
-                        fun validate(): Url = apply {
-                            if (validated) {
-                                return@apply
-                            }
-
-                            uri()
-                            validated = true
-                        }
+                        fun _additionalProperties(): Map<String, JsonValue> =
+                            Collections.unmodifiableMap(additionalProperties)
 
                         fun toBuilder() = Builder().from(this)
 
@@ -1622,9 +1866,49 @@ private constructor(
                                 keys.forEach(::removeAdditionalProperty)
                             }
 
+                            /**
+                             * Returns an immutable instance of [Url].
+                             *
+                             * Further updates to this [Builder] will not mutate the returned
+                             * instance.
+                             *
+                             * The following fields are required:
+                             * ```kotlin
+                             * .uri()
+                             * ```
+                             *
+                             * @throws IllegalStateException if any required field is unset.
+                             */
                             fun build(): Url =
-                                Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                                Url(checkRequired("uri", uri), additionalProperties.toMutableMap())
                         }
+
+                        private var validated: Boolean = false
+
+                        fun validate(): Url = apply {
+                            if (validated) {
+                                return@apply
+                            }
+
+                            uri()
+                            validated = true
+                        }
+
+                        fun isValid(): Boolean =
+                            try {
+                                validate()
+                                true
+                            } catch (e: LlamaStackClientInvalidDataException) {
+                                false
+                            }
+
+                        /**
+                         * Returns a score indicating how many valid values are contained in this
+                         * object recursively.
+                         *
+                         * Used for best match union deserialization.
+                         */
+                        internal fun validity(): Int = (if (uri.asKnown() == null) 0 else 1)
 
                         override fun equals(other: Any?): Boolean {
                             if (this === other) {
@@ -1681,19 +1965,20 @@ private constructor(
             }
 
             /** A text content item */
-            @NoAutoDetect
             class TextContentItem
-            @JsonCreator
             private constructor(
-                @JsonProperty("text")
-                @ExcludeMissing
-                private val text: JsonField<String> = JsonMissing.of(),
-                @JsonProperty("type")
-                @ExcludeMissing
-                private val type: JsonValue = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val text: JsonField<String>,
+                private val type: JsonValue,
+                private val additionalProperties: MutableMap<String, JsonValue>,
             ) {
+
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("text")
+                    @ExcludeMissing
+                    text: JsonField<String> = JsonMissing.of(),
+                    @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+                ) : this(text, type, mutableMapOf())
 
                 /**
                  * Text content
@@ -1725,27 +2010,15 @@ private constructor(
                  */
                 @JsonProperty("text") @ExcludeMissing fun _text(): JsonField<String> = text
 
+                @JsonAnySetter
+                private fun putAdditionalProperty(key: String, value: JsonValue) {
+                    additionalProperties.put(key, value)
+                }
+
                 @JsonAnyGetter
                 @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): TextContentItem = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    text()
-                    _type().let {
-                        if (it != JsonValue.from("text")) {
-                            throw LlamaStackClientInvalidDataException(
-                                "'type' is invalid, received $it"
-                            )
-                        }
-                    }
-                    validated = true
-                }
+                fun _additionalProperties(): Map<String, JsonValue> =
+                    Collections.unmodifiableMap(additionalProperties)
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1823,13 +2096,61 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [TextContentItem].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .text()
+                     * ```
+                     *
+                     * @throws IllegalStateException if any required field is unset.
+                     */
                     fun build(): TextContentItem =
                         TextContentItem(
                             checkRequired("text", text),
                             type,
-                            additionalProperties.toImmutable(),
+                            additionalProperties.toMutableMap(),
                         )
                 }
+
+                private var validated: Boolean = false
+
+                fun validate(): TextContentItem = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    text()
+                    _type().let {
+                        if (it != JsonValue.from("text")) {
+                            throw LlamaStackClientInvalidDataException(
+                                "'type' is invalid, received $it"
+                            )
+                        }
+                    }
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    (if (text.asKnown() == null) 0 else 1) +
+                        type.let { if (it == JsonValue.from("text")) 1 else 0 }
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
@@ -1849,16 +2170,16 @@ private constructor(
                     "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
             }
 
-            @NoAutoDetect
             class Url
-            @JsonCreator
             private constructor(
-                @JsonProperty("uri")
-                @ExcludeMissing
-                private val uri: JsonField<String> = JsonMissing.of(),
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+                private val uri: JsonField<String>,
+                private val additionalProperties: MutableMap<String, JsonValue>,
             ) {
+
+                @JsonCreator
+                private constructor(
+                    @JsonProperty("uri") @ExcludeMissing uri: JsonField<String> = JsonMissing.of()
+                ) : this(uri, mutableMapOf())
 
                 /**
                  * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected
@@ -1874,20 +2195,15 @@ private constructor(
                  */
                 @JsonProperty("uri") @ExcludeMissing fun _uri(): JsonField<String> = uri
 
+                @JsonAnySetter
+                private fun putAdditionalProperty(key: String, value: JsonValue) {
+                    additionalProperties.put(key, value)
+                }
+
                 @JsonAnyGetter
                 @ExcludeMissing
-                fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): Url = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    uri()
-                    validated = true
-                }
+                fun _additionalProperties(): Map<String, JsonValue> =
+                    Collections.unmodifiableMap(additionalProperties)
 
                 fun toBuilder() = Builder().from(this)
 
@@ -1948,9 +2264,48 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [Url].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     *
+                     * The following fields are required:
+                     * ```kotlin
+                     * .uri()
+                     * ```
+                     *
+                     * @throws IllegalStateException if any required field is unset.
+                     */
                     fun build(): Url =
-                        Url(checkRequired("uri", uri), additionalProperties.toImmutable())
+                        Url(checkRequired("uri", uri), additionalProperties.toMutableMap())
                 }
+
+                private var validated: Boolean = false
+
+                fun validate(): Url = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    uri()
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int = (if (uri.asKnown() == null) 0 else 1)
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {
@@ -1993,22 +2348,26 @@ private constructor(
      * (Optional) The tool configuration to create the turn with, will be used to override the
      * agent's tool_config.
      */
-    @NoAutoDetect
     class ToolConfig
-    @JsonCreator
     private constructor(
-        @JsonProperty("system_message_behavior")
-        @ExcludeMissing
-        private val systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
-        @JsonProperty("tool_choice")
-        @ExcludeMissing
-        private val toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
-        @JsonProperty("tool_prompt_format")
-        @ExcludeMissing
-        private val toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
-        @JsonAnySetter
-        private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+        private val systemMessageBehavior: JsonField<SystemMessageBehavior>,
+        private val toolChoice: JsonField<ToolChoice>,
+        private val toolPromptFormat: JsonField<ToolPromptFormat>,
+        private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
+
+        @JsonCreator
+        private constructor(
+            @JsonProperty("system_message_behavior")
+            @ExcludeMissing
+            systemMessageBehavior: JsonField<SystemMessageBehavior> = JsonMissing.of(),
+            @JsonProperty("tool_choice")
+            @ExcludeMissing
+            toolChoice: JsonField<ToolChoice> = JsonMissing.of(),
+            @JsonProperty("tool_prompt_format")
+            @ExcludeMissing
+            toolPromptFormat: JsonField<ToolPromptFormat> = JsonMissing.of(),
+        ) : this(systemMessageBehavior, toolChoice, toolPromptFormat, mutableMapOf())
 
         /**
          * (Optional) Config for how to override the default system prompt. -
@@ -2074,22 +2433,15 @@ private constructor(
         @ExcludeMissing
         fun _toolPromptFormat(): JsonField<ToolPromptFormat> = toolPromptFormat
 
+        @JsonAnySetter
+        private fun putAdditionalProperty(key: String, value: JsonValue) {
+            additionalProperties.put(key, value)
+        }
+
         @JsonAnyGetter
         @ExcludeMissing
-        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolConfig = apply {
-            if (validated) {
-                return@apply
-            }
-
-            systemMessageBehavior()
-            toolChoice()
-            toolPromptFormat()
-            validated = true
-        }
+        fun _additionalProperties(): Map<String, JsonValue> =
+            Collections.unmodifiableMap(additionalProperties)
 
         fun toBuilder() = Builder().from(this)
 
@@ -2204,14 +2556,51 @@ private constructor(
                 keys.forEach(::removeAdditionalProperty)
             }
 
+            /**
+             * Returns an immutable instance of [ToolConfig].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
             fun build(): ToolConfig =
                 ToolConfig(
                     systemMessageBehavior,
                     toolChoice,
                     toolPromptFormat,
-                    additionalProperties.toImmutable(),
+                    additionalProperties.toMutableMap(),
                 )
         }
+
+        private var validated: Boolean = false
+
+        fun validate(): ToolConfig = apply {
+            if (validated) {
+                return@apply
+            }
+
+            systemMessageBehavior()?.validate()
+            toolChoice()
+            toolPromptFormat()?.validate()
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            (systemMessageBehavior.asKnown()?.validity() ?: 0) +
+                (if (toolChoice.asKnown() == null) 0 else 1) +
+                (toolPromptFormat.asKnown()?.validity() ?: 0)
 
         /**
          * (Optional) Config for how to override the default system prompt. -
@@ -2315,6 +2704,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): SystemMessageBehavior = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -2428,6 +2844,33 @@ private constructor(
             fun asString(): String =
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
+
+            private var validated: Boolean = false
+
+            fun validate(): ToolChoice = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
 
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
@@ -2550,6 +2993,33 @@ private constructor(
                 _value().asString()
                     ?: throw LlamaStackClientInvalidDataException("Value is not a String")
 
+            private var validated: Boolean = false
+
+            fun validate(): ToolPromptFormat = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                known()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
+
             override fun equals(other: Any?): Boolean {
                 if (this === other) {
                     return true
@@ -2605,14 +3075,13 @@ private constructor(
 
         fun _json(): JsonValue? = _json
 
-        fun <T> accept(visitor: Visitor<T>): T {
-            return when {
+        fun <T> accept(visitor: Visitor<T>): T =
+            when {
                 string != null -> visitor.visitString(string)
                 agentToolGroupWithArgs != null ->
                     visitor.visitAgentToolGroupWithArgs(agentToolGroupWithArgs)
                 else -> visitor.unknown(_json)
             }
-        }
 
         private var validated: Boolean = false
 
@@ -2634,6 +3103,33 @@ private constructor(
             )
             validated = true
         }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            accept(
+                object : Visitor<Int> {
+                    override fun visitString(string: String) = 1
+
+                    override fun visitAgentToolGroupWithArgs(
+                        agentToolGroupWithArgs: AgentToolGroupWithArgs
+                    ) = agentToolGroupWithArgs.validity()
+
+                    override fun unknown(json: JsonValue?) = 0
+                }
+            )
 
         override fun equals(other: Any?): Boolean {
             if (this === other) {
@@ -2691,15 +3187,28 @@ private constructor(
             override fun ObjectCodec.deserialize(node: JsonNode): Toolgroup {
                 val json = JsonValue.fromJsonNode(node)
 
-                tryDeserialize(node, jacksonTypeRef<String>())?.let {
-                    return Toolgroup(string = it, _json = json)
+                val bestMatches =
+                    sequenceOf(
+                            tryDeserialize(node, jacksonTypeRef<AgentToolGroupWithArgs>())?.let {
+                                Toolgroup(agentToolGroupWithArgs = it, _json = json)
+                            },
+                            tryDeserialize(node, jacksonTypeRef<String>())?.let {
+                                Toolgroup(string = it, _json = json)
+                            },
+                        )
+                        .filterNotNull()
+                        .allMaxBy { it.validity() }
+                        .toList()
+                return when (bestMatches.size) {
+                    // This can happen if what we're deserializing is completely incompatible with
+                    // all the possible variants (e.g. deserializing from array).
+                    0 -> Toolgroup(_json = json)
+                    1 -> bestMatches.single()
+                    // If there's more than one match with the highest validity, then use the first
+                    // completely valid match, or simply the first match if none are completely
+                    // valid.
+                    else -> bestMatches.firstOrNull { it.isValid() } ?: bestMatches.first()
                 }
-                tryDeserialize(node, jacksonTypeRef<AgentToolGroupWithArgs>()) { it.validate() }
-                    ?.let {
-                        return Toolgroup(agentToolGroupWithArgs = it, _json = json)
-                    }
-
-                return Toolgroup(_json = json)
             }
         }
 
@@ -2720,19 +3229,18 @@ private constructor(
             }
         }
 
-        @NoAutoDetect
         class AgentToolGroupWithArgs
-        @JsonCreator
         private constructor(
-            @JsonProperty("args")
-            @ExcludeMissing
-            private val args: JsonField<Args> = JsonMissing.of(),
-            @JsonProperty("name")
-            @ExcludeMissing
-            private val name: JsonField<String> = JsonMissing.of(),
-            @JsonAnySetter
-            private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap(),
+            private val args: JsonField<Args>,
+            private val name: JsonField<String>,
+            private val additionalProperties: MutableMap<String, JsonValue>,
         ) {
+
+            @JsonCreator
+            private constructor(
+                @JsonProperty("args") @ExcludeMissing args: JsonField<Args> = JsonMissing.of(),
+                @JsonProperty("name") @ExcludeMissing name: JsonField<String> = JsonMissing.of(),
+            ) : this(args, name, mutableMapOf())
 
             /**
              * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
@@ -2762,21 +3270,15 @@ private constructor(
              */
             @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
+            @JsonAnySetter
+            private fun putAdditionalProperty(key: String, value: JsonValue) {
+                additionalProperties.put(key, value)
+            }
+
             @JsonAnyGetter
             @ExcludeMissing
-            fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-            private var validated: Boolean = false
-
-            fun validate(): AgentToolGroupWithArgs = apply {
-                if (validated) {
-                    return@apply
-                }
-
-                args().validate()
-                name()
-                validated = true
-            }
+            fun _additionalProperties(): Map<String, JsonValue> =
+                Collections.unmodifiableMap(additionalProperties)
 
             fun toBuilder() = Builder().from(this)
 
@@ -2853,35 +3355,66 @@ private constructor(
                     keys.forEach(::removeAdditionalProperty)
                 }
 
+                /**
+                 * Returns an immutable instance of [AgentToolGroupWithArgs].
+                 *
+                 * Further updates to this [Builder] will not mutate the returned instance.
+                 *
+                 * The following fields are required:
+                 * ```kotlin
+                 * .args()
+                 * .name()
+                 * ```
+                 *
+                 * @throws IllegalStateException if any required field is unset.
+                 */
                 fun build(): AgentToolGroupWithArgs =
                     AgentToolGroupWithArgs(
                         checkRequired("args", args),
                         checkRequired("name", name),
-                        additionalProperties.toImmutable(),
+                        additionalProperties.toMutableMap(),
                     )
             }
 
-            @NoAutoDetect
+            private var validated: Boolean = false
+
+            fun validate(): AgentToolGroupWithArgs = apply {
+                if (validated) {
+                    return@apply
+                }
+
+                args().validate()
+                name()
+                validated = true
+            }
+
+            fun isValid(): Boolean =
+                try {
+                    validate()
+                    true
+                } catch (e: LlamaStackClientInvalidDataException) {
+                    false
+                }
+
+            /**
+             * Returns a score indicating how many valid values are contained in this object
+             * recursively.
+             *
+             * Used for best match union deserialization.
+             */
+            internal fun validity(): Int =
+                (args.asKnown()?.validity() ?: 0) + (if (name.asKnown() == null) 0 else 1)
+
             class Args
             @JsonCreator
             private constructor(
-                @JsonAnySetter
-                private val additionalProperties: Map<String, JsonValue> = immutableEmptyMap()
+                @com.fasterxml.jackson.annotation.JsonValue
+                private val additionalProperties: Map<String, JsonValue>
             ) {
 
                 @JsonAnyGetter
                 @ExcludeMissing
                 fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
-
-                private var validated: Boolean = false
-
-                fun validate(): Args = apply {
-                    if (validated) {
-                        return@apply
-                    }
-
-                    validated = true
-                }
 
                 fun toBuilder() = Builder().from(this)
 
@@ -2922,8 +3455,42 @@ private constructor(
                         keys.forEach(::removeAdditionalProperty)
                     }
 
+                    /**
+                     * Returns an immutable instance of [Args].
+                     *
+                     * Further updates to this [Builder] will not mutate the returned instance.
+                     */
                     fun build(): Args = Args(additionalProperties.toImmutable())
                 }
+
+                private var validated: Boolean = false
+
+                fun validate(): Args = apply {
+                    if (validated) {
+                        return@apply
+                    }
+
+                    validated = true
+                }
+
+                fun isValid(): Boolean =
+                    try {
+                        validate()
+                        true
+                    } catch (e: LlamaStackClientInvalidDataException) {
+                        false
+                    }
+
+                /**
+                 * Returns a score indicating how many valid values are contained in this object
+                 * recursively.
+                 *
+                 * Used for best match union deserialization.
+                 */
+                internal fun validity(): Int =
+                    additionalProperties.count { (_, value) ->
+                        !value.isNull() && !value.isMissing()
+                    }
 
                 override fun equals(other: Any?): Boolean {
                     if (this === other) {

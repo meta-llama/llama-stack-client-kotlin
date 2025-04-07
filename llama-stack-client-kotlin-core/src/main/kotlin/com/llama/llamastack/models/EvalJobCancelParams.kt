@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.core.NoAutoDetect
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
@@ -25,25 +24,11 @@ private constructor(
 
     fun jobId(): String = jobId
 
+    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
+
     fun _additionalHeaders(): Headers = additionalHeaders
 
     fun _additionalQueryParams(): QueryParams = additionalQueryParams
-
-    fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
-
-    internal fun _body(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
-
-    override fun _headers(): Headers = additionalHeaders
-
-    override fun _queryParams(): QueryParams = additionalQueryParams
-
-    fun getPathParam(index: Int): String {
-        return when (index) {
-            0 -> benchmarkId
-            1 -> jobId
-            else -> ""
-        }
-    }
 
     fun toBuilder() = Builder().from(this)
 
@@ -62,7 +47,6 @@ private constructor(
     }
 
     /** A builder for [EvalJobCancelParams]. */
-    @NoAutoDetect
     class Builder internal constructor() {
 
         private var benchmarkId: String? = null
@@ -203,6 +187,19 @@ private constructor(
             keys.forEach(::removeAdditionalBodyProperty)
         }
 
+        /**
+         * Returns an immutable instance of [EvalJobCancelParams].
+         *
+         * Further updates to this [Builder] will not mutate the returned instance.
+         *
+         * The following fields are required:
+         * ```kotlin
+         * .benchmarkId()
+         * .jobId()
+         * ```
+         *
+         * @throws IllegalStateException if any required field is unset.
+         */
         fun build(): EvalJobCancelParams =
             EvalJobCancelParams(
                 checkRequired("benchmarkId", benchmarkId),
@@ -212,6 +209,19 @@ private constructor(
                 additionalBodyProperties.toImmutable(),
             )
     }
+
+    fun _body(): Map<String, JsonValue>? = additionalBodyProperties.ifEmpty { null }
+
+    fun _pathParam(index: Int): String =
+        when (index) {
+            0 -> benchmarkId
+            1 -> jobId
+            else -> ""
+        }
+
+    override fun _headers(): Headers = additionalHeaders
+
+    override fun _queryParams(): QueryParams = additionalQueryParams
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {

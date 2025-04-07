@@ -3,11 +3,10 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
-import kotlin.test.assertNotNull
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class PostTrainingPreferenceOptimizeParamsTest {
+internal class PostTrainingPreferenceOptimizeParamsTest {
 
     @Test
     fun create() {
@@ -156,7 +155,6 @@ class PostTrainingPreferenceOptimizeParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.algorithmConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()
@@ -291,7 +289,6 @@ class PostTrainingPreferenceOptimizeParamsTest {
 
         val body = params._body()
 
-        assertNotNull(body)
         assertThat(body.algorithmConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.AlgorithmConfig.builder()

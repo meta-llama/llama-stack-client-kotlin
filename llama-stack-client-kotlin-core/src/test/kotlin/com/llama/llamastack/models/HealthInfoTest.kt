@@ -2,15 +2,31 @@
 
 package com.llama.llamastack.models
 
+import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
+import com.llama.llamastack.core.jsonMapper
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class HealthInfoTest {
+internal class HealthInfoTest {
 
     @Test
-    fun createHealthInfo() {
+    fun create() {
         val healthInfo = HealthInfo.builder().status("status").build()
-        assertThat(healthInfo).isNotNull
+
         assertThat(healthInfo.status()).isEqualTo("status")
+    }
+
+    @Test
+    fun roundtrip() {
+        val jsonMapper = jsonMapper()
+        val healthInfo = HealthInfo.builder().status("status").build()
+
+        val roundtrippedHealthInfo =
+            jsonMapper.readValue(
+                jsonMapper.writeValueAsString(healthInfo),
+                jacksonTypeRef<HealthInfo>(),
+            )
+
+        assertThat(roundtrippedHealthInfo).isEqualTo(healthInfo)
     }
 }

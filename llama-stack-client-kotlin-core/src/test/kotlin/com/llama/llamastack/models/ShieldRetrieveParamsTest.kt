@@ -5,7 +5,7 @@ package com.llama.llamastack.models
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 
-class ShieldRetrieveParamsTest {
+internal class ShieldRetrieveParamsTest {
 
     @Test
     fun create() {
@@ -13,12 +13,11 @@ class ShieldRetrieveParamsTest {
     }
 
     @Test
-    fun getPathParam() {
+    fun pathParams() {
         val params = ShieldRetrieveParams.builder().identifier("identifier").build()
-        assertThat(params).isNotNull
-        // path param "identifier"
-        assertThat(params.getPathParam(0)).isEqualTo("identifier")
+
+        assertThat(params._pathParam(0)).isEqualTo("identifier")
         // out-of-bound path param
-        assertThat(params.getPathParam(1)).isEqualTo("")
+        assertThat(params._pathParam(1)).isEqualTo("")
     }
 }

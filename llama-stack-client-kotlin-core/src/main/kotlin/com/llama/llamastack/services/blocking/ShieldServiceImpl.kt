@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.core.ClientOptions
+import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -14,7 +15,6 @@ import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.core.http.json
 import com.llama.llamastack.core.http.parseable
 import com.llama.llamastack.core.prepare
-import com.llama.llamastack.errors.LlamaStackClientError
 import com.llama.llamastack.models.DataEnvelope
 import com.llama.llamastack.models.Shield
 import com.llama.llamastack.models.ShieldListParams
@@ -30,7 +30,7 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
 
     override fun withRawResponse(): ShieldService.WithRawResponse = withRawResponse
 
-    override fun retrieve(params: ShieldRetrieveParams, requestOptions: RequestOptions): Shield? =
+    override fun retrieve(params: ShieldRetrieveParams, requestOptions: RequestOptions): Shield =
         // get /v1/shields/{identifier}
         withRawResponse().retrieve(params, requestOptions).parse()
 
@@ -45,20 +45,19 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
         ShieldService.WithRawResponse {
 
-        private val errorHandler: Handler<LlamaStackClientError> =
-            errorHandler(clientOptions.jsonMapper)
+        private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
-        private val retrieveHandler: Handler<Shield?> =
-            jsonHandler<Shield?>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
+        private val retrieveHandler: Handler<Shield> =
+            jsonHandler<Shield>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
         override fun retrieve(
             params: ShieldRetrieveParams,
             requestOptions: RequestOptions,
-        ): HttpResponseFor<Shield?> {
+        ): HttpResponseFor<Shield> {
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
-                    .addPathSegments("v1", "shields", params.getPathParam(0))
+                    .addPathSegments("v1", "shields", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
             val requestOptions = requestOptions.applyDefaults(RequestOptions.from(clientOptions))
@@ -68,7 +67,7 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
                     .use { retrieveHandler.handle(it) }
                     .also {
                         if (requestOptions.responseValidation!!) {
-                            it?.validate()
+                            it.validate()
                         }
                     }
             }
