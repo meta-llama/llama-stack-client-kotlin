@@ -132,7 +132,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .modelId(modelName)
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyObject()
+                                .strategyGreedySampling()
                                 .maxTokens(ModelUtils.MAX_TOKENS)
                                 .repetitionPenalty(1.0)
                                 .build()
@@ -170,7 +170,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .modelId(modelName)
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyObject()
+                                .strategyGreedySampling()
                                 .maxTokens(ModelUtils.MAX_TOKENS)
                                 .repetitionPenalty(1.0)
                                 .build()
@@ -336,7 +336,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                 .model(modelName)
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyObject()
+                        .strategyGreedySampling()
                         .maxTokens(ModelUtils.MAX_TOKENS)
                         .repetitionPenalty(1.0)
                         .build()
