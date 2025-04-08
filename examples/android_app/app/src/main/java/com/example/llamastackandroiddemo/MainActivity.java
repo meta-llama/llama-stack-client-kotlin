@@ -736,11 +736,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
       }
     }
 
-    String textContent = "";
-    String vectorDbId = "";
-    if (testRAG) {
-      vectorDbId = exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual2023Vehicle.pdf", this);
-    }
+    String vectorDbId = "1"; //TODO NEED TO FIX HACK
 
     Triple<String, String, TurnService> agentInfo =
             Objects.equals(generationMode, AppUtils.REMOTE) ?
@@ -791,6 +787,9 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
 
     if (useAgent) {
       var messages = mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK);
+      if (testRAG) {
+        exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual2023Vehicle.pdf", this);
+      }
       result = exampleLlamaStackLocalInference.inferenceStartWithAgent(
               agentId,
               sessionId,
