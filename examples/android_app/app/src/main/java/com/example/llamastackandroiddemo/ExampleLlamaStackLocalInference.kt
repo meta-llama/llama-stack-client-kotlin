@@ -428,21 +428,28 @@ class ExampleLlamaStackLocalInference(
     ): List<AgentTurnCreateParams.Message> {
         val messageList = ArrayList<AgentTurnCreateParams.Message>();
         for (chat in conversationHistory) {
-            val inferenceMessage: AgentTurnCreateParams.Message = if (chat.isSent) {
-                // User Message
-                AgentTurnCreateParams.Message.ofUser(
-                    UserMessage.builder()
-                        .content(InterleavedContent.ofString(chat.text))
-                        .build());
-            } else {
-                AgentTurnCreateParams.Message.ofToolResponse(
-                    ToolResponseMessage.builder()
-                        .callId("")
-                        .content(InterleavedContent.ofString(chat.text))
-                        .build()
-                )
+            var inferenceMessage: AgentTurnCreateParams.Message? = null
+
+            if (chat.messageType == MessageType.TEXT) {
+                inferenceMessage = if (chat.isSent) {
+                    // User Message
+                    AgentTurnCreateParams.Message.ofUser(
+                        UserMessage.builder()
+                            .content(InterleavedContent.ofString(chat.text))
+                            .build()
+                    );
+                } else {
+                    AgentTurnCreateParams.Message.ofToolResponse(
+                        ToolResponseMessage.builder()
+                            .callId("")
+                            .content(InterleavedContent.ofString(chat.text))
+                            .build()
+                    )
+                }
             }
-            messageList.add(inferenceMessage)
+            if (inferenceMessage != null) {
+                messageList.add(inferenceMessage)
+            }
         }
 
         AppLogging.getInstance().log("conversation history length "  + messageList.size)

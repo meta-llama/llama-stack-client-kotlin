@@ -139,7 +139,7 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
                 val neighbors =
                     box!!
                         .query(
-                            RagVectorDb_.embeddedChunk.nearestNeighbors(userPromptEmbedding!!, 5)
+                            RagVectorDb_.embeddedChunk.nearestNeighbors(userPromptEmbedding!!, 3)
                         )
                         .build()
                         .findWithScores()
