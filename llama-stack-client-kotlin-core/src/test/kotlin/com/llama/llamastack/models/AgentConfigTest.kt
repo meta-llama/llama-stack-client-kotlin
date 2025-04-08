@@ -47,7 +47,7 @@ internal class AgentConfigTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyObject()
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .addStop("string")
@@ -107,7 +107,7 @@ internal class AgentConfigTest {
         assertThat(agentConfig.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyObject()
+                    .strategyGreedySampling()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .addStop("string")
@@ -165,7 +165,7 @@ internal class AgentConfigTest {
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyObject()
+                        .strategyGreedySampling()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .addStop("string")
