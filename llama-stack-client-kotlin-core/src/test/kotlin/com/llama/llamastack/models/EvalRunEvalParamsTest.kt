@@ -19,7 +19,7 @@ internal class EvalRunEvalParamsTest {
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyObject()
+                                    .strategyGreedySampling()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .addStop("string")
@@ -60,7 +60,9 @@ internal class EvalRunEvalParamsTest {
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
                                 .model("model")
-                                .samplingParams(SamplingParams.builder().strategyObject().build())
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
+                                )
                                 .build()
                         )
                         .scoringParams(
@@ -97,7 +99,7 @@ internal class EvalRunEvalParamsTest {
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
-                                        .strategyObject()
+                                        .strategyGreedySampling()
                                         .maxTokens(0L)
                                         .repetitionPenalty(0.0)
                                         .addStop("string")
@@ -137,7 +139,7 @@ internal class EvalRunEvalParamsTest {
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyObject()
+                                    .strategyGreedySampling()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .addStop("string")
@@ -177,7 +179,9 @@ internal class EvalRunEvalParamsTest {
                         .evalCandidate(
                             EvalCandidate.ModelCandidate.builder()
                                 .model("model")
-                                .samplingParams(SamplingParams.builder().strategyObject().build())
+                                .samplingParams(
+                                    SamplingParams.builder().strategyGreedySampling().build()
+                                )
                                 .build()
                         )
                         .scoringParams(
@@ -205,7 +209,9 @@ internal class EvalRunEvalParamsTest {
                     .evalCandidate(
                         EvalCandidate.ModelCandidate.builder()
                             .model("model")
-                            .samplingParams(SamplingParams.builder().strategyObject().build())
+                            .samplingParams(
+                                SamplingParams.builder().strategyGreedySampling().build()
+                            )
                             .build()
                     )
                     .scoringParams(

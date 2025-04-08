@@ -13,13 +13,13 @@ internal class SamplingParamsTest {
     fun create() {
         val samplingParams =
             SamplingParams.builder()
-                .strategyObject()
+                .strategyGreedySampling()
                 .maxTokens(0L)
                 .repetitionPenalty(0.0)
                 .addStop("string")
                 .build()
 
-        assertThat(samplingParams.strategy()).isEqualTo(SamplingParams.Strategy.ofObject())
+        assertThat(samplingParams.strategy()).isEqualTo(SamplingParams.Strategy.ofGreedySampling())
         assertThat(samplingParams.maxTokens()).isEqualTo(0L)
         assertThat(samplingParams.repetitionPenalty()).isEqualTo(0.0)
         assertThat(samplingParams.stop()).containsExactly("string")
@@ -30,7 +30,7 @@ internal class SamplingParamsTest {
         val jsonMapper = jsonMapper()
         val samplingParams =
             SamplingParams.builder()
-                .strategyObject()
+                .strategyGreedySampling()
                 .maxTokens(0L)
                 .repetitionPenalty(0.0)
                 .addStop("string")

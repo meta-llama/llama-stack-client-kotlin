@@ -38,7 +38,7 @@ internal class InferenceServiceAsyncTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyObject()
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .addStop("string")
@@ -106,7 +106,7 @@ internal class InferenceServiceAsyncTest {
                     )
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyObject()
+                            .strategyGreedySampling()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .addStop("string")

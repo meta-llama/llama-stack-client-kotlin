@@ -167,8 +167,8 @@ private constructor(
          */
         fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
-        /** Alias for calling [strategy] with `Strategy.ofObject()`. */
-        fun strategyObject() = strategy(Strategy.ofObject())
+        /** Alias for calling [strategy] with `Strategy.ofGreedySampling()`. */
+        fun strategyGreedySampling() = strategy(Strategy.ofGreedySampling())
 
         /** Alias for calling [strategy] with `Strategy.ofTopPSampling(topPSampling)`. */
         fun strategy(topPSampling: Strategy.TopPSamplingStrategy) =
@@ -329,25 +329,25 @@ private constructor(
     @JsonSerialize(using = Strategy.Serializer::class)
     class Strategy
     private constructor(
-        private val object_: JsonValue? = null,
+        private val greedySampling: JsonValue? = null,
         private val topPSampling: TopPSamplingStrategy? = null,
         private val topKSampling: TopKSamplingStrategy? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun object_(): JsonValue? = object_
+        fun greedySampling(): JsonValue? = greedySampling
 
         fun topPSampling(): TopPSamplingStrategy? = topPSampling
 
         fun topKSampling(): TopKSamplingStrategy? = topKSampling
 
-        fun isObject(): Boolean = object_ != null
+        fun isGreedySampling(): Boolean = greedySampling != null
 
         fun isTopPSampling(): Boolean = topPSampling != null
 
         fun isTopKSampling(): Boolean = topKSampling != null
 
-        fun asObject(): JsonValue = object_.getOrThrow("object_")
+        fun asGreedySampling(): JsonValue = greedySampling.getOrThrow("greedySampling")
 
         fun asTopPSampling(): TopPSamplingStrategy = topPSampling.getOrThrow("topPSampling")
 
@@ -357,7 +357,7 @@ private constructor(
 
         fun <T> accept(visitor: Visitor<T>): T =
             when {
-                object_ != null -> visitor.visitObject(object_)
+                greedySampling != null -> visitor.visitGreedySampling(greedySampling)
                 topPSampling != null -> visitor.visitTopPSampling(topPSampling)
                 topKSampling != null -> visitor.visitTopKSampling(topKSampling)
                 else -> visitor.unknown(_json)
@@ -372,11 +372,11 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitObject(object_: JsonValue) {
-                        object_.let {
+                    override fun visitGreedySampling(greedySampling: JsonValue) {
+                        greedySampling.let {
                             if (it != JsonValue.from(mapOf("type" to "greedy"))) {
                                 throw LlamaStackClientInvalidDataException(
-                                    "'object_' is invalid, received $it"
+                                    "'greedySampling' is invalid, received $it"
                                 )
                             }
                         }
@@ -411,8 +411,8 @@ private constructor(
         internal fun validity(): Int =
             accept(
                 object : Visitor<Int> {
-                    override fun visitObject(object_: JsonValue) =
-                        object_.let {
+                    override fun visitGreedySampling(greedySampling: JsonValue) =
+                        greedySampling.let {
                             if (it == JsonValue.from(mapOf("type" to "greedy"))) 1 else 0
                         }
 
@@ -431,14 +431,14 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Strategy && object_ == other.object_ && topPSampling == other.topPSampling && topKSampling == other.topKSampling /* spotless:on */
+            return /* spotless:off */ other is Strategy && greedySampling == other.greedySampling && topPSampling == other.topPSampling && topKSampling == other.topKSampling /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(object_, topPSampling, topKSampling) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(greedySampling, topPSampling, topKSampling) /* spotless:on */
 
         override fun toString(): String =
             when {
-                object_ != null -> "Strategy{object_=$object_}"
+                greedySampling != null -> "Strategy{greedySampling=$greedySampling}"
                 topPSampling != null -> "Strategy{topPSampling=$topPSampling}"
                 topKSampling != null -> "Strategy{topKSampling=$topKSampling}"
                 _json != null -> "Strategy{_unknown=$_json}"
@@ -447,7 +447,8 @@ private constructor(
 
         companion object {
 
-            fun ofObject() = Strategy(object_ = JsonValue.from(mapOf("type" to "greedy")))
+            fun ofGreedySampling() =
+                Strategy(greedySampling = JsonValue.from(mapOf("type" to "greedy")))
 
             fun ofTopPSampling(topPSampling: TopPSamplingStrategy) =
                 Strategy(topPSampling = topPSampling)
@@ -461,7 +462,7 @@ private constructor(
          */
         interface Visitor<out T> {
 
-            fun visitObject(object_: JsonValue): T
+            fun visitGreedySampling(greedySampling: JsonValue): T
 
             fun visitTopPSampling(topPSampling: TopPSamplingStrategy): T
 
@@ -491,7 +492,7 @@ private constructor(
                 when (type) {
                     "greedy" -> {
                         return tryDeserialize(node, jacksonTypeRef<JsonValue>())
-                            ?.let { Strategy(object_ = it, _json = json) }
+                            ?.let { Strategy(greedySampling = it, _json = json) }
                             ?.takeIf { it.isValid() } ?: Strategy(_json = json)
                     }
                     "top_p" -> {
@@ -518,7 +519,7 @@ private constructor(
                 provider: SerializerProvider,
             ) {
                 when {
-                    value.object_ != null -> generator.writeObject(value.object_)
+                    value.greedySampling != null -> generator.writeObject(value.greedySampling)
                     value.topPSampling != null -> generator.writeObject(value.topPSampling)
                     value.topKSampling != null -> generator.writeObject(value.topKSampling)
                     value._json != null -> generator.writeObject(value._json)
