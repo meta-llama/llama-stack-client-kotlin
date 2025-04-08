@@ -48,7 +48,7 @@ class VectorDbServiceLocalImpl constructor(private val clientOptions: LocalClien
         // create VectorDB
         val store = MyObjectBox.builder().inMemory(vectorDbId).build()
         val box = store.boxFor(RagVectorDb::class)
-        clientOptions.setVectorDb(box)
+        clientOptions.setVectorDb(vectorDbId, box)
 
         return VectorDbRegisterResponse.builder()
             .embeddingDimension(0)

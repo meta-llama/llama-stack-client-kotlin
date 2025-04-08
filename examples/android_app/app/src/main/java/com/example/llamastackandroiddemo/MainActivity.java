@@ -279,7 +279,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
           exampleLlamaStackLocalInference = new ExampleLlamaStackLocalInference(updatedSettingsFields.getModelFilePath(), updatedSettingsFields.getTokenizerFilePath(), (float) updatedSettingsFields.getTemperature(), useAgent);
         } else {
           // We already have a client, just pass in the updated model
-          exampleLlamaStackLocalInference.updateModel(updatedSettingsFields.getModelFilePath(),updatedSettingsFields.getTokenizerFilePath(), (float) updatedSettingsFields.getTemperature());
+          exampleLlamaStackLocalInference.updateModel(updatedSettingsFields.getModelFilePath(),updatedSettingsFields.getTokenizerFilePath(), (float) updatedSettingsFields.getTemperature(), useAgent);
         }
         updatedSettingsFields.saveLoadModelAction(false);
         AppLogging.getInstance().log(updatedSettingsFields.toString());
@@ -736,12 +736,12 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
       }
     }
 
-    String vectorDbId = "1"; //TODO NEED TO FIX HACK
+    //String vectorDbId = "1";
 
     Triple<String, String, TurnService> agentInfo =
             Objects.equals(generationMode, AppUtils.REMOTE) ?
                     exampleLlamaStackRemoteInference.createRemoteAgent(modelName, temperature, systemPrompt, this) :
-                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getModelFilePath(), mCurrentSettingsFields.getTokenizerFilePath(), vectorDbId, temperature, systemPrompt, this);
+                    exampleLlamaStackLocalInference.createLocalAgent(modelName, mCurrentSettingsFields.getModelFilePath(), mCurrentSettingsFields.getTokenizerFilePath(), temperature, systemPrompt, this);
     this.agentId = agentInfo.getFirst();
     this.sessionId = agentInfo.getSecond();
     this.turnService = agentInfo.getThird();
@@ -787,15 +787,14 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
 
     if (useAgent) {
       var messages = mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK);
-      if (testRAG) {
-        exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual2023Vehicle.pdf", this);
-      }
+//      if (testRAG) {
+//        exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual2023Vehicle.pdf", this);
+//      }
       result = exampleLlamaStackLocalInference.inferenceStartWithAgent(
               agentId,
               sessionId,
               turnService,
               messages,
-              exampleLlamaStackLocalInference.createEmbeddingsFromJava(messages.get(messages.size()-1).getText()),
               this);
     } else {
       // If you want with conversation history

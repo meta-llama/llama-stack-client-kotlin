@@ -5,6 +5,8 @@ package com.llama.llamastack.client.local
 import com.llama.llamastack.client.local.services.AgentServiceLocalImpl
 import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb
 import com.llama.llamastack.client.local.util.createETLlamaModule
+import com.llama.llamastack.core.JsonString
+import com.llama.llamastack.models.AgentConfig
 import io.objectbox.Box
 import org.pytorch.executorch.LlamaModule
 
@@ -17,42 +19,43 @@ private constructor(
     var useAgent: Boolean,
 ) {
 
-    // Used to save agent over
-    private var agent: AgentServiceLocalImpl? = null
+    // Used to save agents: (agentID, AgentServiceLocalImpl) mappings
+    private val agentMap = HashMap<String, AgentServiceLocalImpl>()
     private var modelName: String? = null
-    private var instruction: String? = null
-    private var ragVectorDb: Box<RagVectorDb>? = null
+    private var ragVectorDbMap = HashMap<String, Box<RagVectorDb>>()
 
     fun setAgent(agent: AgentServiceLocalImpl) {
-        this.agent = agent
+        this.agentMap[agent.agentId.toString()] = agent
     }
 
-    fun getAgent(): AgentServiceLocalImpl? {
-        return agent
+    fun getAgent(agentId: String): AgentServiceLocalImpl? {
+        if (!agentMap.containsKey(agentId)) {
+            println("getAgent: agentID not in AgentMap")
+            return null
+        }
+        return agentMap[agentId]
     }
 
-    fun setModelName(modelName: String) {
-        this.modelName = modelName
+    fun setVectorDb(id: String, db: Box<RagVectorDb>) {
+        this.ragVectorDbMap[id] = db
     }
 
-    fun getModelName(): String? {
-        return modelName
+    fun getVectorDb(id: String): Box<RagVectorDb>? {
+        if (!ragVectorDbMap.containsKey(id)) {
+            println("getVectorDb: id not in ragVectorDbMap")
+        }
+        return ragVectorDbMap[id]
     }
 
-    fun setInstruction(instruction: String) {
-        this.instruction = instruction
+    fun overrideModelConfigsFromAgent(agentConfig: AgentConfig) {
+        modelPath = (agentConfig._additionalProperties()["modelPath"] as JsonString).value
+        tokenizerPath = (agentConfig._additionalProperties()["tokenizerPath"] as JsonString).value
+        checkNotNull(modelPath) { "`modelPath` is required but not set" }
+        checkNotNull(tokenizerPath) { "`tokenizerPath` is required but not set" }
     }
 
-    fun getInstruction(): String? {
-        return instruction
-    }
-
-    fun setVectorDb(db: Box<RagVectorDb>) {
-        this.ragVectorDb = db
-    }
-
-    fun getVectorDb(): Box<RagVectorDb>? {
-        return ragVectorDb
+    fun initializeLlamaModule() {
+        llamaModule = createETLlamaModule(modelPath, tokenizerPath, temperature)
     }
 
     companion object {

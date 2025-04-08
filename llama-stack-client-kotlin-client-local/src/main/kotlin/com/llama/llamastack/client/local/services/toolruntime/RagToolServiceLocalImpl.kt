@@ -25,8 +25,12 @@ constructor(
         TODO("Not yet implemented. Use other insert() function instead.")
     }
 
-    fun insert(embeddings: MutableList<FloatArray>, rawChunks: MutableList<String>) {
-        val box = clientOptions.getVectorDb()
+    fun insert(
+        vectorDbId: String,
+        embeddings: MutableList<FloatArray>,
+        rawChunks: MutableList<String>,
+    ) {
+        val box = clientOptions.getVectorDb(vectorDbId)
         for (i in 0..<embeddings.size) {
             val chunk = RagVectorDb(rawChunk = rawChunks[i], embeddedChunk = embeddings[i])
             box!!.put(chunk)

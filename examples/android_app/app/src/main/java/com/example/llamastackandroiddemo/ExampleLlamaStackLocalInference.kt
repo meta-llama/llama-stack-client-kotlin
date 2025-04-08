@@ -1,39 +1,33 @@
 package com.example.llamastackandroiddemo
 
 import android.content.Context
+import android.net.Uri
 import android.util.Log
 import com.itextpdf.text.pdf.PdfReader
 import com.itextpdf.text.pdf.parser.PdfTextExtractor
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.local.LlamaStackClientLocalClient
-import com.llama.llamastack.client.local.services.toolruntime.RagToolServiceLocalImpl
 import com.llama.llamastack.core.JsonNumber
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.AgentConfig
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentSessionCreateParams
 import com.llama.llamastack.models.AgentTurnCreateParams
-import com.llama.llamastack.models.Document
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.SystemMessage
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolResponseMessage
-import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
 import com.llama.llamastack.models.UserMessage
-import com.llama.llamastack.models.VectorDbRegisterParams
 import com.llama.llamastack.services.blocking.agents.TurnService
 import com.ml.shubham0204.sentence_embeddings.SentenceEmbedding
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import kotlinx.datetime.Clock
-import java.io.File
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
-import java.util.UUID
 import java.util.concurrent.CompletableFuture
 
 class ExampleLlamaStackLocalInference(
@@ -78,7 +72,7 @@ class ExampleLlamaStackLocalInference(
         thread.start();
     }
 
-    fun updateModel(modelPath: String, tokenizerPath: String, temperature: Float) {
+    fun updateModel(modelPath: String, tokenizerPath: String, temperature: Float, useAgent: Boolean) {
         val thread = Thread {
             try {
                 AppLogging.getInstance().log("Updating local model to $modelPath")
@@ -98,12 +92,11 @@ class ExampleLlamaStackLocalInference(
         thread.start();
     }
 
-    fun inferenceStartWithAgent(agentId: String, sessionId: String, turnService: TurnService, prompt: ArrayList<Message>, ragUserPromptEmbedded: FloatArray?, ctx: Context): String {
+    fun inferenceStartWithAgent(agentId: String, sessionId: String, turnService: TurnService, prompt: ArrayList<Message>, ctx: Context): String {
         val future = CompletableFuture<String>()
         val thread = Thread {
             try {
-                val response = localAgentInference(agentId, sessionId, turnService, prompt,
-                    ragUserPromptEmbedded, ctx)
+                val response = localAgentInference(agentId, sessionId, turnService, prompt, ctx)
                 future.complete(response)
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -201,8 +194,8 @@ class ExampleLlamaStackLocalInference(
         return response;
     }
 
-    fun createLocalAgent(modelName: String, modelPath: String, tokenizerPath: String, vectorDbId: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
-        val agentConfig = createLocalAgentConfig(modelName, modelPath, tokenizerPath, vectorDbId, temperature, userProvidedSystemPrompt)
+    fun createLocalAgent(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
+        val agentConfig = createLocalAgentConfig(modelName, modelPath, tokenizerPath, temperature, userProvidedSystemPrompt)
         val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(
             AgentCreateParams.builder()
@@ -224,18 +217,50 @@ class ExampleLlamaStackLocalInference(
         return Triple(agentId, sessionId, turnService)
     }
 
-    private fun localAgentInference(agentId: String, sessionId: String, turnService: TurnService, conversationHistory: ArrayList<Message>, ragUserPromptEmbedded: FloatArray?, ctx: Context): String {
-        val agentTurnCreateResponseStream =
-            turnService.createStreaming(
-                AgentTurnCreateParams.builder()
-                    .agentId(agentId)
-                    .messages(
-                        constructMessagesForAgent(conversationHistory, ctx)
-                    )
-                    .sessionId(sessionId)
-                    .putAdditionalBodyProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded))
-                    .build()
+    private fun localAgentInference(agentId: String, sessionId: String, turnService: TurnService, conversationHistory: ArrayList<Message>, ctx: Context): String {
+        val messagesAndDocuments: Pair<List<AgentTurnCreateParams.Message>, List<String>> = constructMessagesDocumentsForAgent(conversationHistory)
+
+        var turnParams = AgentTurnCreateParams.builder()
+            .agentId(agentId)
+            .messages(messagesAndDocuments.first)
+            .sessionId(sessionId)
+        // Only set up RAG if documents are provided
+        if (messagesAndDocuments.second.isNotEmpty()) {
+
+            // create embedding of user prompt
+            val sentenceEmbeddingModel = SentenceEmbeddingModel()
+            val ragUserPromptEmbedded = sentenceEmbeddingModel.createEmbedding(
+                conversationHistory.get(conversationHistory.size - 1).getText()
             )
+
+            val text = readFileFromURI(Uri.parse(messagesAndDocuments.second[0]), ctx)
+            val vectorDbId = runBlocking {
+                storeAndEmbedDocument(
+                    client,
+                    sentenceEmbeddingModel,
+                    text,
+                    chunkSizeInWords
+                )
+            }
+            turnParams.addToolgroup(
+                AgentTurnCreateParams.Toolgroup.ofAgentToolGroupWithArgs(
+                    AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.builder()
+                        .name("builtin::rag/knowledge_search")
+                        .args(
+                            AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
+                                .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId))
+                                .putAdditionalProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded))
+                                .putAdditionalProperty("maxNeighborCount", JsonValue.from(3))
+                                .putAdditionalProperty("ragInstruction", JsonValue.from(localRagSystemPrompt()))
+                                .build()
+                        )
+                        .build()
+                )
+            )
+        }
+
+        val agentTurnCreateResponseStream =
+            turnService.createStreaming(turnParams.build())
 
         val callback = ctx as InferenceStreamingCallback
         agentTurnCreateResponseStream.use {
@@ -278,28 +303,73 @@ class ExampleLlamaStackLocalInference(
         return ""
     }
 
-    private fun createLocalAgentConfig(modelName: String, modelPath: String, tokenizerPath: String, vectorDbId: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
+//    private suspend fun storeAndEmbedDocument(text: String, ctx: Context): String {
+//        // Currently just supporting single documents
+//        val document = Document.builder()
+//            .documentId("1")
+//            .content(text)
+//            .metadata(Document.Metadata.builder().build())
+//            .build()
+//
+//        val vectorDbId = UUID.randomUUID().toString()
+//        // Create Vector DB
+//        client!!.vectorDbs().register(
+//            VectorDbRegisterParams.builder()
+//                .vectorDbId(vectorDbId)
+//                .embeddingModel("placeholder")
+//                .build()
+//        )
+//
+//        // unique to local
+//        var tagToolParams = ToolRuntimeRagToolInsertParams.builder()
+//            .vectorDbId(vectorDbId)
+//            .chunkSizeInTokens(chunkSizeInWords)
+//            .documents(listOf(document))
+//            .build();
+//        var ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
+//        var chunks = ragtool.createChunks(tagToolParams)
+//
+//        initializeSentenceEmbedding()
+//
+//        val embeddings = mutableListOf<FloatArray>()
+//
+//        for(chunk in chunks) {
+//            embeddings.add(createEmbeddings(chunk))
+//        }
+//
+//        // Add document content into vector DB (tokenizer, chunking, and insert)
+//        ragtool.insert(
+//            embeddings, chunks
+//        )
+//
+//        return vectorDbId
+//    }
+
+
+
+    private fun createLocalAgentConfig(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String): AgentConfig {
         //Get the current time in ISO format and pass it to the model in system prompt as a reference. This is useful for any scheduling and vague timing reference from user prompt.
         val zdt = ZonedDateTime.ofInstant(Instant.parse(Clock.System.now().toString()), ZoneId.systemDefault())
         //This should be replaced with Agent getting date and time with search tool
         val formattedZdt = zdt.format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))
         val clientTools = mutableListOf<ToolDef>()
         var instruction = userProvidedSystemPrompt
-        if (vectorDbId.isNotEmpty()) {
-            // document is stored and ready for RAG
-            clientTools.add( ToolDef.builder()
-                .name("builtin::rag/knowledge_search")
-                .putAdditionalProperty("vector_db_ids", JsonValue.from(vectorDbId))
-                .build()
-            )
-            if (instruction == "") {
-                instruction = localRagSystemPrompt();
-            }
-        }
+//        cmodiiiii get vectorDB creation from here:
+//        if (vectorDbId.isNotEmpty()) {
+//            // document is stored and ready for RAG
+//            clientTools.add( ToolDef.builder()
+//                .name("builtin::rag/knowledge_search")
+//                .putAdditionalProperty("vector_db_ids", JsonValue.from(vectorDbId))
+//                .build()
+//            )
+//            if (instruction == "") {
+//                instruction = localRagSystemPrompt();
+//            }
+//        }
 
-        //If no System prompt configured by the user, use default tool call system prompt
+        // If no System prompt configured by the user, use default tool call system prompt.
+        // TODO: In the future we can support tool builders from CustomTools.getCreateCalendarEventTool
         if (instruction == "") {
-            //clientTools.add(CustomTools.getCreateCalendarEventTool())
             instruction = getSystemPromptForPotentialCustomToolCall()
         }
         //Llama 1B/3B text model only support PYTHON_LIST at the moment. Whereas Vision instruction models only support JSON format.
@@ -323,83 +393,83 @@ class ExampleLlamaStackLocalInference(
         return agentConfig
     }
 
-    fun storeDocumentFromJava(fileName: String?, ctx: Context): String {
-        return runBlocking {
-            storeDocument(fileName, ctx)
-        }
-    }
+//    fun storeDocumentFromJava(fileName: String?, ctx: Context): String {
+//        return runBlocking {
+//            storeDocument(fileName, ctx)
+//        }
+//    }
 
-    private suspend fun storeDocument(fileName: String?, ctx: Context): String {
-        // Currently just supporting single documents
-        val text = readFile(fileName,ctx);
-        val document = Document.builder()
-            .documentId("1")
-            .content(text)
-            .metadata(Document.Metadata.builder().build())
-            .build()
+//    private suspend fun storeDocument(fileName: String?, ctx: Context): String {
+//        // Currently just supporting single documents
+//        val text = readFile(fileName,ctx);
+//        val document = Document.builder()
+//            .documentId("1")
+//            .content(text)
+//            .metadata(Document.Metadata.builder().build())
+//            .build()
+//
+//        val vectorDbId = UUID.randomUUID().toString()
+//        // Create Vector DB
+//        client!!.vectorDbs().register(
+//            VectorDbRegisterParams.builder()
+//                .vectorDbId(vectorDbId)
+//                .embeddingModel("placeholder")
+//                .build()
+//        )
+//
+//        // unique to local
+//        var tagToolParams = ToolRuntimeRagToolInsertParams.builder()
+//            .vectorDbId(vectorDbId)
+//            .chunkSizeInTokens(chunkSizeInWords)
+//            .documents(listOf(document))
+//            .build();
+//        var ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
+//        var chunks = ragtool.createChunks(tagToolParams)
+//
+//        initializeSentenceEmbedding()
+//
+//        val embeddings = mutableListOf<FloatArray>()
+//
+//        for(chunk in chunks) {
+//            embeddings.add(createEmbeddings(chunk))
+//        }
+//
+//        // Add document content into vector DB (tokenizer, chunking, and insert)
+//        ragtool.insert(
+//            embeddings, chunks
+//        )
+//
+//        return vectorDbId
+//    }
 
-        val vectorDbId = UUID.randomUUID().toString()
-        // Create Vector DB
-        client!!.vectorDbs().register(
-            VectorDbRegisterParams.builder()
-                .vectorDbId(vectorDbId)
-                .embeddingModel("placeholder")
-                .build()
-        )
-
-        // unique to local
-        var tagToolParams = ToolRuntimeRagToolInsertParams.builder()
-            .vectorDbId(vectorDbId)
-            .chunkSizeInTokens(chunkSizeInWords)
-            .documents(listOf(document))
-            .build();
-        var ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
-        var chunks = ragtool.createChunks(tagToolParams)
-
-        initializeSentenceEmbedding()
-
-        val embeddings = mutableListOf<FloatArray>()
-
-        for(chunk in chunks) {
-            embeddings.add(createEmbeddings(chunk))
-        }
-
-        // Add document content into vector DB (tokenizer, chunking, and insert)
-        ragtool.insert(
-            embeddings, chunks
-        )
-
-        return vectorDbId
-    }
-
-    private suspend fun initializeSentenceEmbedding() {
-        sentenceEmbedding = SentenceEmbedding()
-        val modelFile = File("/data/local/tmp/llama", "model-all-miniLM-L6-v2.onnx")
-        val tokenizerFile = File("/data/local/tmp/llama", "tokenizer-all-miniLM-L6-v2.json")
-        val tokenizerBytes = tokenizerFile.readBytes()
-
-        runBlocking(Dispatchers.IO) {
-            sentenceEmbedding!!.init(
-                modelFilepath = modelFile.absolutePath,
-                tokenizerBytes = tokenizerBytes,
-                useTokenTypeIds = true,
-                outputTensorName = "sentence_embedding",
-                useFP16 = false,
-                useXNNPack = false,
-                normalizeEmbeddings = true,
-            )
-        }
-    }
-
-    private suspend fun createEmbeddings(chunk: String): FloatArray = runBlocking(Dispatchers.Default) {
-        return@runBlocking sentenceEmbedding!!.encode(chunk)
-    }
-
-    fun createEmbeddingsFromJava(chunk: String): FloatArray {
-        return runBlocking {
-            createEmbeddings(chunk)
-        }
-    }
+//    private suspend fun initializeSentenceEmbedding() {
+//        sentenceEmbedding = SentenceEmbedding()
+//        val modelFile = File("/data/local/tmp/llama", "model-all-miniLM-L6-v2.onnx")
+//        val tokenizerFile = File("/data/local/tmp/llama", "tokenizer-all-miniLM-L6-v2.json")
+//        val tokenizerBytes = tokenizerFile.readBytes()
+//
+//        runBlocking(Dispatchers.IO) {
+//            sentenceEmbedding!!.init(
+//                modelFilepath = modelFile.absolutePath,
+//                tokenizerBytes = tokenizerBytes,
+//                useTokenTypeIds = true,
+//                outputTensorName = "sentence_embedding",
+//                useFP16 = false,
+//                useXNNPack = false,
+//                normalizeEmbeddings = true,
+//            )
+//        }
+//    }
+//
+//    private suspend fun createEmbeddings(chunk: String): FloatArray = runBlocking(Dispatchers.Default) {
+//        return@runBlocking sentenceEmbedding!!.encode(chunk)
+//    }
+//
+//    fun createEmbeddingsFromJava(chunk: String): FloatArray {
+//        return runBlocking {
+//            createEmbeddings(chunk)
+//        }
+//    }
 
     private fun readFile(fileName: String?, context: Context): String {
         try {
@@ -423,38 +493,45 @@ class ExampleLlamaStackLocalInference(
         }
     }
 
-    private fun constructMessagesForAgent(
-        conversationHistory: ArrayList<Message>, ctx: Context
-    ): List<AgentTurnCreateParams.Message> {
+    private fun constructMessagesDocumentsForAgent(
+        conversationHistory: ArrayList<Message>
+    ): Pair<List<AgentTurnCreateParams.Message>, List<String>> {
         val messageList = ArrayList<AgentTurnCreateParams.Message>();
+        val documentUriList = mutableListOf<String>()
+
         for (chat in conversationHistory) {
             var inferenceMessage: AgentTurnCreateParams.Message? = null
 
-            if (chat.messageType == MessageType.TEXT) {
-                inferenceMessage = if (chat.isSent) {
-                    // User Message
-                    AgentTurnCreateParams.Message.ofUser(
-                        UserMessage.builder()
-                            .content(InterleavedContent.ofString(chat.text))
-                            .build()
-                    );
-                } else {
-                    AgentTurnCreateParams.Message.ofToolResponse(
-                        ToolResponseMessage.builder()
-                            .callId("")
-                            .content(InterleavedContent.ofString(chat.text))
-                            .build()
-                    )
+            if (chat.isSent) {
+                if (chat.messageType == MessageType.DOCUMENT) {
+                    documentUriList.add(chat.documentPath)
+                    continue
                 }
+
+                // User Message
+                inferenceMessage = AgentTurnCreateParams.Message.ofUser(
+                    UserMessage.builder()
+                        .content(InterleavedContent.ofString(chat.text))
+                        .build()
+                );
+            } else {
+                inferenceMessage = AgentTurnCreateParams.Message.ofToolResponse(
+                    ToolResponseMessage.builder()
+                        .callId("")
+                        .content(InterleavedContent.ofString(chat.text))
+                        .build()
+                )
             }
-            if (inferenceMessage != null) {
+            if(inferenceMessage != null){
                 messageList.add(inferenceMessage)
             }
+
         }
 
         AppLogging.getInstance().log("conversation history length "  + messageList.size)
-        return messageList
+        return Pair(messageList, documentUriList)
     }
+
 
 
     private fun constructLSMessagesFromConversationHistoryAndSystemPrompt(

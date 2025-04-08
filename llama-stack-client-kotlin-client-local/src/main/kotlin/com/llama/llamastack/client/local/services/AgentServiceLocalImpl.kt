@@ -3,8 +3,6 @@ package com.llama.llamastack.client.local.services
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.services.agents.SessionServiceLocalImpl
 import com.llama.llamastack.client.local.services.agents.TurnServiceLocalImpl
-import com.llama.llamastack.client.local.util.createETLlamaModule
-import com.llama.llamastack.core.JsonString
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentCreateResponse
@@ -18,11 +16,23 @@ import java.util.UUID
 class AgentServiceLocalImpl constructor(private var clientOptions: LocalClientOptions) :
     AgentService {
 
-    private val session: SessionService by lazy { SessionServiceLocalImpl(clientOptions) }
+    lateinit var agentId: String
+    private var agentCreateParams: AgentCreateParams? = null
+    private var agentCreateResponse: AgentCreateResponse? = null
+
+    fun getAgentCreateParams(): AgentCreateParams? {
+        return agentCreateParams
+    }
+
+    fun getAgentCreateResponse(): AgentCreateResponse? {
+        return agentCreateResponse
+    }
 
     override fun withRawResponse(): AgentService.WithRawResponse {
         TODO("Not yet implemented")
     }
+
+    private val session: SessionService by lazy { SessionServiceLocalImpl(clientOptions) }
 
     override fun session(): SessionService = session
 
@@ -34,33 +44,26 @@ class AgentServiceLocalImpl constructor(private var clientOptions: LocalClientOp
 
     override fun turn(): TurnService = turn
 
-    private var agentCreateResponse: AgentCreateResponse? = null
-
     override fun create(
         params: AgentCreateParams,
         requestOptions: RequestOptions,
     ): AgentCreateResponse {
         // retrieve initial metadata (modelPath, tokenizerPath, prompt..etc.)
-        val agentConfig = params.agentConfig()
+        this.agentCreateParams = params
+        try {
+            val agentConfig = this.agentCreateParams!!.agentConfig()
+            clientOptions.overrideModelConfigsFromAgent(agentConfig)
+            clientOptions.initializeLlamaModule()
 
-        // set clientOptions just for record
-        clientOptions.modelPath =
-            (agentConfig._additionalProperties()["modelPath"] as JsonString).value
-        clientOptions.tokenizerPath =
-            (agentConfig._additionalProperties()["tokenizerPath"] as JsonString).value
-        checkNotNull(clientOptions.modelPath) { "`modelPath` is required but not set" }
-        checkNotNull(clientOptions.tokenizerPath) { "`tokenizerPath` is required but not set" }
-        clientOptions.llamaModule =
-            createETLlamaModule(clientOptions.modelPath, clientOptions.tokenizerPath, 0.0F)
-
-        val agentID = UUID.randomUUID()
-        agentCreateResponse = AgentCreateResponse.builder().agentId(agentID.toString()).build()
-
-        // TODO: cmodiii Place in DB including the modelName since that is later used in turnservice
-        clientOptions.setAgent(this)
-        clientOptions.setModelName(agentConfig.model())
-        clientOptions.setInstruction(agentConfig.instructions())
-
+            agentId = UUID.randomUUID().toString()
+            clientOptions.setAgent(this)
+            agentCreateResponse = AgentCreateResponse.builder().agentId(agentId).build()
+        } catch (e: Exception) {
+            println(
+                "AgentCreateLocalImpl.create(): agentCreateParams is probably null or " +
+                    "issue with LlamaModule initialization. Exception is $e"
+            )
+        }
         return agentCreateResponse as AgentCreateResponse
     }
 

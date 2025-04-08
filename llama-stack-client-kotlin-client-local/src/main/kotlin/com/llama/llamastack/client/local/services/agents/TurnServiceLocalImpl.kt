@@ -1,12 +1,13 @@
 package com.llama.llamastack.client.local.services.agents
 
 import com.llama.llamastack.client.local.LocalClientOptions
-import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb_
 import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildAgentTurnResponseFromStream
 import com.llama.llamastack.client.local.util.buildLastAgentTurnResponsesFromStream
+import com.llama.llamastack.client.local.util.getNeighborSentences
 import com.llama.llamastack.core.JsonArray
 import com.llama.llamastack.core.JsonNumber
+import com.llama.llamastack.core.JsonString
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
@@ -110,16 +111,21 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
         isStreaming = true
         streamingResponseList.clear()
         resultMessage = ""
+
+        val agentId = params.agentId()
+        val agent = clientOptions.getAgent(agentId)
+        val agentCreateParams = agent!!.getAgentCreateParams()
+        val agentConfig = agentCreateParams!!.agentConfig()
+        var instruction = agentConfig.instructions()
         val mModule = clientOptions.llamaModule
-        modelName = clientOptions.getModelName()!! // TODO: cmodiii get this from db
-        val instruction = clientOptions.getInstruction()!! // TODO: cmodiii get this from db
-        println("cmodiii createStreaming: $modelName , $instruction , $mModule")
+        modelName = agentConfig.model()
         var formattedPrompt = String()
 
         val additionalBodyProperty = params._additionalBodyProperties()
-        if (additionalBodyProperty.isEmpty()) {
+        val toolGroups = params.toolgroups()
+        if (toolGroups == null) {
             // Assumes normal Q/A inference or custom tool call
-            // TODO: we should remove custom tool call as a separate piece
+            // TODO: Separate out custom tool call flow
             formattedPrompt =
                 PromptFormatLocal.getTotalFormattedPromptForAgent(
                     instruction,
@@ -127,34 +133,43 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
                     modelName,
                 )
         } else {
-            if (additionalBodyProperty.containsKey("ragUserPromptEmbedded")) {
-                // Indicates that this is a local RAG tool call
-                // TODO: Use rag/knowledge_search from AgentService
-
-                val userPromptEmbedding =
-                    jsonValueToFloatArray(additionalBodyProperty["ragUserPromptEmbedded"]!!)
-                println("cmodiii userPromptEmbedding value is: $userPromptEmbedding")
-                // query objectbox
-                val box = clientOptions.getVectorDb()
-                val neighbors =
-                    box!!
-                        .query(
-                            RagVectorDb_.embeddedChunk.nearestNeighbors(userPromptEmbedding!!, 3)
+            // Possible Tool Group like RAG
+            if (toolGroups.size > 1) {
+                println("createStreaming: Currently we only support one Tool Group")
+            }
+            val toolGroupWithArgs = toolGroups[0].agentToolGroupWithArgs()
+            if (toolGroupWithArgs != null) {
+                if (toolGroupWithArgs.name() == "builtin::rag/knowledge_search") {
+                    val additionalProperties = toolGroupWithArgs.args()._additionalProperties()
+                    val userPromptEmbedding =
+                        jsonValueToFloatArray(additionalProperties["ragUserPromptEmbedded"]!!)
+                    val maxNeighborCount =
+                        (additionalProperties["maxNeighborCount"] as JsonNumber).value as Int
+                    println("createStreaming: userPromptEmbedding value is: $userPromptEmbedding")
+                    val neighborSentences =
+                        getNeighborSentences(
+                            clientOptions.getVectorDb(
+                                (additionalProperties["vector_db_id"] as JsonString).value
+                            ),
+                            userPromptEmbedding,
+                            maxNeighborCount,
                         )
-                        .build()
-                        .findWithScores()
-
-                val neighborSentences = neighbors.joinToString(" ") { it.get().rawChunk }
-
-                formattedPrompt =
-                    PromptFormatLocal.getTotalFormattedPromptForAgentForLocalRag(
-                        instruction,
-                        neighborSentences,
-                        params.messages(),
-                        modelName,
-                    )
+                    // With Rag we will use a different instruction provided in the
+                    // additionalProperties
+                    instruction = (additionalProperties["ragInstruction"] as JsonString).value
+                    formattedPrompt =
+                        PromptFormatLocal.getTotalFormattedPromptForAgentForLocalRag(
+                            instruction,
+                            neighborSentences,
+                            params.messages(),
+                            modelName,
+                        )
+                }
+            } else {
+                println("createStreaming: Populate toolGroupWithArgs")
             }
         }
+        println("createStreaming: $modelName , $instruction , $mModule")
 
         val seqLength =
             params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
