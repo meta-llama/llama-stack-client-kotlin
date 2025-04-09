@@ -3,7 +3,6 @@ package com.llama.llamastack.client.local.services
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.services.toolruntime.RagToolServiceLocalImpl
 import com.llama.llamastack.core.RequestOptions
-import com.llama.llamastack.core.http.StreamResponse
 import com.llama.llamastack.models.ToolDef
 import com.llama.llamastack.models.ToolInvocationResult
 import com.llama.llamastack.models.ToolRuntimeInvokeToolParams
@@ -34,10 +33,10 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    override fun listToolsStreaming(
+    override fun listTools(
         params: ToolRuntimeListToolsParams,
         requestOptions: RequestOptions,
-    ): StreamResponse<ToolDef> {
+    ): List<ToolDef> {
         TODO("Not yet implemented")
     }
 }

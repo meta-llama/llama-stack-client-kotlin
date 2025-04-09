@@ -166,7 +166,6 @@ fun buildAgentTurnResponseForCustomToolCallStream(
     stopToken: String,
     stats: Float,
 ): AgentTurnResponseStreamChunk {
-//TODO: cmodiiii check for adding unionMember1 here?
 
     return AgentTurnResponseStreamChunk.builder()
         .event(
