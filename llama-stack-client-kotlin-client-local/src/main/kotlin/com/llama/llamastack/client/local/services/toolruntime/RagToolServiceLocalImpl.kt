@@ -1,6 +1,5 @@
 package com.llama.llamastack.client.local.services.toolruntime
 
-// import ai.djl.huggingface.tokenizers.HuggingFaceTokenizer
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb
 import com.llama.llamastack.core.RequestOptions
@@ -15,7 +14,6 @@ constructor(
     private val clientOptions: LocalClientOptions,
     private val inferenceServiceLocalImpl: InferenceService,
 ) : RagToolService {
-    private var vectorId: Long = 0
 
     override fun withRawResponse(): RagToolService.WithRawResponse {
         TODO("Not yet implemented")
@@ -57,15 +55,6 @@ constructor(
         TODO("Not yet implemented")
     }
 
-    //    private fun insertIntoVectorDB(box: Box<RagVectorDb>?, chunks:
-    // MutableList<VectorIoInsertParams.Chunk>): Boolean {
-    //        if (box != null) {
-    //
-    //        }
-    //
-    //        return false
-    //    }
-
     private fun makeOverlappedChunksFromWords(
         text: String,
         documentId: String,
@@ -80,30 +69,4 @@ constructor(
         }
         return chunks
     }
-
-    //    private fun makeOverlappedChunksFromTokens(
-    //        tokenizer: HuggingFaceTokenizer,
-    //        tokens: Array<String>,
-    //        chunkSize: Long,
-    //        documentId: String,
-    //    ): MutableList<VectorIoInsertParams.Chunk> {
-    //        val chunks = mutableListOf<VectorIoInsertParams.Chunk>()
-    //        for (i in 0 until tokens.size step ((chunkSize - overlapLen).toInt())) {
-    //            val toks = tokens.slice(i until minOf((i + chunkSize).toInt(), tokens.size))
-    //            println("cmodiii toks are: $toks")
-    //            // val chunk = tokenizer.decode(toks)
-    //            chunks.add(
-    //                VectorIoInsertParams.Chunk.builder()
-    //                    .content("hi")
-    //                    .metadata(
-    //                        VectorIoInsertParams.Chunk.Metadata.builder()
-    //                            .putAdditionalProperty("token_count", JsonValue.from(toks.size))
-    //                            .putAdditionalProperty("document_id", JsonValue.from(documentId))
-    //                            .build()
-    //                    )
-    //                    .build()
-    //            )
-    //        }
-    //        return chunks
-    //    }
 }

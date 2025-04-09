@@ -4,18 +4,15 @@ import android.content.Context
 import android.database.Cursor
 import android.net.Uri
 import android.provider.OpenableColumns
-import com.itextpdf.text.pdf.PdfReader
-import com.itextpdf.text.pdf.parser.PdfTextExtractor
+import android.util.Log
 import com.llama.llamastack.client.LlamaStackClientClient
-import com.llama.llamastack.client.local.LlamaStackClientLocalClient
 import com.llama.llamastack.client.local.services.toolruntime.RagToolServiceLocalImpl
 import com.llama.llamastack.models.Document
 import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
 import com.llama.llamastack.models.VectorDbRegisterParams
-import com.ml.shubham0204.sentence_embeddings.SentenceEmbedding
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.runBlocking
-import java.io.File
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader
+import com.tom_roush.pdfbox.pdmodel.PDDocument
+import com.tom_roush.pdfbox.text.PDFTextStripper
 import java.io.InputStream
 import java.nio.charset.StandardCharsets
 import java.util.UUID
@@ -35,7 +32,7 @@ fun readFileFromURI(uri: Uri, context: Context): String {
         if (fileName != null) {
             val fileExtension = fileName.substringAfterLast(".", "")
             return when (fileExtension) {
-                "pdf" -> pdfToText(inputStream)
+                "pdf" -> pdfToText(inputStream, context)
                 "txt" -> txtToText(inputStream)
                 else -> ""
             }
@@ -66,13 +63,13 @@ fun readFileFromURI(uri: Uri, context: Context): String {
     )
 
     // unique to local
-    var tagToolParams = ToolRuntimeRagToolInsertParams.builder()
+    val tagToolParams = ToolRuntimeRagToolInsertParams.builder()
         .vectorDbId(vectorDbId)
         .chunkSizeInTokens(chunkSizeInWords)
         .documents(listOf(document))
         .build();
-    var ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
-    var chunks = ragtool.createChunks(tagToolParams)
+    val ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
+    val chunks = ragtool.createChunks(tagToolParams)
 
     val embeddings = mutableListOf<FloatArray>()
     for(chunk in chunks) {

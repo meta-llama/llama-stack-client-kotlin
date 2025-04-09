@@ -149,16 +149,14 @@ fun buildLastAgentTurnResponsesFromStream(
 ): List<AgentTurnResponseStreamChunk> {
     val listOfResponses: MutableList<AgentTurnResponseStreamChunk> = mutableListOf()
     if (isResponseAToolCall(resultMessage)) {
-        println("cmodiii determined this was a tool call")
         val toolCalls = createCustomToolCalls(resultMessage)
-        println("cmodiii tool call is $toolCalls")
+        println("determined tool call is $toolCalls")
         listOfResponses.add(
             buildAgentTurnResponseForCustomToolCallStream(toolCalls, stopToken, stats)
         )
-        println("cmodiii added as tool call")
     } else {
         listOfResponses.add(buildAgentTurnResponseFromStringStream("", stopToken, stats))
-        println("cmodiii not a tool call")
+        println("not a tool call")
     }
     return listOfResponses.toList()
 }
