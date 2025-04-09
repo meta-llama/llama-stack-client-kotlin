@@ -31,6 +31,8 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.CompletableFuture
+import androidx.core.net.toUri
+import com.llama.llamastack.models.InterleavedContentItem
 
 interface InferenceStreamingCallback {
     fun onStreamReceived(message: String)
@@ -355,46 +357,49 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
         conversationHistory: ArrayList<Message>, ctx: Context
     ):List<AgentTurnCreateParams.Message> {
         val messageList = ArrayList<AgentTurnCreateParams.Message>();
-        var image : InterleavedContent.ImageContentItem.Image? = null
+        val imageList : ArrayList<InterleavedContentItem> = ArrayList()
         // User and assistant messages
         for (chat in conversationHistory) {
             var inferenceMessage: AgentTurnCreateParams.Message
 
             if (chat.isSent) {
                 // First image in the chat. Image must pair with a prompt
-                if (chat.messageType == MessageType.IMAGE && image == null) {
-                    val imageUri = Uri.parse(chat.imagePath)
+                if (chat.messageType == MessageType.IMAGE) {
+                    val imageUri = chat.imagePath.toUri()
                     val contentResolver = ctx.contentResolver
                     val imageFilePath = getFilePathFromUri(contentResolver, imageUri)
                     val imageDataUrl = imageFilePath?.let { encodeImageToDataUrl(it) }
-                    val imageUrl = imageDataUrl?.let { InterleavedContent.ImageContentItem.Image.Url.builder().uri(it).build() }
-                    if (imageUrl != null) {
-                        image = InterleavedContent.ImageContentItem.Image.builder().url(imageUrl).build()
-                    }
+                    val imageUrl = imageDataUrl?.let { InterleavedContentItem.ImageContentItem.Image.Url.builder().uri(it).build() }
+                    val image = InterleavedContentItem.ofImage(
+                        InterleavedContentItem.ImageContentItem
+                            .builder()
+                            .image(InterleavedContentItem.ImageContentItem.Image
+                                .builder()
+                                .url(imageUrl!!)
+                                .build()
+                            )
+                            .build()
+                    )
+                    imageList.add(image)
 
                     continue
                 }
                 // Prompt right after the image
-                else if (chat.messageType == MessageType.TEXT && image != null) {
+                else if (chat.messageType == MessageType.TEXT && imageList.size > 0) {
+
+                    inferenceMessage = AgentTurnCreateParams.Message.ofUser(
+                        UserMessage.builder()
+                            .content(InterleavedContent.ofItems(imageList))
+                            .build()
+                    )
+                    messageList.add(inferenceMessage)
+//                    imageList.clear()
 
                     inferenceMessage = AgentTurnCreateParams.Message.ofUser(
                         UserMessage.builder()
                             .content(InterleavedContent.ofString(chat.text))
                             .build()
                     )
-                    messageList.add(inferenceMessage)
-
-                    inferenceMessage = AgentTurnCreateParams.Message.ofUser(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofImageContentItem(
-                                    InterleavedContent.ImageContentItem.builder()
-                                        .image(image)
-                                        .type(JsonValue.from("image"))
-                                        .build()
-                                ))
-                                .build()
-                    )
-                    image = null
                 }
                 //Everything else. No multiple images support yet
                 else {
