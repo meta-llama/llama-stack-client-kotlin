@@ -80,12 +80,11 @@ dependencies {
 // This is needed if you are using local built jars instead of the pre-built ones from maven
   implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
-  //implementation("ai.djl.huggingface:tokenizers:0.32.0")
   implementation(files("libs/model2vec.aar"))
   implementation(files("libs/sentence_embeddings.aar"))
   implementation("com.microsoft.onnxruntime:onnxruntime-android:1.17.0")
-  implementation("com.itextpdf:itextpdf:5.5.13.4")
   implementation("io.noties.markwon:core:4.6.2")
+  implementation("com.tom-roush:pdfbox-android:2.0.27.0")
 }
 
 apply(plugin = "io.objectbox")

@@ -44,6 +44,8 @@ import androidx.core.content.ContextCompat;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.llama.llamastack.services.blocking.agents.TurnService;
+import com.tom_roush.pdfbox.android.PDFBoxResourceLoader;
+
 import kotlin.Triple;
 
 import java.lang.reflect.Type;
@@ -87,7 +89,6 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
   private String sessionId;
   private TurnService turnService;
   private Boolean useAgent = true;
-  private Boolean testRAG = true;
 
   private void populateExistingMessages(String existingMsgJSON) {
     Gson gson = new Gson();
@@ -151,6 +152,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
     setupGenerationButton();
     //Hard-coded to use agents in the example. Can be controlled by UI buttons.
     useAgent = true;
+    PDFBoxResourceLoader.init(this);
   }
 
   @Override
@@ -736,8 +738,6 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
       }
     }
 
-    //String vectorDbId = "1";
-
     Triple<String, String, TurnService> agentInfo =
             Objects.equals(generationMode, AppUtils.REMOTE) ?
                     exampleLlamaStackRemoteInference.createRemoteAgent(modelName, temperature, systemPrompt, this) :
@@ -787,9 +787,6 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
 
     if (useAgent) {
       var messages = mMessageAdapter.getRecentSavedTextMessages(AppUtils.CONVERSATION_HISTORY_MESSAGE_LOOKBACK);
-//      if (testRAG) {
-//        exampleLlamaStackLocalInference.storeDocumentFromJava("CarManual2023Vehicle.pdf", this);
-//      }
       result = exampleLlamaStackLocalInference.inferenceStartWithAgent(
               agentId,
               sessionId,

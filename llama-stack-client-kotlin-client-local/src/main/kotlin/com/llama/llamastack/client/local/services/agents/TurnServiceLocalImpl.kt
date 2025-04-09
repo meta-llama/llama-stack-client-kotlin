@@ -42,37 +42,6 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
 
     override fun create(params: AgentTurnCreateParams, requestOptions: RequestOptions): Turn {
         TODO("Not yet implemented")
-        /* isStreaming = false
-        clearElements()
-        val mModule = clientOptions.llamaModule
-        modelName = "LLAMA_3_2" // TODO: cmodiii get this from db
-        val instruction = "Be concise" // TODO: cmodiii get this from db
-        val formattedPrompt =
-            PromptFormatLocal.getTotalFormattedPromptForAgent(
-                instruction,
-                params.messages(),
-                modelName
-            )
-
-        // Developer can pass in their sequence length but if not then it will default to a
-        // particular dynamic value. This is to ensure enough value is provided to give a reasonably
-        // complete response. 0.75 is the approximate words per token. And 64 is buffer for tokens
-        // for generate response.
-        val seqLength =
-            params._additionalQueryParams().values(sequenceLengthKey).lastOrNull()?.toInt()
-                ?: ((formattedPrompt.length * 0.75) + 64).toInt()
-
-        println("Chat Completion Prompt is: $formattedPrompt with seqLength of $seqLength")
-        onResultComplete = false
-        mModule.generate(formattedPrompt, seqLength, this, false)
-
-        while (!onResultComplete && !onStatsComplete) {
-            Thread.sleep(waitTime)
-        }
-        onResultComplete = false
-        onStatsComplete = false
-
-        return buildAgentTurnResponses(resultMessage, statsMetric, stopToken)*/
     }
 
     private val streamResponse =
@@ -81,7 +50,6 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
                 return sequence {
                     while (!onResultComplete || streamingResponseList.isNotEmpty()) {
                         if (streamingResponseList.isNotEmpty()) {
-                            println("cmodiii streamResponse yield. I'm here!")
                             yield(streamingResponseList.removeAt(0))
                         } else {
                             Thread.sleep(waitTime)
@@ -92,7 +60,6 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
                     }
                     val agentTurnResponses =
                         buildLastAgentTurnResponsesFromStream(resultMessage, statsMetric, stopToken)
-                    println("cmodiii streamResponse yield. tool call: $agentTurnResponses")
                     for (atr in agentTurnResponses) {
                         yield(atr)
                     }
@@ -121,7 +88,6 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
         modelName = agentConfig.model()
         var formattedPrompt = String()
 
-        val additionalBodyProperty = params._additionalBodyProperties()
         val toolGroups = params.toolgroups()
         if (toolGroups == null) {
             // Assumes normal Q/A inference or custom tool call
@@ -209,14 +175,14 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
             if (resultMessage.isNotEmpty()) {
                 resultMessage += p0
                 if (p0 != null && isStreaming) {
-                    println("cmodiii turn: $p0")
+                    println("turn: $p0")
                     streamingResponseList.add(buildAgentTurnResponseFromStream(p0))
                 }
             }
         } else {
             resultMessage += p0
             if (p0 != null && isStreaming) {
-                println("cmodiii turn last: $p0")
+                println("turn last: $p0")
                 streamingResponseList.add(buildAgentTurnResponseFromStream(p0))
             }
         }
@@ -236,7 +202,7 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
     }
 
     // Convert JsonValue back to FloatArray
-    fun jsonValueToFloatArray(jsonValue: JsonValue): FloatArray? {
+    private fun jsonValueToFloatArray(jsonValue: JsonValue): FloatArray? {
         val list = (jsonValue as JsonArray).values
         return FloatArray(list.size) { i -> ((list[i] as JsonNumber).value).toFloat() }
     }
