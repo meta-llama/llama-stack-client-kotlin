@@ -175,14 +175,12 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
             if (resultMessage.isNotEmpty()) {
                 resultMessage += p0
                 if (p0 != null && isStreaming) {
-                    println("turn: $p0")
                     streamingResponseList.add(buildAgentTurnResponseFromStream(p0))
                 }
             }
         } else {
             resultMessage += p0
             if (p0 != null && isStreaming) {
-                println("turn last: $p0")
                 streamingResponseList.add(buildAgentTurnResponseFromStream(p0))
             }
         }

@@ -27,7 +27,7 @@ class VectorDbServiceLocalImpl constructor(private val clientOptions: LocalClien
     override fun retrieve(
         params: VectorDbRetrieveParams,
         requestOptions: RequestOptions,
-    ): VectorDbRetrieveResponse? {
+    ): VectorDbRetrieveResponse {
         TODO("Not yet implemented")
     }
 
