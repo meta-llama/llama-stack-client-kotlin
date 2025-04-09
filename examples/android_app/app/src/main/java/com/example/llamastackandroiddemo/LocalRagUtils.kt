@@ -85,18 +85,17 @@ fun readFileFromURI(uri: Uri, context: Context): String {
     return vectorDbId
 }
 
-fun pdfToText(inputStream: InputStream?): String {
-    var text = ""
-    try {
-        val pdfReader = PdfReader(inputStream)
-        text = ""
-        for (i in 1..pdfReader.numberOfPages) {
-            text += "\n" + PdfTextExtractor.getTextFromPage(pdfReader, i)
-        }
-    } catch (e: java.lang.Exception) {
-        e.printStackTrace()
+fun pdfToText(inputStream: InputStream?, context: Context): String {
+    // Initialize PDFBoxResourceLoader if not already done
+    if (!PDFBoxResourceLoader.isReady()) {
+        PDFBoxResourceLoader.init(context)
     }
-    return text
+    val document = PDDocument.load(inputStream);
+    val pdfStripper = PDFTextStripper()
+    val parsedText = pdfStripper.getText(document);
+    document.close()
+
+    return parsedText
 }
 
 fun txtToText(inputStream: InputStream?): String {
