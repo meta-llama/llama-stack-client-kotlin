@@ -176,44 +176,10 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
         params: InferenceEmbeddingsParams,
         requestOptions: RequestOptions,
     ): EmbeddingsResponse {
-        TODO("Not yet implemented")
-        //        val sentenceEmbedding = SentenceEmbedding()
-        //        val texts = params.contents().strings()!![0]
-        //
-        //        val modelFile = File("data/local/tmp/llama/model-all-miniLM-L6-v2.onnx")
-        //        val tokenizerFile = File("data/local/tmp/llama/tokenizer-all-miniLM-L6-v2.json")
-        //        val tokenizerBytes = tokenizerFile.readBytes()
-        //        println("cmodiii modelFile and tokenizerFile done")
-        //
-        //        runBlocking {
-        //            sentenceEmbedding.init(
-        //                modelFilepath = modelFile.absolutePath,
-        //                tokenizerBytes = tokenizerBytes,
-        //                useTokenTypeIds = false,
-        //                outputTensorName = "sentence_embedding",
-        //                useFP16 = false,
-        //                normalizeEmbeddings = true,
-        //                useXNNPack = false,
-        //            )
-        //        }
-        //        println("cmodiii sentenceEmbedding init done")
-        //
-        //        val embedding = embeddingInference(sentenceEmbedding, texts).toList().map {
-        // it.toDouble() }
-        //
-        //        println("cmodiii embedding is done for $texts. EMBEDDING: $embedding")
-        //
-        //        return EmbeddingsResponse.builder().embeddings(listOf(embedding)).build()
+        TODO("Not yet implemented. Embedding is done from Android App")
     }
 
-    //    private fun embeddingInference(sentenceEmbedding: SentenceEmbedding, text: String):
-    // FloatArray {
-    //        val embedding: FloatArray
-    //        runBlocking { embedding = sentenceEmbedding.encode(text) }
-    //        return embedding
-    //    }
-
-    fun clearElements() {
+    private fun clearElements() {
         resultMessage = ""
         stopToken = ""
     }
