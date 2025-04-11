@@ -20,23 +20,8 @@ AAR_URL_SE="https://github.com/shubham0204/Sentence-Embeddings-Android/releases/
 AAR_URL_M2V="https://github.com/shubham0204/Sentence-Embeddings-Android/releases/download/v6/model2vec.aar"
 LIBS_PATH="$(dirname "$0")/app/libs"
 UNZIP=false
-while [[ $# -gt 0 ]]; do
-    case $1 in
-        --unzip)
-            UNZIP=true
-            LIBS_PATH="$(dirname "$0")"
-            shift
-            ;;
-        *)
-            echo "Unknown option: $1"
-            exit 1
-            ;;
-    esac
-done
 
-if [ "$UNZIP" = false ]; then
-    mkdir -p "${LIBS_PATH}"
-fi
+mkdir -p "${LIBS_PATH}"
 
 wget "${AAR_URL_SE}" -O "${LIBS_PATH}/sentence_embeddings.aar"
 wget "${AAR_URL_M2V}" -O "${LIBS_PATH}/model2vec.aar"
@@ -48,6 +33,3 @@ if [ "$UNZIP" = true ]; then
     unzip -q model2vec.aar
     rm "model2vec.aar"
 fi
-
-mv classes_sentence_embedding.jar "${LIBS_PATH}/libs"
-mv classes_model2dev.jar "${LIBS_PATH}/libs"
