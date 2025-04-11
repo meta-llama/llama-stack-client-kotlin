@@ -110,6 +110,7 @@ client = LlamaStackClientOkHttpClient
 
 ### Agents
 
+#### Remote
 Llama Stack agent is capable of running multi-turn inference using both customized and built-in tools.  
 
 Create the agent configuration:
@@ -208,7 +209,47 @@ Handle the stream chunk callback:
         }
 ```
 
-More examples can be found in our [demo app](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app) 
+#### Local
+Agents are called and used similar to remote agents however local agents support a few capabilities which are verified:
+- Inferencing with turns
+- Custom tool calling like createCalendarEvent (see [demo app](https://github.com/meta-llama/llama-stack-client-kotlin/tree/latest-release/examples/android_app))
+- Local RAG.
+
+We do plan on building out more capabilities.
+
+The beauty of Llama Stack is that most of the code is similar to remote agents. There are a few additional lines in agent configurations which are noted below otherwise the code is the same!
+
+Create the agent configuration:
+```
+val agentConfig =
+            AgentConfig.builder()
+                .enableSessionPersistence(false)
+                .instructions(instruction)
+                .maxInferIters(100)
+                .model(modelName)
+                .toolChoice(AgentConfig.ToolChoice.AUTO)
+                .toolPromptFormat(toolPromptFormat)
+                .clientTools(
+                    clientTools
+                )
+                .putAdditionalProperty("modelPath", JsonValue.from(modelPath))
+                .putAdditionalProperty("tokenizerPath", JsonValue.from(tokenizerPath))
+                .build()
+```
+
+Create the agent:
+***Same as remote***
+
+Create the session:
+***Same as remote***
+
+Create a turn:
+***Same as remote***
+
+Handle the stream chunk callback:
+***Same as remote***
+
+More examples can be found in our [demo app](https://github.com/meta-llama/llama-stack-client-kotlin/tree/latest-release/examples/android_app) 
 
 
 ### Run Image Reasoning
@@ -263,8 +304,7 @@ val result = client!!.inference().chatCompletion(
 var response = result.completionMessage().content().string();
 ```
 
-[Remote only] For inference with a streaming response:
-
+For inference with a streaming response:
 ```
 val result = client!!.inference().chatCompletionStreaming(
             InferenceChatCompletionParams.builder()
