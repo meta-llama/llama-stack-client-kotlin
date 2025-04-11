@@ -27,14 +27,19 @@ The goal is for you to see the type of support Llama Stack Kotlin SDK provides a
 ```
 git clone https://github.com/meta-llama/llama-stack-client-kotlin.git --branch=latest-release
 ```
-2. Add executorch.aar file for local inference. This will download the .aar file into a newly created app/libs directory in the Android app. 
+2. Download executorch.aar and sentence embedding aar files for local inference into a newly created app/libs directory in the Android app. 
 ```
 cd llama-stack-client-kotlin
 cp llama-stack-client-kotlin-client-local/download-prebuilt-et-lib.sh examples/android_app
+cp llama-stack-client-kotlin-client-local/download-prebuilt-sentence-embedding-lib.sh examples/android_app
 cd examples/android_app
 sh download-prebuilt-et-lib.sh
 -or-
 bash download-prebuilt-et-lib.sh
+
+sh download-prebuilt-sentence-embedding-lib.sh
+-or-
+bash download-prebuilt-sentence-embedding-lib.sh
 ```
 3. Move to `examples/android_app` directory
 ```
@@ -158,7 +163,9 @@ For feather Llama models such as 1B and 3B Instruct, they only support customize
 # Framework Details
 ## Remote
 ### Agents
-The demo app defaults to use agent in the chat. You can switch between simple inference workflow or agent workflow by setting `boolean useAgent`. We also added `CustomTools.kt` as an example to add client customized tools. When selecting `Remote` mode, the app will setup a new remote agent and create a new session for running turns. NOTE: In Agent workflow, the chat history including images are stored per Agent session on the server side. There is no need to look up for chat history in the app unless you are running image reasoning.
+The demo app defaults to use agent in the chat. You can switch between simple inference workflow or agent workflow by setting `boolean useAgent`. We also added `CustomTools.kt` as an example to add client customized tools. When selecting `Remote` or 'Local' mode, the app will setup a new remote or local agent and create a new session for running turns. 
+
+In Agent workflow, the chat history including images are stored per Agent session on the server side. There is no need to look up for chat history in the app unless you are running image reasoning.
 * Llama Stack agent is capable of running multi-turn inference using both customized and built-in tools (exclude 1B/3B Llama models). Here is an example creating the agent configuration
 ```
         val agentConfig =
@@ -236,6 +243,35 @@ We also built an example in the App that you can now send image via remote agent
 
 https://github.com/user-attachments/assets/b4037778-0189-4e3e-b19e-4ca2c9efbdfd
 
+## Local
+### Agents
+Local agents are similar to remote agents but have a few capabilities like inferencing, custom tool calling, and local RAG.
+
+Example creating the agent configuration
+```
+val agentConfig =
+            AgentConfig.builder()
+                .enableSessionPersistence(false)
+                .instructions(instruction)
+                .maxInferIters(100)
+                .model(modelName)
+                .toolChoice(AgentConfig.ToolChoice.AUTO)
+                .toolPromptFormat(toolPromptFormat)
+                .clientTools(
+                    clientTools
+                )
+                .putAdditionalProperty("modelPath", JsonValue.from(modelPath))
+                .putAdditionalProperty("tokenizerPath", JsonValue.from(tokenizerPath))
+                .build()
+```
+In this sample snippet:
+* modelName is the core name of the model (like Llama 3.2). This is used to create the prompt templates in the SDK.
+* modelPath is the file path to the model.pte file
+* tokenizerPath is the file path to the tokenizer.pte file
+
+Once the `agentConfig` is built, create an agent along with session and turn service where client is your `LlamaStackClientLocalClient` created for local inference. Also creating a streaming event for the turn service is the same as done in remote so you can use the remote agent section as reference here. That's the advantage of Llama Stack - high code reusability!
+
+You can find more examples in `ExampleLlamaStackLocalInference.kt`.
 
 ## Reporting Issues
 If you encountered any bugs or issues following this tutorial please file a bug/issue here on [Github](https://github.com/meta-llama/llama-stack-client-kotlin/issues)).
