@@ -18,6 +18,8 @@ import java.nio.charset.StandardCharsets
 import java.util.UUID
 
 fun localRagSystemPrompt(): String {
+    // It is important to keep _RETRIEVED_CONTEXT_ placeholder. This is what will be used in SDK to
+    // replace it with similar neighbors
     return "You are a helpful assistant. You will be provided with retrieved context. " +
             "Your answer to the user request should be based on the retrieved context." +
             "Make sure you ONLY use the retrieve context to answer the question. " +
