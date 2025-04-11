@@ -165,7 +165,7 @@ Create the session:
 Create a turn:
 ```
         val turnService = agentService.turn()
-        turnService.createStreaming(
+        val agentTurnCreateResponseStream = turnService.createStreaming(
             AgentTurnCreateParams.builder()
                 .agentId(agentId)
                 .messages(
@@ -250,6 +250,90 @@ Handle the stream chunk callback:
 ***Same as remote***
 
 More examples can be found in our [demo app](https://github.com/meta-llama/llama-stack-client-kotlin/tree/latest-release/examples/android_app) 
+
+### RAG (Retrieval-Augmented Generation)
+RAG is a technique used to leverage capabilities of LLMs by augmenting their knowledge with a particular document or source that is often local or private. This enables LLMs to reason about topics that are beyond their trained data. This is beneficial for the user since they can use this technique to extrapolate data or ask question about a large document without fully reading it. The steps for implementing RAG are the following:
+1. Break document into chunks: We break the document into more manageable pieces. We do this for efficient embedding generation (next step) and improve contextual understanding with LLMs. There are several strategies like: fixed-size, sentence-level, paragraph-level, sliding window, and many others. In Llama Stack we have employed the sliding window strategy since it generates overlapping chunks.
+2. Generate embeddings: Convert each of the chunks into numerical representations (embeddings). For example, "The quick brown fox jumps over the lazy dog" could be converted to something like [0.23, -0.14, 0.67, -0.32, 0.11, ... , 0.45] .
+3. Store in vector database: Store these embedding chunks into a vector DB to be able to do fast similarity search when user provides a prompt.
+
+After this, when the framework receives a user prompt then it's converted into an embedding and similar search is done in the vector db. The similar neighboring chunks are then added in as part of the system prompt to the LLM. The LLM is now able to generate a relevant response based on the chunks from the document.
+
+#### Remote
+~Young to add details here~
+
+#### Local
+For the local module, we expect the embedding generation to be done on the Android app side. The Android developer has the flexibility to use any sentence embedding model+framework they'd like and the SDK will support the passing of embedded vectors and storing them in a Vector DB.
+- On-device Vector DB: [ObjectBox](https://github.com/objectbox/objectbox-java/tree/main) is a vector database specifically designed for edge use-cases. The DB created lives entirely on-device and it is optimized for similiarity search which is exactly what is needed for RAG. This popular solution is what is used in the local module today. 
+
+Create vectorDB instance:
+```
+    val vectorDbId = UUID.randomUUID().toString()
+    client!!.vectorDbs().register(
+        VectorDbRegisterParams.builder()
+            .vectorDbId(vectorDbId)
+            .embeddingModel("not_required")
+            .build()
+    )
+```
+
+Create chunks (supports single document):
+```
+    val document = Document.builder()
+        .documentId("1")
+        .content(text)
+        .metadata(Document.Metadata.builder().build())
+        .build()
+   val tagToolParams = ToolRuntimeRagToolInsertParams.builder()
+        .vectorDbId(vectorDbId)
+        .chunkSizeInTokens(chunkSizeInWords)
+        .documents(listOf(document))
+        .build();
+   val ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
+   val chunks = ragtool.createChunks(tagToolParams)
+```
+
+Generate embeddings for chunks: ***Done in Android App***
+
+Store embedding chunks in Vector DB:
+```
+    ragtool.insert(vectorDbId, embeddings, chunks)
+```
+
+Generate embeddings for user prompt: ***Done in Android App***
+
+Add to turnParams to call RAG tool call with Agent (see in-line comments for more information):
+
+```
+            turnParams.addToolgroup(
+                AgentTurnCreateParams.Toolgroup.ofAgentToolGroupWithArgs(
+                    AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.builder()
+                        .name("builtin::rag/knowledge_search") // Tool name
+                        .args(
+                            AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
+                                .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId)) 
+                                .putAdditionalProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded)) // Embedded user prompt
+                                .putAdditionalProperty("maxNeighborCount", JsonValue.from(3)) // # of similar neighbors to retrieve from Vector DB.
+                                .putAdditionalProperty("ragInstruction", JsonValue.from(localRagSystemPrompt())) // RAG system prompt provided from Android app
+                                .build()
+                        )
+                        .build()
+                )
+            )
+
+// Now create a turn and handle response like in Agent section
+
+```
+> [!NOTE]
+> The RAG system prompt will need a _RETRIEVED_CONTEXT_ placeholder. This will be replaced by the SDK with the contents of the similar neighbors.
+
+An example of a RAG system prompt can be:
+```
+"You are a helpful assistant. You will be provided with retrieved context. " +
+            "Your answer to the user request should be based on the retrieved context." +
+            "Make sure you ONLY use the retrieve context to answer the question. " +
+            "Retrieved context: _RETRIEVED_CONTEXT_"
+```
 
 
 ### Run Image Reasoning
