@@ -1,6 +1,6 @@
 # Llama Stack Android Demo App
 
-[![Maven Central Version](https://img.shields.io/badge/maven%20central-v0.1.7-8A2BE2)](https://central.sonatype.com/artifact/com.llama.llamastack/llama-stack-client-kotlin/0.1.7)
+[![Maven Central Version](https://img.shields.io/badge/maven%20central-v0.2.2-8A2BE2)](https://central.sonatype.com/artifact/com.llama.llamastack/llama-stack-client-kotlin/0.2.2)
 
 We’re excited to share this Android demo app using both remote and local Llama Stack features! The primary goal of this app is to showcase how to easily build Android apps with Llama models using Llama Stack SDKs in a chat app setup.
 
@@ -8,8 +8,10 @@ This app serves as a valuable resource to inspire your creativity and provide fo
 
 Please dive in and start exploring our demo app today! We look forward to any feedback and are excited to see your innovative ideas to build agentic apps with Llama models. The current demo app is built using both Java and Kotlin. The majority of the activities are built with Java but the interfacing with Llama Stack APIs are in Kotlin. 
 
-**Latest Update**:
-(03/19/2025) We have updated the demo app to be compatible with Llama Stack Kotlin SDK [v0.1.7](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.7) and Llama Stack version [v0.1.7](https://github.com/meta-llama/llama-stack/releases/tag/v0.1.7).
+**Latest Update (04/14/2025)**:
+- Updated the demo app to be compatible with Llama Stack Kotlin SDK [v0.2.2](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.2.2) and Llama Stack version [v0.2.2](https://github.com/meta-llama/llama-stack/releases/tag/v0.2.2).
+- Implemented a remote RAG use-case
+- Implemented the newly created local RAG support by the SDK with a use-case.
 
 ## Key Concepts
 From this demo app, you will learn many key concepts of building a GenAI Andrioid app with Llama Stack libraries:
@@ -68,7 +70,7 @@ For local, here is the list of models we support currently and growing:
 Include the latest Llama Stack Kotlin SDK in your `build.gradle.kts`. The demo app automatically includes this. 
 
 ```
-implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.7")
+implementation("com.llama.llamastack:llama-stack-client-kotlin:0.2.2")
 ```
 
 # App UI/UX
