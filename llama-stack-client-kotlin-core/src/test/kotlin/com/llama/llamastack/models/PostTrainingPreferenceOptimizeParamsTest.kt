@@ -33,6 +33,9 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
             )
             .trainingConfig(
                 PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
+                    .nEpochs(0L)
                     .dataConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
@@ -48,10 +51,17 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                             .validationDatasetId("validation_dataset_id")
                             .build()
                     )
-                    .gradientAccumulationSteps(0L)
-                    .maxStepsPerEpoch(0L)
+                    .dtype("dtype")
+                    .efficiencyConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                            .builder()
+                            .enableActivationCheckpointing(true)
+                            .enableActivationOffloading(true)
+                            .fsdpCpuOffload(true)
+                            .memoryEfficientFsdpWrap(true)
+                            .build()
+                    )
                     .maxValidationSteps(0L)
-                    .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
                             .builder()
@@ -63,16 +73,6 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                                     .ADAM
                             )
                             .weightDecay(0.0)
-                            .build()
-                    )
-                    .dtype("dtype")
-                    .efficiencyConfig(
-                        PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
-                            .builder()
-                            .enableActivationCheckpointing(true)
-                            .enableActivationOffloading(true)
-                            .fsdpCpuOffload(true)
-                            .memoryEfficientFsdpWrap(true)
                             .build()
                     )
                     .build()
@@ -106,6 +106,9 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                 )
                 .trainingConfig(
                     PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
+                        .gradientAccumulationSteps(0L)
+                        .maxStepsPerEpoch(0L)
+                        .nEpochs(0L)
                         .dataConfig(
                             PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                                 .batchSize(0L)
@@ -121,10 +124,17 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                                 .validationDatasetId("validation_dataset_id")
                                 .build()
                         )
-                        .gradientAccumulationSteps(0L)
-                        .maxStepsPerEpoch(0L)
+                        .dtype("dtype")
+                        .efficiencyConfig(
+                            PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                                .builder()
+                                .enableActivationCheckpointing(true)
+                                .enableActivationOffloading(true)
+                                .fsdpCpuOffload(true)
+                                .memoryEfficientFsdpWrap(true)
+                                .build()
+                        )
                         .maxValidationSteps(0L)
-                        .nEpochs(0L)
                         .optimizerConfig(
                             PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
                                 .builder()
@@ -137,16 +147,6 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                                         .ADAM
                                 )
                                 .weightDecay(0.0)
-                                .build()
-                        )
-                        .dtype("dtype")
-                        .efficiencyConfig(
-                            PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
-                                .builder()
-                                .enableActivationCheckpointing(true)
-                                .enableActivationOffloading(true)
-                                .fsdpCpuOffload(true)
-                                .memoryEfficientFsdpWrap(true)
                                 .build()
                         )
                         .build()
@@ -181,6 +181,9 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
         assertThat(body.trainingConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
+                    .nEpochs(0L)
                     .dataConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
@@ -196,10 +199,17 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                             .validationDatasetId("validation_dataset_id")
                             .build()
                     )
-                    .gradientAccumulationSteps(0L)
-                    .maxStepsPerEpoch(0L)
+                    .dtype("dtype")
+                    .efficiencyConfig(
+                        PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                            .builder()
+                            .enableActivationCheckpointing(true)
+                            .enableActivationOffloading(true)
+                            .fsdpCpuOffload(true)
+                            .memoryEfficientFsdpWrap(true)
+                            .build()
+                    )
                     .maxValidationSteps(0L)
-                    .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
                             .builder()
@@ -211,16 +221,6 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                                     .ADAM
                             )
                             .weightDecay(0.0)
-                            .build()
-                    )
-                    .dtype("dtype")
-                    .efficiencyConfig(
-                        PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
-                            .builder()
-                            .enableActivationCheckpointing(true)
-                            .enableActivationOffloading(true)
-                            .fsdpCpuOffload(true)
-                            .memoryEfficientFsdpWrap(true)
                             .build()
                     )
                     .build()
@@ -253,36 +253,9 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
                 )
                 .trainingConfig(
                     PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                        .dataConfig(
-                            PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
-                                .batchSize(0L)
-                                .dataFormat(
-                                    PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
-                                        .DataFormat
-                                        .INSTRUCT
-                                )
-                                .datasetId("dataset_id")
-                                .shuffle(true)
-                                .build()
-                        )
                         .gradientAccumulationSteps(0L)
                         .maxStepsPerEpoch(0L)
-                        .maxValidationSteps(0L)
                         .nEpochs(0L)
-                        .optimizerConfig(
-                            PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
-                                .builder()
-                                .lr(0.0)
-                                .numWarmupSteps(0L)
-                                .optimizerType(
-                                    PostTrainingPreferenceOptimizeParams.TrainingConfig
-                                        .OptimizerConfig
-                                        .OptimizerType
-                                        .ADAM
-                                )
-                                .weightDecay(0.0)
-                                .build()
-                        )
                         .build()
                 )
                 .build()
@@ -315,35 +288,9 @@ internal class PostTrainingPreferenceOptimizeParamsTest {
         assertThat(body.trainingConfig())
             .isEqualTo(
                 PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
-                    .dataConfig(
-                        PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig.builder()
-                            .batchSize(0L)
-                            .dataFormat(
-                                PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
-                                    .DataFormat
-                                    .INSTRUCT
-                            )
-                            .datasetId("dataset_id")
-                            .shuffle(true)
-                            .build()
-                    )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
-                    .maxValidationSteps(0L)
                     .nEpochs(0L)
-                    .optimizerConfig(
-                        PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
-                            .builder()
-                            .lr(0.0)
-                            .numWarmupSteps(0L)
-                            .optimizerType(
-                                PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
-                                    .OptimizerType
-                                    .ADAM
-                            )
-                            .weightDecay(0.0)
-                            .build()
-                    )
                     .build()
             )
     }
