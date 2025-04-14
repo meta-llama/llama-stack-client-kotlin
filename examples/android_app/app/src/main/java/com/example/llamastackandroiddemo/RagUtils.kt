@@ -31,7 +31,6 @@ object RagUtils {
 
             Document.builder()
                 .documentId("num$i")
-                .content(uri)
                 .content(dataUri)
                 .mimeType("text/plain")
                 .metadata(metadata)
