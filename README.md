@@ -318,7 +318,7 @@ Create chunks (supports single document):
 ```
     val document = Document.builder()
         .documentId("1")
-        .content(text)
+        .content(text) // text is a string of the entire contents of the document. Done by the Android app 
         .metadata(Document.Metadata.builder().build())
         .build()
    val tagToolParams = ToolRuntimeRagToolInsertParams.builder()
