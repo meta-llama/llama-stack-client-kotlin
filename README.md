@@ -1,6 +1,6 @@
 # Llama Stack Client Kotlin API Library
 
-We are excited to share a guide for a Kotlin Library that brings front the benefits of [Llama Stack](https://github.com/meta-llama/llama-stack) to your Android device. This library is a set of SDKs that provide a simple and effective way to integrate AI capabilities into your Android app whether it is local (on-device) or remote inference. 
+We are excited to share a guide for a Kotlin Library that brings front the benefits of [Llama Stack](https://github.com/meta-llama/llama-stack) to your Android device. This library is a set of SDKs that provide a simple and effective way to integrate AI capabilities into your Android app whether it is local (on-device) or remote inference.
 
 Features:
 - Local Inferencing: Run Llama models purely on-device with real-time processing. We currently utilize ExecuTorch as the local inference distributor and may support others in the future.
@@ -8,7 +8,7 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest Release Notes: [v0.1.7](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.7) 
+Latest Release Notes: [v0.1.7](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.1.7)
 
 Note: The current recommended version is 0.1.7 Llama Stack server with 0.1.7 Kotlin client SDK.
 
@@ -29,7 +29,7 @@ dependencies {
  implementation("com.llama.llamastack:llama-stack-client-kotlin:0.1.7")
 }
 ```
-This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/` 
+This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/`
 
 If you plan on doing remote inferencing this is sufficient to get started.
 
@@ -60,7 +60,7 @@ Breaking down the demo app, this section will show the core pieces that are used
 ### Setup Remote Inferencing
 Start a Llama Stack server on localhost. Here is an example of how you can do this using the firework.ai distribution:
 ```
-conda create -n stack-fireworks python=3.10 
+conda create -n stack-fireworks python=3.10
 conda activate stack-fireworks
 pip install --no-cache llama-stack==0.1.7
 llama stack build --template fireworks --image-type conda
@@ -75,7 +75,7 @@ Other inference providers: [Table](https://llama-stack.readthedocs.io/en/latest/
 How to set remote localhost in Demo App: [Settings](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app#settings)
 
 ### Initialize the Client
-A client serves as the primary interface for interacting with a specific inference type and its associated parameters. Only after client is initialized then you can configure and start inferences. 
+A client serves as the primary interface for interacting with a specific inference type and its associated parameters. Only after client is initialized then you can configure and start inferences.
 
 <table>
 <tr>
@@ -111,7 +111,7 @@ client = LlamaStackClientOkHttpClient
 ### Agents
 
 #### Remote
-Llama Stack agent is capable of running multi-turn inference using both customized and built-in tools.  
+Llama Stack agent is capable of running multi-turn inference using both customized and built-in tools.
 
 Create the agent configuration:
 ```
@@ -249,7 +249,7 @@ Create a turn:
 Handle the stream chunk callback:
 ***Same as remote***
 
-More examples can be found in our [demo app](https://github.com/meta-llama/llama-stack-client-kotlin/tree/latest-release/examples/android_app) 
+More examples can be found in our [demo app](https://github.com/meta-llama/llama-stack-client-kotlin/tree/latest-release/examples/android_app)
 
 ### RAG (Retrieval-Augmented Generation)
 RAG is a technique used to leverage capabilities of LLMs by augmenting their knowledge with a particular document or source that is often local or private. This enables LLMs to reason about topics that are beyond their trained data. This is beneficial for the user since they can use this technique to extrapolate data or ask question about a large document without fully reading it. The steps for implementing RAG are the following:
@@ -260,11 +260,48 @@ RAG is a technique used to leverage capabilities of LLMs by augmenting their kno
 After this, when the framework receives a user prompt then it's converted into an embedding and similar search is done in the vector db. The similar neighboring chunks are then added in as part of the system prompt to the LLM. The LLM is now able to generate a relevant response based on the chunks from the document.
 
 #### Remote
-~Young to add details here~
+For the remote module, we expect the embedding generation to be done on the server side. The server will have the flexibility to use any sentence embedding model+framework they'd like and the SDK will support the passing of embedded vectors and storing them in a Vector DB.
+We need to create a tool that will be called by the agent to generate the embeddings and store them in the Vector DB. The tool will be called with the following parameters:
+
+Create documents
+```
+val documents = Document.builder()
+                .documentId("num$i")
+                .content(uri)
+                .content(dataUri)
+                .mimeType("text/plain")
+                .metadata(metadata)
+                .build()
+```
+
+Register a vector database
+```
+val vectorDbId = "test-vector-db-${UUID.randomUUID().toString().replace("-", "")}"
+        client.vectorDbs().register(
+            VectorDbRegisterParams.builder()
+                .providerId(providerId)
+                .vectorDbId(vectorDbId)
+                .embeddingModel("all-MiniLM-L6-v2")
+                .embeddingDimension(384)
+                .build()
+        )
+```
+
+Insert the documents into the vector database
+```
+client.toolRuntime().ragTool().insert(
+    ToolRuntimeRagToolInsertParams.builder()
+        .documents(documents)
+        .vectorDbId(vectorDbId)
+        .chunkSizeInTokens(512)
+        .build()
+)
+```
+
 
 #### Local
 For the local module, we expect the embedding generation to be done on the Android app side. The Android developer has the flexibility to use any sentence embedding model+framework they'd like and the SDK will support the passing of embedded vectors and storing them in a Vector DB.
-- On-device Vector DB: [ObjectBox](https://github.com/objectbox/objectbox-java/tree/main) is a vector database specifically designed for edge use-cases. The DB created lives entirely on-device and it is optimized for similiarity search which is exactly what is needed for RAG. This popular solution is what is used in the local module today. 
+- On-device Vector DB: [ObjectBox](https://github.com/objectbox/objectbox-java/tree/main) is a vector database specifically designed for edge use-cases. The DB created lives entirely on-device and it is optimized for similiarity search which is exactly what is needed for RAG. This popular solution is what is used in the local module today.
 
 Create vectorDB instance:
 ```
@@ -311,7 +348,7 @@ Add to turnParams to call RAG tool call with Agent (see in-line comments for mor
                         .name("builtin::rag/knowledge_search") // Tool name
                         .args(
                             AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
-                                .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId)) 
+                                .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId))
                                 .putAdditionalProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded)) // Embedded user prompt
                                 .putAdditionalProperty("maxNeighborCount", JsonValue.from(3)) // # of similar neighbors to retrieve from Vector DB.
                                 .putAdditionalProperty("ragInstruction", JsonValue.from(localRagSystemPrompt())) // RAG system prompt provided from Android app
@@ -337,7 +374,7 @@ An example of a RAG system prompt can be:
 
 
 ### Run Image Reasoning
-The Kotlin SDK also supports single image inference where the image can be a HTTP web url or captured on your local device.  
+The Kotlin SDK also supports single image inference where the image can be a HTTP web url or captured on your local device.
 
 Create an image inference with agent:
 
