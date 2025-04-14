@@ -50,6 +50,8 @@ cd examples/android_app
 6. Attach your mobile phone with ADB available
 7. Run the app (^R). This builds and launches the app on the phone
 
+To use local, follow the instructions in [Settings](https://github.com/meta-llama/llama-stack-client-kotlin/tree/main/examples/android_app#settings) to load local models 
+
 ## Supporting Models
 As a whole, the models that this app supports vary by remote or local.
 
@@ -286,8 +288,6 @@ As long as the document was previously part of the chat history, it will always 
 <img src="./docs/gif/localrag.gif" style="width:300px">
 </p>
 
-
-
 For maximum flexibility, the developer of the Android app should to use the embedding generation and text conversion of their choice. In the example Android app, we have the following examples:
 - Embedding generation: [sentence-embedding-android library V6](https://github.com/shubham0204/Sentence-Embeddings-Android/releases/tag/v6) which uses all-MiniLM-L6-V2
 - PDF to Text converter: [pdfbox-android v2.0.27.0](https://github.com/TomRoush/PdfBox-Android/releases/tag/v2.0.27.0) 
@@ -296,6 +296,9 @@ The SDK will handle all other parts of the RAG implementation which are chunking
 
 Code on how to implement this is in the app: https://github.com/meta-llama/llama-stack-client-kotlin/tree/main?tab=readme-ov-file#local-1
 
+#### Set-up
+- From [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/tree/main), download model.onnx and tokenizer.json file
+- Rename the files to model-all-miniLM-L6-v2.onnx and tokenizer-all-miniLM-L6-v2.json, respectively, and place in /data/local/tmp/llama. 
 
 ## Reporting Issues
 If you encountered any bugs or issues following this tutorial please file a bug/issue here on [Github](https://github.com/meta-llama/llama-stack-client-kotlin/issues)).
