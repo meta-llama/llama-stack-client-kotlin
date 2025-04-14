@@ -54,7 +54,6 @@ object RagUtils {
 
         // Register a vector database
         val vectorDbId = "test-vector-db-${UUID.randomUUID().toString().replace("-", "")}"
-//        val vectorDbId = "test-vector-db-47fe7a894a4a471ca529f4e90235caab"
         client.vectorDbs().register(
             VectorDbRegisterParams.builder()
                 .providerId(providerId)
