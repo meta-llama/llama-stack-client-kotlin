@@ -284,7 +284,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
             val future = CompletableFuture<String>()
             kotlinx.coroutines.MainScope().launch(Dispatchers.IO) {
                 try {
-                    val dbId = RagUtils.setupRagVectorDatabase(client!!, messagesAndDocuments.second, ctx)
+                    val dbId = RemoteRagUtils.setupRagVectorDatabase(client!!, messagesAndDocuments.second, ctx)
                     vectorDbId = dbId
                     future.complete(dbId)
                 } catch (e: Exception) {
