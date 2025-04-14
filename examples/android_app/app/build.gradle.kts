@@ -76,9 +76,9 @@ dependencies {
   implementation("com.fasterxml.jackson.module:jackson-module-kotlin:2.18.2")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jdk8:2.18.2")
   implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
-//  implementation("com.llama.llamastack:llama-stack-client-kotlin:0.2.1")
+  implementation("com.llama.llamastack:llama-stack-client-kotlin:0.2.2")
 // This is needed if you are using local built jars instead of the pre-built ones from maven
-  implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
+//  implementation(fileTree(mapOf("dir" to "libs", "include" to listOf("*.jar"))))
   implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.2.1")
   implementation(files("libs/model2vec.aar"))
   implementation(files("libs/sentence_embeddings.aar"))
