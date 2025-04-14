@@ -284,6 +284,8 @@ Our SDK provides support for Local Retrieval-Augmented Generation (RAG) to lever
 
 As long as the document was previously part of the chat history, it will always believe that questions are related to the document. To stop using RAG, then clear chat history in the settings.
 
+Here is an screenrecording of the user asking questions about their lengthy [Car Manual](./docs/samples/CarManual2023Vehicle.pdf):
+
 <p align="center">
 <img src="./docs/gif/localrag.gif" style="width:300px">
 </p>
