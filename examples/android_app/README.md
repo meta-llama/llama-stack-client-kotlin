@@ -171,6 +171,10 @@ Our SDK provides support for Local Retrieval-Augmented Generation (RAG) to lever
 3. See response being generated!
 4. You can also ask follow-up questions as well.
 
+It requires the following set-up:
+- From [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/tree/main), download model.onnx and tokenizer.json file
+- Rename the files to model-all-miniLM-L6-v2.onnx and tokenizer-all-miniLM-L6-v2.json, respectively, and place in /data/local/tmp/llama. 
+
 As long as the document was previously part of the chat history, it will always believe that questions are related to the document. To stop using RAG, then clear chat history in the settings.
 
 Here is an screenrecording of the user asking questions about their lengthy [Car Manual](./docs/samples/CarManual2023Vehicle.pdf):
@@ -178,6 +182,7 @@ Here is an screenrecording of the user asking questions about their lengthy [Car
 <p align="center">
 <img src="./docs/gif/localrag.gif" style="width:300px">
 </p>
+
 
 
 # Framework Details
@@ -301,10 +306,6 @@ For maximum flexibility, the developer of the Android app should to use the embe
 The SDK will handle all other parts of the RAG implementation which are chunking the document, ingesting embedded chunks and storing in the on-device vector DB ([ObjectBox](https://github.com/objectbox/objectbox-java/tree/main)), and handling the agent turn for RAG tool call with llama to stream relevant response (includes querying the vector DB for similarity search beforehand).
 
 Code on how to implement this is in the app: [SDK Readme](https://github.com/meta-llama/llama-stack-client-kotlin/tree/main?tab=readme-ov-file#local-1)
-
-#### Set-up
-- From [HuggingFace](https://huggingface.co/sentence-transformers/all-MiniLM-L6-v2/tree/main), download model.onnx and tokenizer.json file
-- Rename the files to model-all-miniLM-L6-v2.onnx and tokenizer-all-miniLM-L6-v2.json, respectively, and place in /data/local/tmp/llama. 
 
 ## Reporting Issues
 If you encountered any bugs or issues following this tutorial please file a bug/issue here on [Github](https://github.com/meta-llama/llama-stack-client-kotlin/issues)).
