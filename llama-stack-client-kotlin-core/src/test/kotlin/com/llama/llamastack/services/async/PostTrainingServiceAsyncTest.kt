@@ -47,6 +47,9 @@ internal class PostTrainingServiceAsyncTest {
                     )
                     .trainingConfig(
                         PostTrainingPreferenceOptimizeParams.TrainingConfig.builder()
+                            .gradientAccumulationSteps(0L)
+                            .maxStepsPerEpoch(0L)
+                            .nEpochs(0L)
                             .dataConfig(
                                 PostTrainingPreferenceOptimizeParams.TrainingConfig.DataConfig
                                     .builder()
@@ -64,10 +67,17 @@ internal class PostTrainingServiceAsyncTest {
                                     .validationDatasetId("validation_dataset_id")
                                     .build()
                             )
-                            .gradientAccumulationSteps(0L)
-                            .maxStepsPerEpoch(0L)
+                            .dtype("dtype")
+                            .efficiencyConfig(
+                                PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
+                                    .builder()
+                                    .enableActivationCheckpointing(true)
+                                    .enableActivationOffloading(true)
+                                    .fsdpCpuOffload(true)
+                                    .memoryEfficientFsdpWrap(true)
+                                    .build()
+                            )
                             .maxValidationSteps(0L)
-                            .nEpochs(0L)
                             .optimizerConfig(
                                 PostTrainingPreferenceOptimizeParams.TrainingConfig.OptimizerConfig
                                     .builder()
@@ -80,16 +90,6 @@ internal class PostTrainingServiceAsyncTest {
                                             .ADAM
                                     )
                                     .weightDecay(0.0)
-                                    .build()
-                            )
-                            .dtype("dtype")
-                            .efficiencyConfig(
-                                PostTrainingPreferenceOptimizeParams.TrainingConfig.EfficiencyConfig
-                                    .builder()
-                                    .enableActivationCheckpointing(true)
-                                    .enableActivationOffloading(true)
-                                    .fsdpCpuOffload(true)
-                                    .memoryEfficientFsdpWrap(true)
                                     .build()
                             )
                             .build()
@@ -122,9 +122,11 @@ internal class PostTrainingServiceAsyncTest {
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
-                    .model("model")
                     .trainingConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
+                            .gradientAccumulationSteps(0L)
+                            .maxStepsPerEpoch(0L)
+                            .nEpochs(0L)
                             .dataConfig(
                                 PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
                                     .builder()
@@ -142,10 +144,17 @@ internal class PostTrainingServiceAsyncTest {
                                     .validationDatasetId("validation_dataset_id")
                                     .build()
                             )
-                            .gradientAccumulationSteps(0L)
-                            .maxStepsPerEpoch(0L)
+                            .dtype("dtype")
+                            .efficiencyConfig(
+                                PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
+                                    .builder()
+                                    .enableActivationCheckpointing(true)
+                                    .enableActivationOffloading(true)
+                                    .fsdpCpuOffload(true)
+                                    .memoryEfficientFsdpWrap(true)
+                                    .build()
+                            )
                             .maxValidationSteps(0L)
-                            .nEpochs(0L)
                             .optimizerConfig(
                                 PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
                                     .builder()
@@ -158,16 +167,6 @@ internal class PostTrainingServiceAsyncTest {
                                             .ADAM
                                     )
                                     .weightDecay(0.0)
-                                    .build()
-                            )
-                            .dtype("dtype")
-                            .efficiencyConfig(
-                                PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
-                                    .builder()
-                                    .enableActivationCheckpointing(true)
-                                    .enableActivationOffloading(true)
-                                    .fsdpCpuOffload(true)
-                                    .memoryEfficientFsdpWrap(true)
                                     .build()
                             )
                             .build()
@@ -184,6 +183,7 @@ internal class PostTrainingServiceAsyncTest {
                             .build()
                     )
                     .checkpointDir("checkpoint_dir")
+                    .model("model")
                     .build()
             )
 

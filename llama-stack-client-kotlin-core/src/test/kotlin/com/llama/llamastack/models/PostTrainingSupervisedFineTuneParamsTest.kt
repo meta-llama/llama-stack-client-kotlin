@@ -22,9 +22,11 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-            .model("model")
             .trainingConfig(
                 PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
+                    .nEpochs(0L)
                     .dataConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
@@ -40,10 +42,17 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                             .validationDatasetId("validation_dataset_id")
                             .build()
                     )
-                    .gradientAccumulationSteps(0L)
-                    .maxStepsPerEpoch(0L)
+                    .dtype("dtype")
+                    .efficiencyConfig(
+                        PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
+                            .builder()
+                            .enableActivationCheckpointing(true)
+                            .enableActivationOffloading(true)
+                            .fsdpCpuOffload(true)
+                            .memoryEfficientFsdpWrap(true)
+                            .build()
+                    )
                     .maxValidationSteps(0L)
-                    .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
                             .builder()
@@ -55,16 +64,6 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                                     .ADAM
                             )
                             .weightDecay(0.0)
-                            .build()
-                    )
-                    .dtype("dtype")
-                    .efficiencyConfig(
-                        PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
-                            .builder()
-                            .enableActivationCheckpointing(true)
-                            .enableActivationOffloading(true)
-                            .fsdpCpuOffload(true)
-                            .memoryEfficientFsdpWrap(true)
                             .build()
                     )
                     .build()
@@ -81,6 +80,7 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                     .build()
             )
             .checkpointDir("checkpoint_dir")
+            .model("model")
             .build()
     }
 
@@ -99,9 +99,11 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .model("model")
                 .trainingConfig(
                     PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
+                        .gradientAccumulationSteps(0L)
+                        .maxStepsPerEpoch(0L)
+                        .nEpochs(0L)
                         .dataConfig(
                             PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                                 .batchSize(0L)
@@ -117,10 +119,17 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                                 .validationDatasetId("validation_dataset_id")
                                 .build()
                         )
-                        .gradientAccumulationSteps(0L)
-                        .maxStepsPerEpoch(0L)
+                        .dtype("dtype")
+                        .efficiencyConfig(
+                            PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
+                                .builder()
+                                .enableActivationCheckpointing(true)
+                                .enableActivationOffloading(true)
+                                .fsdpCpuOffload(true)
+                                .memoryEfficientFsdpWrap(true)
+                                .build()
+                        )
                         .maxValidationSteps(0L)
-                        .nEpochs(0L)
                         .optimizerConfig(
                             PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
                                 .builder()
@@ -133,16 +142,6 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                                         .ADAM
                                 )
                                 .weightDecay(0.0)
-                                .build()
-                        )
-                        .dtype("dtype")
-                        .efficiencyConfig(
-                            PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
-                                .builder()
-                                .enableActivationCheckpointing(true)
-                                .enableActivationOffloading(true)
-                                .fsdpCpuOffload(true)
-                                .memoryEfficientFsdpWrap(true)
                                 .build()
                         )
                         .build()
@@ -159,6 +158,7 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .checkpointDir("checkpoint_dir")
+                .model("model")
                 .build()
 
         val body = params._body()
@@ -176,10 +176,12 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(body.model()).isEqualTo("model")
         assertThat(body.trainingConfig())
             .isEqualTo(
                 PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
+                    .gradientAccumulationSteps(0L)
+                    .maxStepsPerEpoch(0L)
+                    .nEpochs(0L)
                     .dataConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
                             .batchSize(0L)
@@ -195,10 +197,17 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                             .validationDatasetId("validation_dataset_id")
                             .build()
                     )
-                    .gradientAccumulationSteps(0L)
-                    .maxStepsPerEpoch(0L)
+                    .dtype("dtype")
+                    .efficiencyConfig(
+                        PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
+                            .builder()
+                            .enableActivationCheckpointing(true)
+                            .enableActivationOffloading(true)
+                            .fsdpCpuOffload(true)
+                            .memoryEfficientFsdpWrap(true)
+                            .build()
+                    )
                     .maxValidationSteps(0L)
-                    .nEpochs(0L)
                     .optimizerConfig(
                         PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
                             .builder()
@@ -210,16 +219,6 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                                     .ADAM
                             )
                             .weightDecay(0.0)
-                            .build()
-                    )
-                    .dtype("dtype")
-                    .efficiencyConfig(
-                        PostTrainingSupervisedFineTuneParams.TrainingConfig.EfficiencyConfig
-                            .builder()
-                            .enableActivationCheckpointing(true)
-                            .enableActivationOffloading(true)
-                            .fsdpCpuOffload(true)
-                            .memoryEfficientFsdpWrap(true)
                             .build()
                     )
                     .build()
@@ -239,6 +238,7 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                 )
             )
         assertThat(body.checkpointDir()).isEqualTo("checkpoint_dir")
+        assertThat(body.model()).isEqualTo("model")
     }
 
     @Test
@@ -256,39 +256,11 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
-                .model("model")
                 .trainingConfig(
                     PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
-                        .dataConfig(
-                            PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
-                                .batchSize(0L)
-                                .dataFormat(
-                                    PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
-                                        .DataFormat
-                                        .INSTRUCT
-                                )
-                                .datasetId("dataset_id")
-                                .shuffle(true)
-                                .build()
-                        )
                         .gradientAccumulationSteps(0L)
                         .maxStepsPerEpoch(0L)
-                        .maxValidationSteps(0L)
                         .nEpochs(0L)
-                        .optimizerConfig(
-                            PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
-                                .builder()
-                                .lr(0.0)
-                                .numWarmupSteps(0L)
-                                .optimizerType(
-                                    PostTrainingSupervisedFineTuneParams.TrainingConfig
-                                        .OptimizerConfig
-                                        .OptimizerType
-                                        .ADAM
-                                )
-                                .weightDecay(0.0)
-                                .build()
-                        )
                         .build()
                 )
                 .build()
@@ -308,39 +280,12 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
-        assertThat(body.model()).isEqualTo("model")
         assertThat(body.trainingConfig())
             .isEqualTo(
                 PostTrainingSupervisedFineTuneParams.TrainingConfig.builder()
-                    .dataConfig(
-                        PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig.builder()
-                            .batchSize(0L)
-                            .dataFormat(
-                                PostTrainingSupervisedFineTuneParams.TrainingConfig.DataConfig
-                                    .DataFormat
-                                    .INSTRUCT
-                            )
-                            .datasetId("dataset_id")
-                            .shuffle(true)
-                            .build()
-                    )
                     .gradientAccumulationSteps(0L)
                     .maxStepsPerEpoch(0L)
-                    .maxValidationSteps(0L)
                     .nEpochs(0L)
-                    .optimizerConfig(
-                        PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
-                            .builder()
-                            .lr(0.0)
-                            .numWarmupSteps(0L)
-                            .optimizerType(
-                                PostTrainingSupervisedFineTuneParams.TrainingConfig.OptimizerConfig
-                                    .OptimizerType
-                                    .ADAM
-                            )
-                            .weightDecay(0.0)
-                            .build()
-                    )
                     .build()
             )
     }

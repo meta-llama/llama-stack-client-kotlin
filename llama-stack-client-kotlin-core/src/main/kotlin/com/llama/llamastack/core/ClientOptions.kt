@@ -182,7 +182,12 @@ private constructor(
 
         fun removeAllQueryParams(keys: Set<String>) = apply { queryParams.removeAll(keys) }
 
-        fun fromEnv() = apply { System.getenv("LLAMA_STACK_API_KEY")?.let { apiKey(it) } }
+        fun baseUrl(): String = baseUrl
+
+        fun fromEnv() = apply {
+            System.getenv("LLAMA_STACK_BASE_URL")?.let { baseUrl(it) }
+            System.getenv("LLAMA_STACK_API_KEY")?.let { apiKey(it) }
+        }
 
         /**
          * Returns an immutable instance of [ClientOptions].
