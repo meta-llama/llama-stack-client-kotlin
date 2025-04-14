@@ -30,7 +30,7 @@ class SentenceEmbeddingModel {
             )
         }
 
-        Log.d("initializeSentenceEmbedding","cmodii this is complete")
+        AppLogging.getInstance().log("Sentence Embedding initialized")
     }
 
     fun createEmbedding(chunk: String): FloatArray = runBlocking(Dispatchers.Default) {

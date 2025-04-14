@@ -37,8 +37,8 @@ class ExampleLlamaStackLocalInference(
     private var response: String? = null
     private var tps: Float = 0.0f
 
-    // Can modify chunk size (tokens) for RAG
     private var chunkSizeInWords: Long = 50
+    private var maxSimilarityNeighborCount: Int = 3
 
     fun getResponse(): String? {
         return response
@@ -222,7 +222,9 @@ class ExampleLlamaStackLocalInference(
         // Only set up RAG if documents are provided
         if (messagesAndDocuments.second.isNotEmpty()) {
             // create embedding of user prompt
+            AppLogging.getInstance().log("Starting local RAG")
             val sentenceEmbeddingModel = SentenceEmbeddingModel()
+            AppLogging.getInstance().log("Create embedding for latest user prompt")
             val ragUserPromptEmbedded = sentenceEmbeddingModel.createEmbedding(
                 conversationHistory.get(conversationHistory.size - 1).getText()
             )
@@ -236,6 +238,9 @@ class ExampleLlamaStackLocalInference(
                     chunkSizeInWords
                 )
             }
+
+            AppLogging.getInstance()
+                .log("Create agent turn for local rag with maxNeighborCount: $maxSimilarityNeighborCount")
             turnParams.addToolgroup(
                 AgentTurnCreateParams.Toolgroup.ofAgentToolGroupWithArgs(
                     AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.builder()
@@ -243,9 +248,18 @@ class ExampleLlamaStackLocalInference(
                         .args(
                             AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
                                 .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId))
-                                .putAdditionalProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded))
-                                .putAdditionalProperty("maxNeighborCount", JsonValue.from(3))
-                                .putAdditionalProperty("ragInstruction", JsonValue.from(localRagSystemPrompt()))
+                                .putAdditionalProperty(
+                                    "ragUserPromptEmbedded",
+                                    JsonValue.from(ragUserPromptEmbedded)
+                                )
+                                .putAdditionalProperty(
+                                    "maxNeighborCount",
+                                    JsonValue.from(maxSimilarityNeighborCount)
+                                )
+                                .putAdditionalProperty(
+                                    "ragInstruction",
+                                    JsonValue.from(localRagSystemPrompt())
+                                )
                                 .build()
                         )
                         .build()
