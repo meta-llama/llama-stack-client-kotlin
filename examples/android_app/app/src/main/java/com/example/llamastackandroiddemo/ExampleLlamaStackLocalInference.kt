@@ -232,9 +232,9 @@ class ExampleLlamaStackLocalInference(
                 conversationHistory.get(conversationHistory.size - 1).getText()
             )
 
-            val text = readFileFromURI(Uri.parse(messagesAndDocuments.second[0]), ctx)
+            val text = FileUtils.readFileFromURI(Uri.parse(messagesAndDocuments.second[0]), ctx)
             val vectorDbId = runBlocking {
-                storeAndEmbedDocument(
+                LocalRagUtils.storeAndEmbedDocument(
                     client,
                     sentenceEmbeddingModel,
                     text,
@@ -261,7 +261,7 @@ class ExampleLlamaStackLocalInference(
                                 )
                                 .putAdditionalProperty(
                                     "ragInstruction",
-                                    JsonValue.from(localRagSystemPrompt())
+                                    JsonValue.from(LocalRagUtils.getSystemPromptForLocalRAG())
                                 )
                                 .build()
                         )
