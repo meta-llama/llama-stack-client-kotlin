@@ -27,9 +27,12 @@ object RagUtils {
                 .putAdditionalProperty("title", JsonValue.from(uri))
                 .build()
 
+val dataUri = readFileFromURI(Uri.parse(uri), context)
+
             Document.builder()
                 .documentId("num$i")
                 .content(uri)
+.content(dataUri)
                 .mimeType("text/plain")
                 .metadata(metadata)
                 .build()
