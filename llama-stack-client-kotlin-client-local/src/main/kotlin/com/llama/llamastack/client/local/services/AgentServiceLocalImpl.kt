@@ -12,6 +12,7 @@ import com.llama.llamastack.services.blocking.agents.SessionService
 import com.llama.llamastack.services.blocking.agents.StepService
 import com.llama.llamastack.services.blocking.agents.TurnService
 import java.util.UUID
+import java.util.concurrent.Executors
 
 class AgentServiceLocalImpl constructor(private var clientOptions: LocalClientOptions) :
     AgentService {
@@ -53,8 +54,10 @@ class AgentServiceLocalImpl constructor(private var clientOptions: LocalClientOp
         try {
             val agentConfig = this.agentCreateParams!!.agentConfig()
             clientOptions.overrideModelConfigsFromAgent(agentConfig)
-            clientOptions.initializeLlamaModule()
-
+            val executor = Executors.newSingleThreadExecutor()
+            val future = executor.submit { clientOptions.initializeLlamaModule() }
+            future.get() // Blocks until the task is complete
+            executor.shutdown()
             agentId = UUID.randomUUID().toString()
             clientOptions.setAgent(this)
             agentCreateResponse = AgentCreateResponse.builder().agentId(agentId).build()

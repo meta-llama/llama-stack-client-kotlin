@@ -8,6 +8,7 @@ fun createETLlamaModule(
     tokenizerPath: String?,
     temperature: Float,
 ): LlamaModule {
+    println("Creating ExecuTorch Llama Module")
     checkNotNull(modelPath) { "`modelPath` is required but not set" }
     checkNotNull(tokenizerPath) { "`tokenizerPath` is required but not set" }
 

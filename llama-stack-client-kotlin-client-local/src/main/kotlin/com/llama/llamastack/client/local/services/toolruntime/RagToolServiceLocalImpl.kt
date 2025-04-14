@@ -32,8 +32,8 @@ constructor(
         for (i in 0..<embeddings.size) {
             val chunk = RagVectorDb(rawChunk = rawChunks[i], embeddedChunk = embeddings[i])
             box!!.put(chunk)
-            println("Added chunk index $i")
         }
+        println("Added a total of ${embeddings.size} chunks")
     }
 
     fun createChunks(params: ToolRuntimeRagToolInsertParams): MutableList<String> {
