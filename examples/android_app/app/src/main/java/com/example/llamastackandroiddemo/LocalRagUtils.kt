@@ -12,7 +12,7 @@ object LocalRagUtils {
         client: LlamaStackClientClient?,
         sentenceEmbeddingModel: SentenceEmbeddingModel,
         text: String,
-        chunkSizeInWords: Long = RagUtils.DEFAULT_CHUNK_SIZE
+        chunkSizeInWords: Long
     ): String {
         // Currently just supporting single documents
         AppLogging.getInstance().log("Building Llama Stack Document object")
