@@ -117,98 +117,98 @@ Llama Stack agent is capable of running multi-turn inference using both customiz
 
 Create the agent configuration:
 ```
-        val agentConfig =
-            AgentConfig.builder()
-                .enableSessionPersistence(false)
-                .instructions("You're a helpful assistant")
-                .maxInferIters(100)
-                .model("meta-llama/Llama-3.1-8B-Instruct")
-                .samplingParams(
-                    SamplingParams.builder()
-                        .strategy(
-                            SamplingParams.Strategy.ofGreedySampling()
-                        )
-                        .build()
-                )
-                .toolChoice(AgentConfig.ToolChoice.AUTO)
-                .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                .clientTools(
-                    listOf(
-                        CustomTools.getCreateCalendarEventTool() #Custom local tools
-                    )
+val agentConfig =
+    AgentConfig.builder()
+        .enableSessionPersistence(false)
+        .instructions("You're a helpful assistant")
+        .maxInferIters(100)
+        .model("meta-llama/Llama-3.1-8B-Instruct")
+        .samplingParams(
+            SamplingParams.builder()
+                .strategy(
+                    SamplingParams.Strategy.ofGreedySampling()
                 )
                 .build()
+        )
+        .toolChoice(AgentConfig.ToolChoice.AUTO)
+        .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
+        .clientTools(
+            listOf(
+                CustomTools.getCreateCalendarEventTool() #Custom local tools
+            )
+        )
+        .build()
 ```
 
 Create the agent:
 ```
-        val agentService = client!!.agents()
-        val agentCreateResponse = agentService.create(
-            AgentCreateParams.builder()
-                .agentConfig(agentConfig)
-                .build(),
-        )
-        val agentId = agentCreateResponse.agentId()
+val agentService = client!!.agents()
+val agentCreateResponse = agentService.create(
+    AgentCreateParams.builder()
+        .agentConfig(agentConfig)
+        .build(),
+)
+val agentId = agentCreateResponse.agentId()
 ```
 
 Create the session:
 ```
-        val sessionService = agentService.session()
-        val agentSessionCreateResponse = sessionService.create(
-            AgentSessionCreateParams.builder()
-                .agentId(agentId)
-                .sessionName("test-session")
-                .build()
-        )
+val sessionService = agentService.session()
+val agentSessionCreateResponse = sessionService.create(
+    AgentSessionCreateParams.builder()
+        .agentId(agentId)
+        .sessionName("test-session")
+        .build()
+)
 
-        val sessionId = agentSessionCreateResponse.sessionId()
+val sessionId = agentSessionCreateResponse.sessionId()
 ```
 
 Create a turn:
 ```
-        val turnService = agentService.turn()
-        val agentTurnCreateResponseStream = turnService.createStreaming(
-            AgentTurnCreateParams.builder()
-                .agentId(agentId)
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUser(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("What is the capital of France?"))
-                                .build()
-                            )
+val turnService = agentService.turn()
+val agentTurnCreateResponseStream = turnService.createStreaming(
+    AgentTurnCreateParams.builder()
+        .agentId(agentId)
+        .messages(
+            listOf(
+                AgentTurnCreateParams.Message.ofUser(
+                    UserMessage.builder()
+                        .content(InterleavedContent.ofString("What is the capital of France?"))
+                        .build()
                     )
-                .sessionId(sessionId)
-                .build()
-        )
+            )
+        .sessionId(sessionId)
+        .build()
+)
 ```
 
 Handle the stream chunk callback:
 ```
-        agentTurnCreateResponseStream.use {
-            agentTurnCreateResponseStream.asSequence().forEach {
-                val agentResponsePayload = it.responseStreamChunk()?.event()?.payload()
-                if (agentResponsePayload != null) {
-                    when {
-                        agentResponsePayload.isAgentTurnResponseTurnStart() -> {
-                            // Handle Turn Start Payload
-                        }
-                        agentResponsePayload.isAgentTurnResponseStepStart() -> {
-                            // Handle Step Start Payload
-                        }
-                        agentResponsePayload.isAgentTurnResponseStepProgress() -> {
-                            // Handle Step Progress Payload
-                        }
-                        agentResponsePayload.isAgentTurnResponseStepComplete() -> {
-                            // Handle Step Complete Payload
-                        }
-                        agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
-                            // Handle Turn Complete Payload
-                        }
-                    }
+agentTurnCreateResponseStream.use {
+    agentTurnCreateResponseStream.asSequence().forEach {
+        val agentResponsePayload = it.responseStreamChunk()?.event()?.payload()
+        if (agentResponsePayload != null) {
+            when {
+                agentResponsePayload.isAgentTurnResponseTurnStart() -> {
+                    // Handle Turn Start Payload
+                }
+                agentResponsePayload.isAgentTurnResponseStepStart() -> {
+                    // Handle Step Start Payload
+                }
+                agentResponsePayload.isAgentTurnResponseStepProgress() -> {
+                    // Handle Step Progress Payload
+                }
+                agentResponsePayload.isAgentTurnResponseStepComplete() -> {
+                    // Handle Step Complete Payload
+                }
+                agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
+                    // Handle Turn Complete Payload
                 }
             }
         }
+    }
+}
 ```
 
 #### Local
@@ -307,36 +307,36 @@ For the local module, we expect the embedding generation to be done on the Andro
 
 Create vectorDB instance:
 ```
-    val vectorDbId = UUID.randomUUID().toString()
-    client!!.vectorDbs().register(
-        VectorDbRegisterParams.builder()
-            .vectorDbId(vectorDbId)
-            .embeddingModel("not_required")
-            .build()
-    )
+val vectorDbId = UUID.randomUUID().toString()
+client!!.vectorDbs().register(
+    VectorDbRegisterParams.builder()
+        .vectorDbId(vectorDbId)
+        .embeddingModel("not_required")
+        .build()
+)
 ```
 
 Create chunks (supports single document):
 ```
-    val document = Document.builder()
-        .documentId("1")
-        .content(text) // text is a string of the entire contents of the document. Done by the Android app 
-        .metadata(Document.Metadata.builder().build())
-        .build()
-   val tagToolParams = ToolRuntimeRagToolInsertParams.builder()
-        .vectorDbId(vectorDbId)
-        .chunkSizeInTokens(chunkSizeInWords)
-        .documents(listOf(document))
-        .build();
-   val ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
-   val chunks = ragtool.createChunks(tagToolParams)
+val document = Document.builder()
+    .documentId("1")
+    .content(text) // text is a string of the entire contents of the document. Done by the Android app 
+    .metadata(Document.Metadata.builder().build())
+    .build()
+val tagToolParams = ToolRuntimeRagToolInsertParams.builder()
+    .vectorDbId(vectorDbId)
+    .chunkSizeInTokens(chunkSizeInWords)
+    .documents(listOf(document))
+    .build();
+val ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
+val chunks = ragtool.createChunks(tagToolParams)
 ```
 
 Generate embeddings for chunks: ***Done in Android App***
 
 Store embedding chunks in Vector DB:
 ```
-    ragtool.insert(vectorDbId, embeddings, chunks)
+ragtool.insert(vectorDbId, embeddings, chunks)
 ```
 
 Generate embeddings for user prompt: ***Done in Android App***
@@ -344,21 +344,21 @@ Generate embeddings for user prompt: ***Done in Android App***
 Add to turnParams to call RAG tool call with Agent (see in-line comments for more information):
 
 ```
-            turnParams.addToolgroup(
-                AgentTurnCreateParams.Toolgroup.ofAgentToolGroupWithArgs(
-                    AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.builder()
-                        .name("builtin::rag/knowledge_search") // Tool name
-                        .args(
-                            AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
-                                .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId))
-                                .putAdditionalProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded)) // Embedded user prompt
-                                .putAdditionalProperty("maxNeighborCount", JsonValue.from(3)) // # of similar neighbors to retrieve from Vector DB.
-                                .putAdditionalProperty("ragInstruction", JsonValue.from(localRagSystemPrompt())) // RAG system prompt provided from Android app
-                                .build()
-                        )
-                        .build()
-                )
+turnParams.addToolgroup(
+    AgentTurnCreateParams.Toolgroup.ofAgentToolGroupWithArgs(
+        AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.builder()
+            .name("builtin::rag/knowledge_search") // Tool name
+            .args(
+                AgentTurnCreateParams.Toolgroup.AgentToolGroupWithArgs.Args.builder()
+                    .putAdditionalProperty("vector_db_id", JsonValue.from(vectorDbId))
+                    .putAdditionalProperty("ragUserPromptEmbedded", JsonValue.from(ragUserPromptEmbedded)) // Embedded user prompt
+                    .putAdditionalProperty("maxNeighborCount", JsonValue.from(3)) // # of similar neighbors to retrieve from Vector DB.
+                    .putAdditionalProperty("ragInstruction", JsonValue.from(localRagSystemPrompt())) // RAG system prompt provided from Android app
+                    .build()
             )
+            .build()
+    )
+)
 
 // Now create a turn and handle response like in Agent section
 
@@ -381,32 +381,32 @@ The Kotlin SDK also supports single image inference where the image can be a HTT
 Create an image inference with agent:
 
 ```
-        val agentTurnCreateResponseStream =
-            turnService.createStreaming(
-                AgentTurnCreateParams.builder()
-                    .agentId(agentId)
-                    .messages(
-                        listOf(
-                            AgentTurnCreateParams.Message.ofUser(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofString("What is in the image?"))
+val agentTurnCreateResponseStream =
+    turnService.createStreaming(
+        AgentTurnCreateParams.builder()
+            .agentId(agentId)
+            .messages(
+                listOf(
+                    AgentTurnCreateParams.Message.ofUser(
+                        UserMessage.builder()
+                            .content(InterleavedContent.ofString("What is in the image?"))
+                            .build()
+                    ),
+                    AgentTurnCreateParams.Message.ofUser(
+                        UserMessage.builder()
+                            .content(InterleavedContent.ofImageContentItem(
+                                InterleavedContent.ImageContentItem.builder()
+                                    .image(image)
+                                    .type(JsonValue.from("image"))
                                     .build()
-                            ),
-                            AgentTurnCreateParams.Message.ofUser(
-                                UserMessage.builder()
-                                    .content(InterleavedContent.ofImageContentItem(
-                                        InterleavedContent.ImageContentItem.builder()
-                                            .image(image)
-                                            .type(JsonValue.from("image"))
-                                            .build()
-                                    ))
-                                    .build()
-                            )
-                         )
+                            ))
+                            .build()
                     )
-                    .sessionId(sessionId)
-                    .build()
+                 )
             )
+            .sessionId(sessionId)
+            .build()
+    )
 ```
 
 Note that image captured on device needs to be encoded with Base64 before sending it to the model. Check out our demo app example [here](https://github.com/meta-llama/llama-stack-apps/tree/main/examples/android_app)
