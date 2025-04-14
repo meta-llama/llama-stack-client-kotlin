@@ -6,7 +6,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.provider.MediaStore
 import android.util.Base64
-import android.util.Log
 import com.llama.llamastack.client.LlamaStackClientClient
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
@@ -246,6 +245,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
 
 
     fun createRemoteAgent(modelName: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
+        AppLogging.getInstance().log("Creating remote agent")
         val agentConfig = createRemoteAgentConfig(modelName, temperature, userProvidedSystemPrompt)
         val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(

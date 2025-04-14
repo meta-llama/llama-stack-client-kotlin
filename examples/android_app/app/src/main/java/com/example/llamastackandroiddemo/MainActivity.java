@@ -718,7 +718,7 @@ public class MainActivity extends AppCompatActivity implements Runnable, Inferen
   }
 
   private void setupAgent(String generationMode) {
-    AppLogging.getInstance().log("Setting up agent for remote inference");
+    AppLogging.getInstance().log("Setting up agent for inference");
     String systemPrompt = mCurrentSettingsFields.getSystemPrompt();
     String modelName = Objects.equals(generationMode, AppUtils.REMOTE) ?
             mCurrentSettingsFields.getRemoteModel() :

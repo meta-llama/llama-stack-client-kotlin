@@ -189,6 +189,7 @@ class ExampleLlamaStackLocalInference(
     }
 
     fun createLocalAgent(modelName: String, modelPath: String, tokenizerPath: String, temperature: Double, userProvidedSystemPrompt: String, ctx: Context): Triple<String, String, TurnService> {
+        AppLogging.getInstance().log("Creating local agent")
         val agentConfig = createLocalAgentConfig(modelName, modelPath, tokenizerPath, temperature, userProvidedSystemPrompt)
         val agentService = client!!.agents()
         val agentCreateResponse = agentService.create(
