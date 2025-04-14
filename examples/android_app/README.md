@@ -50,7 +50,7 @@ cd examples/android_app
 6. Attach your mobile phone with ADB available
 7. Run the app (^R). This builds and launches the app on the phone
 
-To use local, follow the instructions in [Settings](https://github.com/meta-llama/llama-stack-client-kotlin/tree/main/examples/android_app#settings) to load local models and [Local RAG Setup](https://github.com/meta-llama/llama-stack-client-kotlin/tree/main/examples/android_app/README.md#set-up) to load models for local RAG.
+To use local, follow the instructions in [Settings](https://github.com/meta-llama/llama-stack-client-kotlin/tree/main/examples/android_app#settings) to load local models and [Local RAG Setup](https://github.com/meta-llama/llama-stack-client-kotlin/tree/main/examples/android_app/README.md#local) to load models for local RAG.
 
 ## Supporting Models
 As a whole, the models that this app supports vary by remote or local.
