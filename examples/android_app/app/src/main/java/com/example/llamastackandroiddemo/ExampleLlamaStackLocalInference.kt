@@ -25,6 +25,7 @@ import java.time.ZoneId
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.concurrent.CompletableFuture
+import java.util.concurrent.Executors
 
 class ExampleLlamaStackLocalInference(
     val modelPath: String,
@@ -49,9 +50,10 @@ class ExampleLlamaStackLocalInference(
     }
 
     init {
-        val thread = Thread {
+        val executor = Executors.newSingleThreadExecutor()
+        val future = executor.submit {
             try {
-                Log.d("llama_stack","ExampleLlamaStackLocalInference init is called")
+                Log.d("llama_stack", "ExampleLlamaStackLocalInference init is called")
                 client = LlamaStackClientLocalClient
                     .builder()
                     .modelPath(modelPath)
@@ -63,7 +65,8 @@ class ExampleLlamaStackLocalInference(
                 e.printStackTrace()
             }
         }
-        thread.start();
+        future.get() // Blocks until the task is complete
+        executor.shutdown()
     }
 
     fun updateModel(modelPath: String, tokenizerPath: String, temperature: Float, useAgent: Boolean) {
