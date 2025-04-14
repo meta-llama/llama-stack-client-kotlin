@@ -28,6 +28,7 @@ fun localRagSystemPrompt(): String {
 
 
 fun readFileFromURI(uri: Uri, context: Context): String {
+    AppLogging.getInstance().log("Reading file from URI")
     try {
         val inputStream = context.contentResolver.openInputStream(uri)
         val fileName = getDocumentName(uri, context)
@@ -47,8 +48,14 @@ fun readFileFromURI(uri: Uri, context: Context): String {
     }
 }
 
- fun storeAndEmbedDocument(client: LlamaStackClientClient?, sentenceEmbeddingModel: SentenceEmbeddingModel, text: String, chunkSizeInWords: Long): String {
+fun storeAndEmbedDocument(
+    client: LlamaStackClientClient?,
+    sentenceEmbeddingModel: SentenceEmbeddingModel,
+    text: String,
+    chunkSizeInWords: Long
+): String {
     // Currently just supporting single documents
+    AppLogging.getInstance().log("Building Llama Stack Document object")
     val document = Document.builder()
         .documentId("1")
         .content(text)
@@ -57,6 +64,7 @@ fun readFileFromURI(uri: Uri, context: Context): String {
 
     val vectorDbId = UUID.randomUUID().toString()
     // Create Vector DB
+    AppLogging.getInstance().log("Registering to create vector db")
     client!!.vectorDbs().register(
         VectorDbRegisterParams.builder()
             .vectorDbId(vectorDbId)
@@ -71,14 +79,17 @@ fun readFileFromURI(uri: Uri, context: Context): String {
         .documents(listOf(document))
         .build();
     val ragtool = client!!.toolRuntime().ragTool() as RagToolServiceLocalImpl
+    AppLogging.getInstance().log("Create chunks")
     val chunks = ragtool.createChunks(tagToolParams)
 
+    AppLogging.getInstance().log("Create embeddings for chunks")
     val embeddings = mutableListOf<FloatArray>()
-    for(chunk in chunks) {
+    for (chunk in chunks) {
         embeddings.add(sentenceEmbeddingModel.createEmbedding(chunk))
     }
 
     // Add document content into vector DB (tokenizer, chunking, and insert)
+    AppLogging.getInstance().log("Store embedded chunks to vector db")
     ragtool.insert(vectorDbId, embeddings, chunks)
 
     return vectorDbId
@@ -86,6 +97,7 @@ fun readFileFromURI(uri: Uri, context: Context): String {
 
 fun pdfToText(inputStream: InputStream?, context: Context): String {
     // Initialize PDFBoxResourceLoader if not already done
+    AppLogging.getInstance().log("Converting PDF to Text")
     if (!PDFBoxResourceLoader.isReady()) {
         PDFBoxResourceLoader.init(context)
     }
@@ -98,6 +110,7 @@ fun pdfToText(inputStream: InputStream?, context: Context): String {
 }
 
 fun txtToText(inputStream: InputStream?): String {
+    AppLogging.getInstance().log("Reading TXT to text")
     var text = ""
     try {
         if (inputStream != null) {
