@@ -195,27 +195,27 @@ The demo app defaults to use agent in the chat. You can switch between simple in
 In Agent workflow, the chat history including images are stored per Agent session on the server side. There is no need to look up for chat history in the app unless you are running image reasoning.
 * Llama Stack agent is capable of running multi-turn inference using both customized and built-in tools (exclude 1B/3B Llama models). Here is an example creating the agent configuration
 ```
-        val agentConfig =
-            AgentConfig.builder()
-                .enableSessionPersistence(false)
-                .instructions("You are a helpful assistant")
-                .maxInferIters(100)
-                .model("meta-llama/Llama-3.1-8B-Instruct")
-                .samplingParams(
-                    SamplingParams.builder()
-                        .strategy(
-                                SamplingParams.Strategy.ofGreedySampling()
-                        )
-                        .build()
-                )
-                .toolChoice(AgentConfig.ToolChoice.AUTO)
-                .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
-                .clientTools(
-                    listOf(
-                        CustomTools.getCreateCalendarEventTool()
-                    )
+val agentConfig =
+    AgentConfig.builder()
+        .enableSessionPersistence(false)
+        .instructions("You are a helpful assistant")
+        .maxInferIters(100)
+        .model("meta-llama/Llama-3.1-8B-Instruct")
+        .samplingParams(
+            SamplingParams.builder()
+                .strategy(
+                        SamplingParams.Strategy.ofGreedySampling()
                 )
                 .build()
+        )
+        .toolChoice(AgentConfig.ToolChoice.AUTO)
+        .toolPromptFormat(AgentConfig.ToolPromptFormat.JSON)
+        .clientTools(
+            listOf(
+                CustomTools.getCreateCalendarEventTool()
+            )
+        )
+        .build()
 ```
 In this sample snippet:
 * We sent max inference interation to be 100
@@ -226,41 +226,41 @@ In this sample snippet:
 Once the `agentConfig` is built, create an agent along with session and turn service where client is your `LlamaStackClientOkHttpClient` created for remote inference
 
 ```
-        val agentService = client!!.agents()
-        val agentCreateResponse = agentService.create(
-            AgentCreateParams.builder()
-                .agentConfig(agentConfig)
-                .build(),
-        )
+val agentService = client!!.agents()
+val agentCreateResponse = agentService.create(
+    AgentCreateParams.builder()
+        .agentConfig(agentConfig)
+        .build(),
+)
 
-        val agentId = agentCreateResponse.agentId()
-        val sessionService = agentService.session()
-        val agentSessionCreateResponse = sessionService.create(
-            AgentSessionCreateParams.builder()
-                .agentId(agentId)
-                .sessionName("test-session")
-                .build()
-        )
+val agentId = agentCreateResponse.agentId()
+val sessionService = agentService.session()
+val agentSessionCreateResponse = sessionService.create(
+    AgentSessionCreateParams.builder()
+        .agentId(agentId)
+        .sessionName("test-session")
+        .build()
+)
 
-        val sessionId = agentSessionCreateResponse.sessionId()
-        val turnService = agentService.turn()
+val sessionId = agentSessionCreateResponse.sessionId()
+val turnService = agentService.turn()
 ```
 Then you can create a streaming event for this turn service for simple inference
 ```
-        turnService.createStreaming(
-            AgentTurnCreateParams.builder()
-                .agentId(agentId)
-                .messages(
-                    listOf(
-                        AgentTurnCreateParams.Message.ofUser(
-                            UserMessage.builder()
-                                .content(InterleavedContent.ofString("What is the capital of France?"))
-                                .build()
-                            )
+turnService.createStreaming(
+    AgentTurnCreateParams.builder()
+        .agentId(agentId)
+        .messages(
+            listOf(
+                AgentTurnCreateParams.Message.ofUser(
+                    UserMessage.builder()
+                        .content(InterleavedContent.ofString("What is the capital of France?"))
+                        .build()
                     )
-                .sessionId(sessionId)
-                .build()
-        )
+            )
+        .sessionId(sessionId)
+        .build()
+)
 ```
 You can find more examples in `ExampleLlamaStackRemoteInference.kt`. Note that remote agent workflow only supports streaming response currently.
 
