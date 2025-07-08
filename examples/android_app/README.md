@@ -265,10 +265,12 @@ turnService.createStreaming(
 You can find more examples in `ExampleLlamaStackRemoteInference.kt`. Note that remote agent workflow only supports streaming response currently.
 
 ### Image Reasoning
-We also built an example in the App that you can now send image via remote agent for reasoning. In order to do so, in the Settings page, select a vision model such as `meta-llama/Llama-3.2-11B-Vision-Instruct`. Add an image or take a photo from the camera roll by clicking the `+` sign on bottom left. On the background, we need to encode the image with Base64 before sending it to the model. You can also send HTTP web url of images for reasoning. Note that current model doesn't support multi-image inference. In fact, the agent session will cache this image on the server side so you can ask multiple follow up questions. Here is a demo video.
+We also built an example in the App that you can now send image via remote agent for reasoning. In order to do so, in the Settings page, select a vision model such as `meta-llama/Llama-3.2-11B-Vision-Instruct` (single-image) or `meta-llama/Llama-4-Maverick-17B-128E-Instruct-FP8` (multi-image). Add an image or take a photo from the camera roll by clicking the `+` sign on bottom left. On the background, we need to encode the image with Base64 before sending it to the model. You can also send HTTP web url of images for reasoning. In fact, the agent session will cache this image on the server side so you can ask multiple follow up questions. Here is a demo video with the Llama 4 Maverick model.
 
+<p align="center">
+<img src="./docs/gif/multi-image-inference.gif" style="width:300px">
+</p>
 
-https://github.com/user-attachments/assets/b4037778-0189-4e3e-b19e-4ca2c9efbdfd
 
 ## Local
 ### Agents
