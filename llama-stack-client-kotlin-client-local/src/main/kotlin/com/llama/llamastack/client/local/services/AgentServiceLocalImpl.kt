@@ -3,6 +3,7 @@ package com.llama.llamastack.client.local.services
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.services.agents.SessionServiceLocalImpl
 import com.llama.llamastack.client.local.services.agents.TurnServiceLocalImpl
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.AgentCreateParams
 import com.llama.llamastack.models.AgentCreateResponse
@@ -30,6 +31,10 @@ class AgentServiceLocalImpl constructor(private var clientOptions: LocalClientOp
     }
 
     override fun withRawResponse(): AgentService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): AgentService {
         TODO("Not yet implemented")
     }
 

@@ -8,12 +8,17 @@ import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponse
 import com.llama.llamastack.client.local.util.buildInferenceChatCompletionResponseFromStream
 import com.llama.llamastack.client.local.util.buildLastInferenceChatCompletionResponsesFromStream
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.StreamResponse
+import com.llama.llamastack.models.BatchCompletion
 import com.llama.llamastack.models.ChatCompletionResponse
 import com.llama.llamastack.models.ChatCompletionResponseStreamChunk
 import com.llama.llamastack.models.CompletionResponse
 import com.llama.llamastack.models.EmbeddingsResponse
+import com.llama.llamastack.models.InferenceBatchChatCompletionParams
+import com.llama.llamastack.models.InferenceBatchChatCompletionResponse
+import com.llama.llamastack.models.InferenceBatchCompletionParams
 import com.llama.llamastack.models.InferenceChatCompletionParams
 import com.llama.llamastack.models.InferenceCompletionParams
 import com.llama.llamastack.models.InferenceEmbeddingsParams
@@ -68,6 +73,24 @@ class InferenceServiceLocalImpl constructor(private val clientOptions: LocalClie
     }
 
     override fun withRawResponse(): InferenceService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): InferenceService {
+        TODO("Not yet implemented")
+    }
+
+    override fun batchChatCompletion(
+        params: InferenceBatchChatCompletionParams,
+        requestOptions: RequestOptions,
+    ): InferenceBatchChatCompletionResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun batchCompletion(
+        params: InferenceBatchCompletionParams,
+        requestOptions: RequestOptions,
+    ): BatchCompletion {
         TODO("Not yet implemented")
     }
 

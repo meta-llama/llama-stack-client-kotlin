@@ -2,6 +2,7 @@ package com.llama.llamastack.client.local.services.toolruntime
 
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.QueryResult
 import com.llama.llamastack.models.ToolRuntimeRagToolInsertParams
@@ -16,6 +17,10 @@ constructor(
 ) : RagToolService {
 
     override fun withRawResponse(): RagToolService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RagToolService {
         TODO("Not yet implemented")
     }
 

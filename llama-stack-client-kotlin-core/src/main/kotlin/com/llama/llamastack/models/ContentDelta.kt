@@ -722,7 +722,9 @@ private constructor(
             /**
              * Alias for calling [Builder.toolCall] with `ToolCallOrString.ofToolCall(toolCall)`.
              */
-            fun toolCall(toolCall: ToolCall) = toolCall(ToolCallOrString.ofToolCall(toolCall))
+            //            fun toolCall(toolCall: ToolCall) =
+            // toolCall(ToolCallOrString.ofToolCall(com.llama.llamastack.models.ToolCall.builder().
+            // toolCall))
 
             /**
              * Sets the field to an arbitrary JSON value.
