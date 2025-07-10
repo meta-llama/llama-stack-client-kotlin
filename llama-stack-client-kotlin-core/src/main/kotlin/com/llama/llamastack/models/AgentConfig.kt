@@ -29,6 +29,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Configuration for an agent. */
 class AgentConfig
 private constructor(
     private val instructions: JsonField<String>,
@@ -37,6 +38,7 @@ private constructor(
     private val enableSessionPersistence: JsonField<Boolean>,
     private val inputShields: JsonField<List<String>>,
     private val maxInferIters: JsonField<Long>,
+    private val name: JsonField<String>,
     private val outputShields: JsonField<List<String>>,
     private val responseFormat: JsonField<ResponseFormat>,
     private val samplingParams: JsonField<SamplingParams>,
@@ -65,6 +67,7 @@ private constructor(
         @JsonProperty("max_infer_iters")
         @ExcludeMissing
         maxInferIters: JsonField<Long> = JsonMissing.of(),
+        @JsonProperty("name") @ExcludeMissing name: JsonField<String> = JsonMissing.of(),
         @JsonProperty("output_shields")
         @ExcludeMissing
         outputShields: JsonField<List<String>> = JsonMissing.of(),
@@ -93,6 +96,7 @@ private constructor(
         enableSessionPersistence,
         inputShields,
         maxInferIters,
+        name,
         outputShields,
         responseFormat,
         samplingParams,
@@ -104,12 +108,16 @@ private constructor(
     )
 
     /**
+     * The system instructions for the agent
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun instructions(): String = instructions.getRequired("instructions")
 
     /**
+     * The model identifier to use for the agent
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -122,6 +130,8 @@ private constructor(
     fun clientTools(): List<ToolDef>? = clientTools.getNullable("client_tools")
 
     /**
+     * Optional flag indicating whether session data has to be persisted
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -141,13 +151,21 @@ private constructor(
     fun maxInferIters(): Long? = maxInferIters.getNullable("max_infer_iters")
 
     /**
+     * Optional name for the agent, used in telemetry and identification
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun name(): String? = name.getNullable("name")
+
+    /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun outputShields(): List<String>? = outputShields.getNullable("output_shields")
 
     /**
-     * Configuration for JSON schema-guided response generation.
+     * Optional response format configuration
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
@@ -246,6 +264,13 @@ private constructor(
     @JsonProperty("max_infer_iters")
     @ExcludeMissing
     fun _maxInferIters(): JsonField<Long> = maxInferIters
+
+    /**
+     * Returns the raw JSON value of [name].
+     *
+     * Unlike [name], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("name") @ExcludeMissing fun _name(): JsonField<String> = name
 
     /**
      * Returns the raw JSON value of [outputShields].
@@ -348,6 +373,7 @@ private constructor(
         private var enableSessionPersistence: JsonField<Boolean> = JsonMissing.of()
         private var inputShields: JsonField<MutableList<String>>? = null
         private var maxInferIters: JsonField<Long> = JsonMissing.of()
+        private var name: JsonField<String> = JsonMissing.of()
         private var outputShields: JsonField<MutableList<String>>? = null
         private var responseFormat: JsonField<ResponseFormat> = JsonMissing.of()
         private var samplingParams: JsonField<SamplingParams> = JsonMissing.of()
@@ -364,6 +390,7 @@ private constructor(
             enableSessionPersistence = agentConfig.enableSessionPersistence
             inputShields = agentConfig.inputShields.map { it.toMutableList() }
             maxInferIters = agentConfig.maxInferIters
+            name = agentConfig.name
             outputShields = agentConfig.outputShields.map { it.toMutableList() }
             responseFormat = agentConfig.responseFormat
             samplingParams = agentConfig.samplingParams
@@ -374,6 +401,7 @@ private constructor(
             additionalProperties = agentConfig.additionalProperties.toMutableMap()
         }
 
+        /** The system instructions for the agent */
         fun instructions(instructions: String) = instructions(JsonField.of(instructions))
 
         /**
@@ -387,6 +415,7 @@ private constructor(
             this.instructions = instructions
         }
 
+        /** The model identifier to use for the agent */
         fun model(model: String) = model(JsonField.of(model))
 
         /**
@@ -422,6 +451,7 @@ private constructor(
                 }
         }
 
+        /** Optional flag indicating whether session data has to be persisted */
         fun enableSessionPersistence(enableSessionPersistence: Boolean) =
             enableSessionPersistence(JsonField.of(enableSessionPersistence))
 
@@ -474,6 +504,17 @@ private constructor(
             this.maxInferIters = maxInferIters
         }
 
+        /** Optional name for the agent, used in telemetry and identification */
+        fun name(name: String) = name(JsonField.of(name))
+
+        /**
+         * Sets [Builder.name] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.name] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
+        fun name(name: JsonField<String>) = apply { this.name = name }
+
         fun outputShields(outputShields: List<String>) = outputShields(JsonField.of(outputShields))
 
         /**
@@ -499,7 +540,7 @@ private constructor(
                 }
         }
 
-        /** Configuration for JSON schema-guided response generation. */
+        /** Optional response format configuration */
         fun responseFormat(responseFormat: ResponseFormat) =
             responseFormat(JsonField.of(responseFormat))
 
@@ -515,38 +556,34 @@ private constructor(
         }
 
         /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
-        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) =
             responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
         /**
          * Alias for calling [responseFormat] with the following:
          * ```kotlin
-         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         * ResponseFormat.JsonSchema.builder()
          *     .jsonSchema(jsonSchema)
          *     .build()
          * ```
          */
-        fun jsonSchemaResponseFormat(
-            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-        ) =
-            responseFormat(
-                ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
-            )
+        fun jsonSchemaResponseFormat(jsonSchema: ResponseFormat.JsonSchema.InnerJsonSchema) =
+            responseFormat(ResponseFormat.JsonSchema.builder().jsonSchema(jsonSchema).build())
 
         /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
+        fun responseFormat(grammar: ResponseFormat.Grammar) =
             responseFormat(ResponseFormat.ofGrammar(grammar))
 
         /**
          * Alias for calling [responseFormat] with the following:
          * ```kotlin
-         * ResponseFormat.GrammarResponseFormat.builder()
+         * ResponseFormat.Grammar.builder()
          *     .bnf(bnf)
          *     .build()
          * ```
          */
-        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
-            responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
+        fun grammarResponseFormat(bnf: ResponseFormat.Grammar.Bnf) =
+            responseFormat(ResponseFormat.Grammar.builder().bnf(bnf).build())
 
         /** Sampling parameters. */
         fun samplingParams(samplingParams: SamplingParams) =
@@ -684,6 +721,7 @@ private constructor(
                 enableSessionPersistence,
                 (inputShields ?: JsonMissing.of()).map { it.toImmutable() },
                 maxInferIters,
+                name,
                 (outputShields ?: JsonMissing.of()).map { it.toImmutable() },
                 responseFormat,
                 samplingParams,
@@ -708,6 +746,7 @@ private constructor(
         enableSessionPersistence()
         inputShields()
         maxInferIters()
+        name()
         outputShields()
         responseFormat()?.validate()
         samplingParams()?.validate()
@@ -738,6 +777,7 @@ private constructor(
             (if (enableSessionPersistence.asKnown() == null) 0 else 1) +
             (inputShields.asKnown()?.size ?: 0) +
             (if (maxInferIters.asKnown() == null) 0 else 1) +
+            (if (name.asKnown() == null) 0 else 1) +
             (outputShields.asKnown()?.size ?: 0) +
             (responseFormat.asKnown()?.validity() ?: 0) +
             (samplingParams.asKnown()?.validity() ?: 0) +
@@ -2210,15 +2250,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is AgentConfig && instructions == other.instructions && model == other.model && clientTools == other.clientTools && enableSessionPersistence == other.enableSessionPersistence && inputShields == other.inputShields && maxInferIters == other.maxInferIters && outputShields == other.outputShields && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is AgentConfig && instructions == other.instructions && model == other.model && clientTools == other.clientTools && enableSessionPersistence == other.enableSessionPersistence && inputShields == other.inputShields && maxInferIters == other.maxInferIters && name == other.name && outputShields == other.outputShields && responseFormat == other.responseFormat && samplingParams == other.samplingParams && toolChoice == other.toolChoice && toolConfig == other.toolConfig && toolPromptFormat == other.toolPromptFormat && toolgroups == other.toolgroups && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(instructions, model, clientTools, enableSessionPersistence, inputShields, maxInferIters, outputShields, responseFormat, samplingParams, toolChoice, toolConfig, toolPromptFormat, toolgroups, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(instructions, model, clientTools, enableSessionPersistence, inputShields, maxInferIters, name, outputShields, responseFormat, samplingParams, toolChoice, toolConfig, toolPromptFormat, toolgroups, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "AgentConfig{instructions=$instructions, model=$model, clientTools=$clientTools, enableSessionPersistence=$enableSessionPersistence, inputShields=$inputShields, maxInferIters=$maxInferIters, outputShields=$outputShields, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
+        "AgentConfig{instructions=$instructions, model=$model, clientTools=$clientTools, enableSessionPersistence=$enableSessionPersistence, inputShields=$inputShields, maxInferIters=$maxInferIters, name=$name, outputShields=$outputShields, responseFormat=$responseFormat, samplingParams=$samplingParams, toolChoice=$toolChoice, toolConfig=$toolConfig, toolPromptFormat=$toolPromptFormat, toolgroups=$toolgroups, additionalProperties=$additionalProperties}"
 }

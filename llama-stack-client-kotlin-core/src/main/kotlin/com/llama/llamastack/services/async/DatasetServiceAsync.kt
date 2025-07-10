@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -23,11 +24,34 @@ interface DatasetServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): DatasetServiceAsync
+
+    /** Get a dataset by its ID. */
+    suspend fun retrieve(
+        datasetId: String,
+        params: DatasetRetrieveParams = DatasetRetrieveParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): DatasetRetrieveResponse =
+        retrieve(params.toBuilder().datasetId(datasetId).build(), requestOptions)
+
+    /** @see [retrieve] */
     suspend fun retrieve(
         params: DatasetRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): DatasetRetrieveResponse
 
+    /** @see [retrieve] */
+    suspend fun retrieve(
+        datasetId: String,
+        requestOptions: RequestOptions,
+    ): DatasetRetrieveResponse = retrieve(datasetId, DatasetRetrieveParams.none(), requestOptions)
+
+    /** List all datasets. */
     suspend fun list(
         params: DatasetListParams = DatasetListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -43,13 +67,27 @@ interface DatasetServiceAsync {
      * - limit: Number of items to return. If None or -1, returns all items.
      *
      * The response includes:
-     * - data: List of items for the current page
-     * - has_more: Whether there are more items available after this set
+     * - data: List of items for the current page.
+     * - has_more: Whether there are more items available after this set.
      */
+    suspend fun iterrows(
+        datasetId: String,
+        params: DatasetIterrowsParams = DatasetIterrowsParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): DatasetIterrowsResponse =
+        iterrows(params.toBuilder().datasetId(datasetId).build(), requestOptions)
+
+    /** @see [iterrows] */
     suspend fun iterrows(
         params: DatasetIterrowsParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): DatasetIterrowsResponse
+
+    /** @see [iterrows] */
+    suspend fun iterrows(
+        datasetId: String,
+        requestOptions: RequestOptions,
+    ): DatasetIterrowsResponse = iterrows(datasetId, DatasetIterrowsParams.none(), requestOptions)
 
     /** Register a new dataset. */
     suspend fun register(
@@ -57,10 +95,22 @@ interface DatasetServiceAsync {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): DatasetRegisterResponse
 
+    /** Unregister a dataset by its ID. */
+    suspend fun unregister(
+        datasetId: String,
+        params: DatasetUnregisterParams = DatasetUnregisterParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ) = unregister(params.toBuilder().datasetId(datasetId).build(), requestOptions)
+
+    /** @see [unregister] */
     suspend fun unregister(
         params: DatasetUnregisterParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     )
+
+    /** @see [unregister] */
+    suspend fun unregister(datasetId: String, requestOptions: RequestOptions) =
+        unregister(datasetId, DatasetUnregisterParams.none(), requestOptions)
 
     /**
      * A view of [DatasetServiceAsync] that provides access to raw HTTP responses for each method.
@@ -68,14 +118,40 @@ interface DatasetServiceAsync {
     interface WithRawResponse {
 
         /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): DatasetServiceAsync.WithRawResponse
+
+        /**
          * Returns a raw HTTP response for `get /v1/datasets/{dataset_id}`, but is otherwise the
          * same as [DatasetServiceAsync.retrieve].
          */
         @MustBeClosed
         suspend fun retrieve(
+            datasetId: String,
+            params: DatasetRetrieveParams = DatasetRetrieveParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<DatasetRetrieveResponse> =
+            retrieve(params.toBuilder().datasetId(datasetId).build(), requestOptions)
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        suspend fun retrieve(
             params: DatasetRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<DatasetRetrieveResponse>
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        suspend fun retrieve(
+            datasetId: String,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<DatasetRetrieveResponse> =
+            retrieve(datasetId, DatasetRetrieveParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `get /v1/datasets`, but is otherwise the same as
@@ -100,9 +176,26 @@ interface DatasetServiceAsync {
          */
         @MustBeClosed
         suspend fun iterrows(
+            datasetId: String,
+            params: DatasetIterrowsParams = DatasetIterrowsParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<DatasetIterrowsResponse> =
+            iterrows(params.toBuilder().datasetId(datasetId).build(), requestOptions)
+
+        /** @see [iterrows] */
+        @MustBeClosed
+        suspend fun iterrows(
             params: DatasetIterrowsParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<DatasetIterrowsResponse>
+
+        /** @see [iterrows] */
+        @MustBeClosed
+        suspend fun iterrows(
+            datasetId: String,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<DatasetIterrowsResponse> =
+            iterrows(datasetId, DatasetIterrowsParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `post /v1/datasets`, but is otherwise the same as
@@ -120,8 +213,22 @@ interface DatasetServiceAsync {
          */
         @MustBeClosed
         suspend fun unregister(
+            datasetId: String,
+            params: DatasetUnregisterParams = DatasetUnregisterParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponse =
+            unregister(params.toBuilder().datasetId(datasetId).build(), requestOptions)
+
+        /** @see [unregister] */
+        @MustBeClosed
+        suspend fun unregister(
             params: DatasetUnregisterParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponse
+
+        /** @see [unregister] */
+        @MustBeClosed
+        suspend fun unregister(datasetId: String, requestOptions: RequestOptions): HttpResponse =
+            unregister(datasetId, DatasetUnregisterParams.none(), requestOptions)
     }
 }

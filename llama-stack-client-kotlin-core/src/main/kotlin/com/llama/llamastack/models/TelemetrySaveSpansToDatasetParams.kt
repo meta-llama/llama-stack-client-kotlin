@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Save spans to a dataset. */
 class TelemetrySaveSpansToDatasetParams
 private constructor(
     private val body: Body,
@@ -28,24 +29,32 @@ private constructor(
 ) : Params {
 
     /**
+     * The attribute filters to apply to the spans.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun attributeFilters(): List<QueryCondition> = body.attributeFilters()
 
     /**
+     * The attributes to save to the dataset.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun attributesToSave(): List<String> = body.attributesToSave()
 
     /**
+     * The ID of the dataset to save the spans to.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun datasetId(): String = body.datasetId()
 
     /**
+     * The maximum depth of the tree.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -132,6 +141,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The attribute filters to apply to the spans. */
         fun attributeFilters(attributeFilters: List<QueryCondition>) = apply {
             body.attributeFilters(attributeFilters)
         }
@@ -156,6 +166,7 @@ private constructor(
             body.addAttributeFilter(attributeFilter)
         }
 
+        /** The attributes to save to the dataset. */
         fun attributesToSave(attributesToSave: List<String>) = apply {
             body.attributesToSave(attributesToSave)
         }
@@ -180,6 +191,7 @@ private constructor(
             body.addAttributesToSave(attributesToSave)
         }
 
+        /** The ID of the dataset to save the spans to. */
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
         /**
@@ -191,6 +203,7 @@ private constructor(
          */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
+        /** The maximum depth of the tree. */
         fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
 
         /**
@@ -370,6 +383,8 @@ private constructor(
         ) : this(attributeFilters, attributesToSave, datasetId, maxDepth, mutableMapOf())
 
         /**
+         * The attribute filters to apply to the spans.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -378,6 +393,8 @@ private constructor(
             attributeFilters.getRequired("attribute_filters")
 
         /**
+         * The attributes to save to the dataset.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -385,6 +402,8 @@ private constructor(
         fun attributesToSave(): List<String> = attributesToSave.getRequired("attributes_to_save")
 
         /**
+         * The ID of the dataset to save the spans to.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -392,6 +411,8 @@ private constructor(
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
         /**
+         * The maximum depth of the tree.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -475,6 +496,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The attribute filters to apply to the spans. */
             fun attributeFilters(attributeFilters: List<QueryCondition>) =
                 attributeFilters(JsonField.of(attributeFilters))
 
@@ -501,6 +523,7 @@ private constructor(
                     }
             }
 
+            /** The attributes to save to the dataset. */
             fun attributesToSave(attributesToSave: List<String>) =
                 attributesToSave(JsonField.of(attributesToSave))
 
@@ -527,6 +550,7 @@ private constructor(
                     }
             }
 
+            /** The ID of the dataset to save the spans to. */
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
             /**
@@ -538,6 +562,7 @@ private constructor(
              */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
+            /** The maximum depth of the tree. */
             fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
 
             /**

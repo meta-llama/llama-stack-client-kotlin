@@ -23,13 +23,13 @@ import java.util.Objects
 /** Evaluate a list of rows on a benchmark. */
 class EvalEvaluateRowsAlphaParams
 private constructor(
-    private val benchmarkId: String,
+    private val benchmarkId: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun benchmarkId(): String = benchmarkId
+    fun benchmarkId(): String? = benchmarkId
 
     /**
      * The configuration for the benchmark.
@@ -92,7 +92,6 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .benchmarkId()
          * .benchmarkConfig()
          * .inputRows()
          * .scoringFunctions()
@@ -116,7 +115,7 @@ private constructor(
             additionalQueryParams = evalEvaluateRowsAlphaParams.additionalQueryParams.toBuilder()
         }
 
-        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
+        fun benchmarkId(benchmarkId: String?) = apply { this.benchmarkId = benchmarkId }
 
         /**
          * Sets the entire request body.
@@ -313,7 +312,6 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .benchmarkId()
          * .benchmarkConfig()
          * .inputRows()
          * .scoringFunctions()
@@ -323,7 +321,7 @@ private constructor(
          */
         fun build(): EvalEvaluateRowsAlphaParams =
             EvalEvaluateRowsAlphaParams(
-                checkRequired("benchmarkId", benchmarkId),
+                benchmarkId,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -334,7 +332,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> benchmarkId
+            0 -> benchmarkId ?: ""
             else -> ""
         }
 

@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -30,6 +31,9 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
 
     override fun withRawResponse(): ShieldService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ShieldService =
+        ShieldServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun retrieve(params: ShieldRetrieveParams, requestOptions: RequestOptions): Shield =
         // get /v1/shields/{identifier}
         withRawResponse().retrieve(params, requestOptions).parse()
@@ -47,6 +51,11 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ShieldService.WithRawResponse =
+            ShieldServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
+
         private val retrieveHandler: Handler<Shield> =
             jsonHandler<Shield>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -54,9 +63,13 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
             params: ShieldRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Shield> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("identifier", params.identifier())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "shields", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
@@ -84,6 +97,7 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "shields")
                     .build()
                     .prepare(clientOptions, params)
@@ -111,6 +125,7 @@ class ShieldServiceImpl internal constructor(private val clientOptions: ClientOp
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "shields")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

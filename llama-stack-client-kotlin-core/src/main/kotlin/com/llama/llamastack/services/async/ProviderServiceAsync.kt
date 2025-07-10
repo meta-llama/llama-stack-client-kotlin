@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.ProviderInfo
@@ -16,11 +17,31 @@ interface ProviderServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ProviderServiceAsync
+
+    /** Get detailed information about a specific provider. */
+    suspend fun retrieve(
+        providerId: String,
+        params: ProviderRetrieveParams = ProviderRetrieveParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): ProviderInfo = retrieve(params.toBuilder().providerId(providerId).build(), requestOptions)
+
+    /** @see [retrieve] */
     suspend fun retrieve(
         params: ProviderRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): ProviderInfo
 
+    /** @see [retrieve] */
+    suspend fun retrieve(providerId: String, requestOptions: RequestOptions): ProviderInfo =
+        retrieve(providerId, ProviderRetrieveParams.none(), requestOptions)
+
+    /** List all available providers. */
     suspend fun list(
         params: ProviderListParams = ProviderListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -36,14 +57,40 @@ interface ProviderServiceAsync {
     interface WithRawResponse {
 
         /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ProviderServiceAsync.WithRawResponse
+
+        /**
          * Returns a raw HTTP response for `get /v1/providers/{provider_id}`, but is otherwise the
          * same as [ProviderServiceAsync.retrieve].
          */
         @MustBeClosed
         suspend fun retrieve(
+            providerId: String,
+            params: ProviderRetrieveParams = ProviderRetrieveParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<ProviderInfo> =
+            retrieve(params.toBuilder().providerId(providerId).build(), requestOptions)
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        suspend fun retrieve(
             params: ProviderRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<ProviderInfo>
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        suspend fun retrieve(
+            providerId: String,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<ProviderInfo> =
+            retrieve(providerId, ProviderRetrieveParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `get /v1/providers`, but is otherwise the same as

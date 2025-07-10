@@ -17,14 +17,12 @@ internal class InterleavedContentItemTest {
     @Test
     fun ofImage() {
         val image =
-            InterleavedContentItem.ImageContentItem.builder()
+            InterleavedContentItem.Image.builder()
                 .image(
-                    InterleavedContentItem.ImageContentItem.Image.builder()
+                    InterleavedContentItem.Image.InnerImage.builder()
                         .data("data")
                         .url(
-                            InterleavedContentItem.ImageContentItem.Image.Url.builder()
-                                .uri("uri")
-                                .build()
+                            InterleavedContentItem.Image.InnerImage.Url.builder().uri("uri").build()
                         )
                         .build()
                 )
@@ -41,12 +39,12 @@ internal class InterleavedContentItemTest {
         val jsonMapper = jsonMapper()
         val interleavedContentItem =
             InterleavedContentItem.ofImage(
-                InterleavedContentItem.ImageContentItem.builder()
+                InterleavedContentItem.Image.builder()
                     .image(
-                        InterleavedContentItem.ImageContentItem.Image.builder()
+                        InterleavedContentItem.Image.InnerImage.builder()
                             .data("data")
                             .url(
-                                InterleavedContentItem.ImageContentItem.Image.Url.builder()
+                                InterleavedContentItem.Image.InnerImage.Url.builder()
                                     .uri("uri")
                                     .build()
                             )
@@ -66,7 +64,7 @@ internal class InterleavedContentItemTest {
 
     @Test
     fun ofText() {
-        val text = InterleavedContentItem.TextContentItem.builder().text("text").build()
+        val text = InterleavedContentItem.Text.builder().text("text").build()
 
         val interleavedContentItem = InterleavedContentItem.ofText(text)
 
@@ -79,7 +77,7 @@ internal class InterleavedContentItemTest {
         val jsonMapper = jsonMapper()
         val interleavedContentItem =
             InterleavedContentItem.ofText(
-                InterleavedContentItem.TextContentItem.builder().text("text").build()
+                InterleavedContentItem.Text.builder().text("text").build()
             )
 
         val roundtrippedInterleavedContentItem =

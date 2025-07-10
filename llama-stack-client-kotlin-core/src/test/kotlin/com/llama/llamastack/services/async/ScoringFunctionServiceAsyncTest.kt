@@ -7,7 +7,6 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.models.ReturnType
 import com.llama.llamastack.models.ScoringFnParams
 import com.llama.llamastack.models.ScoringFunctionRegisterParams
-import com.llama.llamastack.models.ScoringFunctionRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -22,10 +21,7 @@ internal class ScoringFunctionServiceAsyncTest {
                 .build()
         val scoringFunctionServiceAsync = client.scoringFunctions()
 
-        val scoringFn =
-            scoringFunctionServiceAsync.retrieve(
-                ScoringFunctionRetrieveParams.builder().scoringFnId("scoring_fn_id").build()
-            )
+        val scoringFn = scoringFunctionServiceAsync.retrieve("scoring_fn_id")
 
         scoringFn.validate()
     }
@@ -57,11 +53,11 @@ internal class ScoringFunctionServiceAsyncTest {
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .scoringFnId("scoring_fn_id")
                 .params(
-                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-                        .judgeModel("judge_model")
+                    ScoringFnParams.LlmAsJudge.builder()
                         .addAggregationFunction(
-                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
+                            ScoringFnParams.LlmAsJudge.AggregationFunction.AVERAGE
                         )
+                        .judgeModel("judge_model")
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
                         .build()

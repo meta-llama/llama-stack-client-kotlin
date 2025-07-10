@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a model by its identifier. */
 class ModelRetrieveParams
 private constructor(
-    private val modelId: String,
+    private val modelId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun modelId(): String = modelId
+    fun modelId(): String? = modelId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [ModelRetrieveParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .modelId()
-         * ```
-         */
+        fun none(): ModelRetrieveParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ModelRetrieveParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = modelRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun modelId(modelId: String) = apply { this.modelId = modelId }
+        fun modelId(modelId: String?) = apply { this.modelId = modelId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,25 +148,14 @@ private constructor(
          * Returns an immutable instance of [ModelRetrieveParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .modelId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ModelRetrieveParams =
-            ModelRetrieveParams(
-                checkRequired("modelId", modelId),
-                additionalHeaders.build(),
-                additionalQueryParams.build(),
-            )
+            ModelRetrieveParams(modelId, additionalHeaders.build(), additionalQueryParams.build())
     }
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> modelId
+            0 -> modelId ?: ""
             else -> ""
         }
 

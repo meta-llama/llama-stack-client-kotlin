@@ -18,14 +18,14 @@ internal class EventTest {
     @Test
     fun ofUnstructuredLog() {
         val unstructuredLog =
-            Event.UnstructuredLogEvent.builder()
+            Event.UnstructuredLog.builder()
                 .message("message")
-                .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                .severity(Event.UnstructuredLog.Severity.VERBOSE)
                 .spanId("span_id")
                 .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .traceId("trace_id")
                 .attributes(
-                    Event.UnstructuredLogEvent.Attributes.builder()
+                    Event.UnstructuredLog.Attributes.builder()
                         .putAdditionalProperty("foo", JsonValue.from("string"))
                         .build()
                 )
@@ -43,14 +43,14 @@ internal class EventTest {
         val jsonMapper = jsonMapper()
         val event =
             Event.ofUnstructuredLog(
-                Event.UnstructuredLogEvent.builder()
+                Event.UnstructuredLog.builder()
                     .message("message")
-                    .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                    .severity(Event.UnstructuredLog.Severity.VERBOSE)
                     .spanId("span_id")
                     .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                     .traceId("trace_id")
                     .attributes(
-                        Event.UnstructuredLogEvent.Attributes.builder()
+                        Event.UnstructuredLog.Attributes.builder()
                             .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
@@ -66,7 +66,7 @@ internal class EventTest {
     @Test
     fun ofMetric() {
         val metric =
-            Event.MetricEvent.builder()
+            Event.Metric.builder()
                 .metric("metric")
                 .spanId("span_id")
                 .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -74,7 +74,7 @@ internal class EventTest {
                 .unit("unit")
                 .value(0.0)
                 .attributes(
-                    Event.MetricEvent.Attributes.builder()
+                    Event.Metric.Attributes.builder()
                         .putAdditionalProperty("foo", JsonValue.from("string"))
                         .build()
                 )
@@ -92,7 +92,7 @@ internal class EventTest {
         val jsonMapper = jsonMapper()
         val event =
             Event.ofMetric(
-                Event.MetricEvent.builder()
+                Event.Metric.builder()
                     .metric("metric")
                     .spanId("span_id")
                     .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
@@ -100,7 +100,7 @@ internal class EventTest {
                     .unit("unit")
                     .value(0.0)
                     .attributes(
-                        Event.MetricEvent.Attributes.builder()
+                        Event.Metric.Attributes.builder()
                             .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
@@ -116,9 +116,9 @@ internal class EventTest {
     @Test
     fun ofStructuredLog() {
         val structuredLog =
-            Event.StructuredLogEvent.builder()
+            Event.StructuredLog.builder()
                 .payload(
-                    Event.StructuredLogEvent.Payload.SpanStartPayload.builder()
+                    Event.StructuredLog.Payload.SpanStart.builder()
                         .name("name")
                         .parentSpanId("parent_span_id")
                         .build()
@@ -127,7 +127,7 @@ internal class EventTest {
                 .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                 .traceId("trace_id")
                 .attributes(
-                    Event.StructuredLogEvent.Attributes.builder()
+                    Event.StructuredLog.Attributes.builder()
                         .putAdditionalProperty("foo", JsonValue.from("string"))
                         .build()
                 )
@@ -145,9 +145,9 @@ internal class EventTest {
         val jsonMapper = jsonMapper()
         val event =
             Event.ofStructuredLog(
-                Event.StructuredLogEvent.builder()
+                Event.StructuredLog.builder()
                     .payload(
-                        Event.StructuredLogEvent.Payload.SpanStartPayload.builder()
+                        Event.StructuredLog.Payload.SpanStart.builder()
                             .name("name")
                             .parentSpanId("parent_span_id")
                             .build()
@@ -156,7 +156,7 @@ internal class EventTest {
                     .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                     .traceId("trace_id")
                     .attributes(
-                        Event.StructuredLogEvent.Attributes.builder()
+                        Event.StructuredLog.Attributes.builder()
                             .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )

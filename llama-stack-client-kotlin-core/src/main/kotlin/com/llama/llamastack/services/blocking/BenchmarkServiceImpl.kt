@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -32,6 +33,9 @@ class BenchmarkServiceImpl internal constructor(private val clientOptions: Clien
 
     override fun withRawResponse(): BenchmarkService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): BenchmarkService =
+        BenchmarkServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun retrieve(
         params: BenchmarkRetrieveParams,
         requestOptions: RequestOptions,
@@ -56,6 +60,13 @@ class BenchmarkServiceImpl internal constructor(private val clientOptions: Clien
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): BenchmarkService.WithRawResponse =
+            BenchmarkServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<Benchmark> =
             jsonHandler<Benchmark>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -63,9 +74,13 @@ class BenchmarkServiceImpl internal constructor(private val clientOptions: Clien
             params: BenchmarkRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Benchmark> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("benchmarkId", params.benchmarkId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "eval", "benchmarks", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
@@ -93,6 +108,7 @@ class BenchmarkServiceImpl internal constructor(private val clientOptions: Clien
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "eval", "benchmarks")
                     .build()
                     .prepare(clientOptions, params)
@@ -119,6 +135,7 @@ class BenchmarkServiceImpl internal constructor(private val clientOptions: Clien
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "eval", "benchmarks")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

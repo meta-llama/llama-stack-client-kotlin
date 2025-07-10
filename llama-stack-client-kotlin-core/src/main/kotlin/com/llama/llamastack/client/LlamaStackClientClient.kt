@@ -2,16 +2,21 @@
 
 package com.llama.llamastack.client
 
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.services.blocking.AgentService
-import com.llama.llamastack.services.blocking.BatchInferenceService
 import com.llama.llamastack.services.blocking.BenchmarkService
+import com.llama.llamastack.services.blocking.ChatService
+import com.llama.llamastack.services.blocking.CompletionService
 import com.llama.llamastack.services.blocking.DatasetService
+import com.llama.llamastack.services.blocking.EmbeddingService
 import com.llama.llamastack.services.blocking.EvalService
+import com.llama.llamastack.services.blocking.FileService
 import com.llama.llamastack.services.blocking.InferenceService
 import com.llama.llamastack.services.blocking.InspectService
 import com.llama.llamastack.services.blocking.ModelService
 import com.llama.llamastack.services.blocking.PostTrainingService
 import com.llama.llamastack.services.blocking.ProviderService
+import com.llama.llamastack.services.blocking.ResponseService
 import com.llama.llamastack.services.blocking.RouteService
 import com.llama.llamastack.services.blocking.SafetyService
 import com.llama.llamastack.services.blocking.ScoringFunctionService
@@ -24,6 +29,7 @@ import com.llama.llamastack.services.blocking.ToolService
 import com.llama.llamastack.services.blocking.ToolgroupService
 import com.llama.llamastack.services.blocking.VectorDbService
 import com.llama.llamastack.services.blocking.VectorIoService
+import com.llama.llamastack.services.blocking.VectorStoreService
 
 /**
  * A client for interacting with the Llama Stack Client REST API synchronously. You can also switch
@@ -54,15 +60,22 @@ interface LlamaStackClientClient {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): LlamaStackClientClient
+
     fun toolgroups(): ToolgroupService
 
     fun tools(): ToolService
 
     fun toolRuntime(): ToolRuntimeService
 
-    fun agents(): AgentService
+    fun responses(): ResponseService
 
-    fun batchInference(): BatchInferenceService
+    fun agents(): AgentService
 
     fun datasets(): DatasetService
 
@@ -72,9 +85,17 @@ interface LlamaStackClientClient {
 
     fun inference(): InferenceService
 
+    fun embeddings(): EmbeddingService
+
+    fun chat(): ChatService
+
+    fun completions(): CompletionService
+
     fun vectorIo(): VectorIoService
 
     fun vectorDbs(): VectorDbService
+
+    fun vectorStores(): VectorStoreService
 
     fun models(): ModelService
 
@@ -98,6 +119,8 @@ interface LlamaStackClientClient {
 
     fun benchmarks(): BenchmarkService
 
+    fun files(): FileService
+
     /**
      * Closes this client, relinquishing any underlying resources.
      *
@@ -117,15 +140,24 @@ interface LlamaStackClientClient {
      */
     interface WithRawResponse {
 
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): LlamaStackClientClient.WithRawResponse
+
         fun toolgroups(): ToolgroupService.WithRawResponse
 
         fun tools(): ToolService.WithRawResponse
 
         fun toolRuntime(): ToolRuntimeService.WithRawResponse
 
-        fun agents(): AgentService.WithRawResponse
+        fun responses(): ResponseService.WithRawResponse
 
-        fun batchInference(): BatchInferenceService.WithRawResponse
+        fun agents(): AgentService.WithRawResponse
 
         fun datasets(): DatasetService.WithRawResponse
 
@@ -135,9 +167,17 @@ interface LlamaStackClientClient {
 
         fun inference(): InferenceService.WithRawResponse
 
+        fun embeddings(): EmbeddingService.WithRawResponse
+
+        fun chat(): ChatService.WithRawResponse
+
+        fun completions(): CompletionService.WithRawResponse
+
         fun vectorIo(): VectorIoService.WithRawResponse
 
         fun vectorDbs(): VectorDbService.WithRawResponse
+
+        fun vectorStores(): VectorStoreService.WithRawResponse
 
         fun models(): ModelService.WithRawResponse
 
@@ -160,5 +200,7 @@ interface LlamaStackClientClient {
         fun scoringFunctions(): ScoringFunctionService.WithRawResponse
 
         fun benchmarks(): BenchmarkService.WithRawResponse
+
+        fun files(): FileService.WithRawResponse
     }
 }

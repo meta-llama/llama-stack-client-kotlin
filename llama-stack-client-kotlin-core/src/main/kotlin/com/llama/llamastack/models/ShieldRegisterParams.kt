@@ -19,6 +19,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Register a shield. */
 class ShieldRegisterParams
 private constructor(
     private val body: Body,
@@ -27,24 +28,32 @@ private constructor(
 ) : Params {
 
     /**
+     * The identifier of the shield to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun shieldId(): String = body.shieldId()
 
     /**
+     * The parameters of the shield.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun params(): Params? = body.params()
 
     /**
+     * The identifier of the provider.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun providerId(): String? = body.providerId()
 
     /**
+     * The identifier of the shield in the provider.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -125,6 +134,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The identifier of the shield to register. */
         fun shieldId(shieldId: String) = apply { body.shieldId(shieldId) }
 
         /**
@@ -135,6 +145,7 @@ private constructor(
          */
         fun shieldId(shieldId: JsonField<String>) = apply { body.shieldId(shieldId) }
 
+        /** The parameters of the shield. */
         fun params(params: Params) = apply { body.params(params) }
 
         /**
@@ -145,6 +156,7 @@ private constructor(
          */
         fun params(params: JsonField<Params>) = apply { body.params(params) }
 
+        /** The identifier of the provider. */
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         /**
@@ -156,6 +168,7 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
+        /** The identifier of the shield in the provider. */
         fun providerShieldId(providerShieldId: String) = apply {
             body.providerShieldId(providerShieldId)
         }
@@ -338,6 +351,8 @@ private constructor(
         ) : this(shieldId, params, providerId, providerShieldId, mutableMapOf())
 
         /**
+         * The identifier of the shield to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -345,18 +360,24 @@ private constructor(
         fun shieldId(): String = shieldId.getRequired("shield_id")
 
         /**
+         * The parameters of the shield.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun params(): Params? = params.getNullable("params")
 
         /**
+         * The identifier of the provider.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
         /**
+         * The identifier of the shield in the provider.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -437,6 +458,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The identifier of the shield to register. */
             fun shieldId(shieldId: String) = shieldId(JsonField.of(shieldId))
 
             /**
@@ -448,6 +470,7 @@ private constructor(
              */
             fun shieldId(shieldId: JsonField<String>) = apply { this.shieldId = shieldId }
 
+            /** The parameters of the shield. */
             fun params(params: Params) = params(JsonField.of(params))
 
             /**
@@ -459,6 +482,7 @@ private constructor(
              */
             fun params(params: JsonField<Params>) = apply { this.params = params }
 
+            /** The identifier of the provider. */
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             /**
@@ -470,6 +494,7 @@ private constructor(
              */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
+            /** The identifier of the shield in the provider. */
             fun providerShieldId(providerShieldId: String) =
                 providerShieldId(JsonField.of(providerShieldId))
 
@@ -577,6 +602,7 @@ private constructor(
             "Body{shieldId=$shieldId, params=$params, providerId=$providerId, providerShieldId=$providerShieldId, additionalProperties=$additionalProperties}"
     }
 
+    /** The parameters of the shield. */
     class Params
     @JsonCreator
     private constructor(

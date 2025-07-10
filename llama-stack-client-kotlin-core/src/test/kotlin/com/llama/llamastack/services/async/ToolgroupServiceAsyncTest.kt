@@ -5,9 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.core.JsonValue
-import com.llama.llamastack.models.ToolgroupGetParams
 import com.llama.llamastack.models.ToolgroupRegisterParams
-import com.llama.llamastack.models.ToolgroupUnregisterParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -35,10 +33,7 @@ internal class ToolgroupServiceAsyncTest {
                 .build()
         val toolgroupServiceAsync = client.toolgroups()
 
-        val toolGroup =
-            toolgroupServiceAsync.get(
-                ToolgroupGetParams.builder().toolgroupId("toolgroup_id").build()
-            )
+        val toolGroup = toolgroupServiceAsync.get("toolgroup_id")
 
         toolGroup.validate()
     }
@@ -73,8 +68,6 @@ internal class ToolgroupServiceAsyncTest {
                 .build()
         val toolgroupServiceAsync = client.toolgroups()
 
-        toolgroupServiceAsync.unregister(
-            ToolgroupUnregisterParams.builder().toolgroupId("toolgroup_id").build()
-        )
+        toolgroupServiceAsync.unregister("toolgroup_id")
     }
 }

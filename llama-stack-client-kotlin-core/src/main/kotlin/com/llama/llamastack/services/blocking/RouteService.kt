@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.RouteInfo
@@ -15,6 +16,14 @@ interface RouteService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RouteService
+
+    /** List all routes. */
     fun list(
         params: RouteListParams = RouteListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -26,6 +35,13 @@ interface RouteService {
 
     /** A view of [RouteService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RouteService.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `get /v1/inspect/routes`, but is otherwise the same as

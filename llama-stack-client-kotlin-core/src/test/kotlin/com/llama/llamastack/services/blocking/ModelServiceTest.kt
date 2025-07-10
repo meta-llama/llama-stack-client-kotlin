@@ -6,8 +6,6 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.ModelRegisterParams
-import com.llama.llamastack.models.ModelRetrieveParams
-import com.llama.llamastack.models.ModelUnregisterParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -20,7 +18,7 @@ internal class ModelServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
 
-        val model = modelService.retrieve(ModelRetrieveParams.builder().modelId("model_id").build())
+        val model = modelService.retrieve("model_id")
 
         model.validate()
     }
@@ -66,6 +64,6 @@ internal class ModelServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val modelService = client.models()
 
-        modelService.unregister(ModelUnregisterParams.builder().modelId("model_id").build())
+        modelService.unregister("model_id")
     }
 }

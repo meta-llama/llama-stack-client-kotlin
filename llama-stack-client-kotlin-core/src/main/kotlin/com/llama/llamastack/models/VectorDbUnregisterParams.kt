@@ -4,21 +4,21 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Unregister a vector database. */
 class VectorDbUnregisterParams
 private constructor(
-    private val vectorDbId: String,
+    private val vectorDbId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
 
-    fun vectorDbId(): String = vectorDbId
+    fun vectorDbId(): String? = vectorDbId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -30,14 +30,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [VectorDbUnregisterParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .vectorDbId()
-         * ```
-         */
+        fun none(): VectorDbUnregisterParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [VectorDbUnregisterParams]. */
         fun builder() = Builder()
     }
 
@@ -57,7 +52,7 @@ private constructor(
                 vectorDbUnregisterParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun vectorDbId(vectorDbId: String) = apply { this.vectorDbId = vectorDbId }
+        fun vectorDbId(vectorDbId: String?) = apply { this.vectorDbId = vectorDbId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -183,17 +178,10 @@ private constructor(
          * Returns an immutable instance of [VectorDbUnregisterParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .vectorDbId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): VectorDbUnregisterParams =
             VectorDbUnregisterParams(
-                checkRequired("vectorDbId", vectorDbId),
+                vectorDbId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -204,7 +192,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> vectorDbId
+            0 -> vectorDbId ?: ""
             else -> ""
         }
 

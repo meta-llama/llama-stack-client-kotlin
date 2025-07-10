@@ -19,6 +19,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Query traces. */
 class TelemetryQueryTracesParams
 private constructor(
     private val body: Body,
@@ -27,24 +28,32 @@ private constructor(
 ) : Params {
 
     /**
+     * The attribute filters to apply to the traces.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun attributeFilters(): List<QueryCondition>? = body.attributeFilters()
 
     /**
+     * The limit of traces to return.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun limit(): Long? = body.limit()
 
     /**
+     * The offset of the traces to return.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun offset(): Long? = body.offset()
 
     /**
+     * The order by of the traces to return.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -122,6 +131,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The attribute filters to apply to the traces. */
         fun attributeFilters(attributeFilters: List<QueryCondition>) = apply {
             body.attributeFilters(attributeFilters)
         }
@@ -146,6 +156,7 @@ private constructor(
             body.addAttributeFilter(attributeFilter)
         }
 
+        /** The limit of traces to return. */
         fun limit(limit: Long) = apply { body.limit(limit) }
 
         /**
@@ -156,6 +167,7 @@ private constructor(
          */
         fun limit(limit: JsonField<Long>) = apply { body.limit(limit) }
 
+        /** The offset of the traces to return. */
         fun offset(offset: Long) = apply { body.offset(offset) }
 
         /**
@@ -166,6 +178,7 @@ private constructor(
          */
         fun offset(offset: JsonField<Long>) = apply { body.offset(offset) }
 
+        /** The order by of the traces to return. */
         fun orderBy(orderBy: List<String>) = apply { body.orderBy(orderBy) }
 
         /**
@@ -342,6 +355,8 @@ private constructor(
         ) : this(attributeFilters, limit, offset, orderBy, mutableMapOf())
 
         /**
+         * The attribute filters to apply to the traces.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -349,18 +364,24 @@ private constructor(
             attributeFilters.getNullable("attribute_filters")
 
         /**
+         * The limit of traces to return.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun limit(): Long? = limit.getNullable("limit")
 
         /**
+         * The offset of the traces to return.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun offset(): Long? = offset.getNullable("offset")
 
         /**
+         * The order by of the traces to return.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -432,6 +453,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The attribute filters to apply to the traces. */
             fun attributeFilters(attributeFilters: List<QueryCondition>) =
                 attributeFilters(JsonField.of(attributeFilters))
 
@@ -458,6 +480,7 @@ private constructor(
                     }
             }
 
+            /** The limit of traces to return. */
             fun limit(limit: Long) = limit(JsonField.of(limit))
 
             /**
@@ -469,6 +492,7 @@ private constructor(
              */
             fun limit(limit: JsonField<Long>) = apply { this.limit = limit }
 
+            /** The offset of the traces to return. */
             fun offset(offset: Long) = offset(JsonField.of(offset))
 
             /**
@@ -480,6 +504,7 @@ private constructor(
              */
             fun offset(offset: JsonField<Long>) = apply { this.offset = offset }
 
+            /** The order by of the traces to return. */
             fun orderBy(orderBy: List<String>) = orderBy(JsonField.of(orderBy))
 
             /**

@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Register a model. */
 class ModelRegisterParams
 private constructor(
     private val body: Body,
@@ -28,30 +29,40 @@ private constructor(
 ) : Params {
 
     /**
+     * The identifier of the model to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun modelId(): String = body.modelId()
 
     /**
+     * Any additional metadata for this model.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun metadata(): Metadata? = body.metadata()
 
     /**
+     * The type of model to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun modelType(): ModelType? = body.modelType()
 
     /**
+     * The identifier of the provider.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun providerId(): String? = body.providerId()
 
     /**
+     * The identifier of the model in the provider.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -140,6 +151,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The identifier of the model to register. */
         fun modelId(modelId: String) = apply { body.modelId(modelId) }
 
         /**
@@ -150,6 +162,7 @@ private constructor(
          */
         fun modelId(modelId: JsonField<String>) = apply { body.modelId(modelId) }
 
+        /** Any additional metadata for this model. */
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
 
         /**
@@ -161,6 +174,7 @@ private constructor(
          */
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
+        /** The type of model to register. */
         fun modelType(modelType: ModelType) = apply { body.modelType(modelType) }
 
         /**
@@ -172,6 +186,7 @@ private constructor(
          */
         fun modelType(modelType: JsonField<ModelType>) = apply { body.modelType(modelType) }
 
+        /** The identifier of the provider. */
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         /**
@@ -183,6 +198,7 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
+        /** The identifier of the model in the provider. */
         fun providerModelId(providerModelId: String) = apply {
             body.providerModelId(providerModelId)
         }
@@ -369,6 +385,8 @@ private constructor(
         ) : this(modelId, metadata, modelType, providerId, providerModelId, mutableMapOf())
 
         /**
+         * The identifier of the model to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -376,24 +394,32 @@ private constructor(
         fun modelId(): String = modelId.getRequired("model_id")
 
         /**
+         * Any additional metadata for this model.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
         /**
+         * The type of model to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun modelType(): ModelType? = modelType.getNullable("model_type")
 
         /**
+         * The identifier of the provider.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
         /**
+         * The identifier of the model in the provider.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -485,6 +511,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The identifier of the model to register. */
             fun modelId(modelId: String) = modelId(JsonField.of(modelId))
 
             /**
@@ -496,6 +523,7 @@ private constructor(
              */
             fun modelId(modelId: JsonField<String>) = apply { this.modelId = modelId }
 
+            /** Any additional metadata for this model. */
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
             /**
@@ -507,6 +535,7 @@ private constructor(
              */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
+            /** The type of model to register. */
             fun modelType(modelType: ModelType) = modelType(JsonField.of(modelType))
 
             /**
@@ -518,6 +547,7 @@ private constructor(
              */
             fun modelType(modelType: JsonField<ModelType>) = apply { this.modelType = modelType }
 
+            /** The identifier of the provider. */
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             /**
@@ -529,6 +559,7 @@ private constructor(
              */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
+            /** The identifier of the model in the provider. */
             fun providerModelId(providerModelId: String) =
                 providerModelId(JsonField.of(providerModelId))
 
@@ -639,6 +670,7 @@ private constructor(
             "Body{modelId=$modelId, metadata=$metadata, modelType=$modelType, providerId=$providerId, providerModelId=$providerModelId, additionalProperties=$additionalProperties}"
     }
 
+    /** Any additional metadata for this model. */
     class Metadata
     @JsonCreator
     private constructor(
@@ -738,6 +770,7 @@ private constructor(
         override fun toString() = "Metadata{additionalProperties=$additionalProperties}"
     }
 
+    /** The type of model to register. */
     class ModelType @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
 
         /**

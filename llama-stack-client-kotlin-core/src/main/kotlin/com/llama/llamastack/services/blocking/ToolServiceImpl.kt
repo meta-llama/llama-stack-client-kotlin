@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -27,6 +28,9 @@ class ToolServiceImpl internal constructor(private val clientOptions: ClientOpti
 
     override fun withRawResponse(): ToolService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolService =
+        ToolServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun list(params: ToolListParams, requestOptions: RequestOptions): List<Tool> =
         // get /v1/tools
         withRawResponse().list(params, requestOptions).parse()
@@ -40,6 +44,11 @@ class ToolServiceImpl internal constructor(private val clientOptions: ClientOpti
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ToolService.WithRawResponse =
+            ToolServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
+
         private val listHandler: Handler<DataEnvelope<List<Tool>>> =
             jsonHandler<DataEnvelope<List<Tool>>>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -51,6 +60,7 @@ class ToolServiceImpl internal constructor(private val clientOptions: ClientOpti
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tools")
                     .build()
                     .prepare(clientOptions, params)
@@ -75,9 +85,13 @@ class ToolServiceImpl internal constructor(private val clientOptions: ClientOpti
             params: ToolGetParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Tool> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("toolName", params.toolName())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tools", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)

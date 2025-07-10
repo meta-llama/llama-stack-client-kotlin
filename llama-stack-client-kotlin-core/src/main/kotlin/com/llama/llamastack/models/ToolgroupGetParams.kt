@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a tool group by its ID. */
 class ToolgroupGetParams
 private constructor(
-    private val toolgroupId: String,
+    private val toolgroupId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun toolgroupId(): String = toolgroupId
+    fun toolgroupId(): String? = toolgroupId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [ToolgroupGetParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .toolgroupId()
-         * ```
-         */
+        fun none(): ToolgroupGetParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ToolgroupGetParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = toolgroupGetParams.additionalQueryParams.toBuilder()
         }
 
-        fun toolgroupId(toolgroupId: String) = apply { this.toolgroupId = toolgroupId }
+        fun toolgroupId(toolgroupId: String?) = apply { this.toolgroupId = toolgroupId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,17 +148,10 @@ private constructor(
          * Returns an immutable instance of [ToolgroupGetParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .toolgroupId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ToolgroupGetParams =
             ToolgroupGetParams(
-                checkRequired("toolgroupId", toolgroupId),
+                toolgroupId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -171,7 +159,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> toolgroupId
+            0 -> toolgroupId ?: ""
             else -> ""
         }
 

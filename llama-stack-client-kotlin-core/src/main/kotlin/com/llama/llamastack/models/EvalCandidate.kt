@@ -30,26 +30,26 @@ import java.util.Objects
 @JsonSerialize(using = EvalCandidate.Serializer::class)
 class EvalCandidate
 private constructor(
-    private val model: ModelCandidate? = null,
-    private val agent: AgentCandidate? = null,
+    private val model: Model? = null,
+    private val agent: Agent? = null,
     private val _json: JsonValue? = null,
 ) {
 
     /** A model candidate for evaluation. */
-    fun model(): ModelCandidate? = model
+    fun model(): Model? = model
 
     /** An agent candidate for evaluation. */
-    fun agent(): AgentCandidate? = agent
+    fun agent(): Agent? = agent
 
     fun isModel(): Boolean = model != null
 
     fun isAgent(): Boolean = agent != null
 
     /** A model candidate for evaluation. */
-    fun asModel(): ModelCandidate = model.getOrThrow("model")
+    fun asModel(): Model = model.getOrThrow("model")
 
     /** An agent candidate for evaluation. */
-    fun asAgent(): AgentCandidate = agent.getOrThrow("agent")
+    fun asAgent(): Agent = agent.getOrThrow("agent")
 
     fun _json(): JsonValue? = _json
 
@@ -69,11 +69,11 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitModel(model: ModelCandidate) {
+                override fun visitModel(model: Model) {
                     model.validate()
                 }
 
-                override fun visitAgent(agent: AgentCandidate) {
+                override fun visitAgent(agent: Agent) {
                     agent.validate()
                 }
             }
@@ -97,9 +97,9 @@ private constructor(
     internal fun validity(): Int =
         accept(
             object : Visitor<Int> {
-                override fun visitModel(model: ModelCandidate) = model.validity()
+                override fun visitModel(model: Model) = model.validity()
 
-                override fun visitAgent(agent: AgentCandidate) = agent.validity()
+                override fun visitAgent(agent: Agent) = agent.validity()
 
                 override fun unknown(json: JsonValue?) = 0
             }
@@ -126,10 +126,10 @@ private constructor(
     companion object {
 
         /** A model candidate for evaluation. */
-        fun ofModel(model: ModelCandidate) = EvalCandidate(model = model)
+        fun ofModel(model: Model) = EvalCandidate(model = model)
 
         /** An agent candidate for evaluation. */
-        fun ofAgent(agent: AgentCandidate) = EvalCandidate(agent = agent)
+        fun ofAgent(agent: Agent) = EvalCandidate(agent = agent)
     }
 
     /**
@@ -138,10 +138,10 @@ private constructor(
     interface Visitor<out T> {
 
         /** A model candidate for evaluation. */
-        fun visitModel(model: ModelCandidate): T
+        fun visitModel(model: Model): T
 
         /** An agent candidate for evaluation. */
-        fun visitAgent(agent: AgentCandidate): T
+        fun visitAgent(agent: Agent): T
 
         /**
          * Maps an unknown variant of [EvalCandidate] to a value of type [T].
@@ -165,12 +165,12 @@ private constructor(
 
             when (type) {
                 "model" -> {
-                    return tryDeserialize(node, jacksonTypeRef<ModelCandidate>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Model>())?.let {
                         EvalCandidate(model = it, _json = json)
                     } ?: EvalCandidate(_json = json)
                 }
                 "agent" -> {
-                    return tryDeserialize(node, jacksonTypeRef<AgentCandidate>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Agent>())?.let {
                         EvalCandidate(agent = it, _json = json)
                     } ?: EvalCandidate(_json = json)
                 }
@@ -197,7 +197,7 @@ private constructor(
     }
 
     /** A model candidate for evaluation. */
-    class ModelCandidate
+    class Model
     private constructor(
         private val model: JsonField<String>,
         private val samplingParams: JsonField<SamplingParams>,
@@ -297,7 +297,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [ModelCandidate].
+             * Returns a mutable builder for constructing an instance of [Model].
              *
              * The following fields are required:
              * ```kotlin
@@ -308,7 +308,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ModelCandidate]. */
+        /** A builder for [Model]. */
         class Builder internal constructor() {
 
             private var model: JsonField<String>? = null
@@ -317,12 +317,12 @@ private constructor(
             private var systemMessage: JsonField<SystemMessage> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(modelCandidate: ModelCandidate) = apply {
-                model = modelCandidate.model
-                samplingParams = modelCandidate.samplingParams
-                type = modelCandidate.type
-                systemMessage = modelCandidate.systemMessage
-                additionalProperties = modelCandidate.additionalProperties.toMutableMap()
+            internal fun from(model: Model) = apply {
+                this.model = model.model
+                samplingParams = model.samplingParams
+                type = model.type
+                systemMessage = model.systemMessage
+                additionalProperties = model.additionalProperties.toMutableMap()
             }
 
             /** The model ID to evaluate. */
@@ -401,7 +401,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [ModelCandidate].
+             * Returns an immutable instance of [Model].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -413,8 +413,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): ModelCandidate =
-                ModelCandidate(
+            fun build(): Model =
+                Model(
                     checkRequired("model", model),
                     checkRequired("samplingParams", samplingParams),
                     type,
@@ -425,7 +425,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ModelCandidate = apply {
+        fun validate(): Model = apply {
             if (validated) {
                 return@apply
             }
@@ -466,7 +466,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ModelCandidate && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Model && model == other.model && samplingParams == other.samplingParams && type == other.type && systemMessage == other.systemMessage && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -476,11 +476,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ModelCandidate{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
+            "Model{model=$model, samplingParams=$samplingParams, type=$type, systemMessage=$systemMessage, additionalProperties=$additionalProperties}"
     }
 
     /** An agent candidate for evaluation. */
-    class AgentCandidate
+    class Agent
     private constructor(
         private val config: JsonField<AgentConfig>,
         private val type: JsonValue,
@@ -537,7 +537,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [AgentCandidate].
+             * Returns a mutable builder for constructing an instance of [Agent].
              *
              * The following fields are required:
              * ```kotlin
@@ -547,17 +547,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentCandidate]. */
+        /** A builder for [Agent]. */
         class Builder internal constructor() {
 
             private var config: JsonField<AgentConfig>? = null
             private var type: JsonValue = JsonValue.from("agent")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(agentCandidate: AgentCandidate) = apply {
-                config = agentCandidate.config
-                type = agentCandidate.type
-                additionalProperties = agentCandidate.additionalProperties.toMutableMap()
+            internal fun from(agent: Agent) = apply {
+                config = agent.config
+                type = agent.type
+                additionalProperties = agent.additionalProperties.toMutableMap()
             }
 
             /** The configuration for the agent candidate. */
@@ -606,7 +606,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentCandidate].
+             * Returns an immutable instance of [Agent].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -617,17 +617,13 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentCandidate =
-                AgentCandidate(
-                    checkRequired("config", config),
-                    type,
-                    additionalProperties.toMutableMap(),
-                )
+            fun build(): Agent =
+                Agent(checkRequired("config", config), type, additionalProperties.toMutableMap())
         }
 
         private var validated: Boolean = false
 
-        fun validate(): AgentCandidate = apply {
+        fun validate(): Agent = apply {
             if (validated) {
                 return@apply
             }
@@ -664,7 +660,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentCandidate && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Agent && config == other.config && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -674,6 +670,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentCandidate{config=$config, type=$type, additionalProperties=$additionalProperties}"
+            "Agent{config=$config, type=$type, additionalProperties=$additionalProperties}"
     }
 }

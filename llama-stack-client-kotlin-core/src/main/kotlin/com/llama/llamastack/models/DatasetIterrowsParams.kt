@@ -3,7 +3,6 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
@@ -14,19 +13,19 @@ import java.util.Objects
  * - limit: Number of items to return. If None or -1, returns all items.
  *
  * The response includes:
- * - data: List of items for the current page
- * - has_more: Whether there are more items available after this set
+ * - data: List of items for the current page.
+ * - has_more: Whether there are more items available after this set.
  */
 class DatasetIterrowsParams
 private constructor(
-    private val datasetId: String,
+    private val datasetId: String?,
     private val limit: Long?,
     private val startIndex: Long?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun datasetId(): String = datasetId
+    fun datasetId(): String? = datasetId
 
     /** The number of rows to get. */
     fun limit(): Long? = limit
@@ -42,14 +41,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [DatasetIterrowsParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .datasetId()
-         * ```
-         */
+        fun none(): DatasetIterrowsParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [DatasetIterrowsParams]. */
         fun builder() = Builder()
     }
 
@@ -70,7 +64,7 @@ private constructor(
             additionalQueryParams = datasetIterrowsParams.additionalQueryParams.toBuilder()
         }
 
-        fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+        fun datasetId(datasetId: String?) = apply { this.datasetId = datasetId }
 
         /** The number of rows to get. */
         fun limit(limit: Long?) = apply { this.limit = limit }
@@ -194,17 +188,10 @@ private constructor(
          * Returns an immutable instance of [DatasetIterrowsParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .datasetId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): DatasetIterrowsParams =
             DatasetIterrowsParams(
-                checkRequired("datasetId", datasetId),
+                datasetId,
                 limit,
                 startIndex,
                 additionalHeaders.build(),
@@ -214,7 +201,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> datasetId
+            0 -> datasetId ?: ""
             else -> ""
         }
 

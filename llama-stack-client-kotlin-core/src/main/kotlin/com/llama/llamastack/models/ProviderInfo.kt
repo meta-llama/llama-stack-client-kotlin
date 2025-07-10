@@ -20,6 +20,7 @@ class ProviderInfo
 private constructor(
     private val api: JsonField<String>,
     private val config: JsonField<Config>,
+    private val health: JsonField<Health>,
     private val providerId: JsonField<String>,
     private val providerType: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
@@ -29,13 +30,14 @@ private constructor(
     private constructor(
         @JsonProperty("api") @ExcludeMissing api: JsonField<String> = JsonMissing.of(),
         @JsonProperty("config") @ExcludeMissing config: JsonField<Config> = JsonMissing.of(),
+        @JsonProperty("health") @ExcludeMissing health: JsonField<Health> = JsonMissing.of(),
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("provider_type")
         @ExcludeMissing
         providerType: JsonField<String> = JsonMissing.of(),
-    ) : this(api, config, providerId, providerType, mutableMapOf())
+    ) : this(api, config, health, providerId, providerType, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -48,6 +50,12 @@ private constructor(
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun config(): Config = config.getRequired("config")
+
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
+     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
+     */
+    fun health(): Health = health.getRequired("health")
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -74,6 +82,13 @@ private constructor(
      * Unlike [config], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("config") @ExcludeMissing fun _config(): JsonField<Config> = config
+
+    /**
+     * Returns the raw JSON value of [health].
+     *
+     * Unlike [health], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("health") @ExcludeMissing fun _health(): JsonField<Health> = health
 
     /**
      * Returns the raw JSON value of [providerId].
@@ -112,6 +127,7 @@ private constructor(
          * ```kotlin
          * .api()
          * .config()
+         * .health()
          * .providerId()
          * .providerType()
          * ```
@@ -124,6 +140,7 @@ private constructor(
 
         private var api: JsonField<String>? = null
         private var config: JsonField<Config>? = null
+        private var health: JsonField<Health>? = null
         private var providerId: JsonField<String>? = null
         private var providerType: JsonField<String>? = null
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
@@ -131,6 +148,7 @@ private constructor(
         internal fun from(providerInfo: ProviderInfo) = apply {
             api = providerInfo.api
             config = providerInfo.config
+            health = providerInfo.health
             providerId = providerInfo.providerId
             providerType = providerInfo.providerType
             additionalProperties = providerInfo.additionalProperties.toMutableMap()
@@ -155,6 +173,16 @@ private constructor(
          * method is primarily for setting the field to an undocumented or not yet supported value.
          */
         fun config(config: JsonField<Config>) = apply { this.config = config }
+
+        fun health(health: Health) = health(JsonField.of(health))
+
+        /**
+         * Sets [Builder.health] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.health] with a well-typed [Health] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
+        fun health(health: JsonField<Health>) = apply { this.health = health }
 
         fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
@@ -208,6 +236,7 @@ private constructor(
          * ```kotlin
          * .api()
          * .config()
+         * .health()
          * .providerId()
          * .providerType()
          * ```
@@ -218,6 +247,7 @@ private constructor(
             ProviderInfo(
                 checkRequired("api", api),
                 checkRequired("config", config),
+                checkRequired("health", health),
                 checkRequired("providerId", providerId),
                 checkRequired("providerType", providerType),
                 additionalProperties.toMutableMap(),
@@ -233,6 +263,7 @@ private constructor(
 
         api()
         config().validate()
+        health().validate()
         providerId()
         providerType()
         validated = true
@@ -254,6 +285,7 @@ private constructor(
     internal fun validity(): Int =
         (if (api.asKnown() == null) 0 else 1) +
             (config.asKnown()?.validity() ?: 0) +
+            (health.asKnown()?.validity() ?: 0) +
             (if (providerId.asKnown() == null) 0 else 1) +
             (if (providerType.asKnown() == null) 0 else 1)
 
@@ -356,20 +388,119 @@ private constructor(
         override fun toString() = "Config{additionalProperties=$additionalProperties}"
     }
 
+    class Health
+    @JsonCreator
+    private constructor(
+        @com.fasterxml.jackson.annotation.JsonValue
+        private val additionalProperties: Map<String, JsonValue>
+    ) {
+
+        @JsonAnyGetter
+        @ExcludeMissing
+        fun _additionalProperties(): Map<String, JsonValue> = additionalProperties
+
+        fun toBuilder() = Builder().from(this)
+
+        companion object {
+
+            /** Returns a mutable builder for constructing an instance of [Health]. */
+            fun builder() = Builder()
+        }
+
+        /** A builder for [Health]. */
+        class Builder internal constructor() {
+
+            private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
+
+            internal fun from(health: Health) = apply {
+                additionalProperties = health.additionalProperties.toMutableMap()
+            }
+
+            fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.clear()
+                putAllAdditionalProperties(additionalProperties)
+            }
+
+            fun putAdditionalProperty(key: String, value: JsonValue) = apply {
+                additionalProperties.put(key, value)
+            }
+
+            fun putAllAdditionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
+                this.additionalProperties.putAll(additionalProperties)
+            }
+
+            fun removeAdditionalProperty(key: String) = apply { additionalProperties.remove(key) }
+
+            fun removeAllAdditionalProperties(keys: Set<String>) = apply {
+                keys.forEach(::removeAdditionalProperty)
+            }
+
+            /**
+             * Returns an immutable instance of [Health].
+             *
+             * Further updates to this [Builder] will not mutate the returned instance.
+             */
+            fun build(): Health = Health(additionalProperties.toImmutable())
+        }
+
+        private var validated: Boolean = false
+
+        fun validate(): Health = apply {
+            if (validated) {
+                return@apply
+            }
+
+            validated = true
+        }
+
+        fun isValid(): Boolean =
+            try {
+                validate()
+                true
+            } catch (e: LlamaStackClientInvalidDataException) {
+                false
+            }
+
+        /**
+         * Returns a score indicating how many valid values are contained in this object
+         * recursively.
+         *
+         * Used for best match union deserialization.
+         */
+        internal fun validity(): Int =
+            additionalProperties.count { (_, value) -> !value.isNull() && !value.isMissing() }
+
+        override fun equals(other: Any?): Boolean {
+            if (this === other) {
+                return true
+            }
+
+            return /* spotless:off */ other is Health && additionalProperties == other.additionalProperties /* spotless:on */
+        }
+
+        /* spotless:off */
+        private val hashCode: Int by lazy { Objects.hash(additionalProperties) }
+        /* spotless:on */
+
+        override fun hashCode(): Int = hashCode
+
+        override fun toString() = "Health{additionalProperties=$additionalProperties}"
+    }
+
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is ProviderInfo && api == other.api && config == other.config && providerId == other.providerId && providerType == other.providerType && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ProviderInfo && api == other.api && config == other.config && health == other.health && providerId == other.providerId && providerType == other.providerType && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(api, config, providerId, providerType, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(api, config, health, providerId, providerType, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ProviderInfo{api=$api, config=$config, providerId=$providerId, providerType=$providerType, additionalProperties=$additionalProperties}"
+        "ProviderInfo{api=$api, config=$config, health=$health, providerId=$providerId, providerType=$providerType, additionalProperties=$additionalProperties}"
 }

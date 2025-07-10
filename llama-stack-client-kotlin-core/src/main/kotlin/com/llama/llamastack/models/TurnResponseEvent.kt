@@ -90,128 +90,69 @@ private constructor(
          */
         fun payload(payload: JsonField<TurnResponseEventPayload>) = apply { this.payload = payload }
 
-        /**
-         * Alias for calling [payload] with
-         * `TurnResponseEventPayload.ofAgentTurnResponseStepStart(agentTurnResponseStepStart)`.
-         */
-        fun payload(
-            agentTurnResponseStepStart: TurnResponseEventPayload.AgentTurnResponseStepStartPayload
-        ) =
-            payload(
-                TurnResponseEventPayload.ofAgentTurnResponseStepStart(agentTurnResponseStepStart)
-            )
+        /** Alias for calling [payload] with `TurnResponseEventPayload.ofStepStart(stepStart)`. */
+        fun payload(stepStart: TurnResponseEventPayload.StepStart) =
+            payload(TurnResponseEventPayload.ofStepStart(stepStart))
 
         /**
-         * Alias for calling [payload] with
-         * `TurnResponseEventPayload.ofAgentTurnResponseStepProgress(agentTurnResponseStepProgress)`.
+         * Alias for calling [payload] with `TurnResponseEventPayload.ofStepProgress(stepProgress)`.
          */
-        fun payload(
-            agentTurnResponseStepProgress:
-                TurnResponseEventPayload.AgentTurnResponseStepProgressPayload
-        ) =
-            payload(
-                TurnResponseEventPayload.ofAgentTurnResponseStepProgress(
-                    agentTurnResponseStepProgress
-                )
-            )
+        fun payload(stepProgress: TurnResponseEventPayload.StepProgress) =
+            payload(TurnResponseEventPayload.ofStepProgress(stepProgress))
 
         /**
-         * Alias for calling [payload] with
-         * `TurnResponseEventPayload.ofAgentTurnResponseStepComplete(agentTurnResponseStepComplete)`.
+         * Alias for calling [payload] with `TurnResponseEventPayload.ofStepComplete(stepComplete)`.
          */
-        fun payload(
-            agentTurnResponseStepComplete:
-                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
-        ) =
-            payload(
-                TurnResponseEventPayload.ofAgentTurnResponseStepComplete(
-                    agentTurnResponseStepComplete
-                )
-            )
+        fun payload(stepComplete: TurnResponseEventPayload.StepComplete) =
+            payload(TurnResponseEventPayload.ofStepComplete(stepComplete))
 
-        /**
-         * Alias for calling [payload] with
-         * `TurnResponseEventPayload.ofAgentTurnResponseTurnStart(agentTurnResponseTurnStart)`.
-         */
-        fun payload(
-            agentTurnResponseTurnStart: TurnResponseEventPayload.AgentTurnResponseTurnStartPayload
-        ) =
-            payload(
-                TurnResponseEventPayload.ofAgentTurnResponseTurnStart(agentTurnResponseTurnStart)
-            )
+        /** Alias for calling [payload] with `TurnResponseEventPayload.ofStart(start)`. */
+        fun payload(start: TurnResponseEventPayload.TurnStart) =
+            payload(TurnResponseEventPayload.ofStart(start))
 
         /**
          * Alias for calling [payload] with the following:
          * ```kotlin
-         * TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
+         * TurnResponseEventPayload.TurnStart.builder()
          *     .turnId(turnId)
          *     .build()
          * ```
          */
-        fun agentTurnResponseTurnStartPayload(turnId: String) =
-            payload(
-                TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
-                    .turnId(turnId)
-                    .build()
-            )
+        fun startPayload(turnId: String) =
+            payload(TurnResponseEventPayload.TurnStart.builder().turnId(turnId).build())
 
-        /**
-         * Alias for calling [payload] with
-         * `TurnResponseEventPayload.ofAgentTurnResponseTurnComplete(agentTurnResponseTurnComplete)`.
-         */
-        fun payload(
-            agentTurnResponseTurnComplete:
-                TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload
-        ) =
-            payload(
-                TurnResponseEventPayload.ofAgentTurnResponseTurnComplete(
-                    agentTurnResponseTurnComplete
-                )
-            )
+        /** Alias for calling [payload] with `TurnResponseEventPayload.ofComplete(complete)`. */
+        fun payload(complete: TurnResponseEventPayload.TurnComplete) =
+            payload(TurnResponseEventPayload.ofComplete(complete))
 
         /**
          * Alias for calling [payload] with the following:
          * ```kotlin
-         * TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
+         * TurnResponseEventPayload.TurnComplete.builder()
          *     .turn(turn)
          *     .build()
          * ```
          */
-        fun agentTurnResponseTurnCompletePayload(turn: Turn) =
-            payload(
-                TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
-                    .turn(turn)
-                    .build()
-            )
+        fun completePayload(turn: Turn) =
+            payload(TurnResponseEventPayload.TurnComplete.builder().turn(turn).build())
 
         /**
          * Alias for calling [payload] with
-         * `TurnResponseEventPayload.ofAgentTurnResponseTurnAwaitingInput(agentTurnResponseTurnAwaitingInput)`.
+         * `TurnResponseEventPayload.ofAwaitingInput(awaitingInput)`.
          */
-        fun payload(
-            agentTurnResponseTurnAwaitingInput:
-                TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload
-        ) =
-            payload(
-                TurnResponseEventPayload.ofAgentTurnResponseTurnAwaitingInput(
-                    agentTurnResponseTurnAwaitingInput
-                )
-            )
+        fun payload(awaitingInput: TurnResponseEventPayload.TurnAwaitingInput) =
+            payload(TurnResponseEventPayload.ofAwaitingInput(awaitingInput))
 
         /**
          * Alias for calling [payload] with the following:
          * ```kotlin
-         * TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()
+         * TurnResponseEventPayload.TurnAwaitingInput.builder()
          *     .turn(turn)
          *     .build()
          * ```
          */
-        fun agentTurnResponseTurnAwaitingInputPayload(turn: Turn) =
-            payload(
-                TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()
-                    .turn(turn)
-                    .build()
-            )
+        fun awaitingInputPayload(turn: Turn) =
+            payload(TurnResponseEventPayload.TurnAwaitingInput.builder().turn(turn).build())
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()

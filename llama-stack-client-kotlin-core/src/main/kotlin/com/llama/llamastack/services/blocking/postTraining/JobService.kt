@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking.postTraining
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -21,6 +22,14 @@ interface JobService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): JobService
+
+    /** Get all training jobs. */
     fun list(
         params: PostTrainingJobListParams = PostTrainingJobListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -30,16 +39,19 @@ interface JobService {
     fun list(requestOptions: RequestOptions): List<ListPostTrainingJobsResponse.Data> =
         list(PostTrainingJobListParams.none(), requestOptions)
 
+    /** Get the artifacts of a training job. */
     fun artifacts(
         params: PostTrainingJobArtifactsParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJobArtifactsResponse
 
+    /** Cancel a training job. */
     fun cancel(
         params: PostTrainingJobCancelParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     )
 
+    /** Get the status of a training job. */
     fun status(
         params: PostTrainingJobStatusParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -47,6 +59,13 @@ interface JobService {
 
     /** A view of [JobService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): JobService.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `get /v1/post-training/jobs`, but is otherwise the same

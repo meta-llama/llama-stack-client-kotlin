@@ -9,7 +9,6 @@ import com.llama.llamastack.models.Event
 import com.llama.llamastack.models.QueryCondition
 import com.llama.llamastack.models.TelemetryGetSpanParams
 import com.llama.llamastack.models.TelemetryGetSpanTreeParams
-import com.llama.llamastack.models.TelemetryGetTraceParams
 import com.llama.llamastack.models.TelemetryLogEventParams
 import com.llama.llamastack.models.TelemetryQuerySpansParams
 import com.llama.llamastack.models.TelemetryQueryTracesParams
@@ -60,8 +59,7 @@ internal class TelemetryServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val telemetryService = client.telemetry()
 
-        val trace =
-            telemetryService.getTrace(TelemetryGetTraceParams.builder().traceId("trace_id").build())
+        val trace = telemetryService.getTrace("trace_id")
 
         trace.validate()
     }
@@ -75,14 +73,14 @@ internal class TelemetryServiceTest {
         telemetryService.logEvent(
             TelemetryLogEventParams.builder()
                 .event(
-                    Event.UnstructuredLogEvent.builder()
+                    Event.UnstructuredLog.builder()
                         .message("message")
-                        .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                        .severity(Event.UnstructuredLog.Severity.VERBOSE)
                         .spanId("span_id")
                         .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .traceId("trace_id")
                         .attributes(
-                            Event.UnstructuredLogEvent.Attributes.builder()
+                            Event.UnstructuredLog.Attributes.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )

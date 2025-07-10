@@ -18,6 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Register a vector database. */
 class VectorDbRegisterParams
 private constructor(
     private val body: Body,
@@ -26,30 +27,40 @@ private constructor(
 ) : Params {
 
     /**
+     * The embedding model to use.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun embeddingModel(): String = body.embeddingModel()
 
     /**
+     * The identifier of the vector database to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun vectorDbId(): String = body.vectorDbId()
 
     /**
+     * The dimension of the embedding model.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun embeddingDimension(): Long? = body.embeddingDimension()
 
     /**
+     * The identifier of the provider.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun providerId(): String? = body.providerId()
 
     /**
+     * The identifier of the vector database in the provider.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -141,6 +152,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The embedding model to use. */
         fun embeddingModel(embeddingModel: String) = apply { body.embeddingModel(embeddingModel) }
 
         /**
@@ -154,6 +166,7 @@ private constructor(
             body.embeddingModel(embeddingModel)
         }
 
+        /** The identifier of the vector database to register. */
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
 
         /**
@@ -165,6 +178,7 @@ private constructor(
          */
         fun vectorDbId(vectorDbId: JsonField<String>) = apply { body.vectorDbId(vectorDbId) }
 
+        /** The dimension of the embedding model. */
         fun embeddingDimension(embeddingDimension: Long) = apply {
             body.embeddingDimension(embeddingDimension)
         }
@@ -180,6 +194,7 @@ private constructor(
             body.embeddingDimension(embeddingDimension)
         }
 
+        /** The identifier of the provider. */
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         /**
@@ -191,6 +206,7 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
+        /** The identifier of the vector database in the provider. */
         fun providerVectorDbId(providerVectorDbId: String) = apply {
             body.providerVectorDbId(providerVectorDbId)
         }
@@ -387,6 +403,8 @@ private constructor(
         )
 
         /**
+         * The embedding model to use.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -394,6 +412,8 @@ private constructor(
         fun embeddingModel(): String = embeddingModel.getRequired("embedding_model")
 
         /**
+         * The identifier of the vector database to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -401,18 +421,24 @@ private constructor(
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
         /**
+         * The dimension of the embedding model.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun embeddingDimension(): Long? = embeddingDimension.getNullable("embedding_dimension")
 
         /**
+         * The identifier of the provider.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
         /**
+         * The identifier of the vector database in the provider.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -511,6 +537,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The embedding model to use. */
             fun embeddingModel(embeddingModel: String) =
                 embeddingModel(JsonField.of(embeddingModel))
 
@@ -525,6 +552,7 @@ private constructor(
                 this.embeddingModel = embeddingModel
             }
 
+            /** The identifier of the vector database to register. */
             fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
 
             /**
@@ -536,6 +564,7 @@ private constructor(
              */
             fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
 
+            /** The dimension of the embedding model. */
             fun embeddingDimension(embeddingDimension: Long) =
                 embeddingDimension(JsonField.of(embeddingDimension))
 
@@ -550,6 +579,7 @@ private constructor(
                 this.embeddingDimension = embeddingDimension
             }
 
+            /** The identifier of the provider. */
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             /**
@@ -561,6 +591,7 @@ private constructor(
              */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
+            /** The identifier of the vector database in the provider. */
             fun providerVectorDbId(providerVectorDbId: String) =
                 providerVectorDbId(JsonField.of(providerVectorDbId))
 

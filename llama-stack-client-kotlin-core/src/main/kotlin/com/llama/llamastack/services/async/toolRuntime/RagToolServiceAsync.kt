@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async.toolRuntime
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -16,6 +17,13 @@ interface RagToolServiceAsync {
      * Returns a view of this service that provides access to raw HTTP responses for each method.
      */
     fun withRawResponse(): WithRawResponse
+
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RagToolServiceAsync
 
     /** Index documents so they can be used by the RAG system */
     suspend fun insert(
@@ -33,6 +41,15 @@ interface RagToolServiceAsync {
      * A view of [RagToolServiceAsync] that provides access to raw HTTP responses for each method.
      */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): RagToolServiceAsync.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `post /v1/tool-runtime/rag-tool/insert`, but is otherwise

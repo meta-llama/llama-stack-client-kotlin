@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -32,6 +33,9 @@ class ScoringFunctionServiceImpl internal constructor(private val clientOptions:
 
     override fun withRawResponse(): ScoringFunctionService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ScoringFunctionService =
+        ScoringFunctionServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun retrieve(
         params: ScoringFunctionRetrieveParams,
         requestOptions: RequestOptions,
@@ -56,6 +60,13 @@ class ScoringFunctionServiceImpl internal constructor(private val clientOptions:
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ScoringFunctionService.WithRawResponse =
+            ScoringFunctionServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<ScoringFn> =
             jsonHandler<ScoringFn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -63,9 +74,13 @@ class ScoringFunctionServiceImpl internal constructor(private val clientOptions:
             params: ScoringFunctionRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<ScoringFn> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("scoringFnId", params.scoringFnId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "scoring-functions", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
@@ -93,6 +108,7 @@ class ScoringFunctionServiceImpl internal constructor(private val clientOptions:
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "scoring-functions")
                     .build()
                     .prepare(clientOptions, params)
@@ -119,6 +135,7 @@ class ScoringFunctionServiceImpl internal constructor(private val clientOptions:
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "scoring-functions")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

@@ -18,6 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Cancel a training job. */
 class PostTrainingJobCancelParams
 private constructor(
     private val body: Body,
@@ -26,6 +27,8 @@ private constructor(
 ) : Params {
 
     /**
+     * The UUID of the job to cancel.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -81,6 +84,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The UUID of the job to cancel. */
         fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
 
         /**
@@ -246,6 +250,8 @@ private constructor(
         ) : this(jobUuid, mutableMapOf())
 
         /**
+         * The UUID of the job to cancel.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -295,6 +301,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The UUID of the job to cancel. */
             fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
             /**

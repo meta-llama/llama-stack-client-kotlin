@@ -19,7 +19,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
-/** Run a tool with the given arguments */
+/** Run a tool with the given arguments. */
 class ToolRuntimeInvokeToolParams
 private constructor(
     private val body: Body,
@@ -28,12 +28,16 @@ private constructor(
 ) : Params {
 
     /**
+     * A dictionary of arguments to pass to the tool.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun kwargs(): Kwargs = body.kwargs()
 
     /**
+     * The name of the tool to invoke.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -98,6 +102,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** A dictionary of arguments to pass to the tool. */
         fun kwargs(kwargs: Kwargs) = apply { body.kwargs(kwargs) }
 
         /**
@@ -108,6 +113,7 @@ private constructor(
          */
         fun kwargs(kwargs: JsonField<Kwargs>) = apply { body.kwargs(kwargs) }
 
+        /** The name of the tool to invoke. */
         fun toolName(toolName: String) = apply { body.toolName(toolName) }
 
         /**
@@ -278,6 +284,8 @@ private constructor(
         ) : this(kwargs, toolName, mutableMapOf())
 
         /**
+         * A dictionary of arguments to pass to the tool.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -285,6 +293,8 @@ private constructor(
         fun kwargs(): Kwargs = kwargs.getRequired("kwargs")
 
         /**
+         * The name of the tool to invoke.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -344,6 +354,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** A dictionary of arguments to pass to the tool. */
             fun kwargs(kwargs: Kwargs) = kwargs(JsonField.of(kwargs))
 
             /**
@@ -355,6 +366,7 @@ private constructor(
              */
             fun kwargs(kwargs: JsonField<Kwargs>) = apply { this.kwargs = kwargs }
 
+            /** The name of the tool to invoke. */
             fun toolName(toolName: String) = toolName(JsonField.of(toolName))
 
             /**
@@ -453,6 +465,7 @@ private constructor(
             "Body{kwargs=$kwargs, toolName=$toolName, additionalProperties=$additionalProperties}"
     }
 
+    /** A dictionary of arguments to pass to the tool. */
     class Kwargs
     @JsonCreator
     private constructor(

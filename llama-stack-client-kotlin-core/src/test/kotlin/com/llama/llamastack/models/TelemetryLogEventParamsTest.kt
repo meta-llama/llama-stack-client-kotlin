@@ -13,14 +13,14 @@ internal class TelemetryLogEventParamsTest {
     fun create() {
         TelemetryLogEventParams.builder()
             .event(
-                Event.UnstructuredLogEvent.builder()
+                Event.UnstructuredLog.builder()
                     .message("message")
-                    .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                    .severity(Event.UnstructuredLog.Severity.VERBOSE)
                     .spanId("span_id")
                     .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                     .traceId("trace_id")
                     .attributes(
-                        Event.UnstructuredLogEvent.Attributes.builder()
+                        Event.UnstructuredLog.Attributes.builder()
                             .putAdditionalProperty("foo", JsonValue.from("string"))
                             .build()
                     )
@@ -35,14 +35,14 @@ internal class TelemetryLogEventParamsTest {
         val params =
             TelemetryLogEventParams.builder()
                 .event(
-                    Event.UnstructuredLogEvent.builder()
+                    Event.UnstructuredLog.builder()
                         .message("message")
-                        .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                        .severity(Event.UnstructuredLog.Severity.VERBOSE)
                         .spanId("span_id")
                         .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .traceId("trace_id")
                         .attributes(
-                            Event.UnstructuredLogEvent.Attributes.builder()
+                            Event.UnstructuredLog.Attributes.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
@@ -56,14 +56,14 @@ internal class TelemetryLogEventParamsTest {
         assertThat(body.event())
             .isEqualTo(
                 Event.ofUnstructuredLog(
-                    Event.UnstructuredLogEvent.builder()
+                    Event.UnstructuredLog.builder()
                         .message("message")
-                        .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                        .severity(Event.UnstructuredLog.Severity.VERBOSE)
                         .spanId("span_id")
                         .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .traceId("trace_id")
                         .attributes(
-                            Event.UnstructuredLogEvent.Attributes.builder()
+                            Event.UnstructuredLog.Attributes.builder()
                                 .putAdditionalProperty("foo", JsonValue.from("string"))
                                 .build()
                         )
@@ -78,9 +78,9 @@ internal class TelemetryLogEventParamsTest {
         val params =
             TelemetryLogEventParams.builder()
                 .event(
-                    Event.UnstructuredLogEvent.builder()
+                    Event.UnstructuredLog.builder()
                         .message("message")
-                        .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                        .severity(Event.UnstructuredLog.Severity.VERBOSE)
                         .spanId("span_id")
                         .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .traceId("trace_id")
@@ -94,9 +94,9 @@ internal class TelemetryLogEventParamsTest {
         assertThat(body.event())
             .isEqualTo(
                 Event.ofUnstructuredLog(
-                    Event.UnstructuredLogEvent.builder()
+                    Event.UnstructuredLog.builder()
                         .message("message")
-                        .severity(Event.UnstructuredLogEvent.Severity.VERBOSE)
+                        .severity(Event.UnstructuredLog.Severity.VERBOSE)
                         .spanId("span_id")
                         .timestamp(OffsetDateTime.parse("2019-12-27T18:11:19.117Z"))
                         .traceId("trace_id")

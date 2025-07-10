@@ -4,22 +4,21 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-/** Delete an agent by its ID. */
+/** Delete an agent by its ID and its associated sessions and turns. */
 class AgentDeleteParams
 private constructor(
-    private val agentId: String,
+    private val agentId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
 
-    fun agentId(): String = agentId
+    fun agentId(): String? = agentId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -31,14 +30,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [AgentDeleteParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .agentId()
-         * ```
-         */
+        fun none(): AgentDeleteParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [AgentDeleteParams]. */
         fun builder() = Builder()
     }
 
@@ -57,7 +51,7 @@ private constructor(
             additionalBodyProperties = agentDeleteParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun agentId(agentId: String) = apply { this.agentId = agentId }
+        fun agentId(agentId: String?) = apply { this.agentId = agentId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -183,17 +177,10 @@ private constructor(
          * Returns an immutable instance of [AgentDeleteParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .agentId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): AgentDeleteParams =
             AgentDeleteParams(
-                checkRequired("agentId", agentId),
+                agentId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -204,7 +191,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> agentId
+            0 -> agentId ?: ""
             else -> ""
         }
 

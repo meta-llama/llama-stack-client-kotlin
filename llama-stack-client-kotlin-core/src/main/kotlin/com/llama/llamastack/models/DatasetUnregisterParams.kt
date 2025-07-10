@@ -4,21 +4,21 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Unregister a dataset by its ID. */
 class DatasetUnregisterParams
 private constructor(
-    private val datasetId: String,
+    private val datasetId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
 
-    fun datasetId(): String = datasetId
+    fun datasetId(): String? = datasetId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -30,14 +30,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [DatasetUnregisterParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .datasetId()
-         * ```
-         */
+        fun none(): DatasetUnregisterParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [DatasetUnregisterParams]. */
         fun builder() = Builder()
     }
 
@@ -57,7 +52,7 @@ private constructor(
                 datasetUnregisterParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun datasetId(datasetId: String) = apply { this.datasetId = datasetId }
+        fun datasetId(datasetId: String?) = apply { this.datasetId = datasetId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -183,17 +178,10 @@ private constructor(
          * Returns an immutable instance of [DatasetUnregisterParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .datasetId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): DatasetUnregisterParams =
             DatasetUnregisterParams(
-                checkRequired("datasetId", datasetId),
+                datasetId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -204,7 +192,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> datasetId
+            0 -> datasetId ?: ""
             else -> ""
         }
 

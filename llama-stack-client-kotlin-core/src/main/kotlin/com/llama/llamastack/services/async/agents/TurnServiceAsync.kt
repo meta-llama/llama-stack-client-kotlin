@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async.agents
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.AgentTurnCreateParams
@@ -17,13 +18,34 @@ interface TurnServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): TurnServiceAsync
+
     /** Create a new turn for an agent. */
+    suspend fun create(
+        sessionId: String,
+        params: AgentTurnCreateParams,
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): Turn = create(params.toBuilder().sessionId(sessionId).build(), requestOptions)
+
+    /** @see [create] */
     suspend fun create(
         params: AgentTurnCreateParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): Turn
 
     /** Retrieve an agent turn by its ID. */
+    suspend fun retrieve(
+        turnId: String,
+        params: AgentTurnRetrieveParams,
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): Turn = retrieve(params.toBuilder().turnId(turnId).build(), requestOptions)
+
+    /** @see [retrieve] */
     suspend fun retrieve(
         params: AgentTurnRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -35,6 +57,13 @@ interface TurnServiceAsync {
      * to submit the outputs from the tool calls once they are ready.
      */
     suspend fun resume(
+        turnId: String,
+        params: AgentTurnResumeParams,
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): Turn = resume(params.toBuilder().turnId(turnId).build(), requestOptions)
+
+    /** @see [resume] */
+    suspend fun resume(
         params: AgentTurnResumeParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): Turn
@@ -43,9 +72,25 @@ interface TurnServiceAsync {
     interface WithRawResponse {
 
         /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): TurnServiceAsync.WithRawResponse
+
+        /**
          * Returns a raw HTTP response for `post /v1/agents/{agent_id}/session/{session_id}/turn`,
          * but is otherwise the same as [TurnServiceAsync.create].
          */
+        @MustBeClosed
+        suspend fun create(
+            sessionId: String,
+            params: AgentTurnCreateParams,
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<Turn> =
+            create(params.toBuilder().sessionId(sessionId).build(), requestOptions)
+
+        /** @see [create] */
         @MustBeClosed
         suspend fun create(
             params: AgentTurnCreateParams,
@@ -59,6 +104,15 @@ interface TurnServiceAsync {
          */
         @MustBeClosed
         suspend fun retrieve(
+            turnId: String,
+            params: AgentTurnRetrieveParams,
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<Turn> =
+            retrieve(params.toBuilder().turnId(turnId).build(), requestOptions)
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        suspend fun retrieve(
             params: AgentTurnRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<Turn>
@@ -68,6 +122,14 @@ interface TurnServiceAsync {
          * /v1/agents/{agent_id}/session/{session_id}/turn/{turn_id}/resume`, but is otherwise the
          * same as [TurnServiceAsync.resume].
          */
+        @MustBeClosed
+        suspend fun resume(
+            turnId: String,
+            params: AgentTurnResumeParams,
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<Turn> = resume(params.toBuilder().turnId(turnId).build(), requestOptions)
+
+        /** @see [resume] */
         @MustBeClosed
         suspend fun resume(
             params: AgentTurnResumeParams,

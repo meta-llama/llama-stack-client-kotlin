@@ -69,7 +69,7 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                     .build()
             )
             .algorithmConfig(
-                AlgorithmConfig.LoraFinetuningConfig.builder()
+                AlgorithmConfig.LoRa.builder()
                     .alpha(0L)
                     .applyLoraToMlp(true)
                     .applyLoraToOutput(true)
@@ -147,7 +147,7 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
                         .build()
                 )
                 .algorithmConfig(
-                    AlgorithmConfig.LoraFinetuningConfig.builder()
+                    AlgorithmConfig.LoRa.builder()
                         .alpha(0L)
                         .applyLoraToMlp(true)
                         .applyLoraToOutput(true)
@@ -225,8 +225,8 @@ internal class PostTrainingSupervisedFineTuneParamsTest {
             )
         assertThat(body.algorithmConfig())
             .isEqualTo(
-                AlgorithmConfig.ofLoraFinetuning(
-                    AlgorithmConfig.LoraFinetuningConfig.builder()
+                AlgorithmConfig.ofLoRa(
+                    AlgorithmConfig.LoRa.builder()
                         .alpha(0L)
                         .applyLoraToMlp(true)
                         .applyLoraToOutput(true)

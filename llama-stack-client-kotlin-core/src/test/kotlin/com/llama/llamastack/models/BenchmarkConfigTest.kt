@@ -15,11 +15,11 @@ internal class BenchmarkConfigTest {
         val benchmarkConfig =
             BenchmarkConfig.builder()
                 .evalCandidate(
-                    EvalCandidate.ModelCandidate.builder()
+                    EvalCandidate.Model.builder()
                         .model("model")
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -34,10 +34,10 @@ internal class BenchmarkConfigTest {
                             "foo",
                             JsonValue.from(
                                 mapOf(
-                                    "judge_model" to "judge_model",
-                                    "type" to "llm_as_judge",
                                     "aggregation_functions" to listOf("average"),
+                                    "judge_model" to "judge_model",
                                     "judge_score_regexes" to listOf("string"),
+                                    "type" to "llm_as_judge",
                                     "prompt_template" to "prompt_template",
                                 )
                             ),
@@ -50,11 +50,11 @@ internal class BenchmarkConfigTest {
         assertThat(benchmarkConfig.evalCandidate())
             .isEqualTo(
                 EvalCandidate.ofModel(
-                    EvalCandidate.ModelCandidate.builder()
+                    EvalCandidate.Model.builder()
                         .model("model")
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -71,10 +71,10 @@ internal class BenchmarkConfigTest {
                         "foo",
                         JsonValue.from(
                             mapOf(
-                                "judge_model" to "judge_model",
-                                "type" to "llm_as_judge",
                                 "aggregation_functions" to listOf("average"),
+                                "judge_model" to "judge_model",
                                 "judge_score_regexes" to listOf("string"),
+                                "type" to "llm_as_judge",
                                 "prompt_template" to "prompt_template",
                             )
                         ),
@@ -90,11 +90,11 @@ internal class BenchmarkConfigTest {
         val benchmarkConfig =
             BenchmarkConfig.builder()
                 .evalCandidate(
-                    EvalCandidate.ModelCandidate.builder()
+                    EvalCandidate.Model.builder()
                         .model("model")
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -109,10 +109,10 @@ internal class BenchmarkConfigTest {
                             "foo",
                             JsonValue.from(
                                 mapOf(
-                                    "judge_model" to "judge_model",
-                                    "type" to "llm_as_judge",
                                     "aggregation_functions" to listOf("average"),
+                                    "judge_model" to "judge_model",
                                     "judge_score_regexes" to listOf("string"),
+                                    "type" to "llm_as_judge",
                                     "prompt_template" to "prompt_template",
                                 )
                             ),

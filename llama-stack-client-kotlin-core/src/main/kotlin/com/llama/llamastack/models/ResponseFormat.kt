@@ -31,26 +31,26 @@ import java.util.Objects
 @JsonSerialize(using = ResponseFormat.Serializer::class)
 class ResponseFormat
 private constructor(
-    private val jsonSchema: JsonSchemaResponseFormat? = null,
-    private val grammar: GrammarResponseFormat? = null,
+    private val jsonSchema: JsonSchema? = null,
+    private val grammar: Grammar? = null,
     private val _json: JsonValue? = null,
 ) {
 
     /** Configuration for JSON schema-guided response generation. */
-    fun jsonSchema(): JsonSchemaResponseFormat? = jsonSchema
+    fun jsonSchema(): JsonSchema? = jsonSchema
 
     /** Configuration for grammar-guided response generation. */
-    fun grammar(): GrammarResponseFormat? = grammar
+    fun grammar(): Grammar? = grammar
 
     fun isJsonSchema(): Boolean = jsonSchema != null
 
     fun isGrammar(): Boolean = grammar != null
 
     /** Configuration for JSON schema-guided response generation. */
-    fun asJsonSchema(): JsonSchemaResponseFormat = jsonSchema.getOrThrow("jsonSchema")
+    fun asJsonSchema(): JsonSchema = jsonSchema.getOrThrow("jsonSchema")
 
     /** Configuration for grammar-guided response generation. */
-    fun asGrammar(): GrammarResponseFormat = grammar.getOrThrow("grammar")
+    fun asGrammar(): Grammar = grammar.getOrThrow("grammar")
 
     fun _json(): JsonValue? = _json
 
@@ -70,11 +70,11 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitJsonSchema(jsonSchema: JsonSchemaResponseFormat) {
+                override fun visitJsonSchema(jsonSchema: JsonSchema) {
                     jsonSchema.validate()
                 }
 
-                override fun visitGrammar(grammar: GrammarResponseFormat) {
+                override fun visitGrammar(grammar: Grammar) {
                     grammar.validate()
                 }
             }
@@ -98,10 +98,9 @@ private constructor(
     internal fun validity(): Int =
         accept(
             object : Visitor<Int> {
-                override fun visitJsonSchema(jsonSchema: JsonSchemaResponseFormat) =
-                    jsonSchema.validity()
+                override fun visitJsonSchema(jsonSchema: JsonSchema) = jsonSchema.validity()
 
-                override fun visitGrammar(grammar: GrammarResponseFormat) = grammar.validity()
+                override fun visitGrammar(grammar: Grammar) = grammar.validity()
 
                 override fun unknown(json: JsonValue?) = 0
             }
@@ -128,11 +127,10 @@ private constructor(
     companion object {
 
         /** Configuration for JSON schema-guided response generation. */
-        fun ofJsonSchema(jsonSchema: JsonSchemaResponseFormat) =
-            ResponseFormat(jsonSchema = jsonSchema)
+        fun ofJsonSchema(jsonSchema: JsonSchema) = ResponseFormat(jsonSchema = jsonSchema)
 
         /** Configuration for grammar-guided response generation. */
-        fun ofGrammar(grammar: GrammarResponseFormat) = ResponseFormat(grammar = grammar)
+        fun ofGrammar(grammar: Grammar) = ResponseFormat(grammar = grammar)
     }
 
     /**
@@ -141,10 +139,10 @@ private constructor(
     interface Visitor<out T> {
 
         /** Configuration for JSON schema-guided response generation. */
-        fun visitJsonSchema(jsonSchema: JsonSchemaResponseFormat): T
+        fun visitJsonSchema(jsonSchema: JsonSchema): T
 
         /** Configuration for grammar-guided response generation. */
-        fun visitGrammar(grammar: GrammarResponseFormat): T
+        fun visitGrammar(grammar: Grammar): T
 
         /**
          * Maps an unknown variant of [ResponseFormat] to a value of type [T].
@@ -169,12 +167,12 @@ private constructor(
 
             when (type) {
                 "json_schema" -> {
-                    return tryDeserialize(node, jacksonTypeRef<JsonSchemaResponseFormat>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<JsonSchema>())?.let {
                         ResponseFormat(jsonSchema = it, _json = json)
                     } ?: ResponseFormat(_json = json)
                 }
                 "grammar" -> {
-                    return tryDeserialize(node, jacksonTypeRef<GrammarResponseFormat>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Grammar>())?.let {
                         ResponseFormat(grammar = it, _json = json)
                     } ?: ResponseFormat(_json = json)
                 }
@@ -201,9 +199,9 @@ private constructor(
     }
 
     /** Configuration for JSON schema-guided response generation. */
-    class JsonSchemaResponseFormat
+    class JsonSchema
     private constructor(
-        private val jsonSchema: JsonField<JsonSchema>,
+        private val jsonSchema: JsonField<InnerJsonSchema>,
         private val type: JsonValue,
         private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
@@ -212,7 +210,7 @@ private constructor(
         private constructor(
             @JsonProperty("json_schema")
             @ExcludeMissing
-            jsonSchema: JsonField<JsonSchema> = JsonMissing.of(),
+            jsonSchema: JsonField<InnerJsonSchema> = JsonMissing.of(),
             @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
         ) : this(jsonSchema, type, mutableMapOf())
 
@@ -224,7 +222,7 @@ private constructor(
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
          */
-        fun jsonSchema(): JsonSchema = jsonSchema.getRequired("json_schema")
+        fun jsonSchema(): InnerJsonSchema = jsonSchema.getRequired("json_schema")
 
         /**
          * Must be "json_schema" to identify this format type
@@ -246,7 +244,7 @@ private constructor(
          */
         @JsonProperty("json_schema")
         @ExcludeMissing
-        fun _jsonSchema(): JsonField<JsonSchema> = jsonSchema
+        fun _jsonSchema(): JsonField<InnerJsonSchema> = jsonSchema
 
         @JsonAnySetter
         private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -263,7 +261,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [JsonSchemaResponseFormat].
+             * Returns a mutable builder for constructing an instance of [JsonSchema].
              *
              * The following fields are required:
              * ```kotlin
@@ -273,33 +271,33 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [JsonSchemaResponseFormat]. */
+        /** A builder for [JsonSchema]. */
         class Builder internal constructor() {
 
-            private var jsonSchema: JsonField<JsonSchema>? = null
+            private var jsonSchema: JsonField<InnerJsonSchema>? = null
             private var type: JsonValue = JsonValue.from("json_schema")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(jsonSchemaResponseFormat: JsonSchemaResponseFormat) = apply {
-                jsonSchema = jsonSchemaResponseFormat.jsonSchema
-                type = jsonSchemaResponseFormat.type
-                additionalProperties = jsonSchemaResponseFormat.additionalProperties.toMutableMap()
+            internal fun from(jsonSchema: JsonSchema) = apply {
+                this.jsonSchema = jsonSchema.jsonSchema
+                type = jsonSchema.type
+                additionalProperties = jsonSchema.additionalProperties.toMutableMap()
             }
 
             /**
              * The JSON schema the response should conform to. In a Python SDK, this is often a
              * `pydantic` model.
              */
-            fun jsonSchema(jsonSchema: JsonSchema) = jsonSchema(JsonField.of(jsonSchema))
+            fun jsonSchema(jsonSchema: InnerJsonSchema) = jsonSchema(JsonField.of(jsonSchema))
 
             /**
              * Sets [Builder.jsonSchema] to an arbitrary JSON value.
              *
-             * You should usually call [Builder.jsonSchema] with a well-typed [JsonSchema] value
-             * instead. This method is primarily for setting the field to an undocumented or not yet
-             * supported value.
+             * You should usually call [Builder.jsonSchema] with a well-typed [InnerJsonSchema]
+             * value instead. This method is primarily for setting the field to an undocumented or
+             * not yet supported value.
              */
-            fun jsonSchema(jsonSchema: JsonField<JsonSchema>) = apply {
+            fun jsonSchema(jsonSchema: JsonField<InnerJsonSchema>) = apply {
                 this.jsonSchema = jsonSchema
             }
 
@@ -337,7 +335,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [JsonSchemaResponseFormat].
+             * Returns an immutable instance of [JsonSchema].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -348,8 +346,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): JsonSchemaResponseFormat =
-                JsonSchemaResponseFormat(
+            fun build(): JsonSchema =
+                JsonSchema(
                     checkRequired("jsonSchema", jsonSchema),
                     type,
                     additionalProperties.toMutableMap(),
@@ -358,7 +356,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): JsonSchemaResponseFormat = apply {
+        fun validate(): JsonSchema = apply {
             if (validated) {
                 return@apply
             }
@@ -394,7 +392,7 @@ private constructor(
          * The JSON schema the response should conform to. In a Python SDK, this is often a
          * `pydantic` model.
          */
-        class JsonSchema
+        class InnerJsonSchema
         @JsonCreator
         private constructor(
             @com.fasterxml.jackson.annotation.JsonValue
@@ -409,17 +407,17 @@ private constructor(
 
             companion object {
 
-                /** Returns a mutable builder for constructing an instance of [JsonSchema]. */
+                /** Returns a mutable builder for constructing an instance of [InnerJsonSchema]. */
                 fun builder() = Builder()
             }
 
-            /** A builder for [JsonSchema]. */
+            /** A builder for [InnerJsonSchema]. */
             class Builder internal constructor() {
 
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(jsonSchema: JsonSchema) = apply {
-                    additionalProperties = jsonSchema.additionalProperties.toMutableMap()
+                internal fun from(innerJsonSchema: InnerJsonSchema) = apply {
+                    additionalProperties = innerJsonSchema.additionalProperties.toMutableMap()
                 }
 
                 fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
@@ -445,16 +443,16 @@ private constructor(
                 }
 
                 /**
-                 * Returns an immutable instance of [JsonSchema].
+                 * Returns an immutable instance of [InnerJsonSchema].
                  *
                  * Further updates to this [Builder] will not mutate the returned instance.
                  */
-                fun build(): JsonSchema = JsonSchema(additionalProperties.toImmutable())
+                fun build(): InnerJsonSchema = InnerJsonSchema(additionalProperties.toImmutable())
             }
 
             private var validated: Boolean = false
 
-            fun validate(): JsonSchema = apply {
+            fun validate(): InnerJsonSchema = apply {
                 if (validated) {
                     return@apply
                 }
@@ -484,7 +482,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is JsonSchema && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is InnerJsonSchema && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -493,7 +491,7 @@ private constructor(
 
             override fun hashCode(): Int = hashCode
 
-            override fun toString() = "JsonSchema{additionalProperties=$additionalProperties}"
+            override fun toString() = "InnerJsonSchema{additionalProperties=$additionalProperties}"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -501,7 +499,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is JsonSchemaResponseFormat && jsonSchema == other.jsonSchema && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is JsonSchema && jsonSchema == other.jsonSchema && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -511,11 +509,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "JsonSchemaResponseFormat{jsonSchema=$jsonSchema, type=$type, additionalProperties=$additionalProperties}"
+            "JsonSchema{jsonSchema=$jsonSchema, type=$type, additionalProperties=$additionalProperties}"
     }
 
     /** Configuration for grammar-guided response generation. */
-    class GrammarResponseFormat
+    class Grammar
     private constructor(
         private val bnf: JsonField<Bnf>,
         private val type: JsonValue,
@@ -572,7 +570,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [GrammarResponseFormat].
+             * Returns a mutable builder for constructing an instance of [Grammar].
              *
              * The following fields are required:
              * ```kotlin
@@ -582,17 +580,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [GrammarResponseFormat]. */
+        /** A builder for [Grammar]. */
         class Builder internal constructor() {
 
             private var bnf: JsonField<Bnf>? = null
             private var type: JsonValue = JsonValue.from("grammar")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(grammarResponseFormat: GrammarResponseFormat) = apply {
-                bnf = grammarResponseFormat.bnf
-                type = grammarResponseFormat.type
-                additionalProperties = grammarResponseFormat.additionalProperties.toMutableMap()
+            internal fun from(grammar: Grammar) = apply {
+                bnf = grammar.bnf
+                type = grammar.type
+                additionalProperties = grammar.additionalProperties.toMutableMap()
             }
 
             /** The BNF grammar specification the response should conform to */
@@ -641,7 +639,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [GrammarResponseFormat].
+             * Returns an immutable instance of [Grammar].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -652,17 +650,13 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): GrammarResponseFormat =
-                GrammarResponseFormat(
-                    checkRequired("bnf", bnf),
-                    type,
-                    additionalProperties.toMutableMap(),
-                )
+            fun build(): Grammar =
+                Grammar(checkRequired("bnf", bnf), type, additionalProperties.toMutableMap())
         }
 
         private var validated: Boolean = false
 
-        fun validate(): GrammarResponseFormat = apply {
+        fun validate(): Grammar = apply {
             if (validated) {
                 return@apply
             }
@@ -802,7 +796,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is GrammarResponseFormat && bnf == other.bnf && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Grammar && bnf == other.bnf && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -812,6 +806,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "GrammarResponseFormat{bnf=$bnf, type=$type, additionalProperties=$additionalProperties}"
+            "Grammar{bnf=$bnf, type=$type, additionalProperties=$additionalProperties}"
     }
 }

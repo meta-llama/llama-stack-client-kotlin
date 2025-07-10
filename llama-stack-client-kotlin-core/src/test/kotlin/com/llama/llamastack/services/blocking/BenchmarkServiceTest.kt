@@ -6,7 +6,6 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.BenchmarkRegisterParams
-import com.llama.llamastack.models.BenchmarkRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,10 +18,7 @@ internal class BenchmarkServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val benchmarkService = client.benchmarks()
 
-        val benchmark =
-            benchmarkService.retrieve(
-                BenchmarkRetrieveParams.builder().benchmarkId("benchmark_id").build()
-            )
+        val benchmark = benchmarkService.retrieve("benchmark_id")
 
         benchmark.validate()
     }

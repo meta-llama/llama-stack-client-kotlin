@@ -6,7 +6,6 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.ShieldRegisterParams
-import com.llama.llamastack.models.ShieldRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -21,10 +20,7 @@ internal class ShieldServiceAsyncTest {
                 .build()
         val shieldServiceAsync = client.shields()
 
-        val shield =
-            shieldServiceAsync.retrieve(
-                ShieldRetrieveParams.builder().identifier("identifier").build()
-            )
+        val shield = shieldServiceAsync.retrieve("identifier")
 
         shield.validate()
     }

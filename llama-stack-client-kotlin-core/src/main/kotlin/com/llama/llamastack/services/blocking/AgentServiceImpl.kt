@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -42,6 +43,9 @@ class AgentServiceImpl internal constructor(private val clientOptions: ClientOpt
 
     override fun withRawResponse(): AgentService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): AgentService =
+        AgentServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun session(): SessionService = session
 
     override fun steps(): StepService = steps
@@ -77,6 +81,11 @@ class AgentServiceImpl internal constructor(private val clientOptions: ClientOpt
             TurnServiceImpl.WithRawResponseImpl(clientOptions)
         }
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): AgentService.WithRawResponse =
+            AgentServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
+
         override fun session(): SessionService.WithRawResponse = session
 
         override fun steps(): StepService.WithRawResponse = steps
@@ -94,6 +103,7 @@ class AgentServiceImpl internal constructor(private val clientOptions: ClientOpt
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "agents")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -117,9 +127,13 @@ class AgentServiceImpl internal constructor(private val clientOptions: ClientOpt
             params: AgentDeleteParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("agentId", params.agentId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "agents", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

@@ -39,15 +39,16 @@ internal class AgentConfigTest {
                 .enableSessionPersistence(true)
                 .addInputShield("string")
                 .maxInferIters(0L)
+                .name("name")
                 .addOutputShield("string")
                 .jsonSchemaResponseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyGreedy()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .addStop("string")
@@ -91,13 +92,14 @@ internal class AgentConfigTest {
         assertThat(agentConfig.enableSessionPersistence()).isEqualTo(true)
         assertThat(agentConfig.inputShields()).containsExactly("string")
         assertThat(agentConfig.maxInferIters()).isEqualTo(0L)
+        assertThat(agentConfig.name()).isEqualTo("name")
         assertThat(agentConfig.outputShields()).containsExactly("string")
         assertThat(agentConfig.responseFormat())
             .isEqualTo(
                 ResponseFormat.ofJsonSchema(
-                    ResponseFormat.JsonSchemaResponseFormat.builder()
+                    ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
@@ -107,7 +109,7 @@ internal class AgentConfigTest {
         assertThat(agentConfig.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyGreedy()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .addStop("string")
@@ -157,15 +159,16 @@ internal class AgentConfigTest {
                 .enableSessionPersistence(true)
                 .addInputShield("string")
                 .maxInferIters(0L)
+                .name("name")
                 .addOutputShield("string")
                 .jsonSchemaResponseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyGreedy()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .addStop("string")

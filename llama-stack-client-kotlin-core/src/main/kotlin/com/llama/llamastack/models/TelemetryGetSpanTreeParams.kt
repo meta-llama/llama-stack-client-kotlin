@@ -12,7 +12,6 @@ import com.llama.llamastack.core.JsonMissing
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.Params
 import com.llama.llamastack.core.checkKnown
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
@@ -20,23 +19,28 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Get a span tree by its ID. */
 class TelemetryGetSpanTreeParams
 private constructor(
-    private val spanId: String,
+    private val spanId: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun spanId(): String = spanId
+    fun spanId(): String? = spanId
 
     /**
+     * The attributes to return in the tree.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun attributesToReturn(): List<String>? = body.attributesToReturn()
 
     /**
+     * The maximum depth of the tree.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -67,13 +71,10 @@ private constructor(
 
     companion object {
 
+        fun none(): TelemetryGetSpanTreeParams = builder().build()
+
         /**
          * Returns a mutable builder for constructing an instance of [TelemetryGetSpanTreeParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .spanId()
-         * ```
          */
         fun builder() = Builder()
     }
@@ -93,7 +94,7 @@ private constructor(
             additionalQueryParams = telemetryGetSpanTreeParams.additionalQueryParams.toBuilder()
         }
 
-        fun spanId(spanId: String) = apply { this.spanId = spanId }
+        fun spanId(spanId: String?) = apply { this.spanId = spanId }
 
         /**
          * Sets the entire request body.
@@ -105,6 +106,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The attributes to return in the tree. */
         fun attributesToReturn(attributesToReturn: List<String>) = apply {
             body.attributesToReturn(attributesToReturn)
         }
@@ -129,6 +131,7 @@ private constructor(
             body.addAttributesToReturn(attributesToReturn)
         }
 
+        /** The maximum depth of the tree. */
         fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
 
         /**
@@ -260,17 +263,10 @@ private constructor(
          * Returns an immutable instance of [TelemetryGetSpanTreeParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .spanId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): TelemetryGetSpanTreeParams =
             TelemetryGetSpanTreeParams(
-                checkRequired("spanId", spanId),
+                spanId,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -281,7 +277,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> spanId
+            0 -> spanId ?: ""
             else -> ""
         }
 
@@ -305,6 +301,8 @@ private constructor(
         ) : this(attributesToReturn, maxDepth, mutableMapOf())
 
         /**
+         * The attributes to return in the tree.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -312,6 +310,8 @@ private constructor(
             attributesToReturn.getNullable("attributes_to_return")
 
         /**
+         * The maximum depth of the tree.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -365,6 +365,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The attributes to return in the tree. */
             fun attributesToReturn(attributesToReturn: List<String>) =
                 attributesToReturn(JsonField.of(attributesToReturn))
 
@@ -391,6 +392,7 @@ private constructor(
                     }
             }
 
+            /** The maximum depth of the tree. */
             fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
 
             /**

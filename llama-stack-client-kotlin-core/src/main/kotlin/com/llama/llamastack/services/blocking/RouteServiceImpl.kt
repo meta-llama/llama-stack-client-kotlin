@@ -27,6 +27,9 @@ class RouteServiceImpl internal constructor(private val clientOptions: ClientOpt
 
     override fun withRawResponse(): RouteService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RouteService =
+        RouteServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun list(params: RouteListParams, requestOptions: RequestOptions): List<RouteInfo> =
         // get /v1/inspect/routes
         withRawResponse().list(params, requestOptions).parse()
@@ -35,6 +38,11 @@ class RouteServiceImpl internal constructor(private val clientOptions: ClientOpt
         RouteService.WithRawResponse {
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
+
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): RouteService.WithRawResponse =
+            RouteServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
 
         private val listHandler: Handler<DataEnvelope<List<RouteInfo>>> =
             jsonHandler<DataEnvelope<List<RouteInfo>>>(clientOptions.jsonMapper)
@@ -47,6 +55,7 @@ class RouteServiceImpl internal constructor(private val clientOptions: ClientOpt
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "inspect", "routes")
                     .build()
                     .prepare(clientOptions, params)

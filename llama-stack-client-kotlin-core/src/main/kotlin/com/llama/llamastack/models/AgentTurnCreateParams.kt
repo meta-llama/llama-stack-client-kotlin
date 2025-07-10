@@ -36,7 +36,7 @@ import java.util.Objects
 class AgentTurnCreateParams
 private constructor(
     private val agentId: String,
-    private val sessionId: String,
+    private val sessionId: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -44,7 +44,7 @@ private constructor(
 
     fun agentId(): String = agentId
 
-    fun sessionId(): String = sessionId
+    fun sessionId(): String? = sessionId
 
     /**
      * List of messages to start the turn with.
@@ -124,7 +124,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .agentId()
-         * .sessionId()
          * .messages()
          * ```
          */
@@ -150,7 +149,7 @@ private constructor(
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
-        fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
+        fun sessionId(sessionId: String?) = apply { this.sessionId = sessionId }
 
         /**
          * Sets the entire request body.
@@ -383,7 +382,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .agentId()
-         * .sessionId()
          * .messages()
          * ```
          *
@@ -392,7 +390,7 @@ private constructor(
         fun build(): AgentTurnCreateParams =
             AgentTurnCreateParams(
                 checkRequired("agentId", agentId),
-                checkRequired("sessionId", sessionId),
+                sessionId,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -404,7 +402,7 @@ private constructor(
     fun _pathParam(index: Int): String =
         when (index) {
             0 -> agentId
-            1 -> sessionId
+            1 -> sessionId ?: ""
             else -> ""
         }
 

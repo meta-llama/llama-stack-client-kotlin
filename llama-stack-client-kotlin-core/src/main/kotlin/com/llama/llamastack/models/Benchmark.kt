@@ -23,9 +23,9 @@ private constructor(
     private val identifier: JsonField<String>,
     private val metadata: JsonField<Metadata>,
     private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
     private val scoringFunctions: JsonField<List<String>>,
     private val type: JsonValue,
+    private val providerResourceId: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -39,21 +39,21 @@ private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
-        providerResourceId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("scoring_functions")
         @ExcludeMissing
         scoringFunctions: JsonField<List<String>> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        @JsonProperty("provider_resource_id")
+        @ExcludeMissing
+        providerResourceId: JsonField<String> = JsonMissing.of(),
     ) : this(
         datasetId,
         identifier,
         metadata,
         providerId,
-        providerResourceId,
         scoringFunctions,
         type,
+        providerResourceId,
         mutableMapOf(),
     )
 
@@ -85,12 +85,6 @@ private constructor(
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
-
-    /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
     fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
     /**
@@ -103,6 +97,12 @@ private constructor(
      * with an unexpected value).
      */
     @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
+
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun providerResourceId(): String? = providerResourceId.getNullable("provider_resource_id")
 
     /**
      * Returns the raw JSON value of [datasetId].
@@ -133,16 +133,6 @@ private constructor(
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     /**
-     * Returns the raw JSON value of [providerResourceId].
-     *
-     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
-     * type.
-     */
-    @JsonProperty("provider_resource_id")
-    @ExcludeMissing
-    fun _providerResourceId(): JsonField<String> = providerResourceId
-
-    /**
      * Returns the raw JSON value of [scoringFunctions].
      *
      * Unlike [scoringFunctions], this method doesn't throw if the JSON field has an unexpected
@@ -151,6 +141,16 @@ private constructor(
     @JsonProperty("scoring_functions")
     @ExcludeMissing
     fun _scoringFunctions(): JsonField<List<String>> = scoringFunctions
+
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -175,7 +175,6 @@ private constructor(
          * .identifier()
          * .metadata()
          * .providerId()
-         * .providerResourceId()
          * .scoringFunctions()
          * ```
          */
@@ -189,9 +188,9 @@ private constructor(
         private var identifier: JsonField<String>? = null
         private var metadata: JsonField<Metadata>? = null
         private var providerId: JsonField<String>? = null
-        private var providerResourceId: JsonField<String>? = null
         private var scoringFunctions: JsonField<MutableList<String>>? = null
         private var type: JsonValue = JsonValue.from("benchmark")
+        private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(benchmark: Benchmark) = apply {
@@ -199,9 +198,9 @@ private constructor(
             identifier = benchmark.identifier
             metadata = benchmark.metadata
             providerId = benchmark.providerId
-            providerResourceId = benchmark.providerResourceId
             scoringFunctions = benchmark.scoringFunctions.map { it.toMutableList() }
             type = benchmark.type
+            providerResourceId = benchmark.providerResourceId
             additionalProperties = benchmark.additionalProperties.toMutableMap()
         }
 
@@ -249,20 +248,6 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
-        fun providerResourceId(providerResourceId: String) =
-            providerResourceId(JsonField.of(providerResourceId))
-
-        /**
-         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
-            this.providerResourceId = providerResourceId
-        }
-
         fun scoringFunctions(scoringFunctions: List<String>) =
             scoringFunctions(JsonField.of(scoringFunctions))
 
@@ -303,6 +288,20 @@ private constructor(
          */
         fun type(type: JsonValue) = apply { this.type = type }
 
+        fun providerResourceId(providerResourceId: String) =
+            providerResourceId(JsonField.of(providerResourceId))
+
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
+            this.providerResourceId = providerResourceId
+        }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)
@@ -333,7 +332,6 @@ private constructor(
          * .identifier()
          * .metadata()
          * .providerId()
-         * .providerResourceId()
          * .scoringFunctions()
          * ```
          *
@@ -345,9 +343,9 @@ private constructor(
                 checkRequired("identifier", identifier),
                 checkRequired("metadata", metadata),
                 checkRequired("providerId", providerId),
-                checkRequired("providerResourceId", providerResourceId),
                 checkRequired("scoringFunctions", scoringFunctions).map { it.toImmutable() },
                 type,
+                providerResourceId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -363,13 +361,13 @@ private constructor(
         identifier()
         metadata().validate()
         providerId()
-        providerResourceId()
         scoringFunctions()
         _type().let {
             if (it != JsonValue.from("benchmark")) {
                 throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
             }
         }
+        providerResourceId()
         validated = true
     }
 
@@ -391,9 +389,9 @@ private constructor(
             (if (identifier.asKnown() == null) 0 else 1) +
             (metadata.asKnown()?.validity() ?: 0) +
             (if (providerId.asKnown() == null) 0 else 1) +
-            (if (providerResourceId.asKnown() == null) 0 else 1) +
             (scoringFunctions.asKnown()?.size ?: 0) +
-            type.let { if (it == JsonValue.from("benchmark")) 1 else 0 }
+            type.let { if (it == JsonValue.from("benchmark")) 1 else 0 } +
+            (if (providerResourceId.asKnown() == null) 0 else 1)
 
     class Metadata
     @JsonCreator
@@ -499,15 +497,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Benchmark && datasetId == other.datasetId && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && scoringFunctions == other.scoringFunctions && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Benchmark && datasetId == other.datasetId && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && scoringFunctions == other.scoringFunctions && type == other.type && providerResourceId == other.providerResourceId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(datasetId, identifier, metadata, providerId, providerResourceId, scoringFunctions, type, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(datasetId, identifier, metadata, providerId, scoringFunctions, type, providerResourceId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Benchmark{datasetId=$datasetId, identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, scoringFunctions=$scoringFunctions, type=$type, additionalProperties=$additionalProperties}"
+        "Benchmark{datasetId=$datasetId, identifier=$identifier, metadata=$metadata, providerId=$providerId, scoringFunctions=$scoringFunctions, type=$type, providerResourceId=$providerResourceId, additionalProperties=$additionalProperties}"
 }

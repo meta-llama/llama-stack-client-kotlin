@@ -17,11 +17,9 @@ internal class ScoringFnParamsTest {
     @Test
     fun ofLlmAsJudge() {
         val llmAsJudge =
-            ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
+            ScoringFnParams.LlmAsJudge.builder()
+                .addAggregationFunction(ScoringFnParams.LlmAsJudge.AggregationFunction.AVERAGE)
                 .judgeModel("judge_model")
-                .addAggregationFunction(
-                    ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
-                )
                 .addJudgeScoreRegex("string")
                 .promptTemplate("prompt_template")
                 .build()
@@ -38,11 +36,9 @@ internal class ScoringFnParamsTest {
         val jsonMapper = jsonMapper()
         val scoringFnParams =
             ScoringFnParams.ofLlmAsJudge(
-                ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
+                ScoringFnParams.LlmAsJudge.builder()
+                    .addAggregationFunction(ScoringFnParams.LlmAsJudge.AggregationFunction.AVERAGE)
                     .judgeModel("judge_model")
-                    .addAggregationFunction(
-                        ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
-                    )
                     .addJudgeScoreRegex("string")
                     .promptTemplate("prompt_template")
                     .build()
@@ -60,10 +56,8 @@ internal class ScoringFnParamsTest {
     @Test
     fun ofRegexParser() {
         val regexParser =
-            ScoringFnParams.RegexParserScoringFnParams.builder()
-                .addAggregationFunction(
-                    ScoringFnParams.RegexParserScoringFnParams.AggregationFunction.AVERAGE
-                )
+            ScoringFnParams.RegexParser.builder()
+                .addAggregationFunction(ScoringFnParams.RegexParser.AggregationFunction.AVERAGE)
                 .addParsingRegex("string")
                 .build()
 
@@ -79,10 +73,8 @@ internal class ScoringFnParamsTest {
         val jsonMapper = jsonMapper()
         val scoringFnParams =
             ScoringFnParams.ofRegexParser(
-                ScoringFnParams.RegexParserScoringFnParams.builder()
-                    .addAggregationFunction(
-                        ScoringFnParams.RegexParserScoringFnParams.AggregationFunction.AVERAGE
-                    )
+                ScoringFnParams.RegexParser.builder()
+                    .addAggregationFunction(ScoringFnParams.RegexParser.AggregationFunction.AVERAGE)
                     .addParsingRegex("string")
                     .build()
             )
@@ -99,10 +91,8 @@ internal class ScoringFnParamsTest {
     @Test
     fun ofBasic() {
         val basic =
-            ScoringFnParams.BasicScoringFnParams.builder()
-                .addAggregationFunction(
-                    ScoringFnParams.BasicScoringFnParams.AggregationFunction.AVERAGE
-                )
+            ScoringFnParams.Basic.builder()
+                .addAggregationFunction(ScoringFnParams.Basic.AggregationFunction.AVERAGE)
                 .build()
 
         val scoringFnParams = ScoringFnParams.ofBasic(basic)
@@ -117,10 +107,8 @@ internal class ScoringFnParamsTest {
         val jsonMapper = jsonMapper()
         val scoringFnParams =
             ScoringFnParams.ofBasic(
-                ScoringFnParams.BasicScoringFnParams.builder()
-                    .addAggregationFunction(
-                        ScoringFnParams.BasicScoringFnParams.AggregationFunction.AVERAGE
-                    )
+                ScoringFnParams.Basic.builder()
+                    .addAggregationFunction(ScoringFnParams.Basic.AggregationFunction.AVERAGE)
                     .build()
             )
 

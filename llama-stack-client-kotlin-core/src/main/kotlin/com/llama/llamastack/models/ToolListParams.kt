@@ -7,7 +7,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
-/** List tools with optional tool group */
+/** List tools with optional tool group. */
 class ToolListParams
 private constructor(
     private val toolgroupId: String?,
@@ -15,6 +15,7 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /** The ID of the tool group to list tools for. */
     fun toolgroupId(): String? = toolgroupId
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -44,6 +45,7 @@ private constructor(
             additionalQueryParams = toolListParams.additionalQueryParams.toBuilder()
         }
 
+        /** The ID of the tool group to list tools for. */
         fun toolgroupId(toolgroupId: String?) = apply { this.toolgroupId = toolgroupId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {

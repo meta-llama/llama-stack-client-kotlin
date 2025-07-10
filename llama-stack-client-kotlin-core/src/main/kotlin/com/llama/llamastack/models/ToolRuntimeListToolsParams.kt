@@ -8,6 +8,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** List all tools in the runtime. */
 class ToolRuntimeListToolsParams
 private constructor(
     private val mcpEndpoint: McpEndpoint?,
@@ -16,8 +17,10 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /** The MCP endpoint to use for the tool group. */
     fun mcpEndpoint(): McpEndpoint? = mcpEndpoint
 
+    /** The ID of the tool group to list tools for. */
     fun toolGroupId(): String? = toolGroupId
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -51,8 +54,10 @@ private constructor(
             additionalQueryParams = toolRuntimeListToolsParams.additionalQueryParams.toBuilder()
         }
 
+        /** The MCP endpoint to use for the tool group. */
         fun mcpEndpoint(mcpEndpoint: McpEndpoint?) = apply { this.mcpEndpoint = mcpEndpoint }
 
+        /** The ID of the tool group to list tools for. */
         fun toolGroupId(toolGroupId: String?) = apply { this.toolGroupId = toolGroupId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
@@ -185,6 +190,7 @@ private constructor(
             }
             .build()
 
+    /** The MCP endpoint to use for the tool group. */
     class McpEndpoint
     private constructor(private val uri: String, private val additionalProperties: QueryParams) {
 

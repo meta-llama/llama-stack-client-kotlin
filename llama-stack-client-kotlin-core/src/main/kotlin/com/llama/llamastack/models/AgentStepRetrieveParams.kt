@@ -14,7 +14,7 @@ private constructor(
     private val agentId: String,
     private val sessionId: String,
     private val turnId: String,
-    private val stepId: String,
+    private val stepId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -25,7 +25,7 @@ private constructor(
 
     fun turnId(): String = turnId
 
-    fun stepId(): String = stepId
+    fun stepId(): String? = stepId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -43,7 +43,6 @@ private constructor(
          * .agentId()
          * .sessionId()
          * .turnId()
-         * .stepId()
          * ```
          */
         fun builder() = Builder()
@@ -74,7 +73,7 @@ private constructor(
 
         fun turnId(turnId: String) = apply { this.turnId = turnId }
 
-        fun stepId(stepId: String) = apply { this.stepId = stepId }
+        fun stepId(stepId: String?) = apply { this.stepId = stepId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -184,7 +183,6 @@ private constructor(
          * .agentId()
          * .sessionId()
          * .turnId()
-         * .stepId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -194,7 +192,7 @@ private constructor(
                 checkRequired("agentId", agentId),
                 checkRequired("sessionId", sessionId),
                 checkRequired("turnId", turnId),
-                checkRequired("stepId", stepId),
+                stepId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -205,7 +203,7 @@ private constructor(
             0 -> agentId
             1 -> sessionId
             2 -> turnId
-            3 -> stepId
+            3 -> stepId ?: ""
             else -> ""
         }
 

@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -34,6 +35,9 @@ class EvalServiceAsyncImpl internal constructor(private val clientOptions: Clien
     private val jobs: JobServiceAsync by lazy { JobServiceAsyncImpl(clientOptions) }
 
     override fun withRawResponse(): EvalServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): EvalServiceAsync =
+        EvalServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override fun jobs(): JobServiceAsync = jobs
 
@@ -71,6 +75,13 @@ class EvalServiceAsyncImpl internal constructor(private val clientOptions: Clien
             JobServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): EvalServiceAsync.WithRawResponse =
+            EvalServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         override fun jobs(): JobServiceAsync.WithRawResponse = jobs
 
         private val evaluateRowsHandler: Handler<EvaluateResponse> =
@@ -80,9 +91,13 @@ class EvalServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: EvalEvaluateRowsParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<EvaluateResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("benchmarkId", params.benchmarkId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "eval",
@@ -113,9 +128,13 @@ class EvalServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: EvalEvaluateRowsAlphaParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<EvaluateResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("benchmarkId", params.benchmarkId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "eval",
@@ -146,9 +165,13 @@ class EvalServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: EvalRunEvalParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Job> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("benchmarkId", params.benchmarkId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "eval", "benchmarks", params._pathParam(0), "jobs")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -173,9 +196,13 @@ class EvalServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: EvalRunEvalAlphaParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Job> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("benchmarkId", params.benchmarkId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "eval", "benchmarks", params._pathParam(0), "jobs")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

@@ -4,7 +4,6 @@ package com.llama.llamastack.services.async
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
-import com.llama.llamastack.models.ToolGetParams
 import com.llama.llamastack.models.ToolListParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -34,7 +33,7 @@ internal class ToolServiceAsyncTest {
                 .build()
         val toolServiceAsync = client.tools()
 
-        val tool = toolServiceAsync.get(ToolGetParams.builder().toolName("tool_name").build())
+        val tool = toolServiceAsync.get("tool_name")
 
         tool.validate()
     }

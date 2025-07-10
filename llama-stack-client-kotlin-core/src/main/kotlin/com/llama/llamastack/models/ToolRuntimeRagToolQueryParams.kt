@@ -43,6 +43,8 @@ private constructor(
     fun vectorDbIds(): List<String> = body.vectorDbIds()
 
     /**
+     * Configuration for the RAG query generation.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -171,6 +173,7 @@ private constructor(
          */
         fun addVectorDbId(vectorDbId: String) = apply { body.addVectorDbId(vectorDbId) }
 
+        /** Configuration for the RAG query generation. */
         fun queryConfig(queryConfig: QueryConfig) = apply { body.queryConfig(queryConfig) }
 
         /**
@@ -366,6 +369,8 @@ private constructor(
         fun vectorDbIds(): List<String> = vectorDbIds.getRequired("vector_db_ids")
 
         /**
+         * Configuration for the RAG query generation.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -497,6 +502,7 @@ private constructor(
                     }
             }
 
+            /** Configuration for the RAG query generation. */
             fun queryConfig(queryConfig: QueryConfig) = queryConfig(JsonField.of(queryConfig))
 
             /**

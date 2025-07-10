@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.ToolDef
@@ -18,14 +19,22 @@ interface ToolRuntimeServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolRuntimeServiceAsync
+
     fun ragTool(): RagToolServiceAsync
 
-    /** Run a tool with the given arguments */
+    /** Run a tool with the given arguments. */
     suspend fun invokeTool(
         params: ToolRuntimeInvokeToolParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolInvocationResult
 
+    /** List all tools in the runtime. */
     suspend fun listTools(
         params: ToolRuntimeListToolsParams = ToolRuntimeListToolsParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -40,6 +49,15 @@ interface ToolRuntimeServiceAsync {
      * method.
      */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ToolRuntimeServiceAsync.WithRawResponse
 
         fun ragTool(): RagToolServiceAsync.WithRawResponse
 

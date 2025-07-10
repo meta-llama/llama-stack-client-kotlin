@@ -7,7 +7,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
-/** List tool groups with optional provider */
+/** List tool groups with optional provider. */
 class ToolgroupListParams
 private constructor(
     private val additionalHeaders: Headers,

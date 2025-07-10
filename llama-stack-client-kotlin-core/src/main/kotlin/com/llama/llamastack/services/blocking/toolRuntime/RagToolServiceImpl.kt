@@ -30,6 +30,9 @@ class RagToolServiceImpl internal constructor(private val clientOptions: ClientO
 
     override fun withRawResponse(): RagToolService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RagToolService =
+        RagToolServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun insert(params: ToolRuntimeRagToolInsertParams, requestOptions: RequestOptions) {
         // post /v1/tool-runtime/rag-tool/insert
         withRawResponse().insert(params, requestOptions)
@@ -47,6 +50,13 @@ class RagToolServiceImpl internal constructor(private val clientOptions: ClientO
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): RagToolService.WithRawResponse =
+            RagToolServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val insertHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
 
         override fun insert(
@@ -56,6 +66,7 @@ class RagToolServiceImpl internal constructor(private val clientOptions: ClientO
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tool-runtime", "rag-tool", "insert")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -75,6 +86,7 @@ class RagToolServiceImpl internal constructor(private val clientOptions: ClientO
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tool-runtime", "rag-tool", "query")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

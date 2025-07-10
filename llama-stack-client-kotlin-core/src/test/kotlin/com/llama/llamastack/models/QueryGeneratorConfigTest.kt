@@ -15,26 +15,21 @@ import org.junit.jupiter.params.provider.EnumSource
 internal class QueryGeneratorConfigTest {
 
     @Test
-    fun ofDefaultRag() {
-        val defaultRag =
-            QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                .separator("separator")
-                .build()
+    fun ofDefault() {
+        val default = QueryGeneratorConfig.Default.builder().separator("separator").build()
 
-        val queryGeneratorConfig = QueryGeneratorConfig.ofDefaultRag(defaultRag)
+        val queryGeneratorConfig = QueryGeneratorConfig.ofDefault(default)
 
-        assertThat(queryGeneratorConfig.defaultRag()).isEqualTo(defaultRag)
-        assertThat(queryGeneratorConfig.llmrag()).isNull()
+        assertThat(queryGeneratorConfig.default()).isEqualTo(default)
+        assertThat(queryGeneratorConfig.llm()).isNull()
     }
 
     @Test
-    fun ofDefaultRagRoundtrip() {
+    fun ofDefaultRoundtrip() {
         val jsonMapper = jsonMapper()
         val queryGeneratorConfig =
-            QueryGeneratorConfig.ofDefaultRag(
-                QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                    .separator("separator")
-                    .build()
+            QueryGeneratorConfig.ofDefault(
+                QueryGeneratorConfig.Default.builder().separator("separator").build()
             )
 
         val roundtrippedQueryGeneratorConfig =
@@ -47,28 +42,21 @@ internal class QueryGeneratorConfigTest {
     }
 
     @Test
-    fun ofLlmrag() {
-        val llmrag =
-            QueryGeneratorConfig.LlmragQueryGeneratorConfig.builder()
-                .model("model")
-                .template("template")
-                .build()
+    fun ofLlm() {
+        val llm = QueryGeneratorConfig.Llm.builder().model("model").template("template").build()
 
-        val queryGeneratorConfig = QueryGeneratorConfig.ofLlmrag(llmrag)
+        val queryGeneratorConfig = QueryGeneratorConfig.ofLlm(llm)
 
-        assertThat(queryGeneratorConfig.defaultRag()).isNull()
-        assertThat(queryGeneratorConfig.llmrag()).isEqualTo(llmrag)
+        assertThat(queryGeneratorConfig.default()).isNull()
+        assertThat(queryGeneratorConfig.llm()).isEqualTo(llm)
     }
 
     @Test
-    fun ofLlmragRoundtrip() {
+    fun ofLlmRoundtrip() {
         val jsonMapper = jsonMapper()
         val queryGeneratorConfig =
-            QueryGeneratorConfig.ofLlmrag(
-                QueryGeneratorConfig.LlmragQueryGeneratorConfig.builder()
-                    .model("model")
-                    .template("template")
-                    .build()
+            QueryGeneratorConfig.ofLlm(
+                QueryGeneratorConfig.Llm.builder().model("model").template("template").build()
             )
 
         val roundtrippedQueryGeneratorConfig =

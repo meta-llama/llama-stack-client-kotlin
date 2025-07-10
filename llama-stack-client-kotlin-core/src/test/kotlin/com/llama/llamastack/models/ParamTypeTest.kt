@@ -22,7 +22,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -52,7 +52,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isEqualTo(JsonValue.from(mapOf("type" to "number")))
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -82,7 +82,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isEqualTo(JsonValue.from(mapOf("type" to "boolean")))
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -112,7 +112,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isEqualTo(JsonValue.from(mapOf("type" to "array")))
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -135,14 +135,14 @@ internal class ParamTypeTest {
     }
 
     @Test
-    fun ofObjectType() {
-        val paramType = ParamType.ofObjectType()
+    fun ofObject() {
+        val paramType = ParamType.ofObject()
 
         assertThat(paramType.string()).isNull()
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isEqualTo(JsonValue.from(mapOf("type" to "object")))
+        assertThat(paramType.object_()).isEqualTo(JsonValue.from(mapOf("type" to "object")))
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -151,9 +151,9 @@ internal class ParamTypeTest {
     }
 
     @Test
-    fun ofObjectTypeRoundtrip() {
+    fun ofObjectRoundtrip() {
         val jsonMapper = jsonMapper()
-        val paramType = ParamType.ofObjectType()
+        val paramType = ParamType.ofObject()
 
         val roundtrippedParamType =
             jsonMapper.readValue(
@@ -172,7 +172,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isEqualTo(JsonValue.from(mapOf("type" to "json")))
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -202,7 +202,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isEqualTo(JsonValue.from(mapOf("type" to "union")))
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -232,7 +232,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput())
@@ -263,7 +263,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()
@@ -294,7 +294,7 @@ internal class ParamTypeTest {
         assertThat(paramType.number()).isNull()
         assertThat(paramType.boolean()).isNull()
         assertThat(paramType.array()).isNull()
-        assertThat(paramType.objectType()).isNull()
+        assertThat(paramType.object_()).isNull()
         assertThat(paramType.json()).isNull()
         assertThat(paramType.union()).isNull()
         assertThat(paramType.chatCompletionInput()).isNull()

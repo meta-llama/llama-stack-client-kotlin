@@ -8,6 +8,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get the status of a training job. */
 class PostTrainingJobStatusParams
 private constructor(
     private val jobUuid: String,
@@ -15,6 +16,7 @@ private constructor(
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
+    /** The UUID of the job to get the status of. */
     fun jobUuid(): String = jobUuid
 
     fun _additionalHeaders(): Headers = additionalHeaders
@@ -49,6 +51,7 @@ private constructor(
             additionalQueryParams = postTrainingJobStatusParams.additionalQueryParams.toBuilder()
         }
 
+        /** The UUID of the job to get the status of. */
         fun jobUuid(jobUuid: String) = apply { this.jobUuid = jobUuid }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {

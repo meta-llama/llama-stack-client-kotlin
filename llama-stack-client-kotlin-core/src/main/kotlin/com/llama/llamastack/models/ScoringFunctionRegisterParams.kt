@@ -18,6 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Register a scoring function. */
 class ScoringFunctionRegisterParams
 private constructor(
     private val body: Body,
@@ -26,6 +27,8 @@ private constructor(
 ) : Params {
 
     /**
+     * The description of the scoring function.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -38,24 +41,33 @@ private constructor(
     fun returnType(): ReturnType = body.returnType()
 
     /**
+     * The ID of the scoring function to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun scoringFnId(): String = body.scoringFnId()
 
     /**
+     * The parameters for the scoring function for benchmark eval, these can be overridden for app
+     * eval.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun params(): ScoringFnParams? = body.params()
 
     /**
+     * The ID of the provider to use for the scoring function.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun providerId(): String? = body.providerId()
 
     /**
+     * The ID of the provider scoring function to use for the scoring function.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -155,6 +167,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The description of the scoring function. */
         fun description(description: String) = apply { body.description(description) }
 
         /**
@@ -177,6 +190,7 @@ private constructor(
          */
         fun returnType(returnType: JsonField<ReturnType>) = apply { body.returnType(returnType) }
 
+        /** The ID of the scoring function to register. */
         fun scoringFnId(scoringFnId: String) = apply { body.scoringFnId(scoringFnId) }
 
         /**
@@ -188,6 +202,10 @@ private constructor(
          */
         fun scoringFnId(scoringFnId: JsonField<String>) = apply { body.scoringFnId(scoringFnId) }
 
+        /**
+         * The parameters for the scoring function for benchmark eval, these can be overridden for
+         * app eval.
+         */
         fun params(params: ScoringFnParams) = apply { body.params(params) }
 
         /**
@@ -200,28 +218,28 @@ private constructor(
         fun params(params: JsonField<ScoringFnParams>) = apply { body.params(params) }
 
         /** Alias for calling [params] with `ScoringFnParams.ofLlmAsJudge(llmAsJudge)`. */
-        fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) = apply {
-            body.params(llmAsJudge)
-        }
+        fun params(llmAsJudge: ScoringFnParams.LlmAsJudge) = apply { body.params(llmAsJudge) }
+
+        /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
+        fun params(regexParser: ScoringFnParams.RegexParser) = apply { body.params(regexParser) }
+
+        /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
+        fun params(basic: ScoringFnParams.Basic) = apply { body.params(basic) }
 
         /**
          * Alias for calling [params] with the following:
          * ```kotlin
-         * ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-         *     .judgeModel(judgeModel)
+         * ScoringFnParams.Basic.builder()
+         *     .aggregationFunctions(aggregationFunctions)
          *     .build()
          * ```
          */
-        fun llmAsJudgeParams(judgeModel: String) = apply { body.llmAsJudgeParams(judgeModel) }
+        fun basicParams(aggregationFunctions: List<ScoringFnParams.Basic.AggregationFunction>) =
+            apply {
+                body.basicParams(aggregationFunctions)
+            }
 
-        /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
-        fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) = apply {
-            body.params(regexParser)
-        }
-
-        /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
-        fun params(basic: ScoringFnParams.BasicScoringFnParams) = apply { body.params(basic) }
-
+        /** The ID of the provider to use for the scoring function. */
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         /**
@@ -233,6 +251,7 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
+        /** The ID of the provider scoring function to use for the scoring function. */
         fun providerScoringFnId(providerScoringFnId: String) = apply {
             body.providerScoringFnId(providerScoringFnId)
         }
@@ -435,6 +454,8 @@ private constructor(
         )
 
         /**
+         * The description of the scoring function.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -449,6 +470,8 @@ private constructor(
         fun returnType(): ReturnType = returnType.getRequired("return_type")
 
         /**
+         * The ID of the scoring function to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -456,18 +479,25 @@ private constructor(
         fun scoringFnId(): String = scoringFnId.getRequired("scoring_fn_id")
 
         /**
+         * The parameters for the scoring function for benchmark eval, these can be overridden for
+         * app eval.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun params(): ScoringFnParams? = params.getNullable("params")
 
         /**
+         * The ID of the provider to use for the scoring function.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun providerId(): String? = providerId.getNullable("provider_id")
 
         /**
+         * The ID of the provider scoring function to use for the scoring function.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -575,6 +605,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The description of the scoring function. */
             fun description(description: String) = description(JsonField.of(description))
 
             /**
@@ -601,6 +632,7 @@ private constructor(
                 this.returnType = returnType
             }
 
+            /** The ID of the scoring function to register. */
             fun scoringFnId(scoringFnId: String) = scoringFnId(JsonField.of(scoringFnId))
 
             /**
@@ -614,6 +646,10 @@ private constructor(
                 this.scoringFnId = scoringFnId
             }
 
+            /**
+             * The parameters for the scoring function for benchmark eval, these can be overridden
+             * for app eval.
+             */
             fun params(params: ScoringFnParams) = params(JsonField.of(params))
 
             /**
@@ -626,32 +662,32 @@ private constructor(
             fun params(params: JsonField<ScoringFnParams>) = apply { this.params = params }
 
             /** Alias for calling [params] with `ScoringFnParams.ofLlmAsJudge(llmAsJudge)`. */
-            fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) =
+            fun params(llmAsJudge: ScoringFnParams.LlmAsJudge) =
                 params(ScoringFnParams.ofLlmAsJudge(llmAsJudge))
+
+            /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
+            fun params(regexParser: ScoringFnParams.RegexParser) =
+                params(ScoringFnParams.ofRegexParser(regexParser))
+
+            /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
+            fun params(basic: ScoringFnParams.Basic) = params(ScoringFnParams.ofBasic(basic))
 
             /**
              * Alias for calling [params] with the following:
              * ```kotlin
-             * ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-             *     .judgeModel(judgeModel)
+             * ScoringFnParams.Basic.builder()
+             *     .aggregationFunctions(aggregationFunctions)
              *     .build()
              * ```
              */
-            fun llmAsJudgeParams(judgeModel: String) =
+            fun basicParams(aggregationFunctions: List<ScoringFnParams.Basic.AggregationFunction>) =
                 params(
-                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-                        .judgeModel(judgeModel)
+                    ScoringFnParams.Basic.builder()
+                        .aggregationFunctions(aggregationFunctions)
                         .build()
                 )
 
-            /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
-            fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) =
-                params(ScoringFnParams.ofRegexParser(regexParser))
-
-            /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
-            fun params(basic: ScoringFnParams.BasicScoringFnParams) =
-                params(ScoringFnParams.ofBasic(basic))
-
+            /** The ID of the provider to use for the scoring function. */
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             /**
@@ -663,6 +699,7 @@ private constructor(
              */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
+            /** The ID of the provider scoring function to use for the scoring function. */
             fun providerScoringFnId(providerScoringFnId: String) =
                 providerScoringFnId(JsonField.of(providerScoringFnId))
 

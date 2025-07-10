@@ -23,8 +23,8 @@ class Message
 private constructor(
     private val user: UserMessage? = null,
     private val system: SystemMessage? = null,
-    private val toolResponse: ToolResponseMessage? = null,
-    private val completion: CompletionMessage? = null,
+    private val tool: ToolResponseMessage? = null,
+    private val assistant: CompletionMessage? = null,
     private val _json: JsonValue? = null,
 ) {
 
@@ -35,18 +35,18 @@ private constructor(
     fun system(): SystemMessage? = system
 
     /** A message representing the result of a tool invocation. */
-    fun toolResponse(): ToolResponseMessage? = toolResponse
+    fun tool(): ToolResponseMessage? = tool
 
     /** A message containing the model's (assistant) response in a chat conversation. */
-    fun completion(): CompletionMessage? = completion
+    fun assistant(): CompletionMessage? = assistant
 
     fun isUser(): Boolean = user != null
 
     fun isSystem(): Boolean = system != null
 
-    fun isToolResponse(): Boolean = toolResponse != null
+    fun isTool(): Boolean = tool != null
 
-    fun isCompletion(): Boolean = completion != null
+    fun isAssistant(): Boolean = assistant != null
 
     /** A message from the user in a chat conversation. */
     fun asUser(): UserMessage = user.getOrThrow("user")
@@ -55,10 +55,10 @@ private constructor(
     fun asSystem(): SystemMessage = system.getOrThrow("system")
 
     /** A message representing the result of a tool invocation. */
-    fun asToolResponse(): ToolResponseMessage = toolResponse.getOrThrow("toolResponse")
+    fun asTool(): ToolResponseMessage = tool.getOrThrow("tool")
 
     /** A message containing the model's (assistant) response in a chat conversation. */
-    fun asCompletion(): CompletionMessage = completion.getOrThrow("completion")
+    fun asAssistant(): CompletionMessage = assistant.getOrThrow("assistant")
 
     fun _json(): JsonValue? = _json
 
@@ -66,8 +66,8 @@ private constructor(
         when {
             user != null -> visitor.visitUser(user)
             system != null -> visitor.visitSystem(system)
-            toolResponse != null -> visitor.visitToolResponse(toolResponse)
-            completion != null -> visitor.visitCompletion(completion)
+            tool != null -> visitor.visitTool(tool)
+            assistant != null -> visitor.visitAssistant(assistant)
             else -> visitor.unknown(_json)
         }
 
@@ -88,12 +88,12 @@ private constructor(
                     system.validate()
                 }
 
-                override fun visitToolResponse(toolResponse: ToolResponseMessage) {
-                    toolResponse.validate()
+                override fun visitTool(tool: ToolResponseMessage) {
+                    tool.validate()
                 }
 
-                override fun visitCompletion(completion: CompletionMessage) {
-                    completion.validate()
+                override fun visitAssistant(assistant: CompletionMessage) {
+                    assistant.validate()
                 }
             }
         )
@@ -120,10 +120,9 @@ private constructor(
 
                 override fun visitSystem(system: SystemMessage) = system.validity()
 
-                override fun visitToolResponse(toolResponse: ToolResponseMessage) =
-                    toolResponse.validity()
+                override fun visitTool(tool: ToolResponseMessage) = tool.validity()
 
-                override fun visitCompletion(completion: CompletionMessage) = completion.validity()
+                override fun visitAssistant(assistant: CompletionMessage) = assistant.validity()
 
                 override fun unknown(json: JsonValue?) = 0
             }
@@ -134,17 +133,17 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Message && user == other.user && system == other.system && toolResponse == other.toolResponse && completion == other.completion /* spotless:on */
+        return /* spotless:off */ other is Message && user == other.user && system == other.system && tool == other.tool && assistant == other.assistant /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(user, system, toolResponse, completion) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(user, system, tool, assistant) /* spotless:on */
 
     override fun toString(): String =
         when {
             user != null -> "Message{user=$user}"
             system != null -> "Message{system=$system}"
-            toolResponse != null -> "Message{toolResponse=$toolResponse}"
-            completion != null -> "Message{completion=$completion}"
+            tool != null -> "Message{tool=$tool}"
+            assistant != null -> "Message{assistant=$assistant}"
             _json != null -> "Message{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid Message")
         }
@@ -158,10 +157,10 @@ private constructor(
         fun ofSystem(system: SystemMessage) = Message(system = system)
 
         /** A message representing the result of a tool invocation. */
-        fun ofToolResponse(toolResponse: ToolResponseMessage) = Message(toolResponse = toolResponse)
+        fun ofTool(tool: ToolResponseMessage) = Message(tool = tool)
 
         /** A message containing the model's (assistant) response in a chat conversation. */
-        fun ofCompletion(completion: CompletionMessage) = Message(completion = completion)
+        fun ofAssistant(assistant: CompletionMessage) = Message(assistant = assistant)
     }
 
     /** An interface that defines how to map each variant of [Message] to a value of type [T]. */
@@ -174,10 +173,10 @@ private constructor(
         fun visitSystem(system: SystemMessage): T
 
         /** A message representing the result of a tool invocation. */
-        fun visitToolResponse(toolResponse: ToolResponseMessage): T
+        fun visitTool(tool: ToolResponseMessage): T
 
         /** A message containing the model's (assistant) response in a chat conversation. */
-        fun visitCompletion(completion: CompletionMessage): T
+        fun visitAssistant(assistant: CompletionMessage): T
 
         /**
          * Maps an unknown variant of [Message] to a value of type [T].
@@ -212,12 +211,12 @@ private constructor(
                 }
                 "tool" -> {
                     return tryDeserialize(node, jacksonTypeRef<ToolResponseMessage>())?.let {
-                        Message(toolResponse = it, _json = json)
+                        Message(tool = it, _json = json)
                     } ?: Message(_json = json)
                 }
                 "assistant" -> {
                     return tryDeserialize(node, jacksonTypeRef<CompletionMessage>())?.let {
-                        Message(completion = it, _json = json)
+                        Message(assistant = it, _json = json)
                     } ?: Message(_json = json)
                 }
             }
@@ -236,8 +235,8 @@ private constructor(
             when {
                 value.user != null -> generator.writeObject(value.user)
                 value.system != null -> generator.writeObject(value.system)
-                value.toolResponse != null -> generator.writeObject(value.toolResponse)
-                value.completion != null -> generator.writeObject(value.completion)
+                value.tool != null -> generator.writeObject(value.tool)
+                value.assistant != null -> generator.writeObject(value.assistant)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid Message")
             }

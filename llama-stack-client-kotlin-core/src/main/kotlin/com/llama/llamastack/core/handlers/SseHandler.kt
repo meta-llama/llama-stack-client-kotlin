@@ -14,6 +14,7 @@ internal fun sseHandler(jsonMapper: JsonMapper): Handler<StreamResponse<SseMessa
         val state = SseState(jsonMapper)
         for (line in lines) {
             val message = state.decode(line) ?: continue
+
             yield(message)
         }
     }

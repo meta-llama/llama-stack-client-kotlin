@@ -22,6 +22,11 @@ internal class ListProvidersResponseTest {
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
+                        .health(
+                            ProviderInfo.Health.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
                         .providerId("provider_id")
                         .providerType("provider_type")
                         .build()
@@ -34,6 +39,11 @@ internal class ListProvidersResponseTest {
                     .api("api")
                     .config(
                         ProviderInfo.Config.builder()
+                            .putAdditionalProperty("foo", JsonValue.from(true))
+                            .build()
+                    )
+                    .health(
+                        ProviderInfo.Health.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
@@ -53,6 +63,11 @@ internal class ListProvidersResponseTest {
                         .api("api")
                         .config(
                             ProviderInfo.Config.builder()
+                                .putAdditionalProperty("foo", JsonValue.from(true))
+                                .build()
+                        )
+                        .health(
+                            ProviderInfo.Health.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )

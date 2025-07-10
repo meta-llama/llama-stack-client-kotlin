@@ -6,7 +6,7 @@ import com.llama.llamastack.core.toImmutable
 class HttpRequest
 private constructor(
     val method: HttpMethod,
-    val url: String?,
+    val baseUrl: String,
     val pathSegments: List<String>,
     val headers: Headers,
     val queryParams: QueryParams,
@@ -16,7 +16,7 @@ private constructor(
     fun toBuilder(): Builder = Builder().from(this)
 
     override fun toString(): String =
-        "HttpRequest{method=$method, url=$url, pathSegments=$pathSegments, headers=$headers, queryParams=$queryParams, body=$body}"
+        "HttpRequest{method=$method, baseUrl=$baseUrl, pathSegments=$pathSegments, headers=$headers, queryParams=$queryParams, body=$body}"
 
     companion object {
         fun builder() = Builder()
@@ -25,7 +25,7 @@ private constructor(
     class Builder internal constructor() {
 
         private var method: HttpMethod? = null
-        private var url: String? = null
+        private var baseUrl: String? = null
         private var pathSegments: MutableList<String> = mutableListOf()
         private var headers: Headers.Builder = Headers.builder()
         private var queryParams: QueryParams.Builder = QueryParams.builder()
@@ -33,7 +33,7 @@ private constructor(
 
         internal fun from(request: HttpRequest) = apply {
             method = request.method
-            url = request.url
+            baseUrl = request.baseUrl
             pathSegments = request.pathSegments.toMutableList()
             headers = request.headers.toBuilder()
             queryParams = request.queryParams.toBuilder()
@@ -42,7 +42,7 @@ private constructor(
 
         fun method(method: HttpMethod) = apply { this.method = method }
 
-        fun url(url: String) = apply { this.url = url }
+        fun baseUrl(baseUrl: String) = apply { this.baseUrl = baseUrl }
 
         fun addPathSegment(pathSegment: String) = apply { pathSegments.add(pathSegment) }
 
@@ -135,7 +135,7 @@ private constructor(
         fun build(): HttpRequest =
             HttpRequest(
                 checkRequired("method", method),
-                url,
+                checkRequired("baseUrl", baseUrl),
                 pathSegments.toImmutable(),
                 headers.build(),
                 queryParams.build(),

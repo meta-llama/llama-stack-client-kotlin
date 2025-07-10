@@ -15,7 +15,6 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize
 import com.fasterxml.jackson.module.kotlin.jacksonTypeRef
 import com.llama.llamastack.core.BaseDeserializer
 import com.llama.llamastack.core.BaseSerializer
-import com.llama.llamastack.core.Enum
 import com.llama.llamastack.core.ExcludeMissing
 import com.llama.llamastack.core.JsonField
 import com.llama.llamastack.core.JsonMissing
@@ -35,11 +34,10 @@ private constructor(
     private val identifier: JsonField<String>,
     private val parameters: JsonField<List<Parameter>>,
     private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
-    private val toolHost: JsonField<ToolHost>,
     private val toolgroupId: JsonField<String>,
     private val type: JsonValue,
     private val metadata: JsonField<Metadata>,
+    private val providerResourceId: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -57,25 +55,23 @@ private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
-        providerResourceId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("tool_host") @ExcludeMissing toolHost: JsonField<ToolHost> = JsonMissing.of(),
         @JsonProperty("toolgroup_id")
         @ExcludeMissing
         toolgroupId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
         @JsonProperty("metadata") @ExcludeMissing metadata: JsonField<Metadata> = JsonMissing.of(),
+        @JsonProperty("provider_resource_id")
+        @ExcludeMissing
+        providerResourceId: JsonField<String> = JsonMissing.of(),
     ) : this(
         description,
         identifier,
         parameters,
         providerId,
-        providerResourceId,
-        toolHost,
         toolgroupId,
         type,
         metadata,
+        providerResourceId,
         mutableMapOf(),
     )
 
@@ -107,18 +103,6 @@ private constructor(
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
-    fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
-
-    /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
-    fun toolHost(): ToolHost = toolHost.getRequired("tool_host")
-
-    /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
     fun toolgroupId(): String = toolgroupId.getRequired("toolgroup_id")
 
     /**
@@ -137,6 +121,12 @@ private constructor(
      *   if the server responded with an unexpected value).
      */
     fun metadata(): Metadata? = metadata.getNullable("metadata")
+
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun providerResourceId(): String? = providerResourceId.getNullable("provider_resource_id")
 
     /**
      * Returns the raw JSON value of [description].
@@ -169,23 +159,6 @@ private constructor(
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     /**
-     * Returns the raw JSON value of [providerResourceId].
-     *
-     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
-     * type.
-     */
-    @JsonProperty("provider_resource_id")
-    @ExcludeMissing
-    fun _providerResourceId(): JsonField<String> = providerResourceId
-
-    /**
-     * Returns the raw JSON value of [toolHost].
-     *
-     * Unlike [toolHost], this method doesn't throw if the JSON field has an unexpected type.
-     */
-    @JsonProperty("tool_host") @ExcludeMissing fun _toolHost(): JsonField<ToolHost> = toolHost
-
-    /**
      * Returns the raw JSON value of [toolgroupId].
      *
      * Unlike [toolgroupId], this method doesn't throw if the JSON field has an unexpected type.
@@ -200,6 +173,16 @@ private constructor(
      * Unlike [metadata], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("metadata") @ExcludeMissing fun _metadata(): JsonField<Metadata> = metadata
+
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -224,8 +207,6 @@ private constructor(
          * .identifier()
          * .parameters()
          * .providerId()
-         * .providerResourceId()
-         * .toolHost()
          * .toolgroupId()
          * ```
          */
@@ -239,11 +220,10 @@ private constructor(
         private var identifier: JsonField<String>? = null
         private var parameters: JsonField<MutableList<Parameter>>? = null
         private var providerId: JsonField<String>? = null
-        private var providerResourceId: JsonField<String>? = null
-        private var toolHost: JsonField<ToolHost>? = null
         private var toolgroupId: JsonField<String>? = null
         private var type: JsonValue = JsonValue.from("tool")
         private var metadata: JsonField<Metadata> = JsonMissing.of()
+        private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(tool: Tool) = apply {
@@ -251,11 +231,10 @@ private constructor(
             identifier = tool.identifier
             parameters = tool.parameters.map { it.toMutableList() }
             providerId = tool.providerId
-            providerResourceId = tool.providerResourceId
-            toolHost = tool.toolHost
             toolgroupId = tool.toolgroupId
             type = tool.type
             metadata = tool.metadata
+            providerResourceId = tool.providerResourceId
             additionalProperties = tool.additionalProperties.toMutableMap()
         }
 
@@ -317,31 +296,6 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
-        fun providerResourceId(providerResourceId: String) =
-            providerResourceId(JsonField.of(providerResourceId))
-
-        /**
-         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
-            this.providerResourceId = providerResourceId
-        }
-
-        fun toolHost(toolHost: ToolHost) = toolHost(JsonField.of(toolHost))
-
-        /**
-         * Sets [Builder.toolHost] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.toolHost] with a well-typed [ToolHost] value instead.
-         * This method is primarily for setting the field to an undocumented or not yet supported
-         * value.
-         */
-        fun toolHost(toolHost: JsonField<ToolHost>) = apply { this.toolHost = toolHost }
-
         fun toolgroupId(toolgroupId: String) = toolgroupId(JsonField.of(toolgroupId))
 
         /**
@@ -378,6 +332,20 @@ private constructor(
          */
         fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
+        fun providerResourceId(providerResourceId: String) =
+            providerResourceId(JsonField.of(providerResourceId))
+
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
+            this.providerResourceId = providerResourceId
+        }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)
@@ -408,8 +376,6 @@ private constructor(
          * .identifier()
          * .parameters()
          * .providerId()
-         * .providerResourceId()
-         * .toolHost()
          * .toolgroupId()
          * ```
          *
@@ -421,11 +387,10 @@ private constructor(
                 checkRequired("identifier", identifier),
                 checkRequired("parameters", parameters).map { it.toImmutable() },
                 checkRequired("providerId", providerId),
-                checkRequired("providerResourceId", providerResourceId),
-                checkRequired("toolHost", toolHost),
                 checkRequired("toolgroupId", toolgroupId),
                 type,
                 metadata,
+                providerResourceId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -441,8 +406,6 @@ private constructor(
         identifier()
         parameters().forEach { it.validate() }
         providerId()
-        providerResourceId()
-        toolHost().validate()
         toolgroupId()
         _type().let {
             if (it != JsonValue.from("tool")) {
@@ -450,6 +413,7 @@ private constructor(
             }
         }
         metadata()?.validate()
+        providerResourceId()
         validated = true
     }
 
@@ -471,11 +435,10 @@ private constructor(
             (if (identifier.asKnown() == null) 0 else 1) +
             (parameters.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
             (if (providerId.asKnown() == null) 0 else 1) +
-            (if (providerResourceId.asKnown() == null) 0 else 1) +
-            (toolHost.asKnown()?.validity() ?: 0) +
             (if (toolgroupId.asKnown() == null) 0 else 1) +
             type.let { if (it == JsonValue.from("tool")) 1 else 0 } +
-            (metadata.asKnown()?.validity() ?: 0)
+            (metadata.asKnown()?.validity() ?: 0) +
+            (if (providerResourceId.asKnown() == null) 0 else 1)
 
     class Parameter
     private constructor(
@@ -1029,138 +992,6 @@ private constructor(
             "Parameter{description=$description, name=$name, parameterType=$parameterType, required=$required, default=$default, additionalProperties=$additionalProperties}"
     }
 
-    class ToolHost @JsonCreator private constructor(private val value: JsonField<String>) : Enum {
-
-        /**
-         * Returns this class instance's raw value.
-         *
-         * This is usually only useful if this instance was deserialized from data that doesn't
-         * match any known member, and you want to know that value. For example, if the SDK is on an
-         * older version than the API, then the API may respond with new members that the SDK is
-         * unaware of.
-         */
-        @com.fasterxml.jackson.annotation.JsonValue fun _value(): JsonField<String> = value
-
-        companion object {
-
-            val DISTRIBUTION = of("distribution")
-
-            val CLIENT = of("client")
-
-            val MODEL_CONTEXT_PROTOCOL = of("model_context_protocol")
-
-            fun of(value: String) = ToolHost(JsonField.of(value))
-        }
-
-        /** An enum containing [ToolHost]'s known values. */
-        enum class Known {
-            DISTRIBUTION,
-            CLIENT,
-            MODEL_CONTEXT_PROTOCOL,
-        }
-
-        /**
-         * An enum containing [ToolHost]'s known values, as well as an [_UNKNOWN] member.
-         *
-         * An instance of [ToolHost] can contain an unknown value in a couple of cases:
-         * - It was deserialized from data that doesn't match any known member. For example, if the
-         *   SDK is on an older version than the API, then the API may respond with new members that
-         *   the SDK is unaware of.
-         * - It was constructed with an arbitrary value using the [of] method.
-         */
-        enum class Value {
-            DISTRIBUTION,
-            CLIENT,
-            MODEL_CONTEXT_PROTOCOL,
-            /** An enum member indicating that [ToolHost] was instantiated with an unknown value. */
-            _UNKNOWN,
-        }
-
-        /**
-         * Returns an enum member corresponding to this class instance's value, or [Value._UNKNOWN]
-         * if the class was instantiated with an unknown value.
-         *
-         * Use the [known] method instead if you're certain the value is always known or if you want
-         * to throw for the unknown case.
-         */
-        fun value(): Value =
-            when (this) {
-                DISTRIBUTION -> Value.DISTRIBUTION
-                CLIENT -> Value.CLIENT
-                MODEL_CONTEXT_PROTOCOL -> Value.MODEL_CONTEXT_PROTOCOL
-                else -> Value._UNKNOWN
-            }
-
-        /**
-         * Returns an enum member corresponding to this class instance's value.
-         *
-         * Use the [value] method instead if you're uncertain the value is always known and don't
-         * want to throw for the unknown case.
-         *
-         * @throws LlamaStackClientInvalidDataException if this class instance's value is a not a
-         *   known member.
-         */
-        fun known(): Known =
-            when (this) {
-                DISTRIBUTION -> Known.DISTRIBUTION
-                CLIENT -> Known.CLIENT
-                MODEL_CONTEXT_PROTOCOL -> Known.MODEL_CONTEXT_PROTOCOL
-                else -> throw LlamaStackClientInvalidDataException("Unknown ToolHost: $value")
-            }
-
-        /**
-         * Returns this class instance's primitive wire representation.
-         *
-         * This differs from the [toString] method because that method is primarily for debugging
-         * and generally doesn't throw.
-         *
-         * @throws LlamaStackClientInvalidDataException if this class instance's value does not have
-         *   the expected primitive type.
-         */
-        fun asString(): String =
-            _value().asString()
-                ?: throw LlamaStackClientInvalidDataException("Value is not a String")
-
-        private var validated: Boolean = false
-
-        fun validate(): ToolHost = apply {
-            if (validated) {
-                return@apply
-            }
-
-            known()
-            validated = true
-        }
-
-        fun isValid(): Boolean =
-            try {
-                validate()
-                true
-            } catch (e: LlamaStackClientInvalidDataException) {
-                false
-            }
-
-        /**
-         * Returns a score indicating how many valid values are contained in this object
-         * recursively.
-         *
-         * Used for best match union deserialization.
-         */
-        internal fun validity(): Int = if (value() == Value._UNKNOWN) 0 else 1
-
-        override fun equals(other: Any?): Boolean {
-            if (this === other) {
-                return true
-            }
-
-            return /* spotless:off */ other is ToolHost && value == other.value /* spotless:on */
-        }
-
-        override fun hashCode() = value.hashCode()
-
-        override fun toString() = value.toString()
-    }
-
     class Metadata
     @JsonCreator
     private constructor(
@@ -1265,15 +1096,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Tool && description == other.description && identifier == other.identifier && parameters == other.parameters && providerId == other.providerId && providerResourceId == other.providerResourceId && toolHost == other.toolHost && toolgroupId == other.toolgroupId && type == other.type && metadata == other.metadata && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Tool && description == other.description && identifier == other.identifier && parameters == other.parameters && providerId == other.providerId && toolgroupId == other.toolgroupId && type == other.type && metadata == other.metadata && providerResourceId == other.providerResourceId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(description, identifier, parameters, providerId, providerResourceId, toolHost, toolgroupId, type, metadata, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(description, identifier, parameters, providerId, toolgroupId, type, metadata, providerResourceId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Tool{description=$description, identifier=$identifier, parameters=$parameters, providerId=$providerId, providerResourceId=$providerResourceId, toolHost=$toolHost, toolgroupId=$toolgroupId, type=$type, metadata=$metadata, additionalProperties=$additionalProperties}"
+        "Tool{description=$description, identifier=$identifier, parameters=$parameters, providerId=$providerId, toolgroupId=$toolgroupId, type=$type, metadata=$metadata, providerResourceId=$providerResourceId, additionalProperties=$additionalProperties}"
 }

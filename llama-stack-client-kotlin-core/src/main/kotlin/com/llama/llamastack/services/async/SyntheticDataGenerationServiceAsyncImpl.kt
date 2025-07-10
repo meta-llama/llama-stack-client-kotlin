@@ -29,6 +29,11 @@ internal constructor(private val clientOptions: ClientOptions) :
     override fun withRawResponse(): SyntheticDataGenerationServiceAsync.WithRawResponse =
         withRawResponse
 
+    override fun withOptions(
+        modifier: (ClientOptions.Builder) -> Unit
+    ): SyntheticDataGenerationServiceAsync =
+        SyntheticDataGenerationServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun generate(
         params: SyntheticDataGenerationGenerateParams,
         requestOptions: RequestOptions,
@@ -41,6 +46,13 @@ internal constructor(private val clientOptions: ClientOptions) :
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): SyntheticDataGenerationServiceAsync.WithRawResponse =
+            SyntheticDataGenerationServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val generateHandler: Handler<SyntheticDataGenerationResponse> =
             jsonHandler<SyntheticDataGenerationResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -52,6 +64,7 @@ internal constructor(private val clientOptions: ClientOptions) :
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "synthetic-data-generation", "generate")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

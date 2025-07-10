@@ -30,6 +30,9 @@ class RagToolServiceAsyncImpl internal constructor(private val clientOptions: Cl
 
     override fun withRawResponse(): RagToolServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): RagToolServiceAsync =
+        RagToolServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun insert(
         params: ToolRuntimeRagToolInsertParams,
         requestOptions: RequestOptions,
@@ -50,6 +53,13 @@ class RagToolServiceAsyncImpl internal constructor(private val clientOptions: Cl
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): RagToolServiceAsync.WithRawResponse =
+            RagToolServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val insertHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
 
         override suspend fun insert(
@@ -59,6 +69,7 @@ class RagToolServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tool-runtime", "rag-tool", "insert")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -78,6 +89,7 @@ class RagToolServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tool-runtime", "rag-tool", "query")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

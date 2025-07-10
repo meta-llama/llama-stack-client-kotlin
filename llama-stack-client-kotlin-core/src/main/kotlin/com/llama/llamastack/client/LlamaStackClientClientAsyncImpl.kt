@@ -6,14 +6,20 @@ import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.getPackageVersion
 import com.llama.llamastack.services.async.AgentServiceAsync
 import com.llama.llamastack.services.async.AgentServiceAsyncImpl
-import com.llama.llamastack.services.async.BatchInferenceServiceAsync
-import com.llama.llamastack.services.async.BatchInferenceServiceAsyncImpl
 import com.llama.llamastack.services.async.BenchmarkServiceAsync
 import com.llama.llamastack.services.async.BenchmarkServiceAsyncImpl
+import com.llama.llamastack.services.async.ChatServiceAsync
+import com.llama.llamastack.services.async.ChatServiceAsyncImpl
+import com.llama.llamastack.services.async.CompletionServiceAsync
+import com.llama.llamastack.services.async.CompletionServiceAsyncImpl
 import com.llama.llamastack.services.async.DatasetServiceAsync
 import com.llama.llamastack.services.async.DatasetServiceAsyncImpl
+import com.llama.llamastack.services.async.EmbeddingServiceAsync
+import com.llama.llamastack.services.async.EmbeddingServiceAsyncImpl
 import com.llama.llamastack.services.async.EvalServiceAsync
 import com.llama.llamastack.services.async.EvalServiceAsyncImpl
+import com.llama.llamastack.services.async.FileServiceAsync
+import com.llama.llamastack.services.async.FileServiceAsyncImpl
 import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsyncImpl
 import com.llama.llamastack.services.async.InspectServiceAsync
@@ -24,6 +30,8 @@ import com.llama.llamastack.services.async.PostTrainingServiceAsync
 import com.llama.llamastack.services.async.PostTrainingServiceAsyncImpl
 import com.llama.llamastack.services.async.ProviderServiceAsync
 import com.llama.llamastack.services.async.ProviderServiceAsyncImpl
+import com.llama.llamastack.services.async.ResponseServiceAsync
+import com.llama.llamastack.services.async.ResponseServiceAsyncImpl
 import com.llama.llamastack.services.async.RouteServiceAsync
 import com.llama.llamastack.services.async.RouteServiceAsyncImpl
 import com.llama.llamastack.services.async.SafetyServiceAsync
@@ -48,6 +56,8 @@ import com.llama.llamastack.services.async.VectorDbServiceAsync
 import com.llama.llamastack.services.async.VectorDbServiceAsyncImpl
 import com.llama.llamastack.services.async.VectorIoServiceAsync
 import com.llama.llamastack.services.async.VectorIoServiceAsyncImpl
+import com.llama.llamastack.services.async.VectorStoreServiceAsync
+import com.llama.llamastack.services.async.VectorStoreServiceAsyncImpl
 
 class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) :
     LlamaStackClientClientAsync {
@@ -77,12 +87,12 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
         ToolRuntimeServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val agents: AgentServiceAsync by lazy {
-        AgentServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val responses: ResponseServiceAsync by lazy {
+        ResponseServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
-    private val batchInference: BatchInferenceServiceAsync by lazy {
-        BatchInferenceServiceAsyncImpl(clientOptionsWithUserAgent)
+    private val agents: AgentServiceAsync by lazy {
+        AgentServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
     private val datasets: DatasetServiceAsync by lazy {
@@ -99,12 +109,26 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
         InferenceServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
+    private val embeddings: EmbeddingServiceAsync by lazy {
+        EmbeddingServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
+
+    private val chat: ChatServiceAsync by lazy { ChatServiceAsyncImpl(clientOptionsWithUserAgent) }
+
+    private val completions: CompletionServiceAsync by lazy {
+        CompletionServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
+
     private val vectorIo: VectorIoServiceAsync by lazy {
         VectorIoServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
     private val vectorDbs: VectorDbServiceAsync by lazy {
         VectorDbServiceAsyncImpl(clientOptionsWithUserAgent)
+    }
+
+    private val vectorStores: VectorStoreServiceAsync by lazy {
+        VectorStoreServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
     private val models: ModelServiceAsync by lazy {
@@ -151,9 +175,16 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
         BenchmarkServiceAsyncImpl(clientOptionsWithUserAgent)
     }
 
+    private val files: FileServiceAsync by lazy { FileServiceAsyncImpl(clientOptionsWithUserAgent) }
+
     override fun sync(): LlamaStackClientClient = sync
 
     override fun withRawResponse(): LlamaStackClientClientAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(
+        modifier: (ClientOptions.Builder) -> Unit
+    ): LlamaStackClientClientAsync =
+        LlamaStackClientClientAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override fun toolgroups(): ToolgroupServiceAsync = toolgroups
 
@@ -161,9 +192,9 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
 
     override fun toolRuntime(): ToolRuntimeServiceAsync = toolRuntime
 
-    override fun agents(): AgentServiceAsync = agents
+    override fun responses(): ResponseServiceAsync = responses
 
-    override fun batchInference(): BatchInferenceServiceAsync = batchInference
+    override fun agents(): AgentServiceAsync = agents
 
     override fun datasets(): DatasetServiceAsync = datasets
 
@@ -173,9 +204,17 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
 
     override fun inference(): InferenceServiceAsync = inference
 
+    override fun embeddings(): EmbeddingServiceAsync = embeddings
+
+    override fun chat(): ChatServiceAsync = chat
+
+    override fun completions(): CompletionServiceAsync = completions
+
     override fun vectorIo(): VectorIoServiceAsync = vectorIo
 
     override fun vectorDbs(): VectorDbServiceAsync = vectorDbs
+
+    override fun vectorStores(): VectorStoreServiceAsync = vectorStores
 
     override fun models(): ModelServiceAsync = models
 
@@ -200,6 +239,8 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
 
     override fun benchmarks(): BenchmarkServiceAsync = benchmarks
 
+    override fun files(): FileServiceAsync = files
+
     override fun close() = clientOptions.httpClient.close()
 
     class WithRawResponseImpl internal constructor(private val clientOptions: ClientOptions) :
@@ -217,12 +258,12 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
             ToolRuntimeServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
-        private val agents: AgentServiceAsync.WithRawResponse by lazy {
-            AgentServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        private val responses: ResponseServiceAsync.WithRawResponse by lazy {
+            ResponseServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
-        private val batchInference: BatchInferenceServiceAsync.WithRawResponse by lazy {
-            BatchInferenceServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        private val agents: AgentServiceAsync.WithRawResponse by lazy {
+            AgentServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
         private val datasets: DatasetServiceAsync.WithRawResponse by lazy {
@@ -241,12 +282,28 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
             InferenceServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
+        private val embeddings: EmbeddingServiceAsync.WithRawResponse by lazy {
+            EmbeddingServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val chat: ChatServiceAsync.WithRawResponse by lazy {
+            ChatServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val completions: CompletionServiceAsync.WithRawResponse by lazy {
+            CompletionServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
         private val vectorIo: VectorIoServiceAsync.WithRawResponse by lazy {
             VectorIoServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
         private val vectorDbs: VectorDbServiceAsync.WithRawResponse by lazy {
             VectorDbServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        private val vectorStores: VectorStoreServiceAsync.WithRawResponse by lazy {
+            VectorStoreServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
         private val models: ModelServiceAsync.WithRawResponse by lazy {
@@ -294,15 +351,26 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
             BenchmarkServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
+        private val files: FileServiceAsync.WithRawResponse by lazy {
+            FileServiceAsyncImpl.WithRawResponseImpl(clientOptions)
+        }
+
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): LlamaStackClientClientAsync.WithRawResponse =
+            LlamaStackClientClientAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         override fun toolgroups(): ToolgroupServiceAsync.WithRawResponse = toolgroups
 
         override fun tools(): ToolServiceAsync.WithRawResponse = tools
 
         override fun toolRuntime(): ToolRuntimeServiceAsync.WithRawResponse = toolRuntime
 
-        override fun agents(): AgentServiceAsync.WithRawResponse = agents
+        override fun responses(): ResponseServiceAsync.WithRawResponse = responses
 
-        override fun batchInference(): BatchInferenceServiceAsync.WithRawResponse = batchInference
+        override fun agents(): AgentServiceAsync.WithRawResponse = agents
 
         override fun datasets(): DatasetServiceAsync.WithRawResponse = datasets
 
@@ -312,9 +380,17 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
 
         override fun inference(): InferenceServiceAsync.WithRawResponse = inference
 
+        override fun embeddings(): EmbeddingServiceAsync.WithRawResponse = embeddings
+
+        override fun chat(): ChatServiceAsync.WithRawResponse = chat
+
+        override fun completions(): CompletionServiceAsync.WithRawResponse = completions
+
         override fun vectorIo(): VectorIoServiceAsync.WithRawResponse = vectorIo
 
         override fun vectorDbs(): VectorDbServiceAsync.WithRawResponse = vectorDbs
+
+        override fun vectorStores(): VectorStoreServiceAsync.WithRawResponse = vectorStores
 
         override fun models(): ModelServiceAsync.WithRawResponse = models
 
@@ -339,5 +415,7 @@ class LlamaStackClientClientAsyncImpl(private val clientOptions: ClientOptions) 
             scoringFunctions
 
         override fun benchmarks(): BenchmarkServiceAsync.WithRawResponse = benchmarks
+
+        override fun files(): FileServiceAsync.WithRawResponse = files
     }
 }

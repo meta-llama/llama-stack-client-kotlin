@@ -34,6 +34,9 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
 
     override fun withRawResponse(): JobService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): JobService =
+        JobServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun list(
         params: PostTrainingJobListParams,
         requestOptions: RequestOptions,
@@ -65,6 +68,11 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): JobService.WithRawResponse =
+            JobServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
+
         private val listHandler: Handler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>> =
             jsonHandler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>>(
                     clientOptions.jsonMapper
@@ -78,6 +86,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "jobs")
                     .build()
                     .prepare(clientOptions, params)
@@ -106,6 +115,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "job", "artifacts")
                     .build()
                     .prepare(clientOptions, params)
@@ -131,6 +141,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "job", "cancel")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -151,6 +162,7 @@ class JobServiceImpl internal constructor(private val clientOptions: ClientOptio
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "job", "status")
                     .build()
                     .prepare(clientOptions, params)

@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -33,6 +34,9 @@ class ModelServiceImpl internal constructor(private val clientOptions: ClientOpt
 
     override fun withRawResponse(): ModelService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ModelService =
+        ModelServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun retrieve(params: ModelRetrieveParams, requestOptions: RequestOptions): Model =
         // get /v1/models/{model_id}
         withRawResponse().retrieve(params, requestOptions).parse()
@@ -55,6 +59,11 @@ class ModelServiceImpl internal constructor(private val clientOptions: ClientOpt
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ModelService.WithRawResponse =
+            ModelServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
+
         private val retrieveHandler: Handler<Model> =
             jsonHandler<Model>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -62,9 +71,13 @@ class ModelServiceImpl internal constructor(private val clientOptions: ClientOpt
             params: ModelRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Model> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("modelId", params.modelId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
@@ -92,6 +105,7 @@ class ModelServiceImpl internal constructor(private val clientOptions: ClientOpt
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models")
                     .build()
                     .prepare(clientOptions, params)
@@ -119,6 +133,7 @@ class ModelServiceImpl internal constructor(private val clientOptions: ClientOpt
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -143,9 +158,13 @@ class ModelServiceImpl internal constructor(private val clientOptions: ClientOpt
             params: ModelUnregisterParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("modelId", params.modelId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

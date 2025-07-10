@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Query spans. */
 class TelemetryQuerySpansParams
 private constructor(
     private val body: Body,
@@ -28,18 +29,24 @@ private constructor(
 ) : Params {
 
     /**
+     * The attribute filters to apply to the spans.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun attributeFilters(): List<QueryCondition> = body.attributeFilters()
 
     /**
+     * The attributes to return in the spans.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun attributesToReturn(): List<String> = body.attributesToReturn()
 
     /**
+     * The maximum depth of the tree.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -114,6 +121,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The attribute filters to apply to the spans. */
         fun attributeFilters(attributeFilters: List<QueryCondition>) = apply {
             body.attributeFilters(attributeFilters)
         }
@@ -138,6 +146,7 @@ private constructor(
             body.addAttributeFilter(attributeFilter)
         }
 
+        /** The attributes to return in the spans. */
         fun attributesToReturn(attributesToReturn: List<String>) = apply {
             body.attributesToReturn(attributesToReturn)
         }
@@ -162,6 +171,7 @@ private constructor(
             body.addAttributesToReturn(attributesToReturn)
         }
 
+        /** The maximum depth of the tree. */
         fun maxDepth(maxDepth: Long) = apply { body.maxDepth(maxDepth) }
 
         /**
@@ -336,6 +346,8 @@ private constructor(
         ) : this(attributeFilters, attributesToReturn, maxDepth, mutableMapOf())
 
         /**
+         * The attribute filters to apply to the spans.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -344,6 +356,8 @@ private constructor(
             attributeFilters.getRequired("attribute_filters")
 
         /**
+         * The attributes to return in the spans.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -352,6 +366,8 @@ private constructor(
             attributesToReturn.getRequired("attributes_to_return")
 
         /**
+         * The maximum depth of the tree.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -425,6 +441,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The attribute filters to apply to the spans. */
             fun attributeFilters(attributeFilters: List<QueryCondition>) =
                 attributeFilters(JsonField.of(attributeFilters))
 
@@ -451,6 +468,7 @@ private constructor(
                     }
             }
 
+            /** The attributes to return in the spans. */
             fun attributesToReturn(attributesToReturn: List<String>) =
                 attributesToReturn(JsonField.of(attributesToReturn))
 
@@ -477,6 +495,7 @@ private constructor(
                     }
             }
 
+            /** The maximum depth of the tree. */
             fun maxDepth(maxDepth: Long) = maxDepth(JsonField.of(maxDepth))
 
             /**

@@ -16,7 +16,7 @@ internal class ContentDeltaTest {
 
     @Test
     fun ofText() {
-        val text = ContentDelta.TextDelta.builder().text("text").build()
+        val text = ContentDelta.Text.builder().text("text").build()
 
         val contentDelta = ContentDelta.ofText(text)
 
@@ -28,8 +28,7 @@ internal class ContentDeltaTest {
     @Test
     fun ofTextRoundtrip() {
         val jsonMapper = jsonMapper()
-        val contentDelta =
-            ContentDelta.ofText(ContentDelta.TextDelta.builder().text("text").build())
+        val contentDelta = ContentDelta.ofText(ContentDelta.Text.builder().text("text").build())
 
         val roundtrippedContentDelta =
             jsonMapper.readValue(
@@ -42,7 +41,7 @@ internal class ContentDeltaTest {
 
     @Test
     fun ofImage() {
-        val image = ContentDelta.ImageDelta.builder().image("image").build()
+        val image = ContentDelta.Image.builder().image("image").build()
 
         val contentDelta = ContentDelta.ofImage(image)
 
@@ -54,8 +53,7 @@ internal class ContentDeltaTest {
     @Test
     fun ofImageRoundtrip() {
         val jsonMapper = jsonMapper()
-        val contentDelta =
-            ContentDelta.ofImage(ContentDelta.ImageDelta.builder().image("image").build())
+        val contentDelta = ContentDelta.ofImage(ContentDelta.Image.builder().image("image").build())
 
         val roundtrippedContentDelta =
             jsonMapper.readValue(
@@ -69,8 +67,8 @@ internal class ContentDeltaTest {
     @Test
     fun ofToolCall() {
         val toolCall =
-            ContentDelta.ToolCallDelta.builder()
-                .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.STARTED)
+            ContentDelta.ToolCall.builder()
+                .parseStatus(ContentDelta.ToolCall.ParseStatus.STARTED)
                 .toolCall("string")
                 .build()
 
@@ -86,8 +84,8 @@ internal class ContentDeltaTest {
         val jsonMapper = jsonMapper()
         val contentDelta =
             ContentDelta.ofToolCall(
-                ContentDelta.ToolCallDelta.builder()
-                    .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.STARTED)
+                ContentDelta.ToolCall.builder()
+                    .parseStatus(ContentDelta.ToolCall.ParseStatus.STARTED)
                     .toolCall("string")
                     .build()
             )

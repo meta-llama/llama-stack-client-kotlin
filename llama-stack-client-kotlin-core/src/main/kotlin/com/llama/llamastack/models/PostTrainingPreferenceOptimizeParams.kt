@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Run preference optimization of a model. */
 class PostTrainingPreferenceOptimizeParams
 private constructor(
     private val body: Body,
@@ -28,36 +29,48 @@ private constructor(
 ) : Params {
 
     /**
+     * The algorithm configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun algorithmConfig(): AlgorithmConfig = body.algorithmConfig()
 
     /**
+     * The model to fine-tune.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun finetunedModel(): String = body.finetunedModel()
 
     /**
+     * The hyperparam search configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun hyperparamSearchConfig(): HyperparamSearchConfig = body.hyperparamSearchConfig()
 
     /**
+     * The UUID of the job to create.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun jobUuid(): String = body.jobUuid()
 
     /**
+     * The logger configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun loggerConfig(): LoggerConfig = body.loggerConfig()
 
     /**
+     * The training configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -164,6 +177,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The algorithm configuration. */
         fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
             body.algorithmConfig(algorithmConfig)
         }
@@ -179,6 +193,7 @@ private constructor(
             body.algorithmConfig(algorithmConfig)
         }
 
+        /** The model to fine-tune. */
         fun finetunedModel(finetunedModel: String) = apply { body.finetunedModel(finetunedModel) }
 
         /**
@@ -192,6 +207,7 @@ private constructor(
             body.finetunedModel(finetunedModel)
         }
 
+        /** The hyperparam search configuration. */
         fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
             body.hyperparamSearchConfig(hyperparamSearchConfig)
         }
@@ -208,6 +224,7 @@ private constructor(
                 body.hyperparamSearchConfig(hyperparamSearchConfig)
             }
 
+        /** The UUID of the job to create. */
         fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
 
         /**
@@ -218,6 +235,7 @@ private constructor(
          */
         fun jobUuid(jobUuid: JsonField<String>) = apply { body.jobUuid(jobUuid) }
 
+        /** The logger configuration. */
         fun loggerConfig(loggerConfig: LoggerConfig) = apply { body.loggerConfig(loggerConfig) }
 
         /**
@@ -231,6 +249,7 @@ private constructor(
             body.loggerConfig(loggerConfig)
         }
 
+        /** The training configuration. */
         fun trainingConfig(trainingConfig: TrainingConfig) = apply {
             body.trainingConfig(trainingConfig)
         }
@@ -434,6 +453,8 @@ private constructor(
         )
 
         /**
+         * The algorithm configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -441,6 +462,8 @@ private constructor(
         fun algorithmConfig(): AlgorithmConfig = algorithmConfig.getRequired("algorithm_config")
 
         /**
+         * The model to fine-tune.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -448,6 +471,8 @@ private constructor(
         fun finetunedModel(): String = finetunedModel.getRequired("finetuned_model")
 
         /**
+         * The hyperparam search configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -456,6 +481,8 @@ private constructor(
             hyperparamSearchConfig.getRequired("hyperparam_search_config")
 
         /**
+         * The UUID of the job to create.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -463,6 +490,8 @@ private constructor(
         fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
         /**
+         * The logger configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -470,6 +499,8 @@ private constructor(
         fun loggerConfig(): LoggerConfig = loggerConfig.getRequired("logger_config")
 
         /**
+         * The training configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -584,6 +615,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The algorithm configuration. */
             fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
                 algorithmConfig(JsonField.of(algorithmConfig))
 
@@ -598,6 +630,7 @@ private constructor(
                 this.algorithmConfig = algorithmConfig
             }
 
+            /** The model to fine-tune. */
             fun finetunedModel(finetunedModel: String) =
                 finetunedModel(JsonField.of(finetunedModel))
 
@@ -612,6 +645,7 @@ private constructor(
                 this.finetunedModel = finetunedModel
             }
 
+            /** The hyperparam search configuration. */
             fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) =
                 hyperparamSearchConfig(JsonField.of(hyperparamSearchConfig))
 
@@ -627,6 +661,7 @@ private constructor(
                     this.hyperparamSearchConfig = hyperparamSearchConfig
                 }
 
+            /** The UUID of the job to create. */
             fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
             /**
@@ -638,6 +673,7 @@ private constructor(
              */
             fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
+            /** The logger configuration. */
             fun loggerConfig(loggerConfig: LoggerConfig) = loggerConfig(JsonField.of(loggerConfig))
 
             /**
@@ -651,6 +687,7 @@ private constructor(
                 this.loggerConfig = loggerConfig
             }
 
+            /** The training configuration. */
             fun trainingConfig(trainingConfig: TrainingConfig) =
                 trainingConfig(JsonField.of(trainingConfig))
 
@@ -769,6 +806,7 @@ private constructor(
             "Body{algorithmConfig=$algorithmConfig, finetunedModel=$finetunedModel, hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, additionalProperties=$additionalProperties}"
     }
 
+    /** The algorithm configuration. */
     class AlgorithmConfig
     private constructor(
         private val epsilon: JsonField<Double>,
@@ -1037,6 +1075,7 @@ private constructor(
             "AlgorithmConfig{epsilon=$epsilon, gamma=$gamma, rewardClip=$rewardClip, rewardScale=$rewardScale, additionalProperties=$additionalProperties}"
     }
 
+    /** The hyperparam search configuration. */
     class HyperparamSearchConfig
     @JsonCreator
     private constructor(
@@ -1140,6 +1179,7 @@ private constructor(
             "HyperparamSearchConfig{additionalProperties=$additionalProperties}"
     }
 
+    /** The logger configuration. */
     class LoggerConfig
     @JsonCreator
     private constructor(
@@ -1239,6 +1279,7 @@ private constructor(
         override fun toString() = "LoggerConfig{additionalProperties=$additionalProperties}"
     }
 
+    /** The training configuration. */
     class TrainingConfig
     private constructor(
         private val gradientAccumulationSteps: JsonField<Long>,

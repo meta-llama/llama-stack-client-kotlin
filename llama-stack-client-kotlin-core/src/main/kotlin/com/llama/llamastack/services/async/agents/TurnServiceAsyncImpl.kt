@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async.agents
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -28,6 +29,9 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
     }
 
     override fun withRawResponse(): TurnServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): TurnServiceAsync =
+        TurnServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun create(
         params: AgentTurnCreateParams,
@@ -55,6 +59,13 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): TurnServiceAsync.WithRawResponse =
+            TurnServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val createHandler: Handler<Turn> =
             jsonHandler<Turn>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -62,9 +73,13 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: AgentTurnCreateParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Turn> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("sessionId", params.sessionId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "agents",
@@ -96,9 +111,13 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: AgentTurnRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Turn> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("turnId", params.turnId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "agents",
@@ -130,9 +149,13 @@ class TurnServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: AgentTurnResumeParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Turn> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("turnId", params.turnId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "agents",

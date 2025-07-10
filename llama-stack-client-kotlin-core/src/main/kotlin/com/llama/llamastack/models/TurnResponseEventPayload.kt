@@ -31,80 +31,61 @@ import java.util.Objects
 @JsonSerialize(using = TurnResponseEventPayload.Serializer::class)
 class TurnResponseEventPayload
 private constructor(
-    private val agentTurnResponseStepStart: AgentTurnResponseStepStartPayload? = null,
-    private val agentTurnResponseStepProgress: AgentTurnResponseStepProgressPayload? = null,
-    private val agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload? = null,
-    private val agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload? = null,
-    private val agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload? = null,
-    private val agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload? =
-        null,
+    private val stepStart: StepStart? = null,
+    private val stepProgress: StepProgress? = null,
+    private val stepComplete: StepComplete? = null,
+    private val start: TurnStart? = null,
+    private val complete: TurnComplete? = null,
+    private val awaitingInput: TurnAwaitingInput? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun agentTurnResponseStepStart(): AgentTurnResponseStepStartPayload? =
-        agentTurnResponseStepStart
+    fun stepStart(): StepStart? = stepStart
 
-    fun agentTurnResponseStepProgress(): AgentTurnResponseStepProgressPayload? =
-        agentTurnResponseStepProgress
+    fun stepProgress(): StepProgress? = stepProgress
 
-    fun agentTurnResponseStepComplete(): AgentTurnResponseStepCompletePayload? =
-        agentTurnResponseStepComplete
+    fun stepComplete(): StepComplete? = stepComplete
 
-    fun agentTurnResponseTurnStart(): AgentTurnResponseTurnStartPayload? =
-        agentTurnResponseTurnStart
+    fun start(): TurnStart? = start
 
-    fun agentTurnResponseTurnComplete(): AgentTurnResponseTurnCompletePayload? =
-        agentTurnResponseTurnComplete
+    fun complete(): TurnComplete? = complete
 
-    fun agentTurnResponseTurnAwaitingInput(): AgentTurnResponseTurnAwaitingInputPayload? =
-        agentTurnResponseTurnAwaitingInput
+    fun awaitingInput(): TurnAwaitingInput? = awaitingInput
 
-    fun isAgentTurnResponseStepStart(): Boolean = agentTurnResponseStepStart != null
+    fun isStepStart(): Boolean = stepStart != null
 
-    fun isAgentTurnResponseStepProgress(): Boolean = agentTurnResponseStepProgress != null
+    fun isStepProgress(): Boolean = stepProgress != null
 
-    fun isAgentTurnResponseStepComplete(): Boolean = agentTurnResponseStepComplete != null
+    fun isStepComplete(): Boolean = stepComplete != null
 
-    fun isAgentTurnResponseTurnStart(): Boolean = agentTurnResponseTurnStart != null
+    fun isStart(): Boolean = start != null
 
-    fun isAgentTurnResponseTurnComplete(): Boolean = agentTurnResponseTurnComplete != null
+    fun isComplete(): Boolean = complete != null
 
-    fun isAgentTurnResponseTurnAwaitingInput(): Boolean = agentTurnResponseTurnAwaitingInput != null
+    fun isAwaitingInput(): Boolean = awaitingInput != null
 
-    fun asAgentTurnResponseStepStart(): AgentTurnResponseStepStartPayload =
-        agentTurnResponseStepStart.getOrThrow("agentTurnResponseStepStart")
+    fun asStepStart(): StepStart = stepStart.getOrThrow("stepStart")
 
-    fun asAgentTurnResponseStepProgress(): AgentTurnResponseStepProgressPayload =
-        agentTurnResponseStepProgress.getOrThrow("agentTurnResponseStepProgress")
+    fun asStepProgress(): StepProgress = stepProgress.getOrThrow("stepProgress")
 
-    fun asAgentTurnResponseStepComplete(): AgentTurnResponseStepCompletePayload =
-        agentTurnResponseStepComplete.getOrThrow("agentTurnResponseStepComplete")
+    fun asStepComplete(): StepComplete = stepComplete.getOrThrow("stepComplete")
 
-    fun asAgentTurnResponseTurnStart(): AgentTurnResponseTurnStartPayload =
-        agentTurnResponseTurnStart.getOrThrow("agentTurnResponseTurnStart")
+    fun asStart(): TurnStart = start.getOrThrow("start")
 
-    fun asAgentTurnResponseTurnComplete(): AgentTurnResponseTurnCompletePayload =
-        agentTurnResponseTurnComplete.getOrThrow("agentTurnResponseTurnComplete")
+    fun asComplete(): TurnComplete = complete.getOrThrow("complete")
 
-    fun asAgentTurnResponseTurnAwaitingInput(): AgentTurnResponseTurnAwaitingInputPayload =
-        agentTurnResponseTurnAwaitingInput.getOrThrow("agentTurnResponseTurnAwaitingInput")
+    fun asAwaitingInput(): TurnAwaitingInput = awaitingInput.getOrThrow("awaitingInput")
 
     fun _json(): JsonValue? = _json
 
     fun <T> accept(visitor: Visitor<T>): T =
         when {
-            agentTurnResponseStepStart != null ->
-                visitor.visitAgentTurnResponseStepStart(agentTurnResponseStepStart)
-            agentTurnResponseStepProgress != null ->
-                visitor.visitAgentTurnResponseStepProgress(agentTurnResponseStepProgress)
-            agentTurnResponseStepComplete != null ->
-                visitor.visitAgentTurnResponseStepComplete(agentTurnResponseStepComplete)
-            agentTurnResponseTurnStart != null ->
-                visitor.visitAgentTurnResponseTurnStart(agentTurnResponseTurnStart)
-            agentTurnResponseTurnComplete != null ->
-                visitor.visitAgentTurnResponseTurnComplete(agentTurnResponseTurnComplete)
-            agentTurnResponseTurnAwaitingInput != null ->
-                visitor.visitAgentTurnResponseTurnAwaitingInput(agentTurnResponseTurnAwaitingInput)
+            stepStart != null -> visitor.visitStepStart(stepStart)
+            stepProgress != null -> visitor.visitStepProgress(stepProgress)
+            stepComplete != null -> visitor.visitStepComplete(stepComplete)
+            start != null -> visitor.visitStart(start)
+            complete != null -> visitor.visitComplete(complete)
+            awaitingInput != null -> visitor.visitAwaitingInput(awaitingInput)
             else -> visitor.unknown(_json)
         }
 
@@ -117,40 +98,28 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitAgentTurnResponseStepStart(
-                    agentTurnResponseStepStart: AgentTurnResponseStepStartPayload
-                ) {
-                    agentTurnResponseStepStart.validate()
+                override fun visitStepStart(stepStart: StepStart) {
+                    stepStart.validate()
                 }
 
-                override fun visitAgentTurnResponseStepProgress(
-                    agentTurnResponseStepProgress: AgentTurnResponseStepProgressPayload
-                ) {
-                    agentTurnResponseStepProgress.validate()
+                override fun visitStepProgress(stepProgress: StepProgress) {
+                    stepProgress.validate()
                 }
 
-                override fun visitAgentTurnResponseStepComplete(
-                    agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload
-                ) {
-                    agentTurnResponseStepComplete.validate()
+                override fun visitStepComplete(stepComplete: StepComplete) {
+                    stepComplete.validate()
                 }
 
-                override fun visitAgentTurnResponseTurnStart(
-                    agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload
-                ) {
-                    agentTurnResponseTurnStart.validate()
+                override fun visitStart(start: TurnStart) {
+                    start.validate()
                 }
 
-                override fun visitAgentTurnResponseTurnComplete(
-                    agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
-                ) {
-                    agentTurnResponseTurnComplete.validate()
+                override fun visitComplete(complete: TurnComplete) {
+                    complete.validate()
                 }
 
-                override fun visitAgentTurnResponseTurnAwaitingInput(
-                    agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
-                ) {
-                    agentTurnResponseTurnAwaitingInput.validate()
+                override fun visitAwaitingInput(awaitingInput: TurnAwaitingInput) {
+                    awaitingInput.validate()
                 }
             }
         )
@@ -173,29 +142,18 @@ private constructor(
     internal fun validity(): Int =
         accept(
             object : Visitor<Int> {
-                override fun visitAgentTurnResponseStepStart(
-                    agentTurnResponseStepStart: AgentTurnResponseStepStartPayload
-                ) = agentTurnResponseStepStart.validity()
+                override fun visitStepStart(stepStart: StepStart) = stepStart.validity()
 
-                override fun visitAgentTurnResponseStepProgress(
-                    agentTurnResponseStepProgress: AgentTurnResponseStepProgressPayload
-                ) = agentTurnResponseStepProgress.validity()
+                override fun visitStepProgress(stepProgress: StepProgress) = stepProgress.validity()
 
-                override fun visitAgentTurnResponseStepComplete(
-                    agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload
-                ) = agentTurnResponseStepComplete.validity()
+                override fun visitStepComplete(stepComplete: StepComplete) = stepComplete.validity()
 
-                override fun visitAgentTurnResponseTurnStart(
-                    agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload
-                ) = agentTurnResponseTurnStart.validity()
+                override fun visitStart(start: TurnStart) = start.validity()
 
-                override fun visitAgentTurnResponseTurnComplete(
-                    agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
-                ) = agentTurnResponseTurnComplete.validity()
+                override fun visitComplete(complete: TurnComplete) = complete.validity()
 
-                override fun visitAgentTurnResponseTurnAwaitingInput(
-                    agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
-                ) = agentTurnResponseTurnAwaitingInput.validity()
+                override fun visitAwaitingInput(awaitingInput: TurnAwaitingInput) =
+                    awaitingInput.validity()
 
                 override fun unknown(json: JsonValue?) = 0
             }
@@ -206,57 +164,39 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is TurnResponseEventPayload && agentTurnResponseStepStart == other.agentTurnResponseStepStart && agentTurnResponseStepProgress == other.agentTurnResponseStepProgress && agentTurnResponseStepComplete == other.agentTurnResponseStepComplete && agentTurnResponseTurnStart == other.agentTurnResponseTurnStart && agentTurnResponseTurnComplete == other.agentTurnResponseTurnComplete && agentTurnResponseTurnAwaitingInput == other.agentTurnResponseTurnAwaitingInput /* spotless:on */
+        return /* spotless:off */ other is TurnResponseEventPayload && stepStart == other.stepStart && stepProgress == other.stepProgress && stepComplete == other.stepComplete && start == other.start && complete == other.complete && awaitingInput == other.awaitingInput /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(agentTurnResponseStepStart, agentTurnResponseStepProgress, agentTurnResponseStepComplete, agentTurnResponseTurnStart, agentTurnResponseTurnComplete, agentTurnResponseTurnAwaitingInput) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(stepStart, stepProgress, stepComplete, start, complete, awaitingInput) /* spotless:on */
 
     override fun toString(): String =
         when {
-            agentTurnResponseStepStart != null ->
-                "TurnResponseEventPayload{agentTurnResponseStepStart=$agentTurnResponseStepStart}"
-            agentTurnResponseStepProgress != null ->
-                "TurnResponseEventPayload{agentTurnResponseStepProgress=$agentTurnResponseStepProgress}"
-            agentTurnResponseStepComplete != null ->
-                "TurnResponseEventPayload{agentTurnResponseStepComplete=$agentTurnResponseStepComplete}"
-            agentTurnResponseTurnStart != null ->
-                "TurnResponseEventPayload{agentTurnResponseTurnStart=$agentTurnResponseTurnStart}"
-            agentTurnResponseTurnComplete != null ->
-                "TurnResponseEventPayload{agentTurnResponseTurnComplete=$agentTurnResponseTurnComplete}"
-            agentTurnResponseTurnAwaitingInput != null ->
-                "TurnResponseEventPayload{agentTurnResponseTurnAwaitingInput=$agentTurnResponseTurnAwaitingInput}"
+            stepStart != null -> "TurnResponseEventPayload{stepStart=$stepStart}"
+            stepProgress != null -> "TurnResponseEventPayload{stepProgress=$stepProgress}"
+            stepComplete != null -> "TurnResponseEventPayload{stepComplete=$stepComplete}"
+            start != null -> "TurnResponseEventPayload{start=$start}"
+            complete != null -> "TurnResponseEventPayload{complete=$complete}"
+            awaitingInput != null -> "TurnResponseEventPayload{awaitingInput=$awaitingInput}"
             _json != null -> "TurnResponseEventPayload{_unknown=$_json}"
             else -> throw IllegalStateException("Invalid TurnResponseEventPayload")
         }
 
     companion object {
 
-        fun ofAgentTurnResponseStepStart(
-            agentTurnResponseStepStart: AgentTurnResponseStepStartPayload
-        ) = TurnResponseEventPayload(agentTurnResponseStepStart = agentTurnResponseStepStart)
+        fun ofStepStart(stepStart: StepStart) = TurnResponseEventPayload(stepStart = stepStart)
 
-        fun ofAgentTurnResponseStepProgress(
-            agentTurnResponseStepProgress: AgentTurnResponseStepProgressPayload
-        ) = TurnResponseEventPayload(agentTurnResponseStepProgress = agentTurnResponseStepProgress)
+        fun ofStepProgress(stepProgress: StepProgress) =
+            TurnResponseEventPayload(stepProgress = stepProgress)
 
-        fun ofAgentTurnResponseStepComplete(
-            agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload
-        ) = TurnResponseEventPayload(agentTurnResponseStepComplete = agentTurnResponseStepComplete)
+        fun ofStepComplete(stepComplete: StepComplete) =
+            TurnResponseEventPayload(stepComplete = stepComplete)
 
-        fun ofAgentTurnResponseTurnStart(
-            agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload
-        ) = TurnResponseEventPayload(agentTurnResponseTurnStart = agentTurnResponseTurnStart)
+        fun ofStart(start: TurnStart) = TurnResponseEventPayload(start = start)
 
-        fun ofAgentTurnResponseTurnComplete(
-            agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
-        ) = TurnResponseEventPayload(agentTurnResponseTurnComplete = agentTurnResponseTurnComplete)
+        fun ofComplete(complete: TurnComplete) = TurnResponseEventPayload(complete = complete)
 
-        fun ofAgentTurnResponseTurnAwaitingInput(
-            agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
-        ) =
-            TurnResponseEventPayload(
-                agentTurnResponseTurnAwaitingInput = agentTurnResponseTurnAwaitingInput
-            )
+        fun ofAwaitingInput(awaitingInput: TurnAwaitingInput) =
+            TurnResponseEventPayload(awaitingInput = awaitingInput)
     }
 
     /**
@@ -265,29 +205,17 @@ private constructor(
      */
     interface Visitor<out T> {
 
-        fun visitAgentTurnResponseStepStart(
-            agentTurnResponseStepStart: AgentTurnResponseStepStartPayload
-        ): T
+        fun visitStepStart(stepStart: StepStart): T
 
-        fun visitAgentTurnResponseStepProgress(
-            agentTurnResponseStepProgress: AgentTurnResponseStepProgressPayload
-        ): T
+        fun visitStepProgress(stepProgress: StepProgress): T
 
-        fun visitAgentTurnResponseStepComplete(
-            agentTurnResponseStepComplete: AgentTurnResponseStepCompletePayload
-        ): T
+        fun visitStepComplete(stepComplete: StepComplete): T
 
-        fun visitAgentTurnResponseTurnStart(
-            agentTurnResponseTurnStart: AgentTurnResponseTurnStartPayload
-        ): T
+        fun visitStart(start: TurnStart): T
 
-        fun visitAgentTurnResponseTurnComplete(
-            agentTurnResponseTurnComplete: AgentTurnResponseTurnCompletePayload
-        ): T
+        fun visitComplete(complete: TurnComplete): T
 
-        fun visitAgentTurnResponseTurnAwaitingInput(
-            agentTurnResponseTurnAwaitingInput: AgentTurnResponseTurnAwaitingInputPayload
-        ): T
+        fun visitAwaitingInput(awaitingInput: TurnAwaitingInput): T
 
         /**
          * Maps an unknown variant of [TurnResponseEventPayload] to a value of type [T].
@@ -313,64 +241,34 @@ private constructor(
 
             when (eventType) {
                 "step_start" -> {
-                    return tryDeserialize(node, jacksonTypeRef<AgentTurnResponseStepStartPayload>())
-                        ?.let {
-                            TurnResponseEventPayload(agentTurnResponseStepStart = it, _json = json)
-                        } ?: TurnResponseEventPayload(_json = json)
+                    return tryDeserialize(node, jacksonTypeRef<StepStart>())?.let {
+                        TurnResponseEventPayload(stepStart = it, _json = json)
+                    } ?: TurnResponseEventPayload(_json = json)
                 }
                 "step_progress" -> {
-                    return tryDeserialize(
-                            node,
-                            jacksonTypeRef<AgentTurnResponseStepProgressPayload>(),
-                        )
-                        ?.let {
-                            TurnResponseEventPayload(
-                                agentTurnResponseStepProgress = it,
-                                _json = json,
-                            )
-                        } ?: TurnResponseEventPayload(_json = json)
+                    return tryDeserialize(node, jacksonTypeRef<StepProgress>())?.let {
+                        TurnResponseEventPayload(stepProgress = it, _json = json)
+                    } ?: TurnResponseEventPayload(_json = json)
                 }
                 "step_complete" -> {
-                    return tryDeserialize(
-                            node,
-                            jacksonTypeRef<AgentTurnResponseStepCompletePayload>(),
-                        )
-                        ?.let {
-                            TurnResponseEventPayload(
-                                agentTurnResponseStepComplete = it,
-                                _json = json,
-                            )
-                        } ?: TurnResponseEventPayload(_json = json)
+                    return tryDeserialize(node, jacksonTypeRef<StepComplete>())?.let {
+                        TurnResponseEventPayload(stepComplete = it, _json = json)
+                    } ?: TurnResponseEventPayload(_json = json)
                 }
                 "turn_start" -> {
-                    return tryDeserialize(node, jacksonTypeRef<AgentTurnResponseTurnStartPayload>())
-                        ?.let {
-                            TurnResponseEventPayload(agentTurnResponseTurnStart = it, _json = json)
-                        } ?: TurnResponseEventPayload(_json = json)
+                    return tryDeserialize(node, jacksonTypeRef<TurnStart>())?.let {
+                        TurnResponseEventPayload(start = it, _json = json)
+                    } ?: TurnResponseEventPayload(_json = json)
                 }
                 "turn_complete" -> {
-                    return tryDeserialize(
-                            node,
-                            jacksonTypeRef<AgentTurnResponseTurnCompletePayload>(),
-                        )
-                        ?.let {
-                            TurnResponseEventPayload(
-                                agentTurnResponseTurnComplete = it,
-                                _json = json,
-                            )
-                        } ?: TurnResponseEventPayload(_json = json)
+                    return tryDeserialize(node, jacksonTypeRef<TurnComplete>())?.let {
+                        TurnResponseEventPayload(complete = it, _json = json)
+                    } ?: TurnResponseEventPayload(_json = json)
                 }
                 "turn_awaiting_input" -> {
-                    return tryDeserialize(
-                            node,
-                            jacksonTypeRef<AgentTurnResponseTurnAwaitingInputPayload>(),
-                        )
-                        ?.let {
-                            TurnResponseEventPayload(
-                                agentTurnResponseTurnAwaitingInput = it,
-                                _json = json,
-                            )
-                        } ?: TurnResponseEventPayload(_json = json)
+                    return tryDeserialize(node, jacksonTypeRef<TurnAwaitingInput>())?.let {
+                        TurnResponseEventPayload(awaitingInput = it, _json = json)
+                    } ?: TurnResponseEventPayload(_json = json)
                 }
             }
 
@@ -387,25 +285,19 @@ private constructor(
             provider: SerializerProvider,
         ) {
             when {
-                value.agentTurnResponseStepStart != null ->
-                    generator.writeObject(value.agentTurnResponseStepStart)
-                value.agentTurnResponseStepProgress != null ->
-                    generator.writeObject(value.agentTurnResponseStepProgress)
-                value.agentTurnResponseStepComplete != null ->
-                    generator.writeObject(value.agentTurnResponseStepComplete)
-                value.agentTurnResponseTurnStart != null ->
-                    generator.writeObject(value.agentTurnResponseTurnStart)
-                value.agentTurnResponseTurnComplete != null ->
-                    generator.writeObject(value.agentTurnResponseTurnComplete)
-                value.agentTurnResponseTurnAwaitingInput != null ->
-                    generator.writeObject(value.agentTurnResponseTurnAwaitingInput)
+                value.stepStart != null -> generator.writeObject(value.stepStart)
+                value.stepProgress != null -> generator.writeObject(value.stepProgress)
+                value.stepComplete != null -> generator.writeObject(value.stepComplete)
+                value.start != null -> generator.writeObject(value.start)
+                value.complete != null -> generator.writeObject(value.complete)
+                value.awaitingInput != null -> generator.writeObject(value.awaitingInput)
                 value._json != null -> generator.writeObject(value._json)
                 else -> throw IllegalStateException("Invalid TurnResponseEventPayload")
             }
         }
     }
 
-    class AgentTurnResponseStepStartPayload
+    class StepStart
     private constructor(
         private val eventType: JsonValue,
         private val stepId: JsonField<String>,
@@ -495,8 +387,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of
-             * [AgentTurnResponseStepStartPayload].
+             * Returns a mutable builder for constructing an instance of [StepStart].
              *
              * The following fields are required:
              * ```kotlin
@@ -507,7 +398,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnResponseStepStartPayload]. */
+        /** A builder for [StepStart]. */
         class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("step_start")
@@ -516,15 +407,12 @@ private constructor(
             private var metadata: JsonField<Metadata> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                agentTurnResponseStepStartPayload: AgentTurnResponseStepStartPayload
-            ) = apply {
-                eventType = agentTurnResponseStepStartPayload.eventType
-                stepId = agentTurnResponseStepStartPayload.stepId
-                stepType = agentTurnResponseStepStartPayload.stepType
-                metadata = agentTurnResponseStepStartPayload.metadata
-                additionalProperties =
-                    agentTurnResponseStepStartPayload.additionalProperties.toMutableMap()
+            internal fun from(stepStart: StepStart) = apply {
+                eventType = stepStart.eventType
+                stepId = stepStart.stepId
+                stepType = stepStart.stepType
+                metadata = stepStart.metadata
+                additionalProperties = stepStart.additionalProperties.toMutableMap()
             }
 
             /**
@@ -595,7 +483,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentTurnResponseStepStartPayload].
+             * Returns an immutable instance of [StepStart].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -607,8 +495,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentTurnResponseStepStartPayload =
-                AgentTurnResponseStepStartPayload(
+            fun build(): StepStart =
+                StepStart(
                     eventType,
                     checkRequired("stepId", stepId),
                     checkRequired("stepType", stepType),
@@ -619,7 +507,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnResponseStepStartPayload = apply {
+        fun validate(): StepStart = apply {
             if (validated) {
                 return@apply
             }
@@ -906,7 +794,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseStepStartPayload && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && metadata == other.metadata && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is StepStart && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && metadata == other.metadata && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -916,10 +804,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnResponseStepStartPayload{eventType=$eventType, stepId=$stepId, stepType=$stepType, metadata=$metadata, additionalProperties=$additionalProperties}"
+            "StepStart{eventType=$eventType, stepId=$stepId, stepType=$stepType, metadata=$metadata, additionalProperties=$additionalProperties}"
     }
 
-    class AgentTurnResponseStepProgressPayload
+    class StepProgress
     private constructor(
         private val delta: JsonField<ContentDelta>,
         private val eventType: JsonValue,
@@ -1010,8 +898,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of
-             * [AgentTurnResponseStepProgressPayload].
+             * Returns a mutable builder for constructing an instance of [StepProgress].
              *
              * The following fields are required:
              * ```kotlin
@@ -1023,7 +910,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnResponseStepProgressPayload]. */
+        /** A builder for [StepProgress]. */
         class Builder internal constructor() {
 
             private var delta: JsonField<ContentDelta>? = null
@@ -1032,15 +919,12 @@ private constructor(
             private var stepType: JsonField<StepType>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                agentTurnResponseStepProgressPayload: AgentTurnResponseStepProgressPayload
-            ) = apply {
-                delta = agentTurnResponseStepProgressPayload.delta
-                eventType = agentTurnResponseStepProgressPayload.eventType
-                stepId = agentTurnResponseStepProgressPayload.stepId
-                stepType = agentTurnResponseStepProgressPayload.stepType
-                additionalProperties =
-                    agentTurnResponseStepProgressPayload.additionalProperties.toMutableMap()
+            internal fun from(stepProgress: StepProgress) = apply {
+                delta = stepProgress.delta
+                eventType = stepProgress.eventType
+                stepId = stepProgress.stepId
+                stepType = stepProgress.stepType
+                additionalProperties = stepProgress.additionalProperties.toMutableMap()
             }
 
             fun delta(delta: ContentDelta) = delta(JsonField.of(delta))
@@ -1055,35 +939,33 @@ private constructor(
             fun delta(delta: JsonField<ContentDelta>) = apply { this.delta = delta }
 
             /** Alias for calling [delta] with `ContentDelta.ofText(text)`. */
-            fun delta(text: ContentDelta.TextDelta) = delta(ContentDelta.ofText(text))
+            fun delta(text: ContentDelta.Text) = delta(ContentDelta.ofText(text))
 
             /**
              * Alias for calling [delta] with the following:
              * ```kotlin
-             * ContentDelta.TextDelta.builder()
+             * ContentDelta.Text.builder()
              *     .text(text)
              *     .build()
              * ```
              */
-            fun textDelta(text: String) = delta(ContentDelta.TextDelta.builder().text(text).build())
+            fun textDelta(text: String) = delta(ContentDelta.Text.builder().text(text).build())
 
             /** Alias for calling [delta] with `ContentDelta.ofImage(image)`. */
-            fun delta(image: ContentDelta.ImageDelta) = delta(ContentDelta.ofImage(image))
+            fun delta(image: ContentDelta.Image) = delta(ContentDelta.ofImage(image))
 
             /**
              * Alias for calling [delta] with the following:
              * ```kotlin
-             * ContentDelta.ImageDelta.builder()
+             * ContentDelta.Image.builder()
              *     .image(image)
              *     .build()
              * ```
              */
-            fun imageDelta(image: String) =
-                delta(ContentDelta.ImageDelta.builder().image(image).build())
+            fun imageDelta(image: String) = delta(ContentDelta.Image.builder().image(image).build())
 
             /** Alias for calling [delta] with `ContentDelta.ofToolCall(toolCall)`. */
-            fun delta(toolCall: ContentDelta.ToolCallDelta) =
-                delta(ContentDelta.ofToolCall(toolCall))
+            fun delta(toolCall: ContentDelta.ToolCall) = delta(ContentDelta.ofToolCall(toolCall))
 
             /**
              * Sets the field to an arbitrary JSON value.
@@ -1142,7 +1024,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentTurnResponseStepProgressPayload].
+             * Returns an immutable instance of [StepProgress].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -1155,8 +1037,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentTurnResponseStepProgressPayload =
-                AgentTurnResponseStepProgressPayload(
+            fun build(): StepProgress =
+                StepProgress(
                     checkRequired("delta", delta),
                     eventType,
                     checkRequired("stepId", stepId),
@@ -1167,7 +1049,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnResponseStepProgressPayload = apply {
+        fun validate(): StepProgress = apply {
             if (validated) {
                 return@apply
             }
@@ -1352,7 +1234,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseStepProgressPayload && delta == other.delta && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is StepProgress && delta == other.delta && eventType == other.eventType && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1362,10 +1244,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnResponseStepProgressPayload{delta=$delta, eventType=$eventType, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
+            "StepProgress{delta=$delta, eventType=$eventType, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
     }
 
-    class AgentTurnResponseStepCompletePayload
+    class StepComplete
     private constructor(
         private val eventType: JsonValue,
         private val stepDetails: JsonField<StepDetails>,
@@ -1460,8 +1342,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of
-             * [AgentTurnResponseStepCompletePayload].
+             * Returns a mutable builder for constructing an instance of [StepComplete].
              *
              * The following fields are required:
              * ```kotlin
@@ -1473,7 +1354,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnResponseStepCompletePayload]. */
+        /** A builder for [StepComplete]. */
         class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("step_complete")
@@ -1482,15 +1363,12 @@ private constructor(
             private var stepType: JsonField<StepType>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                agentTurnResponseStepCompletePayload: AgentTurnResponseStepCompletePayload
-            ) = apply {
-                eventType = agentTurnResponseStepCompletePayload.eventType
-                stepDetails = agentTurnResponseStepCompletePayload.stepDetails
-                stepId = agentTurnResponseStepCompletePayload.stepId
-                stepType = agentTurnResponseStepCompletePayload.stepType
-                additionalProperties =
-                    agentTurnResponseStepCompletePayload.additionalProperties.toMutableMap()
+            internal fun from(stepComplete: StepComplete) = apply {
+                eventType = stepComplete.eventType
+                stepDetails = stepComplete.stepDetails
+                stepId = stepComplete.stepId
+                stepType = stepComplete.stepType
+                additionalProperties = stepComplete.additionalProperties.toMutableMap()
             }
 
             /**
@@ -1521,31 +1399,26 @@ private constructor(
                 this.stepDetails = stepDetails
             }
 
+            /** Alias for calling [stepDetails] with `StepDetails.ofInference(inference)`. */
+            fun stepDetails(inference: InferenceStep) =
+                stepDetails(StepDetails.ofInference(inference))
+
             /**
-             * Alias for calling [stepDetails] with `StepDetails.ofInferenceStep(inferenceStep)`.
+             * Alias for calling [stepDetails] with `StepDetails.ofToolExecution(toolExecution)`.
              */
-            fun stepDetails(inferenceStep: InferenceStep) =
-                stepDetails(StepDetails.ofInferenceStep(inferenceStep))
+            fun stepDetails(toolExecution: ToolExecutionStep) =
+                stepDetails(StepDetails.ofToolExecution(toolExecution))
+
+            /** Alias for calling [stepDetails] with `StepDetails.ofShieldCall(shieldCall)`. */
+            fun stepDetails(shieldCall: ShieldCallStep) =
+                stepDetails(StepDetails.ofShieldCall(shieldCall))
 
             /**
              * Alias for calling [stepDetails] with
-             * `StepDetails.ofToolExecutionStep(toolExecutionStep)`.
+             * `StepDetails.ofMemoryRetrieval(memoryRetrieval)`.
              */
-            fun stepDetails(toolExecutionStep: ToolExecutionStep) =
-                stepDetails(StepDetails.ofToolExecutionStep(toolExecutionStep))
-
-            /**
-             * Alias for calling [stepDetails] with `StepDetails.ofShieldCallStep(shieldCallStep)`.
-             */
-            fun stepDetails(shieldCallStep: ShieldCallStep) =
-                stepDetails(StepDetails.ofShieldCallStep(shieldCallStep))
-
-            /**
-             * Alias for calling [stepDetails] with
-             * `StepDetails.ofMemoryRetrievalStep(memoryRetrievalStep)`.
-             */
-            fun stepDetails(memoryRetrievalStep: MemoryRetrievalStep) =
-                stepDetails(StepDetails.ofMemoryRetrievalStep(memoryRetrievalStep))
+            fun stepDetails(memoryRetrieval: MemoryRetrievalStep) =
+                stepDetails(StepDetails.ofMemoryRetrieval(memoryRetrieval))
 
             fun stepId(stepId: String) = stepId(JsonField.of(stepId))
 
@@ -1590,7 +1463,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentTurnResponseStepCompletePayload].
+             * Returns an immutable instance of [StepComplete].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -1603,8 +1476,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentTurnResponseStepCompletePayload =
-                AgentTurnResponseStepCompletePayload(
+            fun build(): StepComplete =
+                StepComplete(
                     eventType,
                     checkRequired("stepDetails", stepDetails),
                     checkRequired("stepId", stepId),
@@ -1615,7 +1488,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnResponseStepCompletePayload = apply {
+        fun validate(): StepComplete = apply {
             if (validated) {
                 return@apply
             }
@@ -1658,56 +1531,54 @@ private constructor(
         @JsonSerialize(using = StepDetails.Serializer::class)
         class StepDetails
         private constructor(
-            private val inferenceStep: InferenceStep? = null,
-            private val toolExecutionStep: ToolExecutionStep? = null,
-            private val shieldCallStep: ShieldCallStep? = null,
-            private val memoryRetrievalStep: MemoryRetrievalStep? = null,
+            private val inference: InferenceStep? = null,
+            private val toolExecution: ToolExecutionStep? = null,
+            private val shieldCall: ShieldCallStep? = null,
+            private val memoryRetrieval: MemoryRetrievalStep? = null,
             private val _json: JsonValue? = null,
         ) {
 
             /** An inference step in an agent turn. */
-            fun inferenceStep(): InferenceStep? = inferenceStep
+            fun inference(): InferenceStep? = inference
 
             /** A tool execution step in an agent turn. */
-            fun toolExecutionStep(): ToolExecutionStep? = toolExecutionStep
+            fun toolExecution(): ToolExecutionStep? = toolExecution
 
             /** A shield call step in an agent turn. */
-            fun shieldCallStep(): ShieldCallStep? = shieldCallStep
+            fun shieldCall(): ShieldCallStep? = shieldCall
 
             /** A memory retrieval step in an agent turn. */
-            fun memoryRetrievalStep(): MemoryRetrievalStep? = memoryRetrievalStep
+            fun memoryRetrieval(): MemoryRetrievalStep? = memoryRetrieval
 
-            fun isInferenceStep(): Boolean = inferenceStep != null
+            fun isInference(): Boolean = inference != null
 
-            fun isToolExecutionStep(): Boolean = toolExecutionStep != null
+            fun isToolExecution(): Boolean = toolExecution != null
 
-            fun isShieldCallStep(): Boolean = shieldCallStep != null
+            fun isShieldCall(): Boolean = shieldCall != null
 
-            fun isMemoryRetrievalStep(): Boolean = memoryRetrievalStep != null
+            fun isMemoryRetrieval(): Boolean = memoryRetrieval != null
 
             /** An inference step in an agent turn. */
-            fun asInferenceStep(): InferenceStep = inferenceStep.getOrThrow("inferenceStep")
+            fun asInference(): InferenceStep = inference.getOrThrow("inference")
 
             /** A tool execution step in an agent turn. */
-            fun asToolExecutionStep(): ToolExecutionStep =
-                toolExecutionStep.getOrThrow("toolExecutionStep")
+            fun asToolExecution(): ToolExecutionStep = toolExecution.getOrThrow("toolExecution")
 
             /** A shield call step in an agent turn. */
-            fun asShieldCallStep(): ShieldCallStep = shieldCallStep.getOrThrow("shieldCallStep")
+            fun asShieldCall(): ShieldCallStep = shieldCall.getOrThrow("shieldCall")
 
             /** A memory retrieval step in an agent turn. */
-            fun asMemoryRetrievalStep(): MemoryRetrievalStep =
-                memoryRetrievalStep.getOrThrow("memoryRetrievalStep")
+            fun asMemoryRetrieval(): MemoryRetrievalStep =
+                memoryRetrieval.getOrThrow("memoryRetrieval")
 
             fun _json(): JsonValue? = _json
 
             fun <T> accept(visitor: Visitor<T>): T =
                 when {
-                    inferenceStep != null -> visitor.visitInferenceStep(inferenceStep)
-                    toolExecutionStep != null -> visitor.visitToolExecutionStep(toolExecutionStep)
-                    shieldCallStep != null -> visitor.visitShieldCallStep(shieldCallStep)
-                    memoryRetrievalStep != null ->
-                        visitor.visitMemoryRetrievalStep(memoryRetrievalStep)
+                    inference != null -> visitor.visitInference(inference)
+                    toolExecution != null -> visitor.visitToolExecution(toolExecution)
+                    shieldCall != null -> visitor.visitShieldCall(shieldCall)
+                    memoryRetrieval != null -> visitor.visitMemoryRetrieval(memoryRetrieval)
                     else -> visitor.unknown(_json)
                 }
 
@@ -1720,22 +1591,20 @@ private constructor(
 
                 accept(
                     object : Visitor<Unit> {
-                        override fun visitInferenceStep(inferenceStep: InferenceStep) {
-                            inferenceStep.validate()
+                        override fun visitInference(inference: InferenceStep) {
+                            inference.validate()
                         }
 
-                        override fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep) {
-                            toolExecutionStep.validate()
+                        override fun visitToolExecution(toolExecution: ToolExecutionStep) {
+                            toolExecution.validate()
                         }
 
-                        override fun visitShieldCallStep(shieldCallStep: ShieldCallStep) {
-                            shieldCallStep.validate()
+                        override fun visitShieldCall(shieldCall: ShieldCallStep) {
+                            shieldCall.validate()
                         }
 
-                        override fun visitMemoryRetrievalStep(
-                            memoryRetrievalStep: MemoryRetrievalStep
-                        ) {
-                            memoryRetrievalStep.validate()
+                        override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) {
+                            memoryRetrieval.validate()
                         }
                     }
                 )
@@ -1759,18 +1628,16 @@ private constructor(
             internal fun validity(): Int =
                 accept(
                     object : Visitor<Int> {
-                        override fun visitInferenceStep(inferenceStep: InferenceStep) =
-                            inferenceStep.validity()
+                        override fun visitInference(inference: InferenceStep) = inference.validity()
 
-                        override fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
-                            toolExecutionStep.validity()
+                        override fun visitToolExecution(toolExecution: ToolExecutionStep) =
+                            toolExecution.validity()
 
-                        override fun visitShieldCallStep(shieldCallStep: ShieldCallStep) =
-                            shieldCallStep.validity()
+                        override fun visitShieldCall(shieldCall: ShieldCallStep) =
+                            shieldCall.validity()
 
-                        override fun visitMemoryRetrievalStep(
-                            memoryRetrievalStep: MemoryRetrievalStep
-                        ) = memoryRetrievalStep.validity()
+                        override fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                            memoryRetrieval.validity()
 
                         override fun unknown(json: JsonValue?) = 0
                     }
@@ -1781,18 +1648,17 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is StepDetails && inferenceStep == other.inferenceStep && toolExecutionStep == other.toolExecutionStep && shieldCallStep == other.shieldCallStep && memoryRetrievalStep == other.memoryRetrievalStep /* spotless:on */
+                return /* spotless:off */ other is StepDetails && inference == other.inference && toolExecution == other.toolExecution && shieldCall == other.shieldCall && memoryRetrieval == other.memoryRetrieval /* spotless:on */
             }
 
-            override fun hashCode(): Int = /* spotless:off */ Objects.hash(inferenceStep, toolExecutionStep, shieldCallStep, memoryRetrievalStep) /* spotless:on */
+            override fun hashCode(): Int = /* spotless:off */ Objects.hash(inference, toolExecution, shieldCall, memoryRetrieval) /* spotless:on */
 
             override fun toString(): String =
                 when {
-                    inferenceStep != null -> "StepDetails{inferenceStep=$inferenceStep}"
-                    toolExecutionStep != null -> "StepDetails{toolExecutionStep=$toolExecutionStep}"
-                    shieldCallStep != null -> "StepDetails{shieldCallStep=$shieldCallStep}"
-                    memoryRetrievalStep != null ->
-                        "StepDetails{memoryRetrievalStep=$memoryRetrievalStep}"
+                    inference != null -> "StepDetails{inference=$inference}"
+                    toolExecution != null -> "StepDetails{toolExecution=$toolExecution}"
+                    shieldCall != null -> "StepDetails{shieldCall=$shieldCall}"
+                    memoryRetrieval != null -> "StepDetails{memoryRetrieval=$memoryRetrieval}"
                     _json != null -> "StepDetails{_unknown=$_json}"
                     else -> throw IllegalStateException("Invalid StepDetails")
                 }
@@ -1800,20 +1666,18 @@ private constructor(
             companion object {
 
                 /** An inference step in an agent turn. */
-                fun ofInferenceStep(inferenceStep: InferenceStep) =
-                    StepDetails(inferenceStep = inferenceStep)
+                fun ofInference(inference: InferenceStep) = StepDetails(inference = inference)
 
                 /** A tool execution step in an agent turn. */
-                fun ofToolExecutionStep(toolExecutionStep: ToolExecutionStep) =
-                    StepDetails(toolExecutionStep = toolExecutionStep)
+                fun ofToolExecution(toolExecution: ToolExecutionStep) =
+                    StepDetails(toolExecution = toolExecution)
 
                 /** A shield call step in an agent turn. */
-                fun ofShieldCallStep(shieldCallStep: ShieldCallStep) =
-                    StepDetails(shieldCallStep = shieldCallStep)
+                fun ofShieldCall(shieldCall: ShieldCallStep) = StepDetails(shieldCall = shieldCall)
 
                 /** A memory retrieval step in an agent turn. */
-                fun ofMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep) =
-                    StepDetails(memoryRetrievalStep = memoryRetrievalStep)
+                fun ofMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep) =
+                    StepDetails(memoryRetrieval = memoryRetrieval)
             }
 
             /**
@@ -1823,16 +1687,16 @@ private constructor(
             interface Visitor<out T> {
 
                 /** An inference step in an agent turn. */
-                fun visitInferenceStep(inferenceStep: InferenceStep): T
+                fun visitInference(inference: InferenceStep): T
 
                 /** A tool execution step in an agent turn. */
-                fun visitToolExecutionStep(toolExecutionStep: ToolExecutionStep): T
+                fun visitToolExecution(toolExecution: ToolExecutionStep): T
 
                 /** A shield call step in an agent turn. */
-                fun visitShieldCallStep(shieldCallStep: ShieldCallStep): T
+                fun visitShieldCall(shieldCall: ShieldCallStep): T
 
                 /** A memory retrieval step in an agent turn. */
-                fun visitMemoryRetrievalStep(memoryRetrievalStep: MemoryRetrievalStep): T
+                fun visitMemoryRetrieval(memoryRetrieval: MemoryRetrievalStep): T
 
                 /**
                  * Maps an unknown variant of [StepDetails] to a value of type [T].
@@ -1858,22 +1722,22 @@ private constructor(
                     when (stepType) {
                         "inference" -> {
                             return tryDeserialize(node, jacksonTypeRef<InferenceStep>())?.let {
-                                StepDetails(inferenceStep = it, _json = json)
+                                StepDetails(inference = it, _json = json)
                             } ?: StepDetails(_json = json)
                         }
                         "tool_execution" -> {
                             return tryDeserialize(node, jacksonTypeRef<ToolExecutionStep>())?.let {
-                                StepDetails(toolExecutionStep = it, _json = json)
+                                StepDetails(toolExecution = it, _json = json)
                             } ?: StepDetails(_json = json)
                         }
                         "shield_call" -> {
                             return tryDeserialize(node, jacksonTypeRef<ShieldCallStep>())?.let {
-                                StepDetails(shieldCallStep = it, _json = json)
+                                StepDetails(shieldCall = it, _json = json)
                             } ?: StepDetails(_json = json)
                         }
                         "memory_retrieval" -> {
                             return tryDeserialize(node, jacksonTypeRef<MemoryRetrievalStep>())
-                                ?.let { StepDetails(memoryRetrievalStep = it, _json = json) }
+                                ?.let { StepDetails(memoryRetrieval = it, _json = json) }
                                 ?: StepDetails(_json = json)
                         }
                     }
@@ -1890,12 +1754,11 @@ private constructor(
                     provider: SerializerProvider,
                 ) {
                     when {
-                        value.inferenceStep != null -> generator.writeObject(value.inferenceStep)
-                        value.toolExecutionStep != null ->
-                            generator.writeObject(value.toolExecutionStep)
-                        value.shieldCallStep != null -> generator.writeObject(value.shieldCallStep)
-                        value.memoryRetrievalStep != null ->
-                            generator.writeObject(value.memoryRetrievalStep)
+                        value.inference != null -> generator.writeObject(value.inference)
+                        value.toolExecution != null -> generator.writeObject(value.toolExecution)
+                        value.shieldCall != null -> generator.writeObject(value.shieldCall)
+                        value.memoryRetrieval != null ->
+                            generator.writeObject(value.memoryRetrieval)
                         value._json != null -> generator.writeObject(value._json)
                         else -> throw IllegalStateException("Invalid StepDetails")
                     }
@@ -2050,7 +1913,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseStepCompletePayload && eventType == other.eventType && stepDetails == other.stepDetails && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is StepComplete && eventType == other.eventType && stepDetails == other.stepDetails && stepId == other.stepId && stepType == other.stepType && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -2060,10 +1923,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnResponseStepCompletePayload{eventType=$eventType, stepDetails=$stepDetails, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
+            "StepComplete{eventType=$eventType, stepDetails=$stepDetails, stepId=$stepId, stepType=$stepType, additionalProperties=$additionalProperties}"
     }
 
-    class AgentTurnResponseTurnStartPayload
+    class TurnStart
     private constructor(
         private val eventType: JsonValue,
         private val turnId: JsonField<String>,
@@ -2116,8 +1979,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of
-             * [AgentTurnResponseTurnStartPayload].
+             * Returns a mutable builder for constructing an instance of [TurnStart].
              *
              * The following fields are required:
              * ```kotlin
@@ -2127,20 +1989,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnResponseTurnStartPayload]. */
+        /** A builder for [TurnStart]. */
         class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("turn_start")
             private var turnId: JsonField<String>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                agentTurnResponseTurnStartPayload: AgentTurnResponseTurnStartPayload
-            ) = apply {
-                eventType = agentTurnResponseTurnStartPayload.eventType
-                turnId = agentTurnResponseTurnStartPayload.turnId
-                additionalProperties =
-                    agentTurnResponseTurnStartPayload.additionalProperties.toMutableMap()
+            internal fun from(turnStart: TurnStart) = apply {
+                eventType = turnStart.eventType
+                turnId = turnStart.turnId
+                additionalProperties = turnStart.additionalProperties.toMutableMap()
             }
 
             /**
@@ -2188,7 +2047,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentTurnResponseTurnStartPayload].
+             * Returns an immutable instance of [TurnStart].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -2199,8 +2058,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentTurnResponseTurnStartPayload =
-                AgentTurnResponseTurnStartPayload(
+            fun build(): TurnStart =
+                TurnStart(
                     eventType,
                     checkRequired("turnId", turnId),
                     additionalProperties.toMutableMap(),
@@ -2209,7 +2068,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnResponseTurnStartPayload = apply {
+        fun validate(): TurnStart = apply {
             if (validated) {
                 return@apply
             }
@@ -2248,7 +2107,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseTurnStartPayload && eventType == other.eventType && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TurnStart && eventType == other.eventType && turnId == other.turnId && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -2258,10 +2117,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnResponseTurnStartPayload{eventType=$eventType, turnId=$turnId, additionalProperties=$additionalProperties}"
+            "TurnStart{eventType=$eventType, turnId=$turnId, additionalProperties=$additionalProperties}"
     }
 
-    class AgentTurnResponseTurnCompletePayload
+    class TurnComplete
     private constructor(
         private val eventType: JsonValue,
         private val turn: JsonField<Turn>,
@@ -2316,8 +2175,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of
-             * [AgentTurnResponseTurnCompletePayload].
+             * Returns a mutable builder for constructing an instance of [TurnComplete].
              *
              * The following fields are required:
              * ```kotlin
@@ -2327,20 +2185,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnResponseTurnCompletePayload]. */
+        /** A builder for [TurnComplete]. */
         class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("turn_complete")
             private var turn: JsonField<Turn>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                agentTurnResponseTurnCompletePayload: AgentTurnResponseTurnCompletePayload
-            ) = apply {
-                eventType = agentTurnResponseTurnCompletePayload.eventType
-                turn = agentTurnResponseTurnCompletePayload.turn
-                additionalProperties =
-                    agentTurnResponseTurnCompletePayload.additionalProperties.toMutableMap()
+            internal fun from(turnComplete: TurnComplete) = apply {
+                eventType = turnComplete.eventType
+                turn = turnComplete.turn
+                additionalProperties = turnComplete.additionalProperties.toMutableMap()
             }
 
             /**
@@ -2389,7 +2244,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentTurnResponseTurnCompletePayload].
+             * Returns an immutable instance of [TurnComplete].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -2400,8 +2255,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentTurnResponseTurnCompletePayload =
-                AgentTurnResponseTurnCompletePayload(
+            fun build(): TurnComplete =
+                TurnComplete(
                     eventType,
                     checkRequired("turn", turn),
                     additionalProperties.toMutableMap(),
@@ -2410,7 +2265,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnResponseTurnCompletePayload = apply {
+        fun validate(): TurnComplete = apply {
             if (validated) {
                 return@apply
             }
@@ -2449,7 +2304,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseTurnCompletePayload && eventType == other.eventType && turn == other.turn && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TurnComplete && eventType == other.eventType && turn == other.turn && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -2459,10 +2314,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnResponseTurnCompletePayload{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
+            "TurnComplete{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
     }
 
-    class AgentTurnResponseTurnAwaitingInputPayload
+    class TurnAwaitingInput
     private constructor(
         private val eventType: JsonValue,
         private val turn: JsonField<Turn>,
@@ -2517,8 +2372,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of
-             * [AgentTurnResponseTurnAwaitingInputPayload].
+             * Returns a mutable builder for constructing an instance of [TurnAwaitingInput].
              *
              * The following fields are required:
              * ```kotlin
@@ -2528,20 +2382,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [AgentTurnResponseTurnAwaitingInputPayload]. */
+        /** A builder for [TurnAwaitingInput]. */
         class Builder internal constructor() {
 
             private var eventType: JsonValue = JsonValue.from("turn_awaiting_input")
             private var turn: JsonField<Turn>? = null
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(
-                agentTurnResponseTurnAwaitingInputPayload: AgentTurnResponseTurnAwaitingInputPayload
-            ) = apply {
-                eventType = agentTurnResponseTurnAwaitingInputPayload.eventType
-                turn = agentTurnResponseTurnAwaitingInputPayload.turn
-                additionalProperties =
-                    agentTurnResponseTurnAwaitingInputPayload.additionalProperties.toMutableMap()
+            internal fun from(turnAwaitingInput: TurnAwaitingInput) = apply {
+                eventType = turnAwaitingInput.eventType
+                turn = turnAwaitingInput.turn
+                additionalProperties = turnAwaitingInput.additionalProperties.toMutableMap()
             }
 
             /**
@@ -2590,7 +2441,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [AgentTurnResponseTurnAwaitingInputPayload].
+             * Returns an immutable instance of [TurnAwaitingInput].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -2601,8 +2452,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): AgentTurnResponseTurnAwaitingInputPayload =
-                AgentTurnResponseTurnAwaitingInputPayload(
+            fun build(): TurnAwaitingInput =
+                TurnAwaitingInput(
                     eventType,
                     checkRequired("turn", turn),
                     additionalProperties.toMutableMap(),
@@ -2611,7 +2462,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): AgentTurnResponseTurnAwaitingInputPayload = apply {
+        fun validate(): TurnAwaitingInput = apply {
             if (validated) {
                 return@apply
             }
@@ -2650,7 +2501,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is AgentTurnResponseTurnAwaitingInputPayload && eventType == other.eventType && turn == other.turn && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is TurnAwaitingInput && eventType == other.eventType && turn == other.turn && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -2660,6 +2511,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "AgentTurnResponseTurnAwaitingInputPayload{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
+            "TurnAwaitingInput{eventType=$eventType, turn=$turn, additionalProperties=$additionalProperties}"
     }
 }

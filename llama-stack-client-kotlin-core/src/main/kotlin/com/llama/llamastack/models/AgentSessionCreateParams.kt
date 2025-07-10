@@ -21,13 +21,13 @@ import java.util.Objects
 /** Create a new session for an agent. */
 class AgentSessionCreateParams
 private constructor(
-    private val agentId: String,
+    private val agentId: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun agentId(): String = agentId
+    fun agentId(): String? = agentId
 
     /**
      * The name of the session to create.
@@ -59,7 +59,6 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .agentId()
          * .sessionName()
          * ```
          */
@@ -81,7 +80,7 @@ private constructor(
             additionalQueryParams = agentSessionCreateParams.additionalQueryParams.toBuilder()
         }
 
-        fun agentId(agentId: String) = apply { this.agentId = agentId }
+        fun agentId(agentId: String?) = apply { this.agentId = agentId }
 
         /**
          * Sets the entire request body.
@@ -228,7 +227,6 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .agentId()
          * .sessionName()
          * ```
          *
@@ -236,7 +234,7 @@ private constructor(
          */
         fun build(): AgentSessionCreateParams =
             AgentSessionCreateParams(
-                checkRequired("agentId", agentId),
+                agentId,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -247,7 +245,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> agentId
+            0 -> agentId ?: ""
             else -> ""
         }
 

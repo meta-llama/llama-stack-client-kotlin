@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -20,6 +21,13 @@ interface AgentService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): AgentService
+
     fun session(): SessionService
 
     fun steps(): StepService
@@ -32,11 +40,29 @@ interface AgentService {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentCreateResponse
 
-    /** Delete an agent by its ID. */
+    /** Delete an agent by its ID and its associated sessions and turns. */
+    fun delete(
+        agentId: String,
+        params: AgentDeleteParams = AgentDeleteParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ) = delete(params.toBuilder().agentId(agentId).build(), requestOptions)
+
+    /** @see [delete] */
     fun delete(params: AgentDeleteParams, requestOptions: RequestOptions = RequestOptions.none())
+
+    /** @see [delete] */
+    fun delete(agentId: String, requestOptions: RequestOptions) =
+        delete(agentId, AgentDeleteParams.none(), requestOptions)
 
     /** A view of [AgentService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): AgentService.WithRawResponse
 
         fun session(): SessionService.WithRawResponse
 
@@ -60,8 +86,21 @@ interface AgentService {
          */
         @MustBeClosed
         fun delete(
+            agentId: String,
+            params: AgentDeleteParams = AgentDeleteParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponse = delete(params.toBuilder().agentId(agentId).build(), requestOptions)
+
+        /** @see [delete] */
+        @MustBeClosed
+        fun delete(
             params: AgentDeleteParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponse
+
+        /** @see [delete] */
+        @MustBeClosed
+        fun delete(agentId: String, requestOptions: RequestOptions): HttpResponse =
+            delete(agentId, AgentDeleteParams.none(), requestOptions)
     }
 }

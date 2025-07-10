@@ -21,6 +21,7 @@ import kotlinx.coroutines.delay
 class RetryingHttpClient
 private constructor(
     private val httpClient: HttpClient,
+    private val sleeper: Sleeper,
     private val clock: Clock,
     private val maxRetries: Int,
     private val idempotencyHeader: String?,
@@ -60,10 +61,10 @@ private constructor(
                     null
                 }
 
-            val backoffMillis = getRetryBackoffMillis(retries, response)
+            val backoffDuration = getRetryBackoffDuration(retries, response)
             // All responses must be closed, so close the failed one before retrying.
             response?.close()
-            Thread.sleep(backoffMillis.toMillis())
+            sleeper.sleep(backoffDuration)
         }
     }
 
@@ -104,10 +105,10 @@ private constructor(
                     null
                 }
 
-            val backoffMillis = getRetryBackoffMillis(retries, response)
+            val backoffDuration = getRetryBackoffDuration(retries, response)
             // All responses must be closed, so close the failed one before retrying.
             response?.close()
-            delay(backoffMillis.toKotlinDuration())
+            sleeper.sleepAsync(backoffDuration)
         }
     }
 
@@ -163,7 +164,7 @@ private constructor(
         // retried.
         throwable is IOException || throwable is LlamaStackClientIoException
 
-    private fun getRetryBackoffMillis(retries: Int, response: HttpResponse?): Duration {
+    private fun getRetryBackoffDuration(retries: Int, response: HttpResponse?): Duration {
         // About the Retry-After header:
         // https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Retry-After
         response
@@ -216,11 +217,21 @@ private constructor(
     class Builder internal constructor() {
 
         private var httpClient: HttpClient? = null
+        private var sleeper: Sleeper =
+            object : Sleeper {
+
+                override fun sleep(duration: Duration) = Thread.sleep(duration.toMillis())
+
+                override suspend fun sleepAsync(duration: Duration) =
+                    delay(duration.toKotlinDuration())
+            }
         private var clock: Clock = Clock.systemUTC()
         private var maxRetries: Int = 2
         private var idempotencyHeader: String? = null
 
         fun httpClient(httpClient: HttpClient) = apply { this.httpClient = httpClient }
+
+        internal fun sleeper(sleeper: Sleeper) = apply { this.sleeper = sleeper }
 
         fun clock(clock: Clock) = apply { this.clock = clock }
 
@@ -231,9 +242,17 @@ private constructor(
         fun build(): HttpClient =
             RetryingHttpClient(
                 checkRequired("httpClient", httpClient),
+                sleeper,
                 clock,
                 maxRetries,
                 idempotencyHeader,
             )
+    }
+
+    internal interface Sleeper {
+
+        fun sleep(duration: Duration)
+
+        suspend fun sleepAsync(duration: Duration)
     }
 }

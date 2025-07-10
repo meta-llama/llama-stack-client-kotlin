@@ -7,8 +7,6 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.DatasetIterrowsParams
 import com.llama.llamastack.models.DatasetRegisterParams
-import com.llama.llamastack.models.DatasetRetrieveParams
-import com.llama.llamastack.models.DatasetUnregisterParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -21,8 +19,7 @@ internal class DatasetServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
 
-        val dataset =
-            datasetService.retrieve(DatasetRetrieveParams.builder().datasetId("dataset_id").build())
+        val dataset = datasetService.retrieve("dataset_id")
 
         dataset.validate()
     }
@@ -66,7 +63,7 @@ internal class DatasetServiceTest {
             datasetService.register(
                 DatasetRegisterParams.builder()
                     .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
-                    .uriDataSource("uri")
+                    .uriSource("uri")
                     .datasetId("dataset_id")
                     .metadata(
                         DatasetRegisterParams.Metadata.builder()
@@ -85,6 +82,6 @@ internal class DatasetServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val datasetService = client.datasets()
 
-        datasetService.unregister(DatasetUnregisterParams.builder().datasetId("dataset_id").build())
+        datasetService.unregister("dataset_id")
     }
 }

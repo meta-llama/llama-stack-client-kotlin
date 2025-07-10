@@ -13,20 +13,27 @@ internal class QueryConfigTest {
     fun create() {
         val queryConfig =
             QueryConfig.builder()
+                .chunkTemplate("chunk_template")
                 .maxChunks(0L)
                 .maxTokensInContext(0L)
-                .defaultRagQueryGeneratorConfig("separator")
+                .defaultQueryGeneratorConfig("separator")
+                .mode("mode")
+                .rrfRanker(0.0)
                 .build()
 
+        assertThat(queryConfig.chunkTemplate()).isEqualTo("chunk_template")
         assertThat(queryConfig.maxChunks()).isEqualTo(0L)
         assertThat(queryConfig.maxTokensInContext()).isEqualTo(0L)
         assertThat(queryConfig.queryGeneratorConfig())
             .isEqualTo(
-                QueryGeneratorConfig.ofDefaultRag(
-                    QueryGeneratorConfig.DefaultRagQueryGeneratorConfig.builder()
-                        .separator("separator")
-                        .build()
+                QueryGeneratorConfig.ofDefault(
+                    QueryGeneratorConfig.Default.builder().separator("separator").build()
                 )
+            )
+        assertThat(queryConfig.mode()).isEqualTo("mode")
+        assertThat(queryConfig.ranker())
+            .isEqualTo(
+                QueryConfig.Ranker.ofRrf(QueryConfig.Ranker.Rrf.builder().impactFactor(0.0).build())
             )
     }
 
@@ -35,9 +42,12 @@ internal class QueryConfigTest {
         val jsonMapper = jsonMapper()
         val queryConfig =
             QueryConfig.builder()
+                .chunkTemplate("chunk_template")
                 .maxChunks(0L)
                 .maxTokensInContext(0L)
-                .defaultRagQueryGeneratorConfig("separator")
+                .defaultQueryGeneratorConfig("separator")
+                .mode("mode")
+                .rrfRanker(0.0)
                 .build()
 
         val roundtrippedQueryConfig =
