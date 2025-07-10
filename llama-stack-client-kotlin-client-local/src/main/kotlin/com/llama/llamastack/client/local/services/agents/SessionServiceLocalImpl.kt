@@ -1,6 +1,7 @@
 package com.llama.llamastack.client.local.services.agents
 
 import com.llama.llamastack.client.local.LocalClientOptions
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.AgentSessionCreateParams
 import com.llama.llamastack.models.AgentSessionCreateResponse
@@ -12,6 +13,10 @@ import com.llama.llamastack.services.blocking.agents.SessionService
 class SessionServiceLocalImpl constructor(private val clientOptions: LocalClientOptions) :
     SessionService {
     override fun withRawResponse(): SessionService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): SessionService {
         TODO("Not yet implemented")
     }
 

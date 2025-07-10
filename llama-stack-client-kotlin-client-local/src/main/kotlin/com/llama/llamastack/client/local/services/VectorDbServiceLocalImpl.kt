@@ -3,6 +3,7 @@ package com.llama.llamastack.client.local.services
 import com.llama.llamastack.client.local.LocalClientOptions
 import com.llama.llamastack.client.local.services.vectordb.objectbox.MyObjectBox
 import com.llama.llamastack.client.local.services.vectordb.objectbox.RagVectorDb
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.models.ListVectorDbsResponse
 import com.llama.llamastack.models.VectorDbListParams
@@ -21,6 +22,10 @@ class VectorDbServiceLocalImpl constructor(private val clientOptions: LocalClien
     lateinit var boxStore: BoxStore
 
     override fun withRawResponse(): VectorDbService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): VectorDbService {
         TODO("Not yet implemented")
     }
 

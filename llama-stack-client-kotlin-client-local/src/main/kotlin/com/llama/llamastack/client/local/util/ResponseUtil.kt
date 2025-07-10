@@ -11,7 +11,6 @@ import com.llama.llamastack.models.InterleavedContent
 import com.llama.llamastack.models.ToolCall
 import com.llama.llamastack.models.TurnResponseEvent
 import com.llama.llamastack.models.TurnResponseEventPayload
-import com.llama.llamastack.models.TurnResponseEventPayload.AgentTurnResponseStepProgressPayload
 import java.util.UUID
 
 // Inference capability
@@ -52,7 +51,7 @@ fun buildInferenceChatCompletionResponseFromStream(
     return ChatCompletionResponseStreamChunk.builder()
         .event(
             ChatCompletionResponseStreamChunk.Event.builder()
-                .delta(ContentDelta.TextDelta.builder().text(response).build())
+                .delta(ContentDelta.Text.builder().text(response).build())
                 .eventType(ChatCompletionResponseStreamChunk.Event.EventType.PROGRESS)
                 .build()
         )
@@ -88,9 +87,9 @@ fun buildInferenceChatCompletionResponseForCustomToolCallStream(
     stats: Float,
 ): ChatCompletionResponseStreamChunk {
     val delta =
-        ContentDelta.ToolCallDelta.builder()
-            .parseStatus(ContentDelta.ToolCallDelta.ParseStatus.SUCCEEDED)
-            .toolCall(toolCall)
+        ContentDelta.ToolCall.builder()
+            .parseStatus(ContentDelta.ToolCall.ParseStatus.SUCCEEDED)
+            .toolCall(toolCall.toString())
             .build()
     return ChatCompletionResponseStreamChunk.builder()
         .event(
@@ -113,7 +112,7 @@ fun buildInferenceChatCompletionResponseForStringStream(
     return ChatCompletionResponseStreamChunk.builder()
         .event(
             ChatCompletionResponseStreamChunk.Event.builder()
-                .delta(ContentDelta.TextDelta.builder().text(str).build())
+                .delta(ContentDelta.Text.builder().text(str).build())
                 .stopReason(mapStopTokenToReasonForStream(stopToken))
                 .eventType(ChatCompletionResponseStreamChunk.Event.EventType.PROGRESS)
                 .putAdditionalProperty("tps", JsonValue.from(stats))
@@ -129,13 +128,11 @@ fun buildAgentTurnResponseFromStream(response: String): AgentTurnResponseStreamC
         .event(
             TurnResponseEvent.builder()
                 .payload(
-                    TurnResponseEventPayload.ofAgentTurnResponseStepProgress(
-                        AgentTurnResponseStepProgressPayload.builder()
-                            .delta(ContentDelta.TextDelta.builder().text(response).build())
-                            .stepId("0")
-                            .stepType(AgentTurnResponseStepProgressPayload.StepType.INFERENCE)
-                            .build()
-                    )
+                    TurnResponseEventPayload.StepProgress.builder()
+                        .delta(ContentDelta.Text.builder().text(response).build())
+                        .stepId("0")
+                        .stepType(TurnResponseEventPayload.StepProgress.StepType.INFERENCE)
+                        .build()
                 )
                 .build()
         )
@@ -171,33 +168,23 @@ fun buildAgentTurnResponseForCustomToolCallStream(
         .event(
             TurnResponseEvent.builder()
                 .payload(
-                    TurnResponseEventPayload.ofAgentTurnResponseStepComplete(
-                        TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.builder()
-                            .stepDetails(
-                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
-                                    .StepDetails
-                                    .ofInferenceStep(
-                                        InferenceStep.builder()
-                                            .modelResponse(
-                                                CompletionMessage.builder()
-                                                    .content("")
-                                                    .stopReason(mapStopTokenToReason(stopToken))
-                                                    .toolCalls(toolCalls)
-                                                    .build()
-                                            )
-                                            .turnId("0")
-                                            .stepId("0")
-                                            .build()
-                                    )
-                            )
-                            .stepId("0")
-                            .stepType(
-                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
-                                    .StepType
-                                    .INFERENCE
-                            )
-                            .build()
-                    )
+                    TurnResponseEventPayload.StepComplete.builder()
+                        .stepDetails(
+                            InferenceStep.builder()
+                                .modelResponse(
+                                    CompletionMessage.builder()
+                                        .content("")
+                                        .stopReason(mapStopTokenToReason(stopToken))
+                                        .toolCalls(toolCalls)
+                                        .build()
+                                )
+                                .turnId("0")
+                                .stepId("0")
+                                .build()
+                        )
+                        .stepId("0")
+                        .stepType(TurnResponseEventPayload.StepComplete.StepType.INFERENCE)
+                        .build()
                 )
                 .build()
         )
@@ -214,33 +201,23 @@ fun buildAgentTurnResponseFromStringStream(
         .event(
             TurnResponseEvent.builder()
                 .payload(
-                    TurnResponseEventPayload.ofAgentTurnResponseStepComplete(
-                        TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.builder()
-                            .stepDetails(
-                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
-                                    .StepDetails
-                                    .ofInferenceStep(
-                                        InferenceStep.builder()
-                                            .modelResponse(
-                                                CompletionMessage.builder()
-                                                    .content("")
-                                                    .stopReason(mapStopTokenToReason(stopToken))
-                                                    .build()
-                                            )
-                                            .turnId("0")
-                                            .stepId("0")
-                                            .build()
-                                    )
-                            )
-                            .stepId("0")
-                            .stepType(
-                                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload
-                                    .StepType
-                                    .INFERENCE
-                            )
-                            .putAdditionalProperty("tps", JsonValue.from(stats))
-                            .build()
-                    )
+                    TurnResponseEventPayload.StepComplete.builder()
+                        .stepDetails(
+                            InferenceStep.builder()
+                                .modelResponse(
+                                    CompletionMessage.builder()
+                                        .content("")
+                                        .stopReason(mapStopTokenToReason(stopToken))
+                                        .build()
+                                )
+                                .turnId("0")
+                                .stepId("0")
+                                .build()
+                        )
+                        .stepId("0")
+                        .stepType(TurnResponseEventPayload.StepComplete.StepType.INFERENCE)
+                        .putAdditionalProperty("tps", JsonValue.from(stats))
+                        .build()
                 )
                 .build()
         )

@@ -15,7 +15,7 @@ buildscript {
 
 allprojects {
     group = "com.llama.llamastack"
-    version = "0.2.2"
+    version = "0.2.14"
 }
 
 subprojects {

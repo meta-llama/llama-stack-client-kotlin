@@ -9,6 +9,7 @@ import com.llama.llamastack.client.local.services.InferenceServiceLocalImpl
 import com.llama.llamastack.client.local.services.ToolRuntimeServiceLocalImpl
 import com.llama.llamastack.client.local.services.VectorDbServiceLocalImpl
 import com.llama.llamastack.client.local.services.VectorIoServiceLocalImpl
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.services.blocking.*
 
 class LlamaStackClientClientLocalImpl constructor(private val clientOptions: LocalClientOptions) :
@@ -18,6 +19,18 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
 
     override fun inference(): InferenceService = inference
 
+    override fun embeddings(): EmbeddingService {
+        TODO("Not yet implemented")
+    }
+
+    override fun chat(): ChatService {
+        TODO("Not yet implemented")
+    }
+
+    override fun completions(): CompletionService {
+        TODO("Not yet implemented")
+    }
+
     private val vectorIo: VectorIoService by lazy { VectorIoServiceLocalImpl(clientOptions) }
 
     override fun vectorIo(): VectorIoService = vectorIo
@@ -26,11 +39,19 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
 
     override fun vectorDbs(): VectorDbService = vectorDbs
 
+    override fun vectorStores(): VectorStoreService {
+        TODO("Not yet implemented")
+    }
+
     override fun async(): LlamaStackClientClientAsync {
         TODO("Not yet implemented")
     }
 
     override fun withRawResponse(): LlamaStackClientClient.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): LlamaStackClientClient {
         TODO("Not yet implemented")
     }
 
@@ -48,6 +69,10 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
 
     override fun toolRuntime(): ToolRuntimeService = toolRuntime
 
+    override fun responses(): ResponseService {
+        TODO("Not yet implemented")
+    }
+
     override fun telemetry(): TelemetryService {
         TODO("Not yet implemented")
     }
@@ -64,6 +89,10 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
         TODO("Not yet implemented")
     }
 
+    override fun files(): FileService {
+        TODO("Not yet implemented")
+    }
+
     override fun close() {
         TODO("Not yet implemented")
     }
@@ -71,10 +100,6 @@ class LlamaStackClientClientLocalImpl constructor(private val clientOptions: Loc
     private val agents: AgentService by lazy { AgentServiceLocalImpl(clientOptions) }
 
     override fun agents(): AgentService = agents
-
-    override fun batchInference(): BatchInferenceService {
-        TODO("Not yet implemented")
-    }
 
     override fun datasets(): DatasetService {
         TODO("Not yet implemented")

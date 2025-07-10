@@ -5,6 +5,7 @@ import com.llama.llamastack.client.local.util.PromptFormatLocal
 import com.llama.llamastack.client.local.util.buildAgentTurnResponseFromStream
 import com.llama.llamastack.client.local.util.buildLastAgentTurnResponsesFromStream
 import com.llama.llamastack.client.local.util.getNeighborSentences
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonArray
 import com.llama.llamastack.core.JsonNumber
 import com.llama.llamastack.core.JsonString
@@ -37,6 +38,10 @@ class TurnServiceLocalImpl constructor(private val clientOptions: LocalClientOpt
     private val waitTime: Long = 100
 
     override fun withRawResponse(): TurnService.WithRawResponse {
+        TODO("Not yet implemented")
+    }
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): TurnService {
         TODO("Not yet implemented")
     }
 

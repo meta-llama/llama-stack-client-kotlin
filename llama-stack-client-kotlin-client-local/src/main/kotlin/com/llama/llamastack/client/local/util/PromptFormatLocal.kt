@@ -84,9 +84,9 @@ object PromptFormatLocal {
                     }
                 }
 
-                message.isCompletion() -> {
+                message.isAssistant() -> {
                     // assistant message
-                    val completionMessage: CompletionMessage? = message.completion()
+                    val completionMessage: CompletionMessage? = message.assistant()
                     val content: String? = completionMessage?.content()?.string()
                     if (content != null) {
                         format =
