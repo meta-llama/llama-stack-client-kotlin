@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -19,7 +20,14 @@ interface ToolgroupServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
-    /** List tool groups with optional provider */
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolgroupServiceAsync
+
+    /** List tool groups with optional provider. */
     suspend fun list(
         params: ToolgroupListParams = ToolgroupListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -29,27 +37,59 @@ interface ToolgroupServiceAsync {
     suspend fun list(requestOptions: RequestOptions): List<ToolGroup> =
         list(ToolgroupListParams.none(), requestOptions)
 
+    /** Get a tool group by its ID. */
+    suspend fun get(
+        toolgroupId: String,
+        params: ToolgroupGetParams = ToolgroupGetParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): ToolGroup = get(params.toBuilder().toolgroupId(toolgroupId).build(), requestOptions)
+
+    /** @see [get] */
     suspend fun get(
         params: ToolgroupGetParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): ToolGroup
 
-    /** Register a tool group */
+    /** @see [get] */
+    suspend fun get(toolgroupId: String, requestOptions: RequestOptions): ToolGroup =
+        get(toolgroupId, ToolgroupGetParams.none(), requestOptions)
+
+    /** Register a tool group. */
     suspend fun register(
         params: ToolgroupRegisterParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     )
 
-    /** Unregister a tool group */
+    /** Unregister a tool group. */
+    suspend fun unregister(
+        toolgroupId: String,
+        params: ToolgroupUnregisterParams = ToolgroupUnregisterParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ) = unregister(params.toBuilder().toolgroupId(toolgroupId).build(), requestOptions)
+
+    /** @see [unregister] */
     suspend fun unregister(
         params: ToolgroupUnregisterParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     )
 
+    /** @see [unregister] */
+    suspend fun unregister(toolgroupId: String, requestOptions: RequestOptions) =
+        unregister(toolgroupId, ToolgroupUnregisterParams.none(), requestOptions)
+
     /**
      * A view of [ToolgroupServiceAsync] that provides access to raw HTTP responses for each method.
      */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ToolgroupServiceAsync.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `get /v1/toolgroups`, but is otherwise the same as
@@ -72,9 +112,25 @@ interface ToolgroupServiceAsync {
          */
         @MustBeClosed
         suspend fun get(
+            toolgroupId: String,
+            params: ToolgroupGetParams = ToolgroupGetParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<ToolGroup> =
+            get(params.toBuilder().toolgroupId(toolgroupId).build(), requestOptions)
+
+        /** @see [get] */
+        @MustBeClosed
+        suspend fun get(
             params: ToolgroupGetParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<ToolGroup>
+
+        /** @see [get] */
+        @MustBeClosed
+        suspend fun get(
+            toolgroupId: String,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<ToolGroup> = get(toolgroupId, ToolgroupGetParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `post /v1/toolgroups`, but is otherwise the same as
@@ -92,8 +148,22 @@ interface ToolgroupServiceAsync {
          */
         @MustBeClosed
         suspend fun unregister(
+            toolgroupId: String,
+            params: ToolgroupUnregisterParams = ToolgroupUnregisterParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponse =
+            unregister(params.toBuilder().toolgroupId(toolgroupId).build(), requestOptions)
+
+        /** @see [unregister] */
+        @MustBeClosed
+        suspend fun unregister(
             params: ToolgroupUnregisterParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponse
+
+        /** @see [unregister] */
+        @MustBeClosed
+        suspend fun unregister(toolgroupId: String, requestOptions: RequestOptions): HttpResponse =
+            unregister(toolgroupId, ToolgroupUnregisterParams.none(), requestOptions)
     }
 }

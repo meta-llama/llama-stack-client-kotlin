@@ -167,27 +167,24 @@ private constructor(
          */
         fun strategy(strategy: JsonField<Strategy>) = apply { this.strategy = strategy }
 
-        /** Alias for calling [strategy] with `Strategy.ofGreedySampling()`. */
-        fun strategyGreedySampling() = strategy(Strategy.ofGreedySampling())
+        /** Alias for calling [strategy] with `Strategy.ofGreedy()`. */
+        fun strategyGreedy() = strategy(Strategy.ofGreedy())
 
-        /** Alias for calling [strategy] with `Strategy.ofTopPSampling(topPSampling)`. */
-        fun strategy(topPSampling: Strategy.TopPSamplingStrategy) =
-            strategy(Strategy.ofTopPSampling(topPSampling))
+        /** Alias for calling [strategy] with `Strategy.ofTopP(topP)`. */
+        fun strategy(topP: Strategy.TopP) = strategy(Strategy.ofTopP(topP))
 
-        /** Alias for calling [strategy] with `Strategy.ofTopKSampling(topKSampling)`. */
-        fun strategy(topKSampling: Strategy.TopKSamplingStrategy) =
-            strategy(Strategy.ofTopKSampling(topKSampling))
+        /** Alias for calling [strategy] with `Strategy.ofTopK(topK)`. */
+        fun strategy(topK: Strategy.TopK) = strategy(Strategy.ofTopK(topK))
 
         /**
          * Alias for calling [strategy] with the following:
          * ```kotlin
-         * Strategy.TopKSamplingStrategy.builder()
+         * Strategy.TopK.builder()
          *     .topK(topK)
          *     .build()
          * ```
          */
-        fun topKSamplingStrategy(topK: Long) =
-            strategy(Strategy.TopKSamplingStrategy.builder().topK(topK).build())
+        fun topKStrategy(topK: Long) = strategy(Strategy.TopK.builder().topK(topK).build())
 
         /**
          * The maximum number of tokens that can be generated in the completion. The token count of
@@ -329,37 +326,37 @@ private constructor(
     @JsonSerialize(using = Strategy.Serializer::class)
     class Strategy
     private constructor(
-        private val greedySampling: JsonValue? = null,
-        private val topPSampling: TopPSamplingStrategy? = null,
-        private val topKSampling: TopKSamplingStrategy? = null,
+        private val greedy: JsonValue? = null,
+        private val topP: TopP? = null,
+        private val topK: TopK? = null,
         private val _json: JsonValue? = null,
     ) {
 
-        fun greedySampling(): JsonValue? = greedySampling
+        fun greedy(): JsonValue? = greedy
 
-        fun topPSampling(): TopPSamplingStrategy? = topPSampling
+        fun topP(): TopP? = topP
 
-        fun topKSampling(): TopKSamplingStrategy? = topKSampling
+        fun topK(): TopK? = topK
 
-        fun isGreedySampling(): Boolean = greedySampling != null
+        fun isGreedy(): Boolean = greedy != null
 
-        fun isTopPSampling(): Boolean = topPSampling != null
+        fun isTopP(): Boolean = topP != null
 
-        fun isTopKSampling(): Boolean = topKSampling != null
+        fun isTopK(): Boolean = topK != null
 
-        fun asGreedySampling(): JsonValue = greedySampling.getOrThrow("greedySampling")
+        fun asGreedy(): JsonValue = greedy.getOrThrow("greedy")
 
-        fun asTopPSampling(): TopPSamplingStrategy = topPSampling.getOrThrow("topPSampling")
+        fun asTopP(): TopP = topP.getOrThrow("topP")
 
-        fun asTopKSampling(): TopKSamplingStrategy = topKSampling.getOrThrow("topKSampling")
+        fun asTopK(): TopK = topK.getOrThrow("topK")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T =
             when {
-                greedySampling != null -> visitor.visitGreedySampling(greedySampling)
-                topPSampling != null -> visitor.visitTopPSampling(topPSampling)
-                topKSampling != null -> visitor.visitTopKSampling(topKSampling)
+                greedy != null -> visitor.visitGreedy(greedy)
+                topP != null -> visitor.visitTopP(topP)
+                topK != null -> visitor.visitTopK(topK)
                 else -> visitor.unknown(_json)
             }
 
@@ -372,22 +369,22 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitGreedySampling(greedySampling: JsonValue) {
-                        greedySampling.let {
+                    override fun visitGreedy(greedy: JsonValue) {
+                        greedy.let {
                             if (it != JsonValue.from(mapOf("type" to "greedy"))) {
                                 throw LlamaStackClientInvalidDataException(
-                                    "'greedySampling' is invalid, received $it"
+                                    "'greedy' is invalid, received $it"
                                 )
                             }
                         }
                     }
 
-                    override fun visitTopPSampling(topPSampling: TopPSamplingStrategy) {
-                        topPSampling.validate()
+                    override fun visitTopP(topP: TopP) {
+                        topP.validate()
                     }
 
-                    override fun visitTopKSampling(topKSampling: TopKSamplingStrategy) {
-                        topKSampling.validate()
+                    override fun visitTopK(topK: TopK) {
+                        topK.validate()
                     }
                 }
             )
@@ -411,16 +408,12 @@ private constructor(
         internal fun validity(): Int =
             accept(
                 object : Visitor<Int> {
-                    override fun visitGreedySampling(greedySampling: JsonValue) =
-                        greedySampling.let {
-                            if (it == JsonValue.from(mapOf("type" to "greedy"))) 1 else 0
-                        }
+                    override fun visitGreedy(greedy: JsonValue) =
+                        greedy.let { if (it == JsonValue.from(mapOf("type" to "greedy"))) 1 else 0 }
 
-                    override fun visitTopPSampling(topPSampling: TopPSamplingStrategy) =
-                        topPSampling.validity()
+                    override fun visitTopP(topP: TopP) = topP.validity()
 
-                    override fun visitTopKSampling(topKSampling: TopKSamplingStrategy) =
-                        topKSampling.validity()
+                    override fun visitTopK(topK: TopK) = topK.validity()
 
                     override fun unknown(json: JsonValue?) = 0
                 }
@@ -431,30 +424,27 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Strategy && greedySampling == other.greedySampling && topPSampling == other.topPSampling && topKSampling == other.topKSampling /* spotless:on */
+            return /* spotless:off */ other is Strategy && greedy == other.greedy && topP == other.topP && topK == other.topK /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(greedySampling, topPSampling, topKSampling) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(greedy, topP, topK) /* spotless:on */
 
         override fun toString(): String =
             when {
-                greedySampling != null -> "Strategy{greedySampling=$greedySampling}"
-                topPSampling != null -> "Strategy{topPSampling=$topPSampling}"
-                topKSampling != null -> "Strategy{topKSampling=$topKSampling}"
+                greedy != null -> "Strategy{greedy=$greedy}"
+                topP != null -> "Strategy{topP=$topP}"
+                topK != null -> "Strategy{topK=$topK}"
                 _json != null -> "Strategy{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Strategy")
             }
 
         companion object {
 
-            fun ofGreedySampling() =
-                Strategy(greedySampling = JsonValue.from(mapOf("type" to "greedy")))
+            fun ofGreedy() = Strategy(greedy = JsonValue.from(mapOf("type" to "greedy")))
 
-            fun ofTopPSampling(topPSampling: TopPSamplingStrategy) =
-                Strategy(topPSampling = topPSampling)
+            fun ofTopP(topP: TopP) = Strategy(topP = topP)
 
-            fun ofTopKSampling(topKSampling: TopKSamplingStrategy) =
-                Strategy(topKSampling = topKSampling)
+            fun ofTopK(topK: TopK) = Strategy(topK = topK)
         }
 
         /**
@@ -462,11 +452,11 @@ private constructor(
          */
         interface Visitor<out T> {
 
-            fun visitGreedySampling(greedySampling: JsonValue): T
+            fun visitGreedy(greedy: JsonValue): T
 
-            fun visitTopPSampling(topPSampling: TopPSamplingStrategy): T
+            fun visitTopP(topP: TopP): T
 
-            fun visitTopKSampling(topKSampling: TopKSamplingStrategy): T
+            fun visitTopK(topK: TopK): T
 
             /**
              * Maps an unknown variant of [Strategy] to a value of type [T].
@@ -492,17 +482,17 @@ private constructor(
                 when (type) {
                     "greedy" -> {
                         return tryDeserialize(node, jacksonTypeRef<JsonValue>())
-                            ?.let { Strategy(greedySampling = it, _json = json) }
+                            ?.let { Strategy(greedy = it, _json = json) }
                             ?.takeIf { it.isValid() } ?: Strategy(_json = json)
                     }
                     "top_p" -> {
-                        return tryDeserialize(node, jacksonTypeRef<TopPSamplingStrategy>())?.let {
-                            Strategy(topPSampling = it, _json = json)
+                        return tryDeserialize(node, jacksonTypeRef<TopP>())?.let {
+                            Strategy(topP = it, _json = json)
                         } ?: Strategy(_json = json)
                     }
                     "top_k" -> {
-                        return tryDeserialize(node, jacksonTypeRef<TopKSamplingStrategy>())?.let {
-                            Strategy(topKSampling = it, _json = json)
+                        return tryDeserialize(node, jacksonTypeRef<TopK>())?.let {
+                            Strategy(topK = it, _json = json)
                         } ?: Strategy(_json = json)
                     }
                 }
@@ -519,16 +509,16 @@ private constructor(
                 provider: SerializerProvider,
             ) {
                 when {
-                    value.greedySampling != null -> generator.writeObject(value.greedySampling)
-                    value.topPSampling != null -> generator.writeObject(value.topPSampling)
-                    value.topKSampling != null -> generator.writeObject(value.topKSampling)
+                    value.greedy != null -> generator.writeObject(value.greedy)
+                    value.topP != null -> generator.writeObject(value.topP)
+                    value.topK != null -> generator.writeObject(value.topK)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Strategy")
                 }
             }
         }
 
-        class TopPSamplingStrategy
+        class TopP
         private constructor(
             private val type: JsonValue,
             private val temperature: JsonField<Double>,
@@ -599,13 +589,11 @@ private constructor(
 
             companion object {
 
-                /**
-                 * Returns a mutable builder for constructing an instance of [TopPSamplingStrategy].
-                 */
+                /** Returns a mutable builder for constructing an instance of [TopP]. */
                 fun builder() = Builder()
             }
 
-            /** A builder for [TopPSamplingStrategy]. */
+            /** A builder for [TopP]. */
             class Builder internal constructor() {
 
                 private var type: JsonValue = JsonValue.from("top_p")
@@ -613,11 +601,11 @@ private constructor(
                 private var topP: JsonField<Double> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(topPSamplingStrategy: TopPSamplingStrategy) = apply {
-                    type = topPSamplingStrategy.type
-                    temperature = topPSamplingStrategy.temperature
-                    topP = topPSamplingStrategy.topP
-                    additionalProperties = topPSamplingStrategy.additionalProperties.toMutableMap()
+                internal fun from(topP: TopP) = apply {
+                    type = topP.type
+                    temperature = topP.temperature
+                    this.topP = topP.topP
+                    additionalProperties = topP.additionalProperties.toMutableMap()
                 }
 
                 /**
@@ -681,22 +669,17 @@ private constructor(
                 }
 
                 /**
-                 * Returns an immutable instance of [TopPSamplingStrategy].
+                 * Returns an immutable instance of [TopP].
                  *
                  * Further updates to this [Builder] will not mutate the returned instance.
                  */
-                fun build(): TopPSamplingStrategy =
-                    TopPSamplingStrategy(
-                        type,
-                        temperature,
-                        topP,
-                        additionalProperties.toMutableMap(),
-                    )
+                fun build(): TopP =
+                    TopP(type, temperature, topP, additionalProperties.toMutableMap())
             }
 
             private var validated: Boolean = false
 
-            fun validate(): TopPSamplingStrategy = apply {
+            fun validate(): TopP = apply {
                 if (validated) {
                     return@apply
                 }
@@ -737,7 +720,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is TopPSamplingStrategy && type == other.type && temperature == other.temperature && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is TopP && type == other.type && temperature == other.temperature && topP == other.topP && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -747,10 +730,10 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "TopPSamplingStrategy{type=$type, temperature=$temperature, topP=$topP, additionalProperties=$additionalProperties}"
+                "TopP{type=$type, temperature=$temperature, topP=$topP, additionalProperties=$additionalProperties}"
         }
 
-        class TopKSamplingStrategy
+        class TopK
         private constructor(
             private val topK: JsonField<Long>,
             private val type: JsonValue,
@@ -803,7 +786,7 @@ private constructor(
             companion object {
 
                 /**
-                 * Returns a mutable builder for constructing an instance of [TopKSamplingStrategy].
+                 * Returns a mutable builder for constructing an instance of [TopK].
                  *
                  * The following fields are required:
                  * ```kotlin
@@ -813,17 +796,17 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            /** A builder for [TopKSamplingStrategy]. */
+            /** A builder for [TopK]. */
             class Builder internal constructor() {
 
                 private var topK: JsonField<Long>? = null
                 private var type: JsonValue = JsonValue.from("top_k")
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(topKSamplingStrategy: TopKSamplingStrategy) = apply {
-                    topK = topKSamplingStrategy.topK
-                    type = topKSamplingStrategy.type
-                    additionalProperties = topKSamplingStrategy.additionalProperties.toMutableMap()
+                internal fun from(topK: TopK) = apply {
+                    this.topK = topK.topK
+                    type = topK.type
+                    additionalProperties = topK.additionalProperties.toMutableMap()
                 }
 
                 fun topK(topK: Long) = topK(JsonField.of(topK))
@@ -874,7 +857,7 @@ private constructor(
                 }
 
                 /**
-                 * Returns an immutable instance of [TopKSamplingStrategy].
+                 * Returns an immutable instance of [TopK].
                  *
                  * Further updates to this [Builder] will not mutate the returned instance.
                  *
@@ -885,17 +868,13 @@ private constructor(
                  *
                  * @throws IllegalStateException if any required field is unset.
                  */
-                fun build(): TopKSamplingStrategy =
-                    TopKSamplingStrategy(
-                        checkRequired("topK", topK),
-                        type,
-                        additionalProperties.toMutableMap(),
-                    )
+                fun build(): TopK =
+                    TopK(checkRequired("topK", topK), type, additionalProperties.toMutableMap())
             }
 
             private var validated: Boolean = false
 
-            fun validate(): TopKSamplingStrategy = apply {
+            fun validate(): TopK = apply {
                 if (validated) {
                     return@apply
                 }
@@ -934,7 +913,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is TopKSamplingStrategy && topK == other.topK && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is TopK && topK == other.topK && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -944,7 +923,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "TopKSamplingStrategy{topK=$topK, type=$type, additionalProperties=$additionalProperties}"
+                "TopK{topK=$topK, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 

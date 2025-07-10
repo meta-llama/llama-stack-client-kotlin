@@ -24,7 +24,7 @@ private constructor(
     private val number: JsonValue? = null,
     private val boolean: JsonValue? = null,
     private val array: JsonValue? = null,
-    private val objectType: JsonValue? = null,
+    private val object_: JsonValue? = null,
     private val json: JsonValue? = null,
     private val union: JsonValue? = null,
     private val chatCompletionInput: JsonValue? = null,
@@ -41,7 +41,7 @@ private constructor(
 
     fun array(): JsonValue? = array
 
-    fun objectType(): JsonValue? = objectType
+    fun object_(): JsonValue? = object_
 
     fun json(): JsonValue? = json
 
@@ -61,7 +61,7 @@ private constructor(
 
     fun isArray(): Boolean = array != null
 
-    fun isObjectType(): Boolean = objectType != null
+    fun isObject(): Boolean = object_ != null
 
     fun isJson(): Boolean = json != null
 
@@ -81,7 +81,7 @@ private constructor(
 
     fun asArray(): JsonValue = array.getOrThrow("array")
 
-    fun asObjectType(): JsonValue = objectType.getOrThrow("objectType")
+    fun asObject(): JsonValue = object_.getOrThrow("object_")
 
     fun asJson(): JsonValue = json.getOrThrow("json")
 
@@ -101,7 +101,7 @@ private constructor(
             number != null -> visitor.visitNumber(number)
             boolean != null -> visitor.visitBoolean(boolean)
             array != null -> visitor.visitArray(array)
-            objectType != null -> visitor.visitObjectType(objectType)
+            object_ != null -> visitor.visitObject(object_)
             json != null -> visitor.visitJson(json)
             union != null -> visitor.visitUnion(union)
             chatCompletionInput != null -> visitor.visitChatCompletionInput(chatCompletionInput)
@@ -159,11 +159,11 @@ private constructor(
                     }
                 }
 
-                override fun visitObjectType(objectType: JsonValue) {
-                    objectType.let {
+                override fun visitObject(object_: JsonValue) {
+                    object_.let {
                         if (it != JsonValue.from(mapOf("type" to "object"))) {
                             throw LlamaStackClientInvalidDataException(
-                                "'objectType' is invalid, received $it"
+                                "'object_' is invalid, received $it"
                             )
                         }
                     }
@@ -251,8 +251,8 @@ private constructor(
                 override fun visitArray(array: JsonValue) =
                     array.let { if (it == JsonValue.from(mapOf("type" to "array"))) 1 else 0 }
 
-                override fun visitObjectType(objectType: JsonValue) =
-                    objectType.let { if (it == JsonValue.from(mapOf("type" to "object"))) 1 else 0 }
+                override fun visitObject(object_: JsonValue) =
+                    object_.let { if (it == JsonValue.from(mapOf("type" to "object"))) 1 else 0 }
 
                 override fun visitJson(json: JsonValue) =
                     json.let { if (it == JsonValue.from(mapOf("type" to "json"))) 1 else 0 }
@@ -284,10 +284,10 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ParamType && string == other.string && number == other.number && boolean == other.boolean && array == other.array && objectType == other.objectType && json == other.json && union == other.union && chatCompletionInput == other.chatCompletionInput && completionInput == other.completionInput && agentTurnInput == other.agentTurnInput /* spotless:on */
+        return /* spotless:off */ other is ParamType && string == other.string && number == other.number && boolean == other.boolean && array == other.array && object_ == other.object_ && json == other.json && union == other.union && chatCompletionInput == other.chatCompletionInput && completionInput == other.completionInput && agentTurnInput == other.agentTurnInput /* spotless:on */
     }
 
-    override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, number, boolean, array, objectType, json, union, chatCompletionInput, completionInput, agentTurnInput) /* spotless:on */
+    override fun hashCode(): Int = /* spotless:off */ Objects.hash(string, number, boolean, array, object_, json, union, chatCompletionInput, completionInput, agentTurnInput) /* spotless:on */
 
     override fun toString(): String =
         when {
@@ -295,7 +295,7 @@ private constructor(
             number != null -> "ParamType{number=$number}"
             boolean != null -> "ParamType{boolean=$boolean}"
             array != null -> "ParamType{array=$array}"
-            objectType != null -> "ParamType{objectType=$objectType}"
+            object_ != null -> "ParamType{object_=$object_}"
             json != null -> "ParamType{json=$json}"
             union != null -> "ParamType{union=$union}"
             chatCompletionInput != null -> "ParamType{chatCompletionInput=$chatCompletionInput}"
@@ -315,7 +315,7 @@ private constructor(
 
         fun ofArray() = ParamType(array = JsonValue.from(mapOf("type" to "array")))
 
-        fun ofObjectType() = ParamType(objectType = JsonValue.from(mapOf("type" to "object")))
+        fun ofObject() = ParamType(object_ = JsonValue.from(mapOf("type" to "object")))
 
         fun ofJson() = ParamType(json = JsonValue.from(mapOf("type" to "json")))
 
@@ -344,7 +344,7 @@ private constructor(
 
         fun visitArray(array: JsonValue): T
 
-        fun visitObjectType(objectType: JsonValue): T
+        fun visitObject(object_: JsonValue): T
 
         fun visitJson(json: JsonValue): T
 
@@ -399,7 +399,7 @@ private constructor(
                 }
                 "object" -> {
                     return tryDeserialize(node, jacksonTypeRef<JsonValue>())
-                        ?.let { ParamType(objectType = it, _json = json) }
+                        ?.let { ParamType(object_ = it, _json = json) }
                         ?.takeIf { it.isValid() } ?: ParamType(_json = json)
                 }
                 "json" -> {
@@ -445,7 +445,7 @@ private constructor(
                 value.number != null -> generator.writeObject(value.number)
                 value.boolean != null -> generator.writeObject(value.boolean)
                 value.array != null -> generator.writeObject(value.array)
-                value.objectType != null -> generator.writeObject(value.objectType)
+                value.object_ != null -> generator.writeObject(value.object_)
                 value.json != null -> generator.writeObject(value.json)
                 value.union != null -> generator.writeObject(value.union)
                 value.chatCompletionInput != null ->

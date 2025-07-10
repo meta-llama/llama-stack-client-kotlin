@@ -33,10 +33,10 @@ private constructor(
     private val identifier: JsonField<String>,
     private val metadata: JsonField<Metadata>,
     private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
     private val purpose: JsonField<Purpose>,
     private val source: JsonField<Source>,
     private val type: JsonValue,
+    private val providerResourceId: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -49,20 +49,20 @@ private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
-        providerResourceId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("purpose") @ExcludeMissing purpose: JsonField<Purpose> = JsonMissing.of(),
         @JsonProperty("source") @ExcludeMissing source: JsonField<Source> = JsonMissing.of(),
         @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        @JsonProperty("provider_resource_id")
+        @ExcludeMissing
+        providerResourceId: JsonField<String> = JsonMissing.of(),
     ) : this(
         identifier,
         metadata,
         providerId,
-        providerResourceId,
         purpose,
         source,
         type,
+        providerResourceId,
         mutableMapOf(),
     )
 
@@ -83,12 +83,6 @@ private constructor(
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun providerId(): String = providerId.getRequired("provider_id")
-
-    /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
-    fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
     /**
      * Purpose of the dataset. Each purpose has a required input data schema.
@@ -118,6 +112,12 @@ private constructor(
     @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
 
     /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun providerResourceId(): String? = providerResourceId.getNullable("provider_resource_id")
+
+    /**
      * Returns the raw JSON value of [identifier].
      *
      * Unlike [identifier], this method doesn't throw if the JSON field has an unexpected type.
@@ -139,16 +139,6 @@ private constructor(
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     /**
-     * Returns the raw JSON value of [providerResourceId].
-     *
-     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
-     * type.
-     */
-    @JsonProperty("provider_resource_id")
-    @ExcludeMissing
-    fun _providerResourceId(): JsonField<String> = providerResourceId
-
-    /**
      * Returns the raw JSON value of [purpose].
      *
      * Unlike [purpose], this method doesn't throw if the JSON field has an unexpected type.
@@ -161,6 +151,16 @@ private constructor(
      * Unlike [source], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("source") @ExcludeMissing fun _source(): JsonField<Source> = source
+
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    fun _providerResourceId(): JsonField<String> = providerResourceId
 
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -184,7 +184,6 @@ private constructor(
          * .identifier()
          * .metadata()
          * .providerId()
-         * .providerResourceId()
          * .purpose()
          * .source()
          * ```
@@ -198,20 +197,20 @@ private constructor(
         private var identifier: JsonField<String>? = null
         private var metadata: JsonField<Metadata>? = null
         private var providerId: JsonField<String>? = null
-        private var providerResourceId: JsonField<String>? = null
         private var purpose: JsonField<Purpose>? = null
         private var source: JsonField<Source>? = null
         private var type: JsonValue = JsonValue.from("dataset")
+        private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(datasetRegisterResponse: DatasetRegisterResponse) = apply {
             identifier = datasetRegisterResponse.identifier
             metadata = datasetRegisterResponse.metadata
             providerId = datasetRegisterResponse.providerId
-            providerResourceId = datasetRegisterResponse.providerResourceId
             purpose = datasetRegisterResponse.purpose
             source = datasetRegisterResponse.source
             type = datasetRegisterResponse.type
+            providerResourceId = datasetRegisterResponse.providerResourceId
             additionalProperties = datasetRegisterResponse.additionalProperties.toMutableMap()
         }
 
@@ -248,20 +247,6 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
-        fun providerResourceId(providerResourceId: String) =
-            providerResourceId(JsonField.of(providerResourceId))
-
-        /**
-         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
-            this.providerResourceId = providerResourceId
-        }
-
         /** Purpose of the dataset. Each purpose has a required input data schema. */
         fun purpose(purpose: Purpose) = purpose(JsonField.of(purpose))
 
@@ -284,32 +269,32 @@ private constructor(
          */
         fun source(source: JsonField<Source>) = apply { this.source = source }
 
-        /** Alias for calling [source] with `Source.ofUriData(uriData)`. */
-        fun source(uriData: Source.UriDataSource) = source(Source.ofUriData(uriData))
+        /** Alias for calling [source] with `Source.ofUri(uri)`. */
+        fun source(uri: Source.Uri) = source(Source.ofUri(uri))
 
         /**
          * Alias for calling [source] with the following:
          * ```kotlin
-         * Source.UriDataSource.builder()
+         * Source.Uri.builder()
          *     .uri(uri)
          *     .build()
          * ```
          */
-        fun uriDataSource(uri: String) = source(Source.UriDataSource.builder().uri(uri).build())
+        fun uriSource(uri: String) = source(Source.Uri.builder().uri(uri).build())
 
-        /** Alias for calling [source] with `Source.ofRowsData(rowsData)`. */
-        fun source(rowsData: Source.RowsDataSource) = source(Source.ofRowsData(rowsData))
+        /** Alias for calling [source] with `Source.ofRows(rows)`. */
+        fun source(rows: Source.Rows) = source(Source.ofRows(rows))
 
         /**
          * Alias for calling [source] with the following:
          * ```kotlin
-         * Source.RowsDataSource.builder()
+         * Source.Rows.builder()
          *     .rows(rows)
          *     .build()
          * ```
          */
-        fun rowsDataSource(rows: List<Source.RowsDataSource.Row>) =
-            source(Source.RowsDataSource.builder().rows(rows).build())
+        fun rowsSource(rows: List<Source.Rows.Row>) =
+            source(Source.Rows.builder().rows(rows).build())
 
         /**
          * Sets the field to an arbitrary JSON value.
@@ -324,6 +309,20 @@ private constructor(
          * value.
          */
         fun type(type: JsonValue) = apply { this.type = type }
+
+        fun providerResourceId(providerResourceId: String) =
+            providerResourceId(JsonField.of(providerResourceId))
+
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
+            this.providerResourceId = providerResourceId
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -354,7 +353,6 @@ private constructor(
          * .identifier()
          * .metadata()
          * .providerId()
-         * .providerResourceId()
          * .purpose()
          * .source()
          * ```
@@ -366,10 +364,10 @@ private constructor(
                 checkRequired("identifier", identifier),
                 checkRequired("metadata", metadata),
                 checkRequired("providerId", providerId),
-                checkRequired("providerResourceId", providerResourceId),
                 checkRequired("purpose", purpose),
                 checkRequired("source", source),
                 type,
+                providerResourceId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -384,7 +382,6 @@ private constructor(
         identifier()
         metadata().validate()
         providerId()
-        providerResourceId()
         purpose().validate()
         source().validate()
         _type().let {
@@ -392,6 +389,7 @@ private constructor(
                 throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
             }
         }
+        providerResourceId()
         validated = true
     }
 
@@ -412,10 +410,10 @@ private constructor(
         (if (identifier.asKnown() == null) 0 else 1) +
             (metadata.asKnown()?.validity() ?: 0) +
             (if (providerId.asKnown() == null) 0 else 1) +
-            (if (providerResourceId.asKnown() == null) 0 else 1) +
             (purpose.asKnown()?.validity() ?: 0) +
             (source.asKnown()?.validity() ?: 0) +
-            type.let { if (it == JsonValue.from("dataset")) 1 else 0 }
+            type.let { if (it == JsonValue.from("dataset")) 1 else 0 } +
+            (if (providerResourceId.asKnown() == null) 0 else 1)
 
     class Metadata
     @JsonCreator
@@ -654,33 +652,33 @@ private constructor(
     @JsonSerialize(using = Source.Serializer::class)
     class Source
     private constructor(
-        private val uriData: UriDataSource? = null,
-        private val rowsData: RowsDataSource? = null,
+        private val uri: Uri? = null,
+        private val rows: Rows? = null,
         private val _json: JsonValue? = null,
     ) {
 
         /** A dataset that can be obtained from a URI. */
-        fun uriData(): UriDataSource? = uriData
+        fun uri(): Uri? = uri
 
         /** A dataset stored in rows. */
-        fun rowsData(): RowsDataSource? = rowsData
+        fun rows(): Rows? = rows
 
-        fun isUriData(): Boolean = uriData != null
+        fun isUri(): Boolean = uri != null
 
-        fun isRowsData(): Boolean = rowsData != null
+        fun isRows(): Boolean = rows != null
 
         /** A dataset that can be obtained from a URI. */
-        fun asUriData(): UriDataSource = uriData.getOrThrow("uriData")
+        fun asUri(): Uri = uri.getOrThrow("uri")
 
         /** A dataset stored in rows. */
-        fun asRowsData(): RowsDataSource = rowsData.getOrThrow("rowsData")
+        fun asRows(): Rows = rows.getOrThrow("rows")
 
         fun _json(): JsonValue? = _json
 
         fun <T> accept(visitor: Visitor<T>): T =
             when {
-                uriData != null -> visitor.visitUriData(uriData)
-                rowsData != null -> visitor.visitRowsData(rowsData)
+                uri != null -> visitor.visitUri(uri)
+                rows != null -> visitor.visitRows(rows)
                 else -> visitor.unknown(_json)
             }
 
@@ -693,12 +691,12 @@ private constructor(
 
             accept(
                 object : Visitor<Unit> {
-                    override fun visitUriData(uriData: UriDataSource) {
-                        uriData.validate()
+                    override fun visitUri(uri: Uri) {
+                        uri.validate()
                     }
 
-                    override fun visitRowsData(rowsData: RowsDataSource) {
-                        rowsData.validate()
+                    override fun visitRows(rows: Rows) {
+                        rows.validate()
                     }
                 }
             )
@@ -722,9 +720,9 @@ private constructor(
         internal fun validity(): Int =
             accept(
                 object : Visitor<Int> {
-                    override fun visitUriData(uriData: UriDataSource) = uriData.validity()
+                    override fun visitUri(uri: Uri) = uri.validity()
 
-                    override fun visitRowsData(rowsData: RowsDataSource) = rowsData.validity()
+                    override fun visitRows(rows: Rows) = rows.validity()
 
                     override fun unknown(json: JsonValue?) = 0
                 }
@@ -735,15 +733,15 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is Source && uriData == other.uriData && rowsData == other.rowsData /* spotless:on */
+            return /* spotless:off */ other is Source && uri == other.uri && rows == other.rows /* spotless:on */
         }
 
-        override fun hashCode(): Int = /* spotless:off */ Objects.hash(uriData, rowsData) /* spotless:on */
+        override fun hashCode(): Int = /* spotless:off */ Objects.hash(uri, rows) /* spotless:on */
 
         override fun toString(): String =
             when {
-                uriData != null -> "Source{uriData=$uriData}"
-                rowsData != null -> "Source{rowsData=$rowsData}"
+                uri != null -> "Source{uri=$uri}"
+                rows != null -> "Source{rows=$rows}"
                 _json != null -> "Source{_unknown=$_json}"
                 else -> throw IllegalStateException("Invalid Source")
             }
@@ -751,20 +749,20 @@ private constructor(
         companion object {
 
             /** A dataset that can be obtained from a URI. */
-            fun ofUriData(uriData: UriDataSource) = Source(uriData = uriData)
+            fun ofUri(uri: Uri) = Source(uri = uri)
 
             /** A dataset stored in rows. */
-            fun ofRowsData(rowsData: RowsDataSource) = Source(rowsData = rowsData)
+            fun ofRows(rows: Rows) = Source(rows = rows)
         }
 
         /** An interface that defines how to map each variant of [Source] to a value of type [T]. */
         interface Visitor<out T> {
 
             /** A dataset that can be obtained from a URI. */
-            fun visitUriData(uriData: UriDataSource): T
+            fun visitUri(uri: Uri): T
 
             /** A dataset stored in rows. */
-            fun visitRowsData(rowsData: RowsDataSource): T
+            fun visitRows(rows: Rows): T
 
             /**
              * Maps an unknown variant of [Source] to a value of type [T].
@@ -789,13 +787,13 @@ private constructor(
 
                 when (type) {
                     "uri" -> {
-                        return tryDeserialize(node, jacksonTypeRef<UriDataSource>())?.let {
-                            Source(uriData = it, _json = json)
+                        return tryDeserialize(node, jacksonTypeRef<Uri>())?.let {
+                            Source(uri = it, _json = json)
                         } ?: Source(_json = json)
                     }
                     "rows" -> {
-                        return tryDeserialize(node, jacksonTypeRef<RowsDataSource>())?.let {
-                            Source(rowsData = it, _json = json)
+                        return tryDeserialize(node, jacksonTypeRef<Rows>())?.let {
+                            Source(rows = it, _json = json)
                         } ?: Source(_json = json)
                     }
                 }
@@ -812,8 +810,8 @@ private constructor(
                 provider: SerializerProvider,
             ) {
                 when {
-                    value.uriData != null -> generator.writeObject(value.uriData)
-                    value.rowsData != null -> generator.writeObject(value.rowsData)
+                    value.uri != null -> generator.writeObject(value.uri)
+                    value.rows != null -> generator.writeObject(value.rows)
                     value._json != null -> generator.writeObject(value._json)
                     else -> throw IllegalStateException("Invalid Source")
                 }
@@ -821,7 +819,7 @@ private constructor(
         }
 
         /** A dataset that can be obtained from a URI. */
-        class UriDataSource
+        class Uri
         private constructor(
             private val type: JsonValue,
             private val uri: JsonField<String>,
@@ -877,7 +875,7 @@ private constructor(
             companion object {
 
                 /**
-                 * Returns a mutable builder for constructing an instance of [UriDataSource].
+                 * Returns a mutable builder for constructing an instance of [Uri].
                  *
                  * The following fields are required:
                  * ```kotlin
@@ -887,17 +885,17 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            /** A builder for [UriDataSource]. */
+            /** A builder for [Uri]. */
             class Builder internal constructor() {
 
                 private var type: JsonValue = JsonValue.from("uri")
                 private var uri: JsonField<String>? = null
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(uriDataSource: UriDataSource) = apply {
-                    type = uriDataSource.type
-                    uri = uriDataSource.uri
-                    additionalProperties = uriDataSource.additionalProperties.toMutableMap()
+                internal fun from(uri: Uri) = apply {
+                    type = uri.type
+                    this.uri = uri.uri
+                    additionalProperties = uri.additionalProperties.toMutableMap()
                 }
 
                 /**
@@ -953,7 +951,7 @@ private constructor(
                 }
 
                 /**
-                 * Returns an immutable instance of [UriDataSource].
+                 * Returns an immutable instance of [Uri].
                  *
                  * Further updates to this [Builder] will not mutate the returned instance.
                  *
@@ -964,17 +962,13 @@ private constructor(
                  *
                  * @throws IllegalStateException if any required field is unset.
                  */
-                fun build(): UriDataSource =
-                    UriDataSource(
-                        type,
-                        checkRequired("uri", uri),
-                        additionalProperties.toMutableMap(),
-                    )
+                fun build(): Uri =
+                    Uri(type, checkRequired("uri", uri), additionalProperties.toMutableMap())
             }
 
             private var validated: Boolean = false
 
-            fun validate(): UriDataSource = apply {
+            fun validate(): Uri = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1013,7 +1007,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is UriDataSource && type == other.type && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Uri && type == other.type && uri == other.uri && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1023,11 +1017,11 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "UriDataSource{type=$type, uri=$uri, additionalProperties=$additionalProperties}"
+                "Uri{type=$type, uri=$uri, additionalProperties=$additionalProperties}"
         }
 
         /** A dataset stored in rows. */
-        class RowsDataSource
+        class Rows
         private constructor(
             private val rows: JsonField<List<Row>>,
             private val type: JsonValue,
@@ -1084,7 +1078,7 @@ private constructor(
             companion object {
 
                 /**
-                 * Returns a mutable builder for constructing an instance of [RowsDataSource].
+                 * Returns a mutable builder for constructing an instance of [Rows].
                  *
                  * The following fields are required:
                  * ```kotlin
@@ -1094,17 +1088,17 @@ private constructor(
                 fun builder() = Builder()
             }
 
-            /** A builder for [RowsDataSource]. */
+            /** A builder for [Rows]. */
             class Builder internal constructor() {
 
                 private var rows: JsonField<MutableList<Row>>? = null
                 private var type: JsonValue = JsonValue.from("rows")
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(rowsDataSource: RowsDataSource) = apply {
-                    rows = rowsDataSource.rows.map { it.toMutableList() }
-                    type = rowsDataSource.type
-                    additionalProperties = rowsDataSource.additionalProperties.toMutableMap()
+                internal fun from(rows: Rows) = apply {
+                    this.rows = rows.rows.map { it.toMutableList() }
+                    type = rows.type
+                    additionalProperties = rows.additionalProperties.toMutableMap()
                 }
 
                 /**
@@ -1174,7 +1168,7 @@ private constructor(
                 }
 
                 /**
-                 * Returns an immutable instance of [RowsDataSource].
+                 * Returns an immutable instance of [Rows].
                  *
                  * Further updates to this [Builder] will not mutate the returned instance.
                  *
@@ -1185,8 +1179,8 @@ private constructor(
                  *
                  * @throws IllegalStateException if any required field is unset.
                  */
-                fun build(): RowsDataSource =
-                    RowsDataSource(
+                fun build(): Rows =
+                    Rows(
                         checkRequired("rows", rows).map { it.toImmutable() },
                         type,
                         additionalProperties.toMutableMap(),
@@ -1195,7 +1189,7 @@ private constructor(
 
             private var validated: Boolean = false
 
-            fun validate(): RowsDataSource = apply {
+            fun validate(): Rows = apply {
                 if (validated) {
                     return@apply
                 }
@@ -1338,7 +1332,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is RowsDataSource && rows == other.rows && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is Rows && rows == other.rows && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -1348,7 +1342,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "RowsDataSource{rows=$rows, type=$type, additionalProperties=$additionalProperties}"
+                "Rows{rows=$rows, type=$type, additionalProperties=$additionalProperties}"
         }
     }
 
@@ -1357,15 +1351,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetRegisterResponse && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && purpose == other.purpose && source == other.source && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is DatasetRegisterResponse && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && purpose == other.purpose && source == other.source && type == other.type && providerResourceId == other.providerResourceId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, providerId, providerResourceId, purpose, source, type, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, providerId, purpose, source, type, providerResourceId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "DatasetRegisterResponse{identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, purpose=$purpose, source=$source, type=$type, additionalProperties=$additionalProperties}"
+        "DatasetRegisterResponse{identifier=$identifier, metadata=$metadata, providerId=$providerId, purpose=$purpose, source=$source, type=$type, providerResourceId=$providerResourceId, additionalProperties=$additionalProperties}"
 }

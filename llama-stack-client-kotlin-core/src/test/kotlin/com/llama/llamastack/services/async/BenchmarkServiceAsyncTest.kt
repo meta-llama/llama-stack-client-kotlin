@@ -6,7 +6,6 @@ import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.BenchmarkRegisterParams
-import com.llama.llamastack.models.BenchmarkRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -21,10 +20,7 @@ internal class BenchmarkServiceAsyncTest {
                 .build()
         val benchmarkServiceAsync = client.benchmarks()
 
-        val benchmark =
-            benchmarkServiceAsync.retrieve(
-                BenchmarkRetrieveParams.builder().benchmarkId("benchmark_id").build()
-            )
+        val benchmark = benchmarkServiceAsync.retrieve("benchmark_id")
 
         benchmark.validate()
     }

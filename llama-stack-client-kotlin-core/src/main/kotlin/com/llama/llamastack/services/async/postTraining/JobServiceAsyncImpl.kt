@@ -35,6 +35,9 @@ class JobServiceAsyncImpl internal constructor(private val clientOptions: Client
 
     override fun withRawResponse(): JobServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): JobServiceAsync =
+        JobServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun list(
         params: PostTrainingJobListParams,
         requestOptions: RequestOptions,
@@ -69,6 +72,13 @@ class JobServiceAsyncImpl internal constructor(private val clientOptions: Client
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): JobServiceAsync.WithRawResponse =
+            JobServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val listHandler: Handler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>> =
             jsonHandler<DataEnvelope<List<ListPostTrainingJobsResponse.Data>>>(
                     clientOptions.jsonMapper
@@ -82,6 +92,7 @@ class JobServiceAsyncImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "jobs")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -110,6 +121,7 @@ class JobServiceAsyncImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "job", "artifacts")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -135,6 +147,7 @@ class JobServiceAsyncImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "job", "cancel")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -155,6 +168,7 @@ class JobServiceAsyncImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "job", "status")
                     .build()
                     .prepareAsync(clientOptions, params)

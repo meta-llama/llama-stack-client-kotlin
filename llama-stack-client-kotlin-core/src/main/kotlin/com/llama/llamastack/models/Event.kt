@@ -32,17 +32,17 @@ import java.util.Objects
 @JsonSerialize(using = Event.Serializer::class)
 class Event
 private constructor(
-    private val unstructuredLog: UnstructuredLogEvent? = null,
-    private val metric: MetricEvent? = null,
-    private val structuredLog: StructuredLogEvent? = null,
+    private val unstructuredLog: UnstructuredLog? = null,
+    private val metric: Metric? = null,
+    private val structuredLog: StructuredLog? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun unstructuredLog(): UnstructuredLogEvent? = unstructuredLog
+    fun unstructuredLog(): UnstructuredLog? = unstructuredLog
 
-    fun metric(): MetricEvent? = metric
+    fun metric(): Metric? = metric
 
-    fun structuredLog(): StructuredLogEvent? = structuredLog
+    fun structuredLog(): StructuredLog? = structuredLog
 
     fun isUnstructuredLog(): Boolean = unstructuredLog != null
 
@@ -50,11 +50,11 @@ private constructor(
 
     fun isStructuredLog(): Boolean = structuredLog != null
 
-    fun asUnstructuredLog(): UnstructuredLogEvent = unstructuredLog.getOrThrow("unstructuredLog")
+    fun asUnstructuredLog(): UnstructuredLog = unstructuredLog.getOrThrow("unstructuredLog")
 
-    fun asMetric(): MetricEvent = metric.getOrThrow("metric")
+    fun asMetric(): Metric = metric.getOrThrow("metric")
 
-    fun asStructuredLog(): StructuredLogEvent = structuredLog.getOrThrow("structuredLog")
+    fun asStructuredLog(): StructuredLog = structuredLog.getOrThrow("structuredLog")
 
     fun _json(): JsonValue? = _json
 
@@ -75,15 +75,15 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitUnstructuredLog(unstructuredLog: UnstructuredLogEvent) {
+                override fun visitUnstructuredLog(unstructuredLog: UnstructuredLog) {
                     unstructuredLog.validate()
                 }
 
-                override fun visitMetric(metric: MetricEvent) {
+                override fun visitMetric(metric: Metric) {
                     metric.validate()
                 }
 
-                override fun visitStructuredLog(structuredLog: StructuredLogEvent) {
+                override fun visitStructuredLog(structuredLog: StructuredLog) {
                     structuredLog.validate()
                 }
             }
@@ -107,12 +107,12 @@ private constructor(
     internal fun validity(): Int =
         accept(
             object : Visitor<Int> {
-                override fun visitUnstructuredLog(unstructuredLog: UnstructuredLogEvent) =
+                override fun visitUnstructuredLog(unstructuredLog: UnstructuredLog) =
                     unstructuredLog.validity()
 
-                override fun visitMetric(metric: MetricEvent) = metric.validity()
+                override fun visitMetric(metric: Metric) = metric.validity()
 
-                override fun visitStructuredLog(structuredLog: StructuredLogEvent) =
+                override fun visitStructuredLog(structuredLog: StructuredLog) =
                     structuredLog.validity()
 
                 override fun unknown(json: JsonValue?) = 0
@@ -140,23 +140,22 @@ private constructor(
 
     companion object {
 
-        fun ofUnstructuredLog(unstructuredLog: UnstructuredLogEvent) =
+        fun ofUnstructuredLog(unstructuredLog: UnstructuredLog) =
             Event(unstructuredLog = unstructuredLog)
 
-        fun ofMetric(metric: MetricEvent) = Event(metric = metric)
+        fun ofMetric(metric: Metric) = Event(metric = metric)
 
-        fun ofStructuredLog(structuredLog: StructuredLogEvent) =
-            Event(structuredLog = structuredLog)
+        fun ofStructuredLog(structuredLog: StructuredLog) = Event(structuredLog = structuredLog)
     }
 
     /** An interface that defines how to map each variant of [Event] to a value of type [T]. */
     interface Visitor<out T> {
 
-        fun visitUnstructuredLog(unstructuredLog: UnstructuredLogEvent): T
+        fun visitUnstructuredLog(unstructuredLog: UnstructuredLog): T
 
-        fun visitMetric(metric: MetricEvent): T
+        fun visitMetric(metric: Metric): T
 
-        fun visitStructuredLog(structuredLog: StructuredLogEvent): T
+        fun visitStructuredLog(structuredLog: StructuredLog): T
 
         /**
          * Maps an unknown variant of [Event] to a value of type [T].
@@ -180,17 +179,17 @@ private constructor(
 
             when (type) {
                 "unstructured_log" -> {
-                    return tryDeserialize(node, jacksonTypeRef<UnstructuredLogEvent>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<UnstructuredLog>())?.let {
                         Event(unstructuredLog = it, _json = json)
                     } ?: Event(_json = json)
                 }
                 "metric" -> {
-                    return tryDeserialize(node, jacksonTypeRef<MetricEvent>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Metric>())?.let {
                         Event(metric = it, _json = json)
                     } ?: Event(_json = json)
                 }
                 "structured_log" -> {
-                    return tryDeserialize(node, jacksonTypeRef<StructuredLogEvent>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<StructuredLog>())?.let {
                         Event(structuredLog = it, _json = json)
                     } ?: Event(_json = json)
                 }
@@ -217,7 +216,7 @@ private constructor(
         }
     }
 
-    class UnstructuredLogEvent
+    class UnstructuredLog
     private constructor(
         private val message: JsonField<String>,
         private val severity: JsonField<Severity>,
@@ -359,7 +358,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [UnstructuredLogEvent].
+             * Returns a mutable builder for constructing an instance of [UnstructuredLog].
              *
              * The following fields are required:
              * ```kotlin
@@ -373,7 +372,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [UnstructuredLogEvent]. */
+        /** A builder for [UnstructuredLog]. */
         class Builder internal constructor() {
 
             private var message: JsonField<String>? = null
@@ -385,15 +384,15 @@ private constructor(
             private var attributes: JsonField<Attributes> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(unstructuredLogEvent: UnstructuredLogEvent) = apply {
-                message = unstructuredLogEvent.message
-                severity = unstructuredLogEvent.severity
-                spanId = unstructuredLogEvent.spanId
-                timestamp = unstructuredLogEvent.timestamp
-                traceId = unstructuredLogEvent.traceId
-                type = unstructuredLogEvent.type
-                attributes = unstructuredLogEvent.attributes
-                additionalProperties = unstructuredLogEvent.additionalProperties.toMutableMap()
+            internal fun from(unstructuredLog: UnstructuredLog) = apply {
+                message = unstructuredLog.message
+                severity = unstructuredLog.severity
+                spanId = unstructuredLog.spanId
+                timestamp = unstructuredLog.timestamp
+                traceId = unstructuredLog.traceId
+                type = unstructuredLog.type
+                attributes = unstructuredLog.attributes
+                additionalProperties = unstructuredLog.additionalProperties.toMutableMap()
             }
 
             fun message(message: String) = message(JsonField.of(message))
@@ -500,7 +499,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [UnstructuredLogEvent].
+             * Returns an immutable instance of [UnstructuredLog].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -515,8 +514,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): UnstructuredLogEvent =
-                UnstructuredLogEvent(
+            fun build(): UnstructuredLog =
+                UnstructuredLog(
                     checkRequired("message", message),
                     checkRequired("severity", severity),
                     checkRequired("spanId", spanId),
@@ -530,7 +529,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): UnstructuredLogEvent = apply {
+        fun validate(): UnstructuredLog = apply {
             if (validated) {
                 return@apply
             }
@@ -832,7 +831,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is UnstructuredLogEvent && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is UnstructuredLog && message == other.message && severity == other.severity && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -842,10 +841,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "UnstructuredLogEvent{message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
+            "UnstructuredLog{message=$message, severity=$severity, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
     }
 
-    class MetricEvent
+    class Metric
     private constructor(
         private val metric: JsonField<String>,
         private val spanId: JsonField<String>,
@@ -1001,7 +1000,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [MetricEvent].
+             * Returns a mutable builder for constructing an instance of [Metric].
              *
              * The following fields are required:
              * ```kotlin
@@ -1016,7 +1015,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [MetricEvent]. */
+        /** A builder for [Metric]. */
         class Builder internal constructor() {
 
             private var metric: JsonField<String>? = null
@@ -1029,16 +1028,16 @@ private constructor(
             private var attributes: JsonField<Attributes> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(metricEvent: MetricEvent) = apply {
-                metric = metricEvent.metric
-                spanId = metricEvent.spanId
-                timestamp = metricEvent.timestamp
-                traceId = metricEvent.traceId
-                type = metricEvent.type
-                unit = metricEvent.unit
-                value = metricEvent.value
-                attributes = metricEvent.attributes
-                additionalProperties = metricEvent.additionalProperties.toMutableMap()
+            internal fun from(metric: Metric) = apply {
+                this.metric = metric.metric
+                spanId = metric.spanId
+                timestamp = metric.timestamp
+                traceId = metric.traceId
+                type = metric.type
+                unit = metric.unit
+                value = metric.value
+                attributes = metric.attributes
+                additionalProperties = metric.additionalProperties.toMutableMap()
             }
 
             fun metric(metric: String) = metric(JsonField.of(metric))
@@ -1156,7 +1155,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [MetricEvent].
+             * Returns an immutable instance of [Metric].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -1172,8 +1171,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): MetricEvent =
-                MetricEvent(
+            fun build(): Metric =
+                Metric(
                     checkRequired("metric", metric),
                     checkRequired("spanId", spanId),
                     checkRequired("timestamp", timestamp),
@@ -1188,7 +1187,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): MetricEvent = apply {
+        fun validate(): Metric = apply {
             if (validated) {
                 return@apply
             }
@@ -1339,7 +1338,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is MetricEvent && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Metric && metric == other.metric && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && unit == other.unit && value == other.value && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -1349,10 +1348,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "MetricEvent{metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, attributes=$attributes, additionalProperties=$additionalProperties}"
+            "Metric{metric=$metric, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, unit=$unit, value=$value, attributes=$attributes, additionalProperties=$additionalProperties}"
     }
 
-    class StructuredLogEvent
+    class StructuredLog
     private constructor(
         private val payload: JsonField<Payload>,
         private val spanId: JsonField<String>,
@@ -1476,7 +1475,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [StructuredLogEvent].
+             * Returns a mutable builder for constructing an instance of [StructuredLog].
              *
              * The following fields are required:
              * ```kotlin
@@ -1489,7 +1488,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [StructuredLogEvent]. */
+        /** A builder for [StructuredLog]. */
         class Builder internal constructor() {
 
             private var payload: JsonField<Payload>? = null
@@ -1500,14 +1499,14 @@ private constructor(
             private var attributes: JsonField<Attributes> = JsonMissing.of()
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(structuredLogEvent: StructuredLogEvent) = apply {
-                payload = structuredLogEvent.payload
-                spanId = structuredLogEvent.spanId
-                timestamp = structuredLogEvent.timestamp
-                traceId = structuredLogEvent.traceId
-                type = structuredLogEvent.type
-                attributes = structuredLogEvent.attributes
-                additionalProperties = structuredLogEvent.additionalProperties.toMutableMap()
+            internal fun from(structuredLog: StructuredLog) = apply {
+                payload = structuredLog.payload
+                spanId = structuredLog.spanId
+                timestamp = structuredLog.timestamp
+                traceId = structuredLog.traceId
+                type = structuredLog.type
+                attributes = structuredLog.attributes
+                additionalProperties = structuredLog.additionalProperties.toMutableMap()
             }
 
             fun payload(payload: Payload) = payload(JsonField.of(payload))
@@ -1522,33 +1521,32 @@ private constructor(
             fun payload(payload: JsonField<Payload>) = apply { this.payload = payload }
 
             /** Alias for calling [payload] with `Payload.ofSpanStart(spanStart)`. */
-            fun payload(spanStart: Payload.SpanStartPayload) =
-                payload(Payload.ofSpanStart(spanStart))
+            fun payload(spanStart: Payload.SpanStart) = payload(Payload.ofSpanStart(spanStart))
 
             /**
              * Alias for calling [payload] with the following:
              * ```kotlin
-             * Payload.SpanStartPayload.builder()
+             * Payload.SpanStart.builder()
              *     .name(name)
              *     .build()
              * ```
              */
             fun spanStartPayload(name: String) =
-                payload(Payload.SpanStartPayload.builder().name(name).build())
+                payload(Payload.SpanStart.builder().name(name).build())
 
             /** Alias for calling [payload] with `Payload.ofSpanEnd(spanEnd)`. */
-            fun payload(spanEnd: Payload.SpanEndPayload) = payload(Payload.ofSpanEnd(spanEnd))
+            fun payload(spanEnd: Payload.SpanEnd) = payload(Payload.ofSpanEnd(spanEnd))
 
             /**
              * Alias for calling [payload] with the following:
              * ```kotlin
-             * Payload.SpanEndPayload.builder()
+             * Payload.SpanEnd.builder()
              *     .status(status)
              *     .build()
              * ```
              */
-            fun spanEndPayload(status: Payload.SpanEndPayload.Status) =
-                payload(Payload.SpanEndPayload.builder().status(status).build())
+            fun spanEndPayload(status: Payload.SpanEnd.Status) =
+                payload(Payload.SpanEnd.builder().status(status).build())
 
             fun spanId(spanId: String) = spanId(JsonField.of(spanId))
 
@@ -1632,7 +1630,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [StructuredLogEvent].
+             * Returns an immutable instance of [StructuredLog].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -1646,8 +1644,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): StructuredLogEvent =
-                StructuredLogEvent(
+            fun build(): StructuredLog =
+                StructuredLog(
                     checkRequired("payload", payload),
                     checkRequired("spanId", spanId),
                     checkRequired("timestamp", timestamp),
@@ -1660,7 +1658,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): StructuredLogEvent = apply {
+        fun validate(): StructuredLog = apply {
             if (validated) {
                 return@apply
             }
@@ -1704,22 +1702,22 @@ private constructor(
         @JsonSerialize(using = Payload.Serializer::class)
         class Payload
         private constructor(
-            private val spanStart: SpanStartPayload? = null,
-            private val spanEnd: SpanEndPayload? = null,
+            private val spanStart: SpanStart? = null,
+            private val spanEnd: SpanEnd? = null,
             private val _json: JsonValue? = null,
         ) {
 
-            fun spanStart(): SpanStartPayload? = spanStart
+            fun spanStart(): SpanStart? = spanStart
 
-            fun spanEnd(): SpanEndPayload? = spanEnd
+            fun spanEnd(): SpanEnd? = spanEnd
 
             fun isSpanStart(): Boolean = spanStart != null
 
             fun isSpanEnd(): Boolean = spanEnd != null
 
-            fun asSpanStart(): SpanStartPayload = spanStart.getOrThrow("spanStart")
+            fun asSpanStart(): SpanStart = spanStart.getOrThrow("spanStart")
 
-            fun asSpanEnd(): SpanEndPayload = spanEnd.getOrThrow("spanEnd")
+            fun asSpanEnd(): SpanEnd = spanEnd.getOrThrow("spanEnd")
 
             fun _json(): JsonValue? = _json
 
@@ -1739,11 +1737,11 @@ private constructor(
 
                 accept(
                     object : Visitor<Unit> {
-                        override fun visitSpanStart(spanStart: SpanStartPayload) {
+                        override fun visitSpanStart(spanStart: SpanStart) {
                             spanStart.validate()
                         }
 
-                        override fun visitSpanEnd(spanEnd: SpanEndPayload) {
+                        override fun visitSpanEnd(spanEnd: SpanEnd) {
                             spanEnd.validate()
                         }
                     }
@@ -1768,10 +1766,9 @@ private constructor(
             internal fun validity(): Int =
                 accept(
                     object : Visitor<Int> {
-                        override fun visitSpanStart(spanStart: SpanStartPayload) =
-                            spanStart.validity()
+                        override fun visitSpanStart(spanStart: SpanStart) = spanStart.validity()
 
-                        override fun visitSpanEnd(spanEnd: SpanEndPayload) = spanEnd.validity()
+                        override fun visitSpanEnd(spanEnd: SpanEnd) = spanEnd.validity()
 
                         override fun unknown(json: JsonValue?) = 0
                     }
@@ -1797,9 +1794,9 @@ private constructor(
 
             companion object {
 
-                fun ofSpanStart(spanStart: SpanStartPayload) = Payload(spanStart = spanStart)
+                fun ofSpanStart(spanStart: SpanStart) = Payload(spanStart = spanStart)
 
-                fun ofSpanEnd(spanEnd: SpanEndPayload) = Payload(spanEnd = spanEnd)
+                fun ofSpanEnd(spanEnd: SpanEnd) = Payload(spanEnd = spanEnd)
             }
 
             /**
@@ -1808,9 +1805,9 @@ private constructor(
              */
             interface Visitor<out T> {
 
-                fun visitSpanStart(spanStart: SpanStartPayload): T
+                fun visitSpanStart(spanStart: SpanStart): T
 
-                fun visitSpanEnd(spanEnd: SpanEndPayload): T
+                fun visitSpanEnd(spanEnd: SpanEnd): T
 
                 /**
                  * Maps an unknown variant of [Payload] to a value of type [T].
@@ -1835,12 +1832,12 @@ private constructor(
 
                     when (type) {
                         "span_start" -> {
-                            return tryDeserialize(node, jacksonTypeRef<SpanStartPayload>())?.let {
+                            return tryDeserialize(node, jacksonTypeRef<SpanStart>())?.let {
                                 Payload(spanStart = it, _json = json)
                             } ?: Payload(_json = json)
                         }
                         "span_end" -> {
-                            return tryDeserialize(node, jacksonTypeRef<SpanEndPayload>())?.let {
+                            return tryDeserialize(node, jacksonTypeRef<SpanEnd>())?.let {
                                 Payload(spanEnd = it, _json = json)
                             } ?: Payload(_json = json)
                         }
@@ -1866,7 +1863,7 @@ private constructor(
                 }
             }
 
-            class SpanStartPayload
+            class SpanStart
             private constructor(
                 private val name: JsonField<String>,
                 private val type: JsonValue,
@@ -1942,7 +1939,7 @@ private constructor(
                 companion object {
 
                     /**
-                     * Returns a mutable builder for constructing an instance of [SpanStartPayload].
+                     * Returns a mutable builder for constructing an instance of [SpanStart].
                      *
                      * The following fields are required:
                      * ```kotlin
@@ -1952,7 +1949,7 @@ private constructor(
                     fun builder() = Builder()
                 }
 
-                /** A builder for [SpanStartPayload]. */
+                /** A builder for [SpanStart]. */
                 class Builder internal constructor() {
 
                     private var name: JsonField<String>? = null
@@ -1960,11 +1957,11 @@ private constructor(
                     private var parentSpanId: JsonField<String> = JsonMissing.of()
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                    internal fun from(spanStartPayload: SpanStartPayload) = apply {
-                        name = spanStartPayload.name
-                        type = spanStartPayload.type
-                        parentSpanId = spanStartPayload.parentSpanId
-                        additionalProperties = spanStartPayload.additionalProperties.toMutableMap()
+                    internal fun from(spanStart: SpanStart) = apply {
+                        name = spanStart.name
+                        type = spanStart.type
+                        parentSpanId = spanStart.parentSpanId
+                        additionalProperties = spanStart.additionalProperties.toMutableMap()
                     }
 
                     fun name(name: String) = name(JsonField.of(name))
@@ -2029,7 +2026,7 @@ private constructor(
                     }
 
                     /**
-                     * Returns an immutable instance of [SpanStartPayload].
+                     * Returns an immutable instance of [SpanStart].
                      *
                      * Further updates to this [Builder] will not mutate the returned instance.
                      *
@@ -2040,8 +2037,8 @@ private constructor(
                      *
                      * @throws IllegalStateException if any required field is unset.
                      */
-                    fun build(): SpanStartPayload =
-                        SpanStartPayload(
+                    fun build(): SpanStart =
+                        SpanStart(
                             checkRequired("name", name),
                             type,
                             parentSpanId,
@@ -2051,7 +2048,7 @@ private constructor(
 
                 private var validated: Boolean = false
 
-                fun validate(): SpanStartPayload = apply {
+                fun validate(): SpanStart = apply {
                     if (validated) {
                         return@apply
                     }
@@ -2092,7 +2089,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is SpanStartPayload && name == other.name && type == other.type && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is SpanStart && name == other.name && type == other.type && parentSpanId == other.parentSpanId && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
                 /* spotless:off */
@@ -2102,10 +2099,10 @@ private constructor(
                 override fun hashCode(): Int = hashCode
 
                 override fun toString() =
-                    "SpanStartPayload{name=$name, type=$type, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
+                    "SpanStart{name=$name, type=$type, parentSpanId=$parentSpanId, additionalProperties=$additionalProperties}"
             }
 
-            class SpanEndPayload
+            class SpanEnd
             private constructor(
                 private val status: JsonField<Status>,
                 private val type: JsonValue,
@@ -2161,7 +2158,7 @@ private constructor(
                 companion object {
 
                     /**
-                     * Returns a mutable builder for constructing an instance of [SpanEndPayload].
+                     * Returns a mutable builder for constructing an instance of [SpanEnd].
                      *
                      * The following fields are required:
                      * ```kotlin
@@ -2171,17 +2168,17 @@ private constructor(
                     fun builder() = Builder()
                 }
 
-                /** A builder for [SpanEndPayload]. */
+                /** A builder for [SpanEnd]. */
                 class Builder internal constructor() {
 
                     private var status: JsonField<Status>? = null
                     private var type: JsonValue = JsonValue.from("span_end")
                     private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                    internal fun from(spanEndPayload: SpanEndPayload) = apply {
-                        status = spanEndPayload.status
-                        type = spanEndPayload.type
-                        additionalProperties = spanEndPayload.additionalProperties.toMutableMap()
+                    internal fun from(spanEnd: SpanEnd) = apply {
+                        status = spanEnd.status
+                        type = spanEnd.type
+                        additionalProperties = spanEnd.additionalProperties.toMutableMap()
                     }
 
                     fun status(status: Status) = status(JsonField.of(status))
@@ -2232,7 +2229,7 @@ private constructor(
                     }
 
                     /**
-                     * Returns an immutable instance of [SpanEndPayload].
+                     * Returns an immutable instance of [SpanEnd].
                      *
                      * Further updates to this [Builder] will not mutate the returned instance.
                      *
@@ -2243,8 +2240,8 @@ private constructor(
                      *
                      * @throws IllegalStateException if any required field is unset.
                      */
-                    fun build(): SpanEndPayload =
-                        SpanEndPayload(
+                    fun build(): SpanEnd =
+                        SpanEnd(
                             checkRequired("status", status),
                             type,
                             additionalProperties.toMutableMap(),
@@ -2253,7 +2250,7 @@ private constructor(
 
                 private var validated: Boolean = false
 
-                fun validate(): SpanEndPayload = apply {
+                fun validate(): SpanEnd = apply {
                     if (validated) {
                         return@apply
                     }
@@ -2425,7 +2422,7 @@ private constructor(
                         return true
                     }
 
-                    return /* spotless:off */ other is SpanEndPayload && status == other.status && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+                    return /* spotless:off */ other is SpanEnd && status == other.status && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
                 }
 
                 /* spotless:off */
@@ -2435,7 +2432,7 @@ private constructor(
                 override fun hashCode(): Int = hashCode
 
                 override fun toString() =
-                    "SpanEndPayload{status=$status, type=$type, additionalProperties=$additionalProperties}"
+                    "SpanEnd{status=$status, type=$type, additionalProperties=$additionalProperties}"
             }
         }
 
@@ -2546,7 +2543,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is StructuredLogEvent && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is StructuredLog && payload == other.payload && spanId == other.spanId && timestamp == other.timestamp && traceId == other.traceId && type == other.type && attributes == other.attributes && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -2556,6 +2553,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "StructuredLogEvent{payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
+            "StructuredLog{payload=$payload, spanId=$spanId, timestamp=$timestamp, traceId=$traceId, type=$type, attributes=$attributes, additionalProperties=$additionalProperties}"
     }
 }

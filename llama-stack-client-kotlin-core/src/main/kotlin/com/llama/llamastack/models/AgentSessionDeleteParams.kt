@@ -10,11 +10,11 @@ import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-/** Delete an agent session by its ID. */
+/** Delete an agent session by its ID and its associated turns. */
 class AgentSessionDeleteParams
 private constructor(
     private val agentId: String,
-    private val sessionId: String,
+    private val sessionId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -22,7 +22,7 @@ private constructor(
 
     fun agentId(): String = agentId
 
-    fun sessionId(): String = sessionId
+    fun sessionId(): String? = sessionId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -40,7 +40,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .agentId()
-         * .sessionId()
          * ```
          */
         fun builder() = Builder()
@@ -66,7 +65,7 @@ private constructor(
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
-        fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
+        fun sessionId(sessionId: String?) = apply { this.sessionId = sessionId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -196,7 +195,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .agentId()
-         * .sessionId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -204,7 +202,7 @@ private constructor(
         fun build(): AgentSessionDeleteParams =
             AgentSessionDeleteParams(
                 checkRequired("agentId", agentId),
-                checkRequired("sessionId", sessionId),
+                sessionId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -216,7 +214,7 @@ private constructor(
     fun _pathParam(index: Int): String =
         when (index) {
             0 -> agentId
-            1 -> sessionId
+            1 -> sessionId ?: ""
             else -> ""
         }
 

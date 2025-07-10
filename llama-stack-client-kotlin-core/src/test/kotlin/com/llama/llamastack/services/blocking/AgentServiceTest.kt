@@ -7,7 +7,6 @@ import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.models.AgentConfig
 import com.llama.llamastack.models.AgentCreateParams
-import com.llama.llamastack.models.AgentDeleteParams
 import com.llama.llamastack.models.ResponseFormat
 import com.llama.llamastack.models.SamplingParams
 import com.llama.llamastack.models.ToolDef
@@ -53,15 +52,16 @@ internal class AgentServiceTest {
                             .enableSessionPersistence(true)
                             .addInputShield("string")
                             .maxInferIters(0L)
+                            .name("name")
                             .addOutputShield("string")
                             .jsonSchemaResponseFormat(
-                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyGreedy()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .addStop("string")
@@ -93,6 +93,6 @@ internal class AgentServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val agentService = client.agents()
 
-        agentService.delete(AgentDeleteParams.builder().agentId("agent_id").build())
+        agentService.delete("agent_id")
     }
 }

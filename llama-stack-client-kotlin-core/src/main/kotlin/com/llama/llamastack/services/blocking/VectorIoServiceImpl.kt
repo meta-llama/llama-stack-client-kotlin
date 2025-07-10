@@ -30,6 +30,9 @@ class VectorIoServiceImpl internal constructor(private val clientOptions: Client
 
     override fun withRawResponse(): VectorIoService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): VectorIoService =
+        VectorIoServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun insert(params: VectorIoInsertParams, requestOptions: RequestOptions) {
         // post /v1/vector-io/insert
         withRawResponse().insert(params, requestOptions)
@@ -47,6 +50,13 @@ class VectorIoServiceImpl internal constructor(private val clientOptions: Client
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): VectorIoService.WithRawResponse =
+            VectorIoServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val insertHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
 
         override fun insert(
@@ -56,6 +66,7 @@ class VectorIoServiceImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-io", "insert")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -76,6 +87,7 @@ class VectorIoServiceImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-io", "query")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

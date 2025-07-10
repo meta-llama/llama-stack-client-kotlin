@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.Shield
@@ -17,11 +18,31 @@ interface ShieldService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ShieldService
+
+    /** Get a shield by its identifier. */
+    fun retrieve(
+        identifier: String,
+        params: ShieldRetrieveParams = ShieldRetrieveParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): Shield = retrieve(params.toBuilder().identifier(identifier).build(), requestOptions)
+
+    /** @see [retrieve] */
     fun retrieve(
         params: ShieldRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): Shield
 
+    /** @see [retrieve] */
+    fun retrieve(identifier: String, requestOptions: RequestOptions): Shield =
+        retrieve(identifier, ShieldRetrieveParams.none(), requestOptions)
+
+    /** List all shields. */
     fun list(
         params: ShieldListParams = ShieldListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -31,6 +52,7 @@ interface ShieldService {
     fun list(requestOptions: RequestOptions): List<Shield> =
         list(ShieldListParams.none(), requestOptions)
 
+    /** Register a shield. */
     fun register(
         params: ShieldRegisterParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -40,14 +62,35 @@ interface ShieldService {
     interface WithRawResponse {
 
         /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ShieldService.WithRawResponse
+
+        /**
          * Returns a raw HTTP response for `get /v1/shields/{identifier}`, but is otherwise the same
          * as [ShieldService.retrieve].
          */
         @MustBeClosed
         fun retrieve(
+            identifier: String,
+            params: ShieldRetrieveParams = ShieldRetrieveParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<Shield> =
+            retrieve(params.toBuilder().identifier(identifier).build(), requestOptions)
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        fun retrieve(
             params: ShieldRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<Shield>
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        fun retrieve(identifier: String, requestOptions: RequestOptions): HttpResponseFor<Shield> =
+            retrieve(identifier, ShieldRetrieveParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `get /v1/shields`, but is otherwise the same as

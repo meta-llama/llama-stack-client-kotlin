@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async.agents
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.AgentStepRetrieveParams
@@ -15,7 +16,22 @@ interface StepServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): StepServiceAsync
+
     /** Retrieve an agent step by its ID. */
+    suspend fun retrieve(
+        stepId: String,
+        params: AgentStepRetrieveParams,
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): AgentStepRetrieveResponse =
+        retrieve(params.toBuilder().stepId(stepId).build(), requestOptions)
+
+    /** @see [retrieve] */
     suspend fun retrieve(
         params: AgentStepRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -25,10 +41,26 @@ interface StepServiceAsync {
     interface WithRawResponse {
 
         /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): StepServiceAsync.WithRawResponse
+
+        /**
          * Returns a raw HTTP response for `get
          * /v1/agents/{agent_id}/session/{session_id}/turn/{turn_id}/step/{step_id}`, but is
          * otherwise the same as [StepServiceAsync.retrieve].
          */
+        @MustBeClosed
+        suspend fun retrieve(
+            stepId: String,
+            params: AgentStepRetrieveParams,
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<AgentStepRetrieveResponse> =
+            retrieve(params.toBuilder().stepId(stepId).build(), requestOptions)
+
+        /** @see [retrieve] */
         @MustBeClosed
         suspend fun retrieve(
             params: AgentStepRetrieveParams,

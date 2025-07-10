@@ -17,11 +17,11 @@ internal class EvalCandidateTest {
     @Test
     fun ofModel() {
         val model =
-            EvalCandidate.ModelCandidate.builder()
+            EvalCandidate.Model.builder()
                 .model("model")
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyGreedy()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .addStop("string")
@@ -41,11 +41,11 @@ internal class EvalCandidateTest {
         val jsonMapper = jsonMapper()
         val evalCandidate =
             EvalCandidate.ofModel(
-                EvalCandidate.ModelCandidate.builder()
+                EvalCandidate.Model.builder()
                     .model("model")
                     .samplingParams(
                         SamplingParams.builder()
-                            .strategyGreedySampling()
+                            .strategyGreedy()
                             .maxTokens(0L)
                             .repetitionPenalty(0.0)
                             .addStop("string")
@@ -67,7 +67,7 @@ internal class EvalCandidateTest {
     @Test
     fun ofAgent() {
         val agent =
-            EvalCandidate.AgentCandidate.builder()
+            EvalCandidate.Agent.builder()
                 .config(
                     AgentConfig.builder()
                         .instructions("instructions")
@@ -95,15 +95,16 @@ internal class EvalCandidateTest {
                         .enableSessionPersistence(true)
                         .addInputShield("string")
                         .maxInferIters(0L)
+                        .name("name")
                         .addOutputShield("string")
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -136,7 +137,7 @@ internal class EvalCandidateTest {
         val jsonMapper = jsonMapper()
         val evalCandidate =
             EvalCandidate.ofAgent(
-                EvalCandidate.AgentCandidate.builder()
+                EvalCandidate.Agent.builder()
                     .config(
                         AgentConfig.builder()
                             .instructions("instructions")
@@ -164,15 +165,16 @@ internal class EvalCandidateTest {
                             .enableSessionPersistence(true)
                             .addInputShield("string")
                             .maxInferIters(0L)
+                            .name("name")
                             .addOutputShield("string")
                             .jsonSchemaResponseFormat(
-                                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                                ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                     .putAdditionalProperty("foo", JsonValue.from(true))
                                     .build()
                             )
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyGreedy()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .addStop("string")

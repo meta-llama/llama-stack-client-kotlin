@@ -20,6 +20,7 @@ internal class DatasetIterrowsResponseTest {
                         .build()
                 )
                 .hasMore(true)
+                .url("url")
                 .build()
 
         assertThat(datasetIterrowsResponse.data())
@@ -29,6 +30,7 @@ internal class DatasetIterrowsResponseTest {
                     .build()
             )
         assertThat(datasetIterrowsResponse.hasMore()).isEqualTo(true)
+        assertThat(datasetIterrowsResponse.url()).isEqualTo("url")
     }
 
     @Test
@@ -42,6 +44,7 @@ internal class DatasetIterrowsResponseTest {
                         .build()
                 )
                 .hasMore(true)
+                .url("url")
                 .build()
 
         val roundtrippedDatasetIterrowsResponse =

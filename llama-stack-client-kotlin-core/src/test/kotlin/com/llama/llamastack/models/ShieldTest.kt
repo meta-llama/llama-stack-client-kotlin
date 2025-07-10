@@ -16,21 +16,21 @@ internal class ShieldTest {
             Shield.builder()
                 .identifier("identifier")
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .params(
                     Shield.Params.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
+                .providerResourceId("provider_resource_id")
                 .build()
 
         assertThat(shield.identifier()).isEqualTo("identifier")
         assertThat(shield.providerId()).isEqualTo("provider_id")
-        assertThat(shield.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(shield.params())
             .isEqualTo(
                 Shield.Params.builder().putAdditionalProperty("foo", JsonValue.from(true)).build()
             )
+        assertThat(shield.providerResourceId()).isEqualTo("provider_resource_id")
     }
 
     @Test
@@ -40,12 +40,12 @@ internal class ShieldTest {
             Shield.builder()
                 .identifier("identifier")
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .params(
                     Shield.Params.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
+                .providerResourceId("provider_resource_id")
                 .build()
 
         val roundtrippedShield =

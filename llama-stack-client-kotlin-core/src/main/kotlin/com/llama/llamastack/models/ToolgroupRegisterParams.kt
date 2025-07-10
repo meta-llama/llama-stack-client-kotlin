@@ -19,7 +19,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
-/** Register a tool group */
+/** Register a tool group. */
 class ToolgroupRegisterParams
 private constructor(
     private val body: Body,
@@ -28,24 +28,32 @@ private constructor(
 ) : Params {
 
     /**
+     * The ID of the provider to use for the tool group.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun providerId(): String = body.providerId()
 
     /**
+     * The ID of the tool group to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun toolgroupId(): String = body.toolgroupId()
 
     /**
+     * A dictionary of arguments to pass to the tool group.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun args(): Args? = body.args()
 
     /**
+     * The MCP endpoint to use for the tool group.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -126,6 +134,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The ID of the provider to use for the tool group. */
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         /**
@@ -137,6 +146,7 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { body.providerId(providerId) }
 
+        /** The ID of the tool group to register. */
         fun toolgroupId(toolgroupId: String) = apply { body.toolgroupId(toolgroupId) }
 
         /**
@@ -148,6 +158,7 @@ private constructor(
          */
         fun toolgroupId(toolgroupId: JsonField<String>) = apply { body.toolgroupId(toolgroupId) }
 
+        /** A dictionary of arguments to pass to the tool group. */
         fun args(args: Args) = apply { body.args(args) }
 
         /**
@@ -158,6 +169,7 @@ private constructor(
          */
         fun args(args: JsonField<Args>) = apply { body.args(args) }
 
+        /** The MCP endpoint to use for the tool group. */
         fun mcpEndpoint(mcpEndpoint: McpEndpoint) = apply { body.mcpEndpoint(mcpEndpoint) }
 
         /**
@@ -339,6 +351,8 @@ private constructor(
         ) : this(providerId, toolgroupId, args, mcpEndpoint, mutableMapOf())
 
         /**
+         * The ID of the provider to use for the tool group.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -346,6 +360,8 @@ private constructor(
         fun providerId(): String = providerId.getRequired("provider_id")
 
         /**
+         * The ID of the tool group to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -353,12 +369,16 @@ private constructor(
         fun toolgroupId(): String = toolgroupId.getRequired("toolgroup_id")
 
         /**
+         * A dictionary of arguments to pass to the tool group.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun args(): Args? = args.getNullable("args")
 
         /**
+         * The MCP endpoint to use for the tool group.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -441,6 +461,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The ID of the provider to use for the tool group. */
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             /**
@@ -452,6 +473,7 @@ private constructor(
              */
             fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
+            /** The ID of the tool group to register. */
             fun toolgroupId(toolgroupId: String) = toolgroupId(JsonField.of(toolgroupId))
 
             /**
@@ -465,6 +487,7 @@ private constructor(
                 this.toolgroupId = toolgroupId
             }
 
+            /** A dictionary of arguments to pass to the tool group. */
             fun args(args: Args) = args(JsonField.of(args))
 
             /**
@@ -476,6 +499,7 @@ private constructor(
              */
             fun args(args: JsonField<Args>) = apply { this.args = args }
 
+            /** The MCP endpoint to use for the tool group. */
             fun mcpEndpoint(mcpEndpoint: McpEndpoint) = mcpEndpoint(JsonField.of(mcpEndpoint))
 
             /**
@@ -583,6 +607,7 @@ private constructor(
             "Body{providerId=$providerId, toolgroupId=$toolgroupId, args=$args, mcpEndpoint=$mcpEndpoint, additionalProperties=$additionalProperties}"
     }
 
+    /** A dictionary of arguments to pass to the tool group. */
     class Args
     @JsonCreator
     private constructor(
@@ -682,6 +707,7 @@ private constructor(
         override fun toString() = "Args{additionalProperties=$additionalProperties}"
     }
 
+    /** The MCP endpoint to use for the tool group. */
     class McpEndpoint
     private constructor(
         private val uri: JsonField<String>,

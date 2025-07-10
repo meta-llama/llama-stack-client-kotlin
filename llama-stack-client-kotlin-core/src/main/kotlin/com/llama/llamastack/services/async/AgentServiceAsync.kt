@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -20,6 +21,13 @@ interface AgentServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): AgentServiceAsync
+
     fun session(): SessionServiceAsync
 
     fun steps(): StepServiceAsync
@@ -32,14 +40,34 @@ interface AgentServiceAsync {
         requestOptions: RequestOptions = RequestOptions.none(),
     ): AgentCreateResponse
 
-    /** Delete an agent by its ID. */
+    /** Delete an agent by its ID and its associated sessions and turns. */
+    suspend fun delete(
+        agentId: String,
+        params: AgentDeleteParams = AgentDeleteParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ) = delete(params.toBuilder().agentId(agentId).build(), requestOptions)
+
+    /** @see [delete] */
     suspend fun delete(
         params: AgentDeleteParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     )
 
+    /** @see [delete] */
+    suspend fun delete(agentId: String, requestOptions: RequestOptions) =
+        delete(agentId, AgentDeleteParams.none(), requestOptions)
+
     /** A view of [AgentServiceAsync] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): AgentServiceAsync.WithRawResponse
 
         fun session(): SessionServiceAsync.WithRawResponse
 
@@ -63,8 +91,21 @@ interface AgentServiceAsync {
          */
         @MustBeClosed
         suspend fun delete(
+            agentId: String,
+            params: AgentDeleteParams = AgentDeleteParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponse = delete(params.toBuilder().agentId(agentId).build(), requestOptions)
+
+        /** @see [delete] */
+        @MustBeClosed
+        suspend fun delete(
             params: AgentDeleteParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponse
+
+        /** @see [delete] */
+        @MustBeClosed
+        suspend fun delete(agentId: String, requestOptions: RequestOptions): HttpResponse =
+            delete(agentId, AgentDeleteParams.none(), requestOptions)
     }
 }

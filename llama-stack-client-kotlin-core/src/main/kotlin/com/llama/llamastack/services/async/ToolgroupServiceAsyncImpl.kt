@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -32,6 +33,9 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
     }
 
     override fun withRawResponse(): ToolgroupServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolgroupServiceAsync =
+        ToolgroupServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun list(
         params: ToolgroupListParams,
@@ -65,6 +69,13 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ToolgroupServiceAsync.WithRawResponse =
+            ToolgroupServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val listHandler: Handler<DataEnvelope<List<ToolGroup>>> =
             jsonHandler<DataEnvelope<List<ToolGroup>>>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -76,6 +87,7 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "toolgroups")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -100,9 +112,13 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
             params: ToolgroupGetParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<ToolGroup> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("toolgroupId", params.toolgroupId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "toolgroups", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -128,6 +144,7 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "toolgroups")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -144,9 +161,13 @@ class ToolgroupServiceAsyncImpl internal constructor(private val clientOptions: 
             params: ToolgroupUnregisterParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("toolgroupId", params.toolgroupId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "toolgroups", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

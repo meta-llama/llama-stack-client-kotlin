@@ -2,16 +2,21 @@
 
 package com.llama.llamastack.client
 
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.services.async.AgentServiceAsync
-import com.llama.llamastack.services.async.BatchInferenceServiceAsync
 import com.llama.llamastack.services.async.BenchmarkServiceAsync
+import com.llama.llamastack.services.async.ChatServiceAsync
+import com.llama.llamastack.services.async.CompletionServiceAsync
 import com.llama.llamastack.services.async.DatasetServiceAsync
+import com.llama.llamastack.services.async.EmbeddingServiceAsync
 import com.llama.llamastack.services.async.EvalServiceAsync
+import com.llama.llamastack.services.async.FileServiceAsync
 import com.llama.llamastack.services.async.InferenceServiceAsync
 import com.llama.llamastack.services.async.InspectServiceAsync
 import com.llama.llamastack.services.async.ModelServiceAsync
 import com.llama.llamastack.services.async.PostTrainingServiceAsync
 import com.llama.llamastack.services.async.ProviderServiceAsync
+import com.llama.llamastack.services.async.ResponseServiceAsync
 import com.llama.llamastack.services.async.RouteServiceAsync
 import com.llama.llamastack.services.async.SafetyServiceAsync
 import com.llama.llamastack.services.async.ScoringFunctionServiceAsync
@@ -24,6 +29,7 @@ import com.llama.llamastack.services.async.ToolServiceAsync
 import com.llama.llamastack.services.async.ToolgroupServiceAsync
 import com.llama.llamastack.services.async.VectorDbServiceAsync
 import com.llama.llamastack.services.async.VectorIoServiceAsync
+import com.llama.llamastack.services.async.VectorStoreServiceAsync
 
 /**
  * A client for interacting with the Llama Stack Client REST API asynchronously. You can also switch
@@ -54,15 +60,22 @@ interface LlamaStackClientClientAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): LlamaStackClientClientAsync
+
     fun toolgroups(): ToolgroupServiceAsync
 
     fun tools(): ToolServiceAsync
 
     fun toolRuntime(): ToolRuntimeServiceAsync
 
-    fun agents(): AgentServiceAsync
+    fun responses(): ResponseServiceAsync
 
-    fun batchInference(): BatchInferenceServiceAsync
+    fun agents(): AgentServiceAsync
 
     fun datasets(): DatasetServiceAsync
 
@@ -72,9 +85,17 @@ interface LlamaStackClientClientAsync {
 
     fun inference(): InferenceServiceAsync
 
+    fun embeddings(): EmbeddingServiceAsync
+
+    fun chat(): ChatServiceAsync
+
+    fun completions(): CompletionServiceAsync
+
     fun vectorIo(): VectorIoServiceAsync
 
     fun vectorDbs(): VectorDbServiceAsync
+
+    fun vectorStores(): VectorStoreServiceAsync
 
     fun models(): ModelServiceAsync
 
@@ -98,6 +119,8 @@ interface LlamaStackClientClientAsync {
 
     fun benchmarks(): BenchmarkServiceAsync
 
+    fun files(): FileServiceAsync
+
     /**
      * Closes this client, relinquishing any underlying resources.
      *
@@ -117,15 +140,24 @@ interface LlamaStackClientClientAsync {
      */
     interface WithRawResponse {
 
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): LlamaStackClientClientAsync.WithRawResponse
+
         fun toolgroups(): ToolgroupServiceAsync.WithRawResponse
 
         fun tools(): ToolServiceAsync.WithRawResponse
 
         fun toolRuntime(): ToolRuntimeServiceAsync.WithRawResponse
 
-        fun agents(): AgentServiceAsync.WithRawResponse
+        fun responses(): ResponseServiceAsync.WithRawResponse
 
-        fun batchInference(): BatchInferenceServiceAsync.WithRawResponse
+        fun agents(): AgentServiceAsync.WithRawResponse
 
         fun datasets(): DatasetServiceAsync.WithRawResponse
 
@@ -135,9 +167,17 @@ interface LlamaStackClientClientAsync {
 
         fun inference(): InferenceServiceAsync.WithRawResponse
 
+        fun embeddings(): EmbeddingServiceAsync.WithRawResponse
+
+        fun chat(): ChatServiceAsync.WithRawResponse
+
+        fun completions(): CompletionServiceAsync.WithRawResponse
+
         fun vectorIo(): VectorIoServiceAsync.WithRawResponse
 
         fun vectorDbs(): VectorDbServiceAsync.WithRawResponse
+
+        fun vectorStores(): VectorStoreServiceAsync.WithRawResponse
 
         fun models(): ModelServiceAsync.WithRawResponse
 
@@ -160,5 +200,7 @@ interface LlamaStackClientClientAsync {
         fun scoringFunctions(): ScoringFunctionServiceAsync.WithRawResponse
 
         fun benchmarks(): BenchmarkServiceAsync.WithRawResponse
+
+        fun files(): FileServiceAsync.WithRawResponse
     }
 }

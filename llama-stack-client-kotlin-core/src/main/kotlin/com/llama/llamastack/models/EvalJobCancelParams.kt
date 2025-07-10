@@ -14,7 +14,7 @@ import java.util.Objects
 class EvalJobCancelParams
 private constructor(
     private val benchmarkId: String,
-    private val jobId: String,
+    private val jobId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
@@ -22,7 +22,7 @@ private constructor(
 
     fun benchmarkId(): String = benchmarkId
 
-    fun jobId(): String = jobId
+    fun jobId(): String? = jobId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -40,7 +40,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .benchmarkId()
-         * .jobId()
          * ```
          */
         fun builder() = Builder()
@@ -65,7 +64,7 @@ private constructor(
 
         fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
 
-        fun jobId(jobId: String) = apply { this.jobId = jobId }
+        fun jobId(jobId: String?) = apply { this.jobId = jobId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -195,7 +194,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .benchmarkId()
-         * .jobId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -203,7 +201,7 @@ private constructor(
         fun build(): EvalJobCancelParams =
             EvalJobCancelParams(
                 checkRequired("benchmarkId", benchmarkId),
-                checkRequired("jobId", jobId),
+                jobId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -215,7 +213,7 @@ private constructor(
     fun _pathParam(index: Int): String =
         when (index) {
             0 -> benchmarkId
-            1 -> jobId
+            1 -> jobId ?: ""
             else -> ""
         }
 

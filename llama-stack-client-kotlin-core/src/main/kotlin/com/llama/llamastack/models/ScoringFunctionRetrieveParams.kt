@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a scoring function by its ID. */
 class ScoringFunctionRetrieveParams
 private constructor(
-    private val scoringFnId: String,
+    private val scoringFnId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun scoringFnId(): String = scoringFnId
+    fun scoringFnId(): String? = scoringFnId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,11 @@ private constructor(
 
     companion object {
 
+        fun none(): ScoringFunctionRetrieveParams = builder().build()
+
         /**
          * Returns a mutable builder for constructing an instance of
          * [ScoringFunctionRetrieveParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .scoringFnId()
-         * ```
          */
         fun builder() = Builder()
     }
@@ -50,7 +47,7 @@ private constructor(
             additionalQueryParams = scoringFunctionRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun scoringFnId(scoringFnId: String) = apply { this.scoringFnId = scoringFnId }
+        fun scoringFnId(scoringFnId: String?) = apply { this.scoringFnId = scoringFnId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -154,17 +151,10 @@ private constructor(
          * Returns an immutable instance of [ScoringFunctionRetrieveParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .scoringFnId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ScoringFunctionRetrieveParams =
             ScoringFunctionRetrieveParams(
-                checkRequired("scoringFnId", scoringFnId),
+                scoringFnId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -172,7 +162,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> scoringFnId
+            0 -> scoringFnId ?: ""
             else -> ""
         }
 

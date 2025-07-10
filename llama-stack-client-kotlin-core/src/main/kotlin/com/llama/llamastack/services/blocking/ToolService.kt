@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.Tool
@@ -16,7 +17,14 @@ interface ToolService {
      */
     fun withRawResponse(): WithRawResponse
 
-    /** List tools with optional tool group */
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolService
+
+    /** List tools with optional tool group. */
     fun list(
         params: ToolListParams = ToolListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -26,10 +34,29 @@ interface ToolService {
     fun list(requestOptions: RequestOptions): List<Tool> =
         list(ToolListParams.none(), requestOptions)
 
+    /** Get a tool by its name. */
+    fun get(
+        toolName: String,
+        params: ToolGetParams = ToolGetParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): Tool = get(params.toBuilder().toolName(toolName).build(), requestOptions)
+
+    /** @see [get] */
     fun get(params: ToolGetParams, requestOptions: RequestOptions = RequestOptions.none()): Tool
+
+    /** @see [get] */
+    fun get(toolName: String, requestOptions: RequestOptions): Tool =
+        get(toolName, ToolGetParams.none(), requestOptions)
 
     /** A view of [ToolService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolService.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `get /v1/tools`, but is otherwise the same as
@@ -52,8 +79,22 @@ interface ToolService {
          */
         @MustBeClosed
         fun get(
+            toolName: String,
+            params: ToolGetParams = ToolGetParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<Tool> =
+            get(params.toBuilder().toolName(toolName).build(), requestOptions)
+
+        /** @see [get] */
+        @MustBeClosed
+        fun get(
             params: ToolGetParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<Tool>
+
+        /** @see [get] */
+        @MustBeClosed
+        fun get(toolName: String, requestOptions: RequestOptions): HttpResponseFor<Tool> =
+            get(toolName, ToolGetParams.none(), requestOptions)
     }
 }

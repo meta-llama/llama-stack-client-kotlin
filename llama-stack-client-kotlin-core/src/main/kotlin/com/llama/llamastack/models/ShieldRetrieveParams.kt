@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a shield by its identifier. */
 class ShieldRetrieveParams
 private constructor(
-    private val identifier: String,
+    private val identifier: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun identifier(): String = identifier
+    fun identifier(): String? = identifier
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [ShieldRetrieveParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .identifier()
-         * ```
-         */
+        fun none(): ShieldRetrieveParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ShieldRetrieveParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = shieldRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun identifier(identifier: String) = apply { this.identifier = identifier }
+        fun identifier(identifier: String?) = apply { this.identifier = identifier }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,17 +148,10 @@ private constructor(
          * Returns an immutable instance of [ShieldRetrieveParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .identifier()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ShieldRetrieveParams =
             ShieldRetrieveParams(
-                checkRequired("identifier", identifier),
+                identifier,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -171,7 +159,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> identifier
+            0 -> identifier ?: ""
             else -> ""
         }
 

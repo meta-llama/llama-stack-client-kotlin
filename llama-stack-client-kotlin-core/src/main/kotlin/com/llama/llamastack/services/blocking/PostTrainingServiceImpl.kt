@@ -32,6 +32,9 @@ class PostTrainingServiceImpl internal constructor(private val clientOptions: Cl
 
     override fun withRawResponse(): PostTrainingService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): PostTrainingService =
+        PostTrainingServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun job(): JobService = job
 
     override fun preferenceOptimize(
@@ -57,6 +60,13 @@ class PostTrainingServiceImpl internal constructor(private val clientOptions: Cl
             JobServiceImpl.WithRawResponseImpl(clientOptions)
         }
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): PostTrainingService.WithRawResponse =
+            PostTrainingServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         override fun job(): JobService.WithRawResponse = job
 
         private val preferenceOptimizeHandler: Handler<PostTrainingJob> =
@@ -69,6 +79,7 @@ class PostTrainingServiceImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "preference-optimize")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -96,6 +107,7 @@ class PostTrainingServiceImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "supervised-fine-tune")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

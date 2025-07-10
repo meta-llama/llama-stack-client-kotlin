@@ -168,7 +168,7 @@ internal class PostTrainingServiceTest {
                             .build()
                     )
                     .algorithmConfig(
-                        AlgorithmConfig.LoraFinetuningConfig.builder()
+                        AlgorithmConfig.LoRa.builder()
                             .alpha(0L)
                             .applyLoraToMlp(true)
                             .applyLoraToOutput(true)

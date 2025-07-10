@@ -19,6 +19,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Score a batch of rows. */
 class ScoringScoreBatchParams
 private constructor(
     private val body: Body,
@@ -27,18 +28,24 @@ private constructor(
 ) : Params {
 
     /**
+     * The ID of the dataset to score.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun datasetId(): String = body.datasetId()
 
     /**
+     * Whether to save the results to a dataset.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun saveResultsDataset(): Boolean = body.saveResultsDataset()
 
     /**
+     * The scoring functions to use for the scoring.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -114,6 +121,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The ID of the dataset to score. */
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
         /**
@@ -125,6 +133,7 @@ private constructor(
          */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
+        /** Whether to save the results to a dataset. */
         fun saveResultsDataset(saveResultsDataset: Boolean) = apply {
             body.saveResultsDataset(saveResultsDataset)
         }
@@ -140,6 +149,7 @@ private constructor(
             body.saveResultsDataset(saveResultsDataset)
         }
 
+        /** The scoring functions to use for the scoring. */
         fun scoringFunctions(scoringFunctions: ScoringFunctions) = apply {
             body.scoringFunctions(scoringFunctions)
         }
@@ -322,6 +332,8 @@ private constructor(
         ) : this(datasetId, saveResultsDataset, scoringFunctions, mutableMapOf())
 
         /**
+         * The ID of the dataset to score.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -329,6 +341,8 @@ private constructor(
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
         /**
+         * Whether to save the results to a dataset.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -336,6 +350,8 @@ private constructor(
         fun saveResultsDataset(): Boolean = saveResultsDataset.getRequired("save_results_dataset")
 
         /**
+         * The scoring functions to use for the scoring.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -411,6 +427,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The ID of the dataset to score. */
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
             /**
@@ -422,6 +439,7 @@ private constructor(
              */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
+            /** Whether to save the results to a dataset. */
             fun saveResultsDataset(saveResultsDataset: Boolean) =
                 saveResultsDataset(JsonField.of(saveResultsDataset))
 
@@ -436,6 +454,7 @@ private constructor(
                 this.saveResultsDataset = saveResultsDataset
             }
 
+            /** The scoring functions to use for the scoring. */
             fun scoringFunctions(scoringFunctions: ScoringFunctions) =
                 scoringFunctions(JsonField.of(scoringFunctions))
 
@@ -542,6 +561,7 @@ private constructor(
             "Body{datasetId=$datasetId, saveResultsDataset=$saveResultsDataset, scoringFunctions=$scoringFunctions, additionalProperties=$additionalProperties}"
     }
 
+    /** The scoring functions to use for the scoring. */
     class ScoringFunctions
     @JsonCreator
     private constructor(

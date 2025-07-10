@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a trace by its ID. */
 class TelemetryGetTraceParams
 private constructor(
-    private val traceId: String,
+    private val traceId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun traceId(): String = traceId
+    fun traceId(): String? = traceId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [TelemetryGetTraceParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .traceId()
-         * ```
-         */
+        fun none(): TelemetryGetTraceParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [TelemetryGetTraceParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = telemetryGetTraceParams.additionalQueryParams.toBuilder()
         }
 
-        fun traceId(traceId: String) = apply { this.traceId = traceId }
+        fun traceId(traceId: String?) = apply { this.traceId = traceId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,17 +148,10 @@ private constructor(
          * Returns an immutable instance of [TelemetryGetTraceParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .traceId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): TelemetryGetTraceParams =
             TelemetryGetTraceParams(
-                checkRequired("traceId", traceId),
+                traceId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -171,7 +159,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> traceId
+            0 -> traceId ?: ""
             else -> ""
         }
 

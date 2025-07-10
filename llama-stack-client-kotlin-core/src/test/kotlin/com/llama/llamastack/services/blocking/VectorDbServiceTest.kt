@@ -5,8 +5,6 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
 import com.llama.llamastack.models.VectorDbRegisterParams
-import com.llama.llamastack.models.VectorDbRetrieveParams
-import com.llama.llamastack.models.VectorDbUnregisterParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,10 +17,7 @@ internal class VectorDbServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
 
-        val vectorDb =
-            vectorDbService.retrieve(
-                VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
-            )
+        val vectorDb = vectorDbService.retrieve("vector_db_id")
 
         vectorDb.validate()
     }
@@ -64,8 +59,6 @@ internal class VectorDbServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val vectorDbService = client.vectorDbs()
 
-        vectorDbService.unregister(
-            VectorDbUnregisterParams.builder().vectorDbId("vector_db_id").build()
-        )
+        vectorDbService.unregister("vector_db_id")
     }
 }

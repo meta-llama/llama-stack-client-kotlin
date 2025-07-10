@@ -4,7 +4,6 @@ package com.llama.llamastack.services.blocking
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClient
-import com.llama.llamastack.models.ProviderRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -17,10 +16,7 @@ internal class ProviderServiceTest {
             LlamaStackClientOkHttpClient.builder().baseUrl(TestServerExtension.BASE_URL).build()
         val providerService = client.providers()
 
-        val providerInfo =
-            providerService.retrieve(
-                ProviderRetrieveParams.builder().providerId("provider_id").build()
-            )
+        val providerInfo = providerService.retrieve("provider_id")
 
         providerInfo.validate()
     }

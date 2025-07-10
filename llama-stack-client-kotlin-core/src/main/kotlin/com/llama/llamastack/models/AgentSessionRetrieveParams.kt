@@ -13,7 +13,7 @@ import java.util.Objects
 class AgentSessionRetrieveParams
 private constructor(
     private val agentId: String,
-    private val sessionId: String,
+    private val sessionId: String?,
     private val turnIds: List<String>?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -21,7 +21,7 @@ private constructor(
 
     fun agentId(): String = agentId
 
-    fun sessionId(): String = sessionId
+    fun sessionId(): String? = sessionId
 
     /** (Optional) List of turn IDs to filter the session by. */
     fun turnIds(): List<String>? = turnIds
@@ -40,7 +40,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .agentId()
-         * .sessionId()
          * ```
          */
         fun builder() = Builder()
@@ -65,7 +64,7 @@ private constructor(
 
         fun agentId(agentId: String) = apply { this.agentId = agentId }
 
-        fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
+        fun sessionId(sessionId: String?) = apply { this.sessionId = sessionId }
 
         /** (Optional) List of turn IDs to filter the session by. */
         fun turnIds(turnIds: List<String>?) = apply { this.turnIds = turnIds?.toMutableList() }
@@ -185,7 +184,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .agentId()
-         * .sessionId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -193,7 +191,7 @@ private constructor(
         fun build(): AgentSessionRetrieveParams =
             AgentSessionRetrieveParams(
                 checkRequired("agentId", agentId),
-                checkRequired("sessionId", sessionId),
+                sessionId,
                 turnIds?.toImmutable(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -203,7 +201,7 @@ private constructor(
     fun _pathParam(index: Int): String =
         when (index) {
             0 -> agentId
-            1 -> sessionId
+            1 -> sessionId ?: ""
             else -> ""
         }
 

@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get detailed information about a specific provider. */
 class ProviderRetrieveParams
 private constructor(
-    private val providerId: String,
+    private val providerId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun providerId(): String = providerId
+    fun providerId(): String? = providerId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [ProviderRetrieveParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .providerId()
-         * ```
-         */
+        fun none(): ProviderRetrieveParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ProviderRetrieveParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = providerRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun providerId(providerId: String) = apply { this.providerId = providerId }
+        fun providerId(providerId: String?) = apply { this.providerId = providerId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,17 +148,10 @@ private constructor(
          * Returns an immutable instance of [ProviderRetrieveParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .providerId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ProviderRetrieveParams =
             ProviderRetrieveParams(
-                checkRequired("providerId", providerId),
+                providerId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -171,7 +159,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> providerId
+            0 -> providerId ?: ""
             else -> ""
         }
 

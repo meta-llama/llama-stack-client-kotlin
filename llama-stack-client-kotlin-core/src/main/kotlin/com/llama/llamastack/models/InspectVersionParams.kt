@@ -7,6 +7,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get the version of the service. */
 class InspectVersionParams
 private constructor(
     private val additionalHeaders: Headers,

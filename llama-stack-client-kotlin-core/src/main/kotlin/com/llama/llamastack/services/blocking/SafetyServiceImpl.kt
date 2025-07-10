@@ -27,6 +27,9 @@ class SafetyServiceImpl internal constructor(private val clientOptions: ClientOp
 
     override fun withRawResponse(): SafetyService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): SafetyService =
+        SafetyServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun runShield(
         params: SafetyRunShieldParams,
         requestOptions: RequestOptions,
@@ -39,6 +42,11 @@ class SafetyServiceImpl internal constructor(private val clientOptions: ClientOp
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): SafetyService.WithRawResponse =
+            SafetyServiceImpl.WithRawResponseImpl(clientOptions.toBuilder().apply(modifier).build())
+
         private val runShieldHandler: Handler<RunShieldResponse> =
             jsonHandler<RunShieldResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -49,6 +57,7 @@ class SafetyServiceImpl internal constructor(private val clientOptions: ClientOp
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "safety", "run-shield")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

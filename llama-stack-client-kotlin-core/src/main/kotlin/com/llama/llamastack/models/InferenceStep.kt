@@ -61,6 +61,8 @@ private constructor(
     fun stepId(): String = stepId.getRequired("step_id")
 
     /**
+     * Type of the step in an agent turn.
+     *
      * Expected to always return the following:
      * ```kotlin
      * JsonValue.from("inference")

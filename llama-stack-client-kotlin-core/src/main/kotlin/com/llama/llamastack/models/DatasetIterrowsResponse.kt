@@ -22,6 +22,7 @@ class DatasetIterrowsResponse
 private constructor(
     private val data: JsonField<List<Data>>,
     private val hasMore: JsonField<Boolean>,
+    private val url: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -29,7 +30,8 @@ private constructor(
     private constructor(
         @JsonProperty("data") @ExcludeMissing data: JsonField<List<Data>> = JsonMissing.of(),
         @JsonProperty("has_more") @ExcludeMissing hasMore: JsonField<Boolean> = JsonMissing.of(),
-    ) : this(data, hasMore, mutableMapOf())
+        @JsonProperty("url") @ExcludeMissing url: JsonField<String> = JsonMissing.of(),
+    ) : this(data, hasMore, url, mutableMapOf())
 
     /**
      * The list of items for the current page
@@ -48,6 +50,14 @@ private constructor(
     fun hasMore(): Boolean = hasMore.getRequired("has_more")
 
     /**
+     * The URL for accessing this list
+     *
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun url(): String? = url.getNullable("url")
+
+    /**
      * Returns the raw JSON value of [data].
      *
      * Unlike [data], this method doesn't throw if the JSON field has an unexpected type.
@@ -60,6 +70,13 @@ private constructor(
      * Unlike [hasMore], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("has_more") @ExcludeMissing fun _hasMore(): JsonField<Boolean> = hasMore
+
+    /**
+     * Returns the raw JSON value of [url].
+     *
+     * Unlike [url], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("url") @ExcludeMissing fun _url(): JsonField<String> = url
 
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -92,11 +109,13 @@ private constructor(
 
         private var data: JsonField<MutableList<Data>>? = null
         private var hasMore: JsonField<Boolean>? = null
+        private var url: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(datasetIterrowsResponse: DatasetIterrowsResponse) = apply {
             data = datasetIterrowsResponse.data.map { it.toMutableList() }
             hasMore = datasetIterrowsResponse.hasMore
+            url = datasetIterrowsResponse.url
             additionalProperties = datasetIterrowsResponse.additionalProperties.toMutableMap()
         }
 
@@ -136,6 +155,17 @@ private constructor(
          */
         fun hasMore(hasMore: JsonField<Boolean>) = apply { this.hasMore = hasMore }
 
+        /** The URL for accessing this list */
+        fun url(url: String) = url(JsonField.of(url))
+
+        /**
+         * Sets [Builder.url] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.url] with a well-typed [String] value instead. This
+         * method is primarily for setting the field to an undocumented or not yet supported value.
+         */
+        fun url(url: JsonField<String>) = apply { this.url = url }
+
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
             putAllAdditionalProperties(additionalProperties)
@@ -172,6 +202,7 @@ private constructor(
             DatasetIterrowsResponse(
                 checkRequired("data", data).map { it.toImmutable() },
                 checkRequired("hasMore", hasMore),
+                url,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -185,6 +216,7 @@ private constructor(
 
         data().forEach { it.validate() }
         hasMore()
+        url()
         validated = true
     }
 
@@ -203,7 +235,8 @@ private constructor(
      */
     internal fun validity(): Int =
         (data.asKnown()?.sumOf { it.validity().toInt() } ?: 0) +
-            (if (hasMore.asKnown() == null) 0 else 1)
+            (if (hasMore.asKnown() == null) 0 else 1) +
+            (if (url.asKnown() == null) 0 else 1)
 
     class Data
     @JsonCreator
@@ -309,15 +342,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is DatasetIterrowsResponse && data == other.data && hasMore == other.hasMore && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is DatasetIterrowsResponse && data == other.data && hasMore == other.hasMore && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(data, hasMore, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(data, hasMore, url, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "DatasetIterrowsResponse{data=$data, hasMore=$hasMore, additionalProperties=$additionalProperties}"
+        "DatasetIterrowsResponse{data=$data, hasMore=$hasMore, url=$url, additionalProperties=$additionalProperties}"
 }

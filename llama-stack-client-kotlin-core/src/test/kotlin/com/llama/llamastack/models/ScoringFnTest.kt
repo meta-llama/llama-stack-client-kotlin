@@ -21,19 +21,19 @@ internal class ScoringFnTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .description("description")
                 .params(
-                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-                        .judgeModel("judge_model")
+                    ScoringFnParams.LlmAsJudge.builder()
                         .addAggregationFunction(
-                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
+                            ScoringFnParams.LlmAsJudge.AggregationFunction.AVERAGE
                         )
+                        .judgeModel("judge_model")
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
                         .build()
                 )
+                .providerResourceId("provider_resource_id")
                 .build()
 
         assertThat(scoringFn.identifier()).isEqualTo("identifier")
@@ -44,23 +44,23 @@ internal class ScoringFnTest {
                     .build()
             )
         assertThat(scoringFn.providerId()).isEqualTo("provider_id")
-        assertThat(scoringFn.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(scoringFn.returnType())
             .isEqualTo(ReturnType.builder().type(ReturnType.Type.STRING).build())
         assertThat(scoringFn.description()).isEqualTo("description")
         assertThat(scoringFn.params())
             .isEqualTo(
                 ScoringFnParams.ofLlmAsJudge(
-                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-                        .judgeModel("judge_model")
+                    ScoringFnParams.LlmAsJudge.builder()
                         .addAggregationFunction(
-                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
+                            ScoringFnParams.LlmAsJudge.AggregationFunction.AVERAGE
                         )
+                        .judgeModel("judge_model")
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
                         .build()
                 )
             )
+        assertThat(scoringFn.providerResourceId()).isEqualTo("provider_resource_id")
     }
 
     @Test
@@ -75,19 +75,19 @@ internal class ScoringFnTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .returnType(ReturnType.builder().type(ReturnType.Type.STRING).build())
                 .description("description")
                 .params(
-                    ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-                        .judgeModel("judge_model")
+                    ScoringFnParams.LlmAsJudge.builder()
                         .addAggregationFunction(
-                            ScoringFnParams.LlmAsJudgeScoringFnParams.AggregationFunction.AVERAGE
+                            ScoringFnParams.LlmAsJudge.AggregationFunction.AVERAGE
                         )
+                        .judgeModel("judge_model")
                         .addJudgeScoreRegex("string")
                         .promptTemplate("prompt_template")
                         .build()
                 )
+                .providerResourceId("provider_resource_id")
                 .build()
 
         val roundtrippedScoringFn =

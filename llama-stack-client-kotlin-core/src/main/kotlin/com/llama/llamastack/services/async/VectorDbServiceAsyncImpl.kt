@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -34,6 +35,9 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
     }
 
     override fun withRawResponse(): VectorDbServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): VectorDbServiceAsync =
+        VectorDbServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun retrieve(
         params: VectorDbRetrieveParams,
@@ -69,6 +73,13 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): VectorDbServiceAsync.WithRawResponse =
+            VectorDbServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<VectorDbRetrieveResponse> =
             jsonHandler<VectorDbRetrieveResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -77,9 +88,13 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
             params: VectorDbRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<VectorDbRetrieveResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("vectorDbId", params.vectorDbId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-dbs", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -107,6 +122,7 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-dbs")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -135,6 +151,7 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-dbs")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -159,9 +176,13 @@ class VectorDbServiceAsyncImpl internal constructor(private val clientOptions: C
             params: VectorDbUnregisterParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("vectorDbId", params.vectorDbId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-dbs", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

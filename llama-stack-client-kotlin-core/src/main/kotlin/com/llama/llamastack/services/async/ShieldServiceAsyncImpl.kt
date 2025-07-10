@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -29,6 +30,9 @@ class ShieldServiceAsyncImpl internal constructor(private val clientOptions: Cli
     }
 
     override fun withRawResponse(): ShieldServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ShieldServiceAsync =
+        ShieldServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun retrieve(
         params: ShieldRetrieveParams,
@@ -56,6 +60,13 @@ class ShieldServiceAsyncImpl internal constructor(private val clientOptions: Cli
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ShieldServiceAsync.WithRawResponse =
+            ShieldServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<Shield> =
             jsonHandler<Shield>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -63,9 +74,13 @@ class ShieldServiceAsyncImpl internal constructor(private val clientOptions: Cli
             params: ShieldRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Shield> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("identifier", params.identifier())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "shields", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -93,6 +108,7 @@ class ShieldServiceAsyncImpl internal constructor(private val clientOptions: Cli
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "shields")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -120,6 +136,7 @@ class ShieldServiceAsyncImpl internal constructor(private val clientOptions: Cli
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "shields")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

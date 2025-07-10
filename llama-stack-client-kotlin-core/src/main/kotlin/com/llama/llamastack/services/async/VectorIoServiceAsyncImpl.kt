@@ -30,6 +30,9 @@ class VectorIoServiceAsyncImpl internal constructor(private val clientOptions: C
 
     override fun withRawResponse(): VectorIoServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): VectorIoServiceAsync =
+        VectorIoServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun insert(params: VectorIoInsertParams, requestOptions: RequestOptions) {
         // post /v1/vector-io/insert
         withRawResponse().insert(params, requestOptions)
@@ -47,6 +50,13 @@ class VectorIoServiceAsyncImpl internal constructor(private val clientOptions: C
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): VectorIoServiceAsync.WithRawResponse =
+            VectorIoServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val insertHandler: Handler<Void?> = emptyHandler().withErrorHandler(errorHandler)
 
         override suspend fun insert(
@@ -56,6 +66,7 @@ class VectorIoServiceAsyncImpl internal constructor(private val clientOptions: C
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-io", "insert")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -76,6 +87,7 @@ class VectorIoServiceAsyncImpl internal constructor(private val clientOptions: C
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "vector-io", "query")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

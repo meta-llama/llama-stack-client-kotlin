@@ -30,17 +30,17 @@ import java.util.Objects
 @JsonSerialize(using = ContentDelta.Serializer::class)
 class ContentDelta
 private constructor(
-    private val text: TextDelta? = null,
-    private val image: ImageDelta? = null,
-    private val toolCall: ToolCallDelta? = null,
+    private val text: Text? = null,
+    private val image: Image? = null,
+    private val toolCall: ToolCall? = null,
     private val _json: JsonValue? = null,
 ) {
 
-    fun text(): TextDelta? = text
+    fun text(): Text? = text
 
-    fun image(): ImageDelta? = image
+    fun image(): Image? = image
 
-    fun toolCall(): ToolCallDelta? = toolCall
+    fun toolCall(): ToolCall? = toolCall
 
     fun isText(): Boolean = text != null
 
@@ -48,11 +48,11 @@ private constructor(
 
     fun isToolCall(): Boolean = toolCall != null
 
-    fun asText(): TextDelta = text.getOrThrow("text")
+    fun asText(): Text = text.getOrThrow("text")
 
-    fun asImage(): ImageDelta = image.getOrThrow("image")
+    fun asImage(): Image = image.getOrThrow("image")
 
-    fun asToolCall(): ToolCallDelta = toolCall.getOrThrow("toolCall")
+    fun asToolCall(): ToolCall = toolCall.getOrThrow("toolCall")
 
     fun _json(): JsonValue? = _json
 
@@ -73,15 +73,15 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitText(text: TextDelta) {
+                override fun visitText(text: Text) {
                     text.validate()
                 }
 
-                override fun visitImage(image: ImageDelta) {
+                override fun visitImage(image: Image) {
                     image.validate()
                 }
 
-                override fun visitToolCall(toolCall: ToolCallDelta) {
+                override fun visitToolCall(toolCall: ToolCall) {
                     toolCall.validate()
                 }
             }
@@ -105,11 +105,11 @@ private constructor(
     internal fun validity(): Int =
         accept(
             object : Visitor<Int> {
-                override fun visitText(text: TextDelta) = text.validity()
+                override fun visitText(text: Text) = text.validity()
 
-                override fun visitImage(image: ImageDelta) = image.validity()
+                override fun visitImage(image: Image) = image.validity()
 
-                override fun visitToolCall(toolCall: ToolCallDelta) = toolCall.validity()
+                override fun visitToolCall(toolCall: ToolCall) = toolCall.validity()
 
                 override fun unknown(json: JsonValue?) = 0
             }
@@ -136,11 +136,11 @@ private constructor(
 
     companion object {
 
-        fun ofText(text: TextDelta) = ContentDelta(text = text)
+        fun ofText(text: Text) = ContentDelta(text = text)
 
-        fun ofImage(image: ImageDelta) = ContentDelta(image = image)
+        fun ofImage(image: Image) = ContentDelta(image = image)
 
-        fun ofToolCall(toolCall: ToolCallDelta) = ContentDelta(toolCall = toolCall)
+        fun ofToolCall(toolCall: ToolCall) = ContentDelta(toolCall = toolCall)
     }
 
     /**
@@ -148,11 +148,11 @@ private constructor(
      */
     interface Visitor<out T> {
 
-        fun visitText(text: TextDelta): T
+        fun visitText(text: Text): T
 
-        fun visitImage(image: ImageDelta): T
+        fun visitImage(image: Image): T
 
-        fun visitToolCall(toolCall: ToolCallDelta): T
+        fun visitToolCall(toolCall: ToolCall): T
 
         /**
          * Maps an unknown variant of [ContentDelta] to a value of type [T].
@@ -176,17 +176,17 @@ private constructor(
 
             when (type) {
                 "text" -> {
-                    return tryDeserialize(node, jacksonTypeRef<TextDelta>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Text>())?.let {
                         ContentDelta(text = it, _json = json)
                     } ?: ContentDelta(_json = json)
                 }
                 "image" -> {
-                    return tryDeserialize(node, jacksonTypeRef<ImageDelta>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Image>())?.let {
                         ContentDelta(image = it, _json = json)
                     } ?: ContentDelta(_json = json)
                 }
                 "tool_call" -> {
-                    return tryDeserialize(node, jacksonTypeRef<ToolCallDelta>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<ToolCall>())?.let {
                         ContentDelta(toolCall = it, _json = json)
                     } ?: ContentDelta(_json = json)
                 }
@@ -213,7 +213,7 @@ private constructor(
         }
     }
 
-    class TextDelta
+    class Text
     private constructor(
         private val text: JsonField<String>,
         private val type: JsonValue,
@@ -266,7 +266,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [TextDelta].
+             * Returns a mutable builder for constructing an instance of [Text].
              *
              * The following fields are required:
              * ```kotlin
@@ -276,17 +276,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [TextDelta]. */
+        /** A builder for [Text]. */
         class Builder internal constructor() {
 
             private var text: JsonField<String>? = null
             private var type: JsonValue = JsonValue.from("text")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(textDelta: TextDelta) = apply {
-                text = textDelta.text
-                type = textDelta.type
-                additionalProperties = textDelta.additionalProperties.toMutableMap()
+            internal fun from(text: Text) = apply {
+                this.text = text.text
+                type = text.type
+                additionalProperties = text.additionalProperties.toMutableMap()
             }
 
             fun text(text: String) = text(JsonField.of(text))
@@ -334,7 +334,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [TextDelta].
+             * Returns an immutable instance of [Text].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -345,13 +345,13 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): TextDelta =
-                TextDelta(checkRequired("text", text), type, additionalProperties.toMutableMap())
+            fun build(): Text =
+                Text(checkRequired("text", text), type, additionalProperties.toMutableMap())
         }
 
         private var validated: Boolean = false
 
-        fun validate(): TextDelta = apply {
+        fun validate(): Text = apply {
             if (validated) {
                 return@apply
             }
@@ -388,7 +388,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TextDelta && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Text && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -398,10 +398,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TextDelta{text=$text, type=$type, additionalProperties=$additionalProperties}"
+            "Text{text=$text, type=$type, additionalProperties=$additionalProperties}"
     }
 
-    class ImageDelta
+    class Image
     private constructor(
         private val image: JsonField<String>,
         private val type: JsonValue,
@@ -454,7 +454,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [ImageDelta].
+             * Returns a mutable builder for constructing an instance of [Image].
              *
              * The following fields are required:
              * ```kotlin
@@ -464,17 +464,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ImageDelta]. */
+        /** A builder for [Image]. */
         class Builder internal constructor() {
 
             private var image: JsonField<String>? = null
             private var type: JsonValue = JsonValue.from("image")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(imageDelta: ImageDelta) = apply {
-                image = imageDelta.image
-                type = imageDelta.type
-                additionalProperties = imageDelta.additionalProperties.toMutableMap()
+            internal fun from(image: Image) = apply {
+                this.image = image.image
+                type = image.type
+                additionalProperties = image.additionalProperties.toMutableMap()
             }
 
             fun image(image: String) = image(JsonField.of(image))
@@ -522,7 +522,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [ImageDelta].
+             * Returns an immutable instance of [Image].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -533,13 +533,13 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): ImageDelta =
-                ImageDelta(checkRequired("image", image), type, additionalProperties.toMutableMap())
+            fun build(): Image =
+                Image(checkRequired("image", image), type, additionalProperties.toMutableMap())
         }
 
         private var validated: Boolean = false
 
-        fun validate(): ImageDelta = apply {
+        fun validate(): Image = apply {
             if (validated) {
                 return@apply
             }
@@ -576,7 +576,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageDelta && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Image && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -586,10 +586,10 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageDelta{image=$image, type=$type, additionalProperties=$additionalProperties}"
+            "Image{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
-    class ToolCallDelta
+    class ToolCall
     private constructor(
         private val parseStatus: JsonField<ParseStatus>,
         private val toolCall: JsonField<ToolCallOrString>,
@@ -666,7 +666,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [ToolCallDelta].
+             * Returns a mutable builder for constructing an instance of [ToolCall].
              *
              * The following fields are required:
              * ```kotlin
@@ -677,7 +677,7 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ToolCallDelta]. */
+        /** A builder for [ToolCall]. */
         class Builder internal constructor() {
 
             private var parseStatus: JsonField<ParseStatus>? = null
@@ -685,11 +685,11 @@ private constructor(
             private var type: JsonValue = JsonValue.from("tool_call")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(toolCallDelta: ToolCallDelta) = apply {
-                parseStatus = toolCallDelta.parseStatus
-                toolCall = toolCallDelta.toolCall
-                type = toolCallDelta.type
-                additionalProperties = toolCallDelta.additionalProperties.toMutableMap()
+            internal fun from(toolCall: ToolCall) = apply {
+                parseStatus = toolCall.parseStatus
+                this.toolCall = toolCall.toolCall
+                type = toolCall.type
+                additionalProperties = toolCall.additionalProperties.toMutableMap()
             }
 
             fun parseStatus(parseStatus: ParseStatus) = parseStatus(JsonField.of(parseStatus))
@@ -758,7 +758,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [ToolCallDelta].
+             * Returns an immutable instance of [ToolCall].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -770,8 +770,8 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): ToolCallDelta =
-                ToolCallDelta(
+            fun build(): ToolCall =
+                ToolCall(
                     checkRequired("parseStatus", parseStatus),
                     checkRequired("toolCall", toolCall),
                     type,
@@ -781,7 +781,7 @@ private constructor(
 
         private var validated: Boolean = false
 
-        fun validate(): ToolCallDelta = apply {
+        fun validate(): ToolCall = apply {
             if (validated) {
                 return@apply
             }
@@ -963,7 +963,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ToolCallDelta && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is ToolCall && parseStatus == other.parseStatus && toolCall == other.toolCall && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -973,6 +973,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ToolCallDelta{parseStatus=$parseStatus, toolCall=$toolCall, type=$type, additionalProperties=$additionalProperties}"
+            "ToolCall{parseStatus=$parseStatus, toolCall=$toolCall, type=$type, additionalProperties=$additionalProperties}"
     }
 }

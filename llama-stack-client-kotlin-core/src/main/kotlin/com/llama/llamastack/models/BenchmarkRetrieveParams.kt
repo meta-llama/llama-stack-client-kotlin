@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a benchmark by its ID. */
 class BenchmarkRetrieveParams
 private constructor(
-    private val benchmarkId: String,
+    private val benchmarkId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun benchmarkId(): String = benchmarkId
+    fun benchmarkId(): String? = benchmarkId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [BenchmarkRetrieveParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .benchmarkId()
-         * ```
-         */
+        fun none(): BenchmarkRetrieveParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [BenchmarkRetrieveParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = benchmarkRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
+        fun benchmarkId(benchmarkId: String?) = apply { this.benchmarkId = benchmarkId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,17 +148,10 @@ private constructor(
          * Returns an immutable instance of [BenchmarkRetrieveParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .benchmarkId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): BenchmarkRetrieveParams =
             BenchmarkRetrieveParams(
-                checkRequired("benchmarkId", benchmarkId),
+                benchmarkId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -171,7 +159,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> benchmarkId
+            0 -> benchmarkId ?: ""
             else -> ""
         }
 

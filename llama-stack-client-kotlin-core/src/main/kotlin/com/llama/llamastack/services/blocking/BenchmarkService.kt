@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -18,11 +19,31 @@ interface BenchmarkService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): BenchmarkService
+
+    /** Get a benchmark by its ID. */
+    fun retrieve(
+        benchmarkId: String,
+        params: BenchmarkRetrieveParams = BenchmarkRetrieveParams.none(),
+        requestOptions: RequestOptions = RequestOptions.none(),
+    ): Benchmark = retrieve(params.toBuilder().benchmarkId(benchmarkId).build(), requestOptions)
+
+    /** @see [retrieve] */
     fun retrieve(
         params: BenchmarkRetrieveParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): Benchmark
 
+    /** @see [retrieve] */
+    fun retrieve(benchmarkId: String, requestOptions: RequestOptions): Benchmark =
+        retrieve(benchmarkId, BenchmarkRetrieveParams.none(), requestOptions)
+
+    /** List all benchmarks. */
     fun list(
         params: BenchmarkListParams = BenchmarkListParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -32,6 +53,7 @@ interface BenchmarkService {
     fun list(requestOptions: RequestOptions): List<Benchmark> =
         list(BenchmarkListParams.none(), requestOptions)
 
+    /** Register a benchmark. */
     fun register(
         params: BenchmarkRegisterParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -41,14 +63,38 @@ interface BenchmarkService {
     interface WithRawResponse {
 
         /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): BenchmarkService.WithRawResponse
+
+        /**
          * Returns a raw HTTP response for `get /v1/eval/benchmarks/{benchmark_id}`, but is
          * otherwise the same as [BenchmarkService.retrieve].
          */
         @MustBeClosed
         fun retrieve(
+            benchmarkId: String,
+            params: BenchmarkRetrieveParams = BenchmarkRetrieveParams.none(),
+            requestOptions: RequestOptions = RequestOptions.none(),
+        ): HttpResponseFor<Benchmark> =
+            retrieve(params.toBuilder().benchmarkId(benchmarkId).build(), requestOptions)
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        fun retrieve(
             params: BenchmarkRetrieveParams,
             requestOptions: RequestOptions = RequestOptions.none(),
         ): HttpResponseFor<Benchmark>
+
+        /** @see [retrieve] */
+        @MustBeClosed
+        fun retrieve(
+            benchmarkId: String,
+            requestOptions: RequestOptions,
+        ): HttpResponseFor<Benchmark> =
+            retrieve(benchmarkId, BenchmarkRetrieveParams.none(), requestOptions)
 
         /**
          * Returns a raw HTTP response for `get /v1/eval/benchmarks`, but is otherwise the same as

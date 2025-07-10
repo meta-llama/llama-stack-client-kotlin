@@ -21,9 +21,9 @@ internal class DatasetRegisterResponseTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .purpose(DatasetRegisterResponse.Purpose.POST_TRAINING_MESSAGES)
-                .uriDataSource("uri")
+                .uriSource("uri")
+                .providerResourceId("provider_resource_id")
                 .build()
 
         assertThat(datasetRegisterResponse.identifier()).isEqualTo("identifier")
@@ -34,15 +34,15 @@ internal class DatasetRegisterResponseTest {
                     .build()
             )
         assertThat(datasetRegisterResponse.providerId()).isEqualTo("provider_id")
-        assertThat(datasetRegisterResponse.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(datasetRegisterResponse.purpose())
             .isEqualTo(DatasetRegisterResponse.Purpose.POST_TRAINING_MESSAGES)
         assertThat(datasetRegisterResponse.source())
             .isEqualTo(
-                DatasetRegisterResponse.Source.ofUriData(
-                    DatasetRegisterResponse.Source.UriDataSource.builder().uri("uri").build()
+                DatasetRegisterResponse.Source.ofUri(
+                    DatasetRegisterResponse.Source.Uri.builder().uri("uri").build()
                 )
             )
+        assertThat(datasetRegisterResponse.providerResourceId()).isEqualTo("provider_resource_id")
     }
 
     @Test
@@ -57,9 +57,9 @@ internal class DatasetRegisterResponseTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .purpose(DatasetRegisterResponse.Purpose.POST_TRAINING_MESSAGES)
-                .uriDataSource("uri")
+                .uriSource("uri")
+                .providerResourceId("provider_resource_id")
                 .build()
 
         val roundtrippedDatasetRegisterResponse =

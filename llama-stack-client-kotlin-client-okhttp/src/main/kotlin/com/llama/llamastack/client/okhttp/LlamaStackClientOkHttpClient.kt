@@ -163,13 +163,7 @@ class LlamaStackClientOkHttpClient private constructor() {
         fun build(): LlamaStackClientClient =
             LlamaStackClientClientImpl(
                 clientOptions
-                    .httpClient(
-                        OkHttpClient.builder()
-                            .baseUrl(clientOptions.baseUrl())
-                            .timeout(timeout)
-                            .proxy(proxy)
-                            .build()
-                    )
+                    .httpClient(OkHttpClient.builder().timeout(timeout).proxy(proxy).build())
                     .build()
             )
     }

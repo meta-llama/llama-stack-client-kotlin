@@ -17,9 +17,9 @@ internal class ResponseFormatTest {
     @Test
     fun ofJsonSchema() {
         val jsonSchema =
-            ResponseFormat.JsonSchemaResponseFormat.builder()
+            ResponseFormat.JsonSchema.builder()
                 .jsonSchema(
-                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
@@ -36,9 +36,9 @@ internal class ResponseFormatTest {
         val jsonMapper = jsonMapper()
         val responseFormat =
             ResponseFormat.ofJsonSchema(
-                ResponseFormat.JsonSchemaResponseFormat.builder()
+                ResponseFormat.JsonSchema.builder()
                     .jsonSchema(
-                        ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                        ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
@@ -57,9 +57,9 @@ internal class ResponseFormatTest {
     @Test
     fun ofGrammar() {
         val grammar =
-            ResponseFormat.GrammarResponseFormat.builder()
+            ResponseFormat.Grammar.builder()
                 .bnf(
-                    ResponseFormat.GrammarResponseFormat.Bnf.builder()
+                    ResponseFormat.Grammar.Bnf.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
@@ -76,9 +76,9 @@ internal class ResponseFormatTest {
         val jsonMapper = jsonMapper()
         val responseFormat =
             ResponseFormat.ofGrammar(
-                ResponseFormat.GrammarResponseFormat.builder()
+                ResponseFormat.Grammar.builder()
                     .bnf(
-                        ResponseFormat.GrammarResponseFormat.Bnf.builder()
+                        ResponseFormat.Grammar.Bnf.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )

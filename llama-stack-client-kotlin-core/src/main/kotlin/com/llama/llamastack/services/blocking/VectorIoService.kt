@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponse
 import com.llama.llamastack.core.http.HttpResponseFor
@@ -17,8 +18,17 @@ interface VectorIoService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): VectorIoService
+
+    /** Insert chunks into a vector database. */
     fun insert(params: VectorIoInsertParams, requestOptions: RequestOptions = RequestOptions.none())
 
+    /** Query chunks from a vector database. */
     fun query(
         params: VectorIoQueryParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -26,6 +36,13 @@ interface VectorIoService {
 
     /** A view of [VectorIoService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): VectorIoService.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `post /v1/vector-io/insert`, but is otherwise the same as

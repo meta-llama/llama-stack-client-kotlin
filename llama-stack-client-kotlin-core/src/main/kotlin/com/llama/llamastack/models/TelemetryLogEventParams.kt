@@ -18,6 +18,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Log an event. */
 class TelemetryLogEventParams
 private constructor(
     private val body: Body,
@@ -26,12 +27,16 @@ private constructor(
 ) : Params {
 
     /**
+     * The event to log.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun event(): Event = body.event()
 
     /**
+     * The time to live of the event.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -96,6 +101,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The event to log. */
         fun event(event: Event) = apply { body.event(event) }
 
         /**
@@ -107,16 +113,15 @@ private constructor(
         fun event(event: JsonField<Event>) = apply { body.event(event) }
 
         /** Alias for calling [event] with `Event.ofUnstructuredLog(unstructuredLog)`. */
-        fun event(unstructuredLog: Event.UnstructuredLogEvent) = apply {
-            body.event(unstructuredLog)
-        }
+        fun event(unstructuredLog: Event.UnstructuredLog) = apply { body.event(unstructuredLog) }
 
         /** Alias for calling [event] with `Event.ofMetric(metric)`. */
-        fun event(metric: Event.MetricEvent) = apply { body.event(metric) }
+        fun event(metric: Event.Metric) = apply { body.event(metric) }
 
         /** Alias for calling [event] with `Event.ofStructuredLog(structuredLog)`. */
-        fun event(structuredLog: Event.StructuredLogEvent) = apply { body.event(structuredLog) }
+        fun event(structuredLog: Event.StructuredLog) = apply { body.event(structuredLog) }
 
+        /** The time to live of the event. */
         fun ttlSeconds(ttlSeconds: Long) = apply { body.ttlSeconds(ttlSeconds) }
 
         /**
@@ -287,6 +292,8 @@ private constructor(
         ) : this(event, ttlSeconds, mutableMapOf())
 
         /**
+         * The event to log.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -294,6 +301,8 @@ private constructor(
         fun event(): Event = event.getRequired("event")
 
         /**
+         * The time to live of the event.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -353,6 +362,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The event to log. */
             fun event(event: Event) = event(JsonField.of(event))
 
             /**
@@ -365,16 +375,17 @@ private constructor(
             fun event(event: JsonField<Event>) = apply { this.event = event }
 
             /** Alias for calling [event] with `Event.ofUnstructuredLog(unstructuredLog)`. */
-            fun event(unstructuredLog: Event.UnstructuredLogEvent) =
+            fun event(unstructuredLog: Event.UnstructuredLog) =
                 event(Event.ofUnstructuredLog(unstructuredLog))
 
             /** Alias for calling [event] with `Event.ofMetric(metric)`. */
-            fun event(metric: Event.MetricEvent) = event(Event.ofMetric(metric))
+            fun event(metric: Event.Metric) = event(Event.ofMetric(metric))
 
             /** Alias for calling [event] with `Event.ofStructuredLog(structuredLog)`. */
-            fun event(structuredLog: Event.StructuredLogEvent) =
+            fun event(structuredLog: Event.StructuredLog) =
                 event(Event.ofStructuredLog(structuredLog))
 
+            /** The time to live of the event. */
             fun ttlSeconds(ttlSeconds: Long) = ttlSeconds(JsonField.of(ttlSeconds))
 
             /**

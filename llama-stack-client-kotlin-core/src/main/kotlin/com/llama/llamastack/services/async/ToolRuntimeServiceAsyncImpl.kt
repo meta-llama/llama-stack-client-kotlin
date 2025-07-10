@@ -34,6 +34,9 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
 
     override fun withRawResponse(): ToolRuntimeServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ToolRuntimeServiceAsync =
+        ToolRuntimeServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun ragTool(): RagToolServiceAsync = ragTool
 
     override suspend fun invokeTool(
@@ -59,6 +62,13 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
             RagToolServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ToolRuntimeServiceAsync.WithRawResponse =
+            ToolRuntimeServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         override fun ragTool(): RagToolServiceAsync.WithRawResponse = ragTool
 
         private val invokeToolHandler: Handler<ToolInvocationResult> =
@@ -72,6 +82,7 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tool-runtime", "invoke")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -100,6 +111,7 @@ class ToolRuntimeServiceAsyncImpl internal constructor(private val clientOptions
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "tool-runtime", "list-tools")
                     .build()
                     .prepareAsync(clientOptions, params)

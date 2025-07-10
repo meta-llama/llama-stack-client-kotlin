@@ -357,35 +357,33 @@ private constructor(
             fun delta(delta: JsonField<ContentDelta>) = apply { this.delta = delta }
 
             /** Alias for calling [delta] with `ContentDelta.ofText(text)`. */
-            fun delta(text: ContentDelta.TextDelta) = delta(ContentDelta.ofText(text))
+            fun delta(text: ContentDelta.Text) = delta(ContentDelta.ofText(text))
 
             /**
              * Alias for calling [delta] with the following:
              * ```kotlin
-             * ContentDelta.TextDelta.builder()
+             * ContentDelta.Text.builder()
              *     .text(text)
              *     .build()
              * ```
              */
-            fun textDelta(text: String) = delta(ContentDelta.TextDelta.builder().text(text).build())
+            fun textDelta(text: String) = delta(ContentDelta.Text.builder().text(text).build())
 
             /** Alias for calling [delta] with `ContentDelta.ofImage(image)`. */
-            fun delta(image: ContentDelta.ImageDelta) = delta(ContentDelta.ofImage(image))
+            fun delta(image: ContentDelta.Image) = delta(ContentDelta.ofImage(image))
 
             /**
              * Alias for calling [delta] with the following:
              * ```kotlin
-             * ContentDelta.ImageDelta.builder()
+             * ContentDelta.Image.builder()
              *     .image(image)
              *     .build()
              * ```
              */
-            fun imageDelta(image: String) =
-                delta(ContentDelta.ImageDelta.builder().image(image).build())
+            fun imageDelta(image: String) = delta(ContentDelta.Image.builder().image(image).build())
 
             /** Alias for calling [delta] with `ContentDelta.ofToolCall(toolCall)`. */
-            fun delta(toolCall: ContentDelta.ToolCallDelta) =
-                delta(ContentDelta.ofToolCall(toolCall))
+            fun delta(toolCall: ContentDelta.ToolCall) = delta(ContentDelta.ofToolCall(toolCall))
 
             /** Type of the event */
             fun eventType(eventType: EventType) = eventType(JsonField.of(eventType))

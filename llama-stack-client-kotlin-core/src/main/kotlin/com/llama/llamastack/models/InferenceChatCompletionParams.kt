@@ -30,7 +30,7 @@ private constructor(
 ) : Params {
 
     /**
-     * List of messages in the conversation
+     * List of messages in the conversation.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
@@ -66,7 +66,7 @@ private constructor(
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
     /**
-     * Parameters to control the sampling strategy
+     * Parameters to control the sampling strategy.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
@@ -104,7 +104,7 @@ private constructor(
     fun toolPromptFormat(): ToolPromptFormat? = body.toolPromptFormat()
 
     /**
-     * (Optional) List of tool definitions available to the model
+     * (Optional) List of tool definitions available to the model.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
@@ -225,7 +225,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
-        /** List of messages in the conversation */
+        /** List of messages in the conversation. */
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
         /**
@@ -318,11 +318,11 @@ private constructor(
             body.addSystemMessageOfItems(items)
         }
 
-        /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
-        fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
+        /** Alias for calling [addMessage] with `Message.ofTool(tool)`. */
+        fun addMessage(tool: ToolResponseMessage) = apply { body.addMessage(tool) }
 
-        /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
-        fun addMessage(completion: CompletionMessage) = apply { body.addMessage(completion) }
+        /** Alias for calling [addMessage] with `Message.ofAssistant(assistant)`. */
+        fun addMessage(assistant: CompletionMessage) = apply { body.addMessage(assistant) }
 
         /**
          * The identifier of the model to use. The model must be registered with Llama Stack and
@@ -372,40 +372,39 @@ private constructor(
         }
 
         /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
-        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) = apply {
             body.responseFormat(jsonSchema)
         }
 
         /**
          * Alias for calling [responseFormat] with the following:
          * ```kotlin
-         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         * ResponseFormat.JsonSchema.builder()
          *     .jsonSchema(jsonSchema)
          *     .build()
          * ```
          */
-        fun jsonSchemaResponseFormat(
-            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-        ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
+        fun jsonSchemaResponseFormat(jsonSchema: ResponseFormat.JsonSchema.InnerJsonSchema) =
+            apply {
+                body.jsonSchemaResponseFormat(jsonSchema)
+            }
 
         /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
-            body.responseFormat(grammar)
-        }
+        fun responseFormat(grammar: ResponseFormat.Grammar) = apply { body.responseFormat(grammar) }
 
         /**
          * Alias for calling [responseFormat] with the following:
          * ```kotlin
-         * ResponseFormat.GrammarResponseFormat.builder()
+         * ResponseFormat.Grammar.builder()
          *     .bnf(bnf)
          *     .build()
          * ```
          */
-        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
+        fun grammarResponseFormat(bnf: ResponseFormat.Grammar.Bnf) = apply {
             body.grammarResponseFormat(bnf)
         }
 
-        /** Parameters to control the sampling strategy */
+        /** Parameters to control the sampling strategy. */
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
         }
@@ -471,7 +470,7 @@ private constructor(
             body.toolPromptFormat(toolPromptFormat)
         }
 
-        /** (Optional) List of tool definitions available to the model */
+        /** (Optional) List of tool definitions available to the model. */
         fun tools(tools: List<Tool>) = apply { body.tools(tools) }
 
         /**
@@ -687,7 +686,7 @@ private constructor(
         )
 
         /**
-         * List of messages in the conversation
+         * List of messages in the conversation.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
@@ -725,7 +724,7 @@ private constructor(
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
         /**
-         * Parameters to control the sampling strategy
+         * Parameters to control the sampling strategy.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
@@ -764,7 +763,7 @@ private constructor(
             toolPromptFormat.getNullable("tool_prompt_format")
 
         /**
-         * (Optional) List of tool definitions available to the model
+         * (Optional) List of tool definitions available to the model.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
@@ -902,7 +901,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            /** List of messages in the conversation */
+            /** List of messages in the conversation. */
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
 
             /**
@@ -999,13 +998,12 @@ private constructor(
             fun addSystemMessageOfItems(items: List<InterleavedContentItem>) =
                 addSystemMessage(InterleavedContent.ofItems(items))
 
-            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
-            fun addMessage(toolResponse: ToolResponseMessage) =
-                addMessage(Message.ofToolResponse(toolResponse))
+            /** Alias for calling [addMessage] with `Message.ofTool(tool)`. */
+            fun addMessage(tool: ToolResponseMessage) = addMessage(Message.ofTool(tool))
 
-            /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
-            fun addMessage(completion: CompletionMessage) =
-                addMessage(Message.ofCompletion(completion))
+            /** Alias for calling [addMessage] with `Message.ofAssistant(assistant)`. */
+            fun addMessage(assistant: CompletionMessage) =
+                addMessage(Message.ofAssistant(assistant))
 
             /**
              * The identifier of the model to use. The model must be registered with Llama Stack and
@@ -1059,40 +1057,36 @@ private constructor(
             /**
              * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
              */
-            fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
+            fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) =
                 responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
             /**
              * Alias for calling [responseFormat] with the following:
              * ```kotlin
-             * ResponseFormat.JsonSchemaResponseFormat.builder()
+             * ResponseFormat.JsonSchema.builder()
              *     .jsonSchema(jsonSchema)
              *     .build()
              * ```
              */
-            fun jsonSchemaResponseFormat(
-                jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-            ) =
-                responseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
-                )
+            fun jsonSchemaResponseFormat(jsonSchema: ResponseFormat.JsonSchema.InnerJsonSchema) =
+                responseFormat(ResponseFormat.JsonSchema.builder().jsonSchema(jsonSchema).build())
 
             /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-            fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
+            fun responseFormat(grammar: ResponseFormat.Grammar) =
                 responseFormat(ResponseFormat.ofGrammar(grammar))
 
             /**
              * Alias for calling [responseFormat] with the following:
              * ```kotlin
-             * ResponseFormat.GrammarResponseFormat.builder()
+             * ResponseFormat.Grammar.builder()
              *     .bnf(bnf)
              *     .build()
              * ```
              */
-            fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
-                responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
+            fun grammarResponseFormat(bnf: ResponseFormat.Grammar.Bnf) =
+                responseFormat(ResponseFormat.Grammar.builder().bnf(bnf).build())
 
-            /** Parameters to control the sampling strategy */
+            /** Parameters to control the sampling strategy. */
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 
@@ -1160,7 +1154,7 @@ private constructor(
                 this.toolPromptFormat = toolPromptFormat
             }
 
-            /** (Optional) List of tool definitions available to the model */
+            /** (Optional) List of tool definitions available to the model. */
             fun tools(tools: List<Tool>) = tools(JsonField.of(tools))
 
             /**

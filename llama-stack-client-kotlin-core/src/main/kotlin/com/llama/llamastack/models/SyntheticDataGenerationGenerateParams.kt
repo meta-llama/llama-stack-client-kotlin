@@ -212,11 +212,11 @@ private constructor(
             body.addSystemDialogOfItems(items)
         }
 
-        /** Alias for calling [addDialog] with `Message.ofToolResponse(toolResponse)`. */
-        fun addDialog(toolResponse: ToolResponseMessage) = apply { body.addDialog(toolResponse) }
+        /** Alias for calling [addDialog] with `Message.ofTool(tool)`. */
+        fun addDialog(tool: ToolResponseMessage) = apply { body.addDialog(tool) }
 
-        /** Alias for calling [addDialog] with `Message.ofCompletion(completion)`. */
-        fun addDialog(completion: CompletionMessage) = apply { body.addDialog(completion) }
+        /** Alias for calling [addDialog] with `Message.ofAssistant(assistant)`. */
+        fun addDialog(assistant: CompletionMessage) = apply { body.addDialog(assistant) }
 
         /** The type of filtering function. */
         fun filteringFunction(filteringFunction: FilteringFunction) = apply {
@@ -591,13 +591,11 @@ private constructor(
             fun addSystemDialogOfItems(items: List<InterleavedContentItem>) =
                 addSystemDialog(InterleavedContent.ofItems(items))
 
-            /** Alias for calling [addDialog] with `Message.ofToolResponse(toolResponse)`. */
-            fun addDialog(toolResponse: ToolResponseMessage) =
-                addDialog(Message.ofToolResponse(toolResponse))
+            /** Alias for calling [addDialog] with `Message.ofTool(tool)`. */
+            fun addDialog(tool: ToolResponseMessage) = addDialog(Message.ofTool(tool))
 
-            /** Alias for calling [addDialog] with `Message.ofCompletion(completion)`. */
-            fun addDialog(completion: CompletionMessage) =
-                addDialog(Message.ofCompletion(completion))
+            /** Alias for calling [addDialog] with `Message.ofAssistant(assistant)`. */
+            fun addDialog(assistant: CompletionMessage) = addDialog(Message.ofAssistant(assistant))
 
             /** The type of filtering function. */
             fun filteringFunction(filteringFunction: FilteringFunction) =

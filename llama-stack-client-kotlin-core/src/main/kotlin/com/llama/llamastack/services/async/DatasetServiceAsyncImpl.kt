@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -36,6 +37,9 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
     }
 
     override fun withRawResponse(): DatasetServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): DatasetServiceAsync =
+        DatasetServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun retrieve(
         params: DatasetRetrieveParams,
@@ -78,6 +82,13 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): DatasetServiceAsync.WithRawResponse =
+            DatasetServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<DatasetRetrieveResponse> =
             jsonHandler<DatasetRetrieveResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -86,9 +97,13 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
             params: DatasetRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<DatasetRetrieveResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("datasetId", params.datasetId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "datasets", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -116,6 +131,7 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "datasets")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -141,9 +157,13 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
             params: DatasetIterrowsParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<DatasetIterrowsResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("datasetId", params.datasetId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "datasetio", "iterrows", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -171,6 +191,7 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "datasets")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -195,9 +216,13 @@ class DatasetServiceAsyncImpl internal constructor(private val clientOptions: Cl
             params: DatasetUnregisterParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("datasetId", params.datasetId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "datasets", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

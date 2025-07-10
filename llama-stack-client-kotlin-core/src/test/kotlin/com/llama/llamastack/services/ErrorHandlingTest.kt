@@ -31,8 +31,10 @@ import org.assertj.core.api.Assertions.entry
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
+import org.junit.jupiter.api.parallel.ResourceLock
 
 @WireMockTest
+@ResourceLock("https://github.com/wiremock/wiremock/issues/169")
 internal class ErrorHandlingTest {
 
     companion object {
@@ -75,13 +77,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -153,13 +155,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -231,13 +233,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -309,13 +311,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -387,13 +389,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -465,13 +467,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -543,13 +545,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -621,13 +623,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")
@@ -697,13 +699,13 @@ internal class ErrorHandlingTest {
                         .modelId("model_id")
                         .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                         .jsonSchemaResponseFormat(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(0L)
                                 .repetitionPenalty(0.0)
                                 .addStop("string")

@@ -144,23 +144,21 @@ private constructor(
         }
 
         /** Alias for calling [evalCandidate] with `EvalCandidate.ofModel(model)`. */
-        fun evalCandidate(model: EvalCandidate.ModelCandidate) =
-            evalCandidate(EvalCandidate.ofModel(model))
+        fun evalCandidate(model: EvalCandidate.Model) = evalCandidate(EvalCandidate.ofModel(model))
 
         /** Alias for calling [evalCandidate] with `EvalCandidate.ofAgent(agent)`. */
-        fun evalCandidate(agent: EvalCandidate.AgentCandidate) =
-            evalCandidate(EvalCandidate.ofAgent(agent))
+        fun evalCandidate(agent: EvalCandidate.Agent) = evalCandidate(EvalCandidate.ofAgent(agent))
 
         /**
          * Alias for calling [evalCandidate] with the following:
          * ```kotlin
-         * EvalCandidate.AgentCandidate.builder()
+         * EvalCandidate.Agent.builder()
          *     .config(config)
          *     .build()
          * ```
          */
         fun agentEvalCandidate(config: AgentConfig) =
-            evalCandidate(EvalCandidate.AgentCandidate.builder().config(config).build())
+            evalCandidate(EvalCandidate.Agent.builder().config(config).build())
 
         /**
          * Map between scoring function id and parameters for each scoring function you want to run

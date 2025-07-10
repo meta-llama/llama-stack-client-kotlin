@@ -12,7 +12,7 @@ internal class DatasetRegisterParamsTest {
     fun create() {
         DatasetRegisterParams.builder()
             .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
-            .uriDataSource("uri")
+            .uriSource("uri")
             .datasetId("dataset_id")
             .metadata(
                 DatasetRegisterParams.Metadata.builder()
@@ -27,7 +27,7 @@ internal class DatasetRegisterParamsTest {
         val params =
             DatasetRegisterParams.builder()
                 .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
-                .uriDataSource("uri")
+                .uriSource("uri")
                 .datasetId("dataset_id")
                 .metadata(
                     DatasetRegisterParams.Metadata.builder()
@@ -41,8 +41,8 @@ internal class DatasetRegisterParamsTest {
         assertThat(body.purpose()).isEqualTo(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
         assertThat(body.source())
             .isEqualTo(
-                DatasetRegisterParams.Source.ofUriData(
-                    DatasetRegisterParams.Source.UriDataSource.builder().uri("uri").build()
+                DatasetRegisterParams.Source.ofUri(
+                    DatasetRegisterParams.Source.Uri.builder().uri("uri").build()
                 )
             )
         assertThat(body.datasetId()).isEqualTo("dataset_id")
@@ -59,7 +59,7 @@ internal class DatasetRegisterParamsTest {
         val params =
             DatasetRegisterParams.builder()
                 .purpose(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
-                .uriDataSource("uri")
+                .uriSource("uri")
                 .build()
 
         val body = params._body()
@@ -67,8 +67,8 @@ internal class DatasetRegisterParamsTest {
         assertThat(body.purpose()).isEqualTo(DatasetRegisterParams.Purpose.POST_TRAINING_MESSAGES)
         assertThat(body.source())
             .isEqualTo(
-                DatasetRegisterParams.Source.ofUriData(
-                    DatasetRegisterParams.Source.UriDataSource.builder().uri("uri").build()
+                DatasetRegisterParams.Source.ofUri(
+                    DatasetRegisterParams.Source.Uri.builder().uri("uri").build()
                 )
             )
     }

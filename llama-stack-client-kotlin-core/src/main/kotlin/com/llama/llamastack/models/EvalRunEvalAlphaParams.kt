@@ -21,13 +21,13 @@ import java.util.Objects
 /** Run an evaluation on a benchmark. */
 class EvalRunEvalAlphaParams
 private constructor(
-    private val benchmarkId: String,
+    private val benchmarkId: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun benchmarkId(): String = benchmarkId
+    fun benchmarkId(): String? = benchmarkId
 
     /**
      * The configuration for the benchmark.
@@ -59,7 +59,6 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .benchmarkId()
          * .benchmarkConfig()
          * ```
          */
@@ -81,7 +80,7 @@ private constructor(
             additionalQueryParams = evalRunEvalAlphaParams.additionalQueryParams.toBuilder()
         }
 
-        fun benchmarkId(benchmarkId: String) = apply { this.benchmarkId = benchmarkId }
+        fun benchmarkId(benchmarkId: String?) = apply { this.benchmarkId = benchmarkId }
 
         /**
          * Sets the entire request body.
@@ -232,7 +231,6 @@ private constructor(
          *
          * The following fields are required:
          * ```kotlin
-         * .benchmarkId()
          * .benchmarkConfig()
          * ```
          *
@@ -240,7 +238,7 @@ private constructor(
          */
         fun build(): EvalRunEvalAlphaParams =
             EvalRunEvalAlphaParams(
-                checkRequired("benchmarkId", benchmarkId),
+                benchmarkId,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -251,7 +249,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> benchmarkId
+            0 -> benchmarkId ?: ""
             else -> ""
         }
 

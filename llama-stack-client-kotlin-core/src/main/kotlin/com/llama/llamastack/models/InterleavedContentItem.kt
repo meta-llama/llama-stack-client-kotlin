@@ -30,26 +30,26 @@ import java.util.Objects
 @JsonSerialize(using = InterleavedContentItem.Serializer::class)
 class InterleavedContentItem
 private constructor(
-    private val image: ImageContentItem? = null,
-    private val text: TextContentItem? = null,
+    private val image: Image? = null,
+    private val text: Text? = null,
     private val _json: JsonValue? = null,
 ) {
 
     /** A image content item */
-    fun image(): ImageContentItem? = image
+    fun image(): Image? = image
 
     /** A text content item */
-    fun text(): TextContentItem? = text
+    fun text(): Text? = text
 
     fun isImage(): Boolean = image != null
 
     fun isText(): Boolean = text != null
 
     /** A image content item */
-    fun asImage(): ImageContentItem = image.getOrThrow("image")
+    fun asImage(): Image = image.getOrThrow("image")
 
     /** A text content item */
-    fun asText(): TextContentItem = text.getOrThrow("text")
+    fun asText(): Text = text.getOrThrow("text")
 
     fun _json(): JsonValue? = _json
 
@@ -69,11 +69,11 @@ private constructor(
 
         accept(
             object : Visitor<Unit> {
-                override fun visitImage(image: ImageContentItem) {
+                override fun visitImage(image: Image) {
                     image.validate()
                 }
 
-                override fun visitText(text: TextContentItem) {
+                override fun visitText(text: Text) {
                     text.validate()
                 }
             }
@@ -97,9 +97,9 @@ private constructor(
     internal fun validity(): Int =
         accept(
             object : Visitor<Int> {
-                override fun visitImage(image: ImageContentItem) = image.validity()
+                override fun visitImage(image: Image) = image.validity()
 
-                override fun visitText(text: TextContentItem) = text.validity()
+                override fun visitText(text: Text) = text.validity()
 
                 override fun unknown(json: JsonValue?) = 0
             }
@@ -126,10 +126,10 @@ private constructor(
     companion object {
 
         /** A image content item */
-        fun ofImage(image: ImageContentItem) = InterleavedContentItem(image = image)
+        fun ofImage(image: Image) = InterleavedContentItem(image = image)
 
         /** A text content item */
-        fun ofText(text: TextContentItem) = InterleavedContentItem(text = text)
+        fun ofText(text: Text) = InterleavedContentItem(text = text)
     }
 
     /**
@@ -139,10 +139,10 @@ private constructor(
     interface Visitor<out T> {
 
         /** A image content item */
-        fun visitImage(image: ImageContentItem): T
+        fun visitImage(image: Image): T
 
         /** A text content item */
-        fun visitText(text: TextContentItem): T
+        fun visitText(text: Text): T
 
         /**
          * Maps an unknown variant of [InterleavedContentItem] to a value of type [T].
@@ -168,12 +168,12 @@ private constructor(
 
             when (type) {
                 "image" -> {
-                    return tryDeserialize(node, jacksonTypeRef<ImageContentItem>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Image>())?.let {
                         InterleavedContentItem(image = it, _json = json)
                     } ?: InterleavedContentItem(_json = json)
                 }
                 "text" -> {
-                    return tryDeserialize(node, jacksonTypeRef<TextContentItem>())?.let {
+                    return tryDeserialize(node, jacksonTypeRef<Text>())?.let {
                         InterleavedContentItem(text = it, _json = json)
                     } ?: InterleavedContentItem(_json = json)
                 }
@@ -201,16 +201,16 @@ private constructor(
     }
 
     /** A image content item */
-    class ImageContentItem
+    class Image
     private constructor(
-        private val image: JsonField<Image>,
+        private val image: JsonField<InnerImage>,
         private val type: JsonValue,
         private val additionalProperties: MutableMap<String, JsonValue>,
     ) {
 
         @JsonCreator
         private constructor(
-            @JsonProperty("image") @ExcludeMissing image: JsonField<Image> = JsonMissing.of(),
+            @JsonProperty("image") @ExcludeMissing image: JsonField<InnerImage> = JsonMissing.of(),
             @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
         ) : this(image, type, mutableMapOf())
 
@@ -221,7 +221,7 @@ private constructor(
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
          */
-        fun image(): Image = image.getRequired("image")
+        fun image(): InnerImage = image.getRequired("image")
 
         /**
          * Discriminator type of the content item. Always "image"
@@ -241,7 +241,7 @@ private constructor(
          *
          * Unlike [image], this method doesn't throw if the JSON field has an unexpected type.
          */
-        @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<Image> = image
+        @JsonProperty("image") @ExcludeMissing fun _image(): JsonField<InnerImage> = image
 
         @JsonAnySetter
         private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -258,7 +258,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [ImageContentItem].
+             * Returns a mutable builder for constructing an instance of [Image].
              *
              * The following fields are required:
              * ```kotlin
@@ -268,30 +268,30 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [ImageContentItem]. */
+        /** A builder for [Image]. */
         class Builder internal constructor() {
 
-            private var image: JsonField<Image>? = null
+            private var image: JsonField<InnerImage>? = null
             private var type: JsonValue = JsonValue.from("image")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(imageContentItem: ImageContentItem) = apply {
-                image = imageContentItem.image
-                type = imageContentItem.type
-                additionalProperties = imageContentItem.additionalProperties.toMutableMap()
+            internal fun from(image: Image) = apply {
+                this.image = image.image
+                type = image.type
+                additionalProperties = image.additionalProperties.toMutableMap()
             }
 
             /** Image as a base64 encoded string or an URL */
-            fun image(image: Image) = image(JsonField.of(image))
+            fun image(image: InnerImage) = image(JsonField.of(image))
 
             /**
              * Sets [Builder.image] to an arbitrary JSON value.
              *
-             * You should usually call [Builder.image] with a well-typed [Image] value instead. This
-             * method is primarily for setting the field to an undocumented or not yet supported
-             * value.
+             * You should usually call [Builder.image] with a well-typed [InnerImage] value instead.
+             * This method is primarily for setting the field to an undocumented or not yet
+             * supported value.
              */
-            fun image(image: JsonField<Image>) = apply { this.image = image }
+            fun image(image: JsonField<InnerImage>) = apply { this.image = image }
 
             /**
              * Sets the field to an arbitrary JSON value.
@@ -327,7 +327,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [ImageContentItem].
+             * Returns an immutable instance of [Image].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -338,17 +338,13 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): ImageContentItem =
-                ImageContentItem(
-                    checkRequired("image", image),
-                    type,
-                    additionalProperties.toMutableMap(),
-                )
+            fun build(): Image =
+                Image(checkRequired("image", image), type, additionalProperties.toMutableMap())
         }
 
         private var validated: Boolean = false
 
-        fun validate(): ImageContentItem = apply {
+        fun validate(): Image = apply {
             if (validated) {
                 return@apply
             }
@@ -381,7 +377,7 @@ private constructor(
                 type.let { if (it == JsonValue.from("image")) 1 else 0 }
 
         /** Image as a base64 encoded string or an URL */
-        class Image
+        class InnerImage
         private constructor(
             private val data: JsonField<String>,
             private val url: JsonField<Url>,
@@ -439,21 +435,21 @@ private constructor(
 
             companion object {
 
-                /** Returns a mutable builder for constructing an instance of [Image]. */
+                /** Returns a mutable builder for constructing an instance of [InnerImage]. */
                 fun builder() = Builder()
             }
 
-            /** A builder for [Image]. */
+            /** A builder for [InnerImage]. */
             class Builder internal constructor() {
 
                 private var data: JsonField<String> = JsonMissing.of()
                 private var url: JsonField<Url> = JsonMissing.of()
                 private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-                internal fun from(image: Image) = apply {
-                    data = image.data
-                    url = image.url
-                    additionalProperties = image.additionalProperties.toMutableMap()
+                internal fun from(innerImage: InnerImage) = apply {
+                    data = innerImage.data
+                    url = innerImage.url
+                    additionalProperties = innerImage.additionalProperties.toMutableMap()
                 }
 
                 /** base64 encoded image data as string */
@@ -506,16 +502,16 @@ private constructor(
                 }
 
                 /**
-                 * Returns an immutable instance of [Image].
+                 * Returns an immutable instance of [InnerImage].
                  *
                  * Further updates to this [Builder] will not mutate the returned instance.
                  */
-                fun build(): Image = Image(data, url, additionalProperties.toMutableMap())
+                fun build(): InnerImage = InnerImage(data, url, additionalProperties.toMutableMap())
             }
 
             private var validated: Boolean = false
 
-            fun validate(): Image = apply {
+            fun validate(): InnerImage = apply {
                 if (validated) {
                     return@apply
                 }
@@ -706,7 +702,7 @@ private constructor(
                     return true
                 }
 
-                return /* spotless:off */ other is Image && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
+                return /* spotless:off */ other is InnerImage && data == other.data && url == other.url && additionalProperties == other.additionalProperties /* spotless:on */
             }
 
             /* spotless:off */
@@ -716,7 +712,7 @@ private constructor(
             override fun hashCode(): Int = hashCode
 
             override fun toString() =
-                "Image{data=$data, url=$url, additionalProperties=$additionalProperties}"
+                "InnerImage{data=$data, url=$url, additionalProperties=$additionalProperties}"
         }
 
         override fun equals(other: Any?): Boolean {
@@ -724,7 +720,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is ImageContentItem && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Image && image == other.image && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -734,11 +730,11 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "ImageContentItem{image=$image, type=$type, additionalProperties=$additionalProperties}"
+            "Image{image=$image, type=$type, additionalProperties=$additionalProperties}"
     }
 
     /** A text content item */
-    class TextContentItem
+    class Text
     private constructor(
         private val text: JsonField<String>,
         private val type: JsonValue,
@@ -795,7 +791,7 @@ private constructor(
         companion object {
 
             /**
-             * Returns a mutable builder for constructing an instance of [TextContentItem].
+             * Returns a mutable builder for constructing an instance of [Text].
              *
              * The following fields are required:
              * ```kotlin
@@ -805,17 +801,17 @@ private constructor(
             fun builder() = Builder()
         }
 
-        /** A builder for [TextContentItem]. */
+        /** A builder for [Text]. */
         class Builder internal constructor() {
 
             private var text: JsonField<String>? = null
             private var type: JsonValue = JsonValue.from("text")
             private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
-            internal fun from(textContentItem: TextContentItem) = apply {
-                text = textContentItem.text
-                type = textContentItem.type
-                additionalProperties = textContentItem.additionalProperties.toMutableMap()
+            internal fun from(text: Text) = apply {
+                this.text = text.text
+                type = text.type
+                additionalProperties = text.additionalProperties.toMutableMap()
             }
 
             /** Text content */
@@ -864,7 +860,7 @@ private constructor(
             }
 
             /**
-             * Returns an immutable instance of [TextContentItem].
+             * Returns an immutable instance of [Text].
              *
              * Further updates to this [Builder] will not mutate the returned instance.
              *
@@ -875,17 +871,13 @@ private constructor(
              *
              * @throws IllegalStateException if any required field is unset.
              */
-            fun build(): TextContentItem =
-                TextContentItem(
-                    checkRequired("text", text),
-                    type,
-                    additionalProperties.toMutableMap(),
-                )
+            fun build(): Text =
+                Text(checkRequired("text", text), type, additionalProperties.toMutableMap())
         }
 
         private var validated: Boolean = false
 
-        fun validate(): TextContentItem = apply {
+        fun validate(): Text = apply {
             if (validated) {
                 return@apply
             }
@@ -922,7 +914,7 @@ private constructor(
                 return true
             }
 
-            return /* spotless:off */ other is TextContentItem && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+            return /* spotless:off */ other is Text && text == other.text && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
         }
 
         /* spotless:off */
@@ -932,6 +924,6 @@ private constructor(
         override fun hashCode(): Int = hashCode
 
         override fun toString() =
-            "TextContentItem{text=$text, type=$type, additionalProperties=$additionalProperties}"
+            "Text{text=$text, type=$type, additionalProperties=$additionalProperties}"
     }
 }

@@ -11,15 +11,15 @@ internal class HealthInfoTest {
 
     @Test
     fun create() {
-        val healthInfo = HealthInfo.builder().status("status").build()
+        val healthInfo = HealthInfo.builder().status(HealthInfo.Status.OK).build()
 
-        assertThat(healthInfo.status()).isEqualTo("status")
+        assertThat(healthInfo.status()).isEqualTo(HealthInfo.Status.OK)
     }
 
     @Test
     fun roundtrip() {
         val jsonMapper = jsonMapper()
-        val healthInfo = HealthInfo.builder().status("status").build()
+        val healthInfo = HealthInfo.builder().status(HealthInfo.Status.OK).build()
 
         val roundtrippedHealthInfo =
             jsonMapper.readValue(

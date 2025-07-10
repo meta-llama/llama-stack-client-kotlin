@@ -22,8 +22,8 @@ internal class MessageTest {
 
         assertThat(message.user()).isEqualTo(user)
         assertThat(message.system()).isNull()
-        assertThat(message.toolResponse()).isNull()
-        assertThat(message.completion()).isNull()
+        assertThat(message.tool()).isNull()
+        assertThat(message.assistant()).isNull()
     }
 
     @Test
@@ -46,8 +46,8 @@ internal class MessageTest {
 
         assertThat(message.user()).isNull()
         assertThat(message.system()).isEqualTo(system)
-        assertThat(message.toolResponse()).isNull()
-        assertThat(message.completion()).isNull()
+        assertThat(message.tool()).isNull()
+        assertThat(message.assistant()).isNull()
     }
 
     @Test
@@ -62,22 +62,22 @@ internal class MessageTest {
     }
 
     @Test
-    fun ofToolResponse() {
-        val toolResponse = ToolResponseMessage.builder().callId("call_id").content("string").build()
+    fun ofTool() {
+        val tool = ToolResponseMessage.builder().callId("call_id").content("string").build()
 
-        val message = Message.ofToolResponse(toolResponse)
+        val message = Message.ofTool(tool)
 
         assertThat(message.user()).isNull()
         assertThat(message.system()).isNull()
-        assertThat(message.toolResponse()).isEqualTo(toolResponse)
-        assertThat(message.completion()).isNull()
+        assertThat(message.tool()).isEqualTo(tool)
+        assertThat(message.assistant()).isNull()
     }
 
     @Test
-    fun ofToolResponseRoundtrip() {
+    fun ofToolRoundtrip() {
         val jsonMapper = jsonMapper()
         val message =
-            Message.ofToolResponse(
+            Message.ofTool(
                 ToolResponseMessage.builder().callId("call_id").content("string").build()
             )
 
@@ -88,8 +88,8 @@ internal class MessageTest {
     }
 
     @Test
-    fun ofCompletion() {
-        val completion =
+    fun ofAssistant() {
+        val assistant =
             CompletionMessage.builder()
                 .content("string")
                 .stopReason(CompletionMessage.StopReason.END_OF_TURN)
@@ -103,19 +103,19 @@ internal class MessageTest {
                 )
                 .build()
 
-        val message = Message.ofCompletion(completion)
+        val message = Message.ofAssistant(assistant)
 
         assertThat(message.user()).isNull()
         assertThat(message.system()).isNull()
-        assertThat(message.toolResponse()).isNull()
-        assertThat(message.completion()).isEqualTo(completion)
+        assertThat(message.tool()).isNull()
+        assertThat(message.assistant()).isEqualTo(assistant)
     }
 
     @Test
-    fun ofCompletionRoundtrip() {
+    fun ofAssistantRoundtrip() {
         val jsonMapper = jsonMapper()
         val message =
-            Message.ofCompletion(
+            Message.ofAssistant(
                 CompletionMessage.builder()
                     .content("string")
                     .stopReason(CompletionMessage.StopReason.END_OF_TURN)

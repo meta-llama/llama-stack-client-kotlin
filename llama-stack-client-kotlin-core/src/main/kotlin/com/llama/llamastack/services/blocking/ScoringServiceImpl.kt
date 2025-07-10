@@ -29,6 +29,9 @@ class ScoringServiceImpl internal constructor(private val clientOptions: ClientO
 
     override fun withRawResponse(): ScoringService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ScoringService =
+        ScoringServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun score(
         params: ScoringScoreParams,
         requestOptions: RequestOptions,
@@ -48,6 +51,13 @@ class ScoringServiceImpl internal constructor(private val clientOptions: ClientO
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ScoringService.WithRawResponse =
+            ScoringServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val scoreHandler: Handler<ScoringScoreResponse> =
             jsonHandler<ScoringScoreResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -59,6 +69,7 @@ class ScoringServiceImpl internal constructor(private val clientOptions: ClientO
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "scoring", "score")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -87,6 +98,7 @@ class ScoringServiceImpl internal constructor(private val clientOptions: ClientO
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "scoring", "score-batch")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

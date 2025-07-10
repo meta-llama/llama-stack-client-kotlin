@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Register a benchmark. */
 class BenchmarkRegisterParams
 private constructor(
     private val body: Body,
@@ -28,36 +29,48 @@ private constructor(
 ) : Params {
 
     /**
+     * The ID of the benchmark to register.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun benchmarkId(): String = body.benchmarkId()
 
     /**
+     * The ID of the dataset to use for the benchmark.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun datasetId(): String = body.datasetId()
 
     /**
+     * The scoring functions to use for the benchmark.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun scoringFunctions(): List<String> = body.scoringFunctions()
 
     /**
+     * The metadata to use for the benchmark.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun metadata(): Metadata? = body.metadata()
 
     /**
+     * The ID of the provider benchmark to use for the benchmark.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun providerBenchmarkId(): String? = body.providerBenchmarkId()
 
     /**
+     * The ID of the provider to use for the benchmark.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -157,6 +170,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The ID of the benchmark to register. */
         fun benchmarkId(benchmarkId: String) = apply { body.benchmarkId(benchmarkId) }
 
         /**
@@ -168,6 +182,7 @@ private constructor(
          */
         fun benchmarkId(benchmarkId: JsonField<String>) = apply { body.benchmarkId(benchmarkId) }
 
+        /** The ID of the dataset to use for the benchmark. */
         fun datasetId(datasetId: String) = apply { body.datasetId(datasetId) }
 
         /**
@@ -179,6 +194,7 @@ private constructor(
          */
         fun datasetId(datasetId: JsonField<String>) = apply { body.datasetId(datasetId) }
 
+        /** The scoring functions to use for the benchmark. */
         fun scoringFunctions(scoringFunctions: List<String>) = apply {
             body.scoringFunctions(scoringFunctions)
         }
@@ -203,6 +219,7 @@ private constructor(
             body.addScoringFunction(scoringFunction)
         }
 
+        /** The metadata to use for the benchmark. */
         fun metadata(metadata: Metadata) = apply { body.metadata(metadata) }
 
         /**
@@ -214,6 +231,7 @@ private constructor(
          */
         fun metadata(metadata: JsonField<Metadata>) = apply { body.metadata(metadata) }
 
+        /** The ID of the provider benchmark to use for the benchmark. */
         fun providerBenchmarkId(providerBenchmarkId: String) = apply {
             body.providerBenchmarkId(providerBenchmarkId)
         }
@@ -229,6 +247,7 @@ private constructor(
             body.providerBenchmarkId(providerBenchmarkId)
         }
 
+        /** The ID of the provider to use for the benchmark. */
         fun providerId(providerId: String) = apply { body.providerId(providerId) }
 
         /**
@@ -427,6 +446,8 @@ private constructor(
         )
 
         /**
+         * The ID of the benchmark to register.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -434,6 +455,8 @@ private constructor(
         fun benchmarkId(): String = benchmarkId.getRequired("benchmark_id")
 
         /**
+         * The ID of the dataset to use for the benchmark.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -441,6 +464,8 @@ private constructor(
         fun datasetId(): String = datasetId.getRequired("dataset_id")
 
         /**
+         * The scoring functions to use for the benchmark.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -448,12 +473,16 @@ private constructor(
         fun scoringFunctions(): List<String> = scoringFunctions.getRequired("scoring_functions")
 
         /**
+         * The metadata to use for the benchmark.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun metadata(): Metadata? = metadata.getNullable("metadata")
 
         /**
+         * The ID of the provider benchmark to use for the benchmark.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -461,6 +490,8 @@ private constructor(
             providerBenchmarkId.getNullable("provider_benchmark_id")
 
         /**
+         * The ID of the provider to use for the benchmark.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -566,6 +597,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The ID of the benchmark to register. */
             fun benchmarkId(benchmarkId: String) = benchmarkId(JsonField.of(benchmarkId))
 
             /**
@@ -579,6 +611,7 @@ private constructor(
                 this.benchmarkId = benchmarkId
             }
 
+            /** The ID of the dataset to use for the benchmark. */
             fun datasetId(datasetId: String) = datasetId(JsonField.of(datasetId))
 
             /**
@@ -590,6 +623,7 @@ private constructor(
              */
             fun datasetId(datasetId: JsonField<String>) = apply { this.datasetId = datasetId }
 
+            /** The scoring functions to use for the benchmark. */
             fun scoringFunctions(scoringFunctions: List<String>) =
                 scoringFunctions(JsonField.of(scoringFunctions))
 
@@ -616,6 +650,7 @@ private constructor(
                     }
             }
 
+            /** The metadata to use for the benchmark. */
             fun metadata(metadata: Metadata) = metadata(JsonField.of(metadata))
 
             /**
@@ -627,6 +662,7 @@ private constructor(
              */
             fun metadata(metadata: JsonField<Metadata>) = apply { this.metadata = metadata }
 
+            /** The ID of the provider benchmark to use for the benchmark. */
             fun providerBenchmarkId(providerBenchmarkId: String) =
                 providerBenchmarkId(JsonField.of(providerBenchmarkId))
 
@@ -641,6 +677,7 @@ private constructor(
                 this.providerBenchmarkId = providerBenchmarkId
             }
 
+            /** The ID of the provider to use for the benchmark. */
             fun providerId(providerId: String) = providerId(JsonField.of(providerId))
 
             /**
@@ -753,6 +790,7 @@ private constructor(
             "Body{benchmarkId=$benchmarkId, datasetId=$datasetId, scoringFunctions=$scoringFunctions, metadata=$metadata, providerBenchmarkId=$providerBenchmarkId, providerId=$providerId, additionalProperties=$additionalProperties}"
     }
 
+    /** The metadata to use for the benchmark. */
     class Metadata
     @JsonCreator
     private constructor(

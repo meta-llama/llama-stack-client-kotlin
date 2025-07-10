@@ -4,22 +4,21 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
-/** Unregister a tool group */
+/** Unregister a tool group. */
 class ToolgroupUnregisterParams
 private constructor(
-    private val toolgroupId: String,
+    private val toolgroupId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
 
-    fun toolgroupId(): String = toolgroupId
+    fun toolgroupId(): String? = toolgroupId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -31,13 +30,10 @@ private constructor(
 
     companion object {
 
+        fun none(): ToolgroupUnregisterParams = builder().build()
+
         /**
          * Returns a mutable builder for constructing an instance of [ToolgroupUnregisterParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .toolgroupId()
-         * ```
          */
         fun builder() = Builder()
     }
@@ -58,7 +54,7 @@ private constructor(
                 toolgroupUnregisterParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun toolgroupId(toolgroupId: String) = apply { this.toolgroupId = toolgroupId }
+        fun toolgroupId(toolgroupId: String?) = apply { this.toolgroupId = toolgroupId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -184,17 +180,10 @@ private constructor(
          * Returns an immutable instance of [ToolgroupUnregisterParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .toolgroupId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ToolgroupUnregisterParams =
             ToolgroupUnregisterParams(
-                checkRequired("toolgroupId", toolgroupId),
+                toolgroupId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -205,7 +194,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> toolgroupId
+            0 -> toolgroupId ?: ""
             else -> ""
         }
 

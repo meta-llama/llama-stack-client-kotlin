@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Run supervised fine-tuning of a model. */
 class PostTrainingSupervisedFineTuneParams
 private constructor(
     private val body: Body,
@@ -28,42 +29,56 @@ private constructor(
 ) : Params {
 
     /**
+     * The hyperparam search configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun hyperparamSearchConfig(): HyperparamSearchConfig = body.hyperparamSearchConfig()
 
     /**
+     * The UUID of the job to create.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun jobUuid(): String = body.jobUuid()
 
     /**
+     * The logger configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun loggerConfig(): LoggerConfig = body.loggerConfig()
 
     /**
+     * The training configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun trainingConfig(): TrainingConfig = body.trainingConfig()
 
     /**
+     * The algorithm configuration.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun algorithmConfig(): AlgorithmConfig? = body.algorithmConfig()
 
     /**
+     * The directory to save checkpoint(s) to.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
     fun checkpointDir(): String? = body.checkpointDir()
 
     /**
+     * The model to fine-tune.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -175,6 +190,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The hyperparam search configuration. */
         fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) = apply {
             body.hyperparamSearchConfig(hyperparamSearchConfig)
         }
@@ -191,6 +207,7 @@ private constructor(
                 body.hyperparamSearchConfig(hyperparamSearchConfig)
             }
 
+        /** The UUID of the job to create. */
         fun jobUuid(jobUuid: String) = apply { body.jobUuid(jobUuid) }
 
         /**
@@ -201,6 +218,7 @@ private constructor(
          */
         fun jobUuid(jobUuid: JsonField<String>) = apply { body.jobUuid(jobUuid) }
 
+        /** The logger configuration. */
         fun loggerConfig(loggerConfig: LoggerConfig) = apply { body.loggerConfig(loggerConfig) }
 
         /**
@@ -214,6 +232,7 @@ private constructor(
             body.loggerConfig(loggerConfig)
         }
 
+        /** The training configuration. */
         fun trainingConfig(trainingConfig: TrainingConfig) = apply {
             body.trainingConfig(trainingConfig)
         }
@@ -229,6 +248,7 @@ private constructor(
             body.trainingConfig(trainingConfig)
         }
 
+        /** The algorithm configuration. */
         fun algorithmConfig(algorithmConfig: AlgorithmConfig) = apply {
             body.algorithmConfig(algorithmConfig)
         }
@@ -244,22 +264,13 @@ private constructor(
             body.algorithmConfig(algorithmConfig)
         }
 
-        /**
-         * Alias for calling [algorithmConfig] with
-         * `AlgorithmConfig.ofLoraFinetuning(loraFinetuning)`.
-         */
-        fun algorithmConfig(loraFinetuning: AlgorithmConfig.LoraFinetuningConfig) = apply {
-            body.algorithmConfig(loraFinetuning)
-        }
+        /** Alias for calling [algorithmConfig] with `AlgorithmConfig.ofLoRa(loRa)`. */
+        fun algorithmConfig(loRa: AlgorithmConfig.LoRa) = apply { body.algorithmConfig(loRa) }
 
-        /**
-         * Alias for calling [algorithmConfig] with
-         * `AlgorithmConfig.ofQatFinetuning(qatFinetuning)`.
-         */
-        fun algorithmConfig(qatFinetuning: AlgorithmConfig.QatFinetuningConfig) = apply {
-            body.algorithmConfig(qatFinetuning)
-        }
+        /** Alias for calling [algorithmConfig] with `AlgorithmConfig.ofQat(qat)`. */
+        fun algorithmConfig(qat: AlgorithmConfig.Qat) = apply { body.algorithmConfig(qat) }
 
+        /** The directory to save checkpoint(s) to. */
         fun checkpointDir(checkpointDir: String) = apply { body.checkpointDir(checkpointDir) }
 
         /**
@@ -273,6 +284,7 @@ private constructor(
             body.checkpointDir(checkpointDir)
         }
 
+        /** The model to fine-tune. */
         fun model(model: String) = apply { body.model(model) }
 
         /**
@@ -472,6 +484,8 @@ private constructor(
         )
 
         /**
+         * The hyperparam search configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -480,6 +494,8 @@ private constructor(
             hyperparamSearchConfig.getRequired("hyperparam_search_config")
 
         /**
+         * The UUID of the job to create.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -487,6 +503,8 @@ private constructor(
         fun jobUuid(): String = jobUuid.getRequired("job_uuid")
 
         /**
+         * The logger configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -494,6 +512,8 @@ private constructor(
         fun loggerConfig(): LoggerConfig = loggerConfig.getRequired("logger_config")
 
         /**
+         * The training configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -501,18 +521,24 @@ private constructor(
         fun trainingConfig(): TrainingConfig = trainingConfig.getRequired("training_config")
 
         /**
+         * The algorithm configuration.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun algorithmConfig(): AlgorithmConfig? = algorithmConfig.getNullable("algorithm_config")
 
         /**
+         * The directory to save checkpoint(s) to.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
         fun checkpointDir(): String? = checkpointDir.getNullable("checkpoint_dir")
 
         /**
+         * The model to fine-tune.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -633,6 +659,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The hyperparam search configuration. */
             fun hyperparamSearchConfig(hyperparamSearchConfig: HyperparamSearchConfig) =
                 hyperparamSearchConfig(JsonField.of(hyperparamSearchConfig))
 
@@ -648,6 +675,7 @@ private constructor(
                     this.hyperparamSearchConfig = hyperparamSearchConfig
                 }
 
+            /** The UUID of the job to create. */
             fun jobUuid(jobUuid: String) = jobUuid(JsonField.of(jobUuid))
 
             /**
@@ -659,6 +687,7 @@ private constructor(
              */
             fun jobUuid(jobUuid: JsonField<String>) = apply { this.jobUuid = jobUuid }
 
+            /** The logger configuration. */
             fun loggerConfig(loggerConfig: LoggerConfig) = loggerConfig(JsonField.of(loggerConfig))
 
             /**
@@ -672,6 +701,7 @@ private constructor(
                 this.loggerConfig = loggerConfig
             }
 
+            /** The training configuration. */
             fun trainingConfig(trainingConfig: TrainingConfig) =
                 trainingConfig(JsonField.of(trainingConfig))
 
@@ -686,6 +716,7 @@ private constructor(
                 this.trainingConfig = trainingConfig
             }
 
+            /** The algorithm configuration. */
             fun algorithmConfig(algorithmConfig: AlgorithmConfig) =
                 algorithmConfig(JsonField.of(algorithmConfig))
 
@@ -700,20 +731,15 @@ private constructor(
                 this.algorithmConfig = algorithmConfig
             }
 
-            /**
-             * Alias for calling [algorithmConfig] with
-             * `AlgorithmConfig.ofLoraFinetuning(loraFinetuning)`.
-             */
-            fun algorithmConfig(loraFinetuning: AlgorithmConfig.LoraFinetuningConfig) =
-                algorithmConfig(AlgorithmConfig.ofLoraFinetuning(loraFinetuning))
+            /** Alias for calling [algorithmConfig] with `AlgorithmConfig.ofLoRa(loRa)`. */
+            fun algorithmConfig(loRa: AlgorithmConfig.LoRa) =
+                algorithmConfig(AlgorithmConfig.ofLoRa(loRa))
 
-            /**
-             * Alias for calling [algorithmConfig] with
-             * `AlgorithmConfig.ofQatFinetuning(qatFinetuning)`.
-             */
-            fun algorithmConfig(qatFinetuning: AlgorithmConfig.QatFinetuningConfig) =
-                algorithmConfig(AlgorithmConfig.ofQatFinetuning(qatFinetuning))
+            /** Alias for calling [algorithmConfig] with `AlgorithmConfig.ofQat(qat)`. */
+            fun algorithmConfig(qat: AlgorithmConfig.Qat) =
+                algorithmConfig(AlgorithmConfig.ofQat(qat))
 
+            /** The directory to save checkpoint(s) to. */
             fun checkpointDir(checkpointDir: String) = checkpointDir(JsonField.of(checkpointDir))
 
             /**
@@ -727,6 +753,7 @@ private constructor(
                 this.checkpointDir = checkpointDir
             }
 
+            /** The model to fine-tune. */
             fun model(model: String) = model(JsonField.of(model))
 
             /**
@@ -843,6 +870,7 @@ private constructor(
             "Body{hyperparamSearchConfig=$hyperparamSearchConfig, jobUuid=$jobUuid, loggerConfig=$loggerConfig, trainingConfig=$trainingConfig, algorithmConfig=$algorithmConfig, checkpointDir=$checkpointDir, model=$model, additionalProperties=$additionalProperties}"
     }
 
+    /** The hyperparam search configuration. */
     class HyperparamSearchConfig
     @JsonCreator
     private constructor(
@@ -946,6 +974,7 @@ private constructor(
             "HyperparamSearchConfig{additionalProperties=$additionalProperties}"
     }
 
+    /** The logger configuration. */
     class LoggerConfig
     @JsonCreator
     private constructor(
@@ -1045,6 +1074,7 @@ private constructor(
         override fun toString() = "LoggerConfig{additionalProperties=$additionalProperties}"
     }
 
+    /** The training configuration. */
     class TrainingConfig
     private constructor(
         private val gradientAccumulationSteps: JsonField<Long>,

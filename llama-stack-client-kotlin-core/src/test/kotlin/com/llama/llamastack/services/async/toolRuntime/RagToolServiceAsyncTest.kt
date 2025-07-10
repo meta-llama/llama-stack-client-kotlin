@@ -58,9 +58,12 @@ internal class RagToolServiceAsyncTest {
                     .addVectorDbId("string")
                     .queryConfig(
                         QueryConfig.builder()
+                            .chunkTemplate("chunk_template")
                             .maxChunks(0L)
                             .maxTokensInContext(0L)
-                            .defaultRagQueryGeneratorConfig("separator")
+                            .defaultQueryGeneratorConfig("separator")
+                            .mode("mode")
+                            .rrfRanker(0.0)
                             .build()
                     )
                     .build()

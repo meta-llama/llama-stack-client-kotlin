@@ -172,7 +172,7 @@ internal class PostTrainingServiceAsyncTest {
                             .build()
                     )
                     .algorithmConfig(
-                        AlgorithmConfig.LoraFinetuningConfig.builder()
+                        AlgorithmConfig.LoRa.builder()
                             .alpha(0L)
                             .applyLoraToMlp(true)
                             .applyLoraToOutput(true)

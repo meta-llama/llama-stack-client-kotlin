@@ -33,10 +33,10 @@ internal class ScoringServiceTest {
                                 "foo",
                                 JsonValue.from(
                                     mapOf(
-                                        "judge_model" to "judge_model",
-                                        "type" to "llm_as_judge",
                                         "aggregation_functions" to listOf("average"),
+                                        "judge_model" to "judge_model",
                                         "judge_score_regexes" to listOf("string"),
+                                        "type" to "llm_as_judge",
                                         "prompt_template" to "prompt_template",
                                     )
                                 ),
@@ -66,10 +66,10 @@ internal class ScoringServiceTest {
                                 "foo",
                                 JsonValue.from(
                                     mapOf(
-                                        "judge_model" to "judge_model",
-                                        "type" to "llm_as_judge",
                                         "aggregation_functions" to listOf("average"),
+                                        "judge_model" to "judge_model",
                                         "judge_score_regexes" to listOf("string"),
+                                        "type" to "llm_as_judge",
                                         "prompt_template" to "prompt_template",
                                     )
                                 ),

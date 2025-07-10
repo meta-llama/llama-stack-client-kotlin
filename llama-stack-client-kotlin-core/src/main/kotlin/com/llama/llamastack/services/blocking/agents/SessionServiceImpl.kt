@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking.agents
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -32,6 +33,9 @@ class SessionServiceImpl internal constructor(private val clientOptions: ClientO
 
     override fun withRawResponse(): SessionService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): SessionService =
+        SessionServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun create(
         params: AgentSessionCreateParams,
         requestOptions: RequestOptions,
@@ -56,6 +60,13 @@ class SessionServiceImpl internal constructor(private val clientOptions: ClientO
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): SessionService.WithRawResponse =
+            SessionServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val createHandler: Handler<AgentSessionCreateResponse> =
             jsonHandler<AgentSessionCreateResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -64,9 +75,13 @@ class SessionServiceImpl internal constructor(private val clientOptions: ClientO
             params: AgentSessionCreateParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<AgentSessionCreateResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("agentId", params.agentId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "agents", params._pathParam(0), "session")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -91,9 +106,13 @@ class SessionServiceImpl internal constructor(private val clientOptions: ClientO
             params: AgentSessionRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Session> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("sessionId", params.sessionId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "agents",
@@ -122,9 +141,13 @@ class SessionServiceImpl internal constructor(private val clientOptions: ClientO
             params: AgentSessionDeleteParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("sessionId", params.sessionId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "agents",

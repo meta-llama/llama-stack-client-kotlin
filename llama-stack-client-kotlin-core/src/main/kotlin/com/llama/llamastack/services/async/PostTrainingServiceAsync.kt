@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.async
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.PostTrainingJob
@@ -17,13 +18,22 @@ interface PostTrainingServiceAsync {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): PostTrainingServiceAsync
+
     fun job(): JobServiceAsync
 
+    /** Run preference optimization of a model. */
     suspend fun preferenceOptimize(
         params: PostTrainingPreferenceOptimizeParams,
         requestOptions: RequestOptions = RequestOptions.none(),
     ): PostTrainingJob
 
+    /** Run supervised fine-tuning of a model. */
     suspend fun supervisedFineTune(
         params: PostTrainingSupervisedFineTuneParams,
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -34,6 +44,15 @@ interface PostTrainingServiceAsync {
      * method.
      */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): PostTrainingServiceAsync.WithRawResponse
 
         fun job(): JobServiceAsync.WithRawResponse
 

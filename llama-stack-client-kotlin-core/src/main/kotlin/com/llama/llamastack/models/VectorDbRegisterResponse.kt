@@ -21,8 +21,8 @@ private constructor(
     private val embeddingModel: JsonField<String>,
     private val identifier: JsonField<String>,
     private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
     private val type: JsonValue,
+    private val providerResourceId: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -40,17 +40,17 @@ private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
         providerResourceId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
     ) : this(
         embeddingDimension,
         embeddingModel,
         identifier,
         providerId,
-        providerResourceId,
         type,
+        providerResourceId,
         mutableMapOf(),
     )
 
@@ -79,12 +79,6 @@ private constructor(
     fun providerId(): String = providerId.getRequired("provider_id")
 
     /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
-    fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
-
-    /**
      * Expected to always return the following:
      * ```kotlin
      * JsonValue.from("vector_db")
@@ -94,6 +88,12 @@ private constructor(
      * with an unexpected value).
      */
     @JsonProperty("type") @ExcludeMissing fun _type(): JsonValue = type
+
+    /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun providerResourceId(): String? = providerResourceId.getNullable("provider_resource_id")
 
     /**
      * Returns the raw JSON value of [embeddingDimension].
@@ -161,7 +161,6 @@ private constructor(
          * .embeddingModel()
          * .identifier()
          * .providerId()
-         * .providerResourceId()
          * ```
          */
         fun builder() = Builder()
@@ -174,8 +173,8 @@ private constructor(
         private var embeddingModel: JsonField<String>? = null
         private var identifier: JsonField<String>? = null
         private var providerId: JsonField<String>? = null
-        private var providerResourceId: JsonField<String>? = null
         private var type: JsonValue = JsonValue.from("vector_db")
+        private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(vectorDbRegisterResponse: VectorDbRegisterResponse) = apply {
@@ -183,8 +182,8 @@ private constructor(
             embeddingModel = vectorDbRegisterResponse.embeddingModel
             identifier = vectorDbRegisterResponse.identifier
             providerId = vectorDbRegisterResponse.providerId
-            providerResourceId = vectorDbRegisterResponse.providerResourceId
             type = vectorDbRegisterResponse.type
+            providerResourceId = vectorDbRegisterResponse.providerResourceId
             additionalProperties = vectorDbRegisterResponse.additionalProperties.toMutableMap()
         }
 
@@ -237,20 +236,6 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
-        fun providerResourceId(providerResourceId: String) =
-            providerResourceId(JsonField.of(providerResourceId))
-
-        /**
-         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
-            this.providerResourceId = providerResourceId
-        }
-
         /**
          * Sets the field to an arbitrary JSON value.
          *
@@ -264,6 +249,20 @@ private constructor(
          * value.
          */
         fun type(type: JsonValue) = apply { this.type = type }
+
+        fun providerResourceId(providerResourceId: String) =
+            providerResourceId(JsonField.of(providerResourceId))
+
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
+            this.providerResourceId = providerResourceId
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -295,7 +294,6 @@ private constructor(
          * .embeddingModel()
          * .identifier()
          * .providerId()
-         * .providerResourceId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -306,8 +304,8 @@ private constructor(
                 checkRequired("embeddingModel", embeddingModel),
                 checkRequired("identifier", identifier),
                 checkRequired("providerId", providerId),
-                checkRequired("providerResourceId", providerResourceId),
                 type,
+                providerResourceId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -323,12 +321,12 @@ private constructor(
         embeddingModel()
         identifier()
         providerId()
-        providerResourceId()
         _type().let {
             if (it != JsonValue.from("vector_db")) {
                 throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
             }
         }
+        providerResourceId()
         validated = true
     }
 
@@ -350,23 +348,23 @@ private constructor(
             (if (embeddingModel.asKnown() == null) 0 else 1) +
             (if (identifier.asKnown() == null) 0 else 1) +
             (if (providerId.asKnown() == null) 0 else 1) +
-            (if (providerResourceId.asKnown() == null) 0 else 1) +
-            type.let { if (it == JsonValue.from("vector_db")) 1 else 0 }
+            type.let { if (it == JsonValue.from("vector_db")) 1 else 0 } +
+            (if (providerResourceId.asKnown() == null) 0 else 1)
 
     override fun equals(other: Any?): Boolean {
         if (this === other) {
             return true
         }
 
-        return /* spotless:off */ other is VectorDbRegisterResponse && embeddingDimension == other.embeddingDimension && embeddingModel == other.embeddingModel && identifier == other.identifier && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is VectorDbRegisterResponse && embeddingDimension == other.embeddingDimension && embeddingModel == other.embeddingModel && identifier == other.identifier && providerId == other.providerId && type == other.type && providerResourceId == other.providerResourceId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(embeddingDimension, embeddingModel, identifier, providerId, providerResourceId, type, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(embeddingDimension, embeddingModel, identifier, providerId, type, providerResourceId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "VectorDbRegisterResponse{embeddingDimension=$embeddingDimension, embeddingModel=$embeddingModel, identifier=$identifier, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, additionalProperties=$additionalProperties}"
+        "VectorDbRegisterResponse{embeddingDimension=$embeddingDimension, embeddingModel=$embeddingModel, identifier=$identifier, providerId=$providerId, type=$type, providerResourceId=$providerResourceId, additionalProperties=$additionalProperties}"
 }

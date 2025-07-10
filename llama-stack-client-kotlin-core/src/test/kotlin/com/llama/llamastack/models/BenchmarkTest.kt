@@ -22,8 +22,8 @@ internal class BenchmarkTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .addScoringFunction("string")
+                .providerResourceId("provider_resource_id")
                 .build()
 
         assertThat(benchmark.datasetId()).isEqualTo("dataset_id")
@@ -35,8 +35,8 @@ internal class BenchmarkTest {
                     .build()
             )
         assertThat(benchmark.providerId()).isEqualTo("provider_id")
-        assertThat(benchmark.providerResourceId()).isEqualTo("provider_resource_id")
         assertThat(benchmark.scoringFunctions()).containsExactly("string")
+        assertThat(benchmark.providerResourceId()).isEqualTo("provider_resource_id")
     }
 
     @Test
@@ -52,8 +52,8 @@ internal class BenchmarkTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
                 .addScoringFunction("string")
+                .providerResourceId("provider_resource_id")
                 .build()
 
         val roundtrippedBenchmark =

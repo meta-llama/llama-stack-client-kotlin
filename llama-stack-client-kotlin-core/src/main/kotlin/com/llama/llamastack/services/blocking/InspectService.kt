@@ -3,6 +3,7 @@
 package com.llama.llamastack.services.blocking
 
 import com.google.errorprone.annotations.MustBeClosed
+import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.RequestOptions
 import com.llama.llamastack.core.http.HttpResponseFor
 import com.llama.llamastack.models.HealthInfo
@@ -17,6 +18,14 @@ interface InspectService {
      */
     fun withRawResponse(): WithRawResponse
 
+    /**
+     * Returns a view of this service with the given option modifications applied.
+     *
+     * The original service is not modified.
+     */
+    fun withOptions(modifier: (ClientOptions.Builder) -> Unit): InspectService
+
+    /** Get the health of the service. */
     fun health(
         params: InspectHealthParams = InspectHealthParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -26,6 +35,7 @@ interface InspectService {
     fun health(requestOptions: RequestOptions): HealthInfo =
         health(InspectHealthParams.none(), requestOptions)
 
+    /** Get the version of the service. */
     fun version(
         params: InspectVersionParams = InspectVersionParams.none(),
         requestOptions: RequestOptions = RequestOptions.none(),
@@ -37,6 +47,13 @@ interface InspectService {
 
     /** A view of [InspectService] that provides access to raw HTTP responses for each method. */
     interface WithRawResponse {
+
+        /**
+         * Returns a view of this service with the given option modifications applied.
+         *
+         * The original service is not modified.
+         */
+        fun withOptions(modifier: (ClientOptions.Builder) -> Unit): InspectService.WithRawResponse
 
         /**
          * Returns a raw HTTP response for `get /v1/health`, but is otherwise the same as

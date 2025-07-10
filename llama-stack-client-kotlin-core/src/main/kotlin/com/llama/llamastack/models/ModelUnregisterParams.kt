@@ -4,21 +4,21 @@ package com.llama.llamastack.models
 
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import com.llama.llamastack.core.toImmutable
 import java.util.Objects
 
+/** Unregister a model. */
 class ModelUnregisterParams
 private constructor(
-    private val modelId: String,
+    private val modelId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
     private val additionalBodyProperties: Map<String, JsonValue>,
 ) : Params {
 
-    fun modelId(): String = modelId
+    fun modelId(): String? = modelId
 
     fun _additionalBodyProperties(): Map<String, JsonValue> = additionalBodyProperties
 
@@ -30,14 +30,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [ModelUnregisterParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .modelId()
-         * ```
-         */
+        fun none(): ModelUnregisterParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ModelUnregisterParams]. */
         fun builder() = Builder()
     }
 
@@ -56,7 +51,7 @@ private constructor(
             additionalBodyProperties = modelUnregisterParams.additionalBodyProperties.toMutableMap()
         }
 
-        fun modelId(modelId: String) = apply { this.modelId = modelId }
+        fun modelId(modelId: String?) = apply { this.modelId = modelId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -182,17 +177,10 @@ private constructor(
          * Returns an immutable instance of [ModelUnregisterParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .modelId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ModelUnregisterParams =
             ModelUnregisterParams(
-                checkRequired("modelId", modelId),
+                modelId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
                 additionalBodyProperties.toImmutable(),
@@ -203,7 +191,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> modelId
+            0 -> modelId ?: ""
             else -> ""
         }
 

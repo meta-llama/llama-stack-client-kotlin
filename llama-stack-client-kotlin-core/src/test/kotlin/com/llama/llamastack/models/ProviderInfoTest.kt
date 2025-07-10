@@ -20,6 +20,11 @@ internal class ProviderInfoTest {
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
+                .health(
+                    ProviderInfo.Health.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
                 .providerId("provider_id")
                 .providerType("provider_type")
                 .build()
@@ -28,6 +33,12 @@ internal class ProviderInfoTest {
         assertThat(providerInfo.config())
             .isEqualTo(
                 ProviderInfo.Config.builder()
+                    .putAdditionalProperty("foo", JsonValue.from(true))
+                    .build()
+            )
+        assertThat(providerInfo.health())
+            .isEqualTo(
+                ProviderInfo.Health.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
@@ -43,6 +54,11 @@ internal class ProviderInfoTest {
                 .api("api")
                 .config(
                     ProviderInfo.Config.builder()
+                        .putAdditionalProperty("foo", JsonValue.from(true))
+                        .build()
+                )
+                .health(
+                    ProviderInfo.Health.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )

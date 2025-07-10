@@ -5,6 +5,7 @@ package com.llama.llamastack.services.blocking
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -28,6 +29,9 @@ class ProviderServiceImpl internal constructor(private val clientOptions: Client
 
     override fun withRawResponse(): ProviderService.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ProviderService =
+        ProviderServiceImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun retrieve(
         params: ProviderRetrieveParams,
         requestOptions: RequestOptions,
@@ -47,6 +51,13 @@ class ProviderServiceImpl internal constructor(private val clientOptions: Client
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ProviderService.WithRawResponse =
+            ProviderServiceImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<ProviderInfo> =
             jsonHandler<ProviderInfo>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -54,9 +65,13 @@ class ProviderServiceImpl internal constructor(private val clientOptions: Client
             params: ProviderRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<ProviderInfo> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("providerId", params.providerId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "providers", params._pathParam(0))
                     .build()
                     .prepare(clientOptions, params)
@@ -84,6 +99,7 @@ class ProviderServiceImpl internal constructor(private val clientOptions: Client
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "providers")
                     .build()
                     .prepare(clientOptions, params)

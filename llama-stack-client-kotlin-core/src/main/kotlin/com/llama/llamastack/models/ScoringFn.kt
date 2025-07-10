@@ -21,11 +21,11 @@ private constructor(
     private val identifier: JsonField<String>,
     private val metadata: JsonField<Metadata>,
     private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
     private val returnType: JsonField<ReturnType>,
     private val type: JsonValue,
     private val description: JsonField<String>,
     private val params: JsonField<ScoringFnParams>,
+    private val providerResourceId: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -38,9 +38,6 @@ private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("provider_resource_id")
-        @ExcludeMissing
-        providerResourceId: JsonField<String> = JsonMissing.of(),
         @JsonProperty("return_type")
         @ExcludeMissing
         returnType: JsonField<ReturnType> = JsonMissing.of(),
@@ -51,15 +48,18 @@ private constructor(
         @JsonProperty("params")
         @ExcludeMissing
         params: JsonField<ScoringFnParams> = JsonMissing.of(),
+        @JsonProperty("provider_resource_id")
+        @ExcludeMissing
+        providerResourceId: JsonField<String> = JsonMissing.of(),
     ) : this(
         identifier,
         metadata,
         providerId,
-        providerResourceId,
         returnType,
         type,
         description,
         params,
+        providerResourceId,
         mutableMapOf(),
     )
 
@@ -80,12 +80,6 @@ private constructor(
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun providerId(): String = providerId.getRequired("provider_id")
-
-    /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
-    fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -117,6 +111,12 @@ private constructor(
     fun params(): ScoringFnParams? = params.getNullable("params")
 
     /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun providerResourceId(): String? = providerResourceId.getNullable("provider_resource_id")
+
+    /**
      * Returns the raw JSON value of [identifier].
      *
      * Unlike [identifier], this method doesn't throw if the JSON field has an unexpected type.
@@ -136,16 +136,6 @@ private constructor(
      * Unlike [providerId], this method doesn't throw if the JSON field has an unexpected type.
      */
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
-
-    /**
-     * Returns the raw JSON value of [providerResourceId].
-     *
-     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
-     * type.
-     */
-    @JsonProperty("provider_resource_id")
-    @ExcludeMissing
-    fun _providerResourceId(): JsonField<String> = providerResourceId
 
     /**
      * Returns the raw JSON value of [returnType].
@@ -170,6 +160,16 @@ private constructor(
      */
     @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<ScoringFnParams> = params
 
+    /**
+     * Returns the raw JSON value of [providerResourceId].
+     *
+     * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
+     * type.
+     */
+    @JsonProperty("provider_resource_id")
+    @ExcludeMissing
+    fun _providerResourceId(): JsonField<String> = providerResourceId
+
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
         additionalProperties.put(key, value)
@@ -192,7 +192,6 @@ private constructor(
          * .identifier()
          * .metadata()
          * .providerId()
-         * .providerResourceId()
          * .returnType()
          * ```
          */
@@ -205,22 +204,22 @@ private constructor(
         private var identifier: JsonField<String>? = null
         private var metadata: JsonField<Metadata>? = null
         private var providerId: JsonField<String>? = null
-        private var providerResourceId: JsonField<String>? = null
         private var returnType: JsonField<ReturnType>? = null
         private var type: JsonValue = JsonValue.from("scoring_function")
         private var description: JsonField<String> = JsonMissing.of()
         private var params: JsonField<ScoringFnParams> = JsonMissing.of()
+        private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(scoringFn: ScoringFn) = apply {
             identifier = scoringFn.identifier
             metadata = scoringFn.metadata
             providerId = scoringFn.providerId
-            providerResourceId = scoringFn.providerResourceId
             returnType = scoringFn.returnType
             type = scoringFn.type
             description = scoringFn.description
             params = scoringFn.params
+            providerResourceId = scoringFn.providerResourceId
             additionalProperties = scoringFn.additionalProperties.toMutableMap()
         }
 
@@ -256,20 +255,6 @@ private constructor(
          * value.
          */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
-
-        fun providerResourceId(providerResourceId: String) =
-            providerResourceId(JsonField.of(providerResourceId))
-
-        /**
-         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
-            this.providerResourceId = providerResourceId
-        }
 
         fun returnType(returnType: ReturnType) = returnType(JsonField.of(returnType))
 
@@ -319,29 +304,42 @@ private constructor(
         fun params(params: JsonField<ScoringFnParams>) = apply { this.params = params }
 
         /** Alias for calling [params] with `ScoringFnParams.ofLlmAsJudge(llmAsJudge)`. */
-        fun params(llmAsJudge: ScoringFnParams.LlmAsJudgeScoringFnParams) =
+        fun params(llmAsJudge: ScoringFnParams.LlmAsJudge) =
             params(ScoringFnParams.ofLlmAsJudge(llmAsJudge))
+
+        /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
+        fun params(regexParser: ScoringFnParams.RegexParser) =
+            params(ScoringFnParams.ofRegexParser(regexParser))
+
+        /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
+        fun params(basic: ScoringFnParams.Basic) = params(ScoringFnParams.ofBasic(basic))
 
         /**
          * Alias for calling [params] with the following:
          * ```kotlin
-         * ScoringFnParams.LlmAsJudgeScoringFnParams.builder()
-         *     .judgeModel(judgeModel)
+         * ScoringFnParams.Basic.builder()
+         *     .aggregationFunctions(aggregationFunctions)
          *     .build()
          * ```
          */
-        fun llmAsJudgeParams(judgeModel: String) =
+        fun basicParams(aggregationFunctions: List<ScoringFnParams.Basic.AggregationFunction>) =
             params(
-                ScoringFnParams.LlmAsJudgeScoringFnParams.builder().judgeModel(judgeModel).build()
+                ScoringFnParams.Basic.builder().aggregationFunctions(aggregationFunctions).build()
             )
 
-        /** Alias for calling [params] with `ScoringFnParams.ofRegexParser(regexParser)`. */
-        fun params(regexParser: ScoringFnParams.RegexParserScoringFnParams) =
-            params(ScoringFnParams.ofRegexParser(regexParser))
+        fun providerResourceId(providerResourceId: String) =
+            providerResourceId(JsonField.of(providerResourceId))
 
-        /** Alias for calling [params] with `ScoringFnParams.ofBasic(basic)`. */
-        fun params(basic: ScoringFnParams.BasicScoringFnParams) =
-            params(ScoringFnParams.ofBasic(basic))
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
+            this.providerResourceId = providerResourceId
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -372,7 +370,6 @@ private constructor(
          * .identifier()
          * .metadata()
          * .providerId()
-         * .providerResourceId()
          * .returnType()
          * ```
          *
@@ -383,11 +380,11 @@ private constructor(
                 checkRequired("identifier", identifier),
                 checkRequired("metadata", metadata),
                 checkRequired("providerId", providerId),
-                checkRequired("providerResourceId", providerResourceId),
                 checkRequired("returnType", returnType),
                 type,
                 description,
                 params,
+                providerResourceId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -402,7 +399,6 @@ private constructor(
         identifier()
         metadata().validate()
         providerId()
-        providerResourceId()
         returnType().validate()
         _type().let {
             if (it != JsonValue.from("scoring_function")) {
@@ -411,6 +407,7 @@ private constructor(
         }
         description()
         params()?.validate()
+        providerResourceId()
         validated = true
     }
 
@@ -431,11 +428,11 @@ private constructor(
         (if (identifier.asKnown() == null) 0 else 1) +
             (metadata.asKnown()?.validity() ?: 0) +
             (if (providerId.asKnown() == null) 0 else 1) +
-            (if (providerResourceId.asKnown() == null) 0 else 1) +
             (returnType.asKnown()?.validity() ?: 0) +
             type.let { if (it == JsonValue.from("scoring_function")) 1 else 0 } +
             (if (description.asKnown() == null) 0 else 1) +
-            (params.asKnown()?.validity() ?: 0)
+            (params.asKnown()?.validity() ?: 0) +
+            (if (providerResourceId.asKnown() == null) 0 else 1)
 
     class Metadata
     @JsonCreator
@@ -541,15 +538,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is ScoringFn && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && providerResourceId == other.providerResourceId && returnType == other.returnType && type == other.type && description == other.description && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is ScoringFn && identifier == other.identifier && metadata == other.metadata && providerId == other.providerId && returnType == other.returnType && type == other.type && description == other.description && params == other.params && providerResourceId == other.providerResourceId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, providerId, providerResourceId, returnType, type, description, params, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(identifier, metadata, providerId, returnType, type, description, params, providerResourceId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "ScoringFn{identifier=$identifier, metadata=$metadata, providerId=$providerId, providerResourceId=$providerResourceId, returnType=$returnType, type=$type, description=$description, params=$params, additionalProperties=$additionalProperties}"
+        "ScoringFn{identifier=$identifier, metadata=$metadata, providerId=$providerId, returnType=$returnType, type=$type, description=$description, params=$params, providerResourceId=$providerResourceId, additionalProperties=$additionalProperties}"
 }

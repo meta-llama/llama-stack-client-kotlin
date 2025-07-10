@@ -20,6 +20,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Run a shield. */
 class SafetyRunShieldParams
 private constructor(
     private val body: Body,
@@ -28,18 +29,24 @@ private constructor(
 ) : Params {
 
     /**
+     * The messages to run the shield on.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun messages(): List<Message> = body.messages()
 
     /**
+     * The parameters of the shield.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun params(): Params = body.params()
 
     /**
+     * The identifier of the shield to run.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
@@ -113,6 +120,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
+        /** The messages to run the shield on. */
         fun messages(messages: List<Message>) = apply { body.messages(messages) }
 
         /**
@@ -205,12 +213,13 @@ private constructor(
             body.addSystemMessageOfItems(items)
         }
 
-        /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
-        fun addMessage(toolResponse: ToolResponseMessage) = apply { body.addMessage(toolResponse) }
+        /** Alias for calling [addMessage] with `Message.ofTool(tool)`. */
+        fun addMessage(tool: ToolResponseMessage) = apply { body.addMessage(tool) }
 
-        /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
-        fun addMessage(completion: CompletionMessage) = apply { body.addMessage(completion) }
+        /** Alias for calling [addMessage] with `Message.ofAssistant(assistant)`. */
+        fun addMessage(assistant: CompletionMessage) = apply { body.addMessage(assistant) }
 
+        /** The parameters of the shield. */
         fun params(params: Params) = apply { body.params(params) }
 
         /**
@@ -221,6 +230,7 @@ private constructor(
          */
         fun params(params: JsonField<Params>) = apply { body.params(params) }
 
+        /** The identifier of the shield to run. */
         fun shieldId(shieldId: String) = apply { body.shieldId(shieldId) }
 
         /**
@@ -396,6 +406,8 @@ private constructor(
         ) : this(messages, params, shieldId, mutableMapOf())
 
         /**
+         * The messages to run the shield on.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -403,6 +415,8 @@ private constructor(
         fun messages(): List<Message> = messages.getRequired("messages")
 
         /**
+         * The parameters of the shield.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -410,6 +424,8 @@ private constructor(
         fun params(): Params = params.getRequired("params")
 
         /**
+         * The identifier of the shield to run.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -481,6 +497,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
+            /** The messages to run the shield on. */
             fun messages(messages: List<Message>) = messages(JsonField.of(messages))
 
             /**
@@ -577,14 +594,14 @@ private constructor(
             fun addSystemMessageOfItems(items: List<InterleavedContentItem>) =
                 addSystemMessage(InterleavedContent.ofItems(items))
 
-            /** Alias for calling [addMessage] with `Message.ofToolResponse(toolResponse)`. */
-            fun addMessage(toolResponse: ToolResponseMessage) =
-                addMessage(Message.ofToolResponse(toolResponse))
+            /** Alias for calling [addMessage] with `Message.ofTool(tool)`. */
+            fun addMessage(tool: ToolResponseMessage) = addMessage(Message.ofTool(tool))
 
-            /** Alias for calling [addMessage] with `Message.ofCompletion(completion)`. */
-            fun addMessage(completion: CompletionMessage) =
-                addMessage(Message.ofCompletion(completion))
+            /** Alias for calling [addMessage] with `Message.ofAssistant(assistant)`. */
+            fun addMessage(assistant: CompletionMessage) =
+                addMessage(Message.ofAssistant(assistant))
 
+            /** The parameters of the shield. */
             fun params(params: Params) = params(JsonField.of(params))
 
             /**
@@ -596,6 +613,7 @@ private constructor(
              */
             fun params(params: JsonField<Params>) = apply { this.params = params }
 
+            /** The identifier of the shield to run. */
             fun shieldId(shieldId: String) = shieldId(JsonField.of(shieldId))
 
             /**
@@ -699,6 +717,7 @@ private constructor(
             "Body{messages=$messages, params=$params, shieldId=$shieldId, additionalProperties=$additionalProperties}"
     }
 
+    /** The parameters of the shield. */
     class Params
     @JsonCreator
     private constructor(

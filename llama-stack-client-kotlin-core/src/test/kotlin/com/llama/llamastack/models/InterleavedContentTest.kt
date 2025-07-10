@@ -121,12 +121,12 @@ internal class InterleavedContentTest {
         val items =
             listOf(
                 InterleavedContentItem.ofImage(
-                    InterleavedContentItem.ImageContentItem.builder()
+                    InterleavedContentItem.Image.builder()
                         .image(
-                            InterleavedContentItem.ImageContentItem.Image.builder()
+                            InterleavedContentItem.Image.InnerImage.builder()
                                 .data("data")
                                 .url(
-                                    InterleavedContentItem.ImageContentItem.Image.Url.builder()
+                                    InterleavedContentItem.Image.InnerImage.Url.builder()
                                         .uri("uri")
                                         .build()
                                 )
@@ -151,12 +151,12 @@ internal class InterleavedContentTest {
             InterleavedContent.ofItems(
                 listOf(
                     InterleavedContentItem.ofImage(
-                        InterleavedContentItem.ImageContentItem.builder()
+                        InterleavedContentItem.Image.builder()
                             .image(
-                                InterleavedContentItem.ImageContentItem.Image.builder()
+                                InterleavedContentItem.Image.InnerImage.builder()
                                     .data("data")
                                     .url(
-                                        InterleavedContentItem.ImageContentItem.Image.Url.builder()
+                                        InterleavedContentItem.Image.InnerImage.Url.builder()
                                             .uri("uri")
                                             .build()
                                     )

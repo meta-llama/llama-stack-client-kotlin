@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -38,6 +39,9 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
     }
 
     override fun withRawResponse(): TelemetryServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): TelemetryServiceAsync =
+        TelemetryServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun getSpan(
         params: TelemetryGetSpanParams,
@@ -92,6 +96,13 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): TelemetryServiceAsync.WithRawResponse =
+            TelemetryServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val getSpanHandler: Handler<TelemetryGetSpanResponse> =
             jsonHandler<TelemetryGetSpanResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -100,9 +111,13 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             params: TelemetryGetSpanParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<TelemetryGetSpanResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("spanId", params.spanId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "telemetry",
@@ -134,9 +149,13 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             params: TelemetryGetSpanTreeParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<TelemetryGetSpanTreeResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("spanId", params.spanId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "telemetry", "spans", params._pathParam(0), "tree")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -162,9 +181,13 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             params: TelemetryGetTraceParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Trace> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("traceId", params.traceId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "telemetry", "traces", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -190,6 +213,7 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "telemetry", "events")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -210,6 +234,7 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "telemetry", "spans")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -239,6 +264,7 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "telemetry", "traces")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -267,6 +293,7 @@ class TelemetryServiceAsyncImpl internal constructor(private val clientOptions: 
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "telemetry", "spans", "export")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

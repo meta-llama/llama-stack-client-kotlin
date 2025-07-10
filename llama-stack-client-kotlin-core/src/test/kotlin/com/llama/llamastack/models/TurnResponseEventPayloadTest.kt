@@ -16,46 +16,38 @@ import org.junit.jupiter.params.provider.EnumSource
 internal class TurnResponseEventPayloadTest {
 
     @Test
-    fun ofAgentTurnResponseStepStart() {
-        val agentTurnResponseStepStart =
-            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.builder()
+    fun ofStepStart() {
+        val stepStart =
+            TurnResponseEventPayload.StepStart.builder()
                 .stepId("step_id")
-                .stepType(
-                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload.StepType.INFERENCE
-                )
+                .stepType(TurnResponseEventPayload.StepStart.StepType.INFERENCE)
                 .metadata(
-                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload.Metadata.builder()
+                    TurnResponseEventPayload.StepStart.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .build()
 
-        val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseStepStart(agentTurnResponseStepStart)
+        val turnResponseEventPayload = TurnResponseEventPayload.ofStepStart(stepStart)
 
-        assertThat(turnResponseEventPayload.agentTurnResponseStepStart())
-            .isEqualTo(agentTurnResponseStepStart)
-        assertThat(turnResponseEventPayload.agentTurnResponseStepProgress()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnAwaitingInput()).isNull()
+        assertThat(turnResponseEventPayload.stepStart()).isEqualTo(stepStart)
+        assertThat(turnResponseEventPayload.stepProgress()).isNull()
+        assertThat(turnResponseEventPayload.stepComplete()).isNull()
+        assertThat(turnResponseEventPayload.start()).isNull()
+        assertThat(turnResponseEventPayload.complete()).isNull()
+        assertThat(turnResponseEventPayload.awaitingInput()).isNull()
     }
 
     @Test
-    fun ofAgentTurnResponseStepStartRoundtrip() {
+    fun ofStepStartRoundtrip() {
         val jsonMapper = jsonMapper()
         val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseStepStart(
-                TurnResponseEventPayload.AgentTurnResponseStepStartPayload.builder()
+            TurnResponseEventPayload.ofStepStart(
+                TurnResponseEventPayload.StepStart.builder()
                     .stepId("step_id")
-                    .stepType(
-                        TurnResponseEventPayload.AgentTurnResponseStepStartPayload.StepType
-                            .INFERENCE
-                    )
+                    .stepType(TurnResponseEventPayload.StepStart.StepType.INFERENCE)
                     .metadata(
-                        TurnResponseEventPayload.AgentTurnResponseStepStartPayload.Metadata
-                            .builder()
+                        TurnResponseEventPayload.StepStart.Metadata.builder()
                             .putAdditionalProperty("foo", JsonValue.from(true))
                             .build()
                     )
@@ -72,40 +64,33 @@ internal class TurnResponseEventPayloadTest {
     }
 
     @Test
-    fun ofAgentTurnResponseStepProgress() {
-        val agentTurnResponseStepProgress =
-            TurnResponseEventPayload.AgentTurnResponseStepProgressPayload.builder()
+    fun ofStepProgress() {
+        val stepProgress =
+            TurnResponseEventPayload.StepProgress.builder()
                 .textDelta("text")
                 .stepId("step_id")
-                .stepType(
-                    TurnResponseEventPayload.AgentTurnResponseStepProgressPayload.StepType.INFERENCE
-                )
+                .stepType(TurnResponseEventPayload.StepProgress.StepType.INFERENCE)
                 .build()
 
-        val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseStepProgress(agentTurnResponseStepProgress)
+        val turnResponseEventPayload = TurnResponseEventPayload.ofStepProgress(stepProgress)
 
-        assertThat(turnResponseEventPayload.agentTurnResponseStepStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepProgress())
-            .isEqualTo(agentTurnResponseStepProgress)
-        assertThat(turnResponseEventPayload.agentTurnResponseStepComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnAwaitingInput()).isNull()
+        assertThat(turnResponseEventPayload.stepStart()).isNull()
+        assertThat(turnResponseEventPayload.stepProgress()).isEqualTo(stepProgress)
+        assertThat(turnResponseEventPayload.stepComplete()).isNull()
+        assertThat(turnResponseEventPayload.start()).isNull()
+        assertThat(turnResponseEventPayload.complete()).isNull()
+        assertThat(turnResponseEventPayload.awaitingInput()).isNull()
     }
 
     @Test
-    fun ofAgentTurnResponseStepProgressRoundtrip() {
+    fun ofStepProgressRoundtrip() {
         val jsonMapper = jsonMapper()
         val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseStepProgress(
-                TurnResponseEventPayload.AgentTurnResponseStepProgressPayload.builder()
+            TurnResponseEventPayload.ofStepProgress(
+                TurnResponseEventPayload.StepProgress.builder()
                     .textDelta("text")
                     .stepId("step_id")
-                    .stepType(
-                        TurnResponseEventPayload.AgentTurnResponseStepProgressPayload.StepType
-                            .INFERENCE
-                    )
+                    .stepType(TurnResponseEventPayload.StepProgress.StepType.INFERENCE)
                     .build()
             )
 
@@ -119,9 +104,9 @@ internal class TurnResponseEventPayloadTest {
     }
 
     @Test
-    fun ofAgentTurnResponseStepComplete() {
-        val agentTurnResponseStepComplete =
-            TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.builder()
+    fun ofStepComplete() {
+        val stepComplete =
+            TurnResponseEventPayload.StepComplete.builder()
                 .stepDetails(
                     InferenceStep.builder()
                         .modelResponse(
@@ -145,29 +130,25 @@ internal class TurnResponseEventPayloadTest {
                         .build()
                 )
                 .stepId("step_id")
-                .stepType(
-                    TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.StepType.INFERENCE
-                )
+                .stepType(TurnResponseEventPayload.StepComplete.StepType.INFERENCE)
                 .build()
 
-        val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseStepComplete(agentTurnResponseStepComplete)
+        val turnResponseEventPayload = TurnResponseEventPayload.ofStepComplete(stepComplete)
 
-        assertThat(turnResponseEventPayload.agentTurnResponseStepStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepProgress()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepComplete())
-            .isEqualTo(agentTurnResponseStepComplete)
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnAwaitingInput()).isNull()
+        assertThat(turnResponseEventPayload.stepStart()).isNull()
+        assertThat(turnResponseEventPayload.stepProgress()).isNull()
+        assertThat(turnResponseEventPayload.stepComplete()).isEqualTo(stepComplete)
+        assertThat(turnResponseEventPayload.start()).isNull()
+        assertThat(turnResponseEventPayload.complete()).isNull()
+        assertThat(turnResponseEventPayload.awaitingInput()).isNull()
     }
 
     @Test
-    fun ofAgentTurnResponseStepCompleteRoundtrip() {
+    fun ofStepCompleteRoundtrip() {
         val jsonMapper = jsonMapper()
         val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseStepComplete(
-                TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.builder()
+            TurnResponseEventPayload.ofStepComplete(
+                TurnResponseEventPayload.StepComplete.builder()
                     .stepDetails(
                         InferenceStep.builder()
                             .modelResponse(
@@ -191,10 +172,7 @@ internal class TurnResponseEventPayloadTest {
                             .build()
                     )
                     .stepId("step_id")
-                    .stepType(
-                        TurnResponseEventPayload.AgentTurnResponseStepCompletePayload.StepType
-                            .INFERENCE
-                    )
+                    .stepType(TurnResponseEventPayload.StepComplete.StepType.INFERENCE)
                     .build()
             )
 
@@ -208,32 +186,25 @@ internal class TurnResponseEventPayloadTest {
     }
 
     @Test
-    fun ofAgentTurnResponseTurnStart() {
-        val agentTurnResponseTurnStart =
-            TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
-                .turnId("turn_id")
-                .build()
+    fun ofStart() {
+        val start = TurnResponseEventPayload.TurnStart.builder().turnId("turn_id").build()
 
-        val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseTurnStart(agentTurnResponseTurnStart)
+        val turnResponseEventPayload = TurnResponseEventPayload.ofStart(start)
 
-        assertThat(turnResponseEventPayload.agentTurnResponseStepStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepProgress()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnStart())
-            .isEqualTo(agentTurnResponseTurnStart)
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnAwaitingInput()).isNull()
+        assertThat(turnResponseEventPayload.stepStart()).isNull()
+        assertThat(turnResponseEventPayload.stepProgress()).isNull()
+        assertThat(turnResponseEventPayload.stepComplete()).isNull()
+        assertThat(turnResponseEventPayload.start()).isEqualTo(start)
+        assertThat(turnResponseEventPayload.complete()).isNull()
+        assertThat(turnResponseEventPayload.awaitingInput()).isNull()
     }
 
     @Test
-    fun ofAgentTurnResponseTurnStartRoundtrip() {
+    fun ofStartRoundtrip() {
         val jsonMapper = jsonMapper()
         val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseTurnStart(
-                TurnResponseEventPayload.AgentTurnResponseTurnStartPayload.builder()
-                    .turnId("turn_id")
-                    .build()
+            TurnResponseEventPayload.ofStart(
+                TurnResponseEventPayload.TurnStart.builder().turnId("turn_id").build()
             )
 
         val roundtrippedTurnResponseEventPayload =
@@ -246,9 +217,9 @@ internal class TurnResponseEventPayloadTest {
     }
 
     @Test
-    fun ofAgentTurnResponseTurnComplete() {
-        val agentTurnResponseTurnComplete =
-            TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
+    fun ofComplete() {
+        val complete =
+            TurnResponseEventPayload.TurnComplete.builder()
                 .turn(
                     Turn.builder()
                         .addInputMessage(
@@ -304,24 +275,22 @@ internal class TurnResponseEventPayloadTest {
                 )
                 .build()
 
-        val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseTurnComplete(agentTurnResponseTurnComplete)
+        val turnResponseEventPayload = TurnResponseEventPayload.ofComplete(complete)
 
-        assertThat(turnResponseEventPayload.agentTurnResponseStepStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepProgress()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnComplete())
-            .isEqualTo(agentTurnResponseTurnComplete)
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnAwaitingInput()).isNull()
+        assertThat(turnResponseEventPayload.stepStart()).isNull()
+        assertThat(turnResponseEventPayload.stepProgress()).isNull()
+        assertThat(turnResponseEventPayload.stepComplete()).isNull()
+        assertThat(turnResponseEventPayload.start()).isNull()
+        assertThat(turnResponseEventPayload.complete()).isEqualTo(complete)
+        assertThat(turnResponseEventPayload.awaitingInput()).isNull()
     }
 
     @Test
-    fun ofAgentTurnResponseTurnCompleteRoundtrip() {
+    fun ofCompleteRoundtrip() {
         val jsonMapper = jsonMapper()
         val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseTurnComplete(
-                TurnResponseEventPayload.AgentTurnResponseTurnCompletePayload.builder()
+            TurnResponseEventPayload.ofComplete(
+                TurnResponseEventPayload.TurnComplete.builder()
                     .turn(
                         Turn.builder()
                             .addInputMessage(
@@ -388,9 +357,9 @@ internal class TurnResponseEventPayloadTest {
     }
 
     @Test
-    fun ofAgentTurnResponseTurnAwaitingInput() {
-        val agentTurnResponseTurnAwaitingInput =
-            TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()
+    fun ofAwaitingInput() {
+        val awaitingInput =
+            TurnResponseEventPayload.TurnAwaitingInput.builder()
                 .turn(
                     Turn.builder()
                         .addInputMessage(
@@ -446,26 +415,22 @@ internal class TurnResponseEventPayloadTest {
                 )
                 .build()
 
-        val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseTurnAwaitingInput(
-                agentTurnResponseTurnAwaitingInput
-            )
+        val turnResponseEventPayload = TurnResponseEventPayload.ofAwaitingInput(awaitingInput)
 
-        assertThat(turnResponseEventPayload.agentTurnResponseStepStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepProgress()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseStepComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnStart()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnComplete()).isNull()
-        assertThat(turnResponseEventPayload.agentTurnResponseTurnAwaitingInput())
-            .isEqualTo(agentTurnResponseTurnAwaitingInput)
+        assertThat(turnResponseEventPayload.stepStart()).isNull()
+        assertThat(turnResponseEventPayload.stepProgress()).isNull()
+        assertThat(turnResponseEventPayload.stepComplete()).isNull()
+        assertThat(turnResponseEventPayload.start()).isNull()
+        assertThat(turnResponseEventPayload.complete()).isNull()
+        assertThat(turnResponseEventPayload.awaitingInput()).isEqualTo(awaitingInput)
     }
 
     @Test
-    fun ofAgentTurnResponseTurnAwaitingInputRoundtrip() {
+    fun ofAwaitingInputRoundtrip() {
         val jsonMapper = jsonMapper()
         val turnResponseEventPayload =
-            TurnResponseEventPayload.ofAgentTurnResponseTurnAwaitingInput(
-                TurnResponseEventPayload.AgentTurnResponseTurnAwaitingInputPayload.builder()
+            TurnResponseEventPayload.ofAwaitingInput(
+                TurnResponseEventPayload.TurnAwaitingInput.builder()
                     .turn(
                         Turn.builder()
                             .addInputMessage(

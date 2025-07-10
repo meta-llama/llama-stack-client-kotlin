@@ -4,7 +4,6 @@ package com.llama.llamastack.services.async
 
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
-import com.llama.llamastack.models.ProviderRetrieveParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -19,10 +18,7 @@ internal class ProviderServiceAsyncTest {
                 .build()
         val providerServiceAsync = client.providers()
 
-        val providerInfo =
-            providerServiceAsync.retrieve(
-                ProviderRetrieveParams.builder().providerId("provider_id").build()
-            )
+        val providerInfo = providerServiceAsync.retrieve("provider_id")
 
         providerInfo.validate()
     }

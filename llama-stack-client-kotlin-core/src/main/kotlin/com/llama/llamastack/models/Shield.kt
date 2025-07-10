@@ -21,9 +21,9 @@ class Shield
 private constructor(
     private val identifier: JsonField<String>,
     private val providerId: JsonField<String>,
-    private val providerResourceId: JsonField<String>,
     private val type: JsonValue,
     private val params: JsonField<Params>,
+    private val providerResourceId: JsonField<String>,
     private val additionalProperties: MutableMap<String, JsonValue>,
 ) {
 
@@ -35,12 +35,12 @@ private constructor(
         @JsonProperty("provider_id")
         @ExcludeMissing
         providerId: JsonField<String> = JsonMissing.of(),
+        @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
+        @JsonProperty("params") @ExcludeMissing params: JsonField<Params> = JsonMissing.of(),
         @JsonProperty("provider_resource_id")
         @ExcludeMissing
         providerResourceId: JsonField<String> = JsonMissing.of(),
-        @JsonProperty("type") @ExcludeMissing type: JsonValue = JsonMissing.of(),
-        @JsonProperty("params") @ExcludeMissing params: JsonField<Params> = JsonMissing.of(),
-    ) : this(identifier, providerId, providerResourceId, type, params, mutableMapOf())
+    ) : this(identifier, providerId, type, params, providerResourceId, mutableMapOf())
 
     /**
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
@@ -53,12 +53,6 @@ private constructor(
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun providerId(): String = providerId.getRequired("provider_id")
-
-    /**
-     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
-     *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
-     */
-    fun providerResourceId(): String = providerResourceId.getRequired("provider_resource_id")
 
     /**
      * Expected to always return the following:
@@ -78,6 +72,12 @@ private constructor(
     fun params(): Params? = params.getNullable("params")
 
     /**
+     * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
+     *   if the server responded with an unexpected value).
+     */
+    fun providerResourceId(): String? = providerResourceId.getNullable("provider_resource_id")
+
+    /**
      * Returns the raw JSON value of [identifier].
      *
      * Unlike [identifier], this method doesn't throw if the JSON field has an unexpected type.
@@ -92,6 +92,13 @@ private constructor(
     @JsonProperty("provider_id") @ExcludeMissing fun _providerId(): JsonField<String> = providerId
 
     /**
+     * Returns the raw JSON value of [params].
+     *
+     * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
+     */
+    @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
+
+    /**
      * Returns the raw JSON value of [providerResourceId].
      *
      * Unlike [providerResourceId], this method doesn't throw if the JSON field has an unexpected
@@ -100,13 +107,6 @@ private constructor(
     @JsonProperty("provider_resource_id")
     @ExcludeMissing
     fun _providerResourceId(): JsonField<String> = providerResourceId
-
-    /**
-     * Returns the raw JSON value of [params].
-     *
-     * Unlike [params], this method doesn't throw if the JSON field has an unexpected type.
-     */
-    @JsonProperty("params") @ExcludeMissing fun _params(): JsonField<Params> = params
 
     @JsonAnySetter
     private fun putAdditionalProperty(key: String, value: JsonValue) {
@@ -129,7 +129,6 @@ private constructor(
          * ```kotlin
          * .identifier()
          * .providerId()
-         * .providerResourceId()
          * ```
          */
         fun builder() = Builder()
@@ -140,17 +139,17 @@ private constructor(
 
         private var identifier: JsonField<String>? = null
         private var providerId: JsonField<String>? = null
-        private var providerResourceId: JsonField<String>? = null
         private var type: JsonValue = JsonValue.from("shield")
         private var params: JsonField<Params> = JsonMissing.of()
+        private var providerResourceId: JsonField<String> = JsonMissing.of()
         private var additionalProperties: MutableMap<String, JsonValue> = mutableMapOf()
 
         internal fun from(shield: Shield) = apply {
             identifier = shield.identifier
             providerId = shield.providerId
-            providerResourceId = shield.providerResourceId
             type = shield.type
             params = shield.params
+            providerResourceId = shield.providerResourceId
             additionalProperties = shield.additionalProperties.toMutableMap()
         }
 
@@ -176,20 +175,6 @@ private constructor(
          */
         fun providerId(providerId: JsonField<String>) = apply { this.providerId = providerId }
 
-        fun providerResourceId(providerResourceId: String) =
-            providerResourceId(JsonField.of(providerResourceId))
-
-        /**
-         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
-         *
-         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
-         * instead. This method is primarily for setting the field to an undocumented or not yet
-         * supported value.
-         */
-        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
-            this.providerResourceId = providerResourceId
-        }
-
         /**
          * Sets the field to an arbitrary JSON value.
          *
@@ -213,6 +198,20 @@ private constructor(
          * method is primarily for setting the field to an undocumented or not yet supported value.
          */
         fun params(params: JsonField<Params>) = apply { this.params = params }
+
+        fun providerResourceId(providerResourceId: String) =
+            providerResourceId(JsonField.of(providerResourceId))
+
+        /**
+         * Sets [Builder.providerResourceId] to an arbitrary JSON value.
+         *
+         * You should usually call [Builder.providerResourceId] with a well-typed [String] value
+         * instead. This method is primarily for setting the field to an undocumented or not yet
+         * supported value.
+         */
+        fun providerResourceId(providerResourceId: JsonField<String>) = apply {
+            this.providerResourceId = providerResourceId
+        }
 
         fun additionalProperties(additionalProperties: Map<String, JsonValue>) = apply {
             this.additionalProperties.clear()
@@ -242,7 +241,6 @@ private constructor(
          * ```kotlin
          * .identifier()
          * .providerId()
-         * .providerResourceId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -251,9 +249,9 @@ private constructor(
             Shield(
                 checkRequired("identifier", identifier),
                 checkRequired("providerId", providerId),
-                checkRequired("providerResourceId", providerResourceId),
                 type,
                 params,
+                providerResourceId,
                 additionalProperties.toMutableMap(),
             )
     }
@@ -267,13 +265,13 @@ private constructor(
 
         identifier()
         providerId()
-        providerResourceId()
         _type().let {
             if (it != JsonValue.from("shield")) {
                 throw LlamaStackClientInvalidDataException("'type' is invalid, received $it")
             }
         }
         params()?.validate()
+        providerResourceId()
         validated = true
     }
 
@@ -293,9 +291,9 @@ private constructor(
     internal fun validity(): Int =
         (if (identifier.asKnown() == null) 0 else 1) +
             (if (providerId.asKnown() == null) 0 else 1) +
-            (if (providerResourceId.asKnown() == null) 0 else 1) +
             type.let { if (it == JsonValue.from("shield")) 1 else 0 } +
-            (params.asKnown()?.validity() ?: 0)
+            (params.asKnown()?.validity() ?: 0) +
+            (if (providerResourceId.asKnown() == null) 0 else 1)
 
     class Params
     @JsonCreator
@@ -401,15 +399,15 @@ private constructor(
             return true
         }
 
-        return /* spotless:off */ other is Shield && identifier == other.identifier && providerId == other.providerId && providerResourceId == other.providerResourceId && type == other.type && params == other.params && additionalProperties == other.additionalProperties /* spotless:on */
+        return /* spotless:off */ other is Shield && identifier == other.identifier && providerId == other.providerId && type == other.type && params == other.params && providerResourceId == other.providerResourceId && additionalProperties == other.additionalProperties /* spotless:on */
     }
 
     /* spotless:off */
-    private val hashCode: Int by lazy { Objects.hash(identifier, providerId, providerResourceId, type, params, additionalProperties) }
+    private val hashCode: Int by lazy { Objects.hash(identifier, providerId, type, params, providerResourceId, additionalProperties) }
     /* spotless:on */
 
     override fun hashCode(): Int = hashCode
 
     override fun toString() =
-        "Shield{identifier=$identifier, providerId=$providerId, providerResourceId=$providerResourceId, type=$type, params=$params, additionalProperties=$additionalProperties}"
+        "Shield{identifier=$identifier, providerId=$providerId, type=$type, params=$params, providerResourceId=$providerResourceId, additionalProperties=$additionalProperties}"
 }

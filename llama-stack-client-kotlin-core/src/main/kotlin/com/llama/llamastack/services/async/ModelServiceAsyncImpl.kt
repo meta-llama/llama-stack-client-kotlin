@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.emptyHandler
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
@@ -32,6 +33,9 @@ class ModelServiceAsyncImpl internal constructor(private val clientOptions: Clie
     }
 
     override fun withRawResponse(): ModelServiceAsync.WithRawResponse = withRawResponse
+
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): ModelServiceAsync =
+        ModelServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
 
     override suspend fun retrieve(
         params: ModelRetrieveParams,
@@ -64,6 +68,13 @@ class ModelServiceAsyncImpl internal constructor(private val clientOptions: Clie
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): ModelServiceAsync.WithRawResponse =
+            ModelServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<Model> =
             jsonHandler<Model>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -71,9 +82,13 @@ class ModelServiceAsyncImpl internal constructor(private val clientOptions: Clie
             params: ModelRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<Model> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("modelId", params.modelId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models", params._pathParam(0))
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -101,6 +116,7 @@ class ModelServiceAsyncImpl internal constructor(private val clientOptions: Clie
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -128,6 +144,7 @@ class ModelServiceAsyncImpl internal constructor(private val clientOptions: Clie
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -152,9 +169,13 @@ class ModelServiceAsyncImpl internal constructor(private val clientOptions: Clie
             params: ModelUnregisterParams,
             requestOptions: RequestOptions,
         ): HttpResponse {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("modelId", params.modelId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.DELETE)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "models", params._pathParam(0))
                     .apply { params._body()?.let { body(json(clientOptions.jsonMapper, it)) } }
                     .build()

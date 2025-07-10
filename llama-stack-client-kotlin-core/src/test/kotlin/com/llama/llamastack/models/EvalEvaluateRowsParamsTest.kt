@@ -15,11 +15,11 @@ internal class EvalEvaluateRowsParamsTest {
             .benchmarkConfig(
                 BenchmarkConfig.builder()
                     .evalCandidate(
-                        EvalCandidate.ModelCandidate.builder()
+                        EvalCandidate.Model.builder()
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyGreedy()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .addStop("string")
@@ -34,10 +34,10 @@ internal class EvalEvaluateRowsParamsTest {
                                 "foo",
                                 JsonValue.from(
                                     mapOf(
-                                        "judge_model" to "judge_model",
-                                        "type" to "llm_as_judge",
                                         "aggregation_functions" to listOf("average"),
+                                        "judge_model" to "judge_model",
                                         "judge_score_regexes" to listOf("string"),
+                                        "type" to "llm_as_judge",
                                         "prompt_template" to "prompt_template",
                                     )
                                 ),
@@ -64,11 +64,9 @@ internal class EvalEvaluateRowsParamsTest {
                 .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
+                            EvalCandidate.Model.builder()
                                 .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
+                                .samplingParams(SamplingParams.builder().strategyGreedy().build())
                                 .build()
                         )
                         .scoringParams(
@@ -77,7 +75,9 @@ internal class EvalEvaluateRowsParamsTest {
                                     "foo",
                                     JsonValue.from(
                                         mapOf(
+                                            "aggregation_functions" to listOf("average"),
                                             "judge_model" to "judge_model",
+                                            "judge_score_regexes" to listOf("string"),
                                             "type" to "llm_as_judge",
                                         )
                                     ),
@@ -107,11 +107,11 @@ internal class EvalEvaluateRowsParamsTest {
                 .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
+                            EvalCandidate.Model.builder()
                                 .model("model")
                                 .samplingParams(
                                     SamplingParams.builder()
-                                        .strategyGreedySampling()
+                                        .strategyGreedy()
                                         .maxTokens(0L)
                                         .repetitionPenalty(0.0)
                                         .addStop("string")
@@ -126,10 +126,10 @@ internal class EvalEvaluateRowsParamsTest {
                                     "foo",
                                     JsonValue.from(
                                         mapOf(
-                                            "judge_model" to "judge_model",
-                                            "type" to "llm_as_judge",
                                             "aggregation_functions" to listOf("average"),
+                                            "judge_model" to "judge_model",
                                             "judge_score_regexes" to listOf("string"),
+                                            "type" to "llm_as_judge",
                                             "prompt_template" to "prompt_template",
                                         )
                                     ),
@@ -153,11 +153,11 @@ internal class EvalEvaluateRowsParamsTest {
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
-                        EvalCandidate.ModelCandidate.builder()
+                        EvalCandidate.Model.builder()
                             .model("model")
                             .samplingParams(
                                 SamplingParams.builder()
-                                    .strategyGreedySampling()
+                                    .strategyGreedy()
                                     .maxTokens(0L)
                                     .repetitionPenalty(0.0)
                                     .addStop("string")
@@ -172,10 +172,10 @@ internal class EvalEvaluateRowsParamsTest {
                                 "foo",
                                 JsonValue.from(
                                     mapOf(
-                                        "judge_model" to "judge_model",
-                                        "type" to "llm_as_judge",
                                         "aggregation_functions" to listOf("average"),
+                                        "judge_model" to "judge_model",
                                         "judge_score_regexes" to listOf("string"),
+                                        "type" to "llm_as_judge",
                                         "prompt_template" to "prompt_template",
                                     )
                                 ),
@@ -202,11 +202,9 @@ internal class EvalEvaluateRowsParamsTest {
                 .benchmarkConfig(
                     BenchmarkConfig.builder()
                         .evalCandidate(
-                            EvalCandidate.ModelCandidate.builder()
+                            EvalCandidate.Model.builder()
                                 .model("model")
-                                .samplingParams(
-                                    SamplingParams.builder().strategyGreedySampling().build()
-                                )
+                                .samplingParams(SamplingParams.builder().strategyGreedy().build())
                                 .build()
                         )
                         .scoringParams(
@@ -215,7 +213,9 @@ internal class EvalEvaluateRowsParamsTest {
                                     "foo",
                                     JsonValue.from(
                                         mapOf(
+                                            "aggregation_functions" to listOf("average"),
                                             "judge_model" to "judge_model",
+                                            "judge_score_regexes" to listOf("string"),
                                             "type" to "llm_as_judge",
                                         )
                                     ),
@@ -238,11 +238,9 @@ internal class EvalEvaluateRowsParamsTest {
             .isEqualTo(
                 BenchmarkConfig.builder()
                     .evalCandidate(
-                        EvalCandidate.ModelCandidate.builder()
+                        EvalCandidate.Model.builder()
                             .model("model")
-                            .samplingParams(
-                                SamplingParams.builder().strategyGreedySampling().build()
-                            )
+                            .samplingParams(SamplingParams.builder().strategyGreedy().build())
                             .build()
                     )
                     .scoringParams(
@@ -250,7 +248,12 @@ internal class EvalEvaluateRowsParamsTest {
                             .putAdditionalProperty(
                                 "foo",
                                 JsonValue.from(
-                                    mapOf("judge_model" to "judge_model", "type" to "llm_as_judge")
+                                    mapOf(
+                                        "aggregation_functions" to listOf("average"),
+                                        "judge_model" to "judge_model",
+                                        "judge_score_regexes" to listOf("string"),
+                                        "type" to "llm_as_judge",
+                                    )
                                 ),
                             )
                             .build()

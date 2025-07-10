@@ -19,6 +19,7 @@ import com.llama.llamastack.errors.LlamaStackClientInvalidDataException
 import java.util.Collections
 import java.util.Objects
 
+/** Query chunks from a vector database. */
 class VectorIoQueryParams
 private constructor(
     private val body: Body,
@@ -27,7 +28,7 @@ private constructor(
 ) : Params {
 
     /**
-     * A image content item
+     * The query to search for.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
@@ -35,12 +36,16 @@ private constructor(
     fun query(): InterleavedContent = body.query()
 
     /**
+     * The identifier of the vector database to query.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
      */
     fun vectorDbId(): String = body.vectorDbId()
 
     /**
+     * The parameters of the query.
+     *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
      */
@@ -113,7 +118,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
-        /** A image content item */
+        /** The query to search for. */
         fun query(query: InterleavedContent) = apply { body.query(query) }
 
         /**
@@ -145,6 +150,7 @@ private constructor(
         /** Alias for calling [query] with `InterleavedContent.ofItems(items)`. */
         fun queryOfItems(items: List<InterleavedContentItem>) = apply { body.queryOfItems(items) }
 
+        /** The identifier of the vector database to query. */
         fun vectorDbId(vectorDbId: String) = apply { body.vectorDbId(vectorDbId) }
 
         /**
@@ -156,6 +162,7 @@ private constructor(
          */
         fun vectorDbId(vectorDbId: JsonField<String>) = apply { body.vectorDbId(vectorDbId) }
 
+        /** The parameters of the query. */
         fun params(params: Params) = apply { body.params(params) }
 
         /**
@@ -330,7 +337,7 @@ private constructor(
         ) : this(query, vectorDbId, params, mutableMapOf())
 
         /**
-         * A image content item
+         * The query to search for.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
@@ -339,6 +346,8 @@ private constructor(
         fun query(): InterleavedContent = query.getRequired("query")
 
         /**
+         * The identifier of the vector database to query.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
          *   value).
@@ -346,6 +355,8 @@ private constructor(
         fun vectorDbId(): String = vectorDbId.getRequired("vector_db_id")
 
         /**
+         * The parameters of the query.
+         *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
          */
@@ -415,7 +426,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            /** A image content item */
+            /** The query to search for. */
             fun query(query: InterleavedContent) = query(JsonField.of(query))
 
             /**
@@ -448,6 +459,7 @@ private constructor(
             fun queryOfItems(items: List<InterleavedContentItem>) =
                 query(InterleavedContent.ofItems(items))
 
+            /** The identifier of the vector database to query. */
             fun vectorDbId(vectorDbId: String) = vectorDbId(JsonField.of(vectorDbId))
 
             /**
@@ -459,6 +471,7 @@ private constructor(
              */
             fun vectorDbId(vectorDbId: JsonField<String>) = apply { this.vectorDbId = vectorDbId }
 
+            /** The parameters of the query. */
             fun params(params: Params) = params(JsonField.of(params))
 
             /**
@@ -561,6 +574,7 @@ private constructor(
             "Body{query=$query, vectorDbId=$vectorDbId, params=$params, additionalProperties=$additionalProperties}"
     }
 
+    /** The parameters of the query. */
     class Params
     @JsonCreator
     private constructor(

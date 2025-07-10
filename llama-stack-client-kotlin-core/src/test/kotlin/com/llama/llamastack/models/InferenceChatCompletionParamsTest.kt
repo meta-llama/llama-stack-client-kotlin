@@ -15,13 +15,13 @@ internal class InferenceChatCompletionParamsTest {
             .modelId("model_id")
             .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
             .jsonSchemaResponseFormat(
-                ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                     .putAdditionalProperty("foo", JsonValue.from(true))
                     .build()
             )
             .samplingParams(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyGreedy()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .addStop("string")
@@ -72,13 +72,13 @@ internal class InferenceChatCompletionParamsTest {
                 .modelId("model_id")
                 .logprobs(InferenceChatCompletionParams.Logprobs.builder().topK(0L).build())
                 .jsonSchemaResponseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                    ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyGreedy()
                         .maxTokens(0L)
                         .repetitionPenalty(0.0)
                         .addStop("string")
@@ -132,9 +132,9 @@ internal class InferenceChatCompletionParamsTest {
         assertThat(body.responseFormat())
             .isEqualTo(
                 ResponseFormat.ofJsonSchema(
-                    ResponseFormat.JsonSchemaResponseFormat.builder()
+                    ResponseFormat.JsonSchema.builder()
                         .jsonSchema(
-                            ResponseFormat.JsonSchemaResponseFormat.JsonSchema.builder()
+                            ResponseFormat.JsonSchema.InnerJsonSchema.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
@@ -144,7 +144,7 @@ internal class InferenceChatCompletionParamsTest {
         assertThat(body.samplingParams())
             .isEqualTo(
                 SamplingParams.builder()
-                    .strategyGreedySampling()
+                    .strategyGreedy()
                     .maxTokens(0L)
                     .repetitionPenalty(0.0)
                     .addStop("string")

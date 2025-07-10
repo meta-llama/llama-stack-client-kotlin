@@ -26,14 +26,13 @@ internal class ToolTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
-                .toolHost(Tool.ToolHost.DISTRIBUTION)
                 .toolgroupId("toolgroup_id")
                 .metadata(
                     Tool.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
+                .providerResourceId("provider_resource_id")
                 .build()
 
         assertThat(tool.description()).isEqualTo("description")
@@ -49,13 +48,12 @@ internal class ToolTest {
                     .build()
             )
         assertThat(tool.providerId()).isEqualTo("provider_id")
-        assertThat(tool.providerResourceId()).isEqualTo("provider_resource_id")
-        assertThat(tool.toolHost()).isEqualTo(Tool.ToolHost.DISTRIBUTION)
         assertThat(tool.toolgroupId()).isEqualTo("toolgroup_id")
         assertThat(tool.metadata())
             .isEqualTo(
                 Tool.Metadata.builder().putAdditionalProperty("foo", JsonValue.from(true)).build()
             )
+        assertThat(tool.providerResourceId()).isEqualTo("provider_resource_id")
     }
 
     @Test
@@ -75,14 +73,13 @@ internal class ToolTest {
                         .build()
                 )
                 .providerId("provider_id")
-                .providerResourceId("provider_resource_id")
-                .toolHost(Tool.ToolHost.DISTRIBUTION)
                 .toolgroupId("toolgroup_id")
                 .metadata(
                     Tool.Metadata.builder()
                         .putAdditionalProperty("foo", JsonValue.from(true))
                         .build()
                 )
+                .providerResourceId("provider_resource_id")
                 .build()
 
         val roundtrippedTool =

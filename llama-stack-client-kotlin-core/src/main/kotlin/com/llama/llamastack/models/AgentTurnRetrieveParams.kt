@@ -13,7 +13,7 @@ class AgentTurnRetrieveParams
 private constructor(
     private val agentId: String,
     private val sessionId: String,
-    private val turnId: String,
+    private val turnId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
@@ -22,7 +22,7 @@ private constructor(
 
     fun sessionId(): String = sessionId
 
-    fun turnId(): String = turnId
+    fun turnId(): String? = turnId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -39,7 +39,6 @@ private constructor(
          * ```kotlin
          * .agentId()
          * .sessionId()
-         * .turnId()
          * ```
          */
         fun builder() = Builder()
@@ -66,7 +65,7 @@ private constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
-        fun turnId(turnId: String) = apply { this.turnId = turnId }
+        fun turnId(turnId: String?) = apply { this.turnId = turnId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -175,7 +174,6 @@ private constructor(
          * ```kotlin
          * .agentId()
          * .sessionId()
-         * .turnId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -184,7 +182,7 @@ private constructor(
             AgentTurnRetrieveParams(
                 checkRequired("agentId", agentId),
                 checkRequired("sessionId", sessionId),
-                checkRequired("turnId", turnId),
+                turnId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -194,7 +192,7 @@ private constructor(
         when (index) {
             0 -> agentId
             1 -> sessionId
-            2 -> turnId
+            2 -> turnId ?: ""
             else -> ""
         }
 

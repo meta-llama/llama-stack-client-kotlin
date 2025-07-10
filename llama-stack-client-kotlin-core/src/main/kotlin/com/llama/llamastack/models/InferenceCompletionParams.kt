@@ -27,7 +27,7 @@ private constructor(
 ) : Params {
 
     /**
-     * The content to generate a completion for
+     * The content to generate a completion for.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or is
      *   unexpectedly missing or null (e.g. if the server responded with an unexpected value).
@@ -52,7 +52,7 @@ private constructor(
     fun logprobs(): Logprobs? = body.logprobs()
 
     /**
-     * (Optional) Grammar specification for guided (structured) decoding
+     * (Optional) Grammar specification for guided (structured) decoding.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
@@ -60,7 +60,7 @@ private constructor(
     fun responseFormat(): ResponseFormat? = body.responseFormat()
 
     /**
-     * (Optional) Parameters to control the sampling strategy
+     * (Optional) Parameters to control the sampling strategy.
      *
      * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type (e.g.
      *   if the server responded with an unexpected value).
@@ -151,7 +151,7 @@ private constructor(
          */
         fun body(body: Body) = apply { this.body = body.toBuilder() }
 
-        /** The content to generate a completion for */
+        /** The content to generate a completion for. */
         fun content(content: InterleavedContent) = apply { body.content(content) }
 
         /**
@@ -212,7 +212,7 @@ private constructor(
          */
         fun logprobs(logprobs: JsonField<Logprobs>) = apply { body.logprobs(logprobs) }
 
-        /** (Optional) Grammar specification for guided (structured) decoding */
+        /** (Optional) Grammar specification for guided (structured) decoding. */
         fun responseFormat(responseFormat: ResponseFormat) = apply {
             body.responseFormat(responseFormat)
         }
@@ -229,40 +229,39 @@ private constructor(
         }
 
         /** Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`. */
-        fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) = apply {
+        fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) = apply {
             body.responseFormat(jsonSchema)
         }
 
         /**
          * Alias for calling [responseFormat] with the following:
          * ```kotlin
-         * ResponseFormat.JsonSchemaResponseFormat.builder()
+         * ResponseFormat.JsonSchema.builder()
          *     .jsonSchema(jsonSchema)
          *     .build()
          * ```
          */
-        fun jsonSchemaResponseFormat(
-            jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-        ) = apply { body.jsonSchemaResponseFormat(jsonSchema) }
+        fun jsonSchemaResponseFormat(jsonSchema: ResponseFormat.JsonSchema.InnerJsonSchema) =
+            apply {
+                body.jsonSchemaResponseFormat(jsonSchema)
+            }
 
         /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-        fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) = apply {
-            body.responseFormat(grammar)
-        }
+        fun responseFormat(grammar: ResponseFormat.Grammar) = apply { body.responseFormat(grammar) }
 
         /**
          * Alias for calling [responseFormat] with the following:
          * ```kotlin
-         * ResponseFormat.GrammarResponseFormat.builder()
+         * ResponseFormat.Grammar.builder()
          *     .bnf(bnf)
          *     .build()
          * ```
          */
-        fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) = apply {
+        fun grammarResponseFormat(bnf: ResponseFormat.Grammar.Bnf) = apply {
             body.grammarResponseFormat(bnf)
         }
 
-        /** (Optional) Parameters to control the sampling strategy */
+        /** (Optional) Parameters to control the sampling strategy. */
         fun samplingParams(samplingParams: SamplingParams) = apply {
             body.samplingParams(samplingParams)
         }
@@ -450,7 +449,7 @@ private constructor(
         ) : this(content, modelId, logprobs, responseFormat, samplingParams, mutableMapOf())
 
         /**
-         * The content to generate a completion for
+         * The content to generate a completion for.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type or
          *   is unexpectedly missing or null (e.g. if the server responded with an unexpected
@@ -477,7 +476,7 @@ private constructor(
         fun logprobs(): Logprobs? = logprobs.getNullable("logprobs")
 
         /**
-         * (Optional) Grammar specification for guided (structured) decoding
+         * (Optional) Grammar specification for guided (structured) decoding.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
@@ -485,7 +484,7 @@ private constructor(
         fun responseFormat(): ResponseFormat? = responseFormat.getNullable("response_format")
 
         /**
-         * (Optional) Parameters to control the sampling strategy
+         * (Optional) Parameters to control the sampling strategy.
          *
          * @throws LlamaStackClientInvalidDataException if the JSON field has an unexpected type
          *   (e.g. if the server responded with an unexpected value).
@@ -580,7 +579,7 @@ private constructor(
                 additionalProperties = body.additionalProperties.toMutableMap()
             }
 
-            /** The content to generate a completion for */
+            /** The content to generate a completion for. */
             fun content(content: InterleavedContent) = content(JsonField.of(content))
 
             /**
@@ -642,7 +641,7 @@ private constructor(
              */
             fun logprobs(logprobs: JsonField<Logprobs>) = apply { this.logprobs = logprobs }
 
-            /** (Optional) Grammar specification for guided (structured) decoding */
+            /** (Optional) Grammar specification for guided (structured) decoding. */
             fun responseFormat(responseFormat: ResponseFormat) =
                 responseFormat(JsonField.of(responseFormat))
 
@@ -660,40 +659,36 @@ private constructor(
             /**
              * Alias for calling [responseFormat] with `ResponseFormat.ofJsonSchema(jsonSchema)`.
              */
-            fun responseFormat(jsonSchema: ResponseFormat.JsonSchemaResponseFormat) =
+            fun responseFormat(jsonSchema: ResponseFormat.JsonSchema) =
                 responseFormat(ResponseFormat.ofJsonSchema(jsonSchema))
 
             /**
              * Alias for calling [responseFormat] with the following:
              * ```kotlin
-             * ResponseFormat.JsonSchemaResponseFormat.builder()
+             * ResponseFormat.JsonSchema.builder()
              *     .jsonSchema(jsonSchema)
              *     .build()
              * ```
              */
-            fun jsonSchemaResponseFormat(
-                jsonSchema: ResponseFormat.JsonSchemaResponseFormat.JsonSchema
-            ) =
-                responseFormat(
-                    ResponseFormat.JsonSchemaResponseFormat.builder().jsonSchema(jsonSchema).build()
-                )
+            fun jsonSchemaResponseFormat(jsonSchema: ResponseFormat.JsonSchema.InnerJsonSchema) =
+                responseFormat(ResponseFormat.JsonSchema.builder().jsonSchema(jsonSchema).build())
 
             /** Alias for calling [responseFormat] with `ResponseFormat.ofGrammar(grammar)`. */
-            fun responseFormat(grammar: ResponseFormat.GrammarResponseFormat) =
+            fun responseFormat(grammar: ResponseFormat.Grammar) =
                 responseFormat(ResponseFormat.ofGrammar(grammar))
 
             /**
              * Alias for calling [responseFormat] with the following:
              * ```kotlin
-             * ResponseFormat.GrammarResponseFormat.builder()
+             * ResponseFormat.Grammar.builder()
              *     .bnf(bnf)
              *     .build()
              * ```
              */
-            fun grammarResponseFormat(bnf: ResponseFormat.GrammarResponseFormat.Bnf) =
-                responseFormat(ResponseFormat.GrammarResponseFormat.builder().bnf(bnf).build())
+            fun grammarResponseFormat(bnf: ResponseFormat.Grammar.Bnf) =
+                responseFormat(ResponseFormat.Grammar.builder().bnf(bnf).build())
 
-            /** (Optional) Parameters to control the sampling strategy */
+            /** (Optional) Parameters to control the sampling strategy. */
             fun samplingParams(samplingParams: SamplingParams) =
                 samplingParams(JsonField.of(samplingParams))
 

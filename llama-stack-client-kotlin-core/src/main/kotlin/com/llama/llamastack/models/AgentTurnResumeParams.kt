@@ -29,7 +29,7 @@ class AgentTurnResumeParams
 private constructor(
     private val agentId: String,
     private val sessionId: String,
-    private val turnId: String,
+    private val turnId: String?,
     private val body: Body,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
@@ -39,7 +39,7 @@ private constructor(
 
     fun sessionId(): String = sessionId
 
-    fun turnId(): String = turnId
+    fun turnId(): String? = turnId
 
     /**
      * The tool call responses to resume the turn with.
@@ -73,7 +73,6 @@ private constructor(
          * ```kotlin
          * .agentId()
          * .sessionId()
-         * .turnId()
          * .toolResponses()
          * ```
          */
@@ -103,7 +102,7 @@ private constructor(
 
         fun sessionId(sessionId: String) = apply { this.sessionId = sessionId }
 
-        fun turnId(turnId: String) = apply { this.turnId = turnId }
+        fun turnId(turnId: String?) = apply { this.turnId = turnId }
 
         /**
          * Sets the entire request body.
@@ -265,7 +264,6 @@ private constructor(
          * ```kotlin
          * .agentId()
          * .sessionId()
-         * .turnId()
          * .toolResponses()
          * ```
          *
@@ -275,7 +273,7 @@ private constructor(
             AgentTurnResumeParams(
                 checkRequired("agentId", agentId),
                 checkRequired("sessionId", sessionId),
-                checkRequired("turnId", turnId),
+                turnId,
                 body.build(),
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
@@ -288,7 +286,7 @@ private constructor(
         when (index) {
             0 -> agentId
             1 -> sessionId
-            2 -> turnId
+            2 -> turnId ?: ""
             else -> ""
         }
 

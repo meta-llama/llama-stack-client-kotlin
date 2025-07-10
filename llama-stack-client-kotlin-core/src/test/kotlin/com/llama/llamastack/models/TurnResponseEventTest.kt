@@ -15,15 +15,11 @@ internal class TurnResponseEventTest {
         val turnResponseEvent =
             TurnResponseEvent.builder()
                 .payload(
-                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload.builder()
+                    TurnResponseEventPayload.StepStart.builder()
                         .stepId("step_id")
-                        .stepType(
-                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.StepType
-                                .INFERENCE
-                        )
+                        .stepType(TurnResponseEventPayload.StepStart.StepType.INFERENCE)
                         .metadata(
-                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.Metadata
-                                .builder()
+                            TurnResponseEventPayload.StepStart.Metadata.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
@@ -33,16 +29,12 @@ internal class TurnResponseEventTest {
 
         assertThat(turnResponseEvent.payload())
             .isEqualTo(
-                TurnResponseEventPayload.ofAgentTurnResponseStepStart(
-                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload.builder()
+                TurnResponseEventPayload.ofStepStart(
+                    TurnResponseEventPayload.StepStart.builder()
                         .stepId("step_id")
-                        .stepType(
-                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.StepType
-                                .INFERENCE
-                        )
+                        .stepType(TurnResponseEventPayload.StepStart.StepType.INFERENCE)
                         .metadata(
-                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.Metadata
-                                .builder()
+                            TurnResponseEventPayload.StepStart.Metadata.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )
@@ -57,15 +49,11 @@ internal class TurnResponseEventTest {
         val turnResponseEvent =
             TurnResponseEvent.builder()
                 .payload(
-                    TurnResponseEventPayload.AgentTurnResponseStepStartPayload.builder()
+                    TurnResponseEventPayload.StepStart.builder()
                         .stepId("step_id")
-                        .stepType(
-                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.StepType
-                                .INFERENCE
-                        )
+                        .stepType(TurnResponseEventPayload.StepStart.StepType.INFERENCE)
                         .metadata(
-                            TurnResponseEventPayload.AgentTurnResponseStepStartPayload.Metadata
-                                .builder()
+                            TurnResponseEventPayload.StepStart.Metadata.builder()
                                 .putAdditionalProperty("foo", JsonValue.from(true))
                                 .build()
                         )

@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a tool by its name. */
 class ToolGetParams
 private constructor(
-    private val toolName: String,
+    private val toolName: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun toolName(): String = toolName
+    fun toolName(): String? = toolName
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [ToolGetParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .toolName()
-         * ```
-         */
+        fun none(): ToolGetParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [ToolGetParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = toolGetParams.additionalQueryParams.toBuilder()
         }
 
-        fun toolName(toolName: String) = apply { this.toolName = toolName }
+        fun toolName(toolName: String?) = apply { this.toolName = toolName }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,25 +148,14 @@ private constructor(
          * Returns an immutable instance of [ToolGetParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .toolName()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): ToolGetParams =
-            ToolGetParams(
-                checkRequired("toolName", toolName),
-                additionalHeaders.build(),
-                additionalQueryParams.build(),
-            )
+            ToolGetParams(toolName, additionalHeaders.build(), additionalQueryParams.build())
     }
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> toolName
+            0 -> toolName ?: ""
             else -> ""
         }
 

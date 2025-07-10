@@ -32,6 +32,9 @@ class PostTrainingServiceAsyncImpl internal constructor(private val clientOption
 
     override fun withRawResponse(): PostTrainingServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): PostTrainingServiceAsync =
+        PostTrainingServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override fun job(): JobServiceAsync = job
 
     override suspend fun preferenceOptimize(
@@ -57,6 +60,13 @@ class PostTrainingServiceAsyncImpl internal constructor(private val clientOption
             JobServiceAsyncImpl.WithRawResponseImpl(clientOptions)
         }
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): PostTrainingServiceAsync.WithRawResponse =
+            PostTrainingServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         override fun job(): JobServiceAsync.WithRawResponse = job
 
         private val preferenceOptimizeHandler: Handler<PostTrainingJob> =
@@ -69,6 +79,7 @@ class PostTrainingServiceAsyncImpl internal constructor(private val clientOption
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "preference-optimize")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()
@@ -96,6 +107,7 @@ class PostTrainingServiceAsyncImpl internal constructor(private val clientOption
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "post-training", "supervised-fine-tune")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

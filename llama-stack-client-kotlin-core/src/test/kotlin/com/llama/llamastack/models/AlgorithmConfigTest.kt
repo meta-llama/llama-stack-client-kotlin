@@ -15,9 +15,9 @@ import org.junit.jupiter.params.provider.EnumSource
 internal class AlgorithmConfigTest {
 
     @Test
-    fun ofLoraFinetuning() {
-        val loraFinetuning =
-            AlgorithmConfig.LoraFinetuningConfig.builder()
+    fun ofLoRa() {
+        val loRa =
+            AlgorithmConfig.LoRa.builder()
                 .alpha(0L)
                 .applyLoraToMlp(true)
                 .applyLoraToOutput(true)
@@ -27,18 +27,18 @@ internal class AlgorithmConfigTest {
                 .useDora(true)
                 .build()
 
-        val algorithmConfig = AlgorithmConfig.ofLoraFinetuning(loraFinetuning)
+        val algorithmConfig = AlgorithmConfig.ofLoRa(loRa)
 
-        assertThat(algorithmConfig.loraFinetuning()).isEqualTo(loraFinetuning)
-        assertThat(algorithmConfig.qatFinetuning()).isNull()
+        assertThat(algorithmConfig.loRa()).isEqualTo(loRa)
+        assertThat(algorithmConfig.qat()).isNull()
     }
 
     @Test
-    fun ofLoraFinetuningRoundtrip() {
+    fun ofLoRaRoundtrip() {
         val jsonMapper = jsonMapper()
         val algorithmConfig =
-            AlgorithmConfig.ofLoraFinetuning(
-                AlgorithmConfig.LoraFinetuningConfig.builder()
+            AlgorithmConfig.ofLoRa(
+                AlgorithmConfig.LoRa.builder()
                     .alpha(0L)
                     .applyLoraToMlp(true)
                     .applyLoraToOutput(true)
@@ -59,28 +59,22 @@ internal class AlgorithmConfigTest {
     }
 
     @Test
-    fun ofQatFinetuning() {
-        val qatFinetuning =
-            AlgorithmConfig.QatFinetuningConfig.builder()
-                .groupSize(0L)
-                .quantizerName("quantizer_name")
-                .build()
+    fun ofQat() {
+        val qat =
+            AlgorithmConfig.Qat.builder().groupSize(0L).quantizerName("quantizer_name").build()
 
-        val algorithmConfig = AlgorithmConfig.ofQatFinetuning(qatFinetuning)
+        val algorithmConfig = AlgorithmConfig.ofQat(qat)
 
-        assertThat(algorithmConfig.loraFinetuning()).isNull()
-        assertThat(algorithmConfig.qatFinetuning()).isEqualTo(qatFinetuning)
+        assertThat(algorithmConfig.loRa()).isNull()
+        assertThat(algorithmConfig.qat()).isEqualTo(qat)
     }
 
     @Test
-    fun ofQatFinetuningRoundtrip() {
+    fun ofQatRoundtrip() {
         val jsonMapper = jsonMapper()
         val algorithmConfig =
-            AlgorithmConfig.ofQatFinetuning(
-                AlgorithmConfig.QatFinetuningConfig.builder()
-                    .groupSize(0L)
-                    .quantizerName("quantizer_name")
-                    .build()
+            AlgorithmConfig.ofQat(
+                AlgorithmConfig.Qat.builder().groupSize(0L).quantizerName("quantizer_name").build()
             )
 
         val roundtrippedAlgorithmConfig =

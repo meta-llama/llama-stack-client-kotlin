@@ -7,6 +7,7 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** List all available providers. */
 class ProviderListParams
 private constructor(
     private val additionalHeaders: Headers,

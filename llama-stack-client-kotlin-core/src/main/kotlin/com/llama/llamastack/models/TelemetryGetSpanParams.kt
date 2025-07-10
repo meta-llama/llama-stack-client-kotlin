@@ -8,17 +8,18 @@ import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a span by its ID. */
 class TelemetryGetSpanParams
 private constructor(
     private val traceId: String,
-    private val spanId: String,
+    private val spanId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
     fun traceId(): String = traceId
 
-    fun spanId(): String = spanId
+    fun spanId(): String? = spanId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -34,7 +35,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .traceId()
-         * .spanId()
          * ```
          */
         fun builder() = Builder()
@@ -57,7 +57,7 @@ private constructor(
 
         fun traceId(traceId: String) = apply { this.traceId = traceId }
 
-        fun spanId(spanId: String) = apply { this.spanId = spanId }
+        fun spanId(spanId: String?) = apply { this.spanId = spanId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -165,7 +165,6 @@ private constructor(
          * The following fields are required:
          * ```kotlin
          * .traceId()
-         * .spanId()
          * ```
          *
          * @throws IllegalStateException if any required field is unset.
@@ -173,7 +172,7 @@ private constructor(
         fun build(): TelemetryGetSpanParams =
             TelemetryGetSpanParams(
                 checkRequired("traceId", traceId),
-                checkRequired("spanId", spanId),
+                spanId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -182,7 +181,7 @@ private constructor(
     fun _pathParam(index: Int): String =
         when (index) {
             0 -> traceId
-            1 -> spanId
+            1 -> spanId ?: ""
             else -> ""
         }
 

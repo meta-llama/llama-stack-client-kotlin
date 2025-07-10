@@ -3,19 +3,19 @@
 package com.llama.llamastack.models
 
 import com.llama.llamastack.core.Params
-import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.http.Headers
 import com.llama.llamastack.core.http.QueryParams
 import java.util.Objects
 
+/** Get a vector database by its identifier. */
 class VectorDbRetrieveParams
 private constructor(
-    private val vectorDbId: String,
+    private val vectorDbId: String?,
     private val additionalHeaders: Headers,
     private val additionalQueryParams: QueryParams,
 ) : Params {
 
-    fun vectorDbId(): String = vectorDbId
+    fun vectorDbId(): String? = vectorDbId
 
     fun _additionalHeaders(): Headers = additionalHeaders
 
@@ -25,14 +25,9 @@ private constructor(
 
     companion object {
 
-        /**
-         * Returns a mutable builder for constructing an instance of [VectorDbRetrieveParams].
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .vectorDbId()
-         * ```
-         */
+        fun none(): VectorDbRetrieveParams = builder().build()
+
+        /** Returns a mutable builder for constructing an instance of [VectorDbRetrieveParams]. */
         fun builder() = Builder()
     }
 
@@ -49,7 +44,7 @@ private constructor(
             additionalQueryParams = vectorDbRetrieveParams.additionalQueryParams.toBuilder()
         }
 
-        fun vectorDbId(vectorDbId: String) = apply { this.vectorDbId = vectorDbId }
+        fun vectorDbId(vectorDbId: String?) = apply { this.vectorDbId = vectorDbId }
 
         fun additionalHeaders(additionalHeaders: Headers) = apply {
             this.additionalHeaders.clear()
@@ -153,17 +148,10 @@ private constructor(
          * Returns an immutable instance of [VectorDbRetrieveParams].
          *
          * Further updates to this [Builder] will not mutate the returned instance.
-         *
-         * The following fields are required:
-         * ```kotlin
-         * .vectorDbId()
-         * ```
-         *
-         * @throws IllegalStateException if any required field is unset.
          */
         fun build(): VectorDbRetrieveParams =
             VectorDbRetrieveParams(
-                checkRequired("vectorDbId", vectorDbId),
+                vectorDbId,
                 additionalHeaders.build(),
                 additionalQueryParams.build(),
             )
@@ -171,7 +159,7 @@ private constructor(
 
     fun _pathParam(index: Int): String =
         when (index) {
-            0 -> vectorDbId
+            0 -> vectorDbId ?: ""
             else -> ""
         }
 

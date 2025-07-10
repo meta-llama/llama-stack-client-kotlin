@@ -5,6 +5,7 @@ package com.llama.llamastack.services.async.agents
 import com.llama.llamastack.core.ClientOptions
 import com.llama.llamastack.core.JsonValue
 import com.llama.llamastack.core.RequestOptions
+import com.llama.llamastack.core.checkRequired
 import com.llama.llamastack.core.handlers.errorHandler
 import com.llama.llamastack.core.handlers.jsonHandler
 import com.llama.llamastack.core.handlers.withErrorHandler
@@ -26,6 +27,9 @@ class StepServiceAsyncImpl internal constructor(private val clientOptions: Clien
 
     override fun withRawResponse(): StepServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): StepServiceAsync =
+        StepServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun retrieve(
         params: AgentStepRetrieveParams,
         requestOptions: RequestOptions,
@@ -38,6 +42,13 @@ class StepServiceAsyncImpl internal constructor(private val clientOptions: Clien
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): StepServiceAsync.WithRawResponse =
+            StepServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val retrieveHandler: Handler<AgentStepRetrieveResponse> =
             jsonHandler<AgentStepRetrieveResponse>(clientOptions.jsonMapper)
                 .withErrorHandler(errorHandler)
@@ -46,9 +57,13 @@ class StepServiceAsyncImpl internal constructor(private val clientOptions: Clien
             params: AgentStepRetrieveParams,
             requestOptions: RequestOptions,
         ): HttpResponseFor<AgentStepRetrieveResponse> {
+            // We check here instead of in the params builder because this can be specified
+            // positionally or in the params class.
+            checkRequired("stepId", params.stepId())
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments(
                         "v1",
                         "agents",

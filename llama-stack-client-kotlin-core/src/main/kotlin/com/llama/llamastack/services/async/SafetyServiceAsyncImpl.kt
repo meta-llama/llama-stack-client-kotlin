@@ -27,6 +27,9 @@ class SafetyServiceAsyncImpl internal constructor(private val clientOptions: Cli
 
     override fun withRawResponse(): SafetyServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): SafetyServiceAsync =
+        SafetyServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun runShield(
         params: SafetyRunShieldParams,
         requestOptions: RequestOptions,
@@ -39,6 +42,13 @@ class SafetyServiceAsyncImpl internal constructor(private val clientOptions: Cli
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): SafetyServiceAsync.WithRawResponse =
+            SafetyServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val runShieldHandler: Handler<RunShieldResponse> =
             jsonHandler<RunShieldResponse>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -49,6 +59,7 @@ class SafetyServiceAsyncImpl internal constructor(private val clientOptions: Cli
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.POST)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "safety", "run-shield")
                     .body(json(clientOptions.jsonMapper, params._body()))
                     .build()

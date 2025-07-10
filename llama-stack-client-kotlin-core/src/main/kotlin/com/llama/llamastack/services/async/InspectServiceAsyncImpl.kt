@@ -28,6 +28,9 @@ class InspectServiceAsyncImpl internal constructor(private val clientOptions: Cl
 
     override fun withRawResponse(): InspectServiceAsync.WithRawResponse = withRawResponse
 
+    override fun withOptions(modifier: (ClientOptions.Builder) -> Unit): InspectServiceAsync =
+        InspectServiceAsyncImpl(clientOptions.toBuilder().apply(modifier).build())
+
     override suspend fun health(
         params: InspectHealthParams,
         requestOptions: RequestOptions,
@@ -47,6 +50,13 @@ class InspectServiceAsyncImpl internal constructor(private val clientOptions: Cl
 
         private val errorHandler: Handler<JsonValue> = errorHandler(clientOptions.jsonMapper)
 
+        override fun withOptions(
+            modifier: (ClientOptions.Builder) -> Unit
+        ): InspectServiceAsync.WithRawResponse =
+            InspectServiceAsyncImpl.WithRawResponseImpl(
+                clientOptions.toBuilder().apply(modifier).build()
+            )
+
         private val healthHandler: Handler<HealthInfo> =
             jsonHandler<HealthInfo>(clientOptions.jsonMapper).withErrorHandler(errorHandler)
 
@@ -57,6 +67,7 @@ class InspectServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "health")
                     .build()
                     .prepareAsync(clientOptions, params)
@@ -83,6 +94,7 @@ class InspectServiceAsyncImpl internal constructor(private val clientOptions: Cl
             val request =
                 HttpRequest.builder()
                     .method(HttpMethod.GET)
+                    .baseUrl(clientOptions.baseUrl())
                     .addPathSegments("v1", "version")
                     .build()
                     .prepareAsync(clientOptions, params)

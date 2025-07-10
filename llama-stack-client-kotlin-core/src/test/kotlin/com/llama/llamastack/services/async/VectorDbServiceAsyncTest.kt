@@ -5,8 +5,6 @@ package com.llama.llamastack.services.async
 import com.llama.llamastack.TestServerExtension
 import com.llama.llamastack.client.okhttp.LlamaStackClientOkHttpClientAsync
 import com.llama.llamastack.models.VectorDbRegisterParams
-import com.llama.llamastack.models.VectorDbRetrieveParams
-import com.llama.llamastack.models.VectorDbUnregisterParams
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -21,10 +19,7 @@ internal class VectorDbServiceAsyncTest {
                 .build()
         val vectorDbServiceAsync = client.vectorDbs()
 
-        val vectorDb =
-            vectorDbServiceAsync.retrieve(
-                VectorDbRetrieveParams.builder().vectorDbId("vector_db_id").build()
-            )
+        val vectorDb = vectorDbServiceAsync.retrieve("vector_db_id")
 
         vectorDb.validate()
     }
@@ -72,8 +67,6 @@ internal class VectorDbServiceAsyncTest {
                 .build()
         val vectorDbServiceAsync = client.vectorDbs()
 
-        vectorDbServiceAsync.unregister(
-            VectorDbUnregisterParams.builder().vectorDbId("vector_db_id").build()
-        )
+        vectorDbServiceAsync.unregister("vector_db_id")
     }
 }
