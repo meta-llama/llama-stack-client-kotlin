@@ -278,31 +278,31 @@ class ExampleLlamaStackLocalInference(
             agentTurnCreateResponseStream.asSequence().forEach {
                 val agentResponsePayload = it.event().payload()
                 when {
-                    agentResponsePayload.isAgentTurnResponseTurnStart() -> {
+                    agentResponsePayload.isStart() -> {
                         // Handle Turn Start Payload
                     }
-                    agentResponsePayload.isAgentTurnResponseStepStart() -> {
+                    agentResponsePayload.isStepStart() -> {
                         // Handle Step Start Payload
                     }
-                    agentResponsePayload.isAgentTurnResponseStepProgress() -> {
+                    agentResponsePayload.isStepProgress() -> {
                         // Handle Step Progress Payload
-                        val result = agentResponsePayload.agentTurnResponseStepProgress()?.delta()?.text()?.text()
+                        val result = agentResponsePayload.stepProgress()?.delta()?.text()?.text()
                         if (result != null) {
                             callback.onStreamReceived(result.toString())
                         }
                     }
-                    agentResponsePayload.isAgentTurnResponseStepComplete() -> {
+                    agentResponsePayload.isStepComplete() -> {
                         // Handle Step Complete Payload
-                        val toolCalls = agentResponsePayload.agentTurnResponseStepComplete()?.stepDetails()?.asInferenceStep()?.modelResponse()?.toolCalls()
+                        val toolCalls = agentResponsePayload.stepComplete()?.stepDetails()?.asInference()?.modelResponse()?.toolCalls()
                         if (!toolCalls.isNullOrEmpty()) {
                             callback.onStreamReceived(functionDispatch(toolCalls, ctx))
                         } else {
-                            tps =  (agentResponsePayload.agentTurnResponseStepComplete()
+                            tps =  (agentResponsePayload.stepComplete()
                                 ?._additionalProperties()?.get("tps") as JsonNumber).value as Float
                             callback.onStatStreamReceived(tps)
                         }
                     }
-                    agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
+                    agentResponsePayload.isComplete() -> {
                         // Handle Turn Complete Payload
                     }
                 }
@@ -411,7 +411,7 @@ class ExampleLlamaStackLocalInference(
                 )
             } else {
                 // Assistant message (aka previous prompt response)
-                inferenceMessage = com.llama.llamastack.models.Message.ofCompletion(
+                inferenceMessage = com.llama.llamastack.models.Message.ofAssistant(
                     com.llama.llamastack.models.CompletionMessage.builder()
                         .content(InterleavedContent.ofString(chat.text))
                         .stopReason(com.llama.llamastack.models.CompletionMessage.StopReason.END_OF_MESSAGE)

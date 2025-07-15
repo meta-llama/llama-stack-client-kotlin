@@ -136,7 +136,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .modelId(modelName)
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(ModelUtils.MAX_TOKENS)
                                 .repetitionPenalty(1.0)
                                 .build()
@@ -174,7 +174,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                         .modelId(modelName)
                         .samplingParams(
                             SamplingParams.builder()
-                                .strategyGreedySampling()
+                                .strategyGreedy()
                                 .maxTokens(ModelUtils.MAX_TOKENS)
                                 .repetitionPenalty(1.0)
                                 .build()
@@ -229,7 +229,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                 )
             } else {
                 // Assistant message (aka previous prompt response)
-                inferenceMessage = com.llama.llamastack.models.Message.ofCompletion(
+                inferenceMessage = com.llama.llamastack.models.Message.ofAssistant(
                     CompletionMessage.builder()
                         .content(InterleavedContent.ofString(chat.text))
                         .stopReason(CompletionMessage.StopReason.END_OF_MESSAGE)
@@ -319,27 +319,27 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
             agentTurnCreateResponseStream.asSequence().forEach {
                 val agentResponsePayload = it.event().payload()
                 when {
-                    agentResponsePayload.isAgentTurnResponseTurnStart() -> {
+                    agentResponsePayload.isStart() -> {
                         // Handle Turn Start Payload
                     }
-                    agentResponsePayload.isAgentTurnResponseStepStart() -> {
+                    agentResponsePayload.isStepStart() -> {
                         // Handle Step Start Payload
                     }
-                    agentResponsePayload.isAgentTurnResponseStepProgress() -> {
+                    agentResponsePayload.isStepProgress() -> {
                         // Handle Step Progress Payload
-                        val result = agentResponsePayload.agentTurnResponseStepProgress()?.delta()?.text()?.text()
+                        val result = agentResponsePayload.stepProgress()?.delta()?.text()?.text()
                         if (result != null) {
                             callback.onStreamReceived(result.toString())
                         }
                     }
-                    agentResponsePayload.isAgentTurnResponseStepComplete() -> {
+                    agentResponsePayload.isStepComplete() -> {
                         // Handle Step Complete Payload
-                        val toolCalls = agentResponsePayload.agentTurnResponseStepComplete()?.stepDetails()?.inferenceStep()?.modelResponse()?.toolCalls()
+                        val toolCalls = agentResponsePayload.stepComplete()?.stepDetails()?.inference()?.modelResponse()?.toolCalls()
                         if (!toolCalls.isNullOrEmpty()) {
                             callback.onStreamReceived("\n" + functionDispatch(toolCalls, ctx))
                         }
                     }
-                    agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
+                    agentResponsePayload.isComplete() -> {
                         // Handle Turn Complete Payload
                     }
                 }
@@ -375,7 +375,7 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                 .model(modelName)
                 .samplingParams(
                     SamplingParams.builder()
-                        .strategyGreedySampling()
+                        .strategyGreedy()
                         .maxTokens(ModelUtils.MAX_TOKENS)
                         .repetitionPenalty(1.0)
                         .build()
@@ -407,11 +407,11 @@ class ExampleLlamaStackRemoteInference(remoteURL: String) {
                     val contentResolver = ctx.contentResolver
                     val imageFilePath = getFilePathFromUri(contentResolver, imageUri)
                     val imageDataUrl = imageFilePath?.let { encodeImageToDataUrl(it) }
-                    val imageUrl = imageDataUrl?.let { InterleavedContentItem.ImageContentItem.Image.Url.builder().uri(it).build() }
+                    val imageUrl = imageDataUrl?.let { InterleavedContentItem.Image.InnerImage.Url.builder().uri(it).build() }
                     val image = InterleavedContentItem.ofImage(
-                        InterleavedContentItem.ImageContentItem
+                        InterleavedContentItem.Image
                             .builder()
-                            .image(InterleavedContentItem.ImageContentItem.Image
+                            .image(InterleavedContentItem.Image.InnerImage
                                 .builder()
                                 .url(imageUrl!!)
                                 .build()
