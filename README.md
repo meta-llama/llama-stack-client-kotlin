@@ -8,9 +8,9 @@ Features:
 - Remote Inferencing: Perform inferencing tasks remotely with Llama models hosted on a remote connection (or serverless localhost).
 - Simple Integration: With easy-to-use APIs, a developer can quickly integrate Llama Stack in their Android app. The difference with local vs remote inferencing is also minimal.
 
-Latest Release Notes: [v0.2.2](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.2.2)
+Latest Release Notes: [v0.2.14](https://github.com/meta-llama/llama-stack-client-kotlin/releases/tag/v0.2.14)
 
-Note: The current recommended version is 0.2.2 Llama Stack server with 0.2.2 Kotlin client SDK.
+Note: The current recommended version is 0.2.14 Llama Stack server with 0.2.14 Kotlin client SDK.
 
 *Tagged releases are stable versions of the project. While we strive to maintain a stable main branch, it's not guaranteed to be free of bugs or issues.*
 
@@ -26,7 +26,7 @@ The key files in the app are `ExampleLlamaStackLocalInference.kt`, `ExampleLlama
 Add the following dependency in your `build.gradle.kts` file:
 ```
 dependencies {
- implementation("com.llama.llamastack:llama-stack-client-kotlin:0.2.2")
+ implementation("com.llama.llamastack:llama-stack-client-kotlin:0.2.14")
 }
 ```
 This will download jar files in your gradle cache in a directory like `~/.gradle/caches/modules-2/files-2.1/com.llama.llamastack/`
@@ -62,9 +62,9 @@ Breaking down the demo app, this section will show the core pieces that are used
 ### Setup Remote Inferencing
 Start a Llama Stack server on localhost. Here is an example of how you can do this using the firework.ai distribution:
 ```
-conda create -n stack-fireworks python=3.10
+conda create -n stack-fireworks python=3.12
 conda activate stack-fireworks
-pip install --no-cache llama-stack==0.2.2
+pip install --no-cache llama-stack==0.2.14
 llama stack build --template fireworks --image-type conda
 export FIREWORKS_API_KEY=<SOME_KEY>
 llama stack run fireworks --port 5050
@@ -103,7 +103,7 @@ client = LlamaStackClientLocalClient
 client = LlamaStackClientOkHttpClient
                 .builder()
                 .baseUrl(remoteURL)
-                .headers(mapOf("x-llamastack-client-version" to listOf("0.1.4.1")))
+                .headers(mapOf("x-llamastack-client-version" to listOf("0.2.14")))
                 .build()
 ```
 </td>
@@ -125,9 +125,7 @@ val agentConfig =
         .model("meta-llama/Llama-3.1-8B-Instruct")
         .samplingParams(
             SamplingParams.builder()
-                .strategy(
-                    SamplingParams.Strategy.ofGreedySampling()
-                )
+                .strategyGreedy()
                 .build()
         )
         .toolChoice(AgentConfig.ToolChoice.AUTO)
@@ -190,19 +188,19 @@ agentTurnCreateResponseStream.use {
         val agentResponsePayload = it.responseStreamChunk()?.event()?.payload()
         if (agentResponsePayload != null) {
             when {
-                agentResponsePayload.isAgentTurnResponseTurnStart() -> {
+                agentResponsePayload.isStart() -> {
                     // Handle Turn Start Payload
                 }
-                agentResponsePayload.isAgentTurnResponseStepStart() -> {
+                agentResponsePayload.isStepStart() -> {
                     // Handle Step Start Payload
                 }
-                agentResponsePayload.isAgentTurnResponseStepProgress() -> {
+                agentResponsePayload.isStepProgress() -> {
                     // Handle Step Progress Payload
                 }
-                agentResponsePayload.isAgentTurnResponseStepComplete() -> {
+                agentResponsePayload.isStepComplete() -> {
                     // Handle Step Complete Payload
                 }
-                agentResponsePayload.isAgentTurnResponseTurnComplete() -> {
+                agentResponsePayload.isComplete() -> {
                     // Handle Turn Complete Payload
                 }
             }
